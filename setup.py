@@ -46,5 +46,8 @@ setup(
         "process-bigraph",
         "scipy",
         "cobra",
+        "imageio",
+        "matplotlib",
+        "numpy",
     ]
 )

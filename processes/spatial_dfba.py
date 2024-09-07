@@ -1,13 +1,11 @@
 import numpy as np
-from process_bigraph import Process, ProcessTypes, Composite
-from process_bigraph.processes.parameter_scan import RunProcess
-import matplotlib.pyplot as plt
-from scipy.ndimage import convolve
+import warnings
 import cobra
 from cobra.io import load_model
-import warnings
-
+from process_bigraph import Process, Composite
+from process_bigraph.processes.parameter_scan import RunProcess
 from processes import core  # import the core from the processes package
+from plot.plot import plot_time_series
 
 
 # Suppress warnings
@@ -226,8 +224,13 @@ def run_dfba_spatial():
     sim = Composite({'state': composite_state}, core=core)
     sim.update({}, 10.0)
 
-    data = sim.gather_results()
-    print(data)
+    dfba_results = sim.gather_results()
+    print(dfba_results)
+
+    plot_time_series(
+        dfba_results,
+        coordinates=[(0, 0), (1, 1), (2, 2)],
+    )
 
 
 if __name__ == '__main__':
