@@ -133,18 +133,24 @@ core.register_process('DynamicFBA', DynamicFBA)
 
 def dfba_config(
         model_file='textbook',
-        kinetic_params={
-            'glucose': (0.5, 1),
-            'acetate': (0.5, 2)},
+        kinetic_params=None,
         biomass_reaction='Biomass_Ecoli_core',
-        substrate_update_reactions={
-            'glucose': 'EX_glc__D_e',
-            'acetate': 'EX_ac_e'},
+        substrate_update_reactions=None,
         biomass_identifier='biomass',
-        bounds={
+        bounds=None
+):
+    if substrate_update_reactions is None:
+        substrate_update_reactions = {
+            'glucose': 'EX_glc__D_e',
+            'acetate': 'EX_ac_e'}
+    if bounds is None:
+        bounds = {
             'EX_o2_e': {'lower': -2, 'upper': None},
             'ATPM': {'lower': 1, 'upper': 1}}
-):
+    if kinetic_params is None:
+        kinetic_params = {
+            'glucose': (0.5, 1),
+            'acetate': (0.5, 2)}
     return {
         'model_file': model_file,
         'kinetic_params': kinetic_params,
@@ -153,27 +159,6 @@ def dfba_config(
         'biomass_identifier': biomass_identifier,
         'bounds': bounds
     }
-
-
-# TODO -- this should be imported, or just part of Process?
-def run_process(
-        address,
-        config,
-        core_type,
-        initial_state,
-        observables,
-        timestep=1,
-        runtime=10
-):
-    config = {
-        'process_address': address,
-        'process_config': config,
-        'observables': observables,
-        'timestep': timestep,
-        'runtime': runtime}
-
-    run = RunProcess(config, core_type)
-    return run.update(initial_state)
 
 
 def run_dfba_spatial():
@@ -221,7 +206,10 @@ def run_dfba_spatial():
         'spatial_dfba': dfba_processes_dict
     }
 
-    sim = Composite({'state': composite_state}, core=core)
+    sim = Composite({
+        'state': composite_state,
+        'emitter': {'mode': 'all'}
+    }, core=core)
     sim.update({}, 10.0)
 
     dfba_results = sim.gather_results()

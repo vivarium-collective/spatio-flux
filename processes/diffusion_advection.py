@@ -2,6 +2,7 @@ import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
 from processes import core  # import the core from the processes package
+from plot.plot import plot_species_distributions_to_gif
 
 
 # Laplacian for 2D diffusion
@@ -166,16 +167,18 @@ def run_diffusion_process():
         }
     }
 
-    sim = Composite({'state': composite_state}, core=core)
-    # sim.add_emitter()
-
+    sim = Composite({
+        'state': composite_state,
+        'emitter': {'mode': 'all'},
+    }, core=core)
     sim.update({}, 10.0)
 
-    data = sim.gather_results()
+    diffadv_results = sim.gather_results()
+    print(diffadv_results)
 
-    print(data)
+    plot_species_distributions_to_gif(diffadv_results, filename='diffadv_results.gif', title='', skip_frames=1)
 
-    
+
 if __name__ == '__main__':
     run_diffusion_process()
 
