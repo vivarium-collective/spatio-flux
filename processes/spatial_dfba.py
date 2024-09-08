@@ -5,7 +5,7 @@ from cobra.io import load_model
 from process_bigraph import Process, Composite
 from process_bigraph.processes.parameter_scan import RunProcess
 from processes import core  # import the core from the processes package
-from plot.plot import plot_time_series
+from plot.plot import plot_time_series, plot_species_distributions_to_gif
 
 
 # Suppress warnings
@@ -162,7 +162,7 @@ def dfba_config(
 
 
 def run_dfba_spatial():
-    n_bins = (3, 3)
+    n_bins = (5, 5)
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -215,9 +215,19 @@ def run_dfba_spatial():
     dfba_results = sim.gather_results()
     # print(dfba_results)
 
+    # plot timeseries
     plot_time_series(
         dfba_results,
         coordinates=[(0, 0), (1, 1), (2, 2)],
+    )
+
+    # make video
+    plot_species_distributions_to_gif(
+        dfba_results,
+        out_dir='out',
+        filename='dfba_results.gif',
+        title='',
+        skip_frames=1
     )
 
 

@@ -2,7 +2,7 @@ import numpy as np
 from process_bigraph import Composite
 from processes.spatial_dfba import dfba_config
 from processes import core
-from plot.plot import plot_time_series
+from plot.plot import plot_time_series, plot_species_distributions_to_gif
 
 
 # TODO -- need to do this to register???
@@ -11,7 +11,7 @@ from processes.diffusion_advection import DiffusionAdvection
 
 
 def run_comets():
-    n_bins = (6, 6)
+    n_bins = (10, 10)
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -91,14 +91,23 @@ def run_comets():
     # save the document
     sim.save(filename='comets.json', outdir='out')
 
-    sim.update({}, 100.0)
+    sim.update({}, 60.0)
     comets_results = sim.gather_results()
+    # print(comets_results)
 
-    print(comets_results)
+    # plot timeseries
     plot_time_series(
         comets_results,
         coordinates=[(0, 0), (5, 5)],
     )
+
+    # plot 2d video
+    plot_species_distributions_to_gif(
+        comets_results,
+        out_dir='out',
+        filename='comets_results.gif',
+        title='',
+        skip_frames=1)
 
 
 if __name__ == '__main__':

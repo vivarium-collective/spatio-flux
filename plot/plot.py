@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import imageio.v2 as imageio
@@ -24,7 +25,11 @@ def sort_results(results):
     return sorted_results
 
 
-def plot_time_series(results, field_names=None, coordinates=None):
+def plot_time_series(
+        results,
+        field_names=None,
+        coordinates=None
+):
     """
     Plots time series for specified fields and coordinates from the results dictionary.
 
@@ -66,7 +71,11 @@ def plot_time_series(results, field_names=None, coordinates=None):
     plt.show()
 
 
-def plot_snapshots(results, field_names, times):
+def plot_snapshots(
+        results,
+        field_names,
+        times
+):
     """
     Plots snapshots of specified fields at specified times from the results dictionary.
 
@@ -108,7 +117,14 @@ def plot_snapshots(results, field_names, times):
     plt.show()
 
 
-def plot_species_distributions_to_gif(results, filename='species_distribution.gif', title='', skip_frames=1):
+def plot_species_distributions_to_gif(
+        results,
+        out_dir=None,
+        filename='species_distribution.gif',
+        title='',
+        skip_frames=1
+):
+    # Sort the results as before
     sorted_results = sort_results(results)
     species_names = [key for key in sorted_results['fields'].keys()]
     n_species = len(species_names)
@@ -135,7 +151,7 @@ def plot_species_distributions_to_gif(results, filename='species_distribution.gi
             plt.colorbar(img, ax=ax)
 
         fig.suptitle(title, fontsize=16)
-        plt.subplots_adjust(wspace=0.05, hspace=0.2)  # Adjust subplot spacing
+        plt.subplots_adjust(wspace=0.05, hspace=0.2)
         plt.tight_layout(pad=0.2)
 
         # Save the current figure to a temporary buffer
@@ -146,11 +162,19 @@ def plot_species_distributions_to_gif(results, filename='species_distribution.gi
         buf.close()
         plt.close(fig)
 
+    # Create the output directory if not exists
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+    else:
+        filepath = filename
+
     # Create and save the GIF with loop=0 for infinite loop
-    imageio.mimsave(filename, images, duration=0.5, loop=0)
+    imageio.mimsave(filepath, images, duration=0.5, loop=0)
 
     # Optionally display the GIF in a Jupyter notebook
-    with open(filename, 'rb') as file:
+    with open(filepath, 'rb') as file:
         data = file.read()
         data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
     display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
+

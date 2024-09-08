@@ -127,7 +127,7 @@ core.register_process('DiffusionAdvection', DiffusionAdvection)
 
 
 def run_diffusion_process():
-    n_bins = (4, 4)
+    n_bins = (10, 10)
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -171,13 +171,15 @@ def run_diffusion_process():
         'state': composite_state,
         'emitter': {'mode': 'all'},
     }, core=core)
-    sim.update({}, 10.0)
+    sim.update({}, 60.0)
 
     diffadv_results = sim.gather_results()
     # print(diffadv_results)
 
+    # plot 2d video
     plot_species_distributions_to_gif(
         diffadv_results,
+        out_dir='out',
         filename='diffadv_results.gif',
         title='',
         skip_frames=1
