@@ -1,3 +1,7 @@
+"""
+Diffusion-Advection Process
+"""
+
 import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
@@ -123,6 +127,7 @@ class DiffusionAdvection(Process):
 
         return updated_state - state
 
+
 core.register_process('DiffusionAdvection', DiffusionAdvection)
 
 
@@ -171,8 +176,14 @@ def run_diffusion_process():
         'state': composite_state,
         'emitter': {'mode': 'all'},
     }, core=core)
+
+    # save the document
+    sim.save(filename='diffadv.json', outdir='out')
+
+    # simulate
     sim.update({}, 60.0)
 
+    # gather results
     diffadv_results = sim.gather_results()
     # print(diffadv_results)
 

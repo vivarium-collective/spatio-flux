@@ -1,3 +1,7 @@
+"""
+Dynamic FBA simulation in a spatial context.
+"""
+
 import numpy as np
 import warnings
 import cobra
@@ -6,7 +10,6 @@ from process_bigraph import Process, Composite
 from process_bigraph.processes.parameter_scan import RunProcess
 from processes import core  # import the core from the processes package
 from plot.plot import plot_time_series, plot_species_distributions_to_gif
-
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
@@ -31,7 +34,6 @@ bounds_type = {
     'upper': 'maybe[float]'
 }
 core.register_process('bounds', bounds_type)
-
 
 # TODO -- check the function signature of the apply method and report missing keys upon registration
 
@@ -127,6 +129,7 @@ class DynamicFBA(Process):
             'substrates': substrate_update,
         }
 
+
 # register the process
 core.register_process('DynamicFBA', DynamicFBA)
 
@@ -210,8 +213,14 @@ def run_dfba_spatial():
         'state': composite_state,
         'emitter': {'mode': 'all'}
     }, core=core)
+
+    # save the document
+    sim.save(filename='spatial_dfba.json', outdir='out')
+
+    # simulate
     sim.update({}, 60.0)
 
+    # gather results
     dfba_results = sim.gather_results()
     # print(dfba_results)
 
@@ -225,7 +234,7 @@ def run_dfba_spatial():
     plot_species_distributions_to_gif(
         dfba_results,
         out_dir='out',
-        filename='dfba_results.gif',
+        filename='out/dfba_results.gif',
         title='',
         skip_frames=1
     )
