@@ -6,7 +6,7 @@ import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
 from processes import core  # import the core from the processes package
-from plot.plot import plot_species_distributions_to_gif
+from plot.fields import plot_species_distributions_to_gif
 
 
 # Laplacian for 2D diffusion

@@ -1,8 +1,11 @@
-
+"""
+Particles process
+"""
+import uuid
 import numpy as np
 from process_bigraph import Process, Composite
 from processes import core  # import the core from the processes package
-import uuid
+from plot.particles import plot_particles
 
 
 class Particles(Process):
@@ -51,7 +54,7 @@ class Particles(Process):
     def update(self, state, interval):
         particles = state['particles']
 
-        new_particles = {}
+        new_particles = []
         for particle in particles:
             # Apply diffusion and advection
             dx, dy = np.random.normal(0, particle['diffusion_rate'], 2) + particle['advection']
@@ -73,7 +76,7 @@ class Particles(Process):
             particle['position'][0] = new_x_position
             particle['position'][1] = new_y_position
 
-            new_particles[particle['id']] = particle
+            new_particles.append(particle)
 
         return {
             'particles': new_particles,
@@ -124,7 +127,6 @@ def initialize_particles(n_particles_per_species, env_size, diffusion_rates, adv
 def run_particles(
     total_time=100,  # Total frames
 ):
-
 
     # initialize particles
     n_particles_per_species = [10, 10, 10]  # Number of particles per species
@@ -178,10 +180,20 @@ def run_particles(
 
     # gather results
     particles_results = sim.gather_results()
-    print(particles_results)
+    particles_results = particles_results[('emitter',)]
 
-    # plot particles
+    particles_history = [p['particles'] for p in particles_results]
+    # print(particles_history)
+
     x = 0
+    # plot particles
+    plot_particles(
+        total_time=total_time,
+        history=particles_history,
+        env_size=((0, n_bins[0]), (0, n_bins[1])),
+        out_dir='out',
+        filename='particles.gif',
+    )
 
 
 if __name__ == '__main__':

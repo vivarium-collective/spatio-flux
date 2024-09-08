@@ -2,7 +2,7 @@ import numpy as np
 from process_bigraph import Composite
 from processes.spatial_dfba import dfba_config
 from processes import core
-from plot.plot import plot_time_series, plot_species_distributions_to_gif
+from plot.fields import plot_time_series, plot_species_distributions_to_gif
 
 
 # TODO -- need to do this to register???

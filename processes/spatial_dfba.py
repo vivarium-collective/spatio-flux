@@ -9,7 +9,7 @@ from cobra.io import load_model
 from process_bigraph import Process, Composite
 from process_bigraph.processes.parameter_scan import RunProcess
 from processes import core  # import the core from the processes package
-from plot.plot import plot_time_series, plot_species_distributions_to_gif
+from plot.fields import plot_time_series, plot_species_distributions_to_gif
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
