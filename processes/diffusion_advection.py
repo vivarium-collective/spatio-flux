@@ -174,9 +174,14 @@ def run_diffusion_process():
     sim.update({}, 10.0)
 
     diffadv_results = sim.gather_results()
-    print(diffadv_results)
+    # print(diffadv_results)
 
-    plot_species_distributions_to_gif(diffadv_results, filename='diffadv_results.gif', title='', skip_frames=1)
+    plot_species_distributions_to_gif(
+        diffadv_results,
+        filename='diffadv_results.gif',
+        title='',
+        skip_frames=1
+    )
 
 
 if __name__ == '__main__':

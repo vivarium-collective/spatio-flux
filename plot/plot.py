@@ -16,7 +16,7 @@ def sort_results(results):
     }, 'time': []}
 
     for results in emitter_results:
-        time = results['time']
+        time = results['global_time']
         fields = results['fields']
         sorted_results['time'].append(time)
         for key, value in fields.items():

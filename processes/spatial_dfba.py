@@ -162,7 +162,7 @@ def dfba_config(
 
 
 def run_dfba_spatial():
-    n_bins = (2, 2)
+    n_bins = (3, 3)
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -210,10 +210,10 @@ def run_dfba_spatial():
         'state': composite_state,
         'emitter': {'mode': 'all'}
     }, core=core)
-    sim.update({}, 10.0)
+    sim.update({}, 60.0)
 
     dfba_results = sim.gather_results()
-    print(dfba_results)
+    # print(dfba_results)
 
     plot_time_series(
         dfba_results,
