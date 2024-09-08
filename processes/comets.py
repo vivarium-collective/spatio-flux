@@ -2,6 +2,12 @@ import numpy as np
 from process_bigraph import Composite
 from processes.spatial_dfba import dfba_config
 from processes import core
+from plot.plot import plot_time_series
+
+
+# TODO -- need to do this to register???
+from processes.spatial_dfba import DynamicFBA
+from processes.diffusion_advection import DiffusionAdvection
 
 
 def run_comets():
@@ -74,33 +80,25 @@ def run_comets():
             'outputs': {
                 'fields': ['fields']
             }
-        },
-        'emitter': {
-            '_type': 'step',
-            'address': 'local:ram-emitter',
-            'config': {
-                'emit': {
-                    'fields': 'map',
-                    'time': 'float',
-                }
-            },
-            'inputs': {
-                'fields': ['fields'],
-                'time': ['global_time']
-            }
         }
     }
 
-    sim = Composite({'state': composite_state}, core=core)
+    sim = Composite({
+        'state': composite_state,
+        'emitter': {'mode': 'all'},
+    }, core=core)
 
     # save the document
     sim.save(filename='comets.json', outdir='out')
 
     sim.update({}, 100.0)
+    comets_results = sim.gather_results()
 
-    results = sim.gather_results()
-
-    print(results)
+    print(comets_results)
+    plot_time_series(
+        comets_results,
+        coordinates=[(0, 0), (5, 5)],
+    )
 
 
 if __name__ == '__main__':
