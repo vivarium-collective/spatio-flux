@@ -40,7 +40,10 @@ class Particles(Process):
 
     def outputs(self):
         return {
-            'particles': 'any',
+            'particles': {
+                '_type': 'any',
+                '_apply': 'set'
+            },
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -56,6 +59,7 @@ class Particles(Process):
 
         new_particles = []
         for particle in particles:
+            updated_particle = particle.copy()
             # Apply diffusion and advection
             dx, dy = np.random.normal(0, particle['diffusion_rate'], 2) + particle['advection']
 
@@ -73,10 +77,10 @@ class Particles(Process):
             elif new_y_position > self.env_size[1][1]:
                 new_y_position = self.env_size[1][1]
 
-            particle['position'][0] = new_x_position
-            particle['position'][1] = new_y_position
+            new_position = (new_x_position, new_y_position)
+            updated_particle['position'] = new_position
 
-            new_particles.append(particle)
+            new_particles.append(updated_particle)
 
         return {
             'particles': new_particles,
@@ -112,9 +116,9 @@ def initialize_particles(n_particles_per_species, env_size, diffusion_rates, adv
         for _ in range(n_particles):
             particle = {
                 'id': str(uuid.uuid4()),
-                'position': np.random.uniform(low=[env_size[0][0], env_size[1][0]],
+                'position': tuple(np.random.uniform(low=[env_size[0][0], env_size[1][0]],
                                               high=[env_size[0][1], env_size[1][1]],
-                                              size=2),
+                                              size=2)),
                 'size': np.random.uniform(10, 100),
                 'color': color,
                 'diffusion_rate': diffusion_rate,
@@ -123,6 +127,7 @@ def initialize_particles(n_particles_per_species, env_size, diffusion_rates, adv
             particles.append(particle)
 
     return particles
+
 
 def run_particles(
     total_time=100,  # Total frames
@@ -185,7 +190,6 @@ def run_particles(
     particles_history = [p['particles'] for p in particles_results]
     # print(particles_history)
 
-    x = 0
     # plot particles
     plot_particles(
         total_time=total_time,
