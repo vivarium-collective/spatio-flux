@@ -7,9 +7,8 @@ import warnings
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
-from process_bigraph.processes.parameter_scan import RunProcess
 from processes import core  # import the core from the processes package
-from plot.fields import plot_time_series, plot_species_distributions_to_gif
+from viz.plot import plot_time_series, plot_species_distributions_to_gif
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
@@ -164,8 +163,10 @@ def dfba_config(
     }
 
 
-def run_dfba_spatial():
-    n_bins = (5, 5)
+def run_dfba_spatial(
+        total_time=50,
+        n_bins=(5, 5)
+):
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -209,6 +210,8 @@ def run_dfba_spatial():
         'spatial_dfba': dfba_processes_dict
     }
 
+    # make the composite
+    print('Making the composite...')
     sim = Composite({
         'state': composite_state,
         'emitter': {'mode': 'all'}
@@ -218,23 +221,27 @@ def run_dfba_spatial():
     sim.save(filename='spatial_dfba.json', outdir='out')
 
     # simulate
-    sim.update({}, 60.0)
+    print('Simulating...')
+    sim.update({}, total_time)
 
     # gather results
     dfba_results = sim.gather_results()
     # print(dfba_results)
 
+    print('Plotting results...')
     # plot timeseries
     plot_time_series(
         dfba_results,
         coordinates=[(0, 0), (1, 1), (2, 2)],
+        out_dir='out',
+        filename='dfba_timeseries.png',
     )
 
     # make video
     plot_species_distributions_to_gif(
         dfba_results,
         out_dir='out',
-        filename='out/dfba_results.gif',
+        filename='dfba_results.gif',
         title='',
         skip_frames=1
     )

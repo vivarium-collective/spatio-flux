@@ -2,7 +2,7 @@ import numpy as np
 from process_bigraph import Composite
 from processes.dfba import dfba_config
 from processes import core
-from plot.fields import (
+from viz.plot import (
     plot_time_series, plot_species_distributions_with_particles_to_gif)
 
 
@@ -12,9 +12,11 @@ from processes.diffusion_advection import DiffusionAdvection
 from processes.particles import Particles
 
 
-def run_particle_comets(total_time=10.0):
-    n_bins = (8, 8)
-    bounds = (10, 10)
+def run_particle_comets(
+        total_time=10.0,
+        bounds=(10, 10),
+        n_bins=(8, 8),
+):
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -27,7 +29,7 @@ def run_particle_comets(total_time=10.0):
 
     particles = Particles.initialize_particles(
         n_particles_per_species=n_particles_per_species,
-        env_size=bounds,
+        bounds=bounds,
         diffusion_rates=diffusion_rates,
         advection_rates=advection_rates,
         size_range=(100, 200),
@@ -121,6 +123,8 @@ def run_particle_comets(total_time=10.0):
         }
     }
 
+    # make the composite
+    print('Making the composite...')
     sim = Composite({
         'state': composite_state,
         'emitter': {'mode': 'all'},
@@ -129,10 +133,13 @@ def run_particle_comets(total_time=10.0):
     # save the document
     sim.save(filename='particle_comets.json', outdir='out')
 
+    # run simulation
+    print('Simulating...')
     sim.update({}, total_time)
     particle_comets_results = sim.gather_results()
     # print(comets_results)
 
+    print('Plotting results...')
     # plot timeseries
     plot_time_series(
         particle_comets_results,
@@ -152,7 +159,7 @@ def run_particle_comets(total_time=10.0):
     plot_species_distributions_with_particles_to_gif(
         particle_comets_results,
         out_dir='out',
-        filename='particle_comets_with_particles.gif',
+        filename='particle_comets.gif',
         title='',
         skip_frames=1,
         bounds=bounds,

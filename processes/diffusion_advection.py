@@ -6,8 +6,7 @@ import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
 from processes import core  # import the core from the processes package
-from plot.fields import plot_species_distributions_to_gif
-
+from viz.plot import plot_species_distributions_to_gif
 
 # Laplacian for 2D diffusion
 LAPLACIAN_2D = np.array([[0, 1, 0],
@@ -96,7 +95,6 @@ class DiffusionAdvection(Process):
         updated_state = state.copy()
 
         while t < interval:
-
             # Diffusion
             laplacian = convolve(
                 updated_state,
@@ -131,9 +129,11 @@ class DiffusionAdvection(Process):
 core.register_process('DiffusionAdvection', DiffusionAdvection)
 
 
-def run_diffusion_process():
-    n_bins = (10, 10)
-
+def run_diffusion_process(
+        total_time=50,
+        bounds=(10, 10),
+        n_bins=(10, 10),
+):
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
     initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
@@ -149,7 +149,7 @@ def run_diffusion_process():
             'address': 'local:DiffusionAdvection',
             'config': {
                 'n_bins': n_bins,
-                'bounds': (10, 10),
+                'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_diffusion_dt': 1e-1,
                 'diffusion_coeffs': {
@@ -172,6 +172,8 @@ def run_diffusion_process():
         }
     }
 
+    # make the composite
+    print('Making the composite...')
     sim = Composite({
         'state': composite_state,
         'emitter': {'mode': 'all'},
@@ -181,12 +183,14 @@ def run_diffusion_process():
     sim.save(filename='diffadv.json', outdir='out')
 
     # simulate
-    sim.update({}, 60.0)
+    print('Simulating...')
+    sim.update({}, total_time)
 
     # gather results
     diffadv_results = sim.gather_results()
     # print(diffadv_results)
 
+    print('Plotting results...')
     # plot 2d video
     plot_species_distributions_to_gif(
         diffadv_results,
@@ -199,4 +203,3 @@ def run_diffusion_process():
 
 if __name__ == '__main__':
     run_diffusion_process()
-

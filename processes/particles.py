@@ -5,7 +5,7 @@ import uuid
 import numpy as np
 from process_bigraph import Process, Composite
 from processes import core
-from plot.particles import plot_particles
+from viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
 
 
 class Particles(Process):
@@ -63,7 +63,7 @@ class Particles(Process):
     @staticmethod
     def initialize_particles(
             n_particles_per_species,
-            env_size,
+            bounds,
             diffusion_rates,
             advection_rates=None,
             species_colors=None,  # Extend as needed
@@ -87,7 +87,7 @@ class Particles(Process):
                     'id': str(uuid.uuid4()),
                     'position': tuple(np.random.uniform(
                         low=[0, 0],
-                        high=[env_size[0], env_size[1]],
+                        high=[bounds[0], bounds[1]],
                         size=2)),
                     'size': np.random.uniform(size_range[0], size_range[1]),
                     'color': color,
@@ -224,23 +224,26 @@ core.register_process('Particles', Particles)
 
 def run_particles(
         total_time=100,  # Total frames
+        bounds=(10, 10),  # Bounds of the environment
+        n_bins=(10, 10),  # Number of bins in the x and y directions
 ):
+
     # initialize particles
     n_particles_per_species = [10, 10, 10]  # Number of particles per species
-    env_size = [10, 10]  #((0, 10), (0, 10))  # Environment size (xmin, xmax), (ymin, ymax)
+    # env_size = [10, 10]  #((0, 10), (0, 10))  # Environment size (xmin, xmax), (ymin, ymax)
     diffusion_rates = [0.5, 0.2, 0.05]  # Diffusion rates per species
     advection_rates = [(0, 0), (0, 0), (0, -0.1)]  # Advection vectors per species
 
     # initialize
     particles = Particles.initialize_particles(
         n_particles_per_species=n_particles_per_species,
-        env_size=env_size,
+        bounds=bounds,
         diffusion_rates=diffusion_rates,
         advection_rates=advection_rates
     )
 
     # initialize fields
-    n_bins = (10, 10)
+
     initial_glucose = np.random.uniform(low=0, high=20, size=(n_bins[0], n_bins[1]))
 
     composite_state = {
@@ -271,6 +274,8 @@ def run_particles(
         }
     }
 
+    # make the composite
+    print('Making the composite...')
     sim = Composite({
         'state': composite_state,
         'emitter': {'mode': 'all'},
@@ -280,6 +285,7 @@ def run_particles(
     sim.save(filename='particles.json', outdir='out')
 
     # simulate
+    print('Simulating...')
     sim.update({}, total_time)
 
     # gather results
@@ -289,14 +295,24 @@ def run_particles(
     particles_history = [p['particles'] for p in particles_results]
     # print(particles_history)
 
+    print('Plotting...')
     # plot particles
     plot_particles(
         # total_time=total_time,
         history=particles_history,
-        env_size=((0, n_bins[0]), (0, n_bins[1])),
+        env_size=((0, bounds[0]), (0, bounds[1])),
         out_dir='out',
         filename='particles.gif',
     )
+
+    # plot_species_distributions_with_particles_to_gif(
+    #     particles_results,
+    #     out_dir='out',
+    #     filename='particle_comets_with_particles.gif',
+    #     title='',
+    #     skip_frames=1,
+    #     bounds=bounds,
+    # )
 
 
 if __name__ == '__main__':

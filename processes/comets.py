@@ -2,7 +2,7 @@ import numpy as np
 from process_bigraph import Composite
 from processes.dfba import dfba_config
 from processes import core
-from plot.fields import plot_time_series, plot_species_distributions_to_gif
+from viz.plot import plot_time_series, plot_species_distributions_to_gif
 
 
 # TODO -- need to do this to register???
@@ -10,8 +10,11 @@ from processes.dfba import DynamicFBA
 from processes.diffusion_advection import DiffusionAdvection
 
 
-def run_comets():
-    n_bins = (10, 10)
+def run_comets(
+        total_time=60.0,
+        bounds=(10, 10),
+        n_bins=(10, 10),
+):
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
@@ -60,7 +63,7 @@ def run_comets():
             'address': 'local:DiffusionAdvection',
             'config': {
                 'n_bins': n_bins,
-                'bounds': (10, 10),
+                'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_diffusion_dt': 1e-1,
                 'diffusion_coeffs': {
@@ -83,6 +86,8 @@ def run_comets():
         }
     }
 
+    # make the composite
+    print('Making the composite...')
     sim = Composite({
         'state': composite_state,
         'emitter': {'mode': 'all'},
@@ -91,10 +96,13 @@ def run_comets():
     # save the document
     sim.save(filename='comets.json', outdir='out')
 
-    sim.update({}, 60.0)
+    # simulate
+    print('Simulating...')
+    sim.update({}, total_time)
     comets_results = sim.gather_results()
     # print(comets_results)
 
+    print('Plotting results...')
     # plot timeseries
     plot_time_series(
         comets_results,
