@@ -1,34 +1,36 @@
 import numpy as np
 from process_bigraph import Composite
-from processes.spatial_dfba import dfba_config
+from processes.dfba import dfba_config
 from processes import core
-from plot.fields import plot_time_series, plot_species_distributions_to_gif
+from plot.fields import (
+    plot_time_series, plot_species_distributions_with_particles_to_gif)
 
 
 # TODO -- need to do this to register???
-from processes.spatial_dfba import DynamicFBA
+from processes.dfba import DynamicFBA
 from processes.diffusion_advection import DiffusionAdvection
 from processes.particles import Particles
 
 
-def run_particle_comets():
+def run_particle_comets(total_time=10.0):
     n_bins = (8, 8)
+    bounds = (10, 10)
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
     initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
 
     # initialize particles
-    n_particles_per_species = [10, 10, 10]  # Number of particles per species
-    env_size = [10, 10]  #((0, 10), (0, 10))  # Environment size (xmin, xmax), (ymin, ymax)
-    diffusion_rates = [0.5, 0.2, 0.05]  # Diffusion rates per species
+    n_particles_per_species = [3, 3, 5]  # Number of particles per species
+    diffusion_rates = [0.4, 0.2, 0.05]  # Diffusion rates per species
     advection_rates = [(0, 0), (0, 0), (0, -0.1)]  # Advection vectors per species
 
     particles = Particles.initialize_particles(
         n_particles_per_species=n_particles_per_species,
-        env_size=env_size,
+        env_size=bounds,
         diffusion_rates=diffusion_rates,
-        advection_rates=advection_rates
+        advection_rates=advection_rates,
+        size_range=(100, 200),
     )
 
     dfba_processes_dict = {}
@@ -74,7 +76,7 @@ def run_particle_comets():
             'address': 'local:DiffusionAdvection',
             'config': {
                 'n_bins': n_bins,
-                'bounds': (10, 10),
+                'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_diffusion_dt': 1e-1,
                 'diffusion_coeffs': {
@@ -101,13 +103,12 @@ def run_particle_comets():
             'address': 'local:Particles',
             'config': {
                 'n_bins': n_bins,
-                'bounds': (10, 10),
+                'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_advection_rate': (0, 0),
                 'add_probability': 0.1,
                 'boundary_to_add': ['top'],
-                'boundary_to_remove': ['bottom'],
-                # 'particle_initial_position': (0, 0)
+                # 'boundary_to_remove': ['bottom'],
             },
             'inputs': {
                 'particles': ['particles'],
@@ -128,7 +129,7 @@ def run_particle_comets():
     # save the document
     sim.save(filename='particle_comets.json', outdir='out')
 
-    sim.update({}, 60.0)
+    sim.update({}, total_time)
     particle_comets_results = sim.gather_results()
     # print(comets_results)
 
@@ -137,16 +138,25 @@ def run_particle_comets():
         particle_comets_results,
         coordinates=[(0, 0), (5, 5)],
         out_dir='out',
-        filename='particle_comets_results.png'
+        filename='particle_comets_timeseries.png'
     )
 
-    # plot 2d video
-    plot_species_distributions_to_gif(
+    # # plot 2d video
+    # plot_species_distributions_to_gif(
+    #     particle_comets_results,
+    #     out_dir='out',
+    #     filename='particle_comets_fields.gif',
+    #     title='',
+    #     skip_frames=1)
+
+    plot_species_distributions_with_particles_to_gif(
         particle_comets_results,
         out_dir='out',
-        filename='particle_comets_results.gif',
+        filename='particle_comets_with_particles.gif',
         title='',
-        skip_frames=1)
+        skip_frames=1,
+        bounds=bounds,
+    )
 
 
 if __name__ == '__main__':

@@ -4,15 +4,8 @@ Particles process
 import uuid
 import numpy as np
 from process_bigraph import Process, Composite
-from processes import core  # import the core from the processes package
+from processes import core
 from plot.particles import plot_particles
-
-
-import numpy as np
-import uuid
-
-import numpy as np
-import uuid
 
 
 class Particles(Process):
@@ -73,11 +66,14 @@ class Particles(Process):
             env_size,
             diffusion_rates,
             advection_rates=None,
-            species_colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']  # Extend as needed
+            species_colors=None,  # Extend as needed
+            size_range=(10, 100)
     ):
         """
         Initialize particle positions for multiple species.
         """
+        if species_colors is None:
+            species_colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
         advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
         particles = []
 
@@ -93,7 +89,7 @@ class Particles(Process):
                         low=[0, 0],
                         high=[env_size[0], env_size[1]],
                         size=2)),
-                    'size': np.random.uniform(10, 100),  # Random size between 10 and 100
+                    'size': np.random.uniform(size_range[0], size_range[1]),
                     'color': color,
                     'diffusion_rate': diffusion_rate,
                     'advection': advection_rate
@@ -130,10 +126,22 @@ class Particles(Process):
             local_field_concentrations = self.get_local_field_values(fields, x, y)
 
             # MARKER: Insert what to do for the given particle based on local_field_concentrations
-            for mol_id, conc in local_field_concentrations.items():
-                new_conc = max(conc - 0.01, 0)
-                # pass
-                new_fields[mol_id][x, y] = new_conc - conc  # Update the field concentration at the particle's location
+            local_biomass = local_field_concentrations.get('biomass')
+            if local_biomass:
+                # Michaelis-Menten-like rate law for uptake
+                max_uptake_rate = 1.0  # maximum uptake rate (tunable)
+                half_saturation = 5  # half-saturation constant (tunable, determines how quickly saturation occurs)
+
+                uptake_rate = (max_uptake_rate * local_biomass) / (half_saturation + local_biomass)
+
+                # Particle uptake rate is proportional to its size
+                absorbed_biomass = float(uptake_rate * particle['size'])
+
+                size = updated_particle['size']
+                updated_particle['size'] = max(size+absorbed_biomass, 0.0)
+                if local_biomass - absorbed_biomass < 0.0:
+                    absorbed_biomass = local_biomass
+                new_fields['biomass'][x, y] = -absorbed_biomass
 
             new_particles.append(updated_particle)
 
@@ -215,9 +223,8 @@ core.register_process('Particles', Particles)
 
 
 def run_particles(
-    total_time=100,  # Total frames
+        total_time=100,  # Total frames
 ):
-
     # initialize particles
     n_particles_per_species = [10, 10, 10]  # Number of particles per species
     env_size = [10, 10]  #((0, 10), (0, 10))  # Environment size (xmin, xmax), (ymin, ymax)
@@ -251,8 +258,7 @@ def run_particles(
                 'default_advection_rate': (0, 0),
                 'add_probability': 0.1,
                 'boundary_to_add': ['top'],
-                'boundary_to_remove': ['bottom'],
-                # 'particle_initial_position': (0, 0)
+                # 'boundary_to_remove': ['bottom'],
             },
             'inputs': {
                 'particles': ['particles'],

@@ -189,3 +189,80 @@ def plot_species_distributions_to_gif(
         data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
     display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
 
+
+def plot_species_distributions_with_particles_to_gif(
+        results,
+        out_dir=None,
+        filename='species_distribution_with_particles.gif',
+        title='',
+        skip_frames=1,
+        bounds=(1.0, 1.0),
+):
+    # Sort the results
+    sorted_results = sort_results(results)
+    species_names = [key for key in sorted_results['fields'].keys()]
+    n_species = len(species_names)
+    times = sorted_results['time']
+    n_times = len(times)
+    # Compute global min and max for each species
+    global_min_max = {
+        species: (np.min(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])),
+                  np.max(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])))
+        for species in species_names}
+
+    xmax, ymax = bounds  # unpack the bounds
+
+    emitter_results = results[('emitter',)]
+
+    images = []
+    for i in range(0, n_times, skip_frames):
+        fields = emitter_results[i]['fields']
+        particles = emitter_results[i]['particles']
+
+        fig, axs = plt.subplots(1, n_species, figsize=(5 * n_species, 4))
+        if n_species == 1:
+            axs = [axs]
+
+        for j, species in enumerate(species_names):
+            ax = axs[j]
+            vmin, vmax = global_min_max[species]
+            # Plot species distribution as heatmap
+            img = ax.imshow(fields[species], interpolation='nearest', vmin=vmin, vmax=vmax,
+                            extent=[0, xmax, 0, ymax])  # extent stretches the field
+
+            ax.set_title(f'{species} at t = {times[i]:.2f}')
+            plt.colorbar(img, ax=ax)
+
+            for particle in particles:
+                ax.scatter(particle['position'][0], particle['position'][1],
+                           s=particle['size'],
+                           color=particle['color']
+                           )
+
+        fig.suptitle(title, fontsize=16)
+        plt.subplots_adjust(wspace=0.05, hspace=0.2)
+        plt.tight_layout(pad=0.2)
+
+        # Save the current figure to a temporary buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=120)
+        buf.seek(0)
+        images.append(imageio.imread(buf))
+        buf.close()
+        plt.close(fig)
+
+    # Create the output directory if it doesn't exist
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+    else:
+        filepath = filename
+
+    # Create and save the GIF with loop=0 for infinite loop
+    imageio.mimsave(filepath, images, duration=0.5, loop=0)
+
+    # Optionally display the GIF in a Jupyter notebook
+    with open(filepath, 'rb') as file:
+        data = file.read()
+        data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
+    display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))

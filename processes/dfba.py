@@ -1,5 +1,5 @@
 """
-Dynamic FBA simulation in a spatial context.
+Dynamic FBA simulation
 """
 
 import numpy as np
