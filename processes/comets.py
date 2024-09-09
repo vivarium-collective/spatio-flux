@@ -107,6 +107,8 @@ def run_comets(
     plot_time_series(
         comets_results,
         coordinates=[(0, 0), (5, 5)],
+        out_dir='out',
+        filename='comets_timeseries.png',
     )
 
     # plot 2d video

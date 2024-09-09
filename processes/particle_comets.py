@@ -13,7 +13,7 @@ from processes.particles_motion import ParticlesMotion
 
 
 def run_particle_comets(
-        total_time=10.0,
+        total_time=60.0,
         bounds=(10, 10),
         n_bins=(8, 8),
 ):
@@ -23,9 +23,16 @@ def run_particle_comets(
     initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
 
     # initialize particles
-    n_particles_per_species = [3, 3, 5]  # Number of particles per species
-    diffusion_rates = [0.4, 0.2, 0.05]  # Diffusion rates per species
-    advection_rates = [(0, 0), (0, 0), (0, -0.1)]  # Advection vectors per species
+    colors = ['b', 'g', 'r']
+    n_particles_per_species = [5, 5, 5]  # Number of particles per species
+    custom_diffusion_rates = {}
+    custom_advection_rates = {
+        'r': (0, -0.1),
+    }
+    custom_add_probability = {
+        'r': 0.4,
+    }
+    default_add_probability = 0.0
 
     particles = ParticlesMotion.initialize_particles(
         n_particles_per_species=n_particles_per_species,
@@ -106,9 +113,13 @@ def run_particle_comets(
                 'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_advection_rate': (0, 0),
-                'default_add_probability': 0.1,
+                'default_add_probability': default_add_probability,
                 'boundary_to_add': ['top'],
                 # 'boundary_to_remove': ['bottom'],
+                'species_colors': colors,
+                'diffusion_rates': custom_diffusion_rates,
+                'advection_rates': custom_advection_rates,
+                'add_probability': custom_add_probability,
             },
             'inputs': {
                 'particles': ['particles'],
