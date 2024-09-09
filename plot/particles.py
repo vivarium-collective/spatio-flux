@@ -7,7 +7,7 @@ from IPython.display import HTML, display
 
 
 def plot_particles(
-        total_time,
+        # total_time,
         env_size,
         history,
         out_dir=None,
@@ -28,9 +28,10 @@ def plot_particles(
     ax.set_xlim(*env_size[0])
     ax.set_ylim(*env_size[1])
     ax.set_aspect('equal')
+    n_frames = len(history)
 
     images = []
-    for frame in range(total_time + 1):  # Include initial position
+    for frame in range(n_frames):  # Include initial position
         ax.clear()
         ax.set_title(f'time {frame}')
         ax.set_xlim(*env_size[0])
@@ -48,7 +49,8 @@ def plot_particles(
         buf.seek(0)
         images.append(imageio.imread(buf))
         buf.close()
-        plt.close(fig)
+
+    plt.close(fig)
 
     # Create the output directory if not exists
     if out_dir is not None:
