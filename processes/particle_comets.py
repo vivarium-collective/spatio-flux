@@ -9,7 +9,7 @@ from viz.plot import (
 # TODO -- need to do this to register???
 from processes.dfba import DynamicFBA
 from processes.diffusion_advection import DiffusionAdvection
-from processes.particles import Particles
+from processes.particles_motion import ParticlesMotion
 
 
 def run_particle_comets(
@@ -27,7 +27,7 @@ def run_particle_comets(
     diffusion_rates = [0.4, 0.2, 0.05]  # Diffusion rates per species
     advection_rates = [(0, 0), (0, 0), (0, -0.1)]  # Advection vectors per species
 
-    particles = Particles.initialize_particles(
+    particles = ParticlesMotion.initialize_particles(
         n_particles_per_species=n_particles_per_species,
         bounds=bounds,
         diffusion_rates=diffusion_rates,
@@ -102,13 +102,13 @@ def run_particle_comets(
         'particles': particles,
         'particles_process': {
             '_type': 'process',
-            'address': 'local:Particles',
+            'address': 'local:ParticlesMotion',
             'config': {
                 'n_bins': n_bins,
                 'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_advection_rate': (0, 0),
-                'add_probability': 0.1,
+                'default_add_probability': 0.1,
                 'boundary_to_add': ['top'],
                 # 'boundary_to_remove': ['bottom'],
             },
