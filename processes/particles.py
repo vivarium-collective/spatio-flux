@@ -12,7 +12,7 @@ from processes import core
 from viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
 
 
-class ParticlesMotion(Process):
+class Particles(Process):
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
         'bounds': 'tuple[float,float]',
@@ -48,7 +48,10 @@ class ParticlesMotion(Process):
 
     def inputs(self):
         return {
-            'particles': 'any',
+            'particles': {
+                '_type': 'any',
+                '_apply': 'set'
+            },
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -139,16 +142,15 @@ class ParticlesMotion(Process):
             local_biomass = local_field_concentrations.get('biomass')
             if local_biomass:
                 # Michaelis-Menten-like rate law for uptake
-                max_uptake_rate = 1.0  # maximum uptake rate (tunable)
-                half_saturation = 5  # half-saturation constant (tunable, determines how quickly saturation occurs)
-
+                max_uptake_rate = 0.1  # maximum uptake rate (tunable)
+                half_saturation = 1  # half-saturation constant (tunable, determines how quickly saturation occurs)
                 uptake_rate = (max_uptake_rate * local_biomass) / (half_saturation + local_biomass)
 
                 # Particle uptake rate is proportional to its size
                 absorbed_biomass = float(uptake_rate * particle['size'])
 
                 size = updated_particle['size']
-                updated_particle['size'] = max(size + 0.1*absorbed_biomass, 0.0)
+                updated_particle['size'] = max(size + 0.01*absorbed_biomass, 0.0)
                 if local_biomass - absorbed_biomass < 0.0:
                     absorbed_biomass = local_biomass
                 new_fields['biomass'][y, x] = -absorbed_biomass
@@ -228,7 +230,7 @@ class ParticlesMotion(Process):
             return (np.random.uniform(*self.env_size[0]), self.env_size[1][0])
 
 
-core.register_process('ParticlesMotion', ParticlesMotion)
+core.register_process('Particles', Particles)
 
 
 def run_particles(
@@ -250,7 +252,7 @@ def run_particles(
     default_add_probability = 0.0
 
     # initialize
-    particles = ParticlesMotion.initialize_particles(
+    particles = Particles.initialize_particles(
         n_particles_per_species=n_particles_per_species,
         bounds=bounds,
     )
@@ -265,7 +267,7 @@ def run_particles(
         'particles': particles,
         'particles_process': {
             '_type': 'process',
-            'address': 'local:ParticlesMotion',
+            'address': 'local:Particles',
             'config': {
                 'n_bins': n_bins,
                 'bounds': (10, 10),

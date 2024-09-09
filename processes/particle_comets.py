@@ -9,13 +9,13 @@ from viz.plot import (
 # TODO -- need to do this to register???
 from processes.dfba import DynamicFBA
 from processes.diffusion_advection import DiffusionAdvection
-from processes.particles_motion import ParticlesMotion
+from processes.particles import Particles
 
 
 def run_particle_comets(
         total_time=60.0,
         bounds=(10, 10),
-        n_bins=(8, 8),
+        n_bins=(10, 10),
 ):
 
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
@@ -24,20 +24,20 @@ def run_particle_comets(
 
     # initialize particles
     colors = ['b', 'g', 'r']
-    n_particles_per_species = [5, 5, 5]  # Number of particles per species
+    n_particles_per_species = [3, 3, 3]  # Number of particles per species
     custom_diffusion_rates = {}
     custom_advection_rates = {
         'r': (0, -0.1),
     }
     custom_add_probability = {
-        'r': 0.4,
+        'r': 0.3,
     }
     default_add_probability = 0.0
 
-    particles = ParticlesMotion.initialize_particles(
+    particles = Particles.initialize_particles(
         n_particles_per_species=n_particles_per_species,
         bounds=bounds,
-        size_range=(100, 200),
+        size_range=(10, 100),
     )
 
     dfba_processes_dict = {}
@@ -107,7 +107,7 @@ def run_particle_comets(
         'particles': particles,
         'particles_process': {
             '_type': 'process',
-            'address': 'local:ParticlesMotion',
+            'address': 'local:Particles',
             'config': {
                 'n_bins': n_bins,
                 'bounds': bounds,
