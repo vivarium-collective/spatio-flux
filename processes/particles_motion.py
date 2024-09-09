@@ -1,8 +1,10 @@
 """
 Particles process
+=================
 
-TODO -- need to get new particles configured by species instead of defaults
+A process for simulating the motion of particles in a 2D environment.
 """
+
 import uuid
 import numpy as np
 from process_bigraph import Process, Composite

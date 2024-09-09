@@ -1,5 +1,8 @@
 """
 Diffusion-Advection Process
+===========================
+
+This process is a simple 2D diffusion-advection process. It takes a 2D field as input and returns a 2D field as output.
 """
 
 import numpy as np

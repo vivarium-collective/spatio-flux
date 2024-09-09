@@ -1,5 +1,8 @@
 """
 Dynamic FBA simulation
+======================
+
+Process for a pluggable dFBA simulation.
 """
 
 import numpy as np
@@ -34,9 +37,11 @@ bounds_type = {
 }
 core.register_process('bounds', bounds_type)
 
-# TODO -- check the function signature of the apply method and report missing keys upon registration
-
+# TODO -- can set lower and upper bounds by config instead of hardcoding
 MODEL_FOR_TESTING = load_model('textbook')
+MODEL_FOR_TESTING.reactions.EX_o2_e.lower_bound = -2  # Limiting oxygen uptake
+MODEL_FOR_TESTING.reactions.ATPM.lower_bound = 1     # Setting lower bound for ATP maintenance
+MODEL_FOR_TESTING.reactions.ATPM.upper_bound = 1     # Setting upper bound for ATP maintenance
 
 
 class DynamicFBA(Process):
@@ -115,8 +120,10 @@ class DynamicFBA(Process):
             substrate_update[self.config['biomass_identifier']] = biomass_growth_rate * current_biomass * interval
 
             for substrate, reaction_id in self.config['substrate_update_reactions'].items():
-                flux = solution.fluxes[reaction_id]
-                substrate_update[substrate] = min(flux * current_biomass * interval, 0)
+                flux = solution.fluxes[reaction_id] * current_biomass * interval
+                old_concentration = substrates_input[substrate]
+                new_concentration = max(old_concentration + flux, 0)  # keep above 0
+                substrate_update[substrate] = new_concentration - old_concentration
                 # TODO -- assert not negative?
         else:
             # Handle non-optimal solutions if necessary

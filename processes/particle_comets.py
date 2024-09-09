@@ -30,8 +30,6 @@ def run_particle_comets(
     particles = ParticlesMotion.initialize_particles(
         n_particles_per_species=n_particles_per_species,
         bounds=bounds,
-        diffusion_rates=diffusion_rates,
-        advection_rates=advection_rates,
         size_range=(100, 200),
     )
 
