@@ -290,9 +290,9 @@ def run_particles(
 
     # gather results
     particles_results = sim.gather_results()
-    particles_results = particles_results[('emitter',)]
+    emitter_results = particles_results[('emitter',)]
 
-    particles_history = [p['particles'] for p in particles_results]
+    particles_history = [p['particles'] for p in emitter_results]
     # print(particles_history)
 
     print('Plotting...')
@@ -305,14 +305,14 @@ def run_particles(
         filename='particles.gif',
     )
 
-    # plot_species_distributions_with_particles_to_gif(
-    #     particles_results,
-    #     out_dir='out',
-    #     filename='particle_comets_with_particles.gif',
-    #     title='',
-    #     skip_frames=1,
-    #     bounds=bounds,
-    # )
+    plot_species_distributions_with_particles_to_gif(
+        particles_results,
+        out_dir='out',
+        filename='particle_comets_with_particles.gif',
+        title='',
+        skip_frames=1,
+        bounds=bounds,
+    )
 
 
 if __name__ == '__main__':
