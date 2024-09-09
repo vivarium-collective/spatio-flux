@@ -14,13 +14,13 @@ from processes.particles import Particles
 
 def run_particle_comets(
         total_time=60.0,
-        bounds=(10, 10),
-        n_bins=(10, 10),
+        bounds=(10.0, 10.0),
+        n_bins=(10, 10),   # TODO -- why does (10, 20) not work?
 ):
 
-    initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
-    initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
-    initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
+    initial_glucose = np.random.uniform(low=0.0, high=20.0, size=(n_bins[1], n_bins[0]))
+    initial_acetate = np.random.uniform(low=0.0, high=0.0, size=(n_bins[1], n_bins[0]))
+    initial_biomass = np.random.uniform(low=0.0, high=0.1, size=(n_bins[1], n_bins[0]))
 
     # initialize particles
     colors = ['b', 'g', 'r']

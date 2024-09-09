@@ -235,8 +235,8 @@ core.register_process('Particles', Particles)
 
 def run_particles(
         total_time=100,  # Total frames
-        bounds=(10, 10),  # Bounds of the environment
-        n_bins=(20, 20),  # Number of bins in the x and y directions
+        bounds=(10.0, 20.0),  # Bounds of the environment
+        n_bins=(20, 40),  # Number of bins in the x and y directions
 ):
 
     # initialize particles
@@ -258,7 +258,7 @@ def run_particles(
     )
 
     # initialize fields
-    initial_biomass = np.random.uniform(low=0, high=20, size=(n_bins[0], n_bins[1]))
+    initial_biomass = np.random.uniform(low=0, high=20, size=(n_bins[1], n_bins[0]))
 
     composite_state = {
         'fields': {
@@ -270,7 +270,7 @@ def run_particles(
             'address': 'local:Particles',
             'config': {
                 'n_bins': n_bins,
-                'bounds': (10, 10),
+                'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_advection_rate': (0, 0),
                 'default_add_probability': default_add_probability,
