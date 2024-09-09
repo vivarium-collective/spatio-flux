@@ -107,6 +107,9 @@ class Particles(Process):
         fields = state['fields']  # Retrieve the fields
 
         new_particles = []
+        new_fields = {
+            mol_id: np.zeros_like(field)
+            for mol_id, field in fields.items()}
         for particle in particles:
             updated_particle = particle.copy()
             # Apply diffusion and advection
@@ -123,9 +126,14 @@ class Particles(Process):
             updated_particle['position'] = new_position
 
             # Retrieve local field concentration for each particle
-            local_field_concentrations = self.get_local_field_values(fields, new_position)
+            x, y = self.get_bin_position(new_position)
+            local_field_concentrations = self.get_local_field_values(fields, x, y)
 
             # MARKER: Insert what to do for the given particle based on local_field_concentrations
+            for mol_id, conc in local_field_concentrations.items():
+                new_conc = max(conc - 0.01, 0)
+                # pass
+                new_fields[mol_id][x, y] = new_conc - conc  # Update the field concentration at the particle's location
 
             new_particles.append(updated_particle)
 
@@ -144,21 +152,10 @@ class Particles(Process):
 
         return {
             'particles': new_particles,
-            # 'fields': state['fields']
+            'fields': new_fields
         }
 
-    def get_local_field_values(self, fields, position):
-        """
-        Retrieve local field values for a particle based on its position.
-
-        Parameters:
-        - fields: dict of 2D numpy arrays representing fields, keyed by molecule ID.
-        - position: Tuple (x, y) representing the particle's position.
-
-        Returns:
-        - local_values: dict of field concentrations at the particle's location, keyed by molecule ID.
-        """
-        local_values = {}
+    def get_bin_position(self, position):
         x, y = position
         x_bins, y_bins = self.config['n_bins']
         x_min, x_max = self.env_size[0]
@@ -172,6 +169,20 @@ class Particles(Process):
         x_bin = min(max(x_bin, 0), x_bins - 1)
         y_bin = min(max(y_bin, 0), y_bins - 1)
 
+        return x_bin, y_bin
+
+    def get_local_field_values(self, fields, x_bin, y_bin):
+        """
+        Retrieve local field values for a particle based on its position.
+
+        Parameters:
+        - fields: dict of 2D numpy arrays representing fields, keyed by molecule ID.
+        - position: Tuple (x, y) representing the particle's position.
+
+        Returns:
+        - local_values: dict of field concentrations at the particle's location, keyed by molecule ID.
+        """
+        local_values = {}
         for mol_id, field in fields.items():
             local_values[mol_id] = field[x_bin, y_bin]
 

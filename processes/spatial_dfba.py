@@ -117,7 +117,7 @@ class DynamicFBA(Process):
 
             for substrate, reaction_id in self.config['substrate_update_reactions'].items():
                 flux = solution.fluxes[reaction_id]
-                substrate_update[substrate] = flux * current_biomass * interval
+                substrate_update[substrate] = min(flux * current_biomass * interval, 0)
                 # TODO -- assert not negative?
         else:
             # Handle non-optimal solutions if necessary

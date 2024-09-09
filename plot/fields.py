@@ -28,7 +28,10 @@ def sort_results(results):
 def plot_time_series(
         results,
         field_names=None,
-        coordinates=None
+        coordinates=None,
+        out_dir=None,
+        filename='time_series.png',
+        display=False,
 ):
     """
     Plots time series for specified fields and coordinates from the results dictionary.
@@ -67,8 +70,16 @@ def plot_time_series(
     ax.set_title('Time Series Plot')
     ax.legend()
 
-    # Display the plot
-    plt.show()
+    # Save the plot to a file
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+        plt.savefig(filepath)
+    else:
+        filepath = filename
+    if display:
+        # Display the plot
+        plt.show()
 
 
 def plot_snapshots(
