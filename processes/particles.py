@@ -1,5 +1,7 @@
 """
 Particles process
+
+TODO -- need to get new particles configured by species instead of defaults
 """
 import uuid
 import numpy as np
@@ -123,7 +125,7 @@ class Particles(Process):
 
             # Retrieve local field concentration for each particle
             x, y = self.get_bin_position(new_position)
-            local_field_concentrations = self.get_local_field_values(fields, x, y)
+            local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
 
             # MARKER: Insert what to do for the given particle based on local_field_concentrations
             local_biomass = local_field_concentrations.get('biomass')
@@ -138,10 +140,10 @@ class Particles(Process):
                 absorbed_biomass = float(uptake_rate * particle['size'])
 
                 size = updated_particle['size']
-                updated_particle['size'] = max(size+absorbed_biomass, 0.0)
+                updated_particle['size'] = max(size + 0.1*absorbed_biomass, 0.0)
                 if local_biomass - absorbed_biomass < 0.0:
                     absorbed_biomass = local_biomass
-                new_fields['biomass'][x, y] = -absorbed_biomass
+                new_fields['biomass'][y, x] = -absorbed_biomass
 
             new_particles.append(updated_particle)
 
@@ -179,7 +181,7 @@ class Particles(Process):
 
         return x_bin, y_bin
 
-    def get_local_field_values(self, fields, x_bin, y_bin):
+    def get_local_field_values(self, fields, column, row):
         """
         Retrieve local field values for a particle based on its position.
 
@@ -192,7 +194,7 @@ class Particles(Process):
         """
         local_values = {}
         for mol_id, field in fields.items():
-            local_values[mol_id] = field[x_bin, y_bin]
+            local_values[mol_id] = field[row, column]
 
         return local_values
 
@@ -225,13 +227,12 @@ core.register_process('Particles', Particles)
 def run_particles(
         total_time=100,  # Total frames
         bounds=(10, 10),  # Bounds of the environment
-        n_bins=(10, 10),  # Number of bins in the x and y directions
+        n_bins=(20, 20),  # Number of bins in the x and y directions
 ):
 
     # initialize particles
-    n_particles_per_species = [10, 10, 10]  # Number of particles per species
-    # env_size = [10, 10]  #((0, 10), (0, 10))  # Environment size (xmin, xmax), (ymin, ymax)
-    diffusion_rates = [0.5, 0.2, 0.05]  # Diffusion rates per species
+    n_particles_per_species = [5, 5, 5]  # Number of particles per species
+    diffusion_rates = [0, 0, 0]  #[0.5, 0.2, 0.05]  # Diffusion rates per species
     advection_rates = [(0, 0), (0, 0), (0, -0.1)]  # Advection vectors per species
 
     # initialize
@@ -243,12 +244,11 @@ def run_particles(
     )
 
     # initialize fields
-
-    initial_glucose = np.random.uniform(low=0, high=20, size=(n_bins[0], n_bins[1]))
+    initial_biomass = np.random.uniform(low=0, high=20, size=(n_bins[0], n_bins[1]))
 
     composite_state = {
         'fields': {
-            'glucose': initial_glucose,
+            'biomass': initial_biomass,
         },
         'particles': particles,
         'particles_process': {
@@ -308,7 +308,7 @@ def run_particles(
     plot_species_distributions_with_particles_to_gif(
         particles_results,
         out_dir='out',
-        filename='particle_comets_with_particles.gif',
+        filename='particle_with_fields.gif',
         title='',
         skip_frames=1,
         bounds=bounds,

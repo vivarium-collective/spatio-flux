@@ -159,7 +159,7 @@ def run_particle_comets(
     plot_species_distributions_with_particles_to_gif(
         particle_comets_results,
         out_dir='out',
-        filename='particle_comets.gif',
+        filename='particle_comets_with_fields.gif',
         title='',
         skip_frames=1,
         bounds=bounds,
