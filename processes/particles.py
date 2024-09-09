@@ -37,13 +37,6 @@ class Particles(Process):
             (0, self.config['bounds'][0]),
             (0, self.config['bounds'][1])
         )
-        # self.particles = self.initialize_particles(
-        #     self.config['n_particles_per_species'],
-        #     self.config['bounds'],
-        #     self.config['diffusion_rates'],
-        #     self.config['advection_rates'],
-        #     self.config['species_colors']
-        # )
 
     def inputs(self):
         return {
@@ -210,44 +203,6 @@ class Particles(Process):
 core.register_process('Particles', Particles)
 
 
-# def initialize_particles(n_particles_per_species, env_size, diffusion_rates, advection_rates=None):
-#     """
-#     Initialize particle positions for multiple species.
-#
-#     Parameters:
-#     - n_particles_per_species: List of numbers of particles for each species.
-#     - env_size: Tuple indicating the xlim and ylim of the environment, as ((xmin, xmax), (ymin, ymax)).
-#     - diffusion_rates: List of diffusion rates for each species.
-#     - advection_rates: List of advection vectors for each species.
-#
-#     Returns:
-#     - particles: List of dictionaries representing particles.
-#     """
-#     advection_rates = advection_rates or [(0.0, 0.0) for s in range(len(n_particles_per_species))]
-#     particles = []
-#     species_colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']  # Extend as needed
-#
-#     for species_idx, n_particles in enumerate(n_particles_per_species):
-#         color = species_colors[species_idx % len(species_colors)]
-#         diffusion_rate = diffusion_rates[species_idx]
-#         advection_rate = advection_rates[species_idx]
-#
-#         for _ in range(n_particles):
-#             particle = {
-#                 'id': str(uuid.uuid4()),
-#                 'position': tuple(np.random.uniform(low=[env_size[0][0], env_size[1][0]],
-#                                               high=[env_size[0][1], env_size[1][1]],
-#                                               size=2)),
-#                 'size': np.random.uniform(10, 100),
-#                 'color': color,
-#                 'diffusion_rate': diffusion_rate,
-#                 'advection': advection_rate
-#             }
-#             particles.append(particle)
-#
-#     return particles
-
-
 def run_particles(
     total_time=100,  # Total frames
 ):
@@ -283,7 +238,7 @@ def run_particles(
                 'bounds': (10, 10),
                 'default_diffusion_rate': 1e-1,
                 'default_advection_rate': (0, 0),
-                'add_probability': 0.9,
+                'add_probability': 0.1,
                 'boundary_to_add': ['top'],
                 'boundary_to_remove': ['bottom'],
                 # 'particle_initial_position': (0, 0)
