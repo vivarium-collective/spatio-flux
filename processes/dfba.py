@@ -170,11 +170,31 @@ def dfba_config(
     }
 
 
+def get_dfba_spec(i, j, mol_ids=None):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    return {
+        '_type': 'process',
+        'address': 'local:DynamicFBA',
+        'config': dfba_config(),
+        'inputs': {
+            'substrates': {
+                mol_id: ['..', 'fields', 'glucose', i, j] for mol_id in mol_ids
+            }
+        },
+        'outputs': {
+            'substrates': {
+                 mol_id: ['..', 'fields', 'glucose', i, j] for mol_id in mol_ids
+            }
+        }
+    }
+
+
 def run_dfba_spatial(
-        total_time=50,
+        total_time=60,
         n_bins=(5, 5)  # TODO -- why can't do (5, 10)??
 ):
-
+    mol_ids = ['glucose', 'acetate', 'biomass']
     initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
     initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
     initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
@@ -185,25 +205,7 @@ def run_dfba_spatial(
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
-            dfba_processes_dict[f'[{i},{j}]'] = {
-                '_type': 'process',
-                'address': 'local:DynamicFBA',
-                'config': dfba_config(),
-                'inputs': {
-                    'substrates': {
-                        'glucose': ['..', 'fields', 'glucose', i, j],
-                        'acetate': ['..', 'fields', 'acetate', i, j],
-                        'biomass': ['..', 'fields', 'biomass', i, j],
-                    }
-                },
-                'outputs': {
-                    'substrates': {
-                        'glucose': ['..', 'fields', 'glucose', i, j],
-                        'acetate': ['..', 'fields', 'acetate', i, j],
-                        'biomass': ['..', 'fields', 'biomass', i, j]
-                    }
-                }
-            }
+            dfba_processes_dict[f'[{i},{j}]'] = get_dfba_spec(i, j, mol_ids=mol_ids)
 
     composite_state = {
         'fields': {
