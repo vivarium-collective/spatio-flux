@@ -232,6 +232,7 @@ class Particles(Process):
 
 core.register_process('Particles', Particles)
 
+
 # Helper functions to get specs and states
 def get_particles_spec(
         n_bins=(20, 20),
@@ -267,6 +268,7 @@ def get_particles_spec(
                 'fields': ['fields']
             }
         }
+
 
 def get_particles_state(
         # particles,

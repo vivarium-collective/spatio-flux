@@ -1,90 +1,45 @@
-import numpy as np
+"""
+COMETS composite made of dFBAs and diffusion-advection processes.
+"""
+
 from process_bigraph import Composite
-from processes.dfba import dfba_config
 from processes import core
 from viz.plot import plot_time_series, plot_species_distributions_to_gif
 
 
 # TODO -- need to do this to register???
-from processes.dfba import DynamicFBA
-from processes.diffusion_advection import DiffusionAdvection
+from processes.dfba import DynamicFBA, get_spatial_dfba_state
+from processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
 
 
 def run_comets(
         total_time=60.0,
-        bounds=(10, 10),
+        bounds=(10.0, 10.0),
         n_bins=(10, 10),
+        mol_ids=None,
 ):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
 
-    initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
-    initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
-    initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
-
-    dfba_processes_dict = {}
-    for i in range(n_bins[0]):
-        for j in range(n_bins[1]):
-            dfba_processes_dict[f'[{i},{j}]'] = {
-                '_type': 'process',
-                'address': 'local:DynamicFBA',
-                'config': dfba_config(
-                    model_file='TESTING'  # load the same model for all processes
-                ),
-                'inputs': {
-                    'substrates': {
-                        'glucose': ['..', 'fields', 'glucose', i, j],
-                        'acetate': ['..', 'fields', 'acetate', i, j],
-                        'biomass': ['..', 'fields', 'biomass', i, j],
-                    }
-                },
-                'outputs': {
-                    'substrates': {
-                        'glucose': ['..', 'fields', 'glucose', i, j],
-                        'acetate': ['..', 'fields', 'acetate', i, j],
-                        'biomass': ['..', 'fields', 'biomass', i, j]
-                    }
-                }
-            }
-
-    composite_state = {
-        'fields': {
-            '_type': 'map',
-            '_value': {
-                '_type': 'array',
-                '_shape': n_bins,
-                '_data': 'positive_float'
-            },
-            'glucose': initial_glucose,
-            'acetate': initial_acetate,
-            'biomass': initial_biomass,
-        },
-        'spatial_dfba': dfba_processes_dict,
-        'diffusion': {
-            '_type': 'process',
-            'address': 'local:DiffusionAdvection',
-            'config': {
-                'n_bins': n_bins,
-                'bounds': bounds,
-                'default_diffusion_rate': 1e-1,
-                'default_diffusion_dt': 1e-1,
-                'diffusion_coeffs': {
-                    'glucose': 1e-1,
-                    'acetate': 1e-1,
-                    'biomass': 1e-1,
-                },
-                'advection_coeffs': {
-                    'glucose': (0, 0),
-                    'acetate': (0, 0),
-                    'biomass': (0, 0),
-                },
-            },
-            'inputs': {
-                'fields': ['fields']
-            },
-            'outputs': {
-                'fields': ['fields']
-            }
+    # make the composite state
+    composite_state = get_spatial_dfba_state(
+        n_bins=n_bins,
+        mol_ids=mol_ids,
+        initial_max={
+            'glucose': 20,
+            'acetate': 0,
+            'biomass': 0.1
         }
-    }
+    )
+    composite_state['diffusion'] = get_diffusion_advection_spec(
+        bounds=bounds,
+        n_bins=n_bins,
+        mol_ids=mol_ids,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
+    )
 
     # make the composite
     print('Making the composite...')

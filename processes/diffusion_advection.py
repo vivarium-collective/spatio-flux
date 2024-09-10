@@ -150,11 +150,11 @@ def get_diffusion_advection_spec(
         advection_coeffs = {}
 
     # fill in the missing diffusion and advection rates
-    diffusion_coeffs = {
+    diffusion_coeffs_all = {
         mol_id: diffusion_coeffs.get(mol_id, default_diffusion_rate)
         for mol_id in mol_ids
     }
-    advection_coeffs = {
+    advection_coeffs_all = {
         mol_id: advection_coeffs.get(mol_id, default_advection_rate)
         for mol_id in mol_ids
     }
@@ -167,8 +167,8 @@ def get_diffusion_advection_spec(
                 'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_diffusion_dt': 1e-1,
-                'diffusion_coeffs': diffusion_coeffs,
-                'advection_coeffs': advection_coeffs,
+                'diffusion_coeffs': diffusion_coeffs_all,
+                'advection_coeffs': advection_coeffs_all,
             },
             'inputs': {
                 'fields': ['fields']
