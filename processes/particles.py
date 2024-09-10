@@ -232,40 +232,17 @@ class Particles(Process):
 
 core.register_process('Particles', Particles)
 
-
-def run_particles(
-        total_time=100,  # Total frames
-        bounds=(10.0, 20.0),  # Bounds of the environment
-        n_bins=(20, 40),  # Number of bins in the x and y directions
+# Helper functions to get specs and states
+def get_particles_spec(
+        n_bins=(20, 20),
+        bounds=(10.0, 10.0),
+        colors=['b', 'g', 'r'],
+        custom_diffusion_rates={},
+        custom_advection_rates={},
+        custom_add_probability={},
+        default_add_probability=0.0,
 ):
-
-    # initialize particles
-    colors = ['b', 'g', 'r']
-    n_particles_per_species = [5, 5, 5]  # Number of particles per species
-    custom_diffusion_rates = {}
-    custom_advection_rates = {
-        'r': (0, -0.1),
-    }
-    custom_add_probability = {
-        'r': 0.4,
-    }
-    default_add_probability = 0.0
-
-    # initialize
-    particles = Particles.initialize_particles(
-        n_particles_per_species=n_particles_per_species,
-        bounds=bounds,
-    )
-
-    # initialize fields
-    initial_biomass = np.random.uniform(low=0, high=20, size=(n_bins[1], n_bins[0]))
-
-    composite_state = {
-        'fields': {
-            'biomass': initial_biomass,
-        },
-        'particles': particles,
-        'particles_process': {
+    return {
             '_type': 'process',
             'address': 'local:Particles',
             'config': {
@@ -290,7 +267,60 @@ def run_particles(
                 'fields': ['fields']
             }
         }
+
+def get_particles_state(
+        # particles,
+        n_particles_per_species,
+        n_bins=(20, 20),
+        bounds=(10.0, 10.0),
+        colors=['b', 'g', 'r'],
+        custom_diffusion_rates={},
+        custom_advection_rates={},
+        custom_add_probability={},
+        default_add_probability=0.0,
+):
+
+    # initialize particles
+    particles = Particles.initialize_particles(
+        n_particles_per_species=n_particles_per_species,
+        bounds=bounds,
+    )
+    # initialize fields
+    initial_biomass = np.random.uniform(low=0, high=20, size=(n_bins[1], n_bins[0]))
+
+    return {
+        'fields': {
+            'biomass': initial_biomass,
+        },
+        'particles': particles,
+        'particles_process': get_particles_spec(
+            n_bins=n_bins,
+            bounds=bounds,
+            colors=colors,
+            custom_diffusion_rates=custom_diffusion_rates,
+            custom_advection_rates=custom_advection_rates,
+            custom_add_probability=custom_add_probability,
+            default_add_probability=default_add_probability,
+        )
     }
+
+
+def run_particles(
+        total_time=100,  # Total frames
+        bounds=(10.0, 20.0),  # Bounds of the environment
+        n_bins=(20, 40),  # Number of bins in the x and y directions
+):
+    # initialize particles state
+    composite_state = get_particles_state(
+        n_particles_per_species=[5, 5, 5],
+        n_bins=n_bins,
+        bounds=bounds,
+        colors=['b', 'g', 'r'],
+        custom_diffusion_rates={},
+        custom_advection_rates={'r': (0, -0.1)},
+        custom_add_probability={'r': 0.4},
+        default_add_probability=0.0,
+    )
 
     # make the composite
     print('Making the composite...')
