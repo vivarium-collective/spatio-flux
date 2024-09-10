@@ -12,6 +12,16 @@ from processes import core
 from viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
 
 
+# TODO -- make particle type
+particle_type = {
+    'id': 'string',
+    'position': 'tuple[float,float]',
+    'size': 'float',
+    'color': 'enum[b, g, r, c, m, y, k]',  # TODO make color type, with HEX values
+}
+core.register('particle', particle_type)
+
+
 class Particles(Process):
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
@@ -49,7 +59,7 @@ class Particles(Process):
     def inputs(self):
         return {
             'particles': {
-                '_type': 'any',
+                '_type': 'list[particle]',
                 '_apply': 'set'
             },
             'fields': {
@@ -166,6 +176,7 @@ class Particles(Process):
                         'position': self.get_boundary_position(boundary),
                         'size': np.random.uniform(10, 100),  # Random size for new particles
                         'color': color,
+                        # 'local': {}  # TODO local field values
                     }
                     new_particles.append(new_particle)
 
@@ -333,6 +344,8 @@ def run_particles(
 
     # save the document
     sim.save(filename='particles.json', outdir='out')
+
+    # TODO -- save a viz figure of the initial state
 
     # simulate
     print('Simulating...')

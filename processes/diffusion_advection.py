@@ -228,8 +228,8 @@ def get_diffusion_advection_state(
 
 def run_diffusion_process(
         total_time=50,
-        bounds=(10.0, 10.0),
-        n_bins=(10, 10),
+        bounds=(10.0, 20.0),
+        n_bins=(10, 20),
 ):
     composite_state = get_diffusion_advection_state(
         bounds=bounds,
@@ -249,6 +249,8 @@ def run_diffusion_process(
 
     # save the document
     sim.save(filename='diffadv.json', outdir='out')
+
+    # TODO -- save a viz figure of the initial state
 
     # simulate
     print('Simulating...')

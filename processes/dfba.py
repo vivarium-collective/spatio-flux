@@ -17,31 +17,8 @@ from viz.plot import plot_time_series, plot_species_distributions_to_gif
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
 warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
 
-
-# create new types
-def apply_non_negative(schema, current, update, core):
-    new_value = current + update
-    return max(0, new_value)
-
-
-positive_float = {
-    '_type': 'positive_float',
-    '_inherit': 'float',
-    '_apply': apply_non_negative
-}
-core.register('positive_float', positive_float)
-
-bounds_type = {
-    'lower': 'maybe[float]',
-    'upper': 'maybe[float]'
-}
-core.register_process('bounds', bounds_type)
-
 # TODO -- can set lower and upper bounds by config instead of hardcoding
 MODEL_FOR_TESTING = load_model('textbook')
-# MODEL_FOR_TESTING.reactions.EX_o2_e.lower_bound = -2  # Limiting oxygen uptake
-# MODEL_FOR_TESTING.reactions.ATPM.lower_bound = 1     # Setting lower bound for ATP maintenance
-# MODEL_FOR_TESTING.reactions.ATPM.upper_bound = 1     # Setting upper bound for ATP maintenance
 
 
 class DynamicFBA(Process):
@@ -265,7 +242,6 @@ def run_dfba_spatial(
         n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
         mol_ids=None,
 ):
-
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
     composite_state = get_spatial_dfba_state(
@@ -282,6 +258,8 @@ def run_dfba_spatial(
 
     # save the document
     sim.save(filename='spatial_dfba.json', outdir='out')
+
+    # TODO -- save a viz figure of the initial state
 
     # simulate
     print('Simulating...')
@@ -311,4 +289,4 @@ def run_dfba_spatial(
 
 
 if __name__ == '__main__':
-    run_dfba_spatial()
+    run_dfba_spatial(n_bins=(8,8))

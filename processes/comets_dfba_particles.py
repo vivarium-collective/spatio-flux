@@ -1,7 +1,9 @@
 import numpy as np
-from process_bigraph import Composite
+from process_bigraph import Composite, default
 from processes.dfba import dfba_config
 from processes import core
+import cobra
+from cobra.io import load_model
 from viz.plot import (
     plot_time_series, plot_species_distributions_with_particles_to_gif)
 
@@ -12,15 +14,18 @@ from processes.diffusion_advection import DiffusionAdvection
 from processes.particles import Particles
 
 
-def run_particle_comets(
-        total_time=60.0,
-        bounds=(10.0, 20.0),
-        n_bins=(10, 20),   # TODO -- why does (10, 20) not work?
+MODEL_FOR_TESTING = load_model('textbook')
+
+
+def run_dfba_particle_comets(
+        total_time=10.0,
+        bounds=(10.0, 10.0),
+        n_bins=(10, 10),   # TODO -- why does (10, 20) not work?
 ):
 
-    initial_glucose = np.random.uniform(low=0.0, high=20.0, size=n_bins)  #(n_bins[1], n_bins[0]))
-    initial_acetate = np.random.uniform(low=0.0, high=0.0, size=n_bins)  #(n_bins[1], n_bins[0]))
-    initial_biomass = np.random.uniform(low=0.0, high=0.1, size=n_bins)  #(n_bins[1], n_bins[0]))
+    initial_glucose = np.random.uniform(low=0.0, high=20.0, size=(n_bins[1], n_bins[0]))
+    initial_acetate = np.random.uniform(low=0.0, high=0.0, size=(n_bins[1], n_bins[0]))
+    initial_biomass = np.random.uniform(low=0.0, high=0.1, size=(n_bins[1], n_bins[0]))
 
     # initialize particles
     colors = ['b', 'g', 'r']
@@ -132,15 +137,31 @@ def run_particle_comets(
         }
     }
 
+    composition = {
+        'particles': {
+            '_type': 'list',
+            '_element': {
+                'dFBA': {
+                    '_type': 'process',
+                    'address': default('string', 'local:DynamicFBA'),
+                    'config': default('tree[any]', dfba_config(model_file='textbook')),
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'outputs': default('tree[wires]', {'substrates': ['local']})
+                }
+            }
+        }
+    }
+
     # make the composite
     print('Making the composite...')
     sim = Composite({
         'state': composite_state,
+        'composition': composition,
         'emitter': {'mode': 'all'},
     }, core=core)
 
     # save the document
-    sim.save(filename='particle_comets.json', outdir='out', include_schema=True)
+    sim.save(filename='dfbaparticle_comets.json', outdir='out', include_schema=True)
 
     # run simulation
     print('Simulating...')
@@ -176,4 +197,4 @@ def run_particle_comets(
 
 
 if __name__ == '__main__':
-    run_particle_comets()
+    run_dfba_particle_comets()

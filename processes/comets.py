@@ -51,6 +51,8 @@ def run_comets(
     # save the document
     sim.save(filename='comets.json', outdir='out')
 
+    # TODO -- save a viz figure of the initial state
+
     # simulate
     print('Simulating...')
     sim.update({}, total_time)
