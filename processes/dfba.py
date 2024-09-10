@@ -170,7 +170,7 @@ def dfba_config(
     }
 
 
-def get_dfba_spec(i, j, mol_ids=None):
+def get_single_dfba_spec(i, j, mol_ids=None):
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
     return {
@@ -179,14 +179,58 @@ def get_dfba_spec(i, j, mol_ids=None):
         'config': dfba_config(),
         'inputs': {
             'substrates': {
-                mol_id: ['..', 'fields', 'glucose', i, j] for mol_id in mol_ids
+                mol_id: ['..', 'fields', mol_id, i, j] for mol_id in mol_ids
             }
         },
         'outputs': {
             'substrates': {
-                 mol_id: ['..', 'fields', 'glucose', i, j] for mol_id in mol_ids
+                 mol_id: ['..', 'fields', mol_id, i, j] for mol_id in mol_ids
             }
         }
+    }
+
+
+def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    dfba_processes_dict = {}
+    for i in range(n_bins[0]):
+        for j in range(n_bins[1]):
+            dfba_processes_dict[f'[{i},{j}]'] = get_single_dfba_spec(i, j, mol_ids=mol_ids)
+    return dfba_processes_dict
+
+
+def get_spatial_dfba_state(
+        n_bins=(5, 5),
+        mol_ids=None,
+        initial_max=None,
+):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    if initial_max is None:
+        initial_max = {
+            'glucose': 20,
+            'acetate': 0,
+            'biomass': 0.1
+        }
+    # initial_fields = {
+    #     mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins[1], n_bins[0]))
+    #     for mol_id in mol_ids}
+    initial_fields = {
+        mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
+        for mol_id in mol_ids}
+
+    return {
+        'fields': {
+            '_type': 'map',
+            '_value': {
+                '_type': 'array',
+                '_shape': n_bins,
+                '_data': 'positive_float'
+            },
+            **initial_fields,
+        },
+        'spatial_dfba': get_spatial_dfba_spec(n_bins=n_bins, mol_ids=mol_ids)
     }
 
 
@@ -195,32 +239,7 @@ def run_dfba_spatial(
         n_bins=(5, 5)  # TODO -- why can't do (5, 10)??
 ):
     mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_glucose = np.random.uniform(low=0, high=20, size=n_bins)
-    initial_acetate = np.random.uniform(low=0, high=0, size=n_bins)
-    initial_biomass = np.random.uniform(low=0, high=0.1, size=n_bins)
-    # initial_glucose = np.random.uniform(low=0, high=20, size=(n_bins[1], n_bins[0]))
-    # initial_acetate = np.random.uniform(low=0, high=0, size=(n_bins[1], n_bins[0]))
-    # initial_biomass = np.random.uniform(low=0, high=0.1, size=(n_bins[1], n_bins[0]))
-
-    dfba_processes_dict = {}
-    for i in range(n_bins[0]):
-        for j in range(n_bins[1]):
-            dfba_processes_dict[f'[{i},{j}]'] = get_dfba_spec(i, j, mol_ids=mol_ids)
-
-    composite_state = {
-        'fields': {
-            '_type': 'map',
-            '_value': {
-                '_type': 'array',
-                '_shape': n_bins,
-                '_data': 'positive_float'
-            },
-            'glucose': initial_glucose,
-            'acetate': initial_acetate,
-            'biomass': initial_biomass,
-        },
-        'spatial_dfba': dfba_processes_dict
-    }
+    composite_state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids)
 
     # make the composite
     print('Making the composite...')
