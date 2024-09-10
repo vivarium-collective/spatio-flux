@@ -140,6 +140,7 @@ class DynamicFBA(Process):
 core.register_process('DynamicFBA', DynamicFBA)
 
 
+# Helper functions to get specs and states
 def dfba_config(
         model_file='textbook',
         kinetic_params=None,
@@ -267,7 +268,10 @@ def run_dfba_spatial(
 
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
-    composite_state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids)
+    composite_state = get_spatial_dfba_state(
+        n_bins=n_bins,
+        mol_ids=mol_ids,
+    )
 
     # make the composite
     print('Making the composite...')

@@ -132,22 +132,34 @@ class DiffusionAdvection(Process):
 core.register_process('DiffusionAdvection', DiffusionAdvection)
 
 
-def run_diffusion_process(
-        total_time=50,
+# Helper functions to get specs and states
+def get_diffusion_advection_spec(
         bounds=(10.0, 10.0),
-        n_bins=(10, 10),
+        n_bins=(5, 5),
+        mol_ids=None,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
 ):
-    initial_glucose = np.random.uniform(low=0, high=20, size=(n_bins[1], n_bins[0]))
-    initial_acetate = np.random.uniform(low=0, high=0, size=(n_bins[1], n_bins[0]))
-    initial_biomass = np.random.uniform(low=0, high=0.1, size=(n_bins[1], n_bins[0]))
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    if diffusion_coeffs is None:
+        diffusion_coeffs = {}
+    if advection_coeffs is None:
+        advection_coeffs = {}
 
-    composite_state = {
-        'fields': {
-            'glucose': initial_glucose,
-            'acetate': initial_acetate,
-            'biomass': initial_biomass,
-        },
-        'diffusion': {
+    # fill in the missing diffusion and advection rates
+    diffusion_coeffs = {
+        mol_id: diffusion_coeffs.get(mol_id, default_diffusion_rate)
+        for mol_id in mol_ids
+    }
+    advection_coeffs = {
+        mol_id: advection_coeffs.get(mol_id, default_advection_rate)
+        for mol_id in mol_ids
+    }
+
+    return {
             '_type': 'process',
             'address': 'local:DiffusionAdvection',
             'config': {
@@ -155,16 +167,8 @@ def run_diffusion_process(
                 'bounds': bounds,
                 'default_diffusion_rate': 1e-1,
                 'default_diffusion_dt': 1e-1,
-                'diffusion_coeffs': {
-                    'glucose': 1e-1,
-                    'acetate': 1e-1,
-                    'biomass': 1e-1,
-                },
-                'advection_coeffs': {
-                    'glucose': (0, 0),
-                    'acetate': (0, 0),
-                    'biomass': (0, 0),
-                },
+                'diffusion_coeffs': diffusion_coeffs,
+                'advection_coeffs': advection_coeffs,
             },
             'inputs': {
                 'fields': ['fields']
@@ -173,7 +177,68 @@ def run_diffusion_process(
                 'fields': ['fields']
             }
         }
+
+
+def get_diffusion_advection_state(
+        bounds=(10.0, 10.0),
+        n_bins=(5, 5),
+        mol_ids=None,
+        initial_max=None,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
+):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    if initial_max is None:
+        initial_max = {
+            'glucose': 20,
+            'acetate': 0,
+            'biomass': 0.1
+        }
+    # initial_fields = {
+    #     mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins[1], n_bins[0]))
+    #     for mol_id in mol_ids}
+    initial_fields = {
+        mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
+        for mol_id in mol_ids}
+
+    return {
+        'fields': {
+            '_type': 'map',
+            '_value': {
+                '_type': 'array',
+                '_shape': n_bins,
+                '_data': 'positive_float'
+            },
+            **initial_fields,
+        },
+        'diffusion': get_diffusion_advection_spec(
+            bounds=bounds,
+            n_bins=n_bins,
+            mol_ids=mol_ids,
+            default_diffusion_rate=default_diffusion_rate,
+            default_advection_rate=default_advection_rate,
+            diffusion_coeffs=diffusion_coeffs,
+            advection_coeffs=advection_coeffs,
+        ),
     }
+
+
+def run_diffusion_process(
+        total_time=50,
+        bounds=(10.0, 10.0),
+        n_bins=(10, 10),
+):
+    composite_state = get_diffusion_advection_state(
+        bounds=bounds,
+        n_bins=n_bins,
+        mol_ids=['glucose', 'acetate', 'biomass'],
+        advection_coeffs={
+            'biomass': (0, -0.1)
+        }
+    )
 
     # make the composite
     print('Making the composite...')
