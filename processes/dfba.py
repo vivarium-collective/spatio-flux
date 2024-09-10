@@ -39,9 +39,9 @@ core.register_process('bounds', bounds_type)
 
 # TODO -- can set lower and upper bounds by config instead of hardcoding
 MODEL_FOR_TESTING = load_model('textbook')
-MODEL_FOR_TESTING.reactions.EX_o2_e.lower_bound = -2  # Limiting oxygen uptake
-MODEL_FOR_TESTING.reactions.ATPM.lower_bound = 1     # Setting lower bound for ATP maintenance
-MODEL_FOR_TESTING.reactions.ATPM.upper_bound = 1     # Setting upper bound for ATP maintenance
+# MODEL_FOR_TESTING.reactions.EX_o2_e.lower_bound = -2  # Limiting oxygen uptake
+# MODEL_FOR_TESTING.reactions.ATPM.lower_bound = 1     # Setting lower bound for ATP maintenance
+# MODEL_FOR_TESTING.reactions.ATPM.upper_bound = 1     # Setting upper bound for ATP maintenance
 
 
 class DynamicFBA(Process):
@@ -170,22 +170,47 @@ def dfba_config(
     }
 
 
-def get_single_dfba_spec(i, j, mol_ids=None):
+def get_single_dfba_spec(mol_ids=None, path=None, i=None, j=None):
+    """
+    Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
+
+    This function builds a process specification for use with a dynamic FBA system. It allows
+    specification of substrate molecule IDs and optionally appends indices to the paths for those substrates.
+
+    Parameters:
+        mol_ids (list of str, optional): List of molecule IDs to include in the process. Defaults to
+                                         ['glucose', 'acetate', 'biomass'].
+        path (list of str, optional): The base path to prepend to each molecule ID. Defaults to ['..', 'fields'].
+        i (int, optional): The first index to append to the path for each molecule, if not None.
+        j (int, optional): The second index to append to the path for each molecule, if not None.
+
+    Returns:
+        dict: A dictionary containing the process type, address, configuration, and paths for inputs
+              and outputs based on the specified molecule IDs and indices.
+    """
+    if path is None:
+        path = ['..', 'fields']
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
+
+    # Function to build the path with optional indices
+    def build_path(mol_id):
+        base_path = path + [mol_id]
+        if i is not None:
+            base_path.append(i)
+        if j is not None:
+            base_path.append(j)
+        return base_path
+
     return {
         '_type': 'process',
         'address': 'local:DynamicFBA',
         'config': dfba_config(),
         'inputs': {
-            'substrates': {
-                mol_id: ['..', 'fields', mol_id, i, j] for mol_id in mol_ids
-            }
+            'substrates': {mol_id: build_path(mol_id) for mol_id in mol_ids}
         },
         'outputs': {
-            'substrates': {
-                 mol_id: ['..', 'fields', mol_id, i, j] for mol_id in mol_ids
-            }
+            'substrates': {mol_id: build_path(mol_id) for mol_id in mol_ids}
         }
     }
 
@@ -196,7 +221,7 @@ def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
-            dfba_processes_dict[f'[{i},{j}]'] = get_single_dfba_spec(i, j, mol_ids=mol_ids)
+            dfba_processes_dict[f'[{i},{j}]'] = get_single_dfba_spec(mol_ids=mol_ids, path=['..', 'fields'], i=i, j=j)
     return dfba_processes_dict
 
 
@@ -236,9 +261,12 @@ def get_spatial_dfba_state(
 
 def run_dfba_spatial(
         total_time=60,
-        n_bins=(5, 5)  # TODO -- why can't do (5, 10)??
+        n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
+        mol_ids=None,
 ):
-    mol_ids = ['glucose', 'acetate', 'biomass']
+
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
     composite_state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids)
 
     # make the composite
