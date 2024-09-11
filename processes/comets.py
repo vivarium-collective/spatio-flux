@@ -49,7 +49,7 @@ def run_comets(
     }, core=core)
 
     # save the document
-    sim.save(filename='comets.json', outdir='out')
+    sim.save(filename='comets.json', outdir='out', include_schema=True)
 
     # TODO -- save a viz figure of the initial state
 

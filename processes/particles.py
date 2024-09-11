@@ -17,7 +17,6 @@ particle_type = {
     'id': 'string',
     'position': 'tuple[float,float]',
     'size': 'float',
-    'color': 'enum[b, g, r, c, m, y, k]',  # TODO make color type, with HEX values
 }
 core.register('particle', particle_type)
 
@@ -26,17 +25,12 @@ class Particles(Process):
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
         'bounds': 'tuple[float,float]',
-        'default_diffusion_rate': {'_type': 'float', '_default': 1e-1},
-        'default_advection_rate': {'_type': 'tuple[float,float]', '_default': (0, 0)},
-        'default_add_probability': {'_type': 'float', '_default': 0.1},  # probability of adding particles
+        'diffusion_rate': {'_type': 'float', '_default': 1e-1},
+        'advection_rate': {'_type': 'tuple[float,float]', '_default': (0, 0)},
+        # adding/removing particles at boundaries
+        'add_probability': {'_type': 'float', '_default': 0.0},  # TODO -- make probability type
         'boundary_to_add': {'_type': 'list', '_default': ['left', 'right']},  # which boundaries to add particles
         'boundary_to_remove': {'_type': 'list', '_default': ['left', 'right', 'top', 'bottom']},
-        # which boundaries to remove particles
-        'n_particles_per_species': {'_type': 'list', '_default': [10, 10]},  # number of particles for each species
-        'species_colors': {'_type': 'list', '_default': ['b', 'g', 'r', 'c', 'm', 'y', 'k']},  # colors for each species
-        'diffusion_rates': {'_type': 'map', '_default': {}},  # diffusion rates for species by color with {'color': rate}
-        'advection_rates': {'_type': 'map', '_default': {}},  # advection rates for species by color with {'color': rate}
-        'add_probability': {'_type': 'map', '_default': {}},  # probability of adding particles
     }
 
     def __init__(self, config, core):
@@ -45,16 +39,6 @@ class Particles(Process):
             (0, self.config['bounds'][0]),
             (0, self.config['bounds'][1])
         )
-
-        self.diffusion_rates = {
-            color: self.config['diffusion_rates'].get(color, self.config['default_diffusion_rate'])
-            for color in self.config['species_colors']}
-        self.advection_rates = {
-            color: self.config['advection_rates'].get(color, self.config['default_advection_rate'])
-            for color in self.config['species_colors']}
-        self.add_probability = {
-            color: self.config['add_probability'].get(color, self.config['default_add_probability'])
-            for color in self.config['species_colors']}
 
     def inputs(self):
         return {
@@ -90,32 +74,25 @@ class Particles(Process):
 
     @staticmethod
     def initialize_particles(
-            n_particles_per_species,
+            n_particles,
             bounds,
-            species_colors=None,  # Extend as needed
             size_range=(10, 100)
     ):
         """
         Initialize particle positions for multiple species.
         """
-        if species_colors is None:
-            species_colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
         # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
         particles = []
-
-        for species_idx, n_particles in enumerate(n_particles_per_species):
-            color = species_colors[species_idx % len(species_colors)]
-            for _ in range(n_particles):
-                particle = {
-                    'id': str(uuid.uuid4()),
-                    'position': tuple(np.random.uniform(
-                        low=[0, 0],
-                        high=[bounds[0], bounds[1]],
-                        size=2)),
-                    'size': np.random.uniform(size_range[0], size_range[1]),
-                    'color': color,
-                }
-                particles.append(particle)
+        for _ in range(n_particles):
+            particle = {
+                'id': str(uuid.uuid4()),
+                'position': tuple(np.random.uniform(
+                    low=[0, 0],
+                    high=[bounds[0], bounds[1]],
+                    size=2)),
+                'size': np.random.uniform(size_range[0], size_range[1]),
+            }
+            particles.append(particle)
 
         return particles
 
@@ -129,10 +106,9 @@ class Particles(Process):
             for mol_id, field in fields.items()}
         for particle in particles:
             updated_particle = particle.copy()
-            color = particle['color']
 
             # Apply diffusion and advection
-            dx, dy = np.random.normal(0, self.diffusion_rates[color], 2) + self.advection_rates[color]
+            dx, dy = np.random.normal(0, self.config['diffusion_rate'], 2) + self.config['advection_rate']
 
             new_x_position = particle['position'][0] + dx
             new_y_position = particle['position'][1] + dy
@@ -169,16 +145,14 @@ class Particles(Process):
 
         # Probabilistically add new particles at user-defined boundaries
         for boundary in self.config['boundary_to_add']:
-            for color, prob in self.add_probability.items():
-                if np.random.rand() < prob:
-                    new_particle = {
-                        'id': str(uuid.uuid4()),
-                        'position': self.get_boundary_position(boundary),
-                        'size': np.random.uniform(10, 100),  # Random size for new particles
-                        'color': color,
-                        # 'local': {}  # TODO local field values
-                    }
-                    new_particles.append(new_particle)
+            if np.random.rand() < self.config['add_probability']:
+                new_particle = {
+                    'id': str(uuid.uuid4()),
+                    'position': self.get_boundary_position(boundary),
+                    'size': np.random.uniform(10, 100),  # Random size for new particles
+                    # 'local': {}  # TODO local field values
+                }
+                new_particles.append(new_particle)
 
         return {
             'particles': new_particles,
@@ -248,11 +222,10 @@ core.register_process('Particles', Particles)
 def get_particles_spec(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
-        colors=['b', 'g', 'r'],
-        custom_diffusion_rates={},
-        custom_advection_rates={},
-        custom_add_probability={},
-        default_add_probability=0.0,
+        diffusion_rate=1e-1,
+        advection_rate=(0, 0),
+        add_probability=0.0,
+        boundary_to_add=['top'],
 ):
     return {
             '_type': 'process',
@@ -260,15 +233,10 @@ def get_particles_spec(
             'config': {
                 'n_bins': n_bins,
                 'bounds': bounds,
-                'default_diffusion_rate': 1e-1,
-                'default_advection_rate': (0, 0),
-                'default_add_probability': default_add_probability,
-                'boundary_to_add': ['top'],
-                # 'boundary_to_remove': ['bottom'],
-                'species_colors': colors,
-                'diffusion_rates': custom_diffusion_rates,
-                'advection_rates': custom_advection_rates,
-                'add_probability': custom_add_probability,
+                'diffusion_rate': diffusion_rate,
+                'advection_rate': advection_rate,
+                'add_probability': add_probability,
+                'boundary_to_add': boundary_to_add,
             },
             'inputs': {
                 'particles': ['particles'],
@@ -282,20 +250,21 @@ def get_particles_spec(
 
 
 def get_particles_state(
-        # particles,
-        n_particles_per_species,
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
-        colors=['b', 'g', 'r'],
-        custom_diffusion_rates={},
-        custom_advection_rates={},
-        custom_add_probability={},
-        default_add_probability=0.0,
+        n_particles=15,
+        diffusion_rate=0.1,
+        advection_rate=(0, -0.1),
+        boundary_to_add=None,
+        add_probability=0.4,
 ):
 
     # initialize particles
+    if boundary_to_add is None:
+        boundary_to_add = ['top']
+
     particles = Particles.initialize_particles(
-        n_particles_per_species=n_particles_per_species,
+        n_particles=n_particles,
         bounds=bounds,
     )
     # initialize fields
@@ -309,11 +278,10 @@ def get_particles_state(
         'particles_process': get_particles_spec(
             n_bins=n_bins,
             bounds=bounds,
-            colors=colors,
-            custom_diffusion_rates=custom_diffusion_rates,
-            custom_advection_rates=custom_advection_rates,
-            custom_add_probability=custom_add_probability,
-            default_add_probability=default_add_probability,
+            diffusion_rate=diffusion_rate,
+            advection_rate=advection_rate,
+            add_probability=add_probability,
+            boundary_to_add=boundary_to_add,
         )
     }
 
@@ -325,14 +293,13 @@ def run_particles(
 ):
     # initialize particles state
     composite_state = get_particles_state(
-        n_particles_per_species=[5, 5, 5],
         n_bins=n_bins,
         bounds=bounds,
-        colors=['b', 'g', 'r'],
-        custom_diffusion_rates={},
-        custom_advection_rates={'r': (0, -0.1)},
-        custom_add_probability={'r': 0.4},
-        default_add_probability=0.0,
+        n_particles=10,
+        diffusion_rate=0.1,
+        advection_rate=(0, -0.1),
+        add_probability=0.4,
+        boundary_to_add=['top'],
     )
 
     # make the composite

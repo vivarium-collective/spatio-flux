@@ -241,7 +241,7 @@ def plot_species_distributions_with_particles_to_gif(
             for particle in particles:
                 ax.scatter(particle['position'][0], particle['position'][1],
                            s=particle['size'],
-                           color=particle['color']
+                           color='b'
                            )
 
         fig.suptitle(title, fontsize=16)
@@ -309,7 +309,7 @@ def plot_particles(
         particles = history[frame]
         for particle in particles:
             ax.scatter(particle['position'][0], particle['position'][1],
-                       s=particle['size'], color=particle['color'])
+                       s=particle['size'], color='b')
 
         # Save the current figure to a temporary buffer
         buf = io.BytesIO()
