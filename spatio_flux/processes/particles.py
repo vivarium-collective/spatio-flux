@@ -44,7 +44,9 @@ class Particles(Process):
                 '_type': 'map',
                 '_value': {
                     'vmax': {'_type': 'float', '_default': 0.1},
-                    'Km': {'_type': 'float', '_default': 1.0}
+                    'Km': {'_type': 'float', '_default': 1.0},
+                    'interaction_type': {
+                        '_type': 'enum[uptake,secretion]', '_default': 'uptake'},  # 'uptake' or 'secretion'
                 }
             },
             '_default': {'biomass': {'vmax': 0.1, 'Km': 1.0}}
@@ -145,10 +147,11 @@ class Particles(Process):
             # Interact with fields based on the config schema
             for field, interaction_params in self.config['field_interactions'].items():
                 local_field_value = local_field_concentrations.get(field)
-                if local_field_value:
-                    vmax = interaction_params['vmax']
-                    Km = interaction_params['Km']
+                vmax = interaction_params['vmax']
+                Km = interaction_params.get('Km')
+                interaction_type = interaction_params.get('interaction_type', 'uptake')  # Default to 'uptake' if not provided
 
+                if interaction_type == 'uptake' and local_field_value:
                     # Michaelis-Menten-like rate law for uptake
                     uptake_rate = (vmax * local_field_value) / (Km + local_field_value)
 
@@ -162,6 +165,16 @@ class Particles(Process):
                     if local_field_value - absorbed_value < 0.0:
                         absorbed_value = local_field_value  # Cap absorption to available field value
                     new_fields[field][x, y] = -absorbed_value
+
+                elif interaction_type == 'secretion':
+                    # During secretion, use only vmax
+                    secreted_value = float(vmax * particle['size'])
+
+                    # Update particle size based on the secreted value
+                    updated_particle['size'] = max(updated_particle['size'] - 0.01 * secreted_value, 0.0)
+
+                    # Increase the field concentration in the environment
+                    new_fields[field][x, y] += secreted_value  # Add secreted value to the field
 
             new_particles.append(updated_particle)
 
@@ -250,17 +263,9 @@ def get_particles_spec(
         boundary_to_add=['top'],
         field_interactions=None,
 ):
-    config = {
-        'n_bins': n_bins,
-        'bounds': bounds,
-        'diffusion_rate': diffusion_rate,
-        'advection_rate': advection_rate,
-        'add_probability': add_probability,
-        'boundary_to_add': boundary_to_add,
-    }
-    # Only add field_interactions if it is not None
-    if field_interactions is not None:
-        config['field_interactions'] = field_interactions
+    config = locals()
+    # Remove any key-value pair where the value is None
+    config = {key: value for key, value in config.items() if value is not None}
 
     return {
             '_type': 'process',
@@ -330,8 +335,8 @@ def run_particles(
 ):
     if field_interactions is None:
         field_interactions = {
-            'biomass': {'vmax': 0.1, 'Km': 1.0},
-            'detritus': {'vmax': -0.1, 'Km': 1.0},
+            'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
+            'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
         }
 
     # Get all local variables as a dictionary

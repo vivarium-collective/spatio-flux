@@ -17,7 +17,6 @@ def get_particle_comets_state(
         n_bins=(10, 10),
         bounds=(10.0, 10.0),
         mol_ids=None,
-        initial_max=None,
         n_particles=10,
         field_diffusion_rate=1e-1,
         field_advection_rate=(0, 0),
@@ -25,21 +24,28 @@ def get_particle_comets_state(
         particle_advection_rate=(0, 0),
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
+        field_interactions=None,
+        initial_max=None,
 ):
     if particle_boundary_to_add is None:
         particle_boundary_to_add = ['top']
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
+    if field_interactions is None:
+        field_interactions = {'biomass': {'vmax': 0.1, 'Km': 1.0}}
+    if initial_max is None:
+        initial_max = {'glucose': 20, 'acetate': 0, 'biomass': 0.1}
+    for mol_id in field_interactions.keys():
+        if mol_id not in mol_ids:
+            mol_ids.append(mol_id)
+        if mol_id not in initial_max:
+            initial_max[mol_id] = 0
 
-        # make the composite state with dFBA based on grid size
+    # make the composite state with dFBA based on grid size
     composite_state = get_spatial_dfba_state(
         n_bins=n_bins,
         mol_ids=mol_ids,
-        initial_max={
-            'glucose': 20,
-            'acetate': 0,
-            'biomass': 0.1
-        }
+        initial_max=initial_max
     )
     # add diffusion/advection process
     composite_state['diffusion'] = get_diffusion_advection_spec(
@@ -64,26 +70,36 @@ def get_particle_comets_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
+        field_interactions=field_interactions,
     )
     return composite_state
 
 
 def run_particle_comets(
-        total_time=100.0,
+        total_time=10.0,
+        # environment size
         bounds=(10.0, 20.0),
         n_bins=(8, 16),
+        # set fields
         mol_ids=None,
         field_diffusion_rate=1e-1,
         field_advection_rate=(0, 0),
+        # set particles
         n_particles=10,
         particle_diffusion_rate=1e-1,
         particle_advection_rate=(0, -0.1),
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
+        field_interactions=None,
 ):
     # make the composite state
     if particle_boundary_to_add is None:
         particle_boundary_to_add = ['top']
+    if field_interactions is None:
+        field_interactions = {
+            'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
+            'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
+        }
 
     composite_state = get_particle_comets_state(
         n_bins=n_bins,
@@ -98,6 +114,7 @@ def run_particle_comets(
         particle_advection_rate=particle_advection_rate,
         particle_add_probability=particle_add_probability,
         particle_boundary_to_add=particle_boundary_to_add,
+        field_interactions=field_interactions,
     )
 
     # make the composite

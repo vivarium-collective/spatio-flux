@@ -212,14 +212,8 @@ def get_spatial_dfba_state(
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
     if initial_max is None:
-        initial_max = {
-            'glucose': 20,
-            'acetate': 0,
-            'biomass': 0.1
-        }
-    # initial_fields = {
-    #     mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins[1], n_bins[0]))
-    #     for mol_id in mol_ids}
+        initial_max = {'glucose': 20, 'acetate': 0, 'biomass': 0.1}
+
     initial_fields = {
         mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
         for mol_id in mol_ids}

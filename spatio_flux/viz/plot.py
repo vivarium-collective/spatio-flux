@@ -223,7 +223,7 @@ def plot_species_distributions_with_particles_to_gif(
         fields = emitter_results[i]['fields']
         particles = emitter_results[i]['particles']
 
-        fig, axs = plt.subplots(1, n_species, figsize=(5 * n_species, 4))
+        fig, axs = plt.subplots(1, n_species, figsize=(5 * n_species, 5))
         if n_species == 1:
             axs = [axs]
 
@@ -246,8 +246,8 @@ def plot_species_distributions_with_particles_to_gif(
                            )
 
         fig.suptitle(title, fontsize=16)
-        plt.subplots_adjust(wspace=0.05, hspace=0.2)
-        plt.tight_layout(pad=0.2)
+        plt.subplots_adjust(wspace=0.1, hspace=0.1)
+        plt.tight_layout(pad=0.1)
 
         # Save the current figure to a temporary buffer
         buf = io.BytesIO()
