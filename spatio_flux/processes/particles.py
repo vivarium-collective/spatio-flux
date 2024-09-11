@@ -139,7 +139,7 @@ class Particles(Process):
                 updated_particle['size'] = max(size + 0.01*absorbed_biomass, 0.0)
                 if local_biomass - absorbed_biomass < 0.0:
                     absorbed_biomass = local_biomass
-                new_fields['biomass'][y, x] = -absorbed_biomass
+                new_fields['biomass'][x, y] = -absorbed_biomass
 
             new_particles.append(updated_particle)
 
@@ -188,7 +188,7 @@ class Particles(Process):
         """
         local_values = {}
         for mol_id, field in fields.items():
-            local_values[mol_id] = field[row, column]
+            local_values[mol_id] = field[column, row]
 
         return local_values
 
@@ -257,6 +257,8 @@ def get_particles_state(
         advection_rate=(0, -0.1),
         boundary_to_add=None,
         add_probability=0.4,
+        min_field=0,
+        max_field=10,
 ):
 
     # initialize particles
@@ -268,7 +270,7 @@ def get_particles_state(
         bounds=bounds,
     )
     # initialize fields
-    initial_biomass = np.random.uniform(low=0, high=20, size=(n_bins[1], n_bins[0]))
+    initial_biomass = np.random.uniform(low=min_field, high=max_field, size=n_bins)
 
     return {
         'fields': {
@@ -287,19 +289,27 @@ def get_particles_state(
 
 
 def run_particles(
-        total_time=100,  # Total frames
+        total_time=20,  # Total frames
         bounds=(10.0, 20.0),  # Bounds of the environment
         n_bins=(20, 40),  # Number of bins in the x and y directions
+        n_particles=20,
+        diffusion_rate=0.1,
+        advection_rate=(0, 0),  # (0, -0.1),
+        add_probability=0.4,
+        min_field=8,
+        max_field=10,
 ):
     # initialize particles state
     composite_state = get_particles_state(
         n_bins=n_bins,
         bounds=bounds,
-        n_particles=10,
-        diffusion_rate=0.1,
-        advection_rate=(0, -0.1),
-        add_probability=0.4,
+        n_particles=n_particles,
+        diffusion_rate=diffusion_rate,
+        advection_rate=advection_rate,  #(0, -0.1),
+        add_probability=add_probability,
         boundary_to_add=['top'],
+        min_field=min_field,
+        max_field=max_field,
     )
 
     # make the composite

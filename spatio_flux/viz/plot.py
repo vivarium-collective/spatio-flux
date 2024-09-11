@@ -231,8 +231,9 @@ def plot_species_distributions_with_particles_to_gif(
             ax = axs[j]
             vmin, vmax = global_min_max[species]
             # Plot species distribution as heatmap
-            flipped_field = fields[species][::-1, :]  # [::-1, :] flips the array along the first axis (rows), while keeping the second axis (columns)
-            img = ax.imshow(flipped_field, interpolation='nearest', vmin=vmin, vmax=vmax,
+            # flipped_field = fields[species][::-1, :]  # [::-1, :] flips the array along the first axis (rows), while keeping the second axis (columns)
+            rotated_field = np.rot90(fields[species], k=1)  # 'k=1' indicates one 90-degree rotation counter-clockwise
+            img = ax.imshow(rotated_field, interpolation='nearest', vmin=vmin, vmax=vmax,
                             extent=[0, xmax, 0, ymax])  # extent stretches the field
 
             ax.set_title(f'{species} at t = {times[i]:.2f}')
