@@ -8,8 +8,10 @@ This process is a simple 2D diffusion-advection process. It takes a 2D field as 
 import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
+from bigraph_viz import plot_bigraph
 from spatio_flux import core  # import the core from the processes package
 from spatio_flux.viz.plot import plot_species_distributions_to_gif
+
 
 # Laplacian for 2D diffusion
 LAPLACIAN_2D = np.array([[0, 1, 0],
@@ -250,7 +252,14 @@ def run_diffusion_process(
     # save the document
     sim.save(filename='diffadv.json', outdir='out')
 
-    # TODO -- save a viz figure of the initial state
+    # save a viz figure of the initial state
+    plot_bigraph(
+        state=sim.state,
+        schema=sim.composition,
+        core=core,
+        out_dir='out',
+        filename='diffadv_viz'
+    )
 
     # simulate
     print('Simulating...')

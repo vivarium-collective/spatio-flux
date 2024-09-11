@@ -69,16 +69,16 @@ def get_particle_comets_state(
 
 
 def run_particle_comets(
-        total_time=10.0,
+        total_time=100.0,
         bounds=(10.0, 20.0),
-        n_bins=(10, 20),
+        n_bins=(8, 16),
         mol_ids=None,
         field_diffusion_rate=1e-1,
         field_advection_rate=(0, 0),
         n_particles=10,
         particle_diffusion_rate=1e-1,
         particle_advection_rate=(0, -0.1),
-        particle_add_probability=0.2,
+        particle_add_probability=0.3,
         particle_boundary_to_add=None,
 ):
     # make the composite state
@@ -122,7 +122,7 @@ def run_particle_comets(
     # plot timeseries
     plot_time_series(
         particle_comets_results,
-        coordinates=[(0, 0), (5, 5)],
+        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
         out_dir='out',
         filename='particle_comets_timeseries.png'
     )

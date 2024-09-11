@@ -38,6 +38,7 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "process-bigraph",
+        "bigraph-viz",
         "scipy",
         "cobra",
         "imageio",

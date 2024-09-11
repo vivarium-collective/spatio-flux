@@ -10,6 +10,7 @@ import warnings
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
+from bigraph_viz import plot_bigraph
 from spatio_flux import core  # import the core from the processes package
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
 
@@ -259,7 +260,14 @@ def run_dfba_spatial(
     # save the document
     sim.save(filename='spatial_dfba.json', outdir='out')
 
-    # TODO -- save a viz figure of the initial state
+    # # save a viz figure of the initial state
+    # plot_bigraph(
+    #     state=sim.state,
+    #     schema=sim.composition,
+    #     core=core,
+    #     out_dir='out',
+    #     filename='dfba_spatial_viz'
+    # )
 
     # simulate
     print('Simulating...')

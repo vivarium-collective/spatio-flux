@@ -8,6 +8,7 @@ A process for simulating the motion of particles in a 2D environment.
 import uuid
 import numpy as np
 from process_bigraph import Process, Composite
+from bigraph_viz import plot_bigraph
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
 
@@ -322,7 +323,14 @@ def run_particles(
     # save the document
     sim.save(filename='particles.json', outdir='out')
 
-    # TODO -- save a viz figure of the initial state
+    # save a viz figure of the initial state
+    plot_bigraph(
+        state=sim.state,
+        schema=sim.composition,
+        core=core,
+        out_dir='out',
+        filename='particles_viz'
+    )
 
     # simulate
     print('Simulating...')
