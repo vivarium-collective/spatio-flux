@@ -3,6 +3,7 @@ COMETS composite made of dFBAs and diffusion-advection processes.
 """
 
 from process_bigraph import Composite
+from bigraph_viz import plot_bigraph
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
 
@@ -11,25 +12,32 @@ from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to
 from spatio_flux.processes.dfba import get_spatial_dfba_state
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec
 
+default_config = {
+    'total_time': 60.0,
+    # environment size
+    'bounds': (10.0, 10.0),
+    'n_bins': (10, 10),
+    # set fields
+    'mol_ids': ['glucose', 'acetate', 'biomass'],
+    'initial_min_max': {'glucose': (0, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)},
+}
+
 
 def run_comets(
-        total_time=60.0,
+        total_time=10.0,
         bounds=(10.0, 10.0),
         n_bins=(10, 10),
         mol_ids=None,
+        initial_min_max=None,
 ):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+    mol_ids = mol_ids or default_config['mol_ids']
+    initial_min_max = initial_min_max or default_config['initial_min_max']
 
     # make the composite state
     composite_state = get_spatial_dfba_state(
         n_bins=n_bins,
         mol_ids=mol_ids,
-        initial_max={
-            'glucose': 20,
-            'acetate': 0,
-            'biomass': 0.1
-        }
+        initial_min_max=initial_min_max,
     )
     composite_state['diffusion'] = get_diffusion_advection_spec(
         bounds=bounds,
@@ -37,7 +45,7 @@ def run_comets(
         mol_ids=mol_ids,
         default_diffusion_rate=1e-1,
         default_advection_rate=(0, 0),
-        diffusion_coeffs=None,
+        diffusion_coeffs=None,  # TODO add all these config options
         advection_coeffs=None,
     )
 
@@ -51,7 +59,14 @@ def run_comets(
     # save the document
     sim.save(filename='comets.json', outdir='out', include_schema=True)
 
-    # TODO -- save a viz figure of the initial state
+    # # save a viz figure of the initial state
+    # plot_bigraph(
+    #     state=sim.state,
+    #     schema=sim.composition,
+    #     core=core,
+    #     out_dir='out',
+    #     filename='comets_viz'
+    # )
 
     # simulate
     print('Simulating...')
@@ -78,4 +93,4 @@ def run_comets(
 
 
 if __name__ == '__main__':
-    run_comets()
+    run_comets(**default_config)

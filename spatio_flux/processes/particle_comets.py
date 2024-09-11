@@ -3,6 +3,7 @@ Particle-COMETS composite made of dFBAs, diffusion-advection, and particle proce
 """
 
 from process_bigraph import Composite
+from bigraph_viz import plot_bigraph
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
 
@@ -111,7 +112,14 @@ def run_particle_comets(
     # save the document
     sim.save(filename='particle_comets.json', outdir='out', include_schema=True)
 
-    # TODO -- save a viz figure of the initial state
+    # # save a viz figure of the initial state
+    # plot_bigraph(
+    #     state=sim.state,
+    #     schema=sim.composition,
+    #     core=core,
+    #     out_dir='out',
+    #     filename='particles_comets_viz'
+    # )
 
     # simulate
     print('Simulating...')
