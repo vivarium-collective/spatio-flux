@@ -8,6 +8,7 @@ from process_bigraph import ProcessTypes
 # make type system
 core = ProcessTypes()
 
+
 def apply_non_negative(schema, current, update, core):
     new_value = current + update
     return max(0, new_value)

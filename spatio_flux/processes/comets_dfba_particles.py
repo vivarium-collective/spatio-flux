@@ -2,15 +2,12 @@ import numpy as np
 from process_bigraph import Composite, default
 from processes.dfba import dfba_config
 from processes import core
-import cobra
 from cobra.io import load_model
-from viz.plot import (
+from spatio_flux.viz.plot import (
     plot_time_series, plot_species_distributions_with_particles_to_gif)
 
 
 # TODO -- need to do this to register???
-from processes.dfba import DynamicFBA
-from processes.diffusion_advection import DiffusionAdvection
 from processes.particles import Particles
 
 

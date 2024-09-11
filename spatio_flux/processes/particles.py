@@ -8,8 +8,8 @@ A process for simulating the motion of particles in a 2D environment.
 import uuid
 import numpy as np
 from process_bigraph import Process, Composite
-from processes import core
-from viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
+from spatio_flux import core
+from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
 
 
 # TODO -- make particle type

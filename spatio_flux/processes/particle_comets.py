@@ -3,15 +3,14 @@ Particle-COMETS composite made of dFBAs, diffusion-advection, and particle proce
 """
 
 from process_bigraph import Composite
-from processes import core
-from viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
+from spatio_flux import core
+from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
 
 
 # TODO -- need to do this to register???
-from processes.dfba import DynamicFBA, get_spatial_dfba_state
-from processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
-from processes.particles import Particles, get_particles_spec, get_particles_state
-
+from spatio_flux.processes.dfba import DynamicFBA, get_spatial_dfba_state
+from spatio_flux.processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
+from spatio_flux.processes.particles import Particles, get_particles_spec, get_particles_state
 
 
 def get_particle_comets_state(

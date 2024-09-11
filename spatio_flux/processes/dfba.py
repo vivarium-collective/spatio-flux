@@ -10,8 +10,8 @@ import warnings
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
-from processes import core  # import the core from the processes package
-from viz.plot import plot_time_series, plot_species_distributions_to_gif
+from spatio_flux import core  # import the core from the processes package
+from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")

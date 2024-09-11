@@ -2,31 +2,25 @@ import re
 from setuptools import setup, find_packages
 
 
-VERSION = '0.0.19'
-
+VERSION = '0.0.1'
 
 with open("README.md", "r") as readme:
     description = readme.read()
-    # Patch the relative links to absolute URLs that will work on PyPI.
-    description2 = re.sub(
-        r']\(([\w/.-]+\.png)\)',
-        r'](https://github.com/vivarium-collective/process-bigraph/raw/main/\1)',
-        description)
-    long_description = re.sub(
-        r']\(([\w/.-]+)\)',
-        r'](https://github.com/vivarium-collective/process-bigraph/blob/main/\1)',
-        description2)
+
 
 setup(
-    name="process-bigraph",
+    name="spatio-flux",
     version=VERSION,
     author="Ryan Spangler, Eran Agmon",
     author_email="ryan.spangler@gmail.com, agmon.eran@gmail.com",
     description="",
-    long_description=long_description,
+    long_description=description,
     long_description_content_type="text/markdown",
-    url="https://github.com/vivarium-collective/process-bigraph",
-    packages=find_packages(),
+    url="https://github.com/vivarium-collective/spatio-flux",
+    packages=[
+        'spatio_flux.processes',
+        'spatio_flux.viz',
+    ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
