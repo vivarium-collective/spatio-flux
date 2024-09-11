@@ -207,15 +207,17 @@ def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
 def get_spatial_dfba_state(
         n_bins=(5, 5),
         mol_ids=None,
-        initial_max=None,
+        initial_min_max=None,  # {mol_id: (min, max)}
 ):
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
-    if initial_max is None:
-        initial_max = {'glucose': 20, 'acetate': 0, 'biomass': 0.1}
+    if initial_min_max is None:
+        initial_min_max = {'glucose': (0, 20), 'acetate': (0,0 ), 'biomass': (0, 0.1)}
 
     initial_fields = {
-        mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
+        mol_id: np.random.uniform(low=initial_min_max[mol_id][0],
+                                  high=initial_min_max[mol_id][1],
+                                  size=n_bins)
         for mol_id in mol_ids}
 
     return {

@@ -13,6 +13,29 @@ from spatio_flux.processes.diffusion_advection import DiffusionAdvection, get_di
 from spatio_flux.processes.particles import Particles, get_particles_spec, get_particles_state
 
 
+default_config = {
+    'total_time': 10.0,
+    # environment size
+    'bounds': (10.0, 20.0),
+    'n_bins': (8, 16),
+    # set fields
+    'mol_ids': ['glucose', 'acetate', 'biomass', 'detritus'],
+    'field_diffusion_rate': 1e-1,
+    'field_advection_rate': (0, 0),
+    'initial_min_max': {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1), 'detritus': (0, 0)},
+    # set particles
+    'n_particles': 10,
+    'particle_diffusion_rate': 1e-1,
+    'particle_advection_rate': (0, -0.1),
+    'particle_add_probability': 0.3,
+    'particle_boundary_to_add': ['top'],
+    'field_interactions': {
+        'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
+        'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
+    },
+}
+
+
 def get_particle_comets_state(
         n_bins=(10, 10),
         bounds=(10.0, 10.0),
@@ -25,27 +48,23 @@ def get_particle_comets_state(
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
         field_interactions=None,
-        initial_max=None,
+        initial_min_max=None,
 ):
-    if particle_boundary_to_add is None:
-        particle_boundary_to_add = ['top']
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
-    if field_interactions is None:
-        field_interactions = {'biomass': {'vmax': 0.1, 'Km': 1.0}}
-    if initial_max is None:
-        initial_max = {'glucose': 20, 'acetate': 0, 'biomass': 0.1}
+    particle_boundary_to_add = particle_boundary_to_add or default_config['particle_boundary_to_add']
+    mol_ids = mol_ids or default_config['mol_ids']
+    field_interactions = field_interactions or default_config['field_interactions']
+    initial_min_max = initial_min_max or default_config['initial_min_max']
     for mol_id in field_interactions.keys():
         if mol_id not in mol_ids:
             mol_ids.append(mol_id)
-        if mol_id not in initial_max:
-            initial_max[mol_id] = 0
+        if mol_id not in initial_min_max:
+            initial_min_max[mol_id] = (0, 1)
 
     # make the composite state with dFBA based on grid size
     composite_state = get_spatial_dfba_state(
         n_bins=n_bins,
         mol_ids=mol_ids,
-        initial_max=initial_max
+        initial_min_max=initial_min_max
     )
     # add diffusion/advection process
     composite_state['diffusion'] = get_diffusion_advection_spec(
@@ -54,7 +73,7 @@ def get_particle_comets_state(
         mol_ids=mol_ids,
         default_diffusion_rate=field_diffusion_rate,
         default_advection_rate=field_advection_rate,
-        diffusion_coeffs=None,
+        diffusion_coeffs=None,  #TODO -- add diffusion coeffs config
         advection_coeffs=None,
     )
     # add particles process
@@ -77,45 +96,10 @@ def get_particle_comets_state(
 
 def run_particle_comets(
         total_time=10.0,
-        # environment size
-        bounds=(10.0, 20.0),
-        n_bins=(8, 16),
-        # set fields
-        mol_ids=None,
-        field_diffusion_rate=1e-1,
-        field_advection_rate=(0, 0),
-        # set particles
-        n_particles=10,
-        particle_diffusion_rate=1e-1,
-        particle_advection_rate=(0, -0.1),
-        particle_add_probability=0.3,
-        particle_boundary_to_add=None,
-        field_interactions=None,
+        **kwargs
 ):
     # make the composite state
-    if particle_boundary_to_add is None:
-        particle_boundary_to_add = ['top']
-    if field_interactions is None:
-        field_interactions = {
-            'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
-            'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
-        }
-
-    composite_state = get_particle_comets_state(
-        n_bins=n_bins,
-        bounds=bounds,
-        # set fields
-        mol_ids=mol_ids,
-        field_diffusion_rate=field_diffusion_rate,
-        field_advection_rate=field_advection_rate,
-        # set particles
-        n_particles=n_particles,
-        particle_diffusion_rate=particle_diffusion_rate,
-        particle_advection_rate=particle_advection_rate,
-        particle_add_probability=particle_add_probability,
-        particle_boundary_to_add=particle_boundary_to_add,
-        field_interactions=field_interactions,
-    )
+    composite_state = get_particle_comets_state(**kwargs)
 
     # make the composite
     print('Making the composite...')
@@ -136,6 +120,8 @@ def run_particle_comets(
     # print(comets_results)
 
     print('Plotting results...')
+    n_bins = kwargs.get('n_bins', default_config['n_bins'])
+    bounds = kwargs.get('bounds', default_config['bounds'])
     # plot timeseries
     plot_time_series(
         particle_comets_results,
@@ -155,4 +141,4 @@ def run_particle_comets(
 
 
 if __name__ == '__main__':
-    run_particle_comets()
+    run_particle_comets(**default_config)
