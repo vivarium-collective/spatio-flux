@@ -19,6 +19,8 @@ def get_particle_comets_state(
         mol_ids=None,
         initial_max=None,
         n_particles=10,
+        field_diffusion_rate=1e-1,
+        field_advection_rate=(0, 0),
         particle_diffusion_rate=1e-1,
         particle_advection_rate=(0, 0),
         particle_add_probability=0.3,
@@ -44,8 +46,8 @@ def get_particle_comets_state(
         bounds=bounds,
         n_bins=n_bins,
         mol_ids=mol_ids,
-        default_diffusion_rate=1e-1,
-        default_advection_rate=(0, 0),
+        default_diffusion_rate=field_diffusion_rate,
+        default_advection_rate=field_advection_rate,
         diffusion_coeffs=None,
         advection_coeffs=None,
     )
@@ -68,20 +70,29 @@ def get_particle_comets_state(
 
 def run_particle_comets(
         total_time=10.0,
-        bounds=(10.0, 10.0),
-        n_bins=(10, 10),
+        bounds=(10.0, 20.0),
+        n_bins=(10, 20),
         mol_ids=None,
+        field_diffusion_rate=1e-1,
+        field_advection_rate=(0, 0),
         n_particles=10,
         particle_diffusion_rate=1e-1,
-        particle_advection_rate=(0, 0),
-        particle_add_probability=0.3,
+        particle_advection_rate=(0, -0.1),
+        particle_add_probability=0.2,
         particle_boundary_to_add=None,
 ):
     # make the composite state
+    if particle_boundary_to_add is None:
+        particle_boundary_to_add = ['top']
+
     composite_state = get_particle_comets_state(
         n_bins=n_bins,
         bounds=bounds,
+        # set fields
         mol_ids=mol_ids,
+        field_diffusion_rate=field_diffusion_rate,
+        field_advection_rate=field_advection_rate,
+        # set particles
         n_particles=n_particles,
         particle_diffusion_rate=particle_diffusion_rate,
         particle_advection_rate=particle_advection_rate,
@@ -127,4 +138,4 @@ def run_particle_comets(
 
 
 if __name__ == '__main__':
-    run_particle_comets(total_time=60)
+    run_particle_comets()

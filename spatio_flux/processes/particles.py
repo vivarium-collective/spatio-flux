@@ -294,7 +294,7 @@ def run_particles(
         n_bins=(20, 40),  # Number of bins in the x and y directions
         n_particles=20,
         diffusion_rate=0.1,
-        advection_rate=(0, 0),  # (0, -0.1),
+        advection_rate=(0, -0.1),
         add_probability=0.4,
         min_field=8,
         max_field=10,
