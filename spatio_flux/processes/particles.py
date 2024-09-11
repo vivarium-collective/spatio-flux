@@ -24,14 +24,31 @@ core.register('particle', particle_type)
 
 class Particles(Process):
     config_schema = {
-        'n_bins': 'tuple[integer,integer]',
+        # environment size and resolution
         'bounds': 'tuple[float,float]',
+        'n_bins': 'tuple[integer,integer]',
+
+        # particle movement
         'diffusion_rate': {'_type': 'float', '_default': 1e-1},
         'advection_rate': {'_type': 'tuple[float,float]', '_default': (0, 0)},
+
         # adding/removing particles at boundaries
         'add_probability': {'_type': 'float', '_default': 0.0},  # TODO -- make probability type
         'boundary_to_add': {'_type': 'list', '_default': ['left', 'right']},  # which boundaries to add particles
         'boundary_to_remove': {'_type': 'list', '_default': ['left', 'right', 'top', 'bottom']},
+
+        # interactions between particles and fields
+        'field_interactions': {
+            '_type': 'tree',  # A dictionary of fields
+            '_value': {
+                '_type': 'map',
+                '_value': {
+                    'vmax': {'_type': 'float', '_default': 0.1},
+                    'Km': {'_type': 'float', '_default': 1.0}
+                }
+            },
+            '_default': {'biomass': {'vmax': 0.1, 'Km': 1.0}}
+        }
     }
 
     def __init__(self, config, core):
@@ -125,22 +142,26 @@ class Particles(Process):
             x, y = self.get_bin_position(new_position)
             local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
 
-            # MARKER: Insert what to do for the given particle based on local_field_concentrations
-            local_biomass = local_field_concentrations.get('biomass')
-            if local_biomass:
-                # Michaelis-Menten-like rate law for uptake
-                max_uptake_rate = 0.1  # maximum uptake rate (tunable)
-                half_saturation = 1  # half-saturation constant (tunable, determines how quickly saturation occurs)
-                uptake_rate = (max_uptake_rate * local_biomass) / (half_saturation + local_biomass)
+            # Interact with fields based on the config schema
+            for field, interaction_params in self.config['field_interactions'].items():
+                local_field_value = local_field_concentrations.get(field)
+                if local_field_value:
+                    vmax = interaction_params['vmax']
+                    Km = interaction_params['Km']
 
-                # Particle uptake rate is proportional to its size
-                absorbed_biomass = float(uptake_rate * particle['size'])
+                    # Michaelis-Menten-like rate law for uptake
+                    uptake_rate = (vmax * local_field_value) / (Km + local_field_value)
 
-                size = updated_particle['size']
-                updated_particle['size'] = max(size + 0.01*absorbed_biomass, 0.0)
-                if local_biomass - absorbed_biomass < 0.0:
-                    absorbed_biomass = local_biomass
-                new_fields['biomass'][x, y] = -absorbed_biomass
+                    # Particle uptake rate is proportional to its size
+                    absorbed_value = float(uptake_rate * particle['size'])
+
+                    # Update particle size based on the absorbed field value
+                    updated_particle['size'] = max(updated_particle['size'] + 0.01 * absorbed_value, 0.0)
+
+                    # Reduce the field concentration in the environment
+                    if local_field_value - absorbed_value < 0.0:
+                        absorbed_value = local_field_value  # Cap absorption to available field value
+                    new_fields[field][x, y] = -absorbed_value
 
             new_particles.append(updated_particle)
 
@@ -227,18 +248,24 @@ def get_particles_spec(
         advection_rate=(0, 0),
         add_probability=0.0,
         boundary_to_add=['top'],
+        field_interactions=None,
 ):
+    config = {
+        'n_bins': n_bins,
+        'bounds': bounds,
+        'diffusion_rate': diffusion_rate,
+        'advection_rate': advection_rate,
+        'add_probability': add_probability,
+        'boundary_to_add': boundary_to_add,
+    }
+    # Only add field_interactions if it is not None
+    if field_interactions is not None:
+        config['field_interactions'] = field_interactions
+
     return {
             '_type': 'process',
             'address': 'local:Particles',
-            'config': {
-                'n_bins': n_bins,
-                'bounds': bounds,
-                'diffusion_rate': diffusion_rate,
-                'advection_rate': advection_rate,
-                'add_probability': add_probability,
-                'boundary_to_add': boundary_to_add,
-            },
+            'config': config,
             'inputs': {
                 'particles': ['particles'],
                 'fields': ['fields']
@@ -260,23 +287,22 @@ def get_particles_state(
         add_probability=0.4,
         min_field=0,
         max_field=10,
+        field_interactions=None,
 ):
-
     # initialize particles
     if boundary_to_add is None:
         boundary_to_add = ['top']
 
-    particles = Particles.initialize_particles(
-        n_particles=n_particles,
-        bounds=bounds,
-    )
+    # initialize particles
+    particles = Particles.initialize_particles(n_particles=n_particles, bounds=bounds)
+
     # initialize fields
-    initial_biomass = np.random.uniform(low=min_field, high=max_field, size=n_bins)
+    fields = {}
+    for field in field_interactions.keys():
+        fields[field] = np.random.uniform(low=min_field, high=max_field, size=n_bins)
 
     return {
-        'fields': {
-            'biomass': initial_biomass,
-        },
+        'fields': fields,
         'particles': particles,
         'particles_process': get_particles_spec(
             n_bins=n_bins,
@@ -285,6 +311,7 @@ def get_particles_state(
             advection_rate=advection_rate,
             add_probability=add_probability,
             boundary_to_add=boundary_to_add,
+            field_interactions=field_interactions,
         )
     }
 
@@ -299,19 +326,20 @@ def run_particles(
         add_probability=0.4,
         min_field=8,
         max_field=10,
+        field_interactions=None,
 ):
+    if field_interactions is None:
+        field_interactions = {
+            'biomass': {'vmax': 0.1, 'Km': 1.0},
+            'detritus': {'vmax': -0.1, 'Km': 1.0},
+        }
+
+    # Get all local variables as a dictionary
+    kwargs = locals()
+    kwargs.pop('total_time')  # 'total_time' is only used here, so we pop it
+
     # initialize particles state
-    composite_state = get_particles_state(
-        n_bins=n_bins,
-        bounds=bounds,
-        n_particles=n_particles,
-        diffusion_rate=diffusion_rate,
-        advection_rate=advection_rate,  #(0, -0.1),
-        add_probability=add_probability,
-        boundary_to_add=['top'],
-        min_field=min_field,
-        max_field=max_field,
-    )
+    composite_state = get_particles_state(**kwargs)
 
     # make the composite
     print('Making the composite...')
