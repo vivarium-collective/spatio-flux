@@ -1,136 +1,94 @@
-import numpy as np
+"""
+Particle-COMETS composite made of dFBAs, diffusion-advection, and particle processes.
+"""
+
 from process_bigraph import Composite
-from processes.dfba import dfba_config
 from processes import core
-from viz.plot import (
-    plot_time_series, plot_species_distributions_with_particles_to_gif)
+from viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
 
 
 # TODO -- need to do this to register???
-from processes.dfba import DynamicFBA
-from processes.diffusion_advection import DiffusionAdvection
-from processes.particles import Particles
+from processes.dfba import DynamicFBA, get_spatial_dfba_state
+from processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
+from processes.particles import Particles, get_particles_spec, get_particles_state
+
+
+
+def get_particle_comets_state(
+        n_bins=(10, 10),
+        bounds=(10.0, 10.0),
+        mol_ids=None,
+        initial_max=None,
+        n_particles=10,
+        particle_diffusion_rate=1e-1,
+        particle_advection_rate=(0, 0),
+        particle_add_probability=0.3,
+        particle_boundary_to_add=None,
+):
+    if particle_boundary_to_add is None:
+        particle_boundary_to_add = ['top']
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+
+        # make the composite state with dFBA based on grid size
+    composite_state = get_spatial_dfba_state(
+        n_bins=n_bins,
+        mol_ids=mol_ids,
+        initial_max={
+            'glucose': 20,
+            'acetate': 0,
+            'biomass': 0.1
+        }
+    )
+    # add diffusion/advection process
+    composite_state['diffusion'] = get_diffusion_advection_spec(
+        bounds=bounds,
+        n_bins=n_bins,
+        mol_ids=mol_ids,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
+    )
+    # add particles process
+    particles = Particles.initialize_particles(
+        n_particles=n_particles,
+        bounds=bounds,
+    )
+    composite_state['particles'] = particles
+    composite_state['particles_process'] = get_particles_spec(
+        n_bins=n_bins,
+        bounds=bounds,
+        diffusion_rate=particle_diffusion_rate,
+        advection_rate=particle_advection_rate,
+        add_probability=particle_add_probability,
+        boundary_to_add=particle_boundary_to_add,
+    )
+    return composite_state
 
 
 def run_particle_comets(
-        total_time=60.0,
-        bounds=(10.0, 20.0),
-        n_bins=(10, 20),   # TODO -- why does (10, 20) not work?
+        total_time=10.0,
+        bounds=(10.0, 10.0),
+        n_bins=(10, 10),
+        mol_ids=None,
+        n_particles=10,
+        particle_diffusion_rate=1e-1,
+        particle_advection_rate=(0, 0),
+        particle_add_probability=0.3,
+        particle_boundary_to_add=None,
 ):
-
-    initial_glucose = np.random.uniform(low=0.0, high=20.0, size=n_bins)  #(n_bins[1], n_bins[0]))
-    initial_acetate = np.random.uniform(low=0.0, high=0.0, size=n_bins)  #(n_bins[1], n_bins[0]))
-    initial_biomass = np.random.uniform(low=0.0, high=0.1, size=n_bins)  #(n_bins[1], n_bins[0]))
-
-    # initialize particles
-    colors = ['b', 'g', 'r']
-    n_particles_per_species = [3, 3, 3]  # Number of particles per species
-    custom_diffusion_rates = {}
-    custom_advection_rates = {
-        'r': (0, -0.1),
-    }
-    custom_add_probability = {
-        'r': 0.3,
-    }
-    default_add_probability = 0.0
-
-    particles = Particles.initialize_particles(
-        n_particles_per_species=n_particles_per_species,
+    # make the composite state
+    composite_state = get_particle_comets_state(
+        n_bins=n_bins,
         bounds=bounds,
-        size_range=(10, 100),
+        mol_ids=mol_ids,
+        n_particles=n_particles,
+        particle_diffusion_rate=particle_diffusion_rate,
+        particle_advection_rate=particle_advection_rate,
+        particle_add_probability=particle_add_probability,
+        particle_boundary_to_add=particle_boundary_to_add,
     )
-
-    dfba_processes_dict = {}
-    for i in range(n_bins[0]):
-        for j in range(n_bins[1]):
-            dfba_processes_dict[f'[{i},{j}]'] = {
-                '_type': 'process',
-                'address': 'local:DynamicFBA',
-                'config': dfba_config(
-                    model_file='TESTING'  # load the same model for all processes
-                ),
-                'inputs': {
-                    'substrates': {
-                        'glucose': ['..', 'fields', 'glucose', i, j],
-                        'acetate': ['..', 'fields', 'acetate', i, j],
-                        'biomass': ['..', 'fields', 'biomass', i, j],
-                    }
-                },
-                'outputs': {
-                    'substrates': {
-                        'glucose': ['..', 'fields', 'glucose', i, j],
-                        'acetate': ['..', 'fields', 'acetate', i, j],
-                        'biomass': ['..', 'fields', 'biomass', i, j]
-                    }
-                }
-            }
-
-    composite_state = {
-        'fields': {
-            '_type': 'map',
-            '_value': {
-                '_type': 'array',
-                '_shape': n_bins,
-                '_data': 'positive_float'
-            },
-            'glucose': initial_glucose,
-            'acetate': initial_acetate,
-            'biomass': initial_biomass,
-        },
-        'spatial_dfba': dfba_processes_dict,
-        'diffusion': {
-            '_type': 'process',
-            'address': 'local:DiffusionAdvection',
-            'config': {
-                'n_bins': n_bins,
-                'bounds': bounds,
-                'default_diffusion_rate': 1e-1,
-                'default_diffusion_dt': 1e-1,
-                'diffusion_coeffs': {
-                    'glucose': 1e-1,
-                    'acetate': 1e-1,
-                    'biomass': 1e-1,
-                },
-                'advection_coeffs': {
-                    'glucose': (0, 0),
-                    'acetate': (0, 0),
-                    'biomass': (0, 0),
-                },
-            },
-            'inputs': {
-                'fields': ['fields']
-            },
-            'outputs': {
-                'fields': ['fields']
-            }
-        },
-        'particles': particles,
-        'particles_process': {
-            '_type': 'process',
-            'address': 'local:Particles',
-            'config': {
-                'n_bins': n_bins,
-                'bounds': bounds,
-                'default_diffusion_rate': 1e-1,
-                'default_advection_rate': (0, 0),
-                'default_add_probability': default_add_probability,
-                'boundary_to_add': ['top'],
-                # 'boundary_to_remove': ['bottom'],
-                'species_colors': colors,
-                'diffusion_rates': custom_diffusion_rates,
-                'advection_rates': custom_advection_rates,
-                'add_probability': custom_add_probability,
-            },
-            'inputs': {
-                'particles': ['particles'],
-                'fields': ['fields']
-            },
-            'outputs': {
-                'particles': ['particles'],
-                'fields': ['fields']
-            }
-        }
-    }
 
     # make the composite
     print('Making the composite...')
@@ -142,7 +100,9 @@ def run_particle_comets(
     # save the document
     sim.save(filename='particle_comets.json', outdir='out', include_schema=True)
 
-    # run simulation
+    # TODO -- save a viz figure of the initial state
+
+    # simulate
     print('Simulating...')
     sim.update({}, total_time)
     particle_comets_results = sim.gather_results()
@@ -157,14 +117,6 @@ def run_particle_comets(
         filename='particle_comets_timeseries.png'
     )
 
-    # # plot 2d video
-    # plot_species_distributions_to_gif(
-    #     particle_comets_results,
-    #     out_dir='out',
-    #     filename='particle_comets_fields.gif',
-    #     title='',
-    #     skip_frames=1)
-
     plot_species_distributions_with_particles_to_gif(
         particle_comets_results,
         out_dir='out',
@@ -176,4 +128,4 @@ def run_particle_comets(
 
 
 if __name__ == '__main__':
-    run_particle_comets()
+    run_particle_comets(total_time=60)
