@@ -42,12 +42,10 @@ class Particles(Process):
             '_type': 'tree',  # A dictionary of fields
             '_value': {
                 '_type': 'map',
-                '_value': {
-                    'vmax': {'_type': 'float', '_default': 0.1},
-                    'Km': {'_type': 'float', '_default': 1.0},
-                    'interaction_type': {
-                        '_type': 'enum[uptake,secretion]', '_default': 'uptake'},  # 'uptake' or 'secretion'
-                }
+                'vmax': {'_type': 'float', '_default': 0.1},
+                'Km': {'_type': 'float', '_default': 1.0},
+                'interaction_type': {
+                    '_type': 'enum[uptake,secretion]', '_default': 'uptake'},  # 'uptake' or 'secretion'
             },
             '_default': {'biomass': {'vmax': 0.1, 'Km': 1.0}}
         }
@@ -290,13 +288,21 @@ def get_particles_state(
         advection_rate=(0, -0.1),
         boundary_to_add=None,
         add_probability=0.4,
-        min_field=0,
-        max_field=10,
         field_interactions=None,
+        initial_min_max=None,
 ):
-    # initialize particles
     if boundary_to_add is None:
         boundary_to_add = ['top']
+    if field_interactions is None:
+        field_interactions = {
+            'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
+            'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
+        }
+    if initial_min_max is None:
+        initial_min_max = {
+            'biomass': (0, 0.1),
+            'detritus': (0, 0),
+        }
 
     # initialize particles
     particles = Particles.initialize_particles(n_particles=n_particles, bounds=bounds)
@@ -304,7 +310,8 @@ def get_particles_state(
     # initialize fields
     fields = {}
     for field in field_interactions.keys():
-        fields[field] = np.random.uniform(low=min_field, high=max_field, size=n_bins)
+        minmax = initial_min_max.get(field, (0, 1))
+        fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
 
     return {
         'fields': fields,
@@ -329,16 +336,9 @@ def run_particles(
         diffusion_rate=0.1,
         advection_rate=(0, -0.1),
         add_probability=0.4,
-        min_field=8,
-        max_field=10,
         field_interactions=None,
+        initial_min_max=None,
 ):
-    if field_interactions is None:
-        field_interactions = {
-            'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
-            'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
-        }
-
     # Get all local variables as a dictionary
     kwargs = locals()
     kwargs.pop('total_time')  # 'total_time' is only used here, so we pop it
