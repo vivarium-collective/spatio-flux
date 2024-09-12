@@ -4,7 +4,6 @@ Dynamic FBA simulation
 
 Process for a pluggable dFBA simulation.
 """
-
 import numpy as np
 import warnings
 import cobra
@@ -234,6 +233,45 @@ def get_spatial_dfba_state(
     }
 
 
+def run_dfba_single(
+        total_time=60,
+        mol_ids=None,
+):
+    single_dfba_config = {
+        'dfba': get_single_dfba_spec(path=['fields']),
+        'fields': {
+            'glucose': 10,
+            'acetate': 0,
+            'biomass': 0.1
+        }
+    }
+
+    # make the simulation
+    sim = Composite({
+        'state': single_dfba_config,
+        'emitter': {'mode': 'all'}
+    }, core=core)
+
+    # save the document
+    sim.save(filename='single_dfba.json', outdir='out')
+
+    # simulate
+    print('Simulating...')
+    sim.update({}, total_time)
+
+    # gather results
+    dfba_results = sim.gather_results()
+
+    print('Plotting results...')
+    # plot timeseries
+    plot_time_series(
+        dfba_results,
+        # coordinates=[(0, 0), (1, 1), (2, 2)],
+        out_dir='out',
+        filename='dfba_single_timeseries.png',
+    )
+
+
 def run_dfba_spatial(
         total_time=60,
         n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
@@ -271,7 +309,6 @@ def run_dfba_spatial(
 
     # gather results
     dfba_results = sim.gather_results()
-    # print(dfba_results)
 
     print('Plotting results...')
     # plot timeseries
@@ -293,4 +330,5 @@ def run_dfba_spatial(
 
 
 if __name__ == '__main__':
+    run_dfba_single()
     run_dfba_spatial(n_bins=(8,8))

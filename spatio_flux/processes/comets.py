@@ -1,12 +1,10 @@
 """
 COMETS composite made of dFBAs and diffusion-advection processes.
 """
-
 from process_bigraph import Composite
 from bigraph_viz import plot_bigraph
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
-
 
 # TODO -- need to do this to register???
 from spatio_flux.processes.dfba import get_spatial_dfba_state
@@ -78,7 +76,7 @@ def run_comets(
     # plot timeseries
     plot_time_series(
         comets_results,
-        coordinates=[(0, 0), (5, 5)],
+        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
         out_dir='out',
         filename='comets_timeseries.png',
     )

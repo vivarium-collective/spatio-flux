@@ -4,7 +4,6 @@ Diffusion-Advection Process
 
 This process is a simple 2D diffusion-advection process. It takes a 2D field as input and returns a 2D field as output.
 """
-
 import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
@@ -122,9 +121,6 @@ class DiffusionAdvection(Process):
             # Update the current state
             updated_state += (laplacian + advective_flux_x + advective_flux_y) * dt
 
-            # # Ensure non-negativity
-            # current_states[species] = np.maximum(updated_state, 0)
-
             # Update time
             t += dt
 
@@ -199,9 +195,6 @@ def get_diffusion_advection_state(
             'acetate': 0,
             'biomass': 0.1
         }
-    # initial_fields = {
-    #     mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins[1], n_bins[0]))
-    #     for mol_id in mol_ids}
     initial_fields = {
         mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
         for mol_id in mol_ids}
@@ -267,7 +260,6 @@ def run_diffusion_process(
 
     # gather results
     diffadv_results = sim.gather_results()
-    # print(diffadv_results)
 
     print('Plotting results...')
     # plot 2d video

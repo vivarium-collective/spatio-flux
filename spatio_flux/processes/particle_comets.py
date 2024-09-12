@@ -1,12 +1,10 @@
 """
 Particle-COMETS composite made of dFBAs, diffusion-advection, and particle processes.
 """
-
 from process_bigraph import Composite
 from bigraph_viz import plot_bigraph
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
-
 
 # TODO -- need to do this to register???
 from spatio_flux.processes.dfba import DynamicFBA, get_spatial_dfba_state
@@ -15,7 +13,7 @@ from spatio_flux.processes.particles import Particles, get_particles_spec, get_p
 
 
 default_config = {
-    'total_time': 10.0,
+    'total_time': 100.0,
     # environment size
     'bounds': (10.0, 20.0),
     'n_bins': (8, 16),
@@ -23,7 +21,12 @@ default_config = {
     'mol_ids': ['glucose', 'acetate', 'biomass', 'detritus'],
     'field_diffusion_rate': 1e-1,
     'field_advection_rate': (0, 0),
-    'initial_min_max': {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1), 'detritus': (0, 0)},
+    'initial_min_max': {
+        'glucose': (10, 10),
+        'acetate': (0, 0),
+        'biomass': (0, 0.1),
+        'detritus': (0, 0)
+    },
     # set particles
     'n_particles': 10,
     'particle_diffusion_rate': 1e-1,
@@ -31,8 +34,16 @@ default_config = {
     'particle_add_probability': 0.3,
     'particle_boundary_to_add': ['top'],
     'field_interactions': {
-        'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
-        'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
+        'biomass': {
+            'vmax': 0.1,
+            'Km': 1.0,
+            'interaction_type': 'uptake'
+        },
+        'detritus': {
+            'vmax': -0.1,
+            'Km': 1.0,
+            'interaction_type': 'secretion'
+        },
     },
 }
 

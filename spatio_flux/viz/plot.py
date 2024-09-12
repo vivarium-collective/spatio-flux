@@ -14,6 +14,8 @@ from matplotlib import pyplot as plt
 
 def sort_results(results):
     emitter_results = results[('emitter',)]
+    if emitter_results[0] is None:
+        return
     sorted_results = {'fields': {
         key: [] for key in emitter_results[0]['fields'].keys()
     }, 'time': []}
@@ -45,7 +47,7 @@ def plot_time_series(
     :param coordinates: List of coordinates (indices) to plot.
                         Example: [(0, 0), (1, 2)]
     """
-    coordinates = coordinates or [(0, 0)]
+    # coordinates = coordinates or [(0, 0)]
     field_names = field_names or ['glucose', 'acetate', 'biomass']
     sorted_results = sort_results(results)
     time = sorted_results['time']
@@ -56,13 +58,15 @@ def plot_time_series(
     for field_name in field_names:
         if field_name in sorted_results['fields']:
             field_data = sorted_results['fields'][field_name]
-
-            for coord in coordinates:
-                x, y = coord
-                time_series = [field_data[t][x, y] for t in range(len(time))]
-                ax.plot(time, time_series, label=f'{field_name} at {coord}')
-                # plot log scale on y axis
-                # ax.set_yscale('log')
+            if coordinates is None:
+                ax.plot(time, field_data, label=field_name)
+            else:
+                for coord in coordinates:
+                    x, y = coord
+                    time_series = [field_data[t][x, y] for t in range(len(time))]
+                    ax.plot(time, time_series, label=f'{field_name} at {coord}')
+                    # plot log scale on y axis
+                    # ax.set_yscale('log')
         else:
             print(f"Field '{field_name}' not found in results['fields']")
 

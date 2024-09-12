@@ -4,7 +4,6 @@ Particles process
 
 A process for simulating the motion of particles in a 2D environment.
 """
-
 import uuid
 import numpy as np
 from process_bigraph import Process, Composite
@@ -239,13 +238,13 @@ class Particles(Process):
 
     def get_boundary_position(self, boundary):
         if boundary == 'left':
-            return (self.env_size[0][0], np.random.uniform(*self.env_size[1]))
+            return self.env_size[0][0], np.random.uniform(*self.env_size[1])
         elif boundary == 'right':
-            return (self.env_size[0][1], np.random.uniform(*self.env_size[1]))
+            return self.env_size[0][1], np.random.uniform(*self.env_size[1])
         elif boundary == 'top':
-            return (np.random.uniform(*self.env_size[0]), self.env_size[1][1])
+            return np.random.uniform(*self.env_size[0]), self.env_size[1][1]
         elif boundary == 'bottom':
-            return (np.random.uniform(*self.env_size[0]), self.env_size[1][0])
+            return np.random.uniform(*self.env_size[0]), self.env_size[1][0]
 
 
 core.register_process('Particles', Particles)
@@ -300,7 +299,7 @@ def get_particles_state(
         }
     if initial_min_max is None:
         initial_min_max = {
-            'biomass': (0, 0.1),
+            'biomass': (0.1, 0.2),
             'detritus': (0, 0),
         }
 
@@ -329,7 +328,7 @@ def get_particles_state(
 
 
 def run_particles(
-        total_time=20,  # Total frames
+        total_time=100,  # Total frames
         bounds=(10.0, 20.0),  # Bounds of the environment
         n_bins=(20, 40),  # Number of bins in the x and y directions
         n_particles=20,
@@ -372,9 +371,8 @@ def run_particles(
     # gather results
     particles_results = sim.gather_results()
     emitter_results = particles_results[('emitter',)]
-
+    # resort results
     particles_history = [p['particles'] for p in emitter_results]
-    # print(particles_history)
 
     print('Plotting...')
     # plot particles
