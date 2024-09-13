@@ -21,6 +21,7 @@ particle_type = {
 core.register('particle', particle_type)
 
 
+
 class Particles(Process):
     config_schema = {
         # environment size and resolution
@@ -60,8 +61,8 @@ class Particles(Process):
     def inputs(self):
         return {
             'particles': {
-                '_type': 'list[particle]',
-                '_apply': 'set'
+                '_type': 'map[particle]',
+                '_apply': 'apply_tree'   # TODO -- is this okay???
             },
             'fields': {
                 '_type': 'map',
@@ -75,10 +76,7 @@ class Particles(Process):
 
     def outputs(self):
         return {
-            'particles': {
-                '_type': 'any',
-                '_apply': 'set'
-            },
+            'particles': 'map[particle]',
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -93,23 +91,28 @@ class Particles(Process):
     def initialize_particles(
             n_particles,
             bounds,
-            size_range=(10, 100)
+            size_range=(10, 100),
+            mol_ids=None,
     ):
         """
         Initialize particle positions for multiple species.
         """
+        mol_ids = mol_ids or ['biomass', 'detritus']
         # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
-        particles = []
+        particles = {}
         for _ in range(n_particles):
-            particle = {
-                'id': str(uuid.uuid4()),
+            id = str(uuid.uuid4())
+            particles[id] = {
+                # 'id': str(uuid.uuid4()),
                 'position': tuple(np.random.uniform(
                     low=[0, 0],
                     high=[bounds[0], bounds[1]],
                     size=2)),
                 'size': np.random.uniform(size_range[0], size_range[1]),
+                'local': {f: 0.0 for f in mol_ids},  # TODO local field values  -- should be non-zero
+                'exchange': {f: 0.0 for f in mol_ids}  # TODO exchange rates
             }
-            particles.append(particle)
+            # particles.append(particle)
 
         return particles
 
@@ -117,11 +120,11 @@ class Particles(Process):
         particles = state['particles']
         fields = state['fields']  # Retrieve the fields
 
-        new_particles = []
+        new_particles = {'_remove': [], '_add': {}}
         new_fields = {
             mol_id: np.zeros_like(field)
             for mol_id, field in fields.items()}
-        for particle in particles:
+        for particle_id, particle in particles.items():
             updated_particle = particle.copy()
 
             # Apply diffusion and advection
@@ -132,6 +135,7 @@ class Particles(Process):
 
             # Check and remove particles if they hit specified boundaries
             if self.check_boundary_hit(new_x_position, new_y_position):
+                new_particles['_remove'].append(particle_id)
                 continue  # Remove particle if it hits a boundary
 
             new_position = (new_x_position, new_y_position)
@@ -140,6 +144,9 @@ class Particles(Process):
             # Retrieve local field concentration for each particle
             x, y = self.get_bin_position(new_position)
             local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
+
+            # TODO -- apply exchange to the local field, and reset
+            exchange = particle['exchange']
 
             # Interact with fields based on the config schema
             for field, interaction_params in self.config['field_interactions'].items():
@@ -173,18 +180,23 @@ class Particles(Process):
                     # Increase the field concentration in the environment
                     new_fields[field][x, y] += secreted_value  # Add secreted value to the field
 
-            new_particles.append(updated_particle)
+            new_particles[particle_id] = updated_particle
 
         # Probabilistically add new particles at user-defined boundaries
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
+                # TODO -- reuse function for initializing particles
+                position = self.get_boundary_position(boundary)
+                x, y = self.get_bin_position(position)
+                local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
+                id = str(uuid.uuid4())
                 new_particle = {
-                    'id': str(uuid.uuid4()),
-                    'position': self.get_boundary_position(boundary),
+                    'position': position,
                     'size': np.random.uniform(10, 100),  # Random size for new particles
-                    # 'local': {}  # TODO local field values
+                    'local': local_field_concentrations,
+                    'exchange': {f: 0.0 for f in fields.keys()}  # TODO -- add exchange
                 }
-                new_particles.append(new_particle)
+                new_particles['_add'][id] = new_particle
 
         return {
             'particles': new_particles,

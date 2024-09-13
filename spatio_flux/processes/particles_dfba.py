@@ -1,7 +1,7 @@
 """
 Particle-COMETS composite made of diffusion-advection and particle processes, with a dFBA within each particle.
 """
-
+import numpy as np
 from process_bigraph import Composite, default
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
@@ -77,6 +77,7 @@ def get_particle_dfba_state(
     particles = Particles.initialize_particles(
         n_particles=n_particles,
         bounds=bounds,
+        mol_ids=mol_ids,
     )
     composite_state['particles'] = particles
     composite_state['particles_process'] = get_particles_spec(
@@ -88,6 +89,10 @@ def get_particle_dfba_state(
         boundary_to_add=particle_boundary_to_add,
         field_interactions=field_interactions,
     )
+    initial_fields = {
+        mol_id: np.random.uniform(low=initial_min_max[mol_id][0], high=initial_min_max[mol_id][1], size=n_bins)
+        for mol_id in mol_ids}
+    composite_state['fields'] =initial_fields
     return composite_state
 
 
@@ -107,7 +112,7 @@ def run_particle_dfba(
                     'address': default('string', 'local:DynamicFBA'),
                     'config': default('tree[any]', dfba_config(model_file='textbook')),
                     'inputs': default('tree[wires]', {'substrates': ['local']}),
-                    'outputs': default('tree[wires]', {'substrates': ['local']})
+                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
                 }
             }
         }
@@ -120,8 +125,6 @@ def run_particle_dfba(
         'state': composite_state,
         'emitter': {'mode': 'all'},
     }, core=core)
-
-    import ipdb; ipdb.set_trace()
 
     # save the document
     sim.save(filename='particle_comets.json', outdir='out', include_schema=True)

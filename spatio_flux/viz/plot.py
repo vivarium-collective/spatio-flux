@@ -243,7 +243,7 @@ def plot_species_distributions_with_particles_to_gif(
             ax.set_title(f'{species} at t = {times[i]:.2f}')
             plt.colorbar(img, ax=ax)
 
-            for particle in particles:
+            for particle_id, particle in particles.items():
                 ax.scatter(particle['position'][0], particle['position'][1],
                            s=particle['size'],
                            color='b'
@@ -312,7 +312,7 @@ def plot_particles(
         ax.set_aspect('equal')
 
         particles = history[frame]
-        for particle in particles:
+        for particle_id, particle in particles.items():
             ax.scatter(particle['position'][0], particle['position'][1],
                        s=particle['size'], color='b')
 
