@@ -2,13 +2,13 @@
 Particle-COMETS composite made of diffusion-advection and particle processes, with a dFBA within each particle.
 """
 
-from process_bigraph import Composite
+from process_bigraph import Composite, default
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
 
 
 # TODO -- need to do this to register???
-from spatio_flux.processes.dfba import DynamicFBA, get_spatial_dfba_state
+from spatio_flux.processes.dfba import DynamicFBA, dfba_config, get_spatial_dfba_state
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
 from spatio_flux.processes.particles import Particles, get_particles_spec, get_particles_state
 
@@ -98,12 +98,30 @@ def run_particle_dfba(
     # make the composite state
     composite_state = get_particle_dfba_state(**kwargs)
 
+    composition = {
+        'particles': {
+            '_type': 'list',
+            '_element': {
+                'dFBA': {
+                    '_type': 'process',
+                    'address': default('string', 'local:DynamicFBA'),
+                    'config': default('tree[any]', dfba_config(model_file='textbook')),
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'outputs': default('tree[wires]', {'substrates': ['local']})
+                }
+            }
+        }
+    }
+
     # make the composite
     print('Making the composite...')
     sim = Composite({
+        'composition': composition,
         'state': composite_state,
         'emitter': {'mode': 'all'},
     }, core=core)
+
+    import ipdb; ipdb.set_trace()
 
     # save the document
     sim.save(filename='particle_comets.json', outdir='out', include_schema=True)

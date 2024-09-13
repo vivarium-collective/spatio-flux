@@ -1,0 +1,5 @@
+.python-version
+.ipynb_checkpoints/
+spatio_flux.egg-info/
+__pycache__/
+out/
