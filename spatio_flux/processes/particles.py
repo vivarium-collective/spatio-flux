@@ -328,25 +328,7 @@ class MinimalParticle(Process):
                 new_fields[field][x, y] += secreted_value  # Add secreted value to the field
         return {}
 
-core.register_process('Particle', MinimalParticle)
-
-
-# TODO -- we use on particles type here, and another with particles_dfba? Does this require a schema override?
-composition = {
-    'particles': {
-        '_type': 'list',
-        '_element': {
-            'dFBA': {
-                '_type': 'process',
-                # 'address': default('string', 'local:DynamicFBA'),
-                # 'config': default('tree[any]', dfba_config(model_file='textbook')),
-                'inputs': default('tree[wires]', {'substrates': ['local']}),
-                'outputs': default('tree[wires]', {'substrates': ['exchange']})
-            }
-        }
-    }
-}
-
+core.register_process('MinimalParticle', MinimalParticle)
 
 
 # Helper functions to get specs and states
@@ -444,15 +426,33 @@ def run_particles(
     # initialize particles state
     composite_state = get_particles_state(**kwargs)
 
+    # TODO -- is this how to link in the minimal_particle process?
+    # declare minimal particle in the composition
+    composition = {
+        'particles': {
+            '_type': 'map',
+            '_element': {
+                'minimal_particle': {
+                    '_type': 'process',
+                    'address': default('string', 'local:MinimalParticle'),
+                    'config': {},
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
+                }
+            }
+        }
+    }
+
     # make the composite
     print('Making the composite...')
     sim = Composite({
         'state': composite_state,
+        # 'composition': composition,
         'emitter': {'mode': 'all'},
     }, core=core)
 
     # save the document
-    sim.save(filename='particles.json', outdir='out')
+    sim.save(filename='particles.json', outdir='out', include_schema=True)
 
     # save a viz figure of the initial state
     plot_bigraph(

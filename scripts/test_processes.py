@@ -14,7 +14,7 @@ def test_run_comets():
     assert os.path.exists('out/comets.json')
     assert os.path.exists('out/comets_timeseries.png')
     assert os.path.exists('out/comets_results.gif')
-  
+
 
 tests = [run_particles, run_comets, run_dfba_spatial, run_dfba_single, run_particle_dfba, run_diffusion_process]
 
