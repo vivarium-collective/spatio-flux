@@ -105,7 +105,7 @@ def run_particle_dfba(
 
     composition = {
         'particles': {
-            '_type': 'list',
+            '_type': 'map',
             '_element': {
                 'dFBA': {
                     '_type': 'process',

@@ -6,7 +6,7 @@ A process for simulating the motion of particles in a 2D environment.
 """
 import uuid
 import numpy as np
-from process_bigraph import Process, Composite
+from process_bigraph import Process, Composite, default
 from bigraph_viz import plot_bigraph
 from spatio_flux import core
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
@@ -19,7 +19,6 @@ particle_type = {
     'size': 'float',
 }
 core.register('particle', particle_type)
-
 
 
 class Particles(Process):
@@ -260,6 +259,94 @@ class Particles(Process):
 
 
 core.register_process('Particles', Particles)
+
+
+class MinimalParticle(Process):
+    config_schema = {
+        'field_interactions': {
+            '_type': 'tree',
+            '_value': {
+                '_type': 'map',
+                'vmax': {'_type': 'float', '_default': 0.1},
+                'Km': {'_type': 'float', '_default': 1.0},
+                'interaction_type': {
+                    '_type': 'enum[uptake,secretion]', '_default': 'uptake'},  # 'uptake' or 'secretion'
+            },
+            '_default': {'biomass': {'vmax': 0.1, 'Km': 1.0}}
+        }
+    }
+
+    def __init__(self, config=None, core=None):
+        super().__init__(config, core)
+
+    def inputs(self):
+        return {
+            'particle': 'particle',
+            'substrates': 'map[positive_float]'
+        }
+
+    def outputs(self):
+        return {
+            'substrates': 'map[positive_float]'
+        }
+
+    def update(self, state, interval):
+        particle = state['particle']
+        updated_particle = {}
+
+        # Interact with fields based on the config schema
+        for field, interaction_params in self.config['field_interactions'].items():
+            local_field_value = state['substrate'].get(field)
+            vmax = interaction_params['vmax']
+            Km = interaction_params.get('Km')
+            interaction_type = interaction_params.get('interaction_type',
+                                                      'uptake')  # Default to 'uptake' if not provided
+
+            if interaction_type == 'uptake' and local_field_value:
+                # Michaelis-Menten-like rate law for uptake
+                uptake_rate = (vmax * local_field_value) / (Km + local_field_value)
+
+                # Particle uptake rate is proportional to its size
+                absorbed_value = float(uptake_rate * particle['size'])
+
+                # Update particle size based on the absorbed field value
+                updated_particle['size'] = max(updated_particle['size'] + 0.01 * absorbed_value, 0.0)
+
+                # Reduce the field concentration in the environment
+                if local_field_value - absorbed_value < 0.0:
+                    absorbed_value = local_field_value  # Cap absorption to available field value
+                new_fields[field][x, y] = -absorbed_value
+
+            elif interaction_type == 'secretion':
+                # During secretion, use only vmax
+                secreted_value = float(vmax * particle['size'])
+
+                # Update particle size based on the secreted value
+                updated_particle['size'] = max(updated_particle['size'] - 0.01 * secreted_value, 0.0)
+
+                # Increase the field concentration in the environment
+                new_fields[field][x, y] += secreted_value  # Add secreted value to the field
+        return {}
+
+core.register_process('Particle', MinimalParticle)
+
+
+# TODO -- we use on particles type here, and another with particles_dfba? Does this require a schema override?
+composition = {
+    'particles': {
+        '_type': 'list',
+        '_element': {
+            'dFBA': {
+                '_type': 'process',
+                # 'address': default('string', 'local:DynamicFBA'),
+                # 'config': default('tree[any]', dfba_config(model_file='textbook')),
+                'inputs': default('tree[wires]', {'substrates': ['local']}),
+                'outputs': default('tree[wires]', {'substrates': ['exchange']})
+            }
+        }
+    }
+}
+
 
 
 # Helper functions to get specs and states
