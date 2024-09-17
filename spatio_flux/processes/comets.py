@@ -20,6 +20,36 @@ default_config = {
     'initial_min_max': {'glucose': (0, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)},
 }
 
+## TODO -- maybe we need to make specific composites
+class COMETS(Composite):
+    """
+    This needs to declare what types of processes are in the composite.
+    """
+    config_schema = {
+        'n_bins': 'tuple',
+    }
+
+    def __init__(self, config, core=None):
+        # set up the document here
+        state = {
+            'dFBA': {
+                'config': {
+                    'n_bins': config['n_bins'],
+                }
+            },
+            'diffusion': {
+                'config': {
+                    'something_else': config['n_bins'],
+                }
+            }
+        }
+
+        super().__init__(config, core=core)
+
+    # TODO -- this could be in Process.
+    def get_default(self):
+        return self.core.default(self.config_schema)
+
 
 def run_comets(
         total_time=10.0,

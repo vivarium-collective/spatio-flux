@@ -37,7 +37,7 @@ class DynamicFBA(Process):
 
     config_schema = {
         'model_file': 'string',
-        'model': 'Any',
+        # 'model': 'any',
         'kinetic_params': 'map[tuple[float,float]]',
         'biomass_reaction': {
             '_type': 'string',
