@@ -10,7 +10,6 @@ import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
 from bigraph_viz import plot_bigraph
-from spatio_flux import core  # import the core from the processes package
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
 
 # Suppress warnings
@@ -111,10 +110,6 @@ class DynamicFBA(Process):
         return {
             'substrates': substrate_update,
         }
-
-
-# register the process
-core.register_process('DynamicFBA', DynamicFBA)
 
 
 # Helper functions to get specs and states
@@ -233,102 +228,3 @@ def get_spatial_dfba_state(
     }
 
 
-def run_dfba_single(
-        total_time=60,
-        mol_ids=None,
-):
-    single_dfba_config = {
-        'dfba': get_single_dfba_spec(path=['fields']),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            'biomass': 0.1
-        }
-    }
-
-    # make the simulation
-    sim = Composite({
-        'state': single_dfba_config,
-        'emitter': {'mode': 'all'}
-    }, core=core)
-
-    # save the document
-    sim.save(filename='single_dfba.json', outdir='out')
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    dfba_results = sim.gather_results()
-
-    print('Plotting results...')
-    # plot timeseries
-    plot_time_series(
-        dfba_results,
-        # coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_single_timeseries.png',
-    )
-
-
-def run_dfba_spatial(
-        total_time=60,
-        n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
-        mol_ids=None,
-):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
-    composite_state = get_spatial_dfba_state(
-        n_bins=n_bins,
-        mol_ids=mol_ids,
-    )
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'}
-    }, core=core)
-
-    # save the document
-    sim.save(filename='spatial_dfba.json', outdir='out')
-
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='dfba_spatial_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    dfba_results = sim.gather_results()
-
-    print('Plotting results...')
-    # plot timeseries
-    plot_time_series(
-        dfba_results,
-        coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_timeseries.png',
-    )
-
-    # make video
-    plot_species_distributions_to_gif(
-        dfba_results,
-        out_dir='out',
-        filename='dfba_results.gif',
-        title='',
-        skip_frames=1
-    )
-
-
-if __name__ == '__main__':
-    run_dfba_single()
-    run_dfba_spatial(n_bins=(8,8))

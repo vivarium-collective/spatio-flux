@@ -121,7 +121,9 @@ def run_particle_comets(
     }, core=core)
 
     # save the document
-    sim.save(filename='particle_comets.json', outdir='out', include_schema=True)
+    sim.save(
+        filename='particle_comets.json',
+        outdir='out')
 
     # # save a viz figure of the initial state
     # plot_bigraph(
