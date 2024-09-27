@@ -183,6 +183,7 @@ def run_particles(
         'particles': {
             '_type': 'map',
             '_value': {
+                # '_inherit': 'particle',
                 'minimal_particle': {
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),

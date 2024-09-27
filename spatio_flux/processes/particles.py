@@ -77,6 +77,7 @@ class Particles(Process):
             id = str(uuid.uuid4())
             particles[id] = {
                 # 'id': str(uuid.uuid4()),
+                # TODO: make sure we are sending position deltas?
                 'position': tuple(np.random.uniform(
                     low=[0, 0],
                     high=[bounds[0], bounds[1]],
@@ -115,7 +116,7 @@ class Particles(Process):
                 continue  # Remove particle if it hits a boundary
 
             new_position = (new_x_position, new_y_position)
-            updated_particle['position'] = new_position
+            updated_particle['position'] = (dx, dy) # new_position
 
             # Retrieve local field concentration for each particle
             x, y = self.get_bin_position(new_position)
@@ -136,10 +137,11 @@ class Particles(Process):
                 local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
                 id = str(uuid.uuid4())
                 new_particle = {
+                    'id': id,
                     'position': position,
                     'size': np.random.uniform(10, 100),  # Random size for new particles
-                    # 'local': local_field_concentrations,
-                    # 'exchange': {f: 0.0 for f in fields.keys()}  # TODO -- add exchange
+                    'local': local_field_concentrations,
+                    'exchange': {f: 0.0 for f in fields.keys()}  # TODO -- add exchange
                 }
                 new_particles['_add'][id] = new_particle
 
