@@ -5,7 +5,7 @@
             "_type": "process",
             "address": "local:DynamicFBA",
             "config": {
-                "model_file": "/Users/helenscott/Documents/PhD/Segre-lab/GEM-repos/ecoli/iJO1366.xml",
+                "model_file": "iJO1366",
                 "model": "None",
                 "kinetic_params": {
                     "Glucose": [
