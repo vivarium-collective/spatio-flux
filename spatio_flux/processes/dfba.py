@@ -126,18 +126,22 @@ def dfba_config(
         biomass_identifier='biomass',
         bounds=None
 ):
+    if kinetic_params is None:
+        # Why handle this here instead of above?
+        kinetic_params = {
+            'glucose': (0.5, 1),
+            'acetate': (0.5, 2)}
     if substrate_update_reactions is None:
+        # Why handle this here instead of above?
         substrate_update_reactions = {
             'glucose': 'EX_glc__D_e',
             'acetate': 'EX_ac_e'}
     if bounds is None:
+        # Why handle this here instead of above?
         bounds = {
             'EX_o2_e': {'lower': -2, 'upper': None},
             'ATPM': {'lower': 1, 'upper': 1}}
-    if kinetic_params is None:
-        kinetic_params = {
-            'glucose': (0.5, 1),
-            'acetate': (0.5, 2)}
+
     return {
         'model_file': model_file,
         'kinetic_params': kinetic_params,
