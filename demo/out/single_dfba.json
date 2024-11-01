@@ -1,0 +1,106 @@
+{
+    "state": {
+        "global_time": "0.0",
+        "dfba": {
+            "_type": "process",
+            "address": "local:DynamicFBA",
+            "config": {
+                "model_file": "textbook",
+                "model": "None",
+                "kinetic_params": {
+                    "glucose": [
+                        "0.5",
+                        "1.0"
+                    ],
+                    "acetate": [
+                        "0.5",
+                        "2.0"
+                    ]
+                },
+                "biomass_reaction": "Biomass_Ecoli_core",
+                "substrate_update_reactions": {
+                    "glucose": "EX_glc__D_e",
+                    "acetate": "EX_ac_e"
+                },
+                "biomass_identifier": "biomass",
+                "bounds": {
+                    "EX_o2_e": {},
+                    "ATPM": {}
+                }
+            },
+            "inputs": {
+                "substrates": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ],
+                    "biomass": [
+                        "fields",
+                        "biomass"
+                    ]
+                }
+            },
+            "outputs": {
+                "substrates": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ],
+                    "biomass": [
+                        "fields",
+                        "biomass"
+                    ]
+                }
+            },
+            "interval": 1.0,
+            "_inputs": {
+                "substrates": "map[positive_float]"
+            },
+            "_outputs": {
+                "substrates": "map[positive_float]"
+            }
+        },
+        "fields": {
+            "glucose": "10.0",
+            "acetate": "0.0",
+            "biomass": "0.1"
+        },
+        "emitter": {
+            "_type": "step",
+            "address": "local:ram-emitter",
+            "config": {
+                "emit": {
+                    "dfba": "any",
+                    "fields": "any",
+                    "global_time": "any"
+                }
+            },
+            "inputs": {
+                "dfba": [
+                    "dfba"
+                ],
+                "fields": [
+                    "fields"
+                ],
+                "global_time": [
+                    "global_time"
+                ]
+            },
+            "_inputs": {
+                "dfba": "any",
+                "fields": "any",
+                "global_time": "any"
+            },
+            "_outputs": {},
+            "outputs": {}
+        }
+    }
+}

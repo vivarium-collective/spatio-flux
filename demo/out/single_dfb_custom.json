@@ -1,0 +1,120 @@
+{
+    "state": {
+        "global_time": "0.0",
+        "dfba": {
+            "_type": "process",
+            "address": "local:DynamicFBA",
+            "config": {
+                "model_file": "/Users/helenscott/Documents/PhD/Segre-lab/GEM-repos/ecoli/iJO1366.xml",
+                "model": "None",
+                "kinetic_params": {
+                    "Glucose": [
+                        "0.5",
+                        "1.0"
+                    ],
+                    "Acetate": [
+                        "0.5",
+                        "2.0"
+                    ],
+                    "CO2": [
+                        "0.5",
+                        "1.0"
+                    ]
+                },
+                "biomass_reaction": "BIOMASS_Ec_iJO1366_WT_53p95M",
+                "substrate_update_reactions": {
+                    "Glucose": "EX_glc__D_e",
+                    "Acetate": "EX_ac_e",
+                    "CO2": "EX_co2_e"
+                },
+                "biomass_identifier": "Biomass",
+                "bounds": {
+                    "EX_o2_e": {},
+                    "ATPM": {}
+                }
+            },
+            "inputs": {
+                "substrates": {
+                    "Glucose": [
+                        "fields",
+                        "Glucose"
+                    ],
+                    "Acetate": [
+                        "fields",
+                        "Acetate"
+                    ],
+                    "CO2": [
+                        "fields",
+                        "CO2"
+                    ],
+                    "Biomass": [
+                        "fields",
+                        "Biomass"
+                    ]
+                }
+            },
+            "outputs": {
+                "substrates": {
+                    "Glucose": [
+                        "fields",
+                        "Glucose"
+                    ],
+                    "Acetate": [
+                        "fields",
+                        "Acetate"
+                    ],
+                    "CO2": [
+                        "fields",
+                        "CO2"
+                    ],
+                    "Biomass": [
+                        "fields",
+                        "Biomass"
+                    ]
+                }
+            },
+            "interval": 1.0,
+            "_inputs": {
+                "substrates": "map[positive_float]"
+            },
+            "_outputs": {
+                "substrates": "map[positive_float]"
+            }
+        },
+        "fields": {
+            "Glucose": "10.0",
+            "Acetate": "0.0",
+            "CO2": "0.0",
+            "Biomass": "0.1"
+        },
+        "emitter": {
+            "_type": "step",
+            "address": "local:ram-emitter",
+            "config": {
+                "emit": {
+                    "dfba": "any",
+                    "fields": "any",
+                    "global_time": "any"
+                }
+            },
+            "inputs": {
+                "dfba": [
+                    "dfba"
+                ],
+                "fields": [
+                    "fields"
+                ],
+                "global_time": [
+                    "global_time"
+                ]
+            },
+            "_inputs": {
+                "dfba": "any",
+                "fields": "any",
+                "global_time": "any"
+            },
+            "_outputs": {},
+            "outputs": {}
+        }
+    }
+}
