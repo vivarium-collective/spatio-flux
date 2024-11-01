@@ -4,6 +4,7 @@ Dynamic FBA simulation
 
 Process for a pluggable dFBA simulation.
 """
+
 import warnings
 
 import cobra
@@ -17,10 +18,12 @@ from spatio_flux.viz.plot import plot_species_distributions_to_gif, plot_time_se
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
-warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
+warnings.filterwarnings(
+    "ignore", category=FutureWarning, module="cobra.medium.boundary_types"
+)
 
 # TODO -- can set lower and upper bounds by config instead of hardcoding
-MODEL_FOR_TESTING = load_model('textbook')
+MODEL_FOR_TESTING = load_model("textbook")
 
 
 class DynamicFBA(Process):
@@ -38,68 +41,71 @@ class DynamicFBA(Process):
     """
 
     config_schema = {
-        'model_file': 'string',
-        'model': 'Any',
-        'kinetic_params': 'map[tuple[float,float]]',
-        'biomass_reaction': {
-            '_type': 'string',
-            '_default': 'Biomass_Ecoli_core'
-        },
-        'substrate_update_reactions': 'map[string]',
-        'biomass_identifier': 'string',
-        'bounds': 'map[bounds]',
+        "model_file": "string",
+        "model": "Any",
+        "kinetic_params": "map[tuple[float,float]]",
+        "biomass_reaction": {"_type": "string", "_default": "Biomass_Ecoli_core"},
+        "substrate_update_reactions": "map[string]",
+        "biomass_identifier": "string",
+        "bounds": "map[bounds]",
     }
 
     def __init__(self, config, core):
         super().__init__(config, core)
 
-        if self.config['model_file'] == 'TESTING':
+        if self.config["model_file"] == "TESTING":
             self.model = MODEL_FOR_TESTING
-        elif not 'xml' in self.config['model_file']:
+        elif not "xml" in self.config["model_file"]:
             # use the textbook model if no model file is provided
             # TODO: Also handle JSON or .mat model files
-            self.model = load_model(self.config['model_file'])
-        elif isinstance(self.config['model_file'], str):
-            self.model = cobra.io.read_sbml_model(self.config['model_file'])
+            self.model = load_model(self.config["model_file"])
+        elif isinstance(self.config["model_file"], str):
+            self.model = cobra.io.read_sbml_model(self.config["model_file"])
         else:
             # error handling
-            raise ValueError('Invalid model file')
+            raise ValueError("Invalid model file")
 
-        for reaction_id, bounds in self.config['bounds'].items():
-            if bounds['lower'] is not None:
-                self.model.reactions.get_by_id(reaction_id).lower_bound = bounds['lower']
-            if bounds['upper'] is not None:
-                self.model.reactions.get_by_id(reaction_id).upper_bound = bounds['upper']
+        for reaction_id, bounds in self.config["bounds"].items():
+            if bounds["lower"] is not None:
+                self.model.reactions.get_by_id(reaction_id).lower_bound = bounds[
+                    "lower"
+                ]
+            if bounds["upper"] is not None:
+                self.model.reactions.get_by_id(reaction_id).upper_bound = bounds[
+                    "upper"
+                ]
 
     def inputs(self):
-        return {
-            'substrates': 'map[positive_float]'
-        }
+        return {"substrates": "map[positive_float]"}
 
     def outputs(self):
-        return {
-            'substrates': 'map[positive_float]'
-        }
+        return {"substrates": "map[positive_float]"}
 
     # TODO -- can we just put the inputs/outputs directly in the function?
     def update(self, state, interval):
-        substrates_input = state['substrates']
+        substrates_input = state["substrates"]
 
-        for substrate, reaction_id in self.config['substrate_update_reactions'].items():
-            Km, Vmax = self.config['kinetic_params'][substrate]
+        for substrate, reaction_id in self.config["substrate_update_reactions"].items():
+            Km, Vmax = self.config["kinetic_params"][substrate]
             substrate_concentration = substrates_input[substrate]
-            uptake_rate = Vmax * substrate_concentration / (Km + substrate_concentration)
+            uptake_rate = (
+                Vmax * substrate_concentration / (Km + substrate_concentration)
+            )
             self.model.reactions.get_by_id(reaction_id).lower_bound = -uptake_rate
 
         substrate_update = {}
 
         solution = self.model.optimize()
-        if solution.status == 'optimal':
-            current_biomass = substrates_input[self.config['biomass_identifier']]
-            biomass_growth_rate = solution.fluxes[self.config['biomass_reaction']]
-            substrate_update[self.config['biomass_identifier']] = biomass_growth_rate * current_biomass * interval
+        if solution.status == "optimal":
+            current_biomass = substrates_input[self.config["biomass_identifier"]]
+            biomass_growth_rate = solution.fluxes[self.config["biomass_reaction"]]
+            substrate_update[self.config["biomass_identifier"]] = (
+                biomass_growth_rate * current_biomass * interval
+            )
 
-            for substrate, reaction_id in self.config['substrate_update_reactions'].items():
+            for substrate, reaction_id in self.config[
+                "substrate_update_reactions"
+            ].items():
                 flux = solution.fluxes[reaction_id] * current_biomass * interval
                 old_concentration = substrates_input[substrate]
                 new_concentration = max(old_concentration + flux, 0)  # keep above 0
@@ -108,66 +114,68 @@ class DynamicFBA(Process):
         else:
             # Handle non-optimal solutions if necessary
             # print('Non-optimal solution, skipping update')
-            for substrate, reaction_id in self.config['substrate_update_reactions'].items():
+            for substrate, reaction_id in self.config[
+                "substrate_update_reactions"
+            ].items():
                 substrate_update[substrate] = 0
 
         return {
-            'substrates': substrate_update,
+            "substrates": substrate_update,
         }
 
 
 # register the process
-core.register_process('DynamicFBA', DynamicFBA)
+core.register_process("DynamicFBA", DynamicFBA)
 
 
 # Helper functions to get specs and states
 def dfba_config(
-        model_file='textbook',
-        kinetic_params=None,
-        biomass_reaction='Biomass_Ecoli_core',
-        substrate_update_reactions=None,
-        biomass_identifier='biomass',  # How do we differentiate between biomass between models? Do we need to change the biomass identifier to be unique for each model?
-        bounds=None
+    model_file="textbook",
+    kinetic_params=None,
+    biomass_reaction="Biomass_Ecoli_core",
+    substrate_update_reactions=None,
+    biomass_identifier="biomass",  # TODO: How do we differentiate between biomass between models? Do we need to change the biomass identifier to be unique for each model?
+    bounds=None,
 ):
     if kinetic_params is None:
-        # Why handle this here instead of above?
-        kinetic_params = {
-            'glucose': (0.5, 1),
-            'acetate': (0.5, 2)}
-    if biomass_reaction is None:
-        # TODO: Look for the biomass reaction in the model
-        biomass_reaction = 'Biomass_Ecoli_core'
+        kinetic_params = {"glucose": (0.5, 1), "acetate": (0.5, 2)}
+    # TODO: Look for the biomass reaction in the model, so it doesn't have to be specified
+    # if biomass_reaction is None:
+    # biomass_reaction = get_biomass_reaction(model_file)
     if substrate_update_reactions is None:
-        # Why handle this here instead of above?
-        substrate_update_reactions = {
-            'glucose': 'EX_glc__D_e',
-            'acetate': 'EX_ac_e'}
+        substrate_update_reactions = {"glucose": "EX_glc__D_e", "acetate": "EX_ac_e"}
+    # TODO: Set the biomass identifier to something more specific to the model (e.g. Model Name + 'biomass')
+    # This will also be helpful once there are multiple models that would need to be named differently
+    # if biomass_identifier is None:
+    # biomass_identifier = get_biomass_identifier(model_file)
     if bounds is None:
-        # Why handle this here instead of above?
         bounds = {
-            'EX_o2_e': {'lower': -2, 'upper': None},
-            'ATPM': {'lower': 1, 'upper': 1}}
+            "EX_o2_e": {"lower": -2, "upper": None},
+            "ATPM": {"lower": 1, "upper": 1},
+        }
 
     return {
-        'model_file': model_file,
-        'kinetic_params': kinetic_params,
-        'biomass_reaction': biomass_reaction,
-        'substrate_update_reactions': substrate_update_reactions,
-        'biomass_identifier': biomass_identifier,
-        'bounds': bounds
+        "model_file": model_file,
+        "kinetic_params": kinetic_params,
+        "biomass_reaction": biomass_reaction,
+        "substrate_update_reactions": substrate_update_reactions,
+        "biomass_identifier": biomass_identifier,
+        "bounds": bounds,
     }
 
 
 def get_single_dfba_spec(
-        # Is there a better way to pass all of the info to the dfba_config function without going through this?
-        model_file='textbook',
-        kinetic_params=None,
-        biomass_reaction='Biomass_Ecoli_core',
-        substrate_update_reactions=None,
-        biomass_identifier='biomass',  # How do we differentiate between biomass between models? Do we need to change the biomass identifier to be unique for each model?
-        bounds=None,
-        # Original parameters that Eran included
-        mol_ids=None, path=None, i=None, j=None):
+    model_file="textbook",
+    kinetic_params=None,
+    biomass_reaction="Biomass_Ecoli_core",
+    substrate_update_reactions=None,
+    biomass_identifier="biomass",  # How do we differentiate between biomass between models? Do we need to change the biomass identifier to be unique for each model?
+    bounds=None,
+    mol_ids=None,
+    path=None,
+    i=None,
+    j=None,
+):
     """
     Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
 
@@ -175,6 +183,16 @@ def get_single_dfba_spec(
     specification of substrate molecule IDs and optionally appends indices to the paths for those substrates.
 
     Parameters:
+        model_file (str, optional): The file path to the model file. Defaults to 'textbook'.
+        kinetic_params (dict, optional): Dictionary of kinetic parameters for each substrate. Defaults to
+                                            {'glucose': (0.5, 1), 'acetate': (0.5, 2)}.
+        biomass_reaction (str, optional): The identifier for the biomass reaction in the model. Defaults to
+                                             'Biomass_Ecoli_core'.
+        substrate_update_reactions (dict, optional): Dictionary mapping substrates to their update reactions. Defaults to
+                                                        {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e'}.
+        biomass_identifier (str, optional): The identifier for biomass in the current state. Defaults to 'biomass'.
+        bounds (dict, optional): Dictionary mapping reaction IDs to lower and upper bounds. Defaults to
+                                    {'EX_o2_e': {'lower': -2, 'upper': None}, 'ATPM': {'lower': 1, 'upper': 1}}.
         mol_ids (list of str, optional): List of molecule IDs to include in the process. Defaults to
                                          ['glucose', 'acetate', 'biomass'].
         path (list of str, optional): The base path to prepend to each molecule ID. Defaults to ['..', 'fields'].
@@ -186,12 +204,12 @@ def get_single_dfba_spec(
               and outputs based on the specified molecule IDs and indices.
     """
     if path is None:
-        path = ['..', 'fields']
+        path = ["..", "fields"]
     if mol_ids is None:
         # TODO: Change to get the names of all the external metabolites in the model(s)
         # How am I handling multiple models here?
         # Maybe I need to handle this outside of this function if there are multiple models
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ["glucose", "acetate", "biomass"]
 
     # Function to build the path with optional indices
     def build_path(mol_id):
@@ -203,119 +221,112 @@ def get_single_dfba_spec(
         return base_path
 
     return {
-        '_type': 'process',
-        'address': 'local:DynamicFBA',
-        # TODO: Ask Eran, is this right to add all of these parameters here?
-        'config': dfba_config(model_file, kinetic_params, biomass_reaction, substrate_update_reactions, biomass_identifier, bounds),
-        'inputs': {
-            'substrates': {mol_id: build_path(mol_id) for mol_id in mol_ids}
-        },
-        'outputs': {
-            'substrates': {mol_id: build_path(mol_id) for mol_id in mol_ids}
-        }
+        "_type": "process",
+        "address": "local:DynamicFBA",
+        "config": dfba_config(
+            model_file,
+            kinetic_params,
+            biomass_reaction,
+            substrate_update_reactions,
+            biomass_identifier,
+            bounds,
+        ),
+        "inputs": {"substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}},
+        "outputs": {"substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}},
     }
 
 
 def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
     if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ["glucose", "acetate", "biomass"]
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
-            dfba_processes_dict[f'[{i},{j}]'] = get_single_dfba_spec(mol_ids=mol_ids, path=['..', 'fields'], i=i, j=j)
+            dfba_processes_dict[f"[{i},{j}]"] = get_single_dfba_spec(
+                mol_ids=mol_ids, path=["..", "fields"], i=i, j=j
+            )
     return dfba_processes_dict
 
 
 def get_spatial_dfba_state(
-        n_bins=(5, 5),
-        mol_ids=None,
-        initial_min_max=None,  # {mol_id: (min, max)}
+    n_bins=(5, 5),
+    mol_ids=None,
+    initial_min_max=None,  # {mol_id: (min, max)}
 ):
     if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ["glucose", "acetate", "biomass"]
     if initial_min_max is None:
-        initial_min_max = {'glucose': (0, 20), 'acetate': (0,0 ), 'biomass': (0, 0.1)}
+        initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
 
     initial_fields = {
-        mol_id: np.random.uniform(low=initial_min_max[mol_id][0],
-                                  high=initial_min_max[mol_id][1],
-                                  size=n_bins)
-        for mol_id in mol_ids}
+        mol_id: np.random.uniform(
+            low=initial_min_max[mol_id][0], high=initial_min_max[mol_id][1], size=n_bins
+        )
+        for mol_id in mol_ids
+    }
 
     return {
-        'fields': {
-            '_type': 'map',
-            '_value': {
-                '_type': 'array',
-                '_shape': n_bins,
-                '_data': 'positive_float'
-            },
+        "fields": {
+            "_type": "map",
+            "_value": {"_type": "array", "_shape": n_bins, "_data": "positive_float"},
             **initial_fields,
         },
-        'spatial_dfba': get_spatial_dfba_spec(n_bins=n_bins, mol_ids=mol_ids)
+        "spatial_dfba": get_spatial_dfba_spec(n_bins=n_bins, mol_ids=mol_ids),
     }
 
 
 def run_dfba_single(
-        total_time=60,
-        mol_ids=None,
+    total_time=60,
+    mol_ids=None,
 ):
     single_dfba_config = {
-        'dfba': get_single_dfba_spec(path=['fields']),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            'biomass': 0.1
-        }
+        "dfba": get_single_dfba_spec(path=["fields"]),
+        "fields": {"glucose": 10, "acetate": 0, "biomass": 0.1},
     }
 
     # make the simulation
-    sim = Composite({
-        'state': single_dfba_config,
-        'emitter': {'mode': 'all'}
-    }, core=core)
+    sim = Composite(
+        {"state": single_dfba_config, "emitter": {"mode": "all"}}, core=core
+    )
 
     # save the document
-    sim.save(filename='single_dfba.json', outdir='out')
+    sim.save(filename="single_dfba.json", outdir="out")
 
     # simulate
-    print('Simulating...')
+    print("Simulating...")
     sim.update({}, total_time)
 
     # gather results
     dfba_results = sim.gather_results()
 
-    print('Plotting results...')
+    print("Plotting results...")
     # plot timeseries
     plot_time_series(
         dfba_results,
         # coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_single_timeseries.png',
+        out_dir="out",
+        filename="dfba_single_timeseries.png",
     )
 
 
 def run_dfba_spatial(
-        total_time=60,
-        n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
-        mol_ids=None,
+    total_time=60,
+    n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
+    mol_ids=None,
 ):
     if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ["glucose", "acetate", "biomass"]
     composite_state = get_spatial_dfba_state(
         n_bins=n_bins,
         mol_ids=mol_ids,
     )
 
     # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'}
-    }, core=core)
+    print("Making the composite...")
+    sim = Composite({"state": composite_state, "emitter": {"mode": "all"}}, core=core)
 
     # save the document
-    sim.save(filename='spatial_dfba.json', outdir='out')
+    sim.save(filename="spatial_dfba.json", outdir="out")
 
     # # save a viz figure of the initial state
     # plot_bigraph(
@@ -327,31 +338,31 @@ def run_dfba_spatial(
     # )
 
     # simulate
-    print('Simulating...')
+    print("Simulating...")
     sim.update({}, total_time)
 
     # gather results
     dfba_results = sim.gather_results()
 
-    print('Plotting results...')
+    print("Plotting results...")
     # plot timeseries
     plot_time_series(
         dfba_results,
         coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_timeseries.png',
+        out_dir="out",
+        filename="dfba_timeseries.png",
     )
 
     # make video
     plot_species_distributions_to_gif(
         dfba_results,
-        out_dir='out',
-        filename='dfba_results.gif',
-        title='',
-        skip_frames=1
+        out_dir="out",
+        filename="dfba_results.gif",
+        title="",
+        skip_frames=1,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_dfba_single()
-    run_dfba_spatial(n_bins=(8,8))
+    run_dfba_spatial(n_bins=(8, 8))
