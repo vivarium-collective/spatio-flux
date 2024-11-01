@@ -4,14 +4,16 @@ Dynamic FBA simulation
 
 Process for a pluggable dFBA simulation.
 """
-import numpy as np
 import warnings
+
 import cobra
-from cobra.io import load_model
-from process_bigraph import Process, Composite
+import numpy as np
 from bigraph_viz import plot_bigraph
+from cobra.io import load_model
+from process_bigraph import Composite, Process
+
 from spatio_flux import core  # import the core from the processes package
-from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
+from spatio_flux.viz.plot import plot_species_distributions_to_gif, plot_time_series
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
@@ -55,6 +57,7 @@ class DynamicFBA(Process):
             self.model = MODEL_FOR_TESTING
         elif not 'xml' in self.config['model_file']:
             # use the textbook model if no model file is provided
+            # TODO: Also handle JSON or .mat model files
             self.model = load_model(self.config['model_file'])
         elif isinstance(self.config['model_file'], str):
             self.model = cobra.io.read_sbml_model(self.config['model_file'])
@@ -123,7 +126,7 @@ def dfba_config(
         kinetic_params=None,
         biomass_reaction='Biomass_Ecoli_core',
         substrate_update_reactions=None,
-        biomass_identifier='biomass',
+        biomass_identifier='biomass',  # How do we differentiate between biomass between models? Do we need to change the biomass identifier to be unique for each model?
         bounds=None
 ):
     if kinetic_params is None:
@@ -131,6 +134,9 @@ def dfba_config(
         kinetic_params = {
             'glucose': (0.5, 1),
             'acetate': (0.5, 2)}
+    if biomass_reaction is None:
+        # TODO: Look for the biomass reaction in the model
+        biomass_reaction = 'Biomass_Ecoli_core'
     if substrate_update_reactions is None:
         # Why handle this here instead of above?
         substrate_update_reactions = {
@@ -152,7 +158,16 @@ def dfba_config(
     }
 
 
-def get_single_dfba_spec(mol_ids=None, path=None, i=None, j=None):
+def get_single_dfba_spec(
+        # Is there a better way to pass all of the info to the dfba_config function without going through this?
+        model_file='textbook',
+        kinetic_params=None,
+        biomass_reaction='Biomass_Ecoli_core',
+        substrate_update_reactions=None,
+        biomass_identifier='biomass',  # How do we differentiate between biomass between models? Do we need to change the biomass identifier to be unique for each model?
+        bounds=None,
+        # Original parameters that Eran included
+        mol_ids=None, path=None, i=None, j=None):
     """
     Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
 
@@ -173,6 +188,9 @@ def get_single_dfba_spec(mol_ids=None, path=None, i=None, j=None):
     if path is None:
         path = ['..', 'fields']
     if mol_ids is None:
+        # TODO: Change to get the names of all the external metabolites in the model(s)
+        # How am I handling multiple models here?
+        # Maybe I need to handle this outside of this function if there are multiple models
         mol_ids = ['glucose', 'acetate', 'biomass']
 
     # Function to build the path with optional indices
@@ -187,7 +205,8 @@ def get_single_dfba_spec(mol_ids=None, path=None, i=None, j=None):
     return {
         '_type': 'process',
         'address': 'local:DynamicFBA',
-        'config': dfba_config(),
+        # TODO: Ask Eran, is this right to add all of these parameters here?
+        'config': dfba_config(model_file, kinetic_params, biomass_reaction, substrate_update_reactions, biomass_identifier, bounds),
         'inputs': {
             'substrates': {mol_id: build_path(mol_id) for mol_id in mol_ids}
         },
