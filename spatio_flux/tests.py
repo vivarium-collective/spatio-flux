@@ -3,9 +3,10 @@ from process_bigraph import Composite, ProcessTypes, default
 
 from spatio_flux import register_types
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
-from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_state
+from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_state, dfba_config
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec, get_diffusion_advection_state
-from spatio_flux.processes.particles import MinimalParticle, get_particles_state, get_particles_state
+from spatio_flux.processes.particles import MinimalParticle, get_particles_state
+from spatio_flux.processes.particles_dfba import get_particles_dfba_state
 
 
 def run_dfba_single(
@@ -159,6 +160,7 @@ def run_diffusion_process(
 
 
 def run_particles(
+        core,
         total_time=100,  # Total frames
         bounds=(10.0, 20.0),  # Bounds of the environment
         n_bins=(20, 40),  # Number of bins in the x and y directions
@@ -168,7 +170,6 @@ def run_particles(
         add_probability=0.4,
         field_interactions=None,
         initial_min_max=None,
-        core=None,
 ):
     # Get all local variables as a dictionary
     kwargs = locals()
@@ -249,6 +250,70 @@ def run_particles(
     )
 
 
+def run_particles_dfba(
+    core,
+    total_time=10.0):
+
+    # make the composite state
+    composite_state = get_particles_dfba_state(core)
+
+    composition = {
+        'particles': {
+            '_type': 'map',
+            '_value': {
+                'dFBA': {
+                    '_type': 'process',
+                    'address': default('string', 'local:DynamicFBA'),
+                    'config': default('tree[any]', dfba_config(model_file='textbook')),
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
+                }
+            }
+        }
+    }
+
+    # make the composite
+    print('Making the composite...')
+    sim = Composite({
+        'composition': composition,
+        'state': composite_state,
+        'emitter': {'mode': 'all'},
+    }, core=core)
+
+    # save the document
+    sim.save(
+        filename='particle_comets.json',
+        outdir='out')
+
+    # TODO -- save a viz figure of the initial state
+
+    # simulate
+    print('Simulating...')
+    sim.update({}, total_time)
+    particle_comets_results = sim.gather_results()
+    # print(comets_results)
+
+    print('Plotting results...')
+    n_bins = kwargs.get('n_bins', default_config['n_bins'])
+    bounds = kwargs.get('bounds', default_config['bounds'])
+    # plot timeseries
+    plot_time_series(
+        particle_comets_results,
+        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+        out_dir='out',
+        filename='particle_comets_timeseries.png'
+    )
+
+    plot_species_distributions_with_particles_to_gif(
+        particle_comets_results,
+        out_dir='out',
+        filename='particle_comets_with_fields.gif',
+        title='',
+        skip_frames=1,
+        bounds=bounds,
+    )
+
+
 if __name__ == '__main__':
     core = ProcessTypes()
     core = register_types(core)
@@ -256,4 +321,5 @@ if __name__ == '__main__':
     # run_dfba_single(core=core)
     # run_dfba_spatial(core=core, n_bins=(8,8))
     # run_diffusion_process(core=core)
-    run_particles(core=core)
+    # run_particles(core)
+    run_particles_dfba(core)
