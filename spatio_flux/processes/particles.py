@@ -94,8 +94,6 @@ class Particles(Process):
         particles = state['particles']
         fields = state['fields']  # Retrieve the fields
 
-        import ipdb; ipdb.set_trace()
-
         new_particles = {'_remove': [], '_add': {}}
         new_fields = {
             mol_id: np.zeros_like(field)

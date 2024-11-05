@@ -6,7 +6,7 @@ from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to
 from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_state, dfba_config
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec, get_diffusion_advection_state
 from spatio_flux.processes.particles import MinimalParticle, get_particles_state
-from spatio_flux.processes.particles_dfba import get_particles_dfba_state
+from spatio_flux.processes.particles_dfba import get_particles_dfba_state, default_config
 
 
 def run_dfba_single(
@@ -252,7 +252,9 @@ def run_particles(
 
 def run_particles_dfba(
     core,
-    total_time=10.0):
+    total_time=10.0,
+    n_bins=None,
+    bounds=None):
 
     # make the composite state
     composite_state = get_particles_dfba_state(core)
@@ -294,8 +296,8 @@ def run_particles_dfba(
     # print(comets_results)
 
     print('Plotting results...')
-    n_bins = kwargs.get('n_bins', default_config['n_bins'])
-    bounds = kwargs.get('bounds', default_config['bounds'])
+    n_bins = n_bins or default_config['n_bins']
+    bounds = bounds or default_config['bounds']
     # plot timeseries
     plot_time_series(
         particle_comets_results,
