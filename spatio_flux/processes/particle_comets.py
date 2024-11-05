@@ -3,7 +3,6 @@ Particle-COMETS composite made of dFBAs, diffusion-advection, and particle proce
 """
 from process_bigraph import Composite
 from bigraph_viz import plot_bigraph
-from spatio_flux import core
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
 
 # TODO -- need to do this to register???
@@ -107,6 +106,7 @@ def get_particle_comets_state(
 
 
 def run_particle_comets(
+        core,
         total_time=10.0,
         **kwargs
 ):
@@ -162,4 +162,8 @@ def run_particle_comets(
 
 
 if __name__ == '__main__':
-    run_particle_comets(**default_config)
+    from process_bigraph import ProcessTypes
+    from spatio_flux import register_types
+    core = ProcessTypes()
+    core = register_types(core)
+    run_particle_comets(core=core, **default_config)
