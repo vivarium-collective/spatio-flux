@@ -2,10 +2,16 @@ from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, ProcessTypes, default
 
 from spatio_flux import register_types
-from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
+from spatio_flux.viz.plot import (
+    plot_time_series,
+    plot_species_distributions_to_gif,
+    plot_species_distributions_with_particles_to_gif,
+    plot_particles
+)
 from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_state, dfba_config
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec, get_diffusion_advection_state
 from spatio_flux.processes.particles import MinimalParticle, get_particles_state
+from spatio_flux.processes.particle_comets import get_particle_comets_state, default_config
 from spatio_flux.processes.particles_dfba import get_particles_dfba_state, default_config
 
 
@@ -94,23 +100,23 @@ def run_dfba_spatial(
         dfba_results,
         coordinates=[(0, 0), (1, 1), (2, 2)],
         out_dir='out',
-        filename='dfba_timeseries.png',
+        filename='spatial_dfba_timeseries.png',
     )
 
     # make video
     plot_species_distributions_to_gif(
         dfba_results,
         out_dir='out',
-        filename='dfba_results.gif',
+        filename='spatial_dfba_results.gif',
         title='',
         skip_frames=1
     )
 
 
 def run_diffusion_process(
-        total_time=50,
-        bounds=(10.0, 20.0),
-        n_bins=(10, 20),
+        total_time=60,
+        bounds=(10.0, 10.0),
+        n_bins=(10, 10),
         core=None,
 ):
     composite_state = get_diffusion_advection_state(
@@ -161,7 +167,7 @@ def run_diffusion_process(
 
 def run_particles(
         core,
-        total_time=100,  # Total frames
+        total_time=60,  # Total frames
         bounds=(10.0, 20.0),  # Bounds of the environment
         n_bins=(20, 40),  # Number of bins in the x and y directions
         n_particles=1,  # 20
@@ -218,8 +224,6 @@ def run_particles(
         filename='particles_viz'
     )
 
-    import ipdb; ipdb.set_trace()
-
     # simulate
     print('Simulating...')
     sim.update({}, total_time)
@@ -244,6 +248,62 @@ def run_particles(
         particles_results,
         out_dir='out',
         filename='particle_with_fields.gif',
+        title='',
+        skip_frames=1,
+        bounds=bounds,
+    )
+
+
+def run_particle_comets(
+        core,
+        total_time=10.0,
+        **kwargs
+):
+    # make the composite state
+    composite_state = get_particle_comets_state(**kwargs)
+
+    # make the composite
+    print('Making the composite...')
+    sim = Composite({
+        'state': composite_state,
+        'emitter': {'mode': 'all'},
+    }, core=core)
+
+    # save the document
+    sim.save(
+        filename='particle_comets.json',
+        outdir='out')
+
+    # # save a viz figure of the initial state
+    # plot_bigraph(
+    #     state=sim.state,
+    #     schema=sim.composition,
+    #     core=core,
+    #     out_dir='out',
+    #     filename='particles_comets_viz'
+    # )
+
+    # simulate
+    print('Simulating...')
+    sim.update({}, total_time)
+    particle_comets_results = sim.gather_results()
+    # print(comets_results)
+
+    print('Plotting results...')
+    n_bins = kwargs.get('n_bins', default_config['n_bins'])
+    bounds = kwargs.get('bounds', default_config['bounds'])
+    # plot timeseries
+    plot_time_series(
+        particle_comets_results,
+        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+        out_dir='out',
+        filename='particle_comets_timeseries.png'
+    )
+
+    plot_species_distributions_with_particles_to_gif(
+        particle_comets_results,
+        out_dir='out',
+        filename='particle_comets_with_fields.gif',
         title='',
         skip_frames=1,
         bounds=bounds,
@@ -316,12 +376,14 @@ def run_particles_dfba(
     )
 
 
+
 if __name__ == '__main__':
     core = ProcessTypes()
     core = register_types(core)
 
     # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core, n_bins=(8,8))
+    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
     # run_particles(core)
-    run_particles_dfba(core)
+    run_particle_comets(core)
+    # run_particles_dfba(core)

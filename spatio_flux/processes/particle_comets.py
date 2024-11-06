@@ -1,14 +1,9 @@
 """
 Particle-COMETS composite made of dFBAs, diffusion-advection, and particle processes.
 """
-from process_bigraph import Composite
-from bigraph_viz import plot_bigraph
-from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
-
-# TODO -- need to do this to register???
-from spatio_flux.processes.dfba import DynamicFBA, get_spatial_dfba_state
-from spatio_flux.processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
-from spatio_flux.processes.particles import Particles, get_particles_spec, get_particles_state
+from spatio_flux.processes.dfba import get_spatial_dfba_state
+from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec
+from spatio_flux.processes.particles import Particles, get_particles_spec
 
 
 default_config = {
@@ -100,70 +95,7 @@ def get_particle_comets_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
-        field_interactions=field_interactions,
+        # field_interactions=field_interactions,
     )
     return composite_state
 
-
-def run_particle_comets(
-        core,
-        total_time=10.0,
-        **kwargs
-):
-    # make the composite state
-    composite_state = get_particle_comets_state(**kwargs)
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'},
-    }, core=core)
-
-    # save the document
-    sim.save(
-        filename='particle_comets.json',
-        outdir='out')
-
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='particles_comets_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-    particle_comets_results = sim.gather_results()
-    # print(comets_results)
-
-    print('Plotting results...')
-    n_bins = kwargs.get('n_bins', default_config['n_bins'])
-    bounds = kwargs.get('bounds', default_config['bounds'])
-    # plot timeseries
-    plot_time_series(
-        particle_comets_results,
-        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-        out_dir='out',
-        filename='particle_comets_timeseries.png'
-    )
-
-    plot_species_distributions_with_particles_to_gif(
-        particle_comets_results,
-        out_dir='out',
-        filename='particle_comets_with_fields.gif',
-        title='',
-        skip_frames=1,
-        bounds=bounds,
-    )
-
-
-if __name__ == '__main__':
-    from process_bigraph import ProcessTypes
-    from spatio_flux import register_types
-    core = ProcessTypes()
-    core = register_types(core)
-    run_particle_comets(core=core, **default_config)
