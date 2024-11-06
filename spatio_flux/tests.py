@@ -290,8 +290,9 @@ def run_particle_comets(
     # print(comets_results)
 
     print('Plotting results...')
-    n_bins = kwargs.get('n_bins', default_config['n_bins'])
-    bounds = kwargs.get('bounds', default_config['bounds'])
+    n_bins = composite_state['particles_process']['config']['n_bins']
+    bounds = composite_state['particles_process']['config']['bounds']
+
     # plot timeseries
     plot_time_series(
         particle_comets_results,
