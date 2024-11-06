@@ -354,11 +354,11 @@ def run_particles_dfba(
     print('Simulating...')
     sim.update({}, total_time)
     particle_comets_results = sim.gather_results()
-    # print(comets_results)
 
     print('Plotting results...')
-    n_bins = n_bins or default_config['n_bins']
-    bounds = bounds or default_config['bounds']
+    n_bins = composite_state['particles_process']['config']['n_bins']
+    bounds = composite_state['particles_process']['config']['bounds']
+
     # plot timeseries
     plot_time_series(
         particle_comets_results,
@@ -386,5 +386,5 @@ if __name__ == '__main__':
     # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
     # run_particles(core)
-    run_particle_comets(core)
-    # run_particles_dfba(core)
+    # run_particle_comets(core)
+    run_particles_dfba(core)
