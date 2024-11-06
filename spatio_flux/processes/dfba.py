@@ -16,9 +16,6 @@ from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
 warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
 
-# TODO -- can set lower and upper bounds by config instead of hardcoding
-MODEL_FOR_TESTING = load_model('textbook')
-
 
 class DynamicFBA(Process):
     """
@@ -27,21 +24,16 @@ class DynamicFBA(Process):
     Parameters:
     - model: The metabolic model for the simulation.
     - kinetic_params: Kinetic parameters (Km and Vmax) for each substrate.
-    - biomass_reaction: The identifier for the biomass reaction in the model.
     - substrate_update_reactions: A dictionary mapping substrates to their update reactions.
     - biomass_identifier: The identifier for biomass in the current state.
+    - bounds: A dictionary of bounds for any reactions in the model.
 
     TODO -- check units
     """
 
     config_schema = {
         'model_file': 'string',
-        # 'model': 'any',
         'kinetic_params': 'map[tuple[float,float]]',
-        'biomass_reaction': {
-            '_type': 'string',
-            '_default': 'Biomass_Ecoli_core'
-        },
         'substrate_update_reactions': 'map[string]',
         'biomass_identifier': 'string',
         'bounds': 'map[bounds]',
@@ -50,9 +42,7 @@ class DynamicFBA(Process):
     def __init__(self, config, core):
         super().__init__(config, core)
 
-        if self.config['model_file'] == 'TESTING':
-            self.model = MODEL_FOR_TESTING
-        elif not 'xml' in self.config['model_file']:
+        if not 'xml' in self.config['model_file']:
             # use the textbook model if no model file is provided
             self.model = load_model(self.config['model_file'])
         elif isinstance(self.config['model_file'], str):
@@ -77,9 +67,15 @@ class DynamicFBA(Process):
             'substrates': 'map[positive_float]'
         }
 
+    # def interface(self):
+    #     return {
+    #         'inputs': {'substrates': 'map[positive_float]'},
+    #         'outputs': {'substrates': 'map[positive_float]'},
+    #     }
+
     # TODO -- can we just put the inputs/outputs directly in the function?
-    def update(self, state, interval):
-        substrates_input = state['substrates']
+    def update(self, inputs, interval):
+        substrates_input = inputs['substrates']
 
         for substrate, reaction_id in self.config['substrate_update_reactions'].items():
             Km, Vmax = self.config['kinetic_params'][substrate]
@@ -92,13 +88,13 @@ class DynamicFBA(Process):
         solution = self.model.optimize()
         if solution.status == 'optimal':
             current_biomass = substrates_input[self.config['biomass_identifier']]
-            biomass_growth_rate = solution.fluxes[self.config['biomass_reaction']]
+            biomass_growth_rate = solution.objective_value
             substrate_update[self.config['biomass_identifier']] = biomass_growth_rate * current_biomass * interval
 
             for substrate, reaction_id in self.config['substrate_update_reactions'].items():
                 flux = solution.fluxes[reaction_id] * current_biomass * interval
                 old_concentration = substrates_input[substrate]
-                new_concentration = max(old_concentration + flux, 0)  # keep above 0
+                new_concentration = max(old_concentration + flux, 0)  # keep above 0 -- TODO this should not happen
                 substrate_update[substrate] = new_concentration - old_concentration
                 # TODO -- assert not negative?
         else:
@@ -116,7 +112,6 @@ class DynamicFBA(Process):
 def dfba_config(
         model_file='textbook',
         kinetic_params=None,
-        biomass_reaction='Biomass_Ecoli_core',
         substrate_update_reactions=None,
         biomass_identifier='biomass',
         bounds=None
@@ -136,14 +131,19 @@ def dfba_config(
     return {
         'model_file': model_file,
         'kinetic_params': kinetic_params,
-        'biomass_reaction': biomass_reaction,
         'substrate_update_reactions': substrate_update_reactions,
         'biomass_identifier': biomass_identifier,
         'bounds': bounds
     }
 
 
-def get_single_dfba_spec(mol_ids=None, path=None, i=None, j=None):
+def get_single_dfba_spec(
+        model_file='textbook',
+        mol_ids=None,
+        path=None,
+        i=None,
+        j=None,
+):
     """
     Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
 
@@ -178,7 +178,7 @@ def get_single_dfba_spec(mol_ids=None, path=None, i=None, j=None):
     return {
         '_type': 'process',
         'address': 'local:DynamicFBA',
-        'config': dfba_config(),
+        'config': dfba_config(model_file=model_file),
         'inputs': {
             'substrates': {mol_id: build_path(mol_id) for mol_id in mol_ids}
         },

@@ -31,11 +31,6 @@ particle_type = {
     'exchange': 'map[float]',    # {mol_id: delta_value}
 }
 
-particle_with_spin = {
-    '_type': 'spin_particle',
-    '_inherit': 'particle',
-    'spin': 'float'
-}
 
 def register_types(core):
     core.register('positive_float', positive_float)
