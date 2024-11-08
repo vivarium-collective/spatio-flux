@@ -1,14 +1,13 @@
 """
 Particle-COMETS composite made of diffusion-advection and particle processes, with a dFBA within each particle.
 """
-
-from process_bigraph import Composite
-from spatio_flux import core
+import numpy as np
+from process_bigraph import Composite, default
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_with_particles_to_gif
 
 
 # TODO -- need to do this to register???
-from spatio_flux.processes.dfba import DynamicFBA, get_spatial_dfba_state
+from spatio_flux.processes.dfba import DynamicFBA, dfba_config, get_spatial_dfba_state
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection, get_diffusion_advection_spec
 from spatio_flux.processes.particles import Particles, get_particles_spec, get_particles_state
 
@@ -36,7 +35,8 @@ default_config = {
 }
 
 
-def get_particle_dfba_state(
+def get_particles_dfba_state(
+        core,
         n_bins=(10, 10),
         bounds=(10.0, 10.0),
         mol_ids=None,
@@ -77,6 +77,7 @@ def get_particle_dfba_state(
     particles = Particles.initialize_particles(
         n_particles=n_particles,
         bounds=bounds,
+        mol_ids=mol_ids,
     )
     composite_state['particles'] = particles
     composite_state['particles_process'] = get_particles_spec(
@@ -86,55 +87,13 @@ def get_particle_dfba_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
-        field_interactions=field_interactions,
+        # field_interactions=field_interactions,
     )
+    initial_fields = {
+        mol_id: np.random.uniform(low=initial_min_max[mol_id][0], high=initial_min_max[mol_id][1], size=n_bins)
+        for mol_id in mol_ids}
+    composite_state['fields'] =initial_fields
     return composite_state
-
-
-def run_particle_dfba(
-        total_time=10.0,
-        **kwargs
-):
-    # make the composite state
-    composite_state = get_particle_dfba_state(**kwargs)
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'},
-    }, core=core)
-
-    # save the document
-    sim.save(filename='particle_comets.json', outdir='out', include_schema=True)
-
-    # TODO -- save a viz figure of the initial state
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-    particle_comets_results = sim.gather_results()
-    # print(comets_results)
-
-    print('Plotting results...')
-    n_bins = kwargs.get('n_bins', default_config['n_bins'])
-    bounds = kwargs.get('bounds', default_config['bounds'])
-    # plot timeseries
-    plot_time_series(
-        particle_comets_results,
-        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-        out_dir='out',
-        filename='particle_comets_timeseries.png'
-    )
-
-    plot_species_distributions_with_particles_to_gif(
-        particle_comets_results,
-        out_dir='out',
-        filename='particle_comets_with_fields.gif',
-        title='',
-        skip_frames=1,
-        bounds=bounds,
-    )
 
 
 if __name__ == '__main__':
