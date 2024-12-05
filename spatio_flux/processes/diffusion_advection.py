@@ -7,8 +7,6 @@ This process is a simple 2D diffusion-advection process. It takes a 2D field as 
 import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process, Composite
-from bigraph_viz import plot_bigraph
-from spatio_flux import core  # import the core from the processes package
 from spatio_flux.viz.plot import plot_species_distributions_to_gif
 
 
@@ -127,9 +125,6 @@ class DiffusionAdvection(Process):
         return updated_state - state
 
 
-core.register_process('DiffusionAdvection', DiffusionAdvection)
-
-
 # Helper functions to get specs and states
 def get_diffusion_advection_spec(
         bounds=(10.0, 10.0),
@@ -221,56 +216,3 @@ def get_diffusion_advection_state(
     }
 
 
-def run_diffusion_process(
-        total_time=50,
-        bounds=(10.0, 20.0),
-        n_bins=(10, 20),
-):
-    composite_state = get_diffusion_advection_state(
-        bounds=bounds,
-        n_bins=n_bins,
-        mol_ids=['glucose', 'acetate', 'biomass'],
-        advection_coeffs={
-            'biomass': (0, -0.1)
-        }
-    )
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'},
-    }, core=core)
-
-    # save the document
-    sim.save(filename='diffadv.json', outdir='out')
-
-    # save a viz figure of the initial state
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
-        core=core,
-        out_dir='out',
-        filename='diffadv_viz'
-    )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    diffadv_results = sim.gather_results()
-
-    print('Plotting results...')
-    # plot 2d video
-    plot_species_distributions_to_gif(
-        diffadv_results,
-        out_dir='out',
-        filename='diffadv_results.gif',
-        title='',
-        skip_frames=1
-    )
-
-
-if __name__ == '__main__':
-    run_diffusion_process()

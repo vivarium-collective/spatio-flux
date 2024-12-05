@@ -50,7 +50,7 @@ def plot_time_series(
     # coordinates = coordinates or [(0, 0)]
     field_names = field_names or ['glucose', 'acetate', 'biomass']
     sorted_results = sort_results(results)
-    time = sorted_results['time']
+    times = sorted_results['time']
 
     # Initialize the plot
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -59,12 +59,12 @@ def plot_time_series(
         if field_name in sorted_results['fields']:
             field_data = sorted_results['fields'][field_name]
             if coordinates is None:
-                ax.plot(time, field_data, label=field_name)
+                ax.plot(times, field_data, label=field_name)
             else:
                 for coord in coordinates:
                     x, y = coord
-                    time_series = [field_data[t][x, y] for t in range(len(time))]
-                    ax.plot(time, time_series, label=f'{field_name} at {coord}')
+                    time_series = [field_data[t][x, y] for t in range(len(times))]
+                    ax.plot(times, time_series, label=f'{field_name} at {coord}')
                     # plot log scale on y axis
                     # ax.set_yscale('log')
         else:
@@ -243,7 +243,7 @@ def plot_species_distributions_with_particles_to_gif(
             ax.set_title(f'{species} at t = {times[i]:.2f}')
             plt.colorbar(img, ax=ax)
 
-            for particle in particles:
+            for particle_id, particle in particles.items():
                 ax.scatter(particle['position'][0], particle['position'][1],
                            s=particle['size'],
                            color='b'
@@ -312,7 +312,7 @@ def plot_particles(
         ax.set_aspect('equal')
 
         particles = history[frame]
-        for particle in particles:
+        for particle_id, particle in particles.items():
             ax.scatter(particle['position'][0], particle['position'][1],
                        s=particle['size'], color='b')
 

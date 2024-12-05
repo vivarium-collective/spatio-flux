@@ -6,19 +6,9 @@ A process for simulating the motion of particles in a 2D environment.
 """
 import uuid
 import numpy as np
-from process_bigraph import Process, Composite
+from process_bigraph import Process, Composite, default
 from bigraph_viz import plot_bigraph
-from spatio_flux import core
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
-
-
-# TODO -- make particle type
-particle_type = {
-    'id': 'string',
-    'position': 'tuple[float,float]',
-    'size': 'float',
-}
-core.register('particle', particle_type)
 
 
 class Particles(Process):
@@ -35,19 +25,6 @@ class Particles(Process):
         'add_probability': {'_type': 'float', '_default': 0.0},  # TODO -- make probability type
         'boundary_to_add': {'_type': 'list', '_default': ['left', 'right']},  # which boundaries to add particles
         'boundary_to_remove': {'_type': 'list', '_default': ['left', 'right', 'top', 'bottom']},
-
-        # interactions between particles and fields
-        'field_interactions': {
-            '_type': 'tree',  # A dictionary of fields
-            '_value': {
-                '_type': 'map',
-                'vmax': {'_type': 'float', '_default': 0.1},
-                'Km': {'_type': 'float', '_default': 1.0},
-                'interaction_type': {
-                    '_type': 'enum[uptake,secretion]', '_default': 'uptake'},  # 'uptake' or 'secretion'
-            },
-            '_default': {'biomass': {'vmax': 0.1, 'Km': 1.0}}
-        }
     }
 
     def __init__(self, config, core):
@@ -59,10 +36,7 @@ class Particles(Process):
 
     def inputs(self):
         return {
-            'particles': {
-                '_type': 'list[particle]',
-                '_apply': 'set'
-            },
+            'particles': 'map[particle]',
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -75,10 +49,7 @@ class Particles(Process):
 
     def outputs(self):
         return {
-            'particles': {
-                '_type': 'any',
-                '_apply': 'set'
-            },
+            'particles': 'map[particle]',
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -93,23 +64,37 @@ class Particles(Process):
     def initialize_particles(
             n_particles,
             bounds,
-            size_range=(10, 100)
+            fields,
+            size_range=(10, 100),
     ):
         """
         Initialize particle positions for multiple species.
         """
+        mol_ids = fields.keys()
+
+        # get n_bins from the shape of the first field array
+        n_bins = fields[list(fields.keys())[0]].shape
+
         # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
-        particles = []
+        particles = {}
         for _ in range(n_particles):
-            particle = {
-                'id': str(uuid.uuid4()),
-                'position': tuple(np.random.uniform(
-                    low=[0, 0],
-                    high=[bounds[0], bounds[1]],
-                    size=2)),
-                'size': np.random.uniform(size_range[0], size_range[1]),
+            id = str(uuid.uuid4())
+            position = tuple(np.random.uniform(low=[0, 0],high=[bounds[0], bounds[1]],size=2))
+            size = np.random.uniform(size_range[0], size_range[1])
+
+            x, y = Particles.get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
+            # TODO update local and exchange values
+            local = Particles.get_local_field_values(fields, column=x, row=y)
+            exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
+
+            particles[id] = {
+                # 'id': str(uuid.uuid4()),
+                'position': position,
+                'size': size,
+                'local': local,
+                'exchange': exchanges
             }
-            particles.append(particle)
+            # particles.append(particle)
 
         return particles
 
@@ -117,12 +102,13 @@ class Particles(Process):
         particles = state['particles']
         fields = state['fields']  # Retrieve the fields
 
-        new_particles = []
+        new_particles = {'_remove': [], '_add': {}}
         new_fields = {
             mol_id: np.zeros_like(field)
             for mol_id, field in fields.items()}
-        for particle in particles:
-            updated_particle = particle.copy()
+
+        for particle_id, particle in particles.items():
+            updated_particle = {'exchange': {}}
 
             # Apply diffusion and advection
             dx, dy = np.random.normal(0, self.config['diffusion_rate'], 2) + self.config['advection_rate']
@@ -132,70 +118,54 @@ class Particles(Process):
 
             # Check and remove particles if they hit specified boundaries
             if self.check_boundary_hit(new_x_position, new_y_position):
+                new_particles['_remove'].append(particle_id)
                 continue  # Remove particle if it hits a boundary
 
             new_position = (new_x_position, new_y_position)
-            updated_particle['position'] = new_position
+            updated_particle['position'] = (dx, dy) # new_position
 
             # Retrieve local field concentration for each particle
-            x, y = self.get_bin_position(new_position)
-            local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
+            x, y = self.get_bin_position(new_position, self.config['n_bins'], self.env_size)
 
-            # Interact with fields based on the config schema
-            for field, interaction_params in self.config['field_interactions'].items():
-                local_field_value = local_field_concentrations.get(field)
-                vmax = interaction_params['vmax']
-                Km = interaction_params.get('Km')
-                interaction_type = interaction_params.get('interaction_type', 'uptake')  # Default to 'uptake' if not provided
+            # Update local environment values for each particle
+            updated_particle['local'] = self.get_local_field_values(fields, column=x, row=y)
 
-                if interaction_type == 'uptake' and local_field_value:
-                    # Michaelis-Menten-like rate law for uptake
-                    uptake_rate = (vmax * local_field_value) / (Km + local_field_value)
+            # Apply exchanges and reset
+            exchange = particle['exchange']
+            for mol_id, exchange_rate in exchange.items():
+                new_fields[mol_id][x, y] += exchange_rate
+                updated_particle['exchange'][mol_id] = 0.0
 
-                    # Particle uptake rate is proportional to its size
-                    absorbed_value = float(uptake_rate * particle['size'])
-
-                    # Update particle size based on the absorbed field value
-                    updated_particle['size'] = max(updated_particle['size'] + 0.01 * absorbed_value, 0.0)
-
-                    # Reduce the field concentration in the environment
-                    if local_field_value - absorbed_value < 0.0:
-                        absorbed_value = local_field_value  # Cap absorption to available field value
-                    new_fields[field][x, y] = -absorbed_value
-
-                elif interaction_type == 'secretion':
-                    # During secretion, use only vmax
-                    secreted_value = float(vmax * particle['size'])
-
-                    # Update particle size based on the secreted value
-                    updated_particle['size'] = max(updated_particle['size'] - 0.01 * secreted_value, 0.0)
-
-                    # Increase the field concentration in the environment
-                    new_fields[field][x, y] += secreted_value  # Add secreted value to the field
-
-            new_particles.append(updated_particle)
+            new_particles[particle_id] = updated_particle
 
         # Probabilistically add new particles at user-defined boundaries
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
+                # TODO -- reuse function for initializing particles
+                position = self.get_boundary_position(boundary)
+                x, y = self.get_bin_position(position, self.config['n_bins'], self.env_size)
+                local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
+                id = str(uuid.uuid4())
                 new_particle = {
-                    'id': str(uuid.uuid4()),
-                    'position': self.get_boundary_position(boundary),
+                    'id': id,
+                    'position': position,
                     'size': np.random.uniform(10, 100),  # Random size for new particles
-                    # 'local': {}  # TODO local field values
+                    'local': local_field_concentrations,
+                    'exchange': {f: 0.0 for f in fields.keys()}  # TODO -- add exchange
                 }
-                new_particles.append(new_particle)
+                new_particles['_add'][id] = new_particle
 
         return {
             'particles': new_particles,
             'fields': new_fields
         }
 
-    def get_bin_position(self, position):
+    @staticmethod
+    def get_bin_position(position, n_bins, env_size):
         x, y = position
-        x_bins, y_bins = self.config['n_bins']
-        x_min, x_max = self.env_size[0]
-        y_min, y_max = self.env_size[1]
+        x_bins, y_bins = n_bins #self.config['n_bins']
+        x_min, x_max = env_size[0]
+        y_min, y_max = env_size[1]
 
         # Convert the particle's (x, y) position to the corresponding bin in the 2D grid
         x_bin = int((x - x_min) / (x_max - x_min) * x_bins)
@@ -207,7 +177,8 @@ class Particles(Process):
 
         return x_bin, y_bin
 
-    def get_local_field_values(self, fields, column, row):
+    @staticmethod
+    def get_local_field_values(fields, column, row):
         """
         Retrieve local field values for a particle based on its position.
 
@@ -247,7 +218,74 @@ class Particles(Process):
             return np.random.uniform(*self.env_size[0]), self.env_size[1][0]
 
 
-core.register_process('Particles', Particles)
+class MinimalParticle(Process):
+    config_schema = {
+        'field_interactions': {
+            '_type': 'map',
+            '_value': {
+                'vmax': default('float', 0.1),
+                'Km': default('float', 1.0),
+                'interaction_type': default('enum[uptake,secretion]', 'uptake')},
+            '_default': {
+                'biomass': {
+                    'vmax': 0.1,
+                    'Km': 1.0,
+                    'interaction_type': 'uptake'},
+                'detritus': {
+                    'vmax': -0.1,
+                    'Km': 1.0,
+                    'interaction_type': 'secretion'}}}}
+
+
+    def inputs(self):
+        return {
+            'substrates': 'map[positive_float]'
+        }
+
+
+    def outputs(self):
+        return {
+            'substrates': 'map[positive_float]'
+        }
+
+
+    def update(self, state, interval):
+        substrates_input = state['substrates']
+        exchanges = {}
+
+        # Helper functions for interaction types
+        def michaelis_menten(uptake_value, vmax, Km):
+            """Michaelis-Menten rate law for uptake."""
+            return (vmax * uptake_value) / (Km + uptake_value) if Km + uptake_value > 0 else 0
+
+        def calculate_uptake(field_value, vmax, Km):
+            """Calculate the net uptake value."""
+            uptake_rate = michaelis_menten(field_value, vmax, Km)
+            absorbed_value = min(uptake_rate, field_value)  # Limit to available substrate
+            return -absorbed_value  # Negative for uptake
+
+        def calculate_secretion(vmax):
+            """Calculate the net secretion value."""
+            return vmax  # Secretion value is directly proportional to vmax
+
+        # Process each field interaction
+        for field, interaction_params in self.config['field_interactions'].items():
+            local_field_value = substrates_input.get(field, 0)
+            vmax = interaction_params['vmax']
+            Km = interaction_params.get('Km', 1)  # Default Km to 1 if not specified
+            interaction_type = interaction_params.get('interaction_type', 'uptake')  # Default to 'uptake'
+
+            if interaction_type == 'uptake' and local_field_value > 0:
+                exchanges[field] = calculate_uptake(local_field_value, vmax, Km)
+            elif interaction_type == 'secretion':
+                exchanges[field] = calculate_secretion(vmax)
+            else:
+                exchanges[field] = 0  # No interaction by default
+
+        # Return updated substrates
+        return {
+            'substrates': exchanges
+        }
 
 
 # Helper functions to get specs and states
@@ -258,25 +296,21 @@ def get_particles_spec(
         advection_rate=(0, 0),
         add_probability=0.0,
         boundary_to_add=['top'],
-        field_interactions=None,
 ):
     config = locals()
     # Remove any key-value pair where the value is None
     config = {key: value for key, value in config.items() if value is not None}
 
     return {
-            '_type': 'process',
-            'address': 'local:Particles',
-            'config': config,
-            'inputs': {
-                'particles': ['particles'],
-                'fields': ['fields']
-            },
-            'outputs': {
-                'particles': ['particles'],
-                'fields': ['fields']
-            }
-        }
+        '_type': 'process',
+        'address': 'local:Particles',
+        'config': config,
+        'inputs': {
+            'particles': ['particles'],
+            'fields': ['fields']},
+        'outputs': {
+            'particles': ['particles'],
+            'fields': ['fields']}}
 
 
 def get_particles_state(
@@ -289,28 +323,33 @@ def get_particles_state(
         add_probability=0.4,
         field_interactions=None,
         initial_min_max=None,
+        core=None,
 ):
     if boundary_to_add is None:
         boundary_to_add = ['top']
+
     if field_interactions is None:
         field_interactions = {
             'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
             'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
         }
+
     if initial_min_max is None:
         initial_min_max = {
             'biomass': (0.1, 0.2),
             'detritus': (0, 0),
         }
 
-    # initialize particles
-    particles = Particles.initialize_particles(n_particles=n_particles, bounds=bounds)
-
     # initialize fields
     fields = {}
-    for field in field_interactions.keys():
-        minmax = initial_min_max.get(field, (0, 1))
+    for field, minmax in initial_min_max.items():
         fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
+
+    # initialize particles
+    particles = Particles.initialize_particles(
+        n_particles=n_particles,
+        bounds=bounds,
+        fields=fields)
 
     return {
         'fields': fields,
@@ -322,77 +361,5 @@ def get_particles_state(
             advection_rate=advection_rate,
             add_probability=add_probability,
             boundary_to_add=boundary_to_add,
-            field_interactions=field_interactions,
         )
     }
-
-
-def run_particles(
-        total_time=100,  # Total frames
-        bounds=(10.0, 20.0),  # Bounds of the environment
-        n_bins=(20, 40),  # Number of bins in the x and y directions
-        n_particles=20,
-        diffusion_rate=0.1,
-        advection_rate=(0, -0.1),
-        add_probability=0.4,
-        field_interactions=None,
-        initial_min_max=None,
-):
-    # Get all local variables as a dictionary
-    kwargs = locals()
-    kwargs.pop('total_time')  # 'total_time' is only used here, so we pop it
-
-    # initialize particles state
-    composite_state = get_particles_state(**kwargs)
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'},
-    }, core=core)
-
-    # save the document
-    sim.save(filename='particles.json', outdir='out')
-
-    # save a viz figure of the initial state
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
-        core=core,
-        out_dir='out',
-        filename='particles_viz'
-    )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    particles_results = sim.gather_results()
-    emitter_results = particles_results[('emitter',)]
-    # resort results
-    particles_history = [p['particles'] for p in emitter_results]
-
-    print('Plotting...')
-    # plot particles
-    plot_particles(
-        # total_time=total_time,
-        history=particles_history,
-        env_size=((0, bounds[0]), (0, bounds[1])),
-        out_dir='out',
-        filename='particles.gif',
-    )
-
-    plot_species_distributions_with_particles_to_gif(
-        particles_results,
-        out_dir='out',
-        filename='particle_with_fields.gif',
-        title='',
-        skip_frames=1,
-        bounds=bounds,
-    )
-
-
-if __name__ == '__main__':
-    run_particles()
