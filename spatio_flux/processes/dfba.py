@@ -11,7 +11,6 @@ import numpy as np
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
-from bigraph_viz import plot_bigraph
 from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
 
 # Suppress warnings
@@ -53,7 +52,7 @@ class DynamicFBA(Process):
             self.model = cobra.io.read_sbml_model(self.config["model_file"])
         else:
             # error handling
-            raise ValueError('Invalid model file')
+            raise ValueError("Invalid model file")
 
         for reaction_id, bounds in self.config["bounds"].items():
             if bounds["lower"] is not None:
@@ -69,12 +68,12 @@ class DynamicFBA(Process):
 
     def outputs(self):
         return {
-            'substrates': 'map[positive_float]'
+            "substrates": "map[positive_float]"
         }
 
     # TODO -- can we just put the inputs/outputs directly in the function?
-    def update(self, state, interval):
-        substrates_input = state["substrates"]
+    def update(self, inputs, interval):
+        substrates_input = inputs["substrates"]
 
         for substrate, reaction_id in self.config["substrate_update_reactions"].items():
             Km, Vmax = self.config["kinetic_params"][substrate]
@@ -232,97 +231,97 @@ def run_dfba_single(
         mol_ids=None,
 ):
     single_dfba_config = {
-        'dfba': get_single_dfba_spec(path=['fields']),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            'biomass': 0.1
+        "dfba": get_single_dfba_spec(path=["fields"]),
+        "fields": {
+            "glucose": 10,
+            "acetate": 0,
+            "biomass": 0.1
         }
     }
 
     # make the simulation
     sim = Composite({
-        'state': single_dfba_config,
-        'emitter': {'mode': 'all'}
+        "state": single_dfba_config,
+        "emitter": {"mode": "all"}
     }, core=core)
 
     # save the document
-    sim.save(filename='single_dfba.json', outdir='out')
+    sim.save(filename="single_dfba.json", outdir="out")
 
     # simulate
-    print('Simulating...')
+    print("Simulating...")
     sim.update({}, total_time)
 
     # gather results
     dfba_results = sim.gather_results()
 
-    print('Plotting results...')
+    print("Plotting results...")
     # plot timeseries
     plot_time_series(
         dfba_results,
         # coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_single_timeseries.png',
+        out_dir="out",
+        filename="dfba_single_timeseries.png",
     )
 
 
 def run_dfba_spatial(
         total_time=60,
-        n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
+        n_bins=(3, 3),  # TODO -- why can"t do (5, 10)??
         mol_ids=None,
 ):
     if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ["glucose", "acetate", "biomass"]
     composite_state = get_spatial_dfba_state(
         n_bins=n_bins,
         mol_ids=mol_ids,
     )
 
     # make the composite
-    print('Making the composite...')
+    print("Making the composite...")
     sim = Composite({
-        'state': composite_state,
-        'emitter': {'mode': 'all'}
+        "state": composite_state,
+        "emitter": {"mode": "all"}
     }, core=core)
 
     # save the document
-    sim.save(filename='spatial_dfba.json', outdir='out')
+    sim.save(filename="spatial_dfba.json", outdir="out")
 
     # # save a viz figure of the initial state
     # plot_bigraph(
     #     state=sim.state,
     #     schema=sim.composition,
     #     core=core,
-    #     out_dir='out',
-    #     filename='dfba_spatial_viz'
+    #     out_dir="out",
+    #     filename="dfba_spatial_viz"
     # )
 
     # simulate
-    print('Simulating...')
+    print("Simulating...")
     sim.update({}, total_time)
 
     # gather results
     dfba_results = sim.gather_results()
 
-    print('Plotting results...')
+    print("Plotting results...")
     # plot timeseries
     plot_time_series(
         dfba_results,
         coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_timeseries.png',
+        out_dir="out",
+        filename="dfba_timeseries.png",
     )
 
     # make video
     plot_species_distributions_to_gif(
         dfba_results,
-        out_dir='out',
-        filename='dfba_results.gif',
-        title='',
+        out_dir="out",
+        filename="dfba_results.gif",
+        title="",
         skip_frames=1
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_dfba_single()
     run_dfba_spatial(n_bins=(8,8))

@@ -3,3 +3,5 @@
 spatio_flux.egg-info/
 __pycache__/
 out/
+**/out/
+
