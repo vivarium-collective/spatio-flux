@@ -64,27 +64,35 @@ class Particles(Process):
     def initialize_particles(
             n_particles,
             bounds,
+            fields,
             size_range=(10, 100),
-            mol_ids=None,
     ):
         """
         Initialize particle positions for multiple species.
         """
-        mol_ids = mol_ids or ['biomass', 'detritus']
+        mol_ids = fields.keys()
+
+        # get n_bins from the shape of the first field array
+        n_bins = fields[list(fields.keys())[0]].shape
+
         # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
         particles = {}
         for _ in range(n_particles):
             id = str(uuid.uuid4())
+            position = tuple(np.random.uniform(low=[0, 0],high=[bounds[0], bounds[1]],size=2))
+            size = np.random.uniform(size_range[0], size_range[1])
+
+            x, y = Particles.get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
+            # TODO update local and exchange values
+            local = Particles.get_local_field_values(fields, column=x, row=y)
+            exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
+
             particles[id] = {
                 # 'id': str(uuid.uuid4()),
-                # TODO: make sure we are sending position deltas?
-                'position': tuple(np.random.uniform(
-                    low=[0, 0],
-                    high=[bounds[0], bounds[1]],
-                    size=2)),
-                'size': np.random.uniform(size_range[0], size_range[1]),
-                'local': {f: 0.0 for f in mol_ids},  # TODO local field values  -- should be non-zero
-                'exchange': {f: 0.0 for f in mol_ids}  # TODO exchange rates
+                'position': position,
+                'size': size,
+                'local': local,
+                'exchange': exchanges
             }
             # particles.append(particle)
 
@@ -100,7 +108,7 @@ class Particles(Process):
             for mol_id, field in fields.items()}
 
         for particle_id, particle in particles.items():
-            updated_particle = {}
+            updated_particle = {'exchange': {}}
 
             # Apply diffusion and advection
             dx, dy = np.random.normal(0, self.config['diffusion_rate'], 2) + self.config['advection_rate']
@@ -117,12 +125,16 @@ class Particles(Process):
             updated_particle['position'] = (dx, dy) # new_position
 
             # Retrieve local field concentration for each particle
-            x, y = self.get_bin_position(new_position)
+            x, y = self.get_bin_position(new_position, self.config['n_bins'], self.env_size)
 
-            # TODO update local and exchange values
-            local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
-            # TODO -- apply exchange to the local field, and reset
+            # Update local environment values for each particle
+            updated_particle['local'] = self.get_local_field_values(fields, column=x, row=y)
+
+            # Apply exchanges and reset
             exchange = particle['exchange']
+            for mol_id, exchange_rate in exchange.items():
+                new_fields[mol_id][x, y] += exchange_rate
+                updated_particle['exchange'][mol_id] = 0.0
 
             new_particles[particle_id] = updated_particle
 
@@ -131,7 +143,7 @@ class Particles(Process):
             if np.random.rand() < self.config['add_probability']:
                 # TODO -- reuse function for initializing particles
                 position = self.get_boundary_position(boundary)
-                x, y = self.get_bin_position(position)
+                x, y = self.get_bin_position(position, self.config['n_bins'], self.env_size)
                 local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
                 id = str(uuid.uuid4())
                 new_particle = {
@@ -148,11 +160,12 @@ class Particles(Process):
             'fields': new_fields
         }
 
-    def get_bin_position(self, position):
+    @staticmethod
+    def get_bin_position(position, n_bins, env_size):
         x, y = position
-        x_bins, y_bins = self.config['n_bins']
-        x_min, x_max = self.env_size[0]
-        y_min, y_max = self.env_size[1]
+        x_bins, y_bins = n_bins #self.config['n_bins']
+        x_min, x_max = env_size[0]
+        y_min, y_max = env_size[1]
 
         # Convert the particle's (x, y) position to the corresponding bin in the 2D grid
         x_bin = int((x - x_min) / (x_max - x_min) * x_bins)
@@ -164,7 +177,8 @@ class Particles(Process):
 
         return x_bin, y_bin
 
-    def get_local_field_values(self, fields, column, row):
+    @staticmethod
+    def get_local_field_values(fields, column, row):
         """
         Retrieve local field values for a particle based on its position.
 
@@ -239,39 +253,36 @@ class MinimalParticle(Process):
         substrates_input = state['substrates']
         exchanges = {}
 
-        # Interact with fields based on the config schema
+        # Helper functions for interaction types
+        def michaelis_menten(uptake_value, vmax, Km):
+            """Michaelis-Menten rate law for uptake."""
+            return (vmax * uptake_value) / (Km + uptake_value) if Km + uptake_value > 0 else 0
+
+        def calculate_uptake(field_value, vmax, Km):
+            """Calculate the net uptake value."""
+            uptake_rate = michaelis_menten(field_value, vmax, Km)
+            absorbed_value = min(uptake_rate, field_value)  # Limit to available substrate
+            return -absorbed_value  # Negative for uptake
+
+        def calculate_secretion(vmax):
+            """Calculate the net secretion value."""
+            return vmax  # Secretion value is directly proportional to vmax
+
+        # Process each field interaction
         for field, interaction_params in self.config['field_interactions'].items():
-            local_field_value = substrates_input.get(field)
+            local_field_value = substrates_input.get(field, 0)
             vmax = interaction_params['vmax']
-            Km = interaction_params.get('Km')
-            interaction_type = interaction_params.get('interaction_type',
-                                                      'uptake')  # Default to 'uptake' if not provided
+            Km = interaction_params.get('Km', 1)  # Default Km to 1 if not specified
+            interaction_type = interaction_params.get('interaction_type', 'uptake')  # Default to 'uptake'
 
-            if interaction_type == 'uptake' and local_field_value:
-                # Michaelis-Menten-like rate law for uptake
-                uptake_rate = (vmax * local_field_value) / (Km + local_field_value)
-
-                # # Particle uptake rate is proportional to its size
-                # absorbed_value = float(uptake_rate * particle['size'])
-                #
-                # # Update particle size based on the absorbed field value
-                # updated_particle['size'] = max(updated_particle['size'] + 0.01 * absorbed_value, 0.0)
-
-                # Reduce the field concentration in the environment
-                if local_field_value - absorbed_value < 0.0:
-                    absorbed_value = local_field_value  # Cap absorption to available field value
-                exchanges[field] = -1 # TODO calcualte this
-
+            if interaction_type == 'uptake' and local_field_value > 0:
+                exchanges[field] = calculate_uptake(local_field_value, vmax, Km)
             elif interaction_type == 'secretion':
-                # # During secretion, use only vmax
-                # secreted_value = float(vmax * particle['size'])
-                #
-                # # Update particle size based on the secreted value
-                # updated_particle['size'] = max(updated_particle['size'] - 0.01 * secreted_value, 0.0)
+                exchanges[field] = calculate_secretion(vmax)
+            else:
+                exchanges[field] = 0  # No interaction by default
 
-                # Increase the field concentration in the environment
-                exchanges[field] = 1 # TODO calculate this
-
+        # Return updated substrates
         return {
             'substrates': exchanges
         }
@@ -329,15 +340,16 @@ def get_particles_state(
             'detritus': (0, 0),
         }
 
-    # initialize particles
-    particles = Particles.initialize_particles(
-        n_particles=n_particles,
-        bounds=bounds)
-
     # initialize fields
     fields = {}
     for field, minmax in initial_min_max.items():
         fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
+
+    # initialize particles
+    particles = Particles.initialize_particles(
+        n_particles=n_particles,
+        bounds=bounds,
+        fields=fields)
 
     return {
         'fields': fields,
@@ -351,5 +363,3 @@ def get_particles_state(
             boundary_to_add=boundary_to_add,
         )
     }
-
-

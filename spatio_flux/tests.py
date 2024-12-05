@@ -195,7 +195,7 @@ def run_particles(
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),
                     'config': MinimalParticle.config_schema,
-                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),  # TODO -- what sets this??? Particles
                     'outputs': default('tree[wires]', {'substrates': ['exchange']})
                 }
             }
@@ -382,9 +382,9 @@ if __name__ == '__main__':
     core = ProcessTypes()
     core = register_types(core)
 
-    run_dfba_single(core=core)
+    # run_dfba_single(core=core)
     # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
-    # run_particles(core)
+    run_particles(core)
     # run_particle_comets(core)
     # run_particles_dfba(core)
