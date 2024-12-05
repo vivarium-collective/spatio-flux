@@ -32,7 +32,7 @@ class DynamicFBA(Process):
     """
 
     config_schema = {
-        'model_file': 'string',
+        'model_file': 'string',  # TODO -- register a 'path' type
         'kinetic_params': 'map[tuple[float,float]]',
         'substrate_update_reactions': 'map[string]',
         'biomass_identifier': 'string',
@@ -59,7 +59,8 @@ class DynamicFBA(Process):
 
     def inputs(self):
         return {
-            'substrates': 'map[positive_float]'
+            'substrates': 'map[positive_float]'  # TODO this should be map[concentration]
+            # 'enzymes': 'map[positive_float]'  # TODO this should be map[concentration]
         }
 
     def outputs(self):
