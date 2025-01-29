@@ -343,6 +343,8 @@ def run_particles_dfba(
         'emitter': {'mode': 'all'},
     }, core=core)
 
+    import ipdb; ipdb.set_trace()
+
     # save the document
     sim.save(
         filename='particle_comets.json',
@@ -382,9 +384,9 @@ if __name__ == '__main__':
     core = ProcessTypes()
     core = register_types(core)
 
-    run_dfba_single(core=core)
-    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    run_diffusion_process(core=core)
-    # run_particles(core)
+    # run_dfba_single(core=core)
+    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    # run_diffusion_process(core=core)
+    run_particles(core)
     # run_particle_comets(core)
     # run_particles_dfba(core)

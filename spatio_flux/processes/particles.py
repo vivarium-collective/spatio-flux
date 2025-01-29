@@ -245,7 +245,7 @@ class MinimalParticle(Process):
 
     def outputs(self):
         return {
-            'substrates': 'map[positive_float]'
+            'substrates': 'map[float]'
         }
 
 
