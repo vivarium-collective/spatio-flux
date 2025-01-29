@@ -4,7 +4,7 @@ TODO -- make a "register_types" function that takes a core, registers all types 
 """
 
 from process_bigraph import ProcessTypes
-from spatio_flux.processes import register_processes
+from spatio_flux.processes import PROCESS_DICT
 
 
 def apply_non_negative(schema, current, update, core):
@@ -31,10 +31,16 @@ particle_type = {
     'exchange': 'map[float]',    # {mol_id: delta_value}
 }
 
+TYPES_DICT = {
+    'positive_float': positive_float,
+    'bounds': bounds_type,
+    'particle': particle_type
+}
+
 
 def register_types(core):
-    core.register('positive_float', positive_float)
-    core.register('bounds', bounds_type)
-    core.register('particle', particle_type)
-    
-    return register_processes(core)
+    for type_name, type_schema in TYPES_DICT.items():
+        core.register(type_name, type_schema)
+    for process_name, process in PROCESS_DICT.items():
+        core.register_process(process_name, process)
+    return core
