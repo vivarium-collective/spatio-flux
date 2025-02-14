@@ -197,6 +197,7 @@ def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
 
 
 def get_spatial_dfba_state(
+        core,
         n_bins=(5, 5),
         mol_ids=None,
         initial_min_max=None,  # {mol_id: (min, max)}
@@ -227,9 +228,11 @@ def get_spatial_dfba_state(
 
 
 def run_dfba_single(
+        core,
         total_time=60,
         mol_ids=None,
 ):
+
     single_dfba_config = {
         "dfba": get_single_dfba_spec(path=["fields"]),
         "fields": {
@@ -287,15 +290,6 @@ def run_dfba_spatial(
     # save the document
     sim.save(filename="spatial_dfba.json", outdir="out")
 
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir="out",
-    #     filename="dfba_spatial_viz"
-    # )
-
     # simulate
     print("Simulating...")
     sim.update({}, total_time)
@@ -323,5 +317,10 @@ def run_dfba_spatial(
 
 
 if __name__ == "__main__":
-    run_dfba_single()
-    run_dfba_spatial(n_bins=(8,8))
+    from process_bigraph import ProcessTypes
+    from spatio_flux.processes import register_processes
+    core = ProcessTypes()
+    register_processes(core)
+
+    run_dfba_single(core=core)
+    # run_dfba_spatial(core=core, n_bins=(8,8))
