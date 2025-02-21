@@ -1,5 +1,6 @@
 from bigraph_viz import plot_bigraph
-from process_bigraph import Composite, ProcessTypes, default
+from process_bigraph import Composite, default
+from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
 from spatio_flux.viz.plot import (
@@ -194,7 +195,14 @@ def run_particles(
                 'minimal_particle': {
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),
-                    'config': MinimalParticle.config_schema,
+
+
+                    # TODO: test to see if we only need to provide the default value
+                    #   in the process composition
+                    # {'_default': 'local:MinimalParticle'}
+
+
+                    'config': default('quote', core.default(MinimalParticle.config_schema)),
                     'inputs': default('tree[wires]', {'substrates': ['local']}),  # TODO -- what sets this??? Particles
                     'outputs': default('tree[wires]', {'substrates': ['exchange']})
                 }
@@ -256,7 +264,7 @@ def run_particles(
 
 def run_particle_comets(
         core,
-        total_time=10.0,
+        total_time=50.0,
         **kwargs
 ):
     # make the composite state
@@ -327,7 +335,7 @@ def run_particles_dfba(
                 'dFBA': {
                     '_type': 'process',
                     'address': default('string', 'local:DynamicFBA'),
-                    'config': default('tree[any]', dfba_config(model_file='textbook')),
+                    'config': default('quote', dfba_config(model_file='textbook')),
                     'inputs': default('tree[wires]', {'substrates': ['local']}),
                     'outputs': default('tree[wires]', {'substrates': ['exchange']})
                 }
@@ -342,8 +350,6 @@ def run_particles_dfba(
         'state': composite_state,
         'emitter': {'mode': 'all'},
     }, core=core)
-
-    import ipdb; ipdb.set_trace()
 
     # save the document
     sim.save(
@@ -366,13 +372,13 @@ def run_particles_dfba(
         particle_comets_results,
         coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
         out_dir='out',
-        filename='particle_comets_timeseries.png'
+        filename='particle_dfba_timeseries.png'
     )
 
     plot_species_distributions_with_particles_to_gif(
         particle_comets_results,
         out_dir='out',
-        filename='particle_comets_with_fields.gif',
+        filename='particle_dfba_with_fields.gif',
         title='',
         skip_frames=1,
         bounds=bounds,
@@ -381,12 +387,12 @@ def run_particles_dfba(
 
 
 if __name__ == '__main__':
-    core = ProcessTypes()
+    core = VivariumTypes()
     core = register_types(core)
 
     # run_dfba_single(core=core)
     # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
     run_particles(core)
-    # run_particle_comets(core)
-    # run_particles_dfba(core)
+    run_particle_comets(core)
+    run_particles_dfba(core)
