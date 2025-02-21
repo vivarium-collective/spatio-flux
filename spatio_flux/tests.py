@@ -1,5 +1,6 @@
 from bigraph_viz import plot_bigraph
-from process_bigraph import Composite, ProcessTypes, default
+from process_bigraph import Composite, default
+from vivarium import VivariumTypes
 
 from spatio_flux import register_types
 from spatio_flux.viz.plot import (
@@ -327,13 +328,15 @@ def run_particles_dfba(
                 'dFBA': {
                     '_type': 'process',
                     'address': default('string', 'local:DynamicFBA'),
-                    'config': default('tree[any]', dfba_config(model_file='textbook')),
+                    'config': default('quote', dfba_config(model_file='textbook')),
                     'inputs': default('tree[wires]', {'substrates': ['local']}),
                     'outputs': default('tree[wires]', {'substrates': ['exchange']})
                 }
             }
         }
     }
+
+    import ipdb; ipdb.set_trace()
 
     # make the composite
     print('Making the composite...')
@@ -342,8 +345,6 @@ def run_particles_dfba(
         'state': composite_state,
         'emitter': {'mode': 'all'},
     }, core=core)
-
-    import ipdb; ipdb.set_trace()
 
     # save the document
     sim.save(
@@ -381,12 +382,12 @@ def run_particles_dfba(
 
 
 if __name__ == '__main__':
-    core = ProcessTypes()
+    core = VivariumTypes()
     core = register_types(core)
 
     # run_dfba_single(core=core)
     # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
-    run_particles(core)
+    # run_particles(core)
     # run_particle_comets(core)
-    # run_particles_dfba(core)
+    run_particles_dfba(core)

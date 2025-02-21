@@ -1,3 +1,5 @@
+import numpy as np
+
 """
 Particle-COMETS composite made of dFBAs, diffusion-advection, and particle processes.
 """
@@ -82,11 +84,19 @@ def get_particle_comets_state(
         diffusion_coeffs=None,  #TODO -- add diffusion coeffs config
         advection_coeffs=None,
     )
+
+
+    # initialize fields
+    fields = {}
+    for field, minmax in initial_min_max.items():
+        fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
+
     # add particles process
     particles = Particles.initialize_particles(
         n_particles=n_particles,
         bounds=bounds,
-    )
+        fields=fields)
+
     composite_state['particles'] = particles
     composite_state['particles_process'] = get_particles_spec(
         n_bins=n_bins,
@@ -97,5 +107,6 @@ def get_particle_comets_state(
         boundary_to_add=particle_boundary_to_add,
         # field_interactions=field_interactions,
     )
+
     return composite_state
 
