@@ -1,5 +1,6 @@
 from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, default
+from process_bigraph.emitter import emitter_from_wires, gather_emitter_results
 from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
@@ -27,13 +28,15 @@ def run_dfba_single(
             'glucose': 10,
             'acetate': 0,
             'biomass': 0.1
-        }
+        },
+        'emitter': emitter_from_wires({
+            'global_time': ['global_time'],
+            'fields': ['fields']}),
     }
 
     # make the simulation
     sim = Composite({
         'state': single_dfba_config,
-        'emitter': {'mode': 'all'}
     }, core=core)
 
     # save the document
@@ -44,7 +47,7 @@ def run_dfba_single(
     sim.update({}, total_time)
 
     # gather results
-    dfba_results = sim.gather_results()
+    dfba_results = gather_emitter_results(sim)
 
     print('Plotting results...')
     # plot timeseries
@@ -69,11 +72,14 @@ def run_dfba_spatial(
         mol_ids=mol_ids,
     )
 
+    composite_state['emitter'] = emitter_from_wires({
+        'global_time': ['global_time'],
+        'fields': ['fields']})
+
     # make the composite
     print('Making the composite...')
     sim = Composite({
         'state': composite_state,
-        'emitter': {'mode': 'all'}
     }, core=core)
 
     # save the document
@@ -93,7 +99,7 @@ def run_dfba_spatial(
     sim.update({}, total_time)
 
     # gather results
-    dfba_results = sim.gather_results()
+    dfba_results = gather_emitter_results(sim)
 
     print('Plotting results...')
     # plot timeseries
@@ -129,11 +135,14 @@ def run_diffusion_process(
         }
     )
 
+    composite_state['emitter'] = emitter_from_wires({
+        'global_time': ['global_time'],
+        'fields': ['fields']})
+
     # make the composite
     print('Making the composite...')
     sim = Composite({
         'state': composite_state,
-        'emitter': {'mode': 'all'},
     }, core=core)
 
     # save the document
@@ -153,7 +162,7 @@ def run_diffusion_process(
     sim.update({}, total_time)
 
     # gather results
-    diffadv_results = sim.gather_results()
+    diffadv_results = gather_emitter_results(sim)
 
     print('Plotting results...')
     # plot 2d video
@@ -210,13 +219,19 @@ def run_particles(
         }
     }
 
+    composite_state['emitter'] = emitter_from_wires({
+        'global_time': ['global_time'],
+        'particles': ['particles'],
+        'fields': ['fields']})
+
     # make the composite
     print('Making the composite...')
     sim = Composite({
         'state': composite_state,
         'composition': composition,
-        'emitter': {'mode': 'all'},
     }, core=core)
+
+    import ipdb; ipdb.set_trace()
 
     # save the document
     sim.save(
@@ -237,7 +252,7 @@ def run_particles(
     sim.update({}, total_time)
 
     # gather results
-    particles_results = sim.gather_results()
+    particles_results = gather_emitter_results(sim)
     emitter_results = particles_results[('emitter',)]
     # resort results
     particles_history = [p['particles'] for p in emitter_results]
@@ -394,5 +409,5 @@ if __name__ == '__main__':
     # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
     run_particles(core)
-    run_particle_comets(core)
-    run_particles_dfba(core)
+    # run_particle_comets(core)
+    # run_particles_dfba(core)
