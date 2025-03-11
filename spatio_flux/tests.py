@@ -231,8 +231,6 @@ def run_particles(
         'composition': composition,
     }, core=core)
 
-    import ipdb; ipdb.set_trace()
-
     # save the document
     sim.save(
         filename='particles.json',
@@ -309,7 +307,7 @@ def run_particle_comets(
     # simulate
     print('Simulating...')
     sim.update({}, total_time)
-    particle_comets_results = sim.gather_results()
+    particle_comets_results = gather_emitter_results(sim)
     # print(comets_results)
 
     print('Plotting results...')
@@ -376,7 +374,7 @@ def run_particles_dfba(
     # simulate
     print('Simulating...')
     sim.update({}, total_time)
-    particle_comets_results = sim.gather_results()
+    particle_comets_results = gather_emitter_results(sim)
 
     print('Plotting results...')
     n_bins = composite_state['particles_process']['config']['n_bins']
@@ -405,9 +403,9 @@ if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    # run_diffusion_process(core=core)
+    run_dfba_single(core=core)
+    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    run_diffusion_process(core=core)
     run_particles(core)
-    # run_particle_comets(core)
-    # run_particles_dfba(core)
+    run_particle_comets(core)
+    run_particles_dfba(core)
