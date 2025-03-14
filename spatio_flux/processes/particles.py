@@ -220,26 +220,42 @@ class Particles(Process):
 
 class MinimalParticle(Process):
     config_schema = {
-        'field_interactions': {
+        'kinetics': {
             '_type': 'map',
             '_value': {
                 'vmax': default('float', 0.1),
-                'Km': default('float', 1.0),
-                'interaction_type': default('enum[uptake,secretion]', 'uptake')},
+                'km': default('float', 1.0)},
             '_default': {
                 'biomass': {
-                    'vmax': 0.1,
-                    'Km': 1.0,
-                    'interaction_type': 'uptake'},
-                'detritus': {
                     'vmax': -0.1,
-                    'Km': 1.0,
-                    'interaction_type': 'secretion'}}}}
+                    'km': 0.1},
+                'detritus': {
+                    'vmax': 0.1,
+                    'km': 0.1}}}}
+
+
+    # config_schema = {
+    #     'field_interactions': {
+    #         '_type': 'map',
+    #         '_value': {
+    #             'vmax': default('float', 0.1),
+    #             'Km': default('float', 1.0),
+    #             'interaction_type': default('enum[uptake,secretion]', 'uptake')},
+    #         '_default': {
+    #             'biomass': {
+    #                 'vmax': 0.1,
+    #                 'Km': 1.0,
+    #                 'interaction_type': 'uptake'},
+    #             'detritus': {
+    #                 'vmax': -0.1,
+    #                 'Km': 1.0,
+    #                 'interaction_type': 'secretion'}}}}
 
 
     def inputs(self):
         return {
-            'substrates': 'map[positive_float]'
+            'substrates': 'map[float]'
+            # 'substrates': 'map[positive_float]'
         }
 
 
@@ -250,6 +266,18 @@ class MinimalParticle(Process):
 
 
     def update(self, state, interval):
+        substrates = state['substrates']
+        exchanges = {}
+
+        for substrate, kinetics in self.config['kinetics'].items():
+            if substrate in substrates:
+                exchanges[substrate] = (kinetics['vmax'] * substrates[substrate]) / (kinetics['km'] + substrates[substrate])
+
+        return {
+            'substrates': exchanges}
+
+
+    def large_update(self, state, interval):
         substrates_input = state['substrates']
         exchanges = {}
 
