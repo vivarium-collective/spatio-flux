@@ -18,13 +18,15 @@ class Particles(Process):
         'n_bins': 'tuple[integer,integer]',
 
         # particle movement
-        'diffusion_rate': {'_type': 'float', '_default': 1e-1},
-        'advection_rate': {'_type': 'tuple[float,float]', '_default': (0, 0)},
+        'diffusion_rate': default('float', 1e-1),
+        'advection_rate': default('tuple[float,float]', (0, 0)),
 
         # adding/removing particles at boundaries
-        'add_probability': {'_type': 'float', '_default': 0.0},  # TODO -- make probability type
-        'boundary_to_add': {'_type': 'list', '_default': ['left', 'right']},  # which boundaries to add particles
-        'boundary_to_remove': {'_type': 'list', '_default': ['left', 'right', 'top', 'bottom']},
+        'add_probability': 'float', # TODO -- make probability type
+
+        # which boundaries to add particles
+        'boundary_to_add': default('list[boundary_side]', ['left', 'right']),
+        'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom'])
     }
 
     def __init__(self, config, core):
@@ -92,6 +94,7 @@ class Particles(Process):
                 'position': position,
                 'size': size,
                 'local': local,
+                'mass': np.random.uniform(low=0, high=1),
                 'exchange': exchanges
             }
             # particles.append(particle)
@@ -220,60 +223,86 @@ class Particles(Process):
 
 class MinimalParticle(Process):
     config_schema = {
-        'kinetics': {
-            '_type': 'map',
-            '_value': {
-                'vmax': default('float', 0.1),
-                'km': default('float', 1.0)},
+        'reactions': {
+            '_type': 'map[reaction]',
             '_default': {
-                'biomass': {
-                    'vmax': -0.1,
-                    'km': 0.1},
-                'detritus': {
-                    'vmax': 0.1,
-                    'km': 0.1}}}}
+                'grow': {
+                    'biomass': {
+                        'vmax': 0.1,
+                        'kcat': 0.1,
+                        'role': 'reactant'},
+                    'detritus': {
+                        'vmax': 0.07,
+                        'kcat': 0.03,
+                        'role': 'product'}}}}}
 
 
-    # config_schema = {
-    #     'field_interactions': {
-    #         '_type': 'map',
-    #         '_value': {
-    #             'vmax': default('float', 0.1),
-    #             'Km': default('float', 1.0),
-    #             'interaction_type': default('enum[uptake,secretion]', 'uptake')},
-    #         '_default': {
-    #             'biomass': {
-    #                 'vmax': 0.1,
-    #                 'Km': 1.0,
-    #                 'interaction_type': 'uptake'},
-    #             'detritus': {
-    #                 'vmax': -0.1,
-    #                 'Km': 1.0,
-    #                 'interaction_type': 'secretion'}}}}
+    def initialize(self, config):
+        self.roles = {}
+
+        for reaction_name, reaction in self.config['reactions'].items():
+            self.roles[reaction_name] = {}
+            for substrate, rates in reaction.items():
+                role = rates['role']
+                if role not in self.roles[reaction_name]:
+                    self.roles[reaction_name][role] = []
+                self.roles[reaction_name][role].append(substrate)
 
 
     def inputs(self):
         return {
             'substrates': 'map[float]'
-            # 'substrates': 'map[positive_float]'
         }
 
 
     def outputs(self):
         return {
-            'substrates': 'map[float]'
+            'substrates': 'map[float]',
+            'mass': 'float'
         }
 
 
     def update(self, state, interval):
         substrates = state['substrates']
         exchanges = {}
+        reaction_rates = {}
 
-        for substrate, kinetics in self.config['kinetics'].items():
-            if substrate in substrates:
-                exchanges[substrate] = (kinetics['vmax'] * substrates[substrate]) / (kinetics['km'] + substrates[substrate])
+        for reaction_name, reaction in self.config['reactions'].items():
+            numerator = 1
+            kproduct = 1
+            concentration_product = 1
+            terms = 0
+
+            roles = self.roles[reaction_name]
+            for reactant in roles['reactant']:
+                rates = reaction[reactant]
+                vmax = rates['vmax'] * substrates[reactant]
+                numerator *= vmax
+                kproduct *= rates['kcat']
+                concentration_product *= substrates[reactant]
+                terms = 0
+
+                for interaction in roles['reactant']:
+                    if interaction != reactant:
+                        terms += rates['kcat'] * substrates[interaction]
+
+            denominator = kproduct + terms + concentration_product
+            reaction_rate = numerator / denominator
+            reaction_rates[reaction_name] = reaction_rate
+
+            total_reactant = 0
+            for reactant in roles['reactant']:
+                if not reactant in exchanges:
+                    exchanges[reactant] = 0
+                exchanges[reactant] -= reaction_rate
+                total_reactant += reaction_rate
+            for product in roles['product']:
+                if not product in exchanges:
+                    exchanges[product] = 0
+                exchanges[product] += reaction_rate
 
         return {
+            'mass': total_reactant,
             'substrates': exchanges}
 
 

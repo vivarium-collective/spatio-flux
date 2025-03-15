@@ -314,7 +314,7 @@ def plot_particles(
         particles = history[frame]
         for particle_id, particle in particles.items():
             ax.scatter(particle['position'][0], particle['position'][1],
-                       s=particle['size'], color='b')
+                       s=particle['size']*particle['mass'], color='b')
 
         # Save the current figure to a temporary buffer
         buf = io.BytesIO()

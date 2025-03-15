@@ -213,7 +213,7 @@ def run_particles(
 
                     'config': default('quote', core.default(MinimalParticle.config_schema)),
                     'inputs': default('tree[wires]', {'substrates': ['local']}),  # TODO -- what sets this??? Particles
-                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
+                    'outputs': default('tree[wires]', {'substrates': ['exchange'], 'mass': ['mass']})
                 }
             }
         }
@@ -409,5 +409,6 @@ if __name__ == '__main__':
     # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
     # run_diffusion_process(core=core)
     run_particles(core)
+    # TODO: create run_comets()
     # run_particle_comets(core)
     # run_particles_dfba(core)
