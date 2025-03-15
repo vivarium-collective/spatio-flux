@@ -97,7 +97,6 @@ class Particles(Process):
                 'mass': np.random.uniform(low=0, high=1),
                 'exchange': exchanges
             }
-            # particles.append(particle)
 
         return particles
 
@@ -228,12 +227,12 @@ class MinimalParticle(Process):
             '_default': {
                 'grow': {
                     'biomass': {
-                        'vmax': 0.1,
-                        'kcat': 0.1,
+                        'vmax': 0.01,
+                        'kcat': 0.01,
                         'role': 'reactant'},
                     'detritus': {
-                        'vmax': 0.07,
-                        'kcat': 0.03,
+                        'vmax': 0.001,
+                        'kcat': 0.001,
                         'role': 'product'}}}}}
 
 
@@ -251,21 +250,23 @@ class MinimalParticle(Process):
 
     def inputs(self):
         return {
-            'substrates': 'map[float]'
-        }
+            'mass': 'float',
+            'substrates': 'map[float]'}
 
 
     def outputs(self):
         return {
-            'substrates': 'map[float]',
-            'mass': 'float'
-        }
+            'mass': 'float',
+            'substrates': 'map[float]'}
 
 
     def update(self, state, interval):
+        mass = state['mass']
         substrates = state['substrates']
         exchanges = {}
         reaction_rates = {}
+
+        print(f'state: {state}')
 
         for reaction_name, reaction in self.config['reactions'].items():
             numerator = 1
@@ -301,9 +302,11 @@ class MinimalParticle(Process):
                     exchanges[product] = 0
                 exchanges[product] += reaction_rate
 
-        return {
+        update = {
             'mass': total_reactant,
             'substrates': exchanges}
+
+        return update
 
 
     def large_update(self, state, interval):
@@ -384,12 +387,6 @@ def get_particles_state(
 ):
     if boundary_to_add is None:
         boundary_to_add = ['top']
-
-    if field_interactions is None:
-        field_interactions = {
-            'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
-            'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
-        }
 
     if initial_min_max is None:
         initial_min_max = {

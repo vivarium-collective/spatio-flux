@@ -212,8 +212,14 @@ def run_particles(
 
 
                     'config': default('quote', core.default(MinimalParticle.config_schema)),
-                    'inputs': default('tree[wires]', {'substrates': ['local']}),  # TODO -- what sets this??? Particles
-                    'outputs': default('tree[wires]', {'substrates': ['exchange'], 'mass': ['mass']})
+                    'inputs': default(
+                        'tree[wires]', {
+                            'mass': ['mass'],
+                            'substrates': ['local']}),
+                    'outputs': default(
+                        'tree[wires]', {
+                            'mass': ['mass'],
+                            'substrates': ['exchange']})
                 }
             }
         }
