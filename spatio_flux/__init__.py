@@ -14,7 +14,6 @@ def apply_non_negative(schema, current, update, core):
 
 
 positive_float = {
-    '_type': 'positive_float',
     '_inherit': 'float',
     '_apply': apply_non_negative}
 

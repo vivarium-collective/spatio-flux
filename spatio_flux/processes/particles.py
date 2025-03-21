@@ -221,6 +221,9 @@ class Particles(Process):
 
 
 class MinimalParticle(Process):
+    # TODO: remove kcat and enzyme option
+    #   or support them?
+
     config_schema = {
         'reactions': {
             '_type': 'map[reaction]',
@@ -251,7 +254,7 @@ class MinimalParticle(Process):
     def inputs(self):
         return {
             'mass': 'float',
-            'substrates': 'map[float]'}
+            'substrates': 'map[positive_float]'}
 
 
     def outputs(self):
@@ -265,8 +268,6 @@ class MinimalParticle(Process):
         substrates = state['substrates']
         exchanges = {}
         reaction_rates = {}
-
-        print(f'state: {state}')
 
         for reaction_name, reaction in self.config['reactions'].items():
             numerator = 1
@@ -390,7 +391,7 @@ def get_particles_state(
 
     if initial_min_max is None:
         initial_min_max = {
-            'biomass': (0.1, 0.2),
+            'biomass': (0.5, 2.0),
             'detritus': (0, 0),
         }
 
@@ -416,4 +417,35 @@ def get_particles_state(
             add_probability=add_probability,
             boundary_to_add=boundary_to_add,
         )
+    }
+
+
+def get_minimal_particle_composition(core):
+    return {
+        'particles': {
+            '_type': 'map',
+            '_value': {
+                # '_inherit': 'particle',
+                'minimal_particle': {
+                    '_type': 'process',
+                    'address': default('string', 'local:MinimalParticle'),
+
+
+                    # TODO: test to see if we only need to provide the default value
+                    #   in the process composition
+                    # {'_default': 'local:MinimalParticle'}
+
+
+                    'config': default('quote', core.default(MinimalParticle.config_schema)),
+                    'inputs': default(
+                        'tree[wires]', {
+                            'mass': ['mass'],
+                            'substrates': ['local']}),
+                    'outputs': default(
+                        'tree[wires]', {
+                            'mass': ['mass'],
+                            'substrates': ['exchange']})
+                }
+            }
+        }
     }
