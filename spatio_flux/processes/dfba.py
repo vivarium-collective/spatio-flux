@@ -135,12 +135,20 @@ def dfba_config(
     }
 
 
+# Function to build the path with optional indices
+def build_path(mol_id, path, i, j):
+    base_path = path + [mol_id]
+    if i is not None:
+        base_path.append(i)
+    if j is not None:
+        base_path.append(j)
+    return base_path
+
+
 def get_single_dfba_spec(
         model_file="textbook",
         mol_ids=None,
         path=None,
-        i=None,
-        j=None,
 ):
     """
     Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
@@ -152,36 +160,27 @@ def get_single_dfba_spec(
         mol_ids (list of str, optional): List of molecule IDs to include in the process. Defaults to
                                          ["glucose", "acetate", "biomass"].
         path (list of str, optional): The base path to prepend to each molecule ID. Defaults to ["..", "fields"].
-        i (int, optional): The first index to append to the path for each molecule, if not None.
-        j (int, optional): The second index to append to the path for each molecule, if not None.
 
     Returns:
         dict: A dictionary containing the process type, address, configuration, and paths for inputs
               and outputs based on the specified molecule IDs and indices.
     """
+    i = 0
+    j = 0
     if path is None:
         path = ["..", "fields"]
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
-
-    # Function to build the path with optional indices
-    def build_path(mol_id):
-        base_path = path + [mol_id]
-        if i is not None:
-            base_path.append(i)
-        if j is not None:
-            base_path.append(j)
-        return base_path
 
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
         "config": dfba_config(model_file=model_file),
         "inputs": {
-            "substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}
+            "substrates": {mol_id: build_path(mol_id, path, i, j) for mol_id in mol_ids}
         },
         "outputs": {
-            "substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}
+            "substrates": {mol_id: build_path(mol_id, path, i, j) for mol_id in mol_ids}
         }
     }
 

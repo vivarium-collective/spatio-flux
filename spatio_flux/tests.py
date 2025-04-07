@@ -488,15 +488,69 @@ def run_particles_dfba(
         bounds=bounds,
     )
 
+def test_vivarium_interface():
+    from vivarium import Vivarium
+    from spatio_flux import PROCESS_DICT, TYPES_DICT
+
+    mol_ids = ["glucose", "acetate", "biomass"]
+    path = ["fields"]
+    i = 0
+    j = 0
+
+    # Function to build the path with optional indices
+    def build_path(mol_id):
+        base_path = path + [mol_id]
+        if i is not None:
+            base_path.append(i)
+        if j is not None:
+            base_path.append(j)
+        return base_path
+
+    v = Vivarium(processes=PROCESS_DICT, types=TYPES_DICT)
+
+    v.add_process(name="dFBA",
+                  process_id="DynamicFBA",
+                  config={
+                      "model_file": "textbook",
+                      "kinetic_params": {
+                          "glucose": (0.5, 1),
+                          "acetate": (0.5, 2)},
+                      "substrate_update_reactions": {
+                          "glucose": "EX_glc__D_e",
+                          "acetate": "EX_ac_e"},
+                      "biomass_identifier": "biomass",
+                      "bounds": {
+                          "EX_o2_e": {"lower": -2, "upper": None},
+                          "ATPM": {"lower": 1, "upper": 1}
+                      }
+                  },
+                  )
+
+    v.connect_process(
+        process_name="dFBA",
+        # inputs={
+        #         "substrates": ["fields",],  # {mol_id: ['fields', mol_id] for mol_id in mol_ids}
+        #     },
+        # outputs={
+        #         "substrates": ["fields",],  # {mol_id: ['fields', mol_id] for mol_id in mol_ids}
+        #     }
+        inputs={
+            "substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}
+        },
+        outputs={
+            "substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}
+        }
+    )
+    v.diagram(dpi='70')
 
 
 if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    # run_diffusion_process(core=core)
+    run_dfba_single(core=core)
+    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    run_diffusion_process(core=core)
     run_particles(core)
     run_comets(core=core)
     run_particle_comets(core)

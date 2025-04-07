@@ -6,6 +6,7 @@ TODO -- make a "register_types" function that takes a core, registers all types 
 from bigraph_schema import default
 from process_bigraph import ProcessTypes
 from spatio_flux.processes import PROCESS_DICT
+from spatio_flux.processes.dfba import build_path
 
 
 def apply_non_negative(schema, current, update, core):
