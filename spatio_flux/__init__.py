@@ -8,7 +8,7 @@ from process_bigraph import ProcessTypes
 from spatio_flux.processes import PROCESS_DICT
 
 
-def apply_non_negative(schema, current, update, core):
+def apply_non_negative(schema, current, update, top_schema, top_state, path, core):
     new_value = current + update
     return max(0, new_value)
 
