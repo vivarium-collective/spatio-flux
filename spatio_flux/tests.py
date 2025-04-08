@@ -206,7 +206,7 @@ def run_particles(
     #                 'address': default('string', 'local:MinimalParticle'),
 
 
-    #                 # TODO: test to see if we only need to provide the default value
+    #                 # TODO: run to see if we only need to provide the default value
     #                 #   in the process composition
     #                 # {'_default': 'local:MinimalParticle'}
 
@@ -357,11 +357,19 @@ def run_comets(
 
 def run_particle_comets(
         core,
-        total_time=50.0,
+        total_time=10.0,
         **kwargs
 ):
+    kwargs_dict = dict(kwargs)
+
+    # override mol_ids
+    kwargs_dict['mol_ids'] = ['glucose', 'acetate', 'biomass', 'waste']
+    kwargs_dict['n_bins'] = (5, 5)
+    # n_bins = (10, 10),
+    # bounds = (10.0, 10.0),
+
     # make the composite state
-    composite_state = get_particle_comets_state(**kwargs)
+    composite_state = get_particle_comets_state(**kwargs_dict)
 
     composite_state['emitter'] = emitter_from_wires({
         'global_time': ['global_time'],
@@ -421,9 +429,10 @@ def run_particle_comets(
 
 def run_particles_dfba(
     core,
-    total_time=10.0,
+    total_time=20.0,
     n_bins=None,
-    bounds=None):
+    bounds=None
+):
 
     # make the composite state
     composite_state = get_particles_dfba_state(core)
@@ -460,6 +469,17 @@ def run_particles_dfba(
         filename='particle_comets.json',
         outdir='out')
 
+    # plot the bigraph
+    print('Saving bigraph diagram...')
+    plot_bigraph(
+        state=sim.state,
+        schema=sim.composition,
+        core=core,
+        out_dir='out',
+        filename='particles_dfba_viz',
+        dpi = '240',
+    )
+
     # TODO -- save a viz figure of the initial state
 
     # simulate
@@ -488,7 +508,7 @@ def run_particles_dfba(
         bounds=bounds,
     )
 
-def test_vivarium_interface():
+def run_vivarium_interface():
     from vivarium import Vivarium
     from spatio_flux import PROCESS_DICT, TYPES_DICT
 
@@ -548,10 +568,11 @@ if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    run_dfba_single(core=core)
-    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    run_diffusion_process(core=core)
-    run_particles(core)
-    run_comets(core=core)
-    run_particle_comets(core)
+    # run_dfba_single(core=core)
+    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    # run_diffusion_process(core=core)
+    # run_particles(core)
+    # run_comets(core=core)
+    # run_particle_comets(core)
     run_particles_dfba(core)
+    # run_vivarium_interface()

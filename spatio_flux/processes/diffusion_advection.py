@@ -20,7 +20,7 @@ class DiffusionAdvection(Process):
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
         'bounds': 'tuple[float,float]',
-        'default_diffusion_rate': {'_type': 'float', '_default': 1e-1},
+        'default_diffusion_rate': {'_type': 'float', '_default': 1e-2},
         'default_diffusion_dt': {'_type': 'float', '_default': 1e-1},
         'diffusion_coeffs': 'map[float]',
         'advection_coeffs': 'map[tuple[float,float]]',
@@ -130,7 +130,7 @@ def get_diffusion_advection_spec(
         bounds=(10.0, 10.0),
         n_bins=(5, 5),
         mol_ids=None,
-        default_diffusion_rate=1e-1,
+        default_diffusion_rate=1e-2,
         default_advection_rate=(0, 0),
         diffusion_coeffs=None,
         advection_coeffs=None,

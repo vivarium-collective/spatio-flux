@@ -229,11 +229,11 @@ class MinimalParticle(Process):
             '_type': 'map[reaction]',
             '_default': {
                 'grow': {
-                    'biomass': {
+                    'glucose': {
                         'vmax': 0.01,
                         'kcat': 0.01,
                         'role': 'reactant'},
-                    'detritus': {
+                    'waste': {
                         'vmax': 0.001,
                         'kcat': 0.001,
                         'role': 'product'}}}}}

@@ -11,7 +11,7 @@ from spatio_flux.processes.dfba import build_path
 
 def apply_non_negative(schema, current, update, top_schema, top_state, path, core):
     new_value = current + update
-    return max(0, new_value)
+    return max(0.0, new_value)
 
 
 positive_float = {
