@@ -134,6 +134,7 @@ def get_diffusion_advection_spec(
         default_advection_rate=(0, 0),
         diffusion_coeffs=None,
         advection_coeffs=None,
+        interval=1,
 ):
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'biomass']
@@ -168,7 +169,8 @@ def get_diffusion_advection_spec(
             },
             'outputs': {
                 'fields': ['fields']
-            }
+            },
+            'interval': interval
         }
 
 

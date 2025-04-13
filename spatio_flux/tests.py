@@ -442,6 +442,9 @@ def run_particles_dfba(
         'particles': ['particles'],
         'fields': ['fields']})
 
+    # # reduce the diffusion timestep
+    # composite_state['diffusion']['interval'] = 0.1
+
     composition = {
         'particles': {
             '_type': 'map',
@@ -456,6 +459,8 @@ def run_particles_dfba(
             }
         }
     }
+
+
 
     # make the composite
     print('Making the composite...')
