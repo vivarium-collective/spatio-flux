@@ -149,6 +149,8 @@ def get_single_dfba_spec(
         model_file="textbook",
         mol_ids=None,
         path=None,
+        i=None,
+        j=None,
 ):
     """
     Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
@@ -185,7 +187,9 @@ def get_single_dfba_spec(
     }
 
 
-def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
+def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None, i=None, j=None):
+    i = i or 0
+    j = j or 0
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
     dfba_processes_dict = {}

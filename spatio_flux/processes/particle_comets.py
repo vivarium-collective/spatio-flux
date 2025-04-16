@@ -14,14 +14,14 @@ default_config = {
     'bounds': (10.0, 20.0),
     'n_bins': (8, 16),
     # set fields
-    'mol_ids': ['glucose', 'acetate', 'biomass', 'detritus'],
+    'mol_ids': ['glucose', 'acetate', 'biomass', 'waste'],
     'field_diffusion_rate': 1e-1,
     'field_advection_rate': (0, 0),
     'initial_min_max': {
         'glucose': (10, 10),
         'acetate': (0, 0),
         'biomass': (0, 0.1),
-        'detritus': (0, 0)
+        'waste': (0, 0)
     },
     # set particles
     'n_particles': 10,
@@ -35,7 +35,7 @@ default_config = {
             'Km': 1.0,
             'interaction_type': 'uptake'
         },
-        'detritus': {
+        'waste': {
             'vmax': -0.1,
             'Km': 1.0,
             'interaction_type': 'secretion'
