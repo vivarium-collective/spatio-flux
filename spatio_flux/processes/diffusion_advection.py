@@ -83,8 +83,12 @@ class DiffusionAdvection(Process):
             fields_update[species] = self.diffusion_delta(
                 field,
                 interval,
-                diffusion_coeff=self.config['diffusion_coeffs'][species],
-                advection_coeff=self.config['advection_coeffs'][species]
+                diffusion_coeff=self.config['diffusion_coeffs'].get(
+                    species, self.config['default_diffusion_dt']
+                ),
+                advection_coeff=self.config['advection_coeffs'].get(
+                    species, (0.0, 0.0)
+                )
             )
 
         return {
