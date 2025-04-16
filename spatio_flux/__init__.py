@@ -5,6 +5,7 @@ TODO -- make a "register_types" function that takes a core, registers all types 
 
 from bigraph_schema import default
 from process_bigraph import ProcessTypes
+from vivarium.vivarium import render_path
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.dfba import build_path
 
