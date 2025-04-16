@@ -494,9 +494,9 @@ if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    # run_diffusion_process(core=core)
+    run_dfba_single(core=core)
+    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    run_diffusion_process(core=core)
     run_particles(core)
     run_comets(core=core)
     run_particle_comets(core)

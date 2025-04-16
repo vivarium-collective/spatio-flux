@@ -134,6 +134,26 @@ def dfba_config(
         "bounds": bounds
     }
 
+def build_path(base_path, mol_id, i=None, j=None):
+    """
+    Constructs a path list for a molecule, optionally appending indices.
+
+    Parameters:
+        base_path (list of str): The base path prefix (e.g., ["..", "fields"]).
+        mol_id (str): The molecule ID to insert in the path.
+        i (int, optional): First index to append, if provided.
+        j (int, optional): Second index to append, if provided.
+
+    Returns:
+        list: The full path as a list of path elements.
+    """
+    full_path = base_path + [mol_id]
+    if i is not None:
+        full_path.append(i)
+    if j is not None:
+        full_path.append(j)
+    return full_path
+
 
 def get_single_dfba_spec(
         model_file="textbook",
@@ -144,44 +164,21 @@ def get_single_dfba_spec(
 ):
     """
     Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
-
-    This function builds a process specification for use with a dynamic FBA system. It allows
-    specification of substrate molecule IDs and optionally appends indices to the paths for those substrates.
-
-    Parameters:
-        mol_ids (list of str, optional): List of molecule IDs to include in the process. Defaults to
-                                         ["glucose", "acetate", "biomass"].
-        path (list of str, optional): The base path to prepend to each molecule ID. Defaults to ["..", "fields"].
-        i (int, optional): The first index to append to the path for each molecule, if not None.
-        j (int, optional): The second index to append to the path for each molecule, if not None.
-
-    Returns:
-        dict: A dictionary containing the process type, address, configuration, and paths for inputs
-              and outputs based on the specified molecule IDs and indices.
     """
     if path is None:
         path = ["..", "fields"]
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
 
-    # Function to build the path with optional indices
-    def build_path(mol_id):
-        base_path = path + [mol_id]
-        if i is not None:
-            base_path.append(i)
-        if j is not None:
-            base_path.append(j)
-        return base_path
-
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
         "config": dfba_config(model_file=model_file),
         "inputs": {
-            "substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
         },
         "outputs": {
-            "substrates": {mol_id: build_path(mol_id) for mol_id in mol_ids}
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
         }
     }
 
