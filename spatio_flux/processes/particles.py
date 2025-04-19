@@ -6,10 +6,68 @@ A process for simulating the motion of particles in a 2D environment.
 """
 import uuid
 import numpy as np
-from process_bigraph import Process, Composite, default
-from bigraph_viz import plot_bigraph
-from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif, plot_particles
+from process_bigraph import Process, default
 
+
+def get_bin_position(position, n_bins, env_size):
+    x, y = position
+    x_bins, y_bins = n_bins #self.config['n_bins']
+    x_min, x_max = env_size[0]
+    y_min, y_max = env_size[1]
+
+    # Convert the particle's (x, y) position to the corresponding bin in the 2D grid
+    x_bin = int((x - x_min) / (x_max - x_min) * x_bins)
+    y_bin = int((y - y_min) / (y_max - y_min) * y_bins)
+
+    # Correct any potential out-of-bound indices
+    x_bin = min(max(x_bin, 0), x_bins - 1)
+    y_bin = min(max(y_bin, 0), y_bins - 1)
+
+    return x_bin, y_bin
+
+def get_local_field_values(fields, column, row):
+    """
+    Retrieve local field values for a particle based on its position.
+
+    Parameters:
+    - fields: dict of 2D numpy arrays representing fields, keyed by molecule ID.
+    - position: Tuple (x, y) representing the particle's position.
+
+    Returns:
+    - local_values: dict of field concentrations at the particle's location, keyed by molecule ID.
+    """
+    local_values = {}
+    for mol_id, field in fields.items():
+        local_values[mol_id] = field[column, row]
+
+    return local_values
+
+def generate_single_particle_state(config=None):
+    """
+    Initialize a single particle with random properties.
+    """
+    config = config or {}
+    bounds = config['bounds']
+    n_bins = config['n_bins']
+    fields = config.get('fields', {})
+    mol_ids = fields.keys()
+    size_range = config.get('size_range', (10, 100))
+
+    # get particle properties
+    position = tuple(np.random.uniform(low=[0, 0], high=[bounds[0], bounds[1]], size=2))
+    size = np.random.uniform(size_range[0], size_range[1])
+    x, y = get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
+    # TODO update local and exchange values
+    local = get_local_field_values(fields, column=x, row=y)
+    exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
+
+    return {
+        'position': position,
+        'size': size,
+        'local': local,
+        'mass': np.random.uniform(low=0, high=1),
+        'exchange': exchanges
+    }
 
 class Particles(Process):
     config_schema = {
@@ -88,24 +146,32 @@ class Particles(Process):
         particles = {}
         for _ in range(n_particles):
             id = str(uuid.uuid4())
-            position = tuple(np.random.uniform(low=[0, 0],high=[bounds[0], bounds[1]],size=2))
-            size = np.random.uniform(size_range[0], size_range[1])
-
-            x, y = Particles.get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
-            # TODO update local and exchange values
-            local = Particles.get_local_field_values(fields, column=x, row=y)
-            exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
-
-            particles[id] = {
-                # 'id': str(uuid.uuid4()),
-                'position': position,
-                'size': size,
-                'local': local,
-                'mass': np.random.uniform(low=0, high=1),
-                'exchange': exchanges
-            }
+            particles[id] = generate_single_particle_state(config={
+                'bounds': bounds,
+                'size_range': size_range,
+                'n_bins': n_bins,
+                'fields': fields,
+            })
+            # id = str(uuid.uuid4())
+            # position = tuple(np.random.uniform(low=[0, 0],high=[bounds[0], bounds[1]],size=2))
+            # size = np.random.uniform(size_range[0], size_range[1])
+            #
+            # x, y = Particles.get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
+            # # TODO update local and exchange values
+            # local = Particles.get_local_field_values(fields, column=x, row=y)
+            # exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
+            #
+            # particles[id] = {
+            #     # 'id': str(uuid.uuid4()),
+            #     'position': position,
+            #     'size': size,
+            #     'local': local,
+            #     'mass': np.random.uniform(low=0, high=1),
+            #     'exchange': exchanges
+            # }
 
         return particles
+
 
     def update(self, state, interval):
         particles = state['particles']
@@ -134,10 +200,10 @@ class Particles(Process):
             updated_particle['position'] = (dx, dy) # new_position
 
             # Retrieve local field concentration for each particle
-            x, y = self.get_bin_position(new_position, self.config['n_bins'], self.env_size)
+            x, y = get_bin_position(new_position, self.config['n_bins'], self.env_size)
 
             # Update local environment values for each particle
-            updated_particle['local'] = self.get_local_field_values(fields, column=x, row=y)
+            updated_particle['local'] = get_local_field_values(fields, column=x, row=y)
 
             # Apply exchanges and reset
             exchange = particle['exchange']
@@ -152,8 +218,8 @@ class Particles(Process):
             if np.random.rand() < self.config['add_probability']:
                 # TODO -- reuse function for initializing particles
                 position = self.get_boundary_position(boundary)
-                x, y = self.get_bin_position(position, self.config['n_bins'], self.env_size)
-                local_field_concentrations = self.get_local_field_values(fields, column=x, row=y)
+                x, y = get_bin_position(position, self.config['n_bins'], self.env_size)
+                local_field_concentrations = get_local_field_values(fields, column=x, row=y)
                 id = str(uuid.uuid4())
                 new_particle = {
                     'id': id,
@@ -168,41 +234,6 @@ class Particles(Process):
             'particles': new_particles,
             'fields': new_fields
         }
-
-    @staticmethod
-    def get_bin_position(position, n_bins, env_size):
-        x, y = position
-        x_bins, y_bins = n_bins #self.config['n_bins']
-        x_min, x_max = env_size[0]
-        y_min, y_max = env_size[1]
-
-        # Convert the particle's (x, y) position to the corresponding bin in the 2D grid
-        x_bin = int((x - x_min) / (x_max - x_min) * x_bins)
-        y_bin = int((y - y_min) / (y_max - y_min) * y_bins)
-
-        # Correct any potential out-of-bound indices
-        x_bin = min(max(x_bin, 0), x_bins - 1)
-        y_bin = min(max(y_bin, 0), y_bins - 1)
-
-        return x_bin, y_bin
-
-    @staticmethod
-    def get_local_field_values(fields, column, row):
-        """
-        Retrieve local field values for a particle based on its position.
-
-        Parameters:
-        - fields: dict of 2D numpy arrays representing fields, keyed by molecule ID.
-        - position: Tuple (x, y) representing the particle's position.
-
-        Returns:
-        - local_values: dict of field concentrations at the particle's location, keyed by molecule ID.
-        """
-        local_values = {}
-        for mol_id, field in fields.items():
-            local_values[mol_id] = field[column, row]
-
-        return local_values
 
     def check_boundary_hit(self, new_x_position, new_y_position):
         # Check if the particle hits any of the boundaries to be removed
