@@ -462,13 +462,6 @@ def get_minimal_particle_composition(core):
                 'minimal_particle': {
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),
-
-
-                    # TODO: test to see if we only need to provide the default value
-                    #   in the process composition
-                    # {'_default': 'local:MinimalParticle'}
-
-
                     'config': default('quote', core.default(MinimalParticle.config_schema)),
                     'inputs': default(
                         'tree[wires]', {

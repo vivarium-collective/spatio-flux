@@ -9,6 +9,30 @@ from vivarium.vivarium import render_path
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.dfba import build_path
 
+from vivarium.vivarium import Vivarium
+
+
+class SpatioFluxVivarium(Vivarium):
+    def __init__(self,
+                 document=None,
+                 # require=None,
+                 # emitter_config=None
+                 ):
+
+        # Use your repo's core unless overridden
+        # core = MyCustomCore()
+        processes = PROCESS_DICT
+        types = TYPES_DICT
+        super().__init__(
+            document=document,
+            processes=processes,
+            types=types,
+            # core=core,
+            # require=require,
+            # emitter_config=emitter_config,
+        )
+
+
 
 def apply_non_negative(schema, current, update, top_schema, top_state, path, core):
     new_value = current + update
