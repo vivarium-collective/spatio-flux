@@ -80,11 +80,13 @@ def get_particles_dfba_state(
         fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
 
     # add particles process
-    particles = Particles.initialize_particles(
-        n_particles=n_particles,
-        bounds=bounds,
-        fields=fields,
-    )
+    particles = Particles.generate_state(
+        config={
+            'n_particles': n_particles,
+            'bounds': bounds,
+            'fields': fields,
+            'n_bins': n_bins,
+        })
 
     composite_state['fields'] = fields
     composite_state['particles'] = particles

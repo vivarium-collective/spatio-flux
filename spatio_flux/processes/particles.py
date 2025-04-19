@@ -62,20 +62,27 @@ class Particles(Process):
             }
         }
 
+    def initial_state(self, config=None):
+        config = config or {}
+        config['n_bins'] = self.config['n_bins']
+        config['bounds'] = self.config['bounds']
+        return self.generate_state(config)
+
     @staticmethod
-    def initialize_particles(
-            n_particles,
-            bounds,
-            fields,
-            size_range=(10, 100),
-    ):
+    def generate_state(config=None):
         """
         Initialize particle positions for multiple species.
         """
+        config = config or {}
+        fields = config.get('fields', {})
+        n_bins = config['n_bins']
+        bounds = config['bounds']
+        n_particles = config.get('n_particles', 15)
+        size_range = config.get('size_range', (10, 100))
         mol_ids = fields.keys()
 
-        # get n_bins from the shape of the first field array
-        n_bins = fields[list(fields.keys())[0]].shape
+        # # get n_bins from the shape of the first field array
+        # n_bins = fields[list(fields.keys())[0]].shape
 
         # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
         particles = {}
@@ -401,10 +408,13 @@ def get_particles_state(
         fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
 
     # initialize particles
-    particles = Particles.initialize_particles(
-        n_particles=n_particles,
-        bounds=bounds,
-        fields=fields)
+    # TODO -- this needs to be a static method??
+    particles = Particles.generate_state(
+        config={
+            'n_particles': n_particles,
+            'n_bins': n_bins,
+            'bounds': bounds,
+            'fields': fields})
 
     return {
         'fields': fields,

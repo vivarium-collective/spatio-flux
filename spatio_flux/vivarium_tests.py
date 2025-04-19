@@ -2,38 +2,51 @@ from vivarium import Vivarium
 from spatio_flux import PROCESS_DICT, TYPES_DICT
 
 def run_vivarium_dfba():
-    v = Vivarium(processes=PROCESS_DICT, types=TYPES_DICT)
+    bounds = (10.0, 20.0)  # Bounds of the environment
+    n_bins = (20, 40)  # Number of bins in the x and y directions
 
-    # add a dynamic FBA process called 'dFBA'
-    v.add_process(name="dFBA",
-                  process_id="DynamicFBA",
-                  config={
-                      "model_file": "textbook",
-                      "kinetic_params": {
-                          "glucose": (0.5, 1),
-                          "acetate": (0.5, 2)},
-                      "substrate_update_reactions": {
-                          "glucose": "EX_glc__D_e",
-                          "acetate": "EX_ac_e"},
-                      "biomass_identifier": "biomass",
-                      "bounds": {
-                          "EX_o2_e": {"lower": -2, "upper": None},
-                          "ATPM": {"lower": 1, "upper": 1}}},
-                  )
+    v5 = Vivarium(processes=PROCESS_DICT, types=TYPES_DICT)
 
+    v5.add_object(
+        name='glucose',
+        path=['fields'],
+        value=np.random.rand(n_bins[0], n_bins[1])
+    )
+    # v5.add_object(
+    #     type='particle',  # TODO -- registered particle type?
+    #     path=['particles']
+    # )
 
-    # v.add_object(name="fields", type="array")
-    v.connect_process(
-        process_name="dFBA",
+    v5.add_process(
+        name='particle_movement',
+        process_id='Particles',
+        config={
+            'n_bins': n_bins,
+            'bounds': bounds,
+            'diffusion_rate': 0.1,
+            'advection_rate': (0, -0.1),
+            'add_probability': 0.4,
+            'boundary_to_add': ['top']
+        },
+    )
+    v5.connect_process(
+        name='particle_movement',
         inputs={
-                "substrates": ["fields", 0],  # {mol_id: ['fields', mol_id] for mol_id in mol_ids}
-            },
+            'fields': ['fields'],
+            'particles': ['particles']
+        },
         outputs={
-                "substrates": ["fields", 0],  # {mol_id: ['fields', mol_id] for mol_id in mol_ids}
-            }
+            'fields': ['fields'],
+            'particles': ['particles']
+        }
     )
 
+    v5.initialize_process(
+        name='particle_movement',
+        config={'n_particles': 20}
+    )
     breakpoint()
+
 
 if __name__ == '__main__':
     run_vivarium_dfba()

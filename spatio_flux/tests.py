@@ -179,7 +179,7 @@ def run_particles(
         core,
         total_time=60,  # Total frames
         bounds=(10.0, 20.0),  # Bounds of the environment
-        n_bins=(20, 40),  # Number of bins in the x and y directions
+        n_bins=(4, 4),  # Number of bins in the x and y directions
         n_particles=1,  # 20
         diffusion_rate=0.1,
         advection_rate=(0, -0.1),
@@ -197,33 +197,6 @@ def run_particles(
     # TODO -- is this how to link in the minimal_particle process?
     # declare minimal particle in the composition
     composition = get_minimal_particle_composition(core)# {
-    #     'particles': {
-    #         '_type': 'map',
-    #         '_value': {
-    #             # '_inherit': 'particle',
-    #             'minimal_particle': {
-    #                 '_type': 'process',
-    #                 'address': default('string', 'local:MinimalParticle'),
-
-
-    #                 # TODO: test to see if we only need to provide the default value
-    #                 #   in the process composition
-    #                 # {'_default': 'local:MinimalParticle'}
-
-
-    #                 'config': default('quote', core.default(MinimalParticle.config_schema)),
-    #                 'inputs': default(
-    #                     'tree[wires]', {
-    #                         'mass': ['mass'],
-    #                         'substrates': ['local']}),
-    #                 'outputs': default(
-    #                     'tree[wires]', {
-    #                         'mass': ['mass'],
-    #                         'substrates': ['exchange']})
-    #             }
-    #         }
-    #     }
-    # }
 
     composite_state['emitter'] = emitter_from_wires({
         'global_time': ['global_time'],
@@ -490,13 +463,15 @@ def run_particles_dfba(
 
 
 
+
+
 if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    run_dfba_single(core=core)
-    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    run_diffusion_process(core=core)
+    # run_dfba_single(core=core)
+    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    # run_diffusion_process(core=core)
     run_particles(core)
     run_comets(core=core)
     run_particle_comets(core)
