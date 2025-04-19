@@ -5,6 +5,7 @@ Particles process
 A process for simulating the motion of particles in a 2D environment.
 """
 import uuid
+import base64
 import numpy as np
 from process_bigraph import Process, default
 
@@ -68,6 +69,9 @@ def generate_single_particle_state(config=None):
         'mass': np.random.uniform(low=0, high=1),
         'exchange': exchanges
     }
+
+def short_id():
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')
 
 class Particles(Process):
     config_schema = {
@@ -137,40 +141,28 @@ class Particles(Process):
         bounds = config['bounds']
         n_particles = config.get('n_particles', 15)
         size_range = config.get('size_range', (10, 100))
-        mol_ids = fields.keys()
 
-        # # get n_bins from the shape of the first field array
-        # n_bins = fields[list(fields.keys())[0]].shape
+        # assert n_bins from the shape of the first field array
+        if len(fields) > 0:
+            fields_bins = fields[list(fields.keys())[0]].shape
+            if fields_bins != n_bins:
+                raise ValueError(
+                    f"Shape of fields {fields_bins} does not match n_bins {n_bins}"
+                )
 
         # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
         particles = {}
         for _ in range(n_particles):
-            id = str(uuid.uuid4())
+            id = short_id()
             particles[id] = generate_single_particle_state(config={
                 'bounds': bounds,
                 'size_range': size_range,
                 'n_bins': n_bins,
                 'fields': fields,
             })
-            # id = str(uuid.uuid4())
-            # position = tuple(np.random.uniform(low=[0, 0],high=[bounds[0], bounds[1]],size=2))
-            # size = np.random.uniform(size_range[0], size_range[1])
-            #
-            # x, y = Particles.get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
-            # # TODO update local and exchange values
-            # local = Particles.get_local_field_values(fields, column=x, row=y)
-            # exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
-            #
-            # particles[id] = {
-            #     # 'id': str(uuid.uuid4()),
-            #     'position': position,
-            #     'size': size,
-            #     'local': local,
-            #     'mass': np.random.uniform(low=0, high=1),
-            #     'exchange': exchanges
-            # }
 
-        return particles
+        return {
+            'particles': particles}
 
 
     def update(self, state, interval):
@@ -449,7 +441,7 @@ def get_particles_state(
 
     return {
         'fields': fields,
-        'particles': particles,
+        'particles': particles['particles'],
         'particles_process': get_particles_spec(
             n_bins=n_bins,
             bounds=bounds,

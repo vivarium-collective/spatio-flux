@@ -89,7 +89,7 @@ def get_particles_dfba_state(
         })
 
     composite_state['fields'] = fields
-    composite_state['particles'] = particles
+    composite_state['particles'] = particles['particles']
     composite_state['particles_process'] = get_particles_spec(
         n_bins=n_bins,
         bounds=bounds,

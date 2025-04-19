@@ -100,7 +100,7 @@ def get_particle_comets_state(
             'n_bins':n_bins,
         })
 
-    composite_state['particles'] = particles
+    composite_state['particles'] = particles['particles']
     composite_state['particles_process'] = get_particles_spec(
         n_bins=n_bins,
         bounds=bounds,
