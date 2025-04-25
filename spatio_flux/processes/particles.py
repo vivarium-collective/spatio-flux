@@ -91,11 +91,10 @@ class Particles(Process):
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom'])
     }
 
-    def __init__(self, config, core):
-        super().__init__(config, core)
+    def initialize(self, config):
         self.env_size = (
-            (0, self.config['bounds'][0]),
-            (0, self.config['bounds'][1])
+            (0, config['bounds'][0]),
+            (0, config['bounds'][1])
         )
 
     def inputs(self):
@@ -307,6 +306,8 @@ class MinimalParticle(Process):
 
             roles = self.roles[reaction_name]
             for reactant in roles['reactant']:
+                if reactant not in substrates:
+                    continue
                 rates = reaction[reactant]
                 vmax = rates['vmax'] * substrates[reactant]
                 numerator *= vmax
@@ -464,6 +465,14 @@ def get_minimal_particle_composition(core, config=None):
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),
                     'config': default('quote', config),
+                    '_inputs': {
+                        'mass': 'float',
+                        'substrates': 'map[positive_float]'
+                    },
+                    '_outputs':  {
+                        'mass': 'float',
+                        'substrates': 'map[float]'
+                    },
                     'inputs': default(
                         'tree[wires]', {
                             'mass': ['mass'],
