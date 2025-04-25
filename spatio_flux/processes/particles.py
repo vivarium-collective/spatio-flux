@@ -453,7 +453,8 @@ def get_particles_state(
     }
 
 
-def get_minimal_particle_composition(core):
+def get_minimal_particle_composition(core, config=None):
+    config = config or core.default(MinimalParticle.config_schema)
     return {
         'particles': {
             '_type': 'map',
@@ -462,7 +463,7 @@ def get_minimal_particle_composition(core):
                 'minimal_particle': {
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),
-                    'config': default('quote', core.default(MinimalParticle.config_schema)),
+                    'config': default('quote', config),
                     'inputs': default(
                         'tree[wires]', {
                             'mass': ['mass'],
