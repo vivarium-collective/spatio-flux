@@ -124,11 +124,11 @@ class Particles(Process):
             }
         }
 
-    def initial_state(self, config=None):
-        config = config or {}
-        config['n_bins'] = self.config['n_bins']
-        config['bounds'] = self.config['bounds']
-        return self.generate_state(config)
+    def initial_state(self):
+        # config['n_bins'] = self.config['n_bins']
+        # config['bounds'] = self.config['bounds']
+        # return self.generate_state(config)
+        return {}
 
     @staticmethod
     def generate_state(config=None):
@@ -137,8 +137,8 @@ class Particles(Process):
         """
         config = config or {}
         fields = config.get('fields', {})
-        n_bins = config['n_bins']
-        bounds = config['bounds']
+        n_bins = config.get('n_bins', (1,1))
+        bounds = config.get('bounds',(1.0,1.0))
         n_particles = config.get('n_particles', 15)
         size_range = config.get('size_range', (10, 100))
 
@@ -212,7 +212,7 @@ class Particles(Process):
                 position = self.get_boundary_position(boundary)
                 x, y = get_bin_position(position, self.config['n_bins'], self.env_size)
                 local_field_concentrations = get_local_field_values(fields, column=x, row=y)
-                id = str(uuid.uuid4())
+                id = short_id()  #str(uuid.uuid4())
                 new_particle = {
                     'id': id,
                     'position': position,
@@ -453,7 +453,8 @@ def get_particles_state(
     }
 
 
-def get_minimal_particle_composition(core):
+def get_minimal_particle_composition(core, config=None):
+    config = config or core.default(MinimalParticle.config_schema)
     return {
         'particles': {
             '_type': 'map',
@@ -462,7 +463,7 @@ def get_minimal_particle_composition(core):
                 'minimal_particle': {
                     '_type': 'process',
                     'address': default('string', 'local:MinimalParticle'),
-                    'config': default('quote', core.default(MinimalParticle.config_schema)),
+                    'config': default('quote', config),
                     'inputs': default(
                         'tree[wires]', {
                             'mass': ['mass'],

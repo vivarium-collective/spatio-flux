@@ -5,11 +5,11 @@ TODO -- make a "register_types" function that takes a core, registers all types 
 
 from bigraph_schema import default
 from process_bigraph import ProcessTypes
-from vivarium.vivarium import render_path
+from vivarium.vivarium import Vivarium, render_path
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.dfba import build_path
-
-from vivarium.vivarium import Vivarium
+from spatio_flux.processes.particles import Particles
+from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
 
 
 class SpatioFluxVivarium(Vivarium):
@@ -30,6 +30,26 @@ class SpatioFluxVivarium(Vivarium):
             # core=core,
             # require=require,
             # emitter_config=emitter_config,
+        )
+
+    def plot_particles_snapshots(
+            self,
+            skip_frames=1,
+    ):
+        results = self.get_results()
+        bounds = None
+        for path, process in self.composite.process_paths.items():
+            instance = process.get('instance')
+            if isinstance(instance, Particles):
+                bounds = process['config']['bounds']
+                break
+        if bounds is None:
+            raise ValueError("No Particles process found.")
+
+        plot_species_distributions_with_particles_to_gif(
+            results,
+            skip_frames=skip_frames,
+            bounds=bounds
         )
 
 
