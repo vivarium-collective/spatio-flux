@@ -1,23 +1,22 @@
 from vivarium import Vivarium
 from spatio_flux import PROCESS_DICT, TYPES_DICT
 
-def run_vivarium_dfba():
+def run_vivarium_particles():
     bounds = (10.0, 20.0)  # Bounds of the environment
     n_bins = (20, 40)  # Number of bins in the x and y directions
 
-    v5 = Vivarium(processes=PROCESS_DICT, types=TYPES_DICT)
+    v6 = SpatioFluxVivarium()
 
-    v5.add_object(
-        name='glucose',
+    # make two fields
+    v6.add_object(name='glucose',
+                  path=['fields'],
+                  value=np.ones((n_bins[0], n_bins[1])))
+    v6.add_object(
+        name='acetate',
         path=['fields'],
-        value=np.random.rand(n_bins[0], n_bins[1])
-    )
-    # v5.add_object(
-    #     type='particle',  # TODO -- registered particle type?
-    #     path=['particles']
-    # )
+        value=np.zeros((n_bins[0], n_bins[1])))
 
-    v5.add_process(
+    v6.add_process(
         name='particle_movement',
         process_id='Particles',
         config={
@@ -25,28 +24,45 @@ def run_vivarium_dfba():
             'bounds': bounds,
             'diffusion_rate': 0.1,
             'advection_rate': (0, -0.1),
-            'add_probability': 0.4,
-            'boundary_to_add': ['top']
-        },
-    )
-    v5.connect_process(
+            'add_probability': 0.3,
+            'boundary_to_add': ['top']})
+    v6.connect_process(
         name='particle_movement',
         inputs={
             'fields': ['fields'],
-            'particles': ['particles']
-        },
+            'particles': ['particles']},
         outputs={
             'fields': ['fields'],
-            'particles': ['particles']
-        }
-    )
+            'particles': ['particles']})
 
-    v5.initialize_process(
-        name='particle_movement',
-        config={'n_particles': 20}
-    )
-    breakpoint()
+    # add a process into each particles schema
+    minimal_particle_config = {
+        'reactions': {
+            'grow': {
+                'glucose': {
+                    'vmax': 0.01,
+                    'kcat': 0.01,
+                    'role': 'reactant'},
+                'acetate': {
+                    'vmax': 0.001,
+                    'kcat': 0.001,
+                    'role': 'product'}
+            }}}
+    particle_schema = get_minimal_particle_composition(v6.core, minimal_particle_config)
+    v6.merge_schema(path=['particles'], schema=particle_schema['particles'])
+
+    # add particles to the initial state
+    v6.initialize_process(
+        path='particle_movement',
+        config={'n_particles': 1})
+
+    v6.diagram(dpi='70')
+
+    v6.run(60)
+    v6_results = v6.get_results()
+
+    v6.plot_particles_snapshots(skip_frames=3)
 
 
 if __name__ == '__main__':
-    run_vivarium_dfba()
+    run_vivarium_particles()
