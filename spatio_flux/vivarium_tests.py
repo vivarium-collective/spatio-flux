@@ -1,5 +1,8 @@
-from vivarium import Vivarium
-from spatio_flux import PROCESS_DICT, TYPES_DICT
+
+import numpy as np
+from spatio_flux import SpatioFluxVivarium
+from spatio_flux.processes.particles import get_minimal_particle_composition
+
 
 def run_vivarium_particles():
     bounds = (10.0, 20.0)  # Bounds of the environment

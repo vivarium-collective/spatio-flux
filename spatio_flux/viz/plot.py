@@ -266,7 +266,7 @@ def plot_species_distributions_with_particles_to_gif(
 
             for j, species in enumerate(species_names):
                 ax = axs[j]
-                field = np.rot90(fields[species], k=1)
+                field = np.fliplr(np.rot90(fields[species], k=3))
                 vmin, vmax = global_min_max[species]
 
                 im = ax.imshow(field, interpolation='nearest', cmap='viridis',
