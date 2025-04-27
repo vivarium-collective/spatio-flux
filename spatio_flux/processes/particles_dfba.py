@@ -97,16 +97,6 @@ def get_particles_dfba_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
-        # field_interactions=field_interactions,
     )
 
-    # initial_fields = {
-    #     mol_id: np.random.uniform(low=initial_min_max[mol_id][0], high=initial_min_max[mol_id][1], size=n_bins)
-    #     for mol_id in mol_ids}
-    # composite_state['fields'] = initial_fields
-
     return composite_state
-
-
-if __name__ == '__main__':
-    run_particle_dfba(**default_config)

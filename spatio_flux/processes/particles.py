@@ -8,6 +8,7 @@ import uuid
 import base64
 import numpy as np
 from process_bigraph import Process, default
+from spatio_flux.processes.dfba import dfba_config
 
 
 def get_bin_position(position, n_bins, env_size):
@@ -159,6 +160,7 @@ class Particles(Process):
                 'n_bins': n_bins,
                 'fields': fields,
             })
+            particles[id]['id'] = id
 
         return {
             'particles': particles}
@@ -481,6 +483,23 @@ def get_minimal_particle_composition(core, config=None):
                         'tree[wires]', {
                             'mass': ['mass'],
                             'substrates': ['exchange']})
+                }
+            }
+        }
+    }
+
+def get_dfba_particle_composition(core=None, config=None):
+    config = config or dfba_config()
+    return {
+        'particles': {
+            '_type': 'map',
+            '_value': {
+                'dFBA': {
+                    '_type': 'process',
+                    'address': default('string', 'local:DynamicFBA'),
+                    'config': default('quote', config),
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
                 }
             }
         }

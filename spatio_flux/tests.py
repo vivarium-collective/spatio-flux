@@ -12,7 +12,8 @@ from spatio_flux.viz.plot import (
 )
 from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_state, dfba_config
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec, get_diffusion_advection_state
-from spatio_flux.processes.particles import MinimalParticle, get_particles_state, get_minimal_particle_composition
+from spatio_flux.processes.particles import (
+    MinimalParticle, get_particles_state, get_minimal_particle_composition, get_dfba_particle_composition)
 from spatio_flux.processes.particle_comets import get_particle_comets_state, default_config
 from spatio_flux.processes.particles_dfba import get_particles_dfba_state, default_config
 
@@ -396,7 +397,8 @@ def run_particles_dfba(
     core,
     total_time=10.0,
     n_bins=None,
-    bounds=None):
+    bounds=None
+):
 
     # make the composite state
     composite_state = get_particles_dfba_state(core)
@@ -406,20 +408,21 @@ def run_particles_dfba(
         'particles': ['particles'],
         'fields': ['fields']})
 
-    composition = {
-        'particles': {
-            '_type': 'map',
-            '_value': {
-                'dFBA': {
-                    '_type': 'process',
-                    'address': default('string', 'local:DynamicFBA'),
-                    'config': default('quote', dfba_config(model_file='textbook')),
-                    'inputs': default('tree[wires]', {'substrates': ['local']}),
-                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
-                }
-            }
-        }
-    }
+    composition = get_dfba_particle_composition()
+    # composition = {
+    #     'particles': {
+    #         '_type': 'map',
+    #         '_value': {
+    #             'dFBA': {
+    #                 '_type': 'process',
+    #                 'address': default('string', 'local:DynamicFBA'),
+    #                 'config': default('quote', dfba_config(model_file='textbook')),
+    #                 'inputs': default('tree[wires]', {'substrates': ['local']}),
+    #                 'outputs': default('tree[wires]', {'substrates': ['exchange']})
+    #             }
+    #         }
+    #     }
+    # }
 
     # make the composite
     print('Making the composite...')
@@ -462,17 +465,14 @@ def run_particles_dfba(
     )
 
 
-
-
-
 if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    run_dfba_single(core=core)
-    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    run_diffusion_process(core=core)
-    run_particles(core)
-    run_comets(core=core)
-    run_particle_comets(core)
+    # run_dfba_single(core=core)
+    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    # run_diffusion_process(core=core)
+    # run_particles(core)
+    # run_comets(core=core)
+    # run_particle_comets(core)
     run_particles_dfba(core)
