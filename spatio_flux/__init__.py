@@ -12,6 +12,9 @@ from spatio_flux.processes.particles import Particles
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
 
 
+
+
+
 class SpatioFluxVivarium(Vivarium):
     def __init__(self,
                  document=None,

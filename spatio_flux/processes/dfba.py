@@ -41,9 +41,7 @@ class DynamicFBA(Process):
         "bounds": "map[bounds]",
     }
 
-    def __init__(self, config, core):
-        super().__init__(config, core)
-
+    def initialize(self, config):
         if not "xml" in self.config["model_file"]:
             # use the textbook model if no model file is provided
             # TODO: Also handle JSON or .mat model files

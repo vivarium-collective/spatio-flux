@@ -20,6 +20,7 @@ setup(
     packages=[
         'spatio_flux.processes',
         'spatio_flux.viz',
+        'spatio_flux',
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
