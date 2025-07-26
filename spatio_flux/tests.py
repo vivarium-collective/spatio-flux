@@ -59,7 +59,15 @@ def run_composite_document(document, time=None, core=None, name=None):
 
     return results
 
-
+def get_standard_emitter():
+    """
+    Get a standard emitter for the composite.
+    """
+    return emitter_from_wires({
+        'global_time': ['global_time'],
+        'fields': ['fields'],
+        # 'particles': ['particles']
+    })
 
 def run_dfba_single(
         total_time=60,
@@ -73,9 +81,7 @@ def run_dfba_single(
             'acetate': 0,
             'biomass': 0.1
         },
-        'emitter': emitter_from_wires({
-            'global_time': ['global_time'],
-            'fields': ['fields']}),
+        'emitter': get_standard_emitter(),
     }
 
     doc = {
@@ -112,13 +118,8 @@ def run_dfba_spatial(
         mol_ids=mol_ids,
     )
 
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields']})
-
-    doc = {
-        'state': composite_state
-    }
+    composite_state['emitter'] = get_standard_emitter()
+    doc = {'state': composite_state}
 
     dfba_results = run_composite_document(
         document=doc,
@@ -161,13 +162,8 @@ def run_diffusion_process(
         }
     )
 
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields']})
-
-    doc = {
-        'state': composite_state
-    }
+    composite_state['emitter'] = get_standard_emitter()
+    doc = {'state': composite_state}
 
     diffadv_results = run_composite_document(
         document=doc,
@@ -212,7 +208,6 @@ def run_particles(
         'particles': ['particles'],
         'fields': ['fields']})
 
-    # TODO -- is this how to link in the minimal_particle process?
     # declare minimal particle in the composition
     composition = get_minimal_particle_composition(core)
 
@@ -255,11 +250,12 @@ def run_particles(
 def run_comets(
         core,
         total_time=100.0,
-        bounds=(10.0, 10.0),
-        n_bins=(10, 10),
-        mol_ids=None,
-        initial_min_max=None,
 ):
+    bounds = (10.0, 10.0)
+    n_bins = (10, 10)
+    mol_ids = None
+    initial_min_max = None
+
     mol_ids = mol_ids or default_config['mol_ids']
     initial_min_max = initial_min_max or default_config['initial_min_max']
 
@@ -283,30 +279,16 @@ def run_comets(
         'global_time': ['global_time'],
         'fields': ['fields']})
 
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
+    doc = {
         'state': composite_state,
-    }, core=core)
+    }
 
-    # save the document
-    sim.save(filename='comets.json', outdir='out')
-
-    # TODO: FIX VIZ (unexpected wire type?)
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='comets_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-    comets_results = gather_emitter_results(sim)
-    # print(comets_results)
+    comets_results = run_composite_document(
+        doc,
+        time=total_time,
+        core=core,
+        name='comets'
+    )
 
     print('Plotting results...')
     # plot timeseries
@@ -467,9 +449,9 @@ if __name__ == '__main__':
     core = register_types(core)
 
     # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    # run_dfba_spatial(core=core)
     # run_diffusion_process(core=core)
-    run_particles(core)
-    # run_comets(core=core)
+    # run_particles(core=core)
+    run_comets(core=core)
     # run_particle_comets(core)
     # run_particles_dfba(core)
