@@ -190,15 +190,16 @@ def run_diffusion_process(
 def run_particles(
         core,
         total_time=60,  # Total frames
-        bounds=(10.0, 20.0),  # Bounds of the environment
-        n_bins=(4, 4),  # Number of bins in the x and y directions
-        n_particles=1,  # 20
-        diffusion_rate=0.1,
-        advection_rate=(0, -0.1),
-        add_probability=0.4,
-        field_interactions=None,
-        initial_min_max=None,
 ):
+    bounds = (10.0, 20.0)  # Bounds of the environment
+    n_bins = (4, 4)  # Number of bins in the x and y directions
+    n_particles = 1  # 20
+    diffusion_rate = 0.1
+    advection_rate = (0, -0.1)
+    add_probability = 0.4
+    field_interactions = None
+    initial_min_max = None
+
     # Get all local variables as a dictionary
     kwargs = locals()
     kwargs.pop('total_time')  # 'total_time' is only used here, so we pop it
@@ -206,18 +207,18 @@ def run_particles(
     # initialize particles state
     composite_state = get_particles_state(**kwargs)
 
-    # TODO -- is this how to link in the minimal_particle process?
-    # declare minimal particle in the composition
-    composition = get_minimal_particle_composition(core)# {
-
     composite_state['emitter'] = emitter_from_wires({
         'global_time': ['global_time'],
         'particles': ['particles'],
         'fields': ['fields']})
 
+    # TODO -- is this how to link in the minimal_particle process?
+    # declare minimal particle in the composition
+    # composition = get_minimal_particle_composition(core)# {
+
     doc = {
         'state': composite_state,
-        'composition': composition,
+        # 'composition': composition,
     }
 
     particles_results = run_composite_document(

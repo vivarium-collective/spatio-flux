@@ -295,7 +295,7 @@ class MinimalParticle(Process):
 
 
     def update(self, state, interval):
-        # mass = state['mass']
+        mass = state['mass']
         substrates = state['substrates']
         exchanges = {}
         reaction_rates = {}
