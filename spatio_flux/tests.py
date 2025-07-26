@@ -192,7 +192,7 @@ def run_particles(
         total_time=60,  # Total frames
 ):
     bounds = (10.0, 20.0)  # Bounds of the environment
-    n_bins = (4, 4)  # Number of bins in the x and y directions
+    n_bins = (10, 20)  # Number of bins in the x and y directions
     n_particles = 1  # 20
     diffusion_rate = 0.1
     advection_rate = (0, -0.1)
@@ -214,11 +214,11 @@ def run_particles(
 
     # TODO -- is this how to link in the minimal_particle process?
     # declare minimal particle in the composition
-    # composition = get_minimal_particle_composition(core)# {
+    composition = get_minimal_particle_composition(core)
 
     doc = {
         'state': composite_state,
-        # 'composition': composition,
+        'composition': composition,
     }
 
     particles_results = run_composite_document(

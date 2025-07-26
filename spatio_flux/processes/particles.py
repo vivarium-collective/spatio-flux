@@ -124,7 +124,7 @@ class Particles(Process):
             }
         }
 
-    def initial_state(self):
+    def initial_state(self, config=None):
         # config['n_bins'] = self.config['n_bins']
         # config['bounds'] = self.config['bounds']
         # return self.generate_state(config)
