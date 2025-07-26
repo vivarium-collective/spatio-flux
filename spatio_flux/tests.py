@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, default
 from process_bigraph.emitter import emitter_from_wires, gather_emitter_results
@@ -18,6 +20,47 @@ from spatio_flux.processes.particle_comets import get_particle_comets_state, def
 from spatio_flux.processes.particles_dfba import get_particles_dfba_state, default_config
 
 
+
+def run_composite_document(document, time=None, core=None, name=None):
+    """
+    Run a composite document with the given core.
+    """
+    time = time or 60  # default to 60 seconds
+    if core is None:
+        core = VivariumTypes()
+        core = register_types(core)
+    if name is None:
+        # use date and time as the name
+        date = datetime.now().strftime('%Y%m%d_%H%M%S')
+        name = f'spatio_flux_{date}'
+
+    # make the composite
+    print('Making the composite...')
+    sim = Composite(document, core=core)
+
+    # save the document
+    sim.save(filename=f'{name}.json', outdir='out')
+
+    # save a viz figure of the initial state
+    plot_bigraph(
+        state=sim.state,
+        schema=sim.composition,
+        core=core,
+        out_dir='out',
+        filename=f'{name}_viz'
+    )
+
+    # simulate
+    print('Simulating...')
+    sim.run(time)
+
+    # gather results
+    results = gather_emitter_results(sim)
+
+    return results
+
+
+
 def run_dfba_single(
         total_time=60,
         mol_ids=None,
@@ -35,20 +78,16 @@ def run_dfba_single(
             'fields': ['fields']}),
     }
 
-    # make the simulation
-    sim = Composite({
-        'state': single_dfba_config,
-    }, core=core)
+    doc = {
+        'state': single_dfba_config
+    }
 
-    # save the document
-    sim.save(filename='single_dfba.json', outdir='out')
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    dfba_results = gather_emitter_results(sim)
+    dfba_results = run_composite_document(
+        document=doc,
+        time=total_time,
+        core=core,
+        name='dfba_single'
+    )
 
     print('Plotting results...')
     # plot timeseries
@@ -77,30 +116,16 @@ def run_dfba_spatial(
         'global_time': ['global_time'],
         'fields': ['fields']})
 
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-    }, core=core)
+    doc = {
+        'state': composite_state
+    }
 
-    # save the document
-    sim.save(filename='spatial_dfba.json', outdir='out')
-
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='dfba_spatial_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    dfba_results = gather_emitter_results(sim)
+    dfba_results = run_composite_document(
+        document=doc,
+        time=total_time,
+        core=core,
+        name='spatial_dfba'
+    )
 
     print('Plotting results...')
     # plot timeseries
@@ -140,37 +165,23 @@ def run_diffusion_process(
         'global_time': ['global_time'],
         'fields': ['fields']})
 
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-    }, core=core)
+    doc = {
+        'state': composite_state
+    }
 
-    # save the document
-    sim.save(filename='diffadv.json', outdir='out')
-
-    # save a viz figure of the initial state
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
+    diffadv_results = run_composite_document(
+        document=doc,
+        time=total_time,
         core=core,
-        out_dir='out',
-        filename='diffadv_viz'
+        name='diff_advec'
     )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    diffadv_results = gather_emitter_results(sim)
 
     print('Plotting results...')
     # plot 2d video
     plot_species_distributions_to_gif(
         diffadv_results,
         out_dir='out',
-        filename='diffadv_results.gif',
+        filename='diff_advec_results.gif',
         title='',
         skip_frames=1
     )
@@ -204,33 +215,18 @@ def run_particles(
         'particles': ['particles'],
         'fields': ['fields']})
 
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
+    doc = {
         'state': composite_state,
         'composition': composition,
-    }, core=core)
+    }
 
-    # save the document
-    sim.save(
-        filename='particles.json',
-        outdir='out')
-
-    # save a viz figure of the initial state
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
+    particles_results = run_composite_document(
+        document=doc,
+        time=total_time,
         core=core,
-        out_dir='out',
-        filename='particles_viz'
+        name='particles'
     )
 
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    particles_results = gather_emitter_results(sim)
     emitter_results = particles_results[('emitter',)]
     # resort results
     particles_history = [p['particles'] for p in emitter_results]
@@ -469,10 +465,10 @@ if __name__ == '__main__':
     core = VivariumTypes()
     core = register_types(core)
 
-    run_dfba_single(core=core)
-    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
-    run_diffusion_process(core=core)
+    # run_dfba_single(core=core)
+    # run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    # run_diffusion_process(core=core)
     run_particles(core)
-    run_comets(core=core)
-    run_particle_comets(core)
-    run_particles_dfba(core)
+    # run_comets(core=core)
+    # run_particle_comets(core)
+    # run_particles_dfba(core)
