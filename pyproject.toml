@@ -1,0 +1,27 @@
+[project]
+name = "spatio-flux"
+version = "0.0.1"
+description = "a demonstration of process composition rebuilding and extending comets by composing functional components"
+readme = "README.md"
+requires-python = "==3.12.9"
+dependencies = [
+    "bigraph-schema",
+    "process-bigraph",
+    "matplotlib",
+    "bigraph-viz",
+    "vivarium-interface",
+    "scipy",
+    "cobra",
+    "imageio",
+    "pytest"
+]
+
+[tool.setuptools]
+packages = [
+    "spatio_flux"
+]
+
+[tool.uv.sources]
+bigraph-schema = { path = "../bigraph-schema", editable = true }
+process-bigraph = { path = "../process-bigraph", editable = true }
+bigraph-viz = { path = "../bigraph-viz", editable = true }

@@ -6,3 +6,5 @@ out/
 **/out/
 
 profile/
+.devenv*
+devenv.lock
