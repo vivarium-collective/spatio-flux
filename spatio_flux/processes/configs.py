@@ -422,7 +422,6 @@ def get_particles_dfba_state(
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
         particle_boundary_to_remove=None,
-        particle_field_interactions=None,
         initial_min_max=None,
 ):
     # check if particle_boundary is None, but empty list is ok
@@ -431,15 +430,9 @@ def get_particles_dfba_state(
     if particle_boundary_to_remove is None or not isinstance(particle_boundary_to_remove, list):
         particle_boundary_to_remove = default_config['particle_boundary_to_remove']
     mol_ids = mol_ids or default_config['mol_ids']
-    particle_field_interactions = particle_field_interactions or default_config['particle_field_interactions']
     initial_min_max = initial_min_max or default_config['initial_min_max']
-    for mol_id in particle_field_interactions.keys():
-        if mol_id not in mol_ids:
-            mol_ids.append(mol_id)
-        if mol_id not in initial_min_max:
-            initial_min_max[mol_id] = (0, 1)
 
-    # TODO -- add fields?
+    # initialize the composite state
     composite_state = {}
 
     # add diffusion/advection process
