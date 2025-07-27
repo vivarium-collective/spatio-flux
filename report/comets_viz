@@ -11,113 +11,203 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<acetate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'biomass')" [label=<biomass>]
+	subgraph state_row_0 {
+		rank=same
+	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('spatial_dfba',)" [label=<spatial_dfba>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('particles',)" [label=<particles>]
+	"('fields', 'biomass')" -> "('spatial_dfba',)" [style=invis weight=10]
+	subgraph state_row_1 {
+		rank=same
+	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('spatial_dfba', '[0,0]')" [label=<[0,0]>]
-	"('spatial_dfba', '[0,1]')" [label=<[0,1]>]
-	"('spatial_dfba', '[0,2]')" [label=<[0,2]>]
-	"('spatial_dfba', '[0,3]')" [label=<[0,3]>]
-	"('spatial_dfba', '[0,4]')" [label=<[0,4]>]
-	"('spatial_dfba', '[0,5]')" [label=<[0,5]>]
-	"('spatial_dfba', '[0,6]')" [label=<[0,6]>]
-	"('spatial_dfba', '[0,7]')" [label=<[0,7]>]
-	"('spatial_dfba', '[0,8]')" [label=<[0,8]>]
-	"('spatial_dfba', '[0,9]')" [label=<[0,9]>]
-	"('spatial_dfba', '[1,0]')" [label=<[1,0]>]
-	"('spatial_dfba', '[1,1]')" [label=<[1,1]>]
-	"('spatial_dfba', '[1,2]')" [label=<[1,2]>]
-	"('spatial_dfba', '[1,3]')" [label=<[1,3]>]
-	"('spatial_dfba', '[1,4]')" [label=<[1,4]>]
-	"('spatial_dfba', '[1,5]')" [label=<[1,5]>]
-	"('spatial_dfba', '[1,6]')" [label=<[1,6]>]
-	"('spatial_dfba', '[1,7]')" [label=<[1,7]>]
-	"('spatial_dfba', '[1,8]')" [label=<[1,8]>]
-	"('spatial_dfba', '[1,9]')" [label=<[1,9]>]
-	"('spatial_dfba', '[2,0]')" [label=<[2,0]>]
-	"('spatial_dfba', '[2,1]')" [label=<[2,1]>]
-	"('spatial_dfba', '[2,2]')" [label=<[2,2]>]
-	"('spatial_dfba', '[2,3]')" [label=<[2,3]>]
-	"('spatial_dfba', '[2,4]')" [label=<[2,4]>]
-	"('spatial_dfba', '[2,5]')" [label=<[2,5]>]
-	"('spatial_dfba', '[2,6]')" [label=<[2,6]>]
-	"('spatial_dfba', '[2,7]')" [label=<[2,7]>]
-	"('spatial_dfba', '[2,8]')" [label=<[2,8]>]
-	"('spatial_dfba', '[2,9]')" [label=<[2,9]>]
-	"('spatial_dfba', '[3,0]')" [label=<[3,0]>]
-	"('spatial_dfba', '[3,1]')" [label=<[3,1]>]
-	"('spatial_dfba', '[3,2]')" [label=<[3,2]>]
-	"('spatial_dfba', '[3,3]')" [label=<[3,3]>]
-	"('spatial_dfba', '[3,4]')" [label=<[3,4]>]
-	"('spatial_dfba', '[3,5]')" [label=<[3,5]>]
-	"('spatial_dfba', '[3,6]')" [label=<[3,6]>]
-	"('spatial_dfba', '[3,7]')" [label=<[3,7]>]
-	"('spatial_dfba', '[3,8]')" [label=<[3,8]>]
-	"('spatial_dfba', '[3,9]')" [label=<[3,9]>]
-	"('spatial_dfba', '[4,0]')" [label=<[4,0]>]
-	"('spatial_dfba', '[4,1]')" [label=<[4,1]>]
-	"('spatial_dfba', '[4,2]')" [label=<[4,2]>]
-	"('spatial_dfba', '[4,3]')" [label=<[4,3]>]
-	"('spatial_dfba', '[4,4]')" [label=<[4,4]>]
-	"('spatial_dfba', '[4,5]')" [label=<[4,5]>]
-	"('spatial_dfba', '[4,6]')" [label=<[4,6]>]
-	"('spatial_dfba', '[4,7]')" [label=<[4,7]>]
-	"('spatial_dfba', '[4,8]')" [label=<[4,8]>]
-	"('spatial_dfba', '[4,9]')" [label=<[4,9]>]
-	"('spatial_dfba', '[5,0]')" [label=<[5,0]>]
-	"('spatial_dfba', '[5,1]')" [label=<[5,1]>]
-	"('spatial_dfba', '[5,2]')" [label=<[5,2]>]
-	"('spatial_dfba', '[5,3]')" [label=<[5,3]>]
-	"('spatial_dfba', '[5,4]')" [label=<[5,4]>]
-	"('spatial_dfba', '[5,5]')" [label=<[5,5]>]
-	"('spatial_dfba', '[5,6]')" [label=<[5,6]>]
-	"('spatial_dfba', '[5,7]')" [label=<[5,7]>]
-	"('spatial_dfba', '[5,8]')" [label=<[5,8]>]
-	"('spatial_dfba', '[5,9]')" [label=<[5,9]>]
-	"('spatial_dfba', '[6,0]')" [label=<[6,0]>]
-	"('spatial_dfba', '[6,1]')" [label=<[6,1]>]
-	"('spatial_dfba', '[6,2]')" [label=<[6,2]>]
-	"('spatial_dfba', '[6,3]')" [label=<[6,3]>]
-	"('spatial_dfba', '[6,4]')" [label=<[6,4]>]
-	"('spatial_dfba', '[6,5]')" [label=<[6,5]>]
-	"('spatial_dfba', '[6,6]')" [label=<[6,6]>]
-	"('spatial_dfba', '[6,7]')" [label=<[6,7]>]
-	"('spatial_dfba', '[6,8]')" [label=<[6,8]>]
-	"('spatial_dfba', '[6,9]')" [label=<[6,9]>]
-	"('spatial_dfba', '[7,0]')" [label=<[7,0]>]
-	"('spatial_dfba', '[7,1]')" [label=<[7,1]>]
-	"('spatial_dfba', '[7,2]')" [label=<[7,2]>]
-	"('spatial_dfba', '[7,3]')" [label=<[7,3]>]
-	"('spatial_dfba', '[7,4]')" [label=<[7,4]>]
-	"('spatial_dfba', '[7,5]')" [label=<[7,5]>]
-	"('spatial_dfba', '[7,6]')" [label=<[7,6]>]
-	"('spatial_dfba', '[7,7]')" [label=<[7,7]>]
-	"('spatial_dfba', '[7,8]')" [label=<[7,8]>]
-	"('spatial_dfba', '[7,9]')" [label=<[7,9]>]
-	"('spatial_dfba', '[8,0]')" [label=<[8,0]>]
-	"('spatial_dfba', '[8,1]')" [label=<[8,1]>]
-	"('spatial_dfba', '[8,2]')" [label=<[8,2]>]
-	"('spatial_dfba', '[8,3]')" [label=<[8,3]>]
-	"('spatial_dfba', '[8,4]')" [label=<[8,4]>]
-	"('spatial_dfba', '[8,5]')" [label=<[8,5]>]
-	"('spatial_dfba', '[8,6]')" [label=<[8,6]>]
-	"('spatial_dfba', '[8,7]')" [label=<[8,7]>]
-	"('spatial_dfba', '[8,8]')" [label=<[8,8]>]
-	"('spatial_dfba', '[8,9]')" [label=<[8,9]>]
-	"('spatial_dfba', '[9,0]')" [label=<[9,0]>]
-	"('spatial_dfba', '[9,1]')" [label=<[9,1]>]
-	"('spatial_dfba', '[9,2]')" [label=<[9,2]>]
-	"('spatial_dfba', '[9,3]')" [label=<[9,3]>]
-	"('spatial_dfba', '[9,4]')" [label=<[9,4]>]
-	"('spatial_dfba', '[9,5]')" [label=<[9,5]>]
-	"('spatial_dfba', '[9,6]')" [label=<[9,6]>]
-	"('spatial_dfba', '[9,7]')" [label=<[9,7]>]
-	"('spatial_dfba', '[9,8]')" [label=<[9,8]>]
-	"('spatial_dfba', '[9,9]')" [label=<[9,9]>]
-	"('diffusion',)" [label=<diffusion>]
-	"('emitter',)" [label=<emitter>]
+	subgraph process_row_0 {
+		rank=same
+		"('spatial_dfba', '[0,0]')" [label=<[0,0]>]
+		"('spatial_dfba', '[0,1]')" [label=<[0,1]>]
+		"('spatial_dfba', '[0,2]')" [label=<[0,2]>]
+		"('spatial_dfba', '[0,3]')" [label=<[0,3]>]
+		"('spatial_dfba', '[0,4]')" [label=<[0,4]>]
+	}
+	"('spatial_dfba', '[0,4]')" -> "('spatial_dfba', '[0,5]')" [style=invis weight=10]
+	subgraph process_row_1 {
+		rank=same
+		"('spatial_dfba', '[0,5]')" [label=<[0,5]>]
+		"('spatial_dfba', '[0,6]')" [label=<[0,6]>]
+		"('spatial_dfba', '[0,7]')" [label=<[0,7]>]
+		"('spatial_dfba', '[0,8]')" [label=<[0,8]>]
+		"('spatial_dfba', '[0,9]')" [label=<[0,9]>]
+	}
+	"('spatial_dfba', '[0,9]')" -> "('spatial_dfba', '[1,0]')" [style=invis weight=10]
+	subgraph process_row_2 {
+		rank=same
+		"('spatial_dfba', '[1,0]')" [label=<[1,0]>]
+		"('spatial_dfba', '[1,1]')" [label=<[1,1]>]
+		"('spatial_dfba', '[1,2]')" [label=<[1,2]>]
+		"('spatial_dfba', '[1,3]')" [label=<[1,3]>]
+		"('spatial_dfba', '[1,4]')" [label=<[1,4]>]
+	}
+	"('spatial_dfba', '[1,4]')" -> "('spatial_dfba', '[1,5]')" [style=invis weight=10]
+	subgraph process_row_3 {
+		rank=same
+		"('spatial_dfba', '[1,5]')" [label=<[1,5]>]
+		"('spatial_dfba', '[1,6]')" [label=<[1,6]>]
+		"('spatial_dfba', '[1,7]')" [label=<[1,7]>]
+		"('spatial_dfba', '[1,8]')" [label=<[1,8]>]
+		"('spatial_dfba', '[1,9]')" [label=<[1,9]>]
+	}
+	"('spatial_dfba', '[1,9]')" -> "('spatial_dfba', '[2,0]')" [style=invis weight=10]
+	subgraph process_row_4 {
+		rank=same
+		"('spatial_dfba', '[2,0]')" [label=<[2,0]>]
+		"('spatial_dfba', '[2,1]')" [label=<[2,1]>]
+		"('spatial_dfba', '[2,2]')" [label=<[2,2]>]
+		"('spatial_dfba', '[2,3]')" [label=<[2,3]>]
+		"('spatial_dfba', '[2,4]')" [label=<[2,4]>]
+	}
+	"('spatial_dfba', '[2,4]')" -> "('spatial_dfba', '[2,5]')" [style=invis weight=10]
+	subgraph process_row_5 {
+		rank=same
+		"('spatial_dfba', '[2,5]')" [label=<[2,5]>]
+		"('spatial_dfba', '[2,6]')" [label=<[2,6]>]
+		"('spatial_dfba', '[2,7]')" [label=<[2,7]>]
+		"('spatial_dfba', '[2,8]')" [label=<[2,8]>]
+		"('spatial_dfba', '[2,9]')" [label=<[2,9]>]
+	}
+	"('spatial_dfba', '[2,9]')" -> "('spatial_dfba', '[3,0]')" [style=invis weight=10]
+	subgraph process_row_6 {
+		rank=same
+		"('spatial_dfba', '[3,0]')" [label=<[3,0]>]
+		"('spatial_dfba', '[3,1]')" [label=<[3,1]>]
+		"('spatial_dfba', '[3,2]')" [label=<[3,2]>]
+		"('spatial_dfba', '[3,3]')" [label=<[3,3]>]
+		"('spatial_dfba', '[3,4]')" [label=<[3,4]>]
+	}
+	"('spatial_dfba', '[3,4]')" -> "('spatial_dfba', '[3,5]')" [style=invis weight=10]
+	subgraph process_row_7 {
+		rank=same
+		"('spatial_dfba', '[3,5]')" [label=<[3,5]>]
+		"('spatial_dfba', '[3,6]')" [label=<[3,6]>]
+		"('spatial_dfba', '[3,7]')" [label=<[3,7]>]
+		"('spatial_dfba', '[3,8]')" [label=<[3,8]>]
+		"('spatial_dfba', '[3,9]')" [label=<[3,9]>]
+	}
+	"('spatial_dfba', '[3,9]')" -> "('spatial_dfba', '[4,0]')" [style=invis weight=10]
+	subgraph process_row_8 {
+		rank=same
+		"('spatial_dfba', '[4,0]')" [label=<[4,0]>]
+		"('spatial_dfba', '[4,1]')" [label=<[4,1]>]
+		"('spatial_dfba', '[4,2]')" [label=<[4,2]>]
+		"('spatial_dfba', '[4,3]')" [label=<[4,3]>]
+		"('spatial_dfba', '[4,4]')" [label=<[4,4]>]
+	}
+	"('spatial_dfba', '[4,4]')" -> "('spatial_dfba', '[4,5]')" [style=invis weight=10]
+	subgraph process_row_9 {
+		rank=same
+		"('spatial_dfba', '[4,5]')" [label=<[4,5]>]
+		"('spatial_dfba', '[4,6]')" [label=<[4,6]>]
+		"('spatial_dfba', '[4,7]')" [label=<[4,7]>]
+		"('spatial_dfba', '[4,8]')" [label=<[4,8]>]
+		"('spatial_dfba', '[4,9]')" [label=<[4,9]>]
+	}
+	"('spatial_dfba', '[4,9]')" -> "('spatial_dfba', '[5,0]')" [style=invis weight=10]
+	subgraph process_row_10 {
+		rank=same
+		"('spatial_dfba', '[5,0]')" [label=<[5,0]>]
+		"('spatial_dfba', '[5,1]')" [label=<[5,1]>]
+		"('spatial_dfba', '[5,2]')" [label=<[5,2]>]
+		"('spatial_dfba', '[5,3]')" [label=<[5,3]>]
+		"('spatial_dfba', '[5,4]')" [label=<[5,4]>]
+	}
+	"('spatial_dfba', '[5,4]')" -> "('spatial_dfba', '[5,5]')" [style=invis weight=10]
+	subgraph process_row_11 {
+		rank=same
+		"('spatial_dfba', '[5,5]')" [label=<[5,5]>]
+		"('spatial_dfba', '[5,6]')" [label=<[5,6]>]
+		"('spatial_dfba', '[5,7]')" [label=<[5,7]>]
+		"('spatial_dfba', '[5,8]')" [label=<[5,8]>]
+		"('spatial_dfba', '[5,9]')" [label=<[5,9]>]
+	}
+	"('spatial_dfba', '[5,9]')" -> "('spatial_dfba', '[6,0]')" [style=invis weight=10]
+	subgraph process_row_12 {
+		rank=same
+		"('spatial_dfba', '[6,0]')" [label=<[6,0]>]
+		"('spatial_dfba', '[6,1]')" [label=<[6,1]>]
+		"('spatial_dfba', '[6,2]')" [label=<[6,2]>]
+		"('spatial_dfba', '[6,3]')" [label=<[6,3]>]
+		"('spatial_dfba', '[6,4]')" [label=<[6,4]>]
+	}
+	"('spatial_dfba', '[6,4]')" -> "('spatial_dfba', '[6,5]')" [style=invis weight=10]
+	subgraph process_row_13 {
+		rank=same
+		"('spatial_dfba', '[6,5]')" [label=<[6,5]>]
+		"('spatial_dfba', '[6,6]')" [label=<[6,6]>]
+		"('spatial_dfba', '[6,7]')" [label=<[6,7]>]
+		"('spatial_dfba', '[6,8]')" [label=<[6,8]>]
+		"('spatial_dfba', '[6,9]')" [label=<[6,9]>]
+	}
+	"('spatial_dfba', '[6,9]')" -> "('spatial_dfba', '[7,0]')" [style=invis weight=10]
+	subgraph process_row_14 {
+		rank=same
+		"('spatial_dfba', '[7,0]')" [label=<[7,0]>]
+		"('spatial_dfba', '[7,1]')" [label=<[7,1]>]
+		"('spatial_dfba', '[7,2]')" [label=<[7,2]>]
+		"('spatial_dfba', '[7,3]')" [label=<[7,3]>]
+		"('spatial_dfba', '[7,4]')" [label=<[7,4]>]
+	}
+	"('spatial_dfba', '[7,4]')" -> "('spatial_dfba', '[7,5]')" [style=invis weight=10]
+	subgraph process_row_15 {
+		rank=same
+		"('spatial_dfba', '[7,5]')" [label=<[7,5]>]
+		"('spatial_dfba', '[7,6]')" [label=<[7,6]>]
+		"('spatial_dfba', '[7,7]')" [label=<[7,7]>]
+		"('spatial_dfba', '[7,8]')" [label=<[7,8]>]
+		"('spatial_dfba', '[7,9]')" [label=<[7,9]>]
+	}
+	"('spatial_dfba', '[7,9]')" -> "('spatial_dfba', '[8,0]')" [style=invis weight=10]
+	subgraph process_row_16 {
+		rank=same
+		"('spatial_dfba', '[8,0]')" [label=<[8,0]>]
+		"('spatial_dfba', '[8,1]')" [label=<[8,1]>]
+		"('spatial_dfba', '[8,2]')" [label=<[8,2]>]
+		"('spatial_dfba', '[8,3]')" [label=<[8,3]>]
+		"('spatial_dfba', '[8,4]')" [label=<[8,4]>]
+	}
+	"('spatial_dfba', '[8,4]')" -> "('spatial_dfba', '[8,5]')" [style=invis weight=10]
+	subgraph process_row_17 {
+		rank=same
+		"('spatial_dfba', '[8,5]')" [label=<[8,5]>]
+		"('spatial_dfba', '[8,6]')" [label=<[8,6]>]
+		"('spatial_dfba', '[8,7]')" [label=<[8,7]>]
+		"('spatial_dfba', '[8,8]')" [label=<[8,8]>]
+		"('spatial_dfba', '[8,9]')" [label=<[8,9]>]
+	}
+	"('spatial_dfba', '[8,9]')" -> "('spatial_dfba', '[9,0]')" [style=invis weight=10]
+	subgraph process_row_18 {
+		rank=same
+		"('spatial_dfba', '[9,0]')" [label=<[9,0]>]
+		"('spatial_dfba', '[9,1]')" [label=<[9,1]>]
+		"('spatial_dfba', '[9,2]')" [label=<[9,2]>]
+		"('spatial_dfba', '[9,3]')" [label=<[9,3]>]
+		"('spatial_dfba', '[9,4]')" [label=<[9,4]>]
+	}
+	"('spatial_dfba', '[9,4]')" -> "('spatial_dfba', '[9,5]')" [style=invis weight=10]
+	subgraph process_row_19 {
+		rank=same
+		"('spatial_dfba', '[9,5]')" [label=<[9,5]>]
+		"('spatial_dfba', '[9,6]')" [label=<[9,6]>]
+		"('spatial_dfba', '[9,7]')" [label=<[9,7]>]
+		"('spatial_dfba', '[9,8]')" [label=<[9,8]>]
+		"('spatial_dfba', '[9,9]')" [label=<[9,9]>]
+	}
+	"('spatial_dfba', '[9,9]')" -> "('diffusion',)" [style=invis weight=10]
+	subgraph process_row_20 {
+		rank=same
+		"('diffusion',)" [label=<diffusion>]
+		"('emitter',)" [label=<emitter>]
+	}
 	edge [arrowhead=none penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [constraint=true dir=forward]
@@ -326,9 +416,9 @@ digraph bigraph {
 	edge [style=filled]
 	"('spatial_dfba',)" -> "('spatial_dfba', '[9,9]')" [constraint=true dir=forward]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
-		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
+		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -336,9 +426,9 @@ digraph bigraph {
 		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
-		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]

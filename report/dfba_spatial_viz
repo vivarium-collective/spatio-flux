@@ -11,37 +11,67 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<acetate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'biomass')" [label=<biomass>]
+	subgraph state_row_0 {
+		rank=same
+	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('spatial_dfba',)" [label=<spatial_dfba>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('particles',)" [label=<particles>]
+	"('fields', 'biomass')" -> "('spatial_dfba',)" [style=invis weight=10]
+	subgraph state_row_1 {
+		rank=same
+	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('spatial_dfba', '[0,0]')" [label=<[0,0]>]
-	"('spatial_dfba', '[0,1]')" [label=<[0,1]>]
-	"('spatial_dfba', '[0,2]')" [label=<[0,2]>]
-	"('spatial_dfba', '[0,3]')" [label=<[0,3]>]
-	"('spatial_dfba', '[0,4]')" [label=<[0,4]>]
-	"('spatial_dfba', '[1,0]')" [label=<[1,0]>]
-	"('spatial_dfba', '[1,1]')" [label=<[1,1]>]
-	"('spatial_dfba', '[1,2]')" [label=<[1,2]>]
-	"('spatial_dfba', '[1,3]')" [label=<[1,3]>]
-	"('spatial_dfba', '[1,4]')" [label=<[1,4]>]
-	"('spatial_dfba', '[2,0]')" [label=<[2,0]>]
-	"('spatial_dfba', '[2,1]')" [label=<[2,1]>]
-	"('spatial_dfba', '[2,2]')" [label=<[2,2]>]
-	"('spatial_dfba', '[2,3]')" [label=<[2,3]>]
-	"('spatial_dfba', '[2,4]')" [label=<[2,4]>]
-	"('spatial_dfba', '[3,0]')" [label=<[3,0]>]
-	"('spatial_dfba', '[3,1]')" [label=<[3,1]>]
-	"('spatial_dfba', '[3,2]')" [label=<[3,2]>]
-	"('spatial_dfba', '[3,3]')" [label=<[3,3]>]
-	"('spatial_dfba', '[3,4]')" [label=<[3,4]>]
-	"('spatial_dfba', '[4,0]')" [label=<[4,0]>]
-	"('spatial_dfba', '[4,1]')" [label=<[4,1]>]
-	"('spatial_dfba', '[4,2]')" [label=<[4,2]>]
-	"('spatial_dfba', '[4,3]')" [label=<[4,3]>]
-	"('spatial_dfba', '[4,4]')" [label=<[4,4]>]
-	"('emitter',)" [label=<emitter>]
+	subgraph process_row_0 {
+		rank=same
+		"('spatial_dfba', '[0,0]')" [label=<[0,0]>]
+		"('spatial_dfba', '[0,1]')" [label=<[0,1]>]
+		"('spatial_dfba', '[0,2]')" [label=<[0,2]>]
+		"('spatial_dfba', '[0,3]')" [label=<[0,3]>]
+		"('spatial_dfba', '[0,4]')" [label=<[0,4]>]
+	}
+	"('spatial_dfba', '[0,4]')" -> "('spatial_dfba', '[1,0]')" [style=invis weight=10]
+	subgraph process_row_1 {
+		rank=same
+		"('spatial_dfba', '[1,0]')" [label=<[1,0]>]
+		"('spatial_dfba', '[1,1]')" [label=<[1,1]>]
+		"('spatial_dfba', '[1,2]')" [label=<[1,2]>]
+		"('spatial_dfba', '[1,3]')" [label=<[1,3]>]
+		"('spatial_dfba', '[1,4]')" [label=<[1,4]>]
+	}
+	"('spatial_dfba', '[1,4]')" -> "('spatial_dfba', '[2,0]')" [style=invis weight=10]
+	subgraph process_row_2 {
+		rank=same
+		"('spatial_dfba', '[2,0]')" [label=<[2,0]>]
+		"('spatial_dfba', '[2,1]')" [label=<[2,1]>]
+		"('spatial_dfba', '[2,2]')" [label=<[2,2]>]
+		"('spatial_dfba', '[2,3]')" [label=<[2,3]>]
+		"('spatial_dfba', '[2,4]')" [label=<[2,4]>]
+	}
+	"('spatial_dfba', '[2,4]')" -> "('spatial_dfba', '[3,0]')" [style=invis weight=10]
+	subgraph process_row_3 {
+		rank=same
+		"('spatial_dfba', '[3,0]')" [label=<[3,0]>]
+		"('spatial_dfba', '[3,1]')" [label=<[3,1]>]
+		"('spatial_dfba', '[3,2]')" [label=<[3,2]>]
+		"('spatial_dfba', '[3,3]')" [label=<[3,3]>]
+		"('spatial_dfba', '[3,4]')" [label=<[3,4]>]
+	}
+	"('spatial_dfba', '[3,4]')" -> "('spatial_dfba', '[4,0]')" [style=invis weight=10]
+	subgraph process_row_4 {
+		rank=same
+		"('spatial_dfba', '[4,0]')" [label=<[4,0]>]
+		"('spatial_dfba', '[4,1]')" [label=<[4,1]>]
+		"('spatial_dfba', '[4,2]')" [label=<[4,2]>]
+		"('spatial_dfba', '[4,3]')" [label=<[4,3]>]
+		"('spatial_dfba', '[4,4]')" [label=<[4,4]>]
+	}
+	"('spatial_dfba', '[4,4]')" -> "('emitter',)" [style=invis weight=10]
+	subgraph process_row_5 {
+		rank=same
+		"('emitter',)" [label=<emitter>]
+	}
 	edge [arrowhead=none penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [constraint=true dir=forward]
@@ -100,9 +130,9 @@ digraph bigraph {
 	edge [style=filled]
 	"('spatial_dfba',)" -> "('spatial_dfba', '[4,4]')" [constraint=true dir=forward]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
-		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
+		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -110,9 +140,9 @@ digraph bigraph {
 		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
-		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]

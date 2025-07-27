@@ -11,11 +11,21 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<acetate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'biomass')" [label=<biomass>]
+	subgraph state_row_0 {
+		rank=same
+	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('particles',)" [label=<particles>]
+	"('fields', 'biomass')" -> "('particles',)" [style=invis weight=10]
+	subgraph state_row_1 {
+		rank=same
+	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('diffusion',)" [label=<diffusion>]
-	"('emitter',)" [label=<emitter>]
+	subgraph process_row_0 {
+		rank=same
+		"('diffusion',)" [label=<diffusion>]
+		"('emitter',)" [label=<emitter>]
+	}
 	edge [arrowhead=none penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [constraint=true dir=forward]
@@ -24,9 +34,9 @@ digraph bigraph {
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'biomass')" [constraint=true dir=forward]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
-		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
+		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -34,9 +44,9 @@ digraph bigraph {
 		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
-		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields',)" [label=<fields> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
