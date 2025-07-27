@@ -1,6 +1,23 @@
+"""
+Simulation Runner and Visualizer for Spatio-Temporal Flux Processes
+
+This script defines a suite of modular simulation experiments involving dynamic
+spatial processes such as diffusion, advection, dynamic flux balance analysis (DFBA),
+and particle-based modeling, including hybrid and compositional scenarios. It provides
+functionality to generate simulation documents, run them using the Vivarium simulation
+framework, and produce a variety of plots and GIFs for visualization.
+
+Each experiment (e.g., 'dfba_single', 'comets', 'particle_dfba') has a corresponding
+document generator and plotting routine, allowing flexible execution and output analysis.
+
+Usage:
+    python <script_name>.py --tests dfba_single comets --output out/
+
+"""
 import argparse
 from pathlib import Path
 import shutil
+import numpy as np
 
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
@@ -20,6 +37,29 @@ from spatio_flux.processes import (
     get_particle_movement_state, get_minimal_particle_composition, get_dfba_particle_composition,
     get_particle_dfba_state, default_config, get_particle_comets_state
 )
+
+DEFAULT_BOUNDS = (5.0, 10.0)
+DEFAULT_BINS = (6, 12)
+DEFAULT_ADVECTION = (0, -0.1)
+DEFAULT_DIFFUSION = 0.1
+DEFAULT_ADD_PROBABILITY = 0.4
+DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
+DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
+
+DEFAULT_RUNTIME = 60
+
+SIMULATIONS = {
+    'dfba_single': {'time': DEFAULT_RUNTIME},
+    'dfba_spatial': {'time': DEFAULT_RUNTIME},
+    'diffusion_process': {'time': DEFAULT_RUNTIME},
+    'comets': {'time': DEFAULT_RUNTIME},
+    'particles': {'time': DEFAULT_RUNTIME},
+    'particle_comets': {'time': DEFAULT_RUNTIME},
+    'particle_dfba': {'time': DEFAULT_RUNTIME},
+}
+
+def reversed_bins(n_bins):
+    return tuple(reversed(n_bins))
 
 
 # ===================================================================
@@ -45,22 +85,22 @@ def plot_dfba_single(results, state):
 # --- DFBA Spatial ---------------------------------------------------
 
 def get_dfba_spatial_doc(core=None):
-    n_bins = (5, 5)
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
-    return get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+    return get_spatial_dfba_state(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids, initial_min_max=initial_min_max)
 
 def plot_dfba_spatial(results, state):
-    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='dfba_spatial_timeseries.png')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)],
+                     out_dir='out', filename='dfba_spatial_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='dfba_spatial_results.gif')
 
 # --- Diffusion Advection-----------------------------------------------
 
 def get_diffusion_process_doc(core=None):
-    bounds, n_bins = (10.0, 10.0), (10, 10)
     mol_ids = ['glucose', 'acetate', 'biomass']
-    advection_coeffs = {'biomass': (0, -0.1)}
-    return get_diffusion_advection_state(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs)
+    advection_coeffs = {'biomass': DEFAULT_ADVECTION}
+    return get_diffusion_advection_state(bounds=reversed_bins(DEFAULT_BOUNDS), n_bins=reversed_bins(DEFAULT_BINS),
+                                         mol_ids=mol_ids, advection_coeffs=advection_coeffs)
 
 def plot_diffusion_process(results, state):
     plot_species_distributions_to_gif(results, out_dir='out', filename='diffusion_process.gif')
@@ -68,11 +108,30 @@ def plot_diffusion_process(results, state):
 # --- COMETS -----------------------------------------------------------
 
 def get_comets_doc(core=None):
-    bounds, n_bins = (10.0, 10.0), (10, 10)
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
-    state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-    state['diffusion'] = get_diffusion_advection_process(bounds, n_bins, mol_ids)
+    advection_coeffs = {'biomass': DEFAULT_ADVECTION}
+
+    bins_x = DEFAULT_BINS[1]
+    bins_y = DEFAULT_BINS[0]
+
+    # Initialize acetate concentration across the grid to zero.
+    acetate_field = np.zeros((bins_x, bins_y))
+
+    # Generate a vertical glucose concentration gradient from 1 at the top to 0 at the bottom.
+    vertical_gradient = np.linspace(10, 0, bins_x).reshape(-1, 1)  # Create the gradient for a single column.
+    glc_field = np.repeat(vertical_gradient, bins_y, axis=1)  # Replicate the gradient across all columns.
+
+    # place some biomass
+    biomass_field = np.zeros((bins_x, bins_y))
+    biomass_field[0:2, :] = 1.0
+
+    initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
+    state = get_spatial_dfba_state(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids,
+                                   initial_fields=initial_fields,
+                                   initial_min_max=initial_min_max)
+    state['diffusion'] = get_diffusion_advection_process(mol_ids=mol_ids, advection_coeffs=advection_coeffs,
+        bounds=reversed_bins(DEFAULT_BOUNDS), n_bins=reversed_bins(DEFAULT_BINS))
     return state
 
 def plot_comets(results, state):
@@ -83,7 +142,8 @@ def plot_comets(results, state):
 # --- Particles -----------------------------------------------------------
 
 def get_particles_doc(core=None):
-    bounds = (10.0, 20.0)
+    initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
+    # Particle configuration
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
@@ -94,10 +154,9 @@ def get_particles_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_movement_state(bounds=bounds, n_bins=(10, 20), n_particles=1,
-                                        diffusion_rate=0.1, advection_rate=(0, -0.1),
-                                        add_probability=0.4,
-                                        initial_min_max={'glucose': (0.5, 2.0), 'detritus': (0, 0)})
+    state = get_particle_movement_state(n_particles=1, bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
+                                        diffusion_rate=DEFAULT_DIFFUSION, advection_rate=DEFAULT_ADVECTION,
+                                        add_probability=DEFAULT_ADD_PROBABILITY, initial_min_max=initial_min_max)
     return {'state': state, 'composition': get_minimal_particle_composition(core=core, config=particle_config)}
 
 def plot_particles_sim(results, state):
@@ -109,6 +168,7 @@ def plot_particles_sim(results, state):
 # --- Particle-COMETS ----------------------------------------------------
 
 def get_particle_comets_doc(core=None):
+    mol_ids = ['glucose', 'acetate', 'detritus', 'biomass']
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
@@ -119,7 +179,8 @@ def get_particle_comets_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_comets_state(mol_ids=['glucose', 'acetate', 'detritus', 'biomass'])
+    state = get_particle_comets_state(
+        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS, particle_advection_rate=DEFAULT_ADVECTION, mol_ids=mol_ids)
     return {'state': state, 'composition': get_minimal_particle_composition(core, config=particle_config)}
 
 def plot_particle_comets(results, state):
@@ -132,13 +193,15 @@ def plot_particle_comets(results, state):
 
 def get_particle_dfba_doc(core=None):
     mol_ids = ['glucose', 'acetate']
+    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
     state = get_particle_dfba_state(core,
                                     n_particles=2,
-                                    particle_add_probability=0.3,
-                                    particle_boundary_to_add=['top', 'bottom', 'left', 'right'],
-                                    particle_boundary_to_remove=['top', 'bottom', 'left', 'right'],
-                                    mol_ids=mol_ids,
-                                    initial_min_max={'glucose': (1, 10), 'acetate': (0, 0)})
+                                    bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
+                                    particle_add_probability=DEFAULT_ADD_PROBABILITY,
+                                    particle_boundary_to_add=DEFAULT_ADD_BOUNDARY,
+                                    particle_boundary_to_remove=DEFAULT_ADD_BOUNDARY,
+                                    particle_advection_rate=DEFAULT_ADVECTION,
+                                    mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {'state': state, 'composition': get_dfba_particle_composition()}
 
 def plot_particle_dfba(results, state):
@@ -174,17 +237,6 @@ PLOTTERS = {
     'particle_dfba': plot_particle_dfba,
 }
 
-DEFAULT_RUNTIME = 40
-SIMULATIONS = {
-    'dfba_single': {'time': DEFAULT_RUNTIME},
-    'dfba_spatial': {'time': DEFAULT_RUNTIME},
-    'diffusion_process': {'time': DEFAULT_RUNTIME},
-    'comets': {'time': DEFAULT_RUNTIME},
-    'particles': {'time': DEFAULT_RUNTIME},
-    'particle_comets': {'time': DEFAULT_RUNTIME},
-    'particle_dfba': {'time': DEFAULT_RUNTIME},
-}
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Run selected simulations.")
     parser.add_argument(
@@ -201,7 +253,7 @@ def prepare_output_dir(output_dir):
         print(f"🧹 Clearing existing output directory: {output_path}")
         shutil.rmtree(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
-    print(f"📁 Created fresh output directory: {output_path}")
+
 
 def generate_html_report(output_dir):
     report_file = 'report.html'
@@ -252,8 +304,6 @@ def generate_html_report(output_dir):
     report_path = output_dir / report_file
     with open(report_path, 'w') as f:
         f.write('\n'.join(html))
-
-    print(f"✅ Report generated at: {report_path}")
 
 
 def main():

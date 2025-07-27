@@ -49,7 +49,6 @@ def get_dfba_config(
         model_file="textbook",
         kinetic_params=None,
         substrate_update_reactions=None,
-        biomass_identifier="biomass",
         bounds=None
 ):
     if substrate_update_reactions is None:
@@ -68,7 +67,6 @@ def get_dfba_config(
         "model_file": model_file,
         "kinetic_params": kinetic_params,
         "substrate_update_reactions": substrate_update_reactions,
-        "biomass_identifier": biomass_identifier,
         "bounds": bounds
     }
 
@@ -129,11 +127,21 @@ def get_spatial_dfba_state(
         n_bins=(5, 5),
         mol_ids=None,
         initial_min_max=None,  # {mol_id: (min, max)}
+        initial_fields=None,   # {mol_id: np.ndarray or list of floats}
 ):
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
+    initial_fields = initial_fields or {}
+    for mol_id in mol_ids:
+        if mol_id not in initial_fields:
+            # if initial_fields is not provided, initialize with random values
+            minmax = initial_min_max.get(mol_id, (0, 1))
+            initial_fields[mol_id] = np.random.uniform(
+                low=minmax[0],
+                high=minmax[1],
+                size=n_bins
+            )
 
-    initial_fields = initialize_fields(n_bins=n_bins, initial_min_max=initial_min_max)
 
     return {
         "fields": {
