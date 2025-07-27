@@ -250,6 +250,7 @@ def plot_species_distributions_with_particles_to_gif(
         title='',
         skip_frames=1,
         bounds=(1.0, 1.0),
+        mass_scaling=10.0
 ):
     """Create a GIF showing spatial fields and particles over time."""
 
@@ -301,7 +302,7 @@ def plot_species_distributions_with_particles_to_gif(
 
             for particle in particles.values():
                 ax.scatter(particle['position'][0], particle['position'][1],
-                           s=particle['size'], color='b')
+                           s=particle['mass']*mass_scaling, color='b')
 
         else:
             # Ensure axs is a list of axes
@@ -320,7 +321,7 @@ def plot_species_distributions_with_particles_to_gif(
 
                 for particle in particles.values():
                     ax.scatter(particle['position'][0], particle['position'][1],
-                               s=particle['size'], color='b')
+                               s=particle['mass']*mass_scaling, color='b')
 
         fig.suptitle(title, fontsize=16)
         plt.subplots_adjust(wspace=0.1, hspace=0.1)
@@ -357,7 +358,8 @@ def plot_particles(
         history,
         out_dir=None,
         filename='multi_species_diffusion.gif',
-        fps=20
+        fps=20,
+        mass_scaling=10.0,
 ):
     """
     Plot particle movements and save the animation as a GIF.
@@ -387,7 +389,7 @@ def plot_particles(
 
         for particle_id, particle in particles.items():
             ax.scatter(particle['position'][0], particle['position'][1],
-                       s=particle['size']*particle['mass'], color='b')
+                       s=particle['mass']*mass_scaling, color='b')
 
         # Save the current figure to a temporary buffer
         buf = io.BytesIO()

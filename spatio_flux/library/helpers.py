@@ -84,7 +84,9 @@ def run_composite_document(document, time=None, core=None, name=None):
         schema=sim.composition,
         core=core,
         out_dir='out',
-        filename=f'{name}_viz'
+        filename=f'{name}_viz',
+        max_nodes_per_row=5,
+        dpi='300',
     )
 
     print('Simulating...')

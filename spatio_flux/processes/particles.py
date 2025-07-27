@@ -260,13 +260,11 @@ class MinimalParticle(Process):
             '_default': {
                 'grow': {
                     'vmax': 0.01,
-                    'coefficient': 2.0,
                     'reactant': 'glucose',
                     'product': 'mass',
                 },
                 'release': {
                     'vmax': 0.001,
-                    'coefficient': 1.0,
                     'reactant': 'mass',
                     'product': 'detritus',
                 }
@@ -302,15 +300,14 @@ class MinimalParticle(Process):
                 # raise ValueError(f"Reactant '{reactant}' not found in substrates or mass.")
             product = reaction['product']
             vmax = reaction['vmax']
-            coeff = reaction['coefficient']
 
             conc = mass if reactant == 'mass' else substrates.get(reactant, 0.0)
             rate = vmax * conc
 
             if reactant == 'mass':
-                mass_change -= rate * coeff
+                mass_change -= rate
             else:
-                exchanges[reactant] -= rate * coeff
+                exchanges[reactant] -= rate
 
             if product == 'mass':
                 mass_change += rate

@@ -102,13 +102,11 @@ def run_particles(total_time=60, core=None):
     particle_config = {
         'grow': {
             'vmax': 0.01,
-            'coefficient': 5.0,
             'reactant': 'glucose',
             'product': 'mass',
         },
         'release': {
             'vmax': 0.001,
-            'coefficient': 1.0,
             'reactant': 'mass',
             'product': 'detritus',
         }
@@ -136,13 +134,11 @@ def run_particle_comets(total_time=60, core=None):
     particle_config = {
         'grow': {
             'vmax': 0.01,
-            'coefficient': 5.0,
             'reactant': 'glucose',
             'product': 'mass',
         },
         'release': {
             'vmax': 0.001,
-            'coefficient': 1.0,
             'reactant': 'mass',
             'product': 'detritus',
         }
