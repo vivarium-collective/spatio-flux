@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from bigraph_viz import plot_bigraph
-from process_bigraph import Composite, default
+from process_bigraph import Composite, default, register_types as register_process_types
 from process_bigraph.emitter import emitter_from_wires, gather_emitter_results
 from vivarium.vivarium import VivariumTypes
 
@@ -194,6 +194,7 @@ def run_particles_dfba(total_time=60, core=None):
 
 if __name__ == '__main__':
     core = VivariumTypes()
+    core = register_process_types(core)
     core = register_types(core)
 
     run_dfba_single(core=core)
