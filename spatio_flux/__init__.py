@@ -14,7 +14,6 @@ from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gi
 
 
 
-
 class SpatioFluxVivarium(Vivarium):
     def __init__(self,
                  document=None,

@@ -9,6 +9,7 @@ import base64
 import numpy as np
 from process_bigraph import Process, default
 from spatio_flux.processes.dfba import dfba_config
+from spatio_flux.library.functions import initialize_fields
 
 
 def get_bin_position(position, n_bins, env_size):
@@ -363,7 +364,7 @@ class MinimalParticle(Process):
             return vmax  # Secretion value is directly proportional to vmax
 
         # Process each field interaction
-        for field, interaction_params in self.config['field_interactions'].items():
+        for field, interaction_params in self.config['particle_field_interactions'].items():
             local_field_value = substrates_input.get(field, 0)
             vmax = interaction_params['vmax']
             Km = interaction_params.get('Km', 1)  # Default Km to 1 if not specified
@@ -407,6 +408,7 @@ def get_particles_spec(
             'fields': ['fields']}}
 
 
+
 def get_particles_state(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
@@ -415,23 +417,11 @@ def get_particles_state(
         advection_rate=(0, -0.1),
         boundary_to_add=None,
         add_probability=0.4,
-        field_interactions=None,
         initial_min_max=None,
-        core=None,
 ):
     if boundary_to_add is None:
         boundary_to_add = ['top']
-
-    if initial_min_max is None:
-        initial_min_max = {
-            'biomass': (0.5, 2.0),
-            'detritus': (0, 0),
-        }
-
-    # initialize fields
-    fields = {}
-    for field, minmax in initial_min_max.items():
-        fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
+    fields = initialize_fields(n_bins, initial_min_max)
 
     # initialize particles
     # TODO -- this needs to be a static method??
@@ -440,7 +430,9 @@ def get_particles_state(
             'n_particles': n_particles,
             'n_bins': n_bins,
             'bounds': bounds,
-            'fields': fields})
+            # 'fields': fields
+        }
+    )
 
     return {
         'fields': fields,

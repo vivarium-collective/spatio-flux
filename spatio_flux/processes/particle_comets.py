@@ -29,7 +29,7 @@ default_config = {
     'particle_advection_rate': (0, -0.1),
     'particle_add_probability': 0.3,
     'particle_boundary_to_add': ['top'],
-    'field_interactions': {
+    'particle_field_interactions': {
         'biomass': {
             'vmax': 0.1,
             'Km': 1.0,
@@ -55,14 +55,14 @@ def get_particle_comets_state(
         particle_advection_rate=(0, 0),
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
-        field_interactions=None,
+        particle_field_interactions=None,
         initial_min_max=None,
 ):
     particle_boundary_to_add = particle_boundary_to_add or default_config['particle_boundary_to_add']
     mol_ids = mol_ids or default_config['mol_ids']
-    field_interactions = field_interactions or default_config['field_interactions']
+    particle_field_interactions = particle_field_interactions or default_config['particle_field_interactions']
     initial_min_max = initial_min_max or default_config['initial_min_max']
-    for mol_id in field_interactions.keys():
+    for mol_id in particle_field_interactions.keys():
         if mol_id not in mol_ids:
             mol_ids.append(mol_id)
         if mol_id not in initial_min_max:
@@ -108,7 +108,7 @@ def get_particle_comets_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
-        # field_interactions=field_interactions,
+        particle_field_interactions=particle_field_interactions,
     )
 
     return composite_state

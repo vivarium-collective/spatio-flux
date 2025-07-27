@@ -7,11 +7,10 @@ Process for a pluggable dFBA simulation.
 
 import warnings
 
-import numpy as np
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
-from spatio_flux.viz.plot import plot_time_series, plot_species_distributions_to_gif
+from spatio_flux.library.functions import initialize_fields
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
@@ -198,14 +197,8 @@ def get_spatial_dfba_state(
 ):
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
-    if initial_min_max is None:
-        initial_min_max = {"glucose": (0, 20), "acetate": (0,0 ), "biomass": (0, 0.1)}
 
-    initial_fields = {
-        mol_id: np.random.uniform(low=initial_min_max[mol_id][0],
-                                  high=initial_min_max[mol_id][1],
-                                  size=n_bins)
-        for mol_id in mol_ids}
+    initial_fields = initialize_fields(n_bins=n_bins, initial_min_max=initial_min_max)
 
     return {
         "fields": {

@@ -6,6 +6,7 @@ from process_bigraph.emitter import emitter_from_wires, gather_emitter_results
 from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
+from spatio_flux.library.functions import initialize_fields
 from spatio_flux.viz.plot import (
     plot_time_series,
     plot_species_distributions_to_gif,
@@ -107,9 +108,10 @@ def run_dfba_single(total_time=60, core=None):
 
 
 def run_dfba_spatial(total_time=60, core=None):
-    n_bins = (3, 3)
+    n_bins = (5, 5)
     mol_ids = ['glucose', 'acetate', 'biomass']
-    state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids)
+    initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
+    state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # run the composite document
     results = run_composite_document(document=state, time=total_time, core=core, name='spatial_dfba')
@@ -121,10 +123,12 @@ def run_dfba_spatial(total_time=60, core=None):
 
 def run_diffusion_process(total_time=60, core=None):
     bounds, n_bins = (10.0, 10.0), (10, 10)
+    mol_ids = ['glucose', 'acetate', 'biomass']
+    advection_coeffs = {'biomass': (0, -0.1)}
     state = get_diffusion_advection_state(
         bounds=bounds, n_bins=n_bins,
-        mol_ids=['glucose', 'acetate', 'biomass'],
-        advection_coeffs={'biomass': (0, -0.1)}
+        mol_ids=mol_ids,
+        advection_coeffs=advection_coeffs
     )
 
     # run the composite document
@@ -136,11 +140,19 @@ def run_diffusion_process(total_time=60, core=None):
 
 def run_particles(total_time=60, core=None):
     bounds = (10.0, 20.0)
+    initial_min_max = {
+        'biomass': (0.5, 2.0),
+        'detritus': (0, 0),
+    }
     state = get_particles_state(
-        core=core, bounds=bounds, n_bins=(10, 20),
-        n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4
+        bounds=bounds, n_bins=(10, 20),
+        n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4,
+        initial_min_max=initial_min_max
     )
-    doc = {'state': state, 'composition': get_minimal_particle_composition(core)}
+    doc = {
+        'state': state,
+        'composition': get_minimal_particle_composition(core)
+    }
 
     # run the composite document
     results = run_composite_document(doc, time=total_time, core=core, name='particles')
@@ -180,8 +192,14 @@ def run_particle_comets(total_time=60, core=None):
 
 
 def run_particles_dfba(total_time=60, core=None):
-    state = get_particles_dfba_state(core)
-    doc = {'composition': get_dfba_particle_composition(), 'state': state}
+    mol_ids = default_config['mol_ids']
+    state = get_particles_dfba_state(
+        core,
+        mol_ids=mol_ids)
+    doc = {
+        'state': state,
+        'composition': get_dfba_particle_composition(),
+    }
 
     # run the composite document
     results = run_composite_document(doc, time=total_time, core=core, name='particles_dfba')
