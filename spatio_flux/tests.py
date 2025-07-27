@@ -174,14 +174,15 @@ PLOTTERS = {
     'particle_dfba': plot_particle_dfba,
 }
 
+DEFAULT_RUNTIME = 40
 SIMULATIONS = {
-    'dfba_single': {'time': 60},
-    'dfba_spatial': {'time': 60},
-    'diffusion_process': {'time': 60},
-    'comets': {'time': 60},
-    'particles': {'time': 60},
-    'particle_comets': {'time': 60},
-    'particle_dfba': {'time': 60},
+    'dfba_single': {'time': DEFAULT_RUNTIME},
+    'dfba_spatial': {'time': DEFAULT_RUNTIME},
+    'diffusion_process': {'time': DEFAULT_RUNTIME},
+    'comets': {'time': DEFAULT_RUNTIME},
+    'particles': {'time': DEFAULT_RUNTIME},
+    'particle_comets': {'time': DEFAULT_RUNTIME},
+    'particle_dfba': {'time': DEFAULT_RUNTIME},
 }
 
 def parse_args():
