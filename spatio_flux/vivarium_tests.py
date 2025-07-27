@@ -1,7 +1,7 @@
 
 import numpy as np
 from spatio_flux import SpatioFluxVivarium
-from spatio_flux.processes.particles import get_minimal_particle_composition
+from spatio_flux.processes import get_minimal_particle_composition
 
 
 def run_vivarium_particles():

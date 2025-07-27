@@ -4,12 +4,11 @@ Particles process
 
 A process for simulating the motion of particles in a 2D environment.
 """
-import uuid
 import base64
+import uuid
+
 import numpy as np
 from process_bigraph import Process, default
-from spatio_flux.processes.dfba import dfba_config
-from spatio_flux.library.helpers import initialize_fields
 
 
 def get_bin_position(position, n_bins, env_size):
@@ -28,6 +27,7 @@ def get_bin_position(position, n_bins, env_size):
 
     return x_bin, y_bin
 
+
 def get_local_field_values(fields, column, row):
     """
     Retrieve local field values for a particle based on its position.
@@ -44,6 +44,12 @@ def get_local_field_values(fields, column, row):
         local_values[mol_id] = field[column, row]
 
     return local_values
+
+
+def short_id():
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')
+
+
 
 def generate_single_particle_state(config=None):
     """
@@ -72,8 +78,6 @@ def generate_single_particle_state(config=None):
         'exchange': exchanges
     }
 
-def short_id():
-    return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')
 
 class Particles(Process):
     config_schema = {
@@ -381,118 +385,3 @@ class MinimalParticle(Process):
         return {
             'substrates': exchanges
         }
-
-
-# Helper functions to get specs and states
-def get_particles_spec(
-        n_bins=(20, 20),
-        bounds=(10.0, 10.0),
-        diffusion_rate=1e-1,
-        advection_rate=(0, 0),
-        add_probability=0.0,
-        boundary_to_add=['top'],
-):
-    config = locals()
-    # Remove any key-value pair where the value is None
-    config = {key: value for key, value in config.items() if value is not None}
-
-    return {
-        '_type': 'process',
-        'address': 'local:Particles',
-        'config': config,
-        'inputs': {
-            'particles': ['particles'],
-            'fields': ['fields']},
-        'outputs': {
-            'particles': ['particles'],
-            'fields': ['fields']}}
-
-
-
-def get_particles_state(
-        n_bins=(20, 20),
-        bounds=(10.0, 10.0),
-        n_particles=15,
-        diffusion_rate=0.1,
-        advection_rate=(0, -0.1),
-        boundary_to_add=None,
-        add_probability=0.4,
-        initial_min_max=None,
-):
-    if boundary_to_add is None:
-        boundary_to_add = ['top']
-    fields = initialize_fields(n_bins, initial_min_max)
-
-    # initialize particles
-    # TODO -- this needs to be a static method??
-    particles = Particles.generate_state(
-        config={
-            'n_particles': n_particles,
-            'n_bins': n_bins,
-            'bounds': bounds,
-            # 'fields': fields
-        }
-    )
-
-    return {
-        'fields': fields,
-        'particles': particles['particles'],
-        'particle_movement': get_particles_spec(
-            n_bins=n_bins,
-            bounds=bounds,
-            diffusion_rate=diffusion_rate,
-            advection_rate=advection_rate,
-            add_probability=add_probability,
-            boundary_to_add=boundary_to_add,
-        )
-    }
-
-
-def get_minimal_particle_composition(core, config=None):
-    config = config or core.default(MinimalParticle.config_schema)
-    return {
-        'particles': {
-            '_type': 'map',
-            '_value': {
-                # '_inherit': 'particle',
-                'minimal_particle': {
-                    '_type': 'process',
-                    'address': default('string', 'local:MinimalParticle'),
-                    'config': default('quote', config),
-                    '_inputs': {
-                        'mass': 'float',
-                        'substrates': 'map[positive_float]'
-                    },
-                    '_outputs':  {
-                        'mass': 'float',
-                        'substrates': 'map[float]'
-                    },
-                    'inputs': default(
-                        'tree[wires]', {
-                            'mass': ['mass'],
-                            'substrates': ['local']}),
-                    'outputs': default(
-                        'tree[wires]', {
-                            'mass': ['mass'],
-                            'substrates': ['exchange']})
-                }
-            }
-        }
-    }
-
-def get_dfba_particle_composition(core=None, config=None):
-    config = config or dfba_config()
-    return {
-        'particles': {
-            '_type': 'map',
-            '_value': {
-                'dFBA': {
-                    '_type': 'process',
-                    'address': default('string', 'local:DynamicFBA'),
-                    'config': default('quote', config),
-                    'inputs': default('tree[wires]', {'substrates': ['local']}),
-                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
-                }
-            }
-        }
-    }

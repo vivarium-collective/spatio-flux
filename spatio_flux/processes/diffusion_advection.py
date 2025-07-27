@@ -6,9 +6,7 @@ This process is a simple 2D diffusion-advection process. It takes a 2D field as 
 """
 import numpy as np
 from scipy.ndimage import convolve
-from process_bigraph import Process, Composite
-from spatio_flux.viz.plot import plot_species_distributions_to_gif
-
+from process_bigraph import Process
 
 # Laplacian for 2D diffusion
 LAPLACIAN_2D = np.array([[0, 1, 0],
@@ -127,94 +125,3 @@ class DiffusionAdvection(Process):
             t += dt
 
         return updated_state - state
-
-
-# Helper functions to get specs and states
-def get_diffusion_advection_spec(
-        bounds=(10.0, 10.0),
-        n_bins=(5, 5),
-        mol_ids=None,
-        default_diffusion_rate=1e-1,
-        default_advection_rate=(0, 0),
-        diffusion_coeffs=None,
-        advection_coeffs=None,
-):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
-    if diffusion_coeffs is None:
-        diffusion_coeffs = {}
-    if advection_coeffs is None:
-        advection_coeffs = {}
-
-    # fill in the missing diffusion and advection rates
-    diffusion_coeffs_all = {
-        mol_id: diffusion_coeffs.get(mol_id, default_diffusion_rate)
-        for mol_id in mol_ids
-    }
-    advection_coeffs_all = {
-        mol_id: advection_coeffs.get(mol_id, default_advection_rate)
-        for mol_id in mol_ids
-    }
-
-    return {
-            '_type': 'process',
-            'address': 'local:DiffusionAdvection',
-            'config': {
-                'n_bins': n_bins,
-                'bounds': bounds,
-                'default_diffusion_rate': 1e-1,
-                'default_diffusion_dt': 1e-1,
-                'diffusion_coeffs': diffusion_coeffs_all,
-                'advection_coeffs': advection_coeffs_all,
-            },
-            'inputs': {
-                'fields': ['fields']
-            },
-            'outputs': {
-                'fields': ['fields']
-            }
-        }
-
-
-def get_diffusion_advection_state(
-        bounds=(10.0, 10.0),
-        n_bins=(5, 5),
-        mol_ids=None,
-        initial_max=None,
-        default_diffusion_rate=1e-1,
-        default_advection_rate=(0, 0),
-        diffusion_coeffs=None,
-        advection_coeffs=None,
-):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
-    if initial_max is None:
-        initial_max = {
-            'glucose': 20,
-            'acetate': 0,
-            'biomass': 0.1
-        }
-    initial_fields = {
-        mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
-        for mol_id in mol_ids}
-
-    return {
-        'fields': {
-            '_type': 'map',
-            '_value': {
-                '_type': 'array',
-                '_shape': n_bins,
-                '_data': 'positive_float'
-            },
-            **initial_fields,
-        },
-        'diffusion': get_diffusion_advection_spec(
-            bounds=bounds,
-            n_bins=n_bins,
-            mol_ids=mol_ids,
-            default_diffusion_rate=default_diffusion_rate,
-            default_advection_rate=default_advection_rate,
-            diffusion_coeffs=diffusion_coeffs,
-            advection_coeffs=advection_coeffs,
-        ),
-    }

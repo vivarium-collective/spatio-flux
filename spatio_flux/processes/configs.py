@@ -1,8 +1,9 @@
 import numpy as np
 
-from spatio_flux.processes.dfba import get_spatial_dfba_state
-from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec
-from spatio_flux.processes.particles import get_particles_spec, Particles
+from process_bigraph import default
+from spatio_flux.library.helpers import initialize_fields
+from spatio_flux.processes import MinimalParticle
+from spatio_flux.processes.particles import Particles
 
 
 default_config = {
@@ -172,3 +173,318 @@ def get_particles_dfba_state(
     )
 
     return composite_state
+
+
+def dfba_config(
+        model_file="textbook",
+        kinetic_params=None,
+        substrate_update_reactions=None,
+        biomass_identifier="biomass",
+        bounds=None
+):
+    if substrate_update_reactions is None:
+        substrate_update_reactions = {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"}
+    if bounds is None:
+        bounds = {
+            "EX_o2_e": {"lower": -2, "upper": None},
+            "ATPM": {"lower": 1, "upper": 1}}
+    if kinetic_params is None:
+        kinetic_params = {
+            "glucose": (0.5, 1),
+            "acetate": (0.5, 2)}
+    return {
+        "model_file": model_file,
+        "kinetic_params": kinetic_params,
+        "substrate_update_reactions": substrate_update_reactions,
+        "biomass_identifier": biomass_identifier,
+        "bounds": bounds
+    }
+
+
+def build_path(base_path, mol_id, i=None, j=None):
+    """
+    Constructs a path list for a molecule, optionally appending indices.
+
+    Parameters:
+        base_path (list of str): The base path prefix (e.g., ["..", "fields"]).
+        mol_id (str): The molecule ID to insert in the path.
+        i (int, optional): First index to append, if provided.
+        j (int, optional): Second index to append, if provided.
+
+    Returns:
+        list: The full path as a list of path elements.
+    """
+    full_path = base_path + [mol_id]
+    if i is not None:
+        full_path.append(i)
+    if j is not None:
+        full_path.append(j)
+    return full_path
+
+
+def get_single_dfba_spec(
+        model_file="textbook",
+        mol_ids=None,
+        path=None,
+        i=None,
+        j=None,
+):
+    """
+    Constructs a configuration dictionary for a dynamic FBA process with optional path indices.
+    """
+    if path is None:
+        path = ["..", "fields"]
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate", "biomass"]
+
+    return {
+        "_type": "process",
+        "address": "local:DynamicFBA",
+        "config": dfba_config(model_file=model_file),
+        "inputs": {
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
+        },
+        "outputs": {
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
+        }
+    }
+
+
+def get_spatial_dfba_spec(n_bins=(5, 5), mol_ids=None):
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate", "biomass"]
+    dfba_processes_dict = {}
+    for i in range(n_bins[0]):
+        for j in range(n_bins[1]):
+            dfba_processes_dict[f"[{i},{j}]"] = get_single_dfba_spec(mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
+    return dfba_processes_dict
+
+
+def get_spatial_dfba_state(
+        n_bins=(5, 5),
+        mol_ids=None,
+        initial_min_max=None,  # {mol_id: (min, max)}
+):
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate", "biomass"]
+
+    initial_fields = initialize_fields(n_bins=n_bins, initial_min_max=initial_min_max)
+
+    return {
+        "fields": {
+            "_type": "map",
+            "_value": {
+                "_type": "array",
+                "_shape": n_bins,
+                "_data": "positive_float"
+            },
+            **initial_fields,
+        },
+        "spatial_dfba": get_spatial_dfba_spec(n_bins=n_bins, mol_ids=mol_ids)
+    }
+
+
+def get_diffusion_advection_spec(
+        bounds=(10.0, 10.0),
+        n_bins=(5, 5),
+        mol_ids=None,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
+):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    if diffusion_coeffs is None:
+        diffusion_coeffs = {}
+    if advection_coeffs is None:
+        advection_coeffs = {}
+
+    # fill in the missing diffusion and advection rates
+    diffusion_coeffs_all = {
+        mol_id: diffusion_coeffs.get(mol_id, default_diffusion_rate)
+        for mol_id in mol_ids
+    }
+    advection_coeffs_all = {
+        mol_id: advection_coeffs.get(mol_id, default_advection_rate)
+        for mol_id in mol_ids
+    }
+
+    return {
+            '_type': 'process',
+            'address': 'local:DiffusionAdvection',
+            'config': {
+                'n_bins': n_bins,
+                'bounds': bounds,
+                'default_diffusion_rate': 1e-1,
+                'default_diffusion_dt': 1e-1,
+                'diffusion_coeffs': diffusion_coeffs_all,
+                'advection_coeffs': advection_coeffs_all,
+            },
+            'inputs': {
+                'fields': ['fields']
+            },
+            'outputs': {
+                'fields': ['fields']
+            }
+        }
+
+
+def get_diffusion_advection_state(
+        bounds=(10.0, 10.0),
+        n_bins=(5, 5),
+        mol_ids=None,
+        initial_max=None,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
+):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'biomass']
+    if initial_max is None:
+        initial_max = {
+            'glucose': 20,
+            'acetate': 0,
+            'biomass': 0.1
+        }
+    initial_fields = {
+        mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
+        for mol_id in mol_ids}
+
+    return {
+        'fields': {
+            '_type': 'map',
+            '_value': {
+                '_type': 'array',
+                '_shape': n_bins,
+                '_data': 'positive_float'
+            },
+            **initial_fields,
+        },
+        'diffusion': get_diffusion_advection_spec(
+            bounds=bounds,
+            n_bins=n_bins,
+            mol_ids=mol_ids,
+            default_diffusion_rate=default_diffusion_rate,
+            default_advection_rate=default_advection_rate,
+            diffusion_coeffs=diffusion_coeffs,
+            advection_coeffs=advection_coeffs,
+        ),
+    }
+
+
+def get_particles_spec(
+        n_bins=(20, 20),
+        bounds=(10.0, 10.0),
+        diffusion_rate=1e-1,
+        advection_rate=(0, 0),
+        add_probability=0.0,
+        boundary_to_add=['top'],
+):
+    config = locals()
+    # Remove any key-value pair where the value is None
+    config = {key: value for key, value in config.items() if value is not None}
+
+    return {
+        '_type': 'process',
+        'address': 'local:Particles',
+        'config': config,
+        'inputs': {
+            'particles': ['particles'],
+            'fields': ['fields']},
+        'outputs': {
+            'particles': ['particles'],
+            'fields': ['fields']}}
+
+
+def get_particles_state(
+        n_bins=(20, 20),
+        bounds=(10.0, 10.0),
+        n_particles=15,
+        diffusion_rate=0.1,
+        advection_rate=(0, -0.1),
+        boundary_to_add=None,
+        add_probability=0.4,
+        initial_min_max=None,
+):
+    if boundary_to_add is None:
+        boundary_to_add = ['top']
+    fields = initialize_fields(n_bins, initial_min_max)
+
+    # initialize particles
+    # TODO -- this needs to be a static method??
+    particles = Particles.generate_state(
+        config={
+            'n_particles': n_particles,
+            'n_bins': n_bins,
+            'bounds': bounds,
+            # 'fields': fields
+        }
+    )
+
+    return {
+        'fields': fields,
+        'particles': particles['particles'],
+        'particle_movement': get_particles_spec(
+            n_bins=n_bins,
+            bounds=bounds,
+            diffusion_rate=diffusion_rate,
+            advection_rate=advection_rate,
+            add_probability=add_probability,
+            boundary_to_add=boundary_to_add,
+        )
+    }
+
+
+def get_minimal_particle_composition(core, config=None):
+    config = config or core.default(MinimalParticle.config_schema)
+    return {
+        'particles': {
+            '_type': 'map',
+            '_value': {
+                # '_inherit': 'particle',
+                'minimal_particle': {
+                    '_type': 'process',
+                    'address': default('string', 'local:MinimalParticle'),
+                    'config': default('quote', config),
+                    '_inputs': {
+                        'mass': 'float',
+                        'substrates': 'map[positive_float]'
+                    },
+                    '_outputs':  {
+                        'mass': 'float',
+                        'substrates': 'map[float]'
+                    },
+                    'inputs': default(
+                        'tree[wires]', {
+                            'mass': ['mass'],
+                            'substrates': ['local']}),
+                    'outputs': default(
+                        'tree[wires]', {
+                            'mass': ['mass'],
+                            'substrates': ['exchange']})
+                }
+            }
+        }
+    }
+
+
+def get_dfba_particle_composition(core=None, config=None):
+    config = config or dfba_config()
+    return {
+        'particles': {
+            '_type': 'map',
+            '_value': {
+                'dFBA': {
+                    '_type': 'process',
+                    'address': default('string', 'local:DynamicFBA'),
+                    'config': default('quote', config),
+                    'inputs': default('tree[wires]', {'substrates': ['local']}),
+                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
+                }
+            }
+        }
+    }
