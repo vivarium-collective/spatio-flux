@@ -56,6 +56,10 @@ def run_composite_document(document, time=None, core=None, name=None):
         date = datetime.now().strftime('%Y%m%d_%H%M%S')
         name = f'spatio_flux_{date}'
 
+    document = {'state': document} if 'state' not in document else document
+    if 'emitter' not in document['state']:
+        document['state']['emitter'] = get_standard_emitter()
+
     print('Making the composite...')
     sim = Composite(document, core=core)
 
@@ -73,7 +77,8 @@ def run_composite_document(document, time=None, core=None, name=None):
 
     print('Simulating...')
     sim.run(time)
-    return gather_emitter_results(sim)
+    results = gather_emitter_results(sim)
+    return results[('emitter',)]
 
 
 # =====================
@@ -82,11 +87,8 @@ def run_composite_document(document, time=None, core=None, name=None):
 
 def run_dfba_single(total_time=60, core=None):
     doc = {
-        'state': {
-            'dfba': get_single_dfba_spec(path=['fields']),
-            'fields': {'glucose': 10, 'acetate': 0, 'biomass': 0.1},
-            'emitter': get_standard_emitter(),
-        }
+        'dfba': get_single_dfba_spec(path=['fields']),
+        'fields': {'glucose': 10, 'acetate': 0, 'biomass': 0.1},
     }
 
     # run the composite document
@@ -100,10 +102,9 @@ def run_dfba_spatial(total_time=60, core=None):
     n_bins = (3, 3)
     mol_ids = ['glucose', 'acetate', 'biomass']
     state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids)
-    state['emitter'] = get_standard_emitter()
 
     # run the composite document
-    results = run_composite_document({'state': state}, time=total_time, core=core, name='spatial_dfba')
+    results = run_composite_document(document=state, time=total_time, core=core, name='spatial_dfba')
 
     # plotting
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_dfba_timeseries.png')
@@ -117,10 +118,9 @@ def run_diffusion_process(total_time=60, core=None):
         mol_ids=['glucose', 'acetate', 'biomass'],
         advection_coeffs={'biomass': (0, -0.1)}
     )
-    state['emitter'] = get_standard_emitter()
 
     # run the composite document
-    results = run_composite_document({'state': state}, time=total_time, core=core, name='diff_advec')
+    results = run_composite_document(state, time=total_time, core=core, name='diff_advec')
 
     # plotting
     plot_species_distributions_to_gif(results, out_dir='out', filename='diff_advec_results.gif')
@@ -132,14 +132,13 @@ def run_particles(total_time=60, core=None):
         core=core, bounds=bounds, n_bins=(10, 20),
         n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4
     )
-    state['emitter'] = get_standard_emitter()
     doc = {'state': state, 'composition': get_minimal_particle_composition(core)}
 
     # run the composite document
     results = run_composite_document(doc, time=total_time, core=core, name='particles')
 
     # plotting
-    history = [step['particles'] for step in results[('emitter',)]]
+    history = [step['particles'] for step in results]
     plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_with_fields.gif', bounds=bounds)
 
@@ -150,10 +149,9 @@ def run_comets(total_time=60, core=None):
     initial_min_max = default_config['initial_min_max']
     state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     state['diffusion'] = get_diffusion_advection_spec(bounds, n_bins, mol_ids)
-    state['emitter'] = get_standard_emitter()
 
     # run the composite document
-    results = run_composite_document({'state': state}, time=total_time, core=core, name='comets')
+    results = run_composite_document(state, time=total_time, core=core, name='comets')
 
     # plotting
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
@@ -162,7 +160,6 @@ def run_comets(total_time=60, core=None):
 
 def run_particle_comets(total_time=60, core=None):
     state = get_particle_comets_state()
-    state['emitter'] = get_standard_emitter()
     doc = {'composition': get_minimal_particle_composition(core), 'state': state}
 
     # run the composite document
@@ -176,7 +173,6 @@ def run_particle_comets(total_time=60, core=None):
 
 def run_particles_dfba(total_time=60, core=None):
     state = get_particles_dfba_state(core)
-    state['emitter'] = get_standard_emitter()
     doc = {'composition': get_dfba_particle_composition(), 'state': state}
 
     # run the composite document
