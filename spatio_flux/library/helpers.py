@@ -46,7 +46,7 @@ def get_standard_emitter():
     })
 
 
-def run_composite_document(document, time=None, core=None, name=None):
+def run_composite_document(document, core=None, name=None, time=None):
     """
     Instantiates and runs a Composite simulation.
 

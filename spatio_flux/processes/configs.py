@@ -396,7 +396,7 @@ def get_particle_comets_state(
         })
 
     composite_state['particles'] = particles['particles']
-    composite_state['particles_process'] = get_particle_movement_process_state(
+    composite_state['particle_movement'] = get_particle_movement_process_state(
         n_bins=n_bins,
         bounds=bounds,
         diffusion_rate=particle_diffusion_rate,
@@ -461,7 +461,7 @@ def get_particles_dfba_state(
 
     composite_state['fields'] = fields
     composite_state['particles'] = particles['particles']
-    composite_state['particles_process'] = get_particle_movement_process_state(
+    composite_state['particle_movement'] = get_particle_movement_process_state(
         n_bins=n_bins,
         bounds=bounds,
         diffusion_rate=particle_diffusion_rate,
