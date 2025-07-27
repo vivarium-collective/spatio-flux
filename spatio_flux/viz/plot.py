@@ -320,8 +320,11 @@ def plot_species_distributions_with_particles_to_gif(
                 plt.colorbar(im, ax=ax)
 
                 for particle in particles.values():
-                    ax.scatter(particle['position'][0], particle['position'][1],
-                               s=particle['mass']*mass_scaling, color='b')
+                    # ax.scatter(particle['position'][0], particle['position'][1],
+                    #            s=particle['mass']*mass_scaling, color='b')
+                    x, y = particle['position']
+                    if 0 <= x <= xmax and 0 <= y <= ymax:
+                        ax.scatter(x, y, s=particle['mass'] * mass_scaling, color='b')
 
         fig.suptitle(title, fontsize=16)
         plt.subplots_adjust(wspace=0.1, hspace=0.1)

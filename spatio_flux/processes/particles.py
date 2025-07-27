@@ -92,7 +92,7 @@ class Particles(Process):
         'add_probability': 'float', # TODO -- make probability type
 
         # which boundaries to add particles
-        'boundary_to_add': default('list[boundary_side]', ['left', 'right']),
+        'boundary_to_add': default('list[boundary_side]', ['top']),
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom'])
     }
 
@@ -189,6 +189,21 @@ class Particles(Process):
             if self.check_boundary_hit(new_x_position, new_y_position):
                 new_particles['_remove'].append(particle_id)
                 continue  # Remove particle if it hits a boundary
+            # clip if hit a boundary
+            elif (
+                    new_x_position < self.env_size[0][0]
+                    or new_x_position > self.env_size[0][1]
+                    or new_y_position < self.env_size[1][0]
+                    or new_y_position > self.env_size[1][1]
+            ):
+                buffer= 0.01
+                buffer_x1 = self.env_size[0][0] + self.env_size[0][1]* buffer
+                buffer_x2 = self.env_size[0][1] - self.env_size[0][1]* buffer
+                buffer_y1 = self.env_size[1][0] + self.env_size[1][1]* buffer
+                buffer_y2 = self.env_size[1][1] - self.env_size[1][1]* buffer
+                new_x_position = np.clip(new_x_position, buffer_x1, buffer_x2)
+                new_y_position = np.clip(new_y_position, buffer_y1, buffer_y2)
+                print(f'new position: ({new_x_position}, {new_y_position})')
 
             new_position = (new_x_position, new_y_position)
             updated_particle['position'] = (dx, dy) # new_position
@@ -202,7 +217,9 @@ class Particles(Process):
             # Apply exchanges to fields and reset
             exchange = particle['exchange']
 
-            print(f'particle {particle_id} exchange: {exchange}')
+
+            # print(f'particle {particle_id} exchange: {exchange}')
+
             for mol_id, exchange_rate in exchange.items():
                 new_fields[mol_id][x, y] += exchange_rate
                 updated_particle['exchange'][mol_id] = 0.0

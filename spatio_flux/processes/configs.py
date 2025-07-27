@@ -25,6 +25,7 @@ default_config = {
     'particle_advection_rate': (0, -0.1),
     'particle_add_probability': 0.3,
     'particle_boundary_to_add': ['top'],
+    'particle_boundary_to_remove': ['top', 'bottom', 'left', 'right'],
     'particle_field_interactions': {
         'glucose': {
             'vmax': 0.1,
@@ -248,6 +249,7 @@ def get_particle_movement_process_state(
         advection_rate=(0, 0),
         add_probability=0.0,
         boundary_to_add=['top'],
+        boundary_to_remove=['top', 'bottom', 'left', 'right'],
 ):
     config = locals()
     # Remove any key-value pair where the value is None
@@ -354,9 +356,11 @@ def get_particle_comets_state(
         particle_advection_rate=(0, 0),
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
+        particle_boundary_to_remove=None,
         initial_min_max=None,
 ):
     particle_boundary_to_add = particle_boundary_to_add or default_config['particle_boundary_to_add']
+    particle_boundary_to_remove = particle_boundary_to_remove or default_config['particle_boundary_to_remove']
     mol_ids = mol_ids or default_config['mol_ids']
     initial_min_max = initial_min_max or default_config['initial_min_max']
 
@@ -399,6 +403,7 @@ def get_particle_comets_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
+        boundary_to_remove=particle_boundary_to_remove,
     )
 
     return composite_state
@@ -416,10 +421,15 @@ def get_particles_dfba_state(
         particle_advection_rate=(0, 0),
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
+        particle_boundary_to_remove=None,
         particle_field_interactions=None,
         initial_min_max=None,
 ):
-    particle_boundary_to_add = particle_boundary_to_add or default_config['particle_boundary_to_add']
+    # check if particle_boundary is None, but empty list is ok
+    if particle_boundary_to_add is None or not isinstance(particle_boundary_to_add, list):
+        particle_boundary_to_add = default_config['particle_boundary_to_add']
+    if particle_boundary_to_remove is None or not isinstance(particle_boundary_to_remove, list):
+        particle_boundary_to_remove = default_config['particle_boundary_to_remove']
     mol_ids = mol_ids or default_config['mol_ids']
     particle_field_interactions = particle_field_interactions or default_config['particle_field_interactions']
     initial_min_max = initial_min_max or default_config['initial_min_max']
@@ -465,6 +475,7 @@ def get_particles_dfba_state(
         advection_rate=particle_advection_rate,
         add_probability=particle_add_probability,
         boundary_to_add=particle_boundary_to_add,
+        boundary_to_remove=particle_boundary_to_remove,
     )
 
     return composite_state
