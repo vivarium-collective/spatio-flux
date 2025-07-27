@@ -44,16 +44,19 @@ jobs:
           git config --local user.name "GitHub Action"
           git fetch origin
 
+          # Rename report.html to index.html for GitHub Pages compatibility
+          mv out/report.html out/index.html
+
           # Switch to gh-pages branch (create if needed)
           git checkout gh-pages || git checkout --orphan gh-pages
           git pull origin gh-pages || true
 
-          # Copy all contents of the out directory
+          # Clear previous report, then copy updated content
           rm -rf report
           mkdir -p report
           cp -r out/* report/
 
-          # Commit and push
+          # Commit and push only if there are changes
           git add report/
-          git diff-index --quiet HEAD || git commit -m "Update test report"
+          git diff-index --quiet HEAD || git commit -m "Update simulation test report"
           git push origin gh-pages || true
