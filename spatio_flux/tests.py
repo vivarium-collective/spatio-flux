@@ -86,9 +86,17 @@ def run_composite_document(document, time=None, core=None, name=None):
 # =====================
 
 def run_dfba_single(total_time=60, core=None):
+    mol_ids = ["glucose", "acetate", "biomass"]
     doc = {
-        'dfba': get_single_dfba_spec(path=['fields']),
-        'fields': {'glucose': 10, 'acetate': 0, 'biomass': 0.1},
+        'dfba': get_single_dfba_spec(
+            path=['fields'],
+            mol_ids=mol_ids,
+        ),
+        'fields': {
+            'glucose': 10,
+            'acetate': 0,
+            'biomass': 0.1
+        },
     }
 
     # run the composite document
