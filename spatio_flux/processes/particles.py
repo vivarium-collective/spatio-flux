@@ -1,63 +1,40 @@
 """
-Particles process
+Particles Process
 =================
 
-A process for simulating the motion of particles in a 2D environment.
+Simulates particle motion in a 2D environment with diffusion, advection,
+and probabilistic birth/death at the boundaries. Each particle moves,
+reads local field values, and can contribute to the environment.
 """
 import base64
 import uuid
-
 import numpy as np
 from process_bigraph import Process, default
 
-
-INITIAL_MASS_RANGE = (1E-3, 1.0)  # Default mass range for particles
-
-
-def get_bin_position(position, n_bins, env_size):
-    x, y = position
-    x_bins, y_bins = n_bins #self.config['n_bins']
-    x_min, x_max = env_size[0]
-    y_min, y_max = env_size[1]
-
-    # Convert the particle's (x, y) position to the corresponding bin in the 2D grid
-    x_bin = int((x - x_min) / (x_max - x_min) * x_bins)
-    y_bin = int((y - y_min) / (y_max - y_min) * y_bins)
-
-    # Correct any potential out-of-bound indices
-    x_bin = min(max(x_bin, 0), x_bins - 1)
-    y_bin = min(max(y_bin, 0), y_bins - 1)
-
-    return x_bin, y_bin
-
-
-def get_local_field_values(fields, column, row):
-    """
-    Retrieve local field values for a particle based on its position.
-
-    Parameters:
-    - fields: dict of 2D numpy arrays representing fields, keyed by molecule ID.
-    - position: Tuple (x, y) representing the particle's position.
-
-    Returns:
-    - local_values: dict of field concentrations at the particle's location, keyed by molecule ID.
-    """
-    local_values = {}
-    for mol_id, field in fields.items():
-        local_values[mol_id] = field[column, row]
-
-    return local_values
+# Constants
+INITIAL_MASS_RANGE = (1E-3, 1.0)
 
 
 def short_id():
     return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')
 
 
+def get_bin_position(position, n_bins, env_size):
+    x, y = position
+    x_bins, y_bins = n_bins
+    x_min, x_max = env_size[0]
+    y_min, y_max = env_size[1]
+
+    x_bin = int((x - x_min) / (x_max - x_min) * x_bins)
+    y_bin = int((y - y_min) / (y_max - y_min) * y_bins)
+    return min(max(x_bin, 0), x_bins - 1), min(max(y_bin, 0), y_bins - 1)
+
+
+def get_local_field_values(fields, column, row):
+    return {mol_id: field[column, row] for mol_id, field in fields.items()}
+
 
 def generate_single_particle_state(config=None):
-    """
-    Initialize a single particle with random properties.
-    """
     config = config or {}
     bounds = config['bounds']
     n_bins = config['n_bins']
@@ -65,13 +42,11 @@ def generate_single_particle_state(config=None):
     mol_ids = fields.keys()
     mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
-    # get particle properties
-    position = config.get('position', tuple(np.random.uniform(low=[0, 0], high=[bounds[0], bounds[1]], size=2)))
-    mass = config.get('mass', np.random.uniform(mass_range[0], mass_range[1]))
+    position = config.get('position', tuple(np.random.uniform(low=[0, 0], high=bounds)))
+    mass = config.get('mass', np.random.uniform(*mass_range))
     x, y = get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
-    # TODO update local and exchange values
     local = get_local_field_values(fields, column=x, row=y)
-    exchanges = {f: 0.0 for f in mol_ids}  # TODO exchange rates
+    exchanges = {f: 0.0 for f in mol_ids}
 
     return {
         'position': position,
@@ -83,18 +58,11 @@ def generate_single_particle_state(config=None):
 
 class Particles(Process):
     config_schema = {
-        # environment size and resolution
         'bounds': 'tuple[float,float]',
         'n_bins': 'tuple[integer,integer]',
-
-        # particle movement
         'diffusion_rate': default('float', 1e-1),
         'advection_rate': default('tuple[float,float]', (0, 0)),
-
-        # adding/removing particles at boundaries
-        'add_probability': 'float', # TODO -- make probability type
-
-        # which boundaries to add particles
+        'add_probability': 'float',
         'boundary_to_add': default('list[boundary_side]', ['top']),
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom'])
     }
@@ -119,143 +87,115 @@ class Particles(Process):
         }
 
     def outputs(self):
-        return {
-            'particles': 'map[particle]',
-            'fields': {
-                '_type': 'map',
-                '_value': {
-                    '_type': 'array',
-                    '_shape': self.config['n_bins'],
-                    '_data': 'positive_float'
-                },
-            }
-        }
+        return self.inputs()
 
     def initial_state(self, config=None):
         return {}
 
     @staticmethod
     def generate_state(config=None):
-        """
-        Initialize particle positions for multiple species.
-        """
         config = config or {}
         fields = config.get('fields', {})
-        n_bins = config.get('n_bins', (1,1))
-        bounds = config.get('bounds',(1.0,1.0))
+        n_bins = config.get('n_bins', (1, 1))
+        bounds = config.get('bounds', (1.0, 1.0))
         n_particles = config.get('n_particles', 15)
         mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
-        # assert n_bins from the shape of the first field array
-        if len(fields) > 0:
-            fields_bins = fields[list(fields.keys())[0]].shape
-            if fields_bins != n_bins:
-                raise ValueError(
-                    f"Shape of fields {fields_bins} does not match n_bins {n_bins}"
-                )
+        if fields:
+            actual_shape = next(iter(fields.values())).shape
+            if actual_shape != n_bins:
+                raise ValueError(f"Shape mismatch: fields {actual_shape} vs n_bins {n_bins}")
 
-        # advection_rates = advection_rates or [(0.0, 0.0) for _ in range(len(n_particles_per_species))]
         particles = {}
         for _ in range(n_particles):
-            id = short_id()
-            particles[id] = generate_single_particle_state(config={
+            pid = short_id()
+            particles[pid] = generate_single_particle_state({
                 'bounds': bounds,
                 'mass_range': mass_range,
                 'n_bins': n_bins,
                 'fields': fields,
             })
-            particles[id]['id'] = id
+            particles[pid]['id'] = pid
 
-        return {
-            'particles': particles}
-
+        return {'particles': particles}
 
     def update(self, state, interval):
+        # Retrieve current particles and field values
         particles = state['particles']
-        fields = state['fields']  # Retrieve the fields
+        fields = state['fields']
 
-        new_particles = {'_remove': [], '_add': {}}
-        new_fields = {
+        # Initialize structures for updated particles and field values
+        updated_particles = {'_remove': [], '_add': {}}
+        updated_fields = {
             mol_id: np.zeros_like(field)
-            for mol_id, field in fields.items()}
+            for mol_id, field in fields.items()
+        }
 
-        for particle_id, particle in particles.items():
-            updated_particle = {'exchange': {}}
-
-            # Apply diffusion and advection
+        # Loop through each particle
+        for pid, particle in particles.items():
+            # Sample random motion (diffusion + advection)
             dx, dy = np.random.normal(0, self.config['diffusion_rate'], 2) + self.config['advection_rate']
+            new_x = particle['position'][0] + dx
+            new_y = particle['position'][1] + dy
 
-            new_x_position = particle['position'][0] + dx
-            new_y_position = particle['position'][1] + dy
+            # Remove particle if it hits a configured removal boundary
+            if self.check_boundary_hit(new_x, new_y):
+                updated_particles['_remove'].append(pid)
+                continue
 
-            # Check and remove particles if they hit specified boundaries
-            if self.check_boundary_hit(new_x_position, new_y_position):
-                new_particles['_remove'].append(particle_id)
-                continue  # Remove particle if it hits a boundary
-            # clip if hit a boundary and not removed
+            # Keep particles inside the environment bounds with a small buffer
             x_min, x_max = self.env_size[0]
             y_min, y_max = self.env_size[1]
-            if not (x_min <= new_x_position <= x_max and y_min <= new_y_position <= y_max):
-                buffer = 0.0001  # TODO -- make parameter?
-                buffer_x_min = x_min + (x_max - x_min) * buffer
-                buffer_x_max = x_max - (x_max - x_min) * buffer
-                buffer_y_min = y_min + (y_max - y_min) * buffer
-                buffer_y_max = y_max - (y_max - y_min) * buffer
+            buffer = 0.0001
+            new_x = np.clip(new_x, x_min + buffer, x_max - buffer)
+            new_y = np.clip(new_y, y_min + buffer, y_max - buffer)
 
-                new_x_position = np.clip(new_x_position, buffer_x_min, buffer_x_max)
-                new_y_position = np.clip(new_y_position, buffer_y_min, buffer_y_max)
+            # Determine the grid cell (bin) the particle is now in
+            new_pos = (new_x, new_y)
+            column, row = get_bin_position(new_pos, self.config['n_bins'], self.env_size)
 
-            new_position = (new_x_position, new_y_position)
-            updated_particle['position'] = (dx, dy) # new_position
+            # Retrieve local field values at the particle's new location
+            local = get_local_field_values(fields, column, row)
 
-            # Retrieve local field concentration for each particle
-            x, y = get_bin_position(new_position, self.config['n_bins'], self.env_size)
-
-            # Update local environment values for each particle
-            updated_particle['local'] = get_local_field_values(fields, column=x, row=y)
-
-            # Apply exchanges to fields and reset
+            # Apply the particle’s exchange values to the environment fields
             exchange = particle['exchange']
+            for mol_id, rate in exchange.items():
+                updated_fields[mol_id][column, row] += rate
 
-            # print(f'particle {particle_id} exchange: {exchange}')
+            # Update the particle’s state
+            updated_particles[pid] = {
+                'position': (dx, dy),  # Store delta; use new_pos if you prefer absolute
+                'local': local,  # Updated local concentrations
+                'exchange': {mol_id: 0.0 for mol_id in exchange}  # Reset exchanges
+            }
 
-            for mol_id, exchange_rate in exchange.items():
-                new_fields[mol_id][x, y] += exchange_rate
-                updated_particle['exchange'][mol_id] = 0.0
-
-            new_particles[particle_id] = updated_particle
-
-        # Probabilistically add new particles at user-defined boundaries
+        # Randomly add new particles at designated boundaries
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
                 position = self.get_boundary_position(boundary)
-                # use the function to get a new particle
                 new_particle = generate_single_particle_state({
                     'bounds': self.config['bounds'],
                     'n_bins': self.config['n_bins'],
                     'fields': fields,
-                    'position': position,
+                    'position': position
                 })
-                particle_id = short_id()
-                new_particle['id'] = particle_id # Generate a unique ID for the new particle
-                new_particles['_add'][particle_id] = new_particle
+                pid = short_id()
+                new_particle['id'] = pid
+                updated_particles['_add'][pid] = new_particle
 
+        # Return the updated particle states and field updates
         return {
-            'particles': new_particles,
-            'fields': new_fields
+            'particles': updated_particles,
+            'fields': updated_fields
         }
 
-    def check_boundary_hit(self, new_x_position, new_y_position):
-        # Check if the particle hits any of the boundaries to be removed
-        if 'left' in self.config['boundary_to_remove'] and new_x_position < self.env_size[0][0]:
-            return True
-        if 'right' in self.config['boundary_to_remove'] and new_x_position > self.env_size[0][1]:
-            return True
-        if 'top' in self.config['boundary_to_remove'] and new_y_position > self.env_size[1][1]:
-            return True
-        if 'bottom' in self.config['boundary_to_remove'] and new_y_position < self.env_size[1][0]:
-            return True
-        return False
+    def check_boundary_hit(self, x, y):
+        return (
+            ('left' in self.config['boundary_to_remove'] and x < self.env_size[0][0]) or
+            ('right' in self.config['boundary_to_remove'] and x > self.env_size[0][1]) or
+            ('top' in self.config['boundary_to_remove'] and y > self.env_size[1][1]) or
+            ('bottom' in self.config['boundary_to_remove'] and y < self.env_size[1][0])
+        )
 
     def get_boundary_position(self, boundary):
         if boundary == 'left':
