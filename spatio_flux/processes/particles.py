@@ -190,20 +190,18 @@ class Particles(Process):
                 new_particles['_remove'].append(particle_id)
                 continue  # Remove particle if it hits a boundary
             # clip if hit a boundary
-            elif (
-                    new_x_position < self.env_size[0][0]
-                    or new_x_position > self.env_size[0][1]
-                    or new_y_position < self.env_size[1][0]
-                    or new_y_position > self.env_size[1][1]
-            ):
-                buffer= 0.01
-                buffer_x1 = self.env_size[0][0] + self.env_size[0][1]* buffer
-                buffer_x2 = self.env_size[0][1] - self.env_size[0][1]* buffer
-                buffer_y1 = self.env_size[1][0] + self.env_size[1][1]* buffer
-                buffer_y2 = self.env_size[1][1] - self.env_size[1][1]* buffer
-                new_x_position = np.clip(new_x_position, buffer_x1, buffer_x2)
-                new_y_position = np.clip(new_y_position, buffer_y1, buffer_y2)
-                print(f'new position: ({new_x_position}, {new_y_position})')
+            x_min, x_max = self.env_size[0]
+            y_min, y_max = self.env_size[1]
+            if not (x_min <= new_x_position <= x_max and y_min <= new_y_position <= y_max):
+                buffer = 0.001  # TODO -- make parameter?
+                buffer_x_min = x_min + (x_max - x_min) * buffer
+                buffer_x_max = x_max - (x_max - x_min) * buffer
+                buffer_y_min = y_min + (y_max - y_min) * buffer
+                buffer_y_max = y_max - (y_max - y_min) * buffer
+
+                new_x_position = np.clip(new_x_position, buffer_x_min, buffer_x_max)
+                new_y_position = np.clip(new_y_position, buffer_y_min, buffer_y_max)
+                # print(f'new position: ({new_x_position}, {new_y_position})')
 
             new_position = (new_x_position, new_y_position)
             updated_particle['position'] = (dx, dy) # new_position
