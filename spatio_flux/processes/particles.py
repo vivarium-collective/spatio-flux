@@ -269,26 +269,56 @@ class Particles(Process):
 
 
 class MinimalParticle(Process):
+    """
+    A minimal particle that performs reactions based on Michaelis-Menten kinetics.
+
+    Configuration:
+    -------------
+    - reactions (dict): {reaction_name: {'reactant': str, 'product': str}}
+    - kinetic_params (dict): {reactant: (Km, Vmax)} for each substrate or 'mass'
+
+    Inputs:
+    -------
+    - mass (float): current mass of the particle
+    - substrates (map[positive_float]): concentrations of external substrates
+
+    Outputs:
+    --------
+    - mass (float): net change in mass
+    - substrates (map[float]): net change in substrate concentrations
+
+    Notes:
+    ------
+    - Supports reactions that use 'mass' as reactant or product (e.g., decay or growth).
+    - Reaction rates follow: rate = Vmax * conc / (Km + conc)
+    """
+
     config_schema = {
         'reactions': {
             '_type': 'map[reaction]',
             '_default': {
                 'grow': {
-                    'vmax': 0.01,
                     'reactant': 'glucose',
                     'product': 'mass',
                 },
                 'release': {
-                    'vmax': 0.001,
                     'reactant': 'mass',
                     'product': 'detritus',
                 }
+            }
+        },
+        'kinetic_params': {
+            '_type': 'map[tuple[float,float]]',
+            '_default': {
+                'glucose': (0.5, 0.01),   # example: Km=0.5, Vmax=0.01
+                'mass': (1.0, 0.001)      # decay or export from internal mass
             }
         }
     }
 
     def initialize(self, config):
         self.reactions = config['reactions']
+        self.kinetic_params = config['kinetic_params']
 
     def inputs(self):
         return {
@@ -304,32 +334,37 @@ class MinimalParticle(Process):
 
     def update(self, state, interval):
         substrates = state['substrates']
-        exchanges = {mol_id: 0.0 for mol_id in substrates}
         mass = state['mass']
-        mass_change = 0.0
+
+        delta_mass = 0.0
+        delta_substrates = {mol_id: 0.0 for mol_id in substrates}
 
         for reaction in self.reactions.values():
             reactant = reaction['reactant']
-            if reactant not in substrates and reactant != 'mass':
-                exchanges[reactant] = 0.0
-                # raise ValueError(f"Reactant '{reactant}' not found in substrates or mass.")
             product = reaction['product']
-            vmax = reaction['vmax']
 
             conc = mass if reactant == 'mass' else substrates.get(reactant, 0.0)
-            rate = vmax * conc
 
+            if reactant not in self.kinetic_params:
+                raise ValueError(f"Kinetic parameters not provided for reactant: {reactant}")
+
+            Km, Vmax = self.kinetic_params[reactant]
+            rate = Vmax * conc / (Km + conc) if Km + conc > 0 else 0.0
+
+            # update mass
             if reactant == 'mass':
-                mass_change -= rate
+                delta_mass -= rate
             else:
-                exchanges[reactant] -= rate
+                if reactant not in delta_substrates:
+                    delta_substrates[reactant] = 0.0
+                delta_substrates[reactant] -= rate
 
             if product == 'mass':
-                mass_change += rate
+                delta_mass += rate
             else:
-                exchanges[product] = exchanges.get(product, 0.0) + rate
+                delta_substrates[product] = delta_substrates.get(product, 0.0) + rate
 
         return {
-            'mass': mass_change,
-            'substrates': exchanges
+            'mass': delta_mass,
+            'substrates': delta_substrates
         }

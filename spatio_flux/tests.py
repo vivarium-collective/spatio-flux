@@ -101,21 +101,26 @@ def run_particles(total_time=60, core=None):
         'detritus': (0, 0),
     }
     particle_config = {
-        'grow': {
-            'vmax': 0.01,
-            'reactant': 'glucose',
-            'product': 'mass',
+        'reactions': {
+            'grow': {
+                'reactant': 'glucose',
+                'product': 'mass',
+            },
+            'release': {
+                'reactant': 'mass',
+                'product': 'detritus',
+            }
         },
-        'release': {
-            'vmax': 0.001,
-            'reactant': 'mass',
-            'product': 'detritus',
+        'kinetic_params': {
+            'glucose': (0.5, 0.01),  # Km=0.5, Vmax=0.01 (from grow reaction)
+            'mass': (1.0, 0.001),  # Km=1.0, Vmax=0.001 (from release reaction)
         }
     }
     state = get_particles_state(
         bounds=bounds, n_bins=(10, 20),
         n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4,
-        initial_min_max=initial_min_max
+        initial_min_max=initial_min_max,
+        # particle_config=particle_config,
     )
     doc = {
         'state': state,
