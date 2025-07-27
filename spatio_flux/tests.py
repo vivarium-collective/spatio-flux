@@ -1,3 +1,19 @@
+"""
+Simulation Runner and Visualizer for Spatio-Temporal Flux Processes
+
+This script defines a suite of modular simulation experiments involving dynamic
+spatial processes such as diffusion, advection, dynamic flux balance analysis (DFBA),
+and particle-based modeling, including hybrid and compositional scenarios. It provides
+functionality to generate simulation documents, run them using the Vivarium simulation
+framework, and produce a variety of plots and GIFs for visualization.
+
+Each experiment (e.g., 'dfba_single', 'comets', 'particle_dfba') has a corresponding
+document generator and plotting routine, allowing flexible execution and output analysis.
+
+Usage:
+    python <script_name>.py --tests dfba_single comets --output out/
+
+"""
 import argparse
 from pathlib import Path
 import shutil
@@ -20,6 +36,24 @@ from spatio_flux.processes import (
     get_particle_movement_state, get_minimal_particle_composition, get_dfba_particle_composition,
     get_particle_dfba_state, default_config, get_particle_comets_state
 )
+
+DEFAULT_BOUNDS = (10.0, 20.0)
+DEFAULT_BINS = (10, 20)
+DEFAULT_ADVECTION = (0, -0.1)
+DEFAULT_DIFFUSION = 0.1
+DEFAULT_ADD_PROBABILITY = 0.4
+
+DEFAULT_RUNTIME = 40
+
+SIMULATIONS = {
+    'dfba_single': {'time': DEFAULT_RUNTIME},
+    'dfba_spatial': {'time': DEFAULT_RUNTIME},
+    'diffusion_process': {'time': DEFAULT_RUNTIME},
+    'comets': {'time': DEFAULT_RUNTIME},
+    'particles': {'time': DEFAULT_RUNTIME},
+    'particle_comets': {'time': DEFAULT_RUNTIME},
+    'particle_dfba': {'time': DEFAULT_RUNTIME},
+}
 
 
 # ===================================================================
@@ -51,7 +85,8 @@ def get_dfba_spatial_doc(core=None):
     return get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
 def plot_dfba_spatial(results, state):
-    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='dfba_spatial_timeseries.png')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)],
+                     out_dir='out', filename='dfba_spatial_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='dfba_spatial_results.gif')
 
 # --- Diffusion Advection-----------------------------------------------
@@ -83,7 +118,8 @@ def plot_comets(results, state):
 # --- Particles -----------------------------------------------------------
 
 def get_particles_doc(core=None):
-    bounds = (10.0, 20.0)
+    initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
+    # Particle configuration
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
@@ -94,10 +130,9 @@ def get_particles_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_movement_state(bounds=bounds, n_bins=(10, 20), n_particles=1,
-                                        diffusion_rate=0.1, advection_rate=(0, -0.1),
-                                        add_probability=0.4,
-                                        initial_min_max={'glucose': (0.5, 2.0), 'detritus': (0, 0)})
+    state = get_particle_movement_state(bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS, n_particles=1,
+                                        diffusion_rate=DEFAULT_DIFFUSION, advection_rate=DEFAULT_ADVECTION,
+                                        add_probability=DEFAULT_ADD_PROBABILITY, initial_min_max=initial_min_max)
     return {'state': state, 'composition': get_minimal_particle_composition(core=core, config=particle_config)}
 
 def plot_particles_sim(results, state):
@@ -119,7 +154,9 @@ def get_particle_comets_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_comets_state(mol_ids=['glucose', 'acetate', 'detritus', 'biomass'])
+    state = get_particle_comets_state(
+        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
+        mol_ids=['glucose', 'acetate', 'detritus', 'biomass'])
     return {'state': state, 'composition': get_minimal_particle_composition(core, config=particle_config)}
 
 def plot_particle_comets(results, state):
@@ -174,17 +211,6 @@ PLOTTERS = {
     'particle_dfba': plot_particle_dfba,
 }
 
-DEFAULT_RUNTIME = 40
-SIMULATIONS = {
-    'dfba_single': {'time': DEFAULT_RUNTIME},
-    'dfba_spatial': {'time': DEFAULT_RUNTIME},
-    'diffusion_process': {'time': DEFAULT_RUNTIME},
-    'comets': {'time': DEFAULT_RUNTIME},
-    'particles': {'time': DEFAULT_RUNTIME},
-    'particle_comets': {'time': DEFAULT_RUNTIME},
-    'particle_dfba': {'time': DEFAULT_RUNTIME},
-}
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Run selected simulations.")
     parser.add_argument(
@@ -201,7 +227,7 @@ def prepare_output_dir(output_dir):
         print(f"🧹 Clearing existing output directory: {output_path}")
         shutil.rmtree(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
-    print(f"📁 Created fresh output directory: {output_path}")
+
 
 def generate_html_report(output_dir):
     report_file = 'report.html'
@@ -252,8 +278,6 @@ def generate_html_report(output_dir):
     report_path = output_dir / report_file
     with open(report_path, 'w') as f:
         f.write('\n'.join(html))
-
-    print(f"✅ Report generated at: {report_path}")
 
 
 def main():

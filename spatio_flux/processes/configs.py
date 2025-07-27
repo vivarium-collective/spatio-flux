@@ -49,7 +49,6 @@ def get_dfba_config(
         model_file="textbook",
         kinetic_params=None,
         substrate_update_reactions=None,
-        biomass_identifier="biomass",
         bounds=None
 ):
     if substrate_update_reactions is None:
@@ -68,7 +67,6 @@ def get_dfba_config(
         "model_file": model_file,
         "kinetic_params": kinetic_params,
         "substrate_update_reactions": substrate_update_reactions,
-        "biomass_identifier": biomass_identifier,
         "bounds": bounds
     }
 
