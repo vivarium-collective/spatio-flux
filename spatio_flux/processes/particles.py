@@ -11,6 +11,9 @@ import numpy as np
 from process_bigraph import Process, default
 
 
+INITIAL_MASS_RANGE = (1E-3, 1.0)  # Default mass range for particles
+
+
 def get_bin_position(position, n_bins, env_size):
     x, y = position
     x_bins, y_bins = n_bins #self.config['n_bins']
@@ -60,11 +63,11 @@ def generate_single_particle_state(config=None):
     n_bins = config['n_bins']
     fields = config.get('fields', {})
     mol_ids = fields.keys()
-    mass_range = config.get('mass_range', (1E-3, 1))
+    mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
     # get particle properties
-    position = tuple(np.random.uniform(low=[0, 0], high=[bounds[0], bounds[1]], size=2))
-    mass = np.random.uniform(mass_range[0], mass_range[1])
+    position = config.get('position', tuple(np.random.uniform(low=[0, 0], high=[bounds[0], bounds[1]], size=2)))
+    mass = config.get('mass', np.random.uniform(mass_range[0], mass_range[1]))
     x, y = get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
     # TODO update local and exchange values
     local = get_local_field_values(fields, column=x, row=y)
@@ -141,7 +144,7 @@ class Particles(Process):
         n_bins = config.get('n_bins', (1,1))
         bounds = config.get('bounds',(1.0,1.0))
         n_particles = config.get('n_particles', 15)
-        mass_range = config.get('mass_range', (1E-3, 1))
+        mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
         # assert n_bins from the shape of the first field array
         if len(fields) > 0:
@@ -193,7 +196,7 @@ class Particles(Process):
             x_min, x_max = self.env_size[0]
             y_min, y_max = self.env_size[1]
             if not (x_min <= new_x_position <= x_max and y_min <= new_y_position <= y_max):
-                buffer = 0.001  # TODO -- make parameter?
+                buffer = 0.0001  # TODO -- make parameter?
                 buffer_x_min = x_min + (x_max - x_min) * buffer
                 buffer_x_max = x_max - (x_max - x_min) * buffer
                 buffer_y_min = y_min + (y_max - y_min) * buffer
@@ -201,7 +204,6 @@ class Particles(Process):
 
                 new_x_position = np.clip(new_x_position, buffer_x_min, buffer_x_max)
                 new_y_position = np.clip(new_y_position, buffer_y_min, buffer_y_max)
-                # print(f'new position: ({new_x_position}, {new_y_position})')
 
             new_position = (new_x_position, new_y_position)
             updated_particle['position'] = (dx, dy) # new_position
@@ -215,7 +217,6 @@ class Particles(Process):
             # Apply exchanges to fields and reset
             exchange = particle['exchange']
 
-
             # print(f'particle {particle_id} exchange: {exchange}')
 
             for mol_id, exchange_rate in exchange.items():
@@ -227,19 +228,17 @@ class Particles(Process):
         # Probabilistically add new particles at user-defined boundaries
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
-                # TODO -- reuse function for initializing particles
                 position = self.get_boundary_position(boundary)
-                x, y = get_bin_position(position, self.config['n_bins'], self.env_size)
-                local_field_concentrations = get_local_field_values(fields, column=x, row=y)
-                id = short_id()  #str(uuid.uuid4())
-                new_particle = {
-                    'id': id,
+                # use the function to get a new particle
+                new_particle = generate_single_particle_state({
+                    'bounds': self.config['bounds'],
+                    'n_bins': self.config['n_bins'],
+                    'fields': fields,
                     'position': position,
-                    'size': np.random.uniform(10, 100),  # Random size for new particles
-                    'local': local_field_concentrations,
-                    'exchange': {f: 0.0 for f in fields.keys()}  # TODO -- add exchange
-                }
-                new_particles['_add'][id] = new_particle
+                })
+                particle_id = short_id()
+                new_particle['id'] = particle_id # Generate a unique ID for the new particle
+                new_particles['_add'][particle_id] = new_particle
 
         return {
             'particles': new_particles,
