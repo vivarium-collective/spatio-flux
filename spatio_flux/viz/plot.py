@@ -410,7 +410,8 @@ def plot_particles(
         try:
             plt.savefig(buf, format='png', dpi=120)
         except:
-            import ipdb; ipdb.set_trace()
+            continue
+            # import ipdb; ipdb.set_trace()
         buf.seek(0)
         images.append(imageio.imread(buf))
         buf.close()

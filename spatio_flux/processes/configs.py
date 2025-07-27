@@ -409,7 +409,7 @@ def get_particle_comets_state(
     return composite_state
 
 
-def get_particles_dfba_state(
+def get_particle_dfba_state(
         core,
         n_bins=(10, 10),
         bounds=(10.0, 10.0),
