@@ -6,6 +6,26 @@ from process_bigraph import Composite, gather_emitter_results
 from process_bigraph.emitter import emitter_from_wires
 from vivarium.vivarium import VivariumTypes
 
+def build_path(base_path, mol_id, i=None, j=None):
+    """
+    Constructs a path list for a molecule, optionally appending indices.
+
+    Parameters:
+        base_path (list of str): The base path prefix (e.g., ["..", "fields"]).
+        mol_id (str): The molecule ID to insert in the path.
+        i (int, optional): First index to append, if provided.
+        j (int, optional): Second index to append, if provided.
+
+    Returns:
+        list: The full path as a list of path elements.
+    """
+    full_path = base_path + [mol_id]
+    if i is not None:
+        full_path.append(i)
+    if j is not None:
+        full_path.append(j)
+    return full_path
+
 
 def initialize_fields(n_bins, initial_min_max=None):
     initial_min_max = initial_min_max or {}
