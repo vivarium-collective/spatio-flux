@@ -13,29 +13,6 @@ from spatio_flux.processes.particles import Particles, get_particles_spec, get_p
 from spatio_flux.processes.particle_comets import default_config
 
 
-# default_config = {
-#     'total_time': 10.0,
-#     # environment size
-#     'bounds': (10.0, 20.0),
-#     'n_bins': (8, 16),
-#     # set fields
-#     'mol_ids': ['biomass', 'detritus'],
-#     'field_diffusion_rate': 1e-1,
-#     'field_advection_rate': (0, 0),
-#     'initial_min_max': {'biomass': (0, 0.1), 'detritus': (0, 0)},
-#     # set particles
-#     'n_particles': 10,
-#     'particle_diffusion_rate': 1e-1,
-#     'particle_advection_rate': (0, -0.1),
-#     'particle_add_probability': 0.3,
-#     'particle_boundary_to_add': ['top'],
-#     'field_interactions': {
-#         'biomass': {'vmax': 0.1, 'Km': 1.0, 'interaction_type': 'uptake'},
-#         'detritus': {'vmax': -0.1, 'Km': 1.0, 'interaction_type': 'secretion'},
-#     },
-# }
-
-
 def get_particles_dfba_state(
         core,
         n_bins=(10, 10),

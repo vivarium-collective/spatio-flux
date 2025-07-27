@@ -112,4 +112,3 @@ def get_particle_comets_state(
     )
 
     return composite_state
-
