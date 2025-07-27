@@ -87,15 +87,21 @@ def get_dfba_process_state(
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
 
+    # remove "biomass" from mol_ids if it exists
+    if "biomass" in mol_ids:
+        mol_ids.remove("biomass")
+
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
         "config": get_dfba_config(model_file=model_file),
         "inputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, "biomass", i, j)
         },
         "outputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, "biomass", i, j)
         }
     }
 
@@ -475,8 +481,25 @@ def get_dfba_particle_composition(core=None, config=None):
                     '_type': 'process',
                     'address': default('string', 'local:DynamicFBA'),
                     'config': default('quote', config),
-                    'inputs': default('tree[wires]', {'substrates': ['local']}),
-                    'outputs': default('tree[wires]', {'substrates': ['exchange']})
+                    'inputs': default('tree[wires]', {
+                        'substrates': ['local'],
+                        'biomass': ['mass']
+                    }),
+                    'outputs': default('tree[wires]', {
+                        'substrates': ['exchange'],
+                        'biomass': ['mass']
+                    })
+                    # 'inputs': {
+                    #     'substrates': ['local']
+                    #     # TODO --do we have rewire?
+                    #     # 'substrates': {
+                    #     #     '_path': ['local'],
+                    #     #     'biomass': ['mass']
+                    #     # }
+                    # },
+                    # 'outputs': {
+                    #     'substrates': ['exchange']
+                    # }
                 }
             }
         }

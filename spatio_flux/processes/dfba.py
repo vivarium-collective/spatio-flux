@@ -25,7 +25,6 @@ class DynamicFBA(Process):
     - model: The metabolic model for the simulation.
     - kinetic_params: Kinetic parameters (Km and Vmax) for each substrate.
     - substrate_update_reactions: A dictionary mapping substrates to their update reactions.
-    - biomass_identifier: The identifier for biomass in the current state.
     - bounds: A dictionary of bounds for any reactions in the model.
 
     TODO -- check units
@@ -35,7 +34,6 @@ class DynamicFBA(Process):
         "model_file": "string",  # TODO -- register a "path" type
         "kinetic_params": "map[tuple[float,float]]",
         "substrate_update_reactions": "map[string]",
-        "biomass_identifier": "string",
         "bounds": "map[bounds]",
     }
 
@@ -58,18 +56,21 @@ class DynamicFBA(Process):
 
     def inputs(self):
         return {
-            "substrates": "map[positive_float]"  # TODO this should be map[concentration]
+            "substrates": "map[positive_float]",  # TODO this should be map[concentration]
+            "biomass": "positive_float",
             # "enzymes": "map[positive_float]"  # TODO this should be map[concentration]
         }
 
     def outputs(self):
         return {
-            "substrates": "map[positive_float]"
+            "substrates": "map[positive_float]",
+            "biomass": "positive_float",
         }
 
     # TODO -- can we just put the inputs/outputs directly in the function?
     def update(self, inputs, interval):
         substrates_input = inputs["substrates"]
+        current_biomass = inputs["biomass"]
 
         for substrate, reaction_id in self.config["substrate_update_reactions"].items():
             Km, Vmax = self.config["kinetic_params"][substrate]
@@ -78,12 +79,12 @@ class DynamicFBA(Process):
             self.model.reactions.get_by_id(reaction_id).lower_bound = -uptake_rate
 
         substrate_update = {}
+        biomass_update = 0.0
 
         solution = self.model.optimize()
         if solution.status == "optimal":
-            current_biomass = substrates_input[self.config["biomass_identifier"]]
             biomass_growth_rate = solution.objective_value
-            substrate_update[self.config["biomass_identifier"]] = biomass_growth_rate * current_biomass * interval
+            biomass_update = biomass_growth_rate * current_biomass * interval
 
             for substrate, reaction_id in self.config["substrate_update_reactions"].items():
                 flux = solution.fluxes[reaction_id] * current_biomass * interval
@@ -99,4 +100,5 @@ class DynamicFBA(Process):
 
         return {
             "substrates": substrate_update,
+            "biomass": biomass_update,
         }

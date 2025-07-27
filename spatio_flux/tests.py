@@ -5,6 +5,7 @@ from spatio_flux import register_types
 from spatio_flux.library.helpers import run_composite_document
 from spatio_flux.viz.plot import (
     plot_time_series,
+    plot_particles_mass,
     plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif,
     plot_particles
@@ -75,8 +76,12 @@ def run_diffusion_process(total_time=60, core=None):
 
 def run_comets(total_time=60, core=None):
     bounds, n_bins = (10.0, 10.0), (10, 10)
-    mol_ids = default_config['mol_ids']
-    initial_min_max = default_config['initial_min_max']
+    mol_ids = ['glucose', 'acetate', 'biomass']
+    initial_min_max = {
+        'glucose': (10, 10),
+        'acetate': (0, 0),
+        'biomass': (0, 0.1),
+    }
     state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     state['diffusion'] = get_diffusion_advection_process_state(bounds, n_bins, mol_ids)
 
@@ -163,7 +168,13 @@ def run_particles_dfba(total_time=60, core=None):
     mol_ids = ['glucose', 'acetate', 'detritus']
     state = get_particles_dfba_state(
         core,
-        mol_ids=mol_ids)
+        mol_ids=mol_ids,
+        initial_min_max={
+            'glucose': (0, 1),
+            'acetate': (0, 0),
+            'detritus': (0, 0)
+        }
+    )
     doc = {
         'state': state,
         'composition': get_dfba_particle_composition(),
@@ -174,8 +185,13 @@ def run_particles_dfba(total_time=60, core=None):
 
     # plotting
     n_bins, bounds = state['particles_process']['config']['n_bins'], state['particles_process']['config']['bounds']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_dfba_timeseries.png')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_dfba_with_fields.gif', bounds=bounds)
+    plot_time_series(
+        results, field_names=['glucose', 'acetate', 'detritus'],
+        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_dfba_timeseries.png')
+    plot_particles_mass(
+        results, out_dir='out', filename='particle_dfba_mass.png')
+    plot_species_distributions_with_particles_to_gif(
+        results, out_dir='out', filename='particle_dfba_with_fields.gif', bounds=bounds)
 
 
 if __name__ == '__main__':
@@ -188,5 +204,5 @@ if __name__ == '__main__':
     # run_diffusion_process(core=core)
     # run_comets(core=core)
     # run_particles(core=core)
-    run_particle_comets(core=core)
+    # run_particle_comets(core=core)
     run_particles_dfba(core=core)
