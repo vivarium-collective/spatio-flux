@@ -2,16 +2,26 @@
 Diffusion-Advection Process
 ===========================
 
-This process is a simple 2D diffusion-advection process. It takes a 2D field as input and returns a 2D field as output.
+Simulates 2D diffusion and advection on scalar fields using finite differences.
+
+Each species field evolves over time according to:
+- Diffusion (via a Laplacian kernel)
+- Advection (via gradient approximation in x and y directions)
+
+Fields are updated iteratively with time step `dt <= diffusion_dt` to ensure stability.
 """
+
 import numpy as np
 from scipy.ndimage import convolve
 from process_bigraph import Process
 
-# Laplacian for 2D diffusion
+# Kernels
 LAPLACIAN_2D = np.array([[0, 1, 0],
                          [1, -4, 1],
                          [0, 1, 0]])
+
+KERNEL_DX = np.array([[-1, 0, 1]])  # central difference in x
+KERNEL_DY = np.array([[-1], [0], [1]])  # central difference in y
 
 
 class DiffusionAdvection(Process):
@@ -27,27 +37,25 @@ class DiffusionAdvection(Process):
     def __init__(self, config, core):
         super().__init__(config, core)
 
-        # get diffusion rates
-        bins_x = self.config['n_bins'][0]
-        bins_y = self.config['n_bins'][1]
-        length_x = self.config['bounds'][0]
-        length_y = self.config['bounds'][1]
-        dx = length_x / bins_x
-        dy = length_y / bins_y
-        dx2 = dx * dy
+        # Grid geometry
+        nx, ny = self.config['n_bins']
+        xmax, ymax = self.config['bounds']
+        dx = xmax / nx
+        dy = ymax / ny
+        cell_area = dx * dy
 
-        # general diffusion rate
-        diffusion_rate = self.config['default_diffusion_rate']
-        self.diffusion_rate = diffusion_rate / dx2
+        # Default diffusion rate, normalized
+        D = self.config['default_diffusion_rate']
+        self.default_D = D / cell_area
 
-        # diffusion rates for each individual molecules
-        self.molecule_specific_diffusion = {
-            mol_id: diff_rate / dx2
-            for mol_id, diff_rate in self.config['diffusion_coeffs'].items()}
+        # Per-species diffusion rates
+        self.species_D = {
+            mol_id: d / cell_area for mol_id, d in self.config['diffusion_coeffs'].items()
+        }
 
-        # get diffusion timestep
-        diffusion_dt = 0.5 * dx ** 2 * dy ** 2 / (2 * diffusion_rate * (dx ** 2 + dy ** 2))
-        self.diffusion_dt = min(diffusion_dt, self.config['default_diffusion_dt'])
+        # Stability condition: max dt for stable explicit update
+        stable_dt = 0.5 * dx ** 2 * dy ** 2 / (2 * D * (dx ** 2 + dy ** 2))
+        self.diffusion_dt = min(stable_dt, self.config['default_diffusion_dt'])
 
     def inputs(self):
         return {
@@ -74,54 +82,33 @@ class DiffusionAdvection(Process):
         }
 
     def update(self, state, interval):
-        fields = state['fields']
+        updated = {}
 
-        fields_update = {}
-        for species, field in fields.items():
-            fields_update[species] = self.diffusion_delta(
-                field,
-                interval,
-                diffusion_coeff=self.config['diffusion_coeffs'].get(
-                    species, self.config['default_diffusion_dt']
-                ),
-                advection_coeff=self.config['advection_coeffs'].get(
-                    species, (0.0, 0.0)
-                )
-            )
+        for species, field in state['fields'].items():
+            D = self.species_D.get(species, self.default_D)
+            vx, vy = self.config['advection_coeffs'].get(species, (0.0, 0.0))
+            updated[species] = self.diffuse_advect(field, interval, D, vx, vy)
 
-        return {
-            'fields': fields_update
-        }
+        return {'fields': updated}
 
-    def diffusion_delta(self, state, interval, diffusion_coeff, advection_coeff):
+    def diffuse_advect(self, field, interval, diffusion_coeff, vx, vy):
+        """
+        Evolve a 2D field over time using explicit Euler steps of diffusion and advection.
+        """
+        state = field.copy()
         t = 0.0
         dt = min(interval, self.diffusion_dt)
-        updated_state = state.copy()
 
         while t < interval:
-            # Diffusion
-            laplacian = convolve(
-                updated_state,
-                LAPLACIAN_2D,
-                mode='reflect',
-            ) * diffusion_coeff
+            # Diffusion term (Laplacian)
+            diffusion = convolve(state, LAPLACIAN_2D, mode='reflect') * diffusion_coeff
 
-            # Advection
-            advective_flux_x = convolve(
-                updated_state,
-                np.array([[-1, 0, 1]]),
-                mode='reflect',
-            ) * advection_coeff[0]
-            advective_flux_y = convolve(
-                updated_state,
-                np.array([[-1], [0], [1]]),
-                mode='reflect',
-            ) * advection_coeff[1]
+            # Advection terms (central differences)
+            adv_x = convolve(state, KERNEL_DX, mode='reflect') * vx
+            adv_y = convolve(state, KERNEL_DY, mode='reflect') * vy
 
-            # Update the current state
-            updated_state += (laplacian + advective_flux_x + advective_flux_y) * dt
-
-            # Update time
+            # Euler update
+            state += (diffusion + adv_x + adv_y) * dt
             t += dt
 
-        return updated_state - state
+        return state - field  # Return delta for this interval
