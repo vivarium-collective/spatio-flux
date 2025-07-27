@@ -67,7 +67,7 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
     if out_dir is not None:
         os.makedirs(out_dir, exist_ok=True)
         filepath = os.path.join(out_dir, filename)
-        print(f'saving {filepath}')
+        # print(f'saving {filepath}')
         plt.savefig(filepath)
 
     if display:
@@ -125,7 +125,7 @@ def plot_time_series(
     if out_dir is not None:
         os.makedirs(out_dir, exist_ok=True)
         filepath = os.path.join(out_dir, filename)
-        print(f'saving {filepath}')
+        # print(f'saving {filepath}')
         plt.savefig(filepath)
     else:
         filepath = filename
@@ -233,7 +233,7 @@ def plot_species_distributions_to_gif(
         filepath = filename
 
     # Create and save the GIF with loop=0 for infinite loop
-    print(f'saving {filepath}')
+    # print(f'saving {filepath}')
     imageio.mimsave(filepath, images, duration=0.5, loop=0)
 
     # Optionally display the GIF in a Jupyter notebook
@@ -356,7 +356,7 @@ def plot_species_distributions_with_particles_to_gif(
     else:
         filepath = filename
 
-    print(f'Saving GIF to {filepath}')
+    # print(f'Saving GIF to {filepath}')
     imageio.mimsave(filepath, images, duration=0.5, loop=0)
 
     # Inline display for Jupyter
@@ -425,7 +425,7 @@ def plot_particles(
         filepath = filename
 
     # Create and save the GIF with loop=0 for infinite loop
-    print(f'saving {filepath}')
+    # print(f'saving {filepath}')
     imageio.mimsave(filepath, images, fps=fps, loop=0)
 
     # Optionally display the GIF in a Jupyter notebook

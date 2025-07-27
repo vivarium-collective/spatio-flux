@@ -1,4 +1,6 @@
 import argparse
+from pathlib import Path
+
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
@@ -19,224 +21,162 @@ from spatio_flux.processes import (
 )
 
 
-# =====================
-# Simulation Use Cases
-# =====================
+# ===================================================================
+# Functions to get documents and make plots for different experiments
+# ===================================================================
 
-def run_dfba_single(total_time=60, core=None):
+def get_dfba_single_doc(core=None):
     mol_ids = ["glucose", "acetate", "biomass"]
-    doc = {
-        'dfba': get_dfba_process_state(
-            path=['fields'],
-            mol_ids=mol_ids,
-        ),
+    return {
+        'dfba': get_dfba_process_state(path=['fields'], mol_ids=mol_ids),
         'fields': {
             'glucose': 10,
             'acetate': 0,
-            'biomass': 0.1
-        },
+            'biomass': 0.1,
+        }
     }
 
-    # run the composite document
-    results = run_composite_document(doc, time=total_time, core=core, name='dfba_single')
-
-    # plotting
+def plot_dfba_single(results, state):
     plot_time_series(results, out_dir='out', filename='dfba_single_timeseries.png')
 
-
-def run_dfba_spatial(total_time=60, core=None):
+def get_dfba_spatial_doc(core=None):
     n_bins = (5, 5)
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
-    state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+    return get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
-    # run the composite document
-    results = run_composite_document(document=state, time=total_time, core=core, name='spatial_dfba')
-
-    # plotting
+def plot_dfba_spatial(results, state):
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_dfba_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_dfba_results.gif')
 
-
-def run_diffusion_process(total_time=60, core=None):
+def get_diffusion_process_doc(core=None):
     bounds, n_bins = (10.0, 10.0), (10, 10)
     mol_ids = ['glucose', 'acetate', 'biomass']
     advection_coeffs = {'biomass': (0, -0.1)}
-    state = get_diffusion_advection_state(
-        bounds=bounds, n_bins=n_bins,
-        mol_ids=mol_ids,
-        advection_coeffs=advection_coeffs
-    )
+    return get_diffusion_advection_state(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs)
 
-    # run the composite document
-    results = run_composite_document(state, time=total_time, core=core, name='diff_advec')
-
-    # plotting
+def plot_diffusion_process(results, state):
     plot_species_distributions_to_gif(results, out_dir='out', filename='diff_advec_results.gif')
 
-
-def run_comets(total_time=60, core=None):
+def get_comets_doc(core=None):
     bounds, n_bins = (10.0, 10.0), (10, 10)
     mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {
-        'glucose': (10, 10),
-        'acetate': (0, 0),
-        'biomass': (0, 0.1),
-    }
+    initial_min_max = {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     state['diffusion'] = get_diffusion_advection_process_state(bounds, n_bins, mol_ids)
+    return state
 
-    # run the composite document
-    results = run_composite_document(state, time=total_time, core=core, name='comets')
-
-    # plotting
+def plot_comets(results, state):
+    n_bins = state['diffusion']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='comets_results.gif')
 
-
-def run_particles(total_time=60, core=None):
+def get_particles_doc(core=None):
     bounds = (10.0, 20.0)
-    initial_min_max = {
-        'glucose': (0.5, 2.0),
-        'detritus': (0, 0),
-    }
     particle_config = {
         'reactions': {
-            'grow': {
-                'reactant': 'glucose',
-                'product': 'mass',
-            },
-            'release': {
-                'reactant': 'mass',
-                'product': 'detritus',
-            }
+            'grow': {'reactant': 'glucose', 'product': 'mass'},
+            'release': {'reactant': 'mass', 'product': 'detritus'}
         },
         'kinetic_params': {
-            'glucose': (0.5, 0.01),  # Km=0.5, Vmax=0.01 (from grow reaction)
-            'mass': (1.0, 0.001),  # Km=1.0, Vmax=0.001 (from release reaction)
+            'glucose': (0.5, 0.01),
+            'mass': (1.0, 0.001)
         }
     }
-    state = get_particles_state(
-        bounds=bounds, n_bins=(10, 20),
-        n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4,
-        initial_min_max=initial_min_max,
-        # particle_config=particle_config,
-    )
-    doc = {
-        'state': state,
-        'composition': get_minimal_particle_composition(core=core, config=particle_config)
-    }
+    state = get_particles_state(bounds=bounds, n_bins=(10, 20), n_particles=1,
+                                diffusion_rate=0.1, advection_rate=(0, -0.1),
+                                add_probability=0.4,
+                                initial_min_max={'glucose': (0.5, 2.0), 'detritus': (0, 0)})
+    return {'state': state, 'composition': get_minimal_particle_composition(core=core, config=particle_config)}
 
-    # run the composite document
-    results = run_composite_document(doc, time=total_time, core=core, name='particles')
-
-    # plotting
+def plot_particles_sim(results, state):
+    bounds = state['particle_movement']['config']['bounds']
     history = [step['particles'] for step in results]
     plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_with_fields.gif', bounds=bounds)
 
-
-def run_particle_comets(total_time=60, core=None):
+def get_particle_comets_doc(core=None):
     particle_config = {
-        'grow': {
-            'vmax': 0.01,
-            'reactant': 'glucose',
-            'product': 'mass',
+        'reactions': {
+            'grow': {'reactant': 'glucose', 'product': 'mass'},
+            'release': {'reactant': 'mass', 'product': 'detritus'}
         },
-        'release': {
-            'vmax': 0.001,
-            'reactant': 'mass',
-            'product': 'detritus',
+        'kinetic_params': {
+            'glucose': (0.5, 0.01),
+            'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_comets_state(
-        mol_ids=['glucose', 'acetate', 'detritus', 'biomass']
-    )
-    doc = {
-        'composition': get_minimal_particle_composition(core, config=particle_config),
-        'state': state
-    }
+    state = get_particle_comets_state(mol_ids=['glucose', 'acetate', 'detritus', 'biomass'])
+    return {'state': state, 'composition': get_minimal_particle_composition(core, config=particle_config)}
 
-    # run the composite document
-    results = run_composite_document(doc, time=total_time, core=core, name='particle_comets')
-
-    # plotting
-    n_bins, bounds = state['particles_process']['config']['n_bins'], state['particles_process']['config']['bounds']
+def plot_particle_comets(results, state):
+    bounds = state['particle_movement']['config']['bounds']
+    n_bins = state['particle_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_comets_timeseries.png')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_comets_with_fields.gif', bounds=bounds)
 
-
-def run_particles_dfba(total_time=60, core=None):
+def get_particles_dfba_doc(core=None):
     mol_ids = ['glucose', 'acetate']
-    state = get_particles_dfba_state(
-        core,
-        n_particles=2,
-        particle_add_probability=0.3,
-        particle_boundary_to_add=[
-            'top', 'bottom', 'left', 'right'
-        ],
-        particle_boundary_to_remove=[
-            'top', 'bottom', 'left', 'right'
-        ],
-        mol_ids=mol_ids,
-        initial_min_max={
-            'glucose': (1, 10),
-            'acetate': (0, 0),
-        }
-    )
-    particle_composition = get_dfba_particle_composition()
+    state = get_particles_dfba_state(core,
+                                     n_particles=2,
+                                     particle_add_probability=0.3,
+                                     particle_boundary_to_add=['top', 'bottom', 'left', 'right'],
+                                     particle_boundary_to_remove=['top', 'bottom', 'left', 'right'],
+                                     mol_ids=mol_ids,
+                                     initial_min_max={'glucose': (1, 10), 'acetate': (0, 0)})
+    return {'state': state, 'composition': get_dfba_particle_composition()}
 
-    doc = {
-        'state': state,
-        'composition': particle_composition,
-    }
-
-    # run the composite document
-    results = run_composite_document(doc, time=total_time, core=core, name='particles_dfba')
-
-    # plotting
-    n_bins, bounds = state['particles_process']['config']['n_bins'], state['particles_process']['config']['bounds']
-    plot_time_series(results, field_names=mol_ids, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+def plot_particles_dfba(results, state):
+    n_bins = state['particle_movement']['config']['n_bins']
+    bounds = state['particle_movement']['config']['bounds']
+    plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename='particle_dfba_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename='particle_dfba_mass.png')
-    plot_species_distributions_with_particles_to_gif(results, bounds=bounds,
-                                                     out_dir='out', filename='particle_dfba_with_fields.gif')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename='particle_dfba_with_fields.gif')
 
 
-SIMULATIONS = {
-    'dfba_single': run_dfba_single,
-    'dfba_spatial': run_dfba_spatial,
-    'diffusion_process': run_diffusion_process,
-    'comets': run_comets,
-    'particles': run_particles,
-    'particle_comets': run_particle_comets,
-    'particles_dfba': run_particles_dfba,
+DOCUMENT_CREATORS = {
+    'dfba_single': get_dfba_single_doc,
+    'dfba_spatial': get_dfba_spatial_doc,
+    'diffusion_process': get_diffusion_process_doc,
+    'comets': get_comets_doc,
+    'particles': get_particles_doc,
+    'particle_comets': get_particle_comets_doc,
+    'particles_dfba': get_particles_dfba_doc,
 }
 
-DEFAULT_TESTS = [
-    'dfba_single',
-    'dfba_spatial',
-    'diffusion_process',
-    'comets',
-    'particles',
-    'particle_comets',
-    'particles_dfba',
-]
+PLOTTERS = {
+    'dfba_single': plot_dfba_single,
+    'dfba_spatial': plot_dfba_spatial,
+    'diffusion_process': plot_diffusion_process,
+    'comets': plot_comets,
+    'particles': plot_particles_sim,
+    'particle_comets': plot_particle_comets,
+    'particles_dfba': plot_particles_dfba,
+}
+
+SIMULATIONS = {
+    'dfba_single': {'time': 60},
+    'dfba_spatial': {'time': 60},
+    'diffusion_process': {'time': 60},
+    'comets': {'time': 60},
+    'particles': {'time': 60},
+    'particle_comets': {'time': 60},
+    'particles_dfba': {'time': 60},
+}
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run selected simulations.")
     parser.add_argument(
         '--tests', nargs='*', default=None,
-        help='Names of tests to run. If none given, runs the default set.'
+        help='Names of tests to run. If none given, runs the full set.'
     )
-    parser.add_argument('--time', type=int, default=60, help='Simulation time')
     parser.add_argument('--output', default='out', help='Output directory')
-    parser.add_argument('--report', default='report.html', help='Output HTML report filename')
     return parser.parse_args()
 
-from pathlib import Path
 
-def generate_html_report(output_dir, report_file):
+def generate_html_report(output_dir):
+    report_file = 'report.html'
     html = ['<html><head><title>Simulation Results</title></head><body>']
     html.append('<h1>Simulation Results</h1>')
 
@@ -259,20 +199,37 @@ def generate_html_report(output_dir, report_file):
 def main():
     args = parse_args()
 
-    tests_to_run = args.tests if args.tests else DEFAULT_TESTS
+    test_names = list(SIMULATIONS.keys())
+    tests_to_run = args.tests if args.tests else test_names
+    print(f"\nSelected tests to run: {', '.join(tests_to_run)}\n")
 
     core = VivariumTypes()
     core = register_process_types(core)
     core = register_types(core)
 
     for name in tests_to_run:
-        print(f"\n🚀 Running: {name}")
-        if name not in SIMULATIONS:
-            print(f"⚠️  Unknown test: {name}")
+        print(f"\n🚀 Running test: {name}")
+        if name not in DOCUMENT_CREATORS:
+            print(f"Skipping unknown test: '{name}' (no document creator found)")
             continue
-        SIMULATIONS[name](total_time=args.time, core=core)
 
-    generate_html_report(args.output, args.report)
+        # try:
+        print("Creating document...")
+        doc = DOCUMENT_CREATORS[name](core=core)
+
+        print("Sending document...")
+        config = SIMULATIONS[name]
+        results = run_composite_document(doc, core=core, name=name, **config)
+
+        print("Generating plots...")
+        PLOTTERS[name](results, doc.get('state', doc))
+
+        print(f"Completed: {name}")
+        # except Exception as e:
+        #     print(f"Error during '{name}': {e}")
+
+    print("\nCompiling HTML report...")
+    generate_html_report(args.output)
 
 
 if __name__ == '__main__':
