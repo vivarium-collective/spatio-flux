@@ -26,7 +26,7 @@ default_config = {
     'particle_add_probability': 0.3,
     'particle_boundary_to_add': ['top'],
     'particle_field_interactions': {
-        'biomass': {
+        'glucose': {
             'vmax': 0.1,
             'Km': 1.0,
             'interaction_type': 'uptake'
@@ -348,18 +348,11 @@ def get_particle_comets_state(
         particle_advection_rate=(0, 0),
         particle_add_probability=0.3,
         particle_boundary_to_add=None,
-        particle_field_interactions=None,
         initial_min_max=None,
 ):
     particle_boundary_to_add = particle_boundary_to_add or default_config['particle_boundary_to_add']
     mol_ids = mol_ids or default_config['mol_ids']
-    particle_field_interactions = particle_field_interactions or default_config['particle_field_interactions']
     initial_min_max = initial_min_max or default_config['initial_min_max']
-    for mol_id in particle_field_interactions.keys():
-        if mol_id not in mol_ids:
-            mol_ids.append(mol_id)
-        if mol_id not in initial_min_max:
-            initial_min_max[mol_id] = (0, 1)
 
     # make the composite state with dFBA based on grid size
     composite_state = get_spatial_dfba_state(
@@ -386,10 +379,10 @@ def get_particle_comets_state(
     # add particles process
     particles = Particles.generate_state(
         config={
-            'n_particles':n_particles,
-            'bounds':bounds,
-            'fields':fields,
-            'n_bins':n_bins,
+            'n_particles': n_particles,
+            'bounds': bounds,
+            'fields': fields,
+            'n_bins': n_bins,
         })
 
     composite_state['particles'] = particles['particles']

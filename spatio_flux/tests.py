@@ -128,8 +128,27 @@ def run_particles(total_time=60, core=None):
 
 
 def run_particle_comets(total_time=60, core=None):
-    state = get_particle_comets_state()
-    doc = {'composition': get_minimal_particle_composition(core), 'state': state}
+    particle_config = {
+        'grow': {
+            'vmax': 0.01,
+            'coefficient': 5.0,
+            'reactant': 'glucose',
+            'product': 'mass',
+        },
+        'release': {
+            'vmax': 0.001,
+            'coefficient': 1.0,
+            'reactant': 'mass',
+            'product': 'detritus',
+        }
+    }
+    state = get_particle_comets_state(
+        mol_ids=['glucose', 'acetate', 'detritus', 'biomass']
+    )
+    doc = {
+        'composition': get_minimal_particle_composition(core, config=particle_config),
+        'state': state
+    }
 
     # run the composite document
     results = run_composite_document(doc, time=total_time, core=core, name='particle_comets')
@@ -141,7 +160,7 @@ def run_particle_comets(total_time=60, core=None):
 
 
 def run_particles_dfba(total_time=60, core=None):
-    mol_ids = default_config['mol_ids']
+    mol_ids = ['glucose', 'acetate', 'detritus']
     state = get_particles_dfba_state(
         core,
         mol_ids=mol_ids)
@@ -168,6 +187,6 @@ if __name__ == '__main__':
     # run_dfba_spatial(core=core)
     # run_diffusion_process(core=core)
     # run_comets(core=core)
-    run_particles(core=core)
-    # run_particle_comets(core=core)
-    # run_particles_dfba(core=core)
+    # run_particles(core=core)
+    run_particle_comets(core=core)
+    run_particles_dfba(core=core)
