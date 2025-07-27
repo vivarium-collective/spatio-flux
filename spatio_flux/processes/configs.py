@@ -41,9 +41,9 @@ default_config = {
 }
 
 
-# =====
-# DFBA
-# =====
+# ===========
+# Single DFBA
+# ===========
 
 def get_dfba_config(
         model_file="textbook",
@@ -106,6 +106,9 @@ def get_dfba_process_state(
         }
     }
 
+# ============
+# Spatial DFBA
+# ============
 
 def get_spatial_dfba_spec(
         n_bins=(5, 5),
@@ -116,7 +119,9 @@ def get_spatial_dfba_spec(
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
-            dfba_processes_dict[f"[{i},{j}]"] = get_dfba_process_state(mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
+            # get a process state for each bin
+            dfba_processes_dict[f"[{i},{j}]"] = get_dfba_process_state(
+                mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
     return dfba_processes_dict
 
 
@@ -148,7 +153,7 @@ def get_spatial_dfba_state(
 # Diffusion-Advection
 # ===================
 
-def get_diffusion_advection_process_state(
+def get_diffusion_advection_process(
         bounds=(10.0, 10.0),
         n_bins=(5, 5),
         mol_ids=None,
@@ -226,7 +231,7 @@ def get_diffusion_advection_state(
             },
             **initial_fields,
         },
-        'diffusion': get_diffusion_advection_process_state(
+        'diffusion': get_diffusion_advection_process(
             bounds=bounds,
             n_bins=n_bins,
             mol_ids=mol_ids,
@@ -238,11 +243,11 @@ def get_diffusion_advection_state(
     }
 
 
-# ================
-# Particle & Field
-# ================
+# =================
+# Particle Movement
+# =================
 
-def get_particle_movement_process_state(
+def get_particle_movement_process(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
         diffusion_rate=1e-1,
@@ -269,7 +274,7 @@ def get_particle_movement_process_state(
     }
 
 
-def get_particles_state(
+def get_particle_movement_state(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
         n_particles=15,
@@ -297,7 +302,7 @@ def get_particles_state(
     return {
         'fields': fields,
         'particles': particles['particles'],
-        'particle_movement': get_particle_movement_process_state(
+        'particle_movement': get_particle_movement_process(
             n_bins=n_bins,
             bounds=bounds,
             diffusion_rate=diffusion_rate,
@@ -308,9 +313,9 @@ def get_particles_state(
     }
 
 
-# ============================
-# Particle COMETS Compositions
-# ============================
+# ===============
+# Particle-COMETS
+# ===============
 
 def get_minimal_particle_composition(core, config=None):
     config = config or core.default(MinimalParticle.config_schema)
@@ -371,7 +376,7 @@ def get_particle_comets_state(
         initial_min_max=initial_min_max
     )
     # add diffusion/advection process
-    composite_state['diffusion'] = get_diffusion_advection_process_state(
+    composite_state['diffusion'] = get_diffusion_advection_process(
         bounds=bounds,
         n_bins=n_bins,
         mol_ids=mol_ids,
@@ -396,7 +401,7 @@ def get_particle_comets_state(
         })
 
     composite_state['particles'] = particles['particles']
-    composite_state['particle_movement'] = get_particle_movement_process_state(
+    composite_state['particle_movement'] = get_particle_movement_process(
         n_bins=n_bins,
         bounds=bounds,
         diffusion_rate=particle_diffusion_rate,
@@ -408,6 +413,10 @@ def get_particle_comets_state(
 
     return composite_state
 
+
+# ==============
+# dFBA-Particles
+# ==============
 
 def get_particle_dfba_state(
         core,
@@ -436,7 +445,7 @@ def get_particle_dfba_state(
     composite_state = {}
 
     # add diffusion/advection process
-    composite_state['diffusion'] = get_diffusion_advection_process_state(
+    composite_state['diffusion'] = get_diffusion_advection_process(
         bounds=bounds,
         n_bins=n_bins,
         mol_ids=mol_ids,
@@ -461,7 +470,7 @@ def get_particle_dfba_state(
 
     composite_state['fields'] = fields
     composite_state['particles'] = particles['particles']
-    composite_state['particle_movement'] = get_particle_movement_process_state(
+    composite_state['particle_movement'] = get_particle_movement_process(
         n_bins=n_bins,
         bounds=bounds,
         diffusion_rate=particle_diffusion_rate,

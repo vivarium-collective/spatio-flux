@@ -16,8 +16,8 @@ from spatio_flux.viz.plot import (
 )
 from spatio_flux.processes import (
     get_dfba_process_state, get_spatial_dfba_state,
-    get_diffusion_advection_process_state, get_diffusion_advection_state,
-    get_particles_state, get_minimal_particle_composition, get_dfba_particle_composition,
+    get_diffusion_advection_process, get_diffusion_advection_state,
+    get_particle_movement_state, get_minimal_particle_composition, get_dfba_particle_composition,
     get_particle_dfba_state, default_config, get_particle_comets_state
 )
 
@@ -72,7 +72,7 @@ def get_comets_doc(core=None):
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-    state['diffusion'] = get_diffusion_advection_process_state(bounds, n_bins, mol_ids)
+    state['diffusion'] = get_diffusion_advection_process(bounds, n_bins, mol_ids)
     return state
 
 def plot_comets(results, state):
@@ -94,10 +94,10 @@ def get_particles_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particles_state(bounds=bounds, n_bins=(10, 20), n_particles=1,
-                                diffusion_rate=0.1, advection_rate=(0, -0.1),
-                                add_probability=0.4,
-                                initial_min_max={'glucose': (0.5, 2.0), 'detritus': (0, 0)})
+    state = get_particle_movement_state(bounds=bounds, n_bins=(10, 20), n_particles=1,
+                                        diffusion_rate=0.1, advection_rate=(0, -0.1),
+                                        add_probability=0.4,
+                                        initial_min_max={'glucose': (0.5, 2.0), 'detritus': (0, 0)})
     return {'state': state, 'composition': get_minimal_particle_composition(core=core, config=particle_config)}
 
 def plot_particles_sim(results, state):
@@ -106,7 +106,7 @@ def plot_particles_sim(results, state):
     plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particles_with_fields.gif', bounds=bounds)
 
-# --- Particles-COMETS ---------------------------------------------------
+# --- Particle-COMETS ----------------------------------------------------
 
 def get_particle_comets_doc(core=None):
     particle_config = {
