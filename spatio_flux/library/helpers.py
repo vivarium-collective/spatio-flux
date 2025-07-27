@@ -72,7 +72,7 @@ def run_composite_document(document, time=None, core=None, name=None):
     if 'emitter' not in document['state']:
         document['state']['emitter'] = get_standard_emitter()
 
-    print('Making the composite...')
+    print(f'Making composite {name}...')
     sim = Composite(document, core=core)
 
     # Save composition JSON
@@ -89,7 +89,7 @@ def run_composite_document(document, time=None, core=None, name=None):
         dpi='300',
     )
 
-    print('Simulating...')
+    print(f'Simulating {name}...')
     sim.run(time)
     results = gather_emitter_results(sim)
     return results[('emitter',)]

@@ -58,13 +58,12 @@ class DynamicFBA(Process):
         return {
             "substrates": "map[positive_float]",  # TODO this should be map[concentration]
             "biomass": "positive_float",
-            # "enzymes": "map[positive_float]"  # TODO this should be map[concentration]
         }
 
     def outputs(self):
         return {
-            "substrates": "map[positive_float]",
-            "biomass": "positive_float",
+            "substrates": "map[float]",
+            "biomass": "float",
         }
 
     # TODO -- can we just put the inputs/outputs directly in the function?
@@ -98,6 +97,7 @@ class DynamicFBA(Process):
             for substrate, reaction_id in self.config["substrate_update_reactions"].items():
                 substrate_update[substrate] = 0
 
+        # print(f'dFBA update: {substrate_update}, biomass update: {biomass_update}')
         return {
             "substrates": substrate_update,
             "biomass": biomass_update,

@@ -242,6 +242,17 @@ def plot_species_distributions_to_gif(
         data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
     display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
 
+def plot_particles_snapshot(ax, particles, mass_scaling=1.0, xmax=1.0, ymax=1.0, color='b', min_mass=0.01):
+    """
+    Plot particles on the given matplotlib axis.
+    """
+    for particle in particles.values():
+        x, y = particle['position']
+        mass = max(particle['mass'], min_mass)
+
+        if 0 <= x <= xmax and 0 <= y <= ymax:
+            ax.scatter(x, y, s=mass * mass_scaling, color=color)
+
 
 def plot_species_distributions_with_particles_to_gif(
         results,
@@ -300,10 +311,11 @@ def plot_species_distributions_with_particles_to_gif(
             ax.set_xlabel('x')
             ax.set_ylabel('y')
 
-            for particle in particles.values():
-                ax.scatter(particle['position'][0], particle['position'][1],
-                           s=particle['mass']*mass_scaling, color='b')
-
+            plot_particles_snapshot(ax,
+                           particles,
+                           mass_scaling=mass_scaling,
+                           xmax=xmax, ymax=ymax,
+                           color='b', min_mass=0.01)
         else:
             # Ensure axs is a list of axes
             if n_species == 1:
@@ -319,9 +331,11 @@ def plot_species_distributions_with_particles_to_gif(
                 ax.set_title(f'{species} at t = {times[i]:.2f}')
                 plt.colorbar(im, ax=ax)
 
-                for particle in particles.values():
-                    ax.scatter(particle['position'][0], particle['position'][1],
-                               s=particle['mass']*mass_scaling, color='b')
+                plot_particles_snapshot(ax,
+                               particles,
+                               mass_scaling=mass_scaling,
+                               xmax=xmax, ymax=ymax,
+                               color='b', min_mass=0.01)
 
         fig.suptitle(title, fontsize=16)
         plt.subplots_adjust(wspace=0.1, hspace=0.1)

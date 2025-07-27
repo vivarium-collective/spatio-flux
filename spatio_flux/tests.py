@@ -1,3 +1,4 @@
+import argparse
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
@@ -161,19 +162,28 @@ def run_particle_comets(total_time=60, core=None):
 
 
 def run_particles_dfba(total_time=60, core=None):
-    mol_ids = ['glucose', 'acetate', 'detritus']
+    mol_ids = ['glucose', 'acetate']
     state = get_particles_dfba_state(
         core,
+        n_particles=2,
+        particle_add_probability=0.3,
+        particle_boundary_to_add=[
+            'top', 'bottom', 'left', 'right'
+        ],
+        particle_boundary_to_remove=[
+            'top', 'bottom', 'left', 'right'
+        ],
         mol_ids=mol_ids,
         initial_min_max={
-            'glucose': (0, 1),
+            'glucose': (1, 10),
             'acetate': (0, 0),
-            'detritus': (0, 0)
         }
     )
+    particle_composition = get_dfba_particle_composition()
+
     doc = {
         'state': state,
-        'composition': get_dfba_particle_composition(),
+        'composition': particle_composition,
     }
 
     # run the composite document
@@ -181,24 +191,84 @@ def run_particles_dfba(total_time=60, core=None):
 
     # plotting
     n_bins, bounds = state['particles_process']['config']['n_bins'], state['particles_process']['config']['bounds']
-    plot_time_series(
-        results, field_names=['glucose', 'acetate', 'detritus'],
-        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_dfba_timeseries.png')
-    plot_particles_mass(
-        results, out_dir='out', filename='particle_dfba_mass.png')
-    plot_species_distributions_with_particles_to_gif(
-        results, out_dir='out', filename='particle_dfba_with_fields.gif', bounds=bounds)
+    plot_time_series(results, field_names=mol_ids, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+                     out_dir='out', filename='particle_dfba_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename='particle_dfba_mass.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds,
+                                                     out_dir='out', filename='particle_dfba_with_fields.gif')
 
 
-if __name__ == '__main__':
+SIMULATIONS = {
+    'dfba_single': run_dfba_single,
+    'dfba_spatial': run_dfba_spatial,
+    'diffusion_process': run_diffusion_process,
+    'comets': run_comets,
+    'particles': run_particles,
+    'particle_comets': run_particle_comets,
+    'particles_dfba': run_particles_dfba,
+}
+
+DEFAULT_TESTS = [
+    'dfba_single',
+    'dfba_spatial',
+    'diffusion_process',
+    'comets',
+    'particles',
+    'particle_comets',
+    'particles_dfba',
+]
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run selected simulations.")
+    parser.add_argument(
+        '--tests', nargs='*', default=None,
+        help='Names of tests to run. If none given, runs the default set.'
+    )
+    parser.add_argument('--time', type=int, default=60, help='Simulation time')
+    parser.add_argument('--output', default='out', help='Output directory')
+    parser.add_argument('--report', default='report.html', help='Output HTML report filename')
+    return parser.parse_args()
+
+from pathlib import Path
+
+def generate_html_report(output_dir, report_file):
+    html = ['<html><head><title>Simulation Results</title></head><body>']
+    html.append('<h1>Simulation Results</h1>')
+
+    files = sorted(Path(output_dir).glob('*'))
+    for file in files:
+        name = file.name
+        if name.endswith('.png'):
+            html.append(f'<h2>{name}</h2><img src="{name}" style="max-width:100%"><hr>')
+        elif name.endswith('.gif'):
+            html.append(f'<h2>{name}</h2><img src="{name}" style="max-width:100%"><hr>')
+        else:
+            html.append(f'<p>Generated: {name}</p>')
+
+    html.append('</body></html>')
+    report_path = Path(output_dir) / report_file
+    with open(report_path, 'w') as f:
+        f.write('\n'.join(html))
+    print(f"✅ Report generated at: {report_path}")
+
+def main():
+    args = parse_args()
+
+    tests_to_run = args.tests if args.tests else DEFAULT_TESTS
+
     core = VivariumTypes()
     core = register_process_types(core)
     core = register_types(core)
 
-    # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core)
-    # run_diffusion_process(core=core)
-    # run_comets(core=core)
-    # run_particles(core=core)
-    # run_particle_comets(core=core)
-    run_particles_dfba(core=core)
+    for name in tests_to_run:
+        print(f"\n🚀 Running: {name}")
+        if name not in SIMULATIONS:
+            print(f"⚠️  Unknown test: {name}")
+            continue
+        SIMULATIONS[name](total_time=args.time, core=core)
+
+    generate_html_report(args.output, args.report)
+
+
+if __name__ == '__main__':
+    main()
