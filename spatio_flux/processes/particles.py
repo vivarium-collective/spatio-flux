@@ -60,11 +60,11 @@ def generate_single_particle_state(config=None):
     n_bins = config['n_bins']
     fields = config.get('fields', {})
     mol_ids = fields.keys()
-    size_range = config.get('size_range', (10, 100))
+    mass_range = config.get('mass_range', (1E-3, 1))
 
     # get particle properties
     position = tuple(np.random.uniform(low=[0, 0], high=[bounds[0], bounds[1]], size=2))
-    size = np.random.uniform(size_range[0], size_range[1])
+    mass = np.random.uniform(mass_range[0], mass_range[1])
     x, y = get_bin_position(position, n_bins, ((0.0, bounds[0]), (0.0, bounds[1])))
     # TODO update local and exchange values
     local = get_local_field_values(fields, column=x, row=y)
@@ -72,9 +72,8 @@ def generate_single_particle_state(config=None):
 
     return {
         'position': position,
-        'size': size,
         'local': local,
-        'mass': np.random.uniform(low=0, high=1),
+        'mass': mass,
         'exchange': exchanges
     }
 
@@ -142,7 +141,7 @@ class Particles(Process):
         n_bins = config.get('n_bins', (1,1))
         bounds = config.get('bounds',(1.0,1.0))
         n_particles = config.get('n_particles', 15)
-        size_range = config.get('size_range', (10, 100))
+        mass_range = config.get('mass_range', (1E-3, 1))
 
         # assert n_bins from the shape of the first field array
         if len(fields) > 0:
@@ -158,7 +157,7 @@ class Particles(Process):
             id = short_id()
             particles[id] = generate_single_particle_state(config={
                 'bounds': bounds,
-                'size_range': size_range,
+                'mass_range': mass_range,
                 'n_bins': n_bins,
                 'fields': fields,
             })
@@ -200,8 +199,10 @@ class Particles(Process):
             # Update local environment values for each particle
             updated_particle['local'] = get_local_field_values(fields, column=x, row=y)
 
-            # Apply exchanges and reset
+            # Apply exchanges to fields and reset
             exchange = particle['exchange']
+
+            print(f'particle {particle_id} exchange: {exchange}')
             for mol_id, exchange_rate in exchange.items():
                 new_fields[mol_id][x, y] += exchange_rate
                 updated_particle['exchange'][mol_id] = 0.0

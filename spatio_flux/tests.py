@@ -161,10 +161,11 @@ def run_particle_comets(total_time=60, core=None):
 
 
 def run_particles_dfba(total_time=60, core=None):
-    mol_ids = ['glucose', 'acetate', 'detritus']
     state = get_particles_dfba_state(
         core,
-        mol_ids=mol_ids,
+        n_particles=1,
+        particle_add_probability=0.1,
+        mol_ids=['glucose', 'acetate', 'detritus'],
         initial_min_max={
             'glucose': (0, 1),
             'acetate': (0, 0),

@@ -98,6 +98,7 @@ class DynamicFBA(Process):
             for substrate, reaction_id in self.config["substrate_update_reactions"].items():
                 substrate_update[substrate] = 0
 
+        print(f'dFBA update: {substrate_update}, biomass update: {biomass_update}')
         return {
             "substrates": substrate_update,
             "biomass": biomass_update,
