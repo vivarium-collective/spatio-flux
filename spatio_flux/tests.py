@@ -73,31 +73,6 @@ def run_diffusion_process(total_time=60, core=None):
     plot_species_distributions_to_gif(results, out_dir='out', filename='diff_advec_results.gif')
 
 
-def run_particles(total_time=60, core=None):
-    bounds = (10.0, 20.0)
-    initial_min_max = {
-        'biomass': (0.5, 2.0),
-        'detritus': (0, 0),
-    }
-    state = get_particles_state(
-        bounds=bounds, n_bins=(10, 20),
-        n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4,
-        initial_min_max=initial_min_max
-    )
-    doc = {
-        'state': state,
-        'composition': get_minimal_particle_composition(core)
-    }
-
-    # run the composite document
-    results = run_composite_document(doc, time=total_time, core=core, name='particles')
-
-    # plotting
-    history = [step['particles'] for step in results]
-    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_with_fields.gif', bounds=bounds)
-
-
 def run_comets(total_time=60, core=None):
     bounds, n_bins = (10.0, 10.0), (10, 10)
     mol_ids = default_config['mol_ids']
@@ -111,6 +86,45 @@ def run_comets(total_time=60, core=None):
     # plotting
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='comets_results.gif')
+
+
+def run_particles(total_time=60, core=None):
+    bounds = (10.0, 20.0)
+    initial_min_max = {
+        'glucose': (0.5, 2.0),
+        'detritus': (0, 0),
+    }
+    particle_config = {
+        'grow': {
+            'vmax': 0.01,
+            'coefficient': 5.0,
+            'reactant': 'glucose',
+            'product': 'mass',
+        },
+        'release': {
+            'vmax': 0.001,
+            'coefficient': 1.0,
+            'reactant': 'mass',
+            'product': 'detritus',
+        }
+    }
+    state = get_particles_state(
+        bounds=bounds, n_bins=(10, 20),
+        n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4,
+        initial_min_max=initial_min_max
+    )
+    doc = {
+        'state': state,
+        'composition': get_minimal_particle_composition(core=core, config=particle_config)
+    }
+
+    # run the composite document
+    results = run_composite_document(doc, time=total_time, core=core, name='particles')
+
+    # plotting
+    history = [step['particles'] for step in results]
+    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_with_fields.gif', bounds=bounds)
 
 
 def run_particle_comets(total_time=60, core=None):
@@ -150,10 +164,10 @@ if __name__ == '__main__':
     core = register_process_types(core)
     core = register_types(core)
 
-    run_dfba_single(core=core)
-    run_dfba_spatial(core=core)
-    run_diffusion_process(core=core)
+    # run_dfba_single(core=core)
+    # run_dfba_spatial(core=core)
+    # run_diffusion_process(core=core)
+    # run_comets(core=core)
     run_particles(core=core)
-    run_comets(core=core)
-    run_particle_comets(core=core)
-    run_particles_dfba(core=core)
+    # run_particle_comets(core=core)
+    # run_particles_dfba(core=core)

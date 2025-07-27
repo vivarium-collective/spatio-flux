@@ -254,131 +254,70 @@ class Particles(Process):
 
 
 class MinimalParticle(Process):
-    # TODO: remove kcat and enzyme option
-    #   or support them?
-
     config_schema = {
         'reactions': {
             '_type': 'map[reaction]',
             '_default': {
                 'grow': {
-                    'biomass': {
-                        'vmax': 0.01,
-                        'kcat': 0.01,
-                        'role': 'reactant'},
-                    'detritus': {
-                        'vmax': 0.001,
-                        'kcat': 0.001,
-                        'role': 'product'}}}}}
-
+                    'vmax': 0.01,
+                    'coefficient': 2.0,
+                    'reactant': 'glucose',
+                    'product': 'mass',
+                },
+                'release': {
+                    'vmax': 0.001,
+                    'coefficient': 1.0,
+                    'reactant': 'mass',
+                    'product': 'detritus',
+                }
+            }
+        }
+    }
 
     def initialize(self, config):
-        self.roles = {}
-
-        for reaction_name, reaction in self.config['reactions'].items():
-            self.roles[reaction_name] = {}
-            for substrate, rates in reaction.items():
-                role = rates['role']
-                if role not in self.roles[reaction_name]:
-                    self.roles[reaction_name][role] = []
-                self.roles[reaction_name][role].append(substrate)
-
+        self.reactions = config['reactions']
 
     def inputs(self):
         return {
             'mass': 'float',
-            'substrates': 'map[positive_float]'}
-
+            'substrates': 'map[positive_float]'
+        }
 
     def outputs(self):
         return {
             'mass': 'float',
-            'substrates': 'map[float]'}
-
+            'substrates': 'map[float]'
+        }
 
     def update(self, state, interval):
-        mass = state['mass']
         substrates = state['substrates']
-        exchanges = {}
-        reaction_rates = {}
+        exchanges = {mol_id: 0.0 for mol_id in substrates}
+        mass = state['mass']
+        mass_change = 0.0
 
-        for reaction_name, reaction in self.config['reactions'].items():
-            numerator = 1
-            kproduct = 1
-            concentration_product = 1
-            terms = 0
+        for reaction in self.reactions.values():
+            reactant = reaction['reactant']
+            if reactant not in substrates and reactant != 'mass':
+                exchanges[reactant] = 0.0
+                # raise ValueError(f"Reactant '{reactant}' not found in substrates or mass.")
+            product = reaction['product']
+            vmax = reaction['vmax']
+            coeff = reaction['coefficient']
 
-            roles = self.roles[reaction_name]
-            for reactant in roles['reactant']:
-                if reactant not in substrates:
-                    continue
-                rates = reaction[reactant]
-                vmax = rates['vmax'] * substrates[reactant]
-                numerator *= vmax
-                kproduct *= rates['kcat']
-                concentration_product *= substrates[reactant]
-                terms = 0
+            conc = mass if reactant == 'mass' else substrates.get(reactant, 0.0)
+            rate = vmax * conc
 
-                for interaction in roles['reactant']:
-                    if interaction != reactant:
-                        terms += rates['kcat'] * substrates[interaction]
-
-            denominator = kproduct + terms + concentration_product
-            reaction_rate = numerator / denominator
-            reaction_rates[reaction_name] = reaction_rate
-
-            total_reactant = 0
-            for reactant in roles['reactant']:
-                if not reactant in exchanges:
-                    exchanges[reactant] = 0
-                exchanges[reactant] -= reaction_rate
-                total_reactant += reaction_rate
-            for product in roles['product']:
-                if not product in exchanges:
-                    exchanges[product] = 0
-                exchanges[product] += reaction_rate
-
-        update = {
-            'mass': total_reactant,
-            'substrates': exchanges}
-
-        return update
-
-
-    def large_update(self, state, interval):
-        substrates_input = state['substrates']
-        exchanges = {}
-
-        # Helper functions for interaction types
-        def michaelis_menten(uptake_value, vmax, Km):
-            """Michaelis-Menten rate law for uptake."""
-            return (vmax * uptake_value) / (Km + uptake_value) if Km + uptake_value > 0 else 0
-
-        def calculate_uptake(field_value, vmax, Km):
-            """Calculate the net uptake value."""
-            uptake_rate = michaelis_menten(field_value, vmax, Km)
-            absorbed_value = min(uptake_rate, field_value)  # Limit to available substrate
-            return -absorbed_value  # Negative for uptake
-
-        def calculate_secretion(vmax):
-            """Calculate the net secretion value."""
-            return vmax  # Secretion value is directly proportional to vmax
-
-        # Process each field interaction
-        for field, interaction_params in self.config['particle_field_interactions'].items():
-            local_field_value = substrates_input.get(field, 0)
-            vmax = interaction_params['vmax']
-            Km = interaction_params.get('Km', 1)  # Default Km to 1 if not specified
-            interaction_type = interaction_params.get('interaction_type', 'uptake')  # Default to 'uptake'
-
-            if interaction_type == 'uptake' and local_field_value > 0:
-                exchanges[field] = calculate_uptake(local_field_value, vmax, Km)
-            elif interaction_type == 'secretion':
-                exchanges[field] = calculate_secretion(vmax)
+            if reactant == 'mass':
+                mass_change -= rate * coeff
             else:
-                exchanges[field] = 0  # No interaction by default
+                exchanges[reactant] -= rate * coeff
 
-        # Return updated substrates
+            if product == 'mass':
+                mass_change += rate
+            else:
+                exchanges[product] = exchanges.get(product, 0.0) + rate
+
         return {
+            'mass': mass_change,
             'substrates': exchanges
         }
