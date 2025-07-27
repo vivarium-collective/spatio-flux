@@ -17,8 +17,7 @@ from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_st
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec, get_diffusion_advection_state
 from spatio_flux.processes.particles import (
     MinimalParticle, get_particles_state, get_minimal_particle_composition, get_dfba_particle_composition)
-from spatio_flux.processes.particle_comets import get_particle_comets_state, default_config
-from spatio_flux.processes.particles_dfba import get_particles_dfba_state, default_config
+from spatio_flux.processes.configs import get_particles_dfba_state, default_config, get_particle_comets_state
 
 
 # =====================
