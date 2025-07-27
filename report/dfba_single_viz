@@ -29,14 +29,19 @@ digraph bigraph {
 		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
+	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('emitter',)" {
+		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
 		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('emitter',)" {
-		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba',)" {
+		"('fields', 'biomass')" -> "('dfba',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -47,11 +52,6 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('dfba',)" {
 		"('fields', 'acetate')" -> "('dfba',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('dfba',)" {
-		"('fields', 'biomass')" -> "('dfba',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]

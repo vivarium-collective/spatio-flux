@@ -331,14 +331,19 @@ digraph bigraph {
 		"('fields',)" -> "('emitter',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
+	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('emitter',)" {
+		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	"('particles',)" [label=<particles> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('emitter',)" {
 		"('particles',)" -> "('emitter',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	"('global_time',)" [label=<global_time> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('emitter',)" {
-		"('global_time',)" -> "('emitter',)" [label=<global_time> constraint=true fontsize="10pt" labelloc=t]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('spatial_dfba', '[0,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -357,8 +362,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -377,8 +382,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -397,8 +402,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -417,8 +422,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -437,8 +442,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -457,8 +462,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -477,8 +482,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -497,8 +502,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -517,8 +522,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[0,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[0,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -537,8 +542,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[0,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[0,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -557,8 +562,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -577,8 +582,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -597,8 +602,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -617,8 +622,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -637,8 +642,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -657,8 +662,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -677,8 +682,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -697,8 +702,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -717,8 +722,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[1,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[1,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -737,8 +742,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[1,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[1,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -757,8 +762,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -777,8 +782,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -797,8 +802,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -817,8 +822,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -837,8 +842,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -857,8 +862,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -877,8 +882,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -897,8 +902,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -917,8 +922,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[2,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[2,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -937,8 +942,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[2,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[2,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -957,8 +962,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -977,8 +982,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -997,8 +1002,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1017,8 +1022,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1037,8 +1042,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1057,8 +1062,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1077,8 +1082,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1097,8 +1102,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1117,8 +1122,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[3,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[3,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1137,8 +1142,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[3,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[3,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1157,8 +1162,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1177,8 +1182,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1197,8 +1202,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1217,8 +1222,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1237,8 +1242,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1257,8 +1262,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1277,8 +1282,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1297,8 +1302,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1317,8 +1322,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[4,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[4,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1337,8 +1342,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[4,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[4,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1357,8 +1362,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1377,8 +1382,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1397,8 +1402,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1417,8 +1422,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1437,8 +1442,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1457,8 +1462,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1477,8 +1482,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1497,8 +1502,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1517,8 +1522,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[5,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[5,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1537,8 +1542,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[5,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[5,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1557,8 +1562,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1577,8 +1582,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1597,8 +1602,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1617,8 +1622,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1637,8 +1642,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1657,8 +1662,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1677,8 +1682,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1697,8 +1702,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1717,8 +1722,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[6,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[6,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1737,8 +1742,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[6,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[6,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1757,8 +1762,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1777,8 +1782,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1797,8 +1802,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1817,8 +1822,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1837,8 +1842,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1857,8 +1862,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1877,8 +1882,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1897,8 +1902,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1917,8 +1922,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[7,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[7,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1937,8 +1942,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[7,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[7,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1957,8 +1962,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1977,8 +1982,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -1997,8 +2002,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2017,8 +2022,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2037,8 +2042,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2057,8 +2062,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2077,8 +2082,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2097,8 +2102,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2117,8 +2122,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[8,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[8,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2137,8 +2142,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[8,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[8,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,0]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2157,8 +2162,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,1]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2177,8 +2182,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,1]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,1]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,2]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2197,8 +2202,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,2]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,2]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,3]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2217,8 +2222,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,3]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,3]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,4]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2237,8 +2242,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,4]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,4]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,5]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2257,8 +2262,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,5]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,5]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,6]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2277,8 +2282,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,6]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,6]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,7]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2297,8 +2302,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,7]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,7]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,8]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2317,8 +2322,8 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,8]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,8]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('spatial_dfba', '[9,9]')" {
+		"('fields', 'biomass')" -> "('spatial_dfba', '[9,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -2329,11 +2334,6 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('spatial_dfba', '[9,9]')" {
 		"('fields', 'acetate')" -> "('spatial_dfba', '[9,9]')" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', '[9,9]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', '[9,9]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
