@@ -44,7 +44,7 @@ default_config = {
 # DFBA
 # =====
 
-def dfba_config(
+def get_dfba_config(
         model_file="textbook",
         kinetic_params=None,
         substrate_update_reactions=None,
@@ -72,7 +72,7 @@ def dfba_config(
     }
 
 
-def get_single_dfba_spec(
+def get_dfba_process_state(
         model_file="textbook",
         mol_ids=None,
         path=None,
@@ -90,7 +90,7 @@ def get_single_dfba_spec(
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
-        "config": dfba_config(model_file=model_file),
+        "config": get_dfba_config(model_file=model_file),
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids}
         },
@@ -109,7 +109,7 @@ def get_spatial_dfba_spec(
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
-            dfba_processes_dict[f"[{i},{j}]"] = get_single_dfba_spec(mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
+            dfba_processes_dict[f"[{i},{j}]"] = get_dfba_process_state(mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
     return dfba_processes_dict
 
 
@@ -141,7 +141,7 @@ def get_spatial_dfba_state(
 # Diffusion-Advection
 # ===================
 
-def get_diffusion_advection_spec(
+def get_diffusion_advection_process_state(
         bounds=(10.0, 10.0),
         n_bins=(5, 5),
         mol_ids=None,
@@ -219,7 +219,7 @@ def get_diffusion_advection_state(
             },
             **initial_fields,
         },
-        'diffusion': get_diffusion_advection_spec(
+        'diffusion': get_diffusion_advection_process_state(
             bounds=bounds,
             n_bins=n_bins,
             mol_ids=mol_ids,
@@ -235,7 +235,7 @@ def get_diffusion_advection_state(
 # Particle & Field
 # ================
 
-def get_particles_spec(
+def get_particle_movement_process_state(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
         diffusion_rate=1e-1,
@@ -256,7 +256,9 @@ def get_particles_spec(
             'fields': ['fields']},
         'outputs': {
             'particles': ['particles'],
-            'fields': ['fields']}}
+            'fields': ['fields']
+        }
+    }
 
 
 def get_particles_state(
@@ -287,7 +289,7 @@ def get_particles_state(
     return {
         'fields': fields,
         'particles': particles['particles'],
-        'particle_movement': get_particles_spec(
+        'particle_movement': get_particle_movement_process_state(
             n_bins=n_bins,
             bounds=bounds,
             diffusion_rate=diffusion_rate,
@@ -366,7 +368,7 @@ def get_particle_comets_state(
         initial_min_max=initial_min_max
     )
     # add diffusion/advection process
-    composite_state['diffusion'] = get_diffusion_advection_spec(
+    composite_state['diffusion'] = get_diffusion_advection_process_state(
         bounds=bounds,
         n_bins=n_bins,
         mol_ids=mol_ids,
@@ -391,7 +393,7 @@ def get_particle_comets_state(
         })
 
     composite_state['particles'] = particles['particles']
-    composite_state['particles_process'] = get_particles_spec(
+    composite_state['particles_process'] = get_particle_movement_process_state(
         n_bins=n_bins,
         bounds=bounds,
         diffusion_rate=particle_diffusion_rate,
@@ -432,7 +434,7 @@ def get_particles_dfba_state(
     composite_state = {}
 
     # add diffusion/advection process
-    composite_state['diffusion'] = get_diffusion_advection_spec(
+    composite_state['diffusion'] = get_diffusion_advection_process_state(
         bounds=bounds,
         n_bins=n_bins,
         mol_ids=mol_ids,
@@ -457,7 +459,7 @@ def get_particles_dfba_state(
 
     composite_state['fields'] = fields
     composite_state['particles'] = particles['particles']
-    composite_state['particles_process'] = get_particles_spec(
+    composite_state['particles_process'] = get_particle_movement_process_state(
         n_bins=n_bins,
         bounds=bounds,
         diffusion_rate=particle_diffusion_rate,
@@ -471,7 +473,7 @@ def get_particles_dfba_state(
 
 
 def get_dfba_particle_composition(core=None, config=None):
-    config = config or dfba_config()
+    config = config or get_dfba_config()
     return {
         'particles': {
             '_type': 'map',

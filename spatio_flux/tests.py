@@ -10,8 +10,8 @@ from spatio_flux.viz.plot import (
     plot_particles
 )
 from spatio_flux.processes import (
-    get_single_dfba_spec, get_spatial_dfba_state,
-    get_diffusion_advection_spec, get_diffusion_advection_state,
+    get_dfba_process_state, get_spatial_dfba_state,
+    get_diffusion_advection_process_state, get_diffusion_advection_state,
     get_particles_state, get_minimal_particle_composition, get_dfba_particle_composition,
     get_particles_dfba_state, default_config, get_particle_comets_state
 )
@@ -24,7 +24,7 @@ from spatio_flux.processes import (
 def run_dfba_single(total_time=60, core=None):
     mol_ids = ["glucose", "acetate", "biomass"]
     doc = {
-        'dfba': get_single_dfba_spec(
+        'dfba': get_dfba_process_state(
             path=['fields'],
             mol_ids=mol_ids,
         ),
@@ -103,7 +103,7 @@ def run_comets(total_time=60, core=None):
     mol_ids = default_config['mol_ids']
     initial_min_max = default_config['initial_min_max']
     state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-    state['diffusion'] = get_diffusion_advection_spec(bounds, n_bins, mol_ids)
+    state['diffusion'] = get_diffusion_advection_process_state(bounds, n_bins, mol_ids)
 
     # run the composite document
     results = run_composite_document(state, time=total_time, core=core, name='comets')
