@@ -1,0 +1,54 @@
+name: Run Simulation Tests and Publish Report
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'spatio_flux/tests.py'
+      - '.github/workflows/run-tests-and-publish-report.yml'
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed for gh-pages access
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install matplotlib imageio ipython jupyter
+
+      - name: Run tests and generate report
+        run: |
+          mkdir -p out
+          python spatio_flux/tests.py --output out
+
+      - name: Commit and push report to gh-pages
+        run: |
+          git config --local user.email "eagmon@github.com"
+          git config --local user.name "GitHub Action"
+          git fetch origin
+
+          # Move report.html to a temporary location
+          mv out/report.html /tmp/report.html
+
+          # Switch to gh-pages branch (create if needed)
+          git checkout gh-pages || git checkout --orphan gh-pages
+          git pull origin gh-pages || true
+
+          # Place report.html as index.html
+          mkdir -p report
+          mv -f /tmp/report.html report/index.html
+          git add report/index.html
+          git diff-index --quiet HEAD || git commit -m "Update test report"
+          git push origin gh-pages || true
