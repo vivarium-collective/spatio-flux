@@ -209,7 +209,7 @@ def get_diffusion_advection_state(
     if initial_max is None:
         initial_max = {
             'glucose': 20,
-            'acetate': 0,
+            'acetate': 0.01,
             'biomass': 0.1
         }
     initial_fields = {

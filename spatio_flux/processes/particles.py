@@ -192,7 +192,7 @@ class Particles(Process):
             if self.check_boundary_hit(new_x_position, new_y_position):
                 new_particles['_remove'].append(particle_id)
                 continue  # Remove particle if it hits a boundary
-            # clip if hit a boundary
+            # clip if hit a boundary and not removed
             x_min, x_max = self.env_size[0]
             y_min, y_max = self.env_size[1]
             if not (x_min <= new_x_position <= x_max and y_min <= new_y_position <= y_max):

@@ -164,13 +164,13 @@ def run_particles_dfba(total_time=60, core=None):
     state = get_particles_dfba_state(
         core,
         n_particles=2,
-        particle_add_probability=0.4,
+        particle_add_probability=0.3,
         particle_boundary_to_add=[
             'top', 'bottom', 'left', 'right'
         ],
-        particle_boundary_to_remove=[],
-            # 'top', 'bottom', 'left', 'right'
-        # ],
+        particle_boundary_to_remove=[
+            'top', 'bottom', 'left', 'right'
+        ],
         mol_ids=['glucose', 'acetate', 'detritus'],
         initial_min_max={
             'glucose': (1E-1, 1),
@@ -178,9 +178,11 @@ def run_particles_dfba(total_time=60, core=None):
             'detritus': (0, 0)
         }
     )
+    particle_composition = get_dfba_particle_composition()
+
     doc = {
         'state': state,
-        'composition': get_dfba_particle_composition(),
+        'composition': particle_composition,
     }
 
     # run the composite document
@@ -202,10 +204,10 @@ if __name__ == '__main__':
     core = register_process_types(core)
     core = register_types(core)
 
-    # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core)
-    # run_diffusion_process(core=core)
-    # run_comets(core=core)
-    # run_particles(core=core)
-    # run_particle_comets(core=core)
+    run_dfba_single(core=core)
+    run_dfba_spatial(core=core)
+    run_diffusion_process(core=core)
+    run_comets(core=core)
+    run_particles(core=core)
+    run_particle_comets(core=core)
     run_particles_dfba(core=core)
