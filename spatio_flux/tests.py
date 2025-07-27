@@ -18,6 +18,7 @@ import argparse
 from pathlib import Path
 import shutil
 import numpy as np
+import time
 
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
@@ -46,7 +47,7 @@ DEFAULT_ADD_PROBABILITY = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 
-DEFAULT_RUNTIME = 60
+DEFAULT_RUNTIME = 40
 
 SIMULATIONS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
@@ -255,55 +256,57 @@ def prepare_output_dir(output_dir):
     output_path.mkdir(parents=True, exist_ok=True)
 
 
-def generate_html_report(output_dir):
-    report_file = 'report.html'
+def generate_html_report(output_dir, runtimes=None, total_runtime=None):
     output_dir = Path(output_dir)
+    report_path = output_dir / 'report.html'
     all_files = list(output_dir.glob('*'))
 
-    html = ['<html><head><title>Simulation Results</title></head><body>']
-    html.append('<h1>Simulation Results</h1>')
+    html = [
+        '<html><head><title>Simulation Results</title></head><body>',
+        '<h1>Simulation Results</h1>'
+    ]
 
-    # Group files by test based on prefix matching
-    test_figures = {test: [] for test in SIMULATIONS.keys()}
+    # Group files by test name
+    test_figures = {test: [] for test in SIMULATIONS}
     others = []
 
     for file in all_files:
-        if file.name == report_file:
-            continue  # Skip self
-        matched = False
+        if file.name == report_path.name:
+            continue
         for test in test_figures:
             if file.name.startswith(test):
                 test_figures[test].append(file)
-                matched = True
                 break
-        if not matched:
+        else:
             others.append(file)
 
-    # Add ordered sections per test
-    for test_name in SIMULATIONS.keys():
-        files = sorted(test_figures[test_name])
+    # Test-specific sections
+    for test, files in test_figures.items():
         if not files:
             continue
-
-        html.append(f'<h2>{test_name}</h2>')
-        for file in files:
-            name = file.name
-            if name.endswith(('.png', '.gif')):
-                html.append(f'<h3>{name}</h3>')
-                html.append(f'<img src="{name}" style="max-width:100%"><hr>')
+        runtime_str = f" <small>(Runtime: {runtimes[test]:.2f} s)</small>" if runtimes and test in runtimes else ""
+        html.append(f'<h2>{test}{runtime_str}</h2>')
+        for f in sorted(files):
+            if f.suffix in {'.png', '.gif'}:
+                html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
             else:
-                html.append(f'<p>Generated file: {name}</p>')
+                html.append(f'<p>Generated file: {f.name}</p>')
 
-    # Add miscellaneous files
+    # Miscellaneous files
     if others:
         html.append('<h2>Other Generated Files</h2>')
-        for file in sorted(others):
-            html.append(f'<p>{file.name}</p>')
+        html += [f'<p>{f.name}</p>' for f in sorted(others)]
+
+    # Total runtime
+    if total_runtime:
+        html.append(f'<h2>Total Runtime</h2><p><strong>{total_runtime:.2f} seconds</strong></p>')
 
     html.append('</body></html>')
-    report_path = output_dir / report_file
+
     with open(report_path, 'w') as f:
         f.write('\n'.join(html))
+
+    print(f"✅ Report generated at: {report_path}")
 
 
 def main():
@@ -320,6 +323,9 @@ def main():
     core = register_process_types(core)
     core = register_types(core)
 
+    runtimes = {}
+    total_start = time.time()
+
     for name in tests_to_run:
         print(f"\n🚀 Running test: {name}")
         if name not in DOCUMENT_CREATORS:
@@ -331,15 +337,23 @@ def main():
 
         print("Sending document...")
         config = SIMULATIONS[name]
+
+        start_time = time.time()
         results = run_composite_document(doc, core=core, name=name, **config)
+        end_time = time.time()
+        elapsed = end_time - start_time
+        runtimes[name] = elapsed
 
         print("Generating plots...")
         PLOTTERS[name](results, doc.get('state', doc))
 
-        print(f"✅ Completed: {name}")
+        print(f"✅ Completed: {name} in {elapsed:.2f} seconds")
 
-    print("\n📝 Compiling HTML report...")
-    generate_html_report(output_dir)
+    total_elapsed = time.time() - total_start
+    print(f"\nCompiling HTML report...")
+    generate_html_report(output_dir, runtimes, total_elapsed)
+
+    print(f"\nTotal runtime for all tests: {total_elapsed:.2f} seconds")
 
 
 if __name__ == '__main__':
