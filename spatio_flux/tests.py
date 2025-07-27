@@ -17,6 +17,7 @@ Usage:
 import argparse
 from pathlib import Path
 import shutil
+import numpy as np
 
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
@@ -38,14 +39,14 @@ from spatio_flux.processes import (
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (5, 10)
+DEFAULT_BINS = (6, 12)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 
-DEFAULT_RUNTIME = 40
+DEFAULT_RUNTIME = 60
 
 SIMULATIONS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
@@ -110,7 +111,25 @@ def get_comets_doc(core=None):
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     advection_coeffs = {'biomass': DEFAULT_ADVECTION}
-    state = get_spatial_dfba_state(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids, initial_min_max=initial_min_max)
+
+    bins_x = DEFAULT_BINS[1]
+    bins_y = DEFAULT_BINS[0]
+
+    # Initialize acetate concentration across the grid to zero.
+    acetate_field = np.zeros((bins_x, bins_y))
+
+    # Generate a vertical glucose concentration gradient from 1 at the top to 0 at the bottom.
+    vertical_gradient = np.linspace(10, 0, bins_x).reshape(-1, 1)  # Create the gradient for a single column.
+    glc_field = np.repeat(vertical_gradient, bins_y, axis=1)  # Replicate the gradient across all columns.
+
+    # place some biomass
+    biomass_field = np.zeros((bins_x, bins_y))
+    biomass_field[0:2, :] = 1.0
+
+    initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
+    state = get_spatial_dfba_state(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids,
+                                   initial_fields=initial_fields,
+                                   initial_min_max=initial_min_max)
     state['diffusion'] = get_diffusion_advection_process(mol_ids=mol_ids, advection_coeffs=advection_coeffs,
         bounds=reversed_bins(DEFAULT_BOUNDS), n_bins=reversed_bins(DEFAULT_BINS))
     return state
