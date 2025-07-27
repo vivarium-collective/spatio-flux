@@ -173,7 +173,7 @@ def run_particles_dfba(total_time=60, core=None):
         ],
         mol_ids=['glucose', 'acetate', 'detritus'],
         initial_min_max={
-            'glucose': (1E-1, 1),
+            'glucose': (1, 10),
             'acetate': (0, 0),
             'detritus': (0, 0)
         }
