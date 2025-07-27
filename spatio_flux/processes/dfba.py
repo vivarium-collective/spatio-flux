@@ -2,103 +2,112 @@
 Dynamic FBA simulation
 ======================
 
-Process for a pluggable dFBA simulation.
+A pluggable dynamic Flux Balance Analysis (dFBA) process.
+Performs time-stepped metabolic modeling by combining COBRApy-based
+optimization with kinetic uptake constraints.
 """
 
 import warnings
-
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process
 
-# Suppress warnings
+# Suppress known benign warnings from COBRApy
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
-warnings.filterwarnings(
-    "ignore", category=FutureWarning, module="cobra.medium.boundary_types"
-)
+warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
+
 
 class DynamicFBA(Process):
     """
-    Performs dynamic FBA.
+    A dynamic FBA process that integrates FBA optimization with substrate uptake kinetics.
 
-    Parameters:
-    - model: The metabolic model for the simulation.
-    - kinetic_params: Kinetic parameters (Km and Vmax) for each substrate.
-    - substrate_update_reactions: A dictionary mapping substrates to their update reactions.
-    - bounds: A dictionary of bounds for any reactions in the model.
+    Configuration:
+    -------------
+    - model_file (str): Path to the SBML or named model to load.
+    - kinetic_params (dict): {substrate: (Km, Vmax)} for uptake kinetics.
+    - substrate_update_reactions (dict): {substrate: reaction_id} mapping each substrate to its uptake reaction.
+    - bounds (dict): {reaction_id: {'lower': val, 'upper': val}} for setting static bounds.
 
-    TODO -- check units
+    Inputs:
+    -------
+    - substrates (map[positive_float]): External concentrations of substrates.
+    - biomass (positive_float): Current biomass level.
+
+    Outputs:
+    --------
+    - substrates (map[float]): Changes in substrate concentrations.
+    - biomass (float): Change in biomass.
+
+    Notes:
+    ------
+    - Assumes units are consistent (e.g., mmol/L, gDW).
+    - Negative fluxes represent uptake.
     """
 
     config_schema = {
-        "model_file": "string",  # TODO -- register a "path" type
+        "model_file": "string",
         "kinetic_params": "map[tuple[float,float]]",
         "substrate_update_reactions": "map[string]",
         "bounds": "map[bounds]",
     }
 
     def initialize(self, config):
-        if not "xml" in self.config["model_file"]:
-            # use the textbook model if no model file is provided
-            # TODO: Also handle JSON or .mat model files
-            self.model = load_model(self.config["model_file"])
-        elif isinstance(self.config["model_file"], str):
-            self.model = cobra.io.read_sbml_model(self.config["model_file"])
+        # Load model: named model or SBML file
+        model_file = self.config["model_file"]
+        if model_file.endswith(".xml"):
+            self.model = cobra.io.read_sbml_model(model_file)
         else:
-            # error handling
-            raise ValueError("Invalid model file")
+            self.model = load_model(model_file)
 
-        for reaction_id, bounds in self.config["bounds"].items():
-            if bounds["lower"] is not None:
-                self.model.reactions.get_by_id(reaction_id).lower_bound = bounds["lower"]
-            if bounds["upper"] is not None:
-                self.model.reactions.get_by_id(reaction_id).upper_bound = bounds["upper"]
+        # Set user-defined bounds
+        for rxn_id, limits in self.config["bounds"].items():
+            rxn = self.model.reactions.get_by_id(rxn_id)
+            if limits.get("lower") is not None:
+                rxn.lower_bound = limits["lower"]
+            if limits.get("upper") is not None:
+                rxn.upper_bound = limits["upper"]
 
     def inputs(self):
         return {
-            "substrates": "map[positive_float]",  # TODO this should be map[concentration]
+            "substrates": "map[positive_float]",  # external concentrations
             "biomass": "positive_float",
         }
 
     def outputs(self):
         return {
-            "substrates": "map[float]",
-            "biomass": "float",
+            "substrates": "map[float]",   # deltas (not absolute concentrations)
+            "biomass": "float",           # delta biomass
         }
 
-    # TODO -- can we just put the inputs/outputs directly in the function?
     def update(self, inputs, interval):
-        substrates_input = inputs["substrates"]
-        current_biomass = inputs["biomass"]
+        substrates = inputs["substrates"]
+        biomass = inputs["biomass"]
+        update_substrates = {}
+        delta_biomass = 0.0
 
         for substrate, reaction_id in self.config["substrate_update_reactions"].items():
             Km, Vmax = self.config["kinetic_params"][substrate]
-            substrate_concentration = substrates_input[substrate]
+            substrate_concentration = substrates[substrate]
             uptake_rate = Vmax * substrate_concentration / (Km + substrate_concentration)
             self.model.reactions.get_by_id(reaction_id).lower_bound = -uptake_rate
 
-        substrate_update = {}
-        biomass_update = 0.0
-
+        # Run FBA optimization
         solution = self.model.optimize()
+
         if solution.status == "optimal":
-            biomass_growth_rate = solution.objective_value
-            biomass_update = biomass_growth_rate * current_biomass * interval
+            mu = solution.objective_value
+            delta_biomass = mu * biomass * interval
 
-            for substrate, reaction_id in self.config["substrate_update_reactions"].items():
-                flux = solution.fluxes[reaction_id] * current_biomass * interval
-                old_concentration = substrates_input[substrate]
-                new_concentration = max(old_concentration + flux, 0)  # keep above 0 -- TODO this should not happen
-                substrate_update[substrate] = new_concentration - old_concentration
-                # TODO -- assert not negative?
+            for substrate, rxn_id in self.config["substrate_update_reactions"].items():
+                flux = solution.fluxes[rxn_id] * biomass * interval
+                delta = max(flux, -substrates[substrate])  # prevent negative concentrations
+                update_substrates[substrate] = delta
         else:
-            # Handle non-optimal solutions if necessary
-            # print("Non-optimal solution, skipping update")
+            # No biomass growth or substrate consumption
             for substrate, reaction_id in self.config["substrate_update_reactions"].items():
-                substrate_update[substrate] = 0
+                update_substrates[substrate] = 0
 
-        # print(f'dFBA update: {substrate_update}, biomass update: {biomass_update}')
         return {
-            "substrates": substrate_update,
-            "biomass": biomass_update,
+            "substrates": update_substrates,
+            "biomass": delta_biomass,
         }
