@@ -10,7 +10,7 @@ import warnings
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process, Composite
-from spatio_flux.library.functions import initialize_fields
+from spatio_flux.library.helpers import initialize_fields
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")

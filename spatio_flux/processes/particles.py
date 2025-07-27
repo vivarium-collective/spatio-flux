@@ -9,7 +9,7 @@ import base64
 import numpy as np
 from process_bigraph import Process, default
 from spatio_flux.processes.dfba import dfba_config
-from spatio_flux.library.functions import initialize_fields
+from spatio_flux.library.helpers import initialize_fields
 
 
 def get_bin_position(position, n_bins, env_size):

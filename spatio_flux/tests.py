@@ -1,84 +1,20 @@
-from datetime import datetime
-
-from bigraph_viz import plot_bigraph
-from process_bigraph import Composite, default, register_types as register_process_types
-from process_bigraph.emitter import emitter_from_wires, gather_emitter_results
+from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
-from spatio_flux.library.functions import initialize_fields
+from spatio_flux.library.helpers import run_composite_document
 from spatio_flux.viz.plot import (
     plot_time_series,
     plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif,
     plot_particles
 )
-from spatio_flux.processes.dfba import get_single_dfba_spec, get_spatial_dfba_state, dfba_config
-from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec, get_diffusion_advection_state
-from spatio_flux.processes.particles import (
-    MinimalParticle, get_particles_state, get_minimal_particle_composition, get_dfba_particle_composition)
-from spatio_flux.processes.configs import get_particles_dfba_state, default_config, get_particle_comets_state
-
-
-# =====================
-# Utility Functions
-# =====================
-
-def get_standard_emitter():
-    """
-    Returns a standard emitter specification for capturing global time and fields.
-    """
-    return emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields'],
-        'particles': ['particles'],
-    })
-
-
-def run_composite_document(document, time=None, core=None, name=None):
-    """
-    Instantiates and runs a Composite simulation.
-
-    Args:
-        document (dict): Composition document with initial state and optional schema.
-        time (float): Simulation duration.
-        core (VivariumTypes): Core schema registration object.
-        name (str): Output name prefix.
-
-    Returns:
-        dict: Simulation results emitted during the run.
-    """
-    time = time or 60
-    if core is None:
-        core = VivariumTypes()
-        core = register_types(core)
-    if name is None:
-        date = datetime.now().strftime('%Y%m%d_%H%M%S')
-        name = f'spatio_flux_{date}'
-
-    document = {'state': document} if 'state' not in document else document
-    if 'emitter' not in document['state']:
-        document['state']['emitter'] = get_standard_emitter()
-
-    print('Making the composite...')
-    sim = Composite(document, core=core)
-
-    # Save composition JSON
-    sim.save(filename=f'{name}.json', outdir='out')
-
-    # Save visualization of the initial composition
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
-        core=core,
-        out_dir='out',
-        filename=f'{name}_viz'
-    )
-
-    print('Simulating...')
-    sim.run(time)
-    results = gather_emitter_results(sim)
-    return results[('emitter',)]
+from spatio_flux.processes import (
+    get_single_dfba_spec, get_spatial_dfba_state,
+    get_diffusion_advection_spec, get_diffusion_advection_state,
+    get_particles_state, get_minimal_particle_composition, get_dfba_particle_composition,
+    get_particles_dfba_state, default_config, get_particle_comets_state
+)
 
 
 # =====================

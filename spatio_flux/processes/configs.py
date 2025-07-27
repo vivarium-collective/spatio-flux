@@ -1,9 +1,8 @@
 import numpy as np
 
-from spatio_flux import Particles
 from spatio_flux.processes.dfba import get_spatial_dfba_state
 from spatio_flux.processes.diffusion_advection import get_diffusion_advection_spec
-from spatio_flux.processes.particles import get_particles_spec
+from spatio_flux.processes.particles import get_particles_spec, Particles
 
 
 default_config = {
