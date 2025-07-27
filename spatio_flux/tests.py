@@ -1,3 +1,4 @@
+import argparse
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
@@ -197,15 +198,77 @@ def run_particles_dfba(total_time=60, core=None):
                                                      out_dir='out', filename='particle_dfba_with_fields.gif')
 
 
-if __name__ == '__main__':
+SIMULATIONS = {
+    'dfba_single': run_dfba_single,
+    'dfba_spatial': run_dfba_spatial,
+    'diffusion_process': run_diffusion_process,
+    'comets': run_comets,
+    'particles': run_particles,
+    'particle_comets': run_particle_comets,
+    'particles_dfba': run_particles_dfba,
+}
+
+DEFAULT_TESTS = [
+    'dfba_single',
+    'dfba_spatial',
+    'diffusion_process',
+    'comets',
+    'particles',
+    'particle_comets',
+    'particles_dfba',
+]
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run selected simulations.")
+    parser.add_argument(
+        '--tests', nargs='*', default=None,
+        help='Names of tests to run. If none given, runs the default set.'
+    )
+    parser.add_argument('--time', type=int, default=60, help='Simulation time')
+    parser.add_argument('--output', default='out', help='Output directory')
+    parser.add_argument('--report', default='report.html', help='Output HTML report filename')
+    return parser.parse_args()
+
+from pathlib import Path
+
+def generate_html_report(output_dir, report_file):
+    html = ['<html><head><title>Simulation Results</title></head><body>']
+    html.append('<h1>Simulation Results</h1>')
+
+    files = sorted(Path(output_dir).glob('*'))
+    for file in files:
+        name = file.name
+        if name.endswith('.png'):
+            html.append(f'<h2>{name}</h2><img src="{name}" style="max-width:100%"><hr>')
+        elif name.endswith('.gif'):
+            html.append(f'<h2>{name}</h2><img src="{name}" style="max-width:100%"><hr>')
+        else:
+            html.append(f'<p>Generated: {name}</p>')
+
+    html.append('</body></html>')
+    report_path = Path(output_dir) / report_file
+    with open(report_path, 'w') as f:
+        f.write('\n'.join(html))
+    print(f"✅ Report generated at: {report_path}")
+
+def main():
+    args = parse_args()
+
+    tests_to_run = args.tests if args.tests else DEFAULT_TESTS
+
     core = VivariumTypes()
     core = register_process_types(core)
     core = register_types(core)
 
-    # run_dfba_single(core=core)
-    # run_dfba_spatial(core=core)
-    # run_diffusion_process(core=core)
-    # run_comets(core=core)
-    # run_particles(core=core)
-    # run_particle_comets(core=core)
-    run_particles_dfba(core=core)
+    for name in tests_to_run:
+        print(f"\n🚀 Running: {name}")
+        if name not in SIMULATIONS:
+            print(f"⚠️  Unknown test: {name}")
+            continue
+        SIMULATIONS[name](total_time=args.time, core=core)
+
+    generate_html_report(args.output, args.report)
+
+
+if __name__ == '__main__':
+    main()
