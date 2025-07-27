@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, default
 from process_bigraph.emitter import emitter_from_wires, gather_emitter_results
@@ -18,451 +20,168 @@ from spatio_flux.processes.particle_comets import get_particle_comets_state, def
 from spatio_flux.processes.particles_dfba import get_particles_dfba_state, default_config
 
 
-def run_dfba_single(
-        total_time=60,
-        mol_ids=None,
-        core=None,
-):
-    single_dfba_config = {
+# =====================
+# Utility Functions
+# =====================
+
+def get_standard_emitter():
+    """
+    Returns a standard emitter specification for capturing global time and fields.
+    """
+    return emitter_from_wires({
+        'global_time': ['global_time'],
+        'fields': ['fields'],
+        'particles': ['particles'],
+    })
+
+
+def run_composite_document(document, time=None, core=None, name=None):
+    """
+    Instantiates and runs a Composite simulation.
+
+    Args:
+        document (dict): Composition document with initial state and optional schema.
+        time (float): Simulation duration.
+        core (VivariumTypes): Core schema registration object.
+        name (str): Output name prefix.
+
+    Returns:
+        dict: Simulation results emitted during the run.
+    """
+    time = time or 60
+    if core is None:
+        core = VivariumTypes()
+        core = register_types(core)
+    if name is None:
+        date = datetime.now().strftime('%Y%m%d_%H%M%S')
+        name = f'spatio_flux_{date}'
+
+    document = {'state': document} if 'state' not in document else document
+    if 'emitter' not in document['state']:
+        document['state']['emitter'] = get_standard_emitter()
+
+    print('Making the composite...')
+    sim = Composite(document, core=core)
+
+    # Save composition JSON
+    sim.save(filename=f'{name}.json', outdir='out')
+
+    # Save visualization of the initial composition
+    plot_bigraph(
+        state=sim.state,
+        schema=sim.composition,
+        core=core,
+        out_dir='out',
+        filename=f'{name}_viz'
+    )
+
+    print('Simulating...')
+    sim.run(time)
+    results = gather_emitter_results(sim)
+    return results[('emitter',)]
+
+
+# =====================
+# Simulation Use Cases
+# =====================
+
+def run_dfba_single(total_time=60, core=None):
+    doc = {
         'dfba': get_single_dfba_spec(path=['fields']),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            'biomass': 0.1
-        },
-        'emitter': emitter_from_wires({
-            'global_time': ['global_time'],
-            'fields': ['fields']}),
+        'fields': {'glucose': 10, 'acetate': 0, 'biomass': 0.1},
     }
 
-    # make the simulation
-    sim = Composite({
-        'state': single_dfba_config,
-    }, core=core)
+    # run the composite document
+    results = run_composite_document(doc, time=total_time, core=core, name='dfba_single')
 
-    # save the document
-    sim.save(filename='single_dfba.json', outdir='out')
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    dfba_results = gather_emitter_results(sim)
-
-    print('Plotting results...')
-    # plot timeseries
-    plot_time_series(
-        dfba_results,
-        # coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='dfba_single_timeseries.png',
-    )
+    # plotting
+    plot_time_series(results, out_dir='out', filename='dfba_single_timeseries.png')
 
 
-def run_dfba_spatial(
-        total_time=60,
-        n_bins=(3, 3),  # TODO -- why can't do (5, 10)??
-        mol_ids=None,
-        core=None
-):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
-    composite_state = get_spatial_dfba_state(
-        n_bins=n_bins,
-        mol_ids=mol_ids,
-    )
+def run_dfba_spatial(total_time=60, core=None):
+    n_bins = (3, 3)
+    mol_ids = ['glucose', 'acetate', 'biomass']
+    state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids)
 
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields']})
+    # run the composite document
+    results = run_composite_document(document=state, time=total_time, core=core, name='spatial_dfba')
 
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-    }, core=core)
-
-    # save the document
-    sim.save(filename='spatial_dfba.json', outdir='out')
-
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='dfba_spatial_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    dfba_results = gather_emitter_results(sim)
-
-    print('Plotting results...')
-    # plot timeseries
-    plot_time_series(
-        dfba_results,
-        coordinates=[(0, 0), (1, 1), (2, 2)],
-        out_dir='out',
-        filename='spatial_dfba_timeseries.png',
-    )
-
-    # make video
-    plot_species_distributions_to_gif(
-        dfba_results,
-        out_dir='out',
-        filename='spatial_dfba_results.gif',
-        title='',
-        skip_frames=1
-    )
+    # plotting
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_dfba_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_dfba_results.gif')
 
 
-def run_diffusion_process(
-        total_time=60,
-        bounds=(10.0, 10.0),
-        n_bins=(10, 10),
-        core=None,
-):
-    composite_state = get_diffusion_advection_state(
-        bounds=bounds,
-        n_bins=n_bins,
+def run_diffusion_process(total_time=60, core=None):
+    bounds, n_bins = (10.0, 10.0), (10, 10)
+    state = get_diffusion_advection_state(
+        bounds=bounds, n_bins=n_bins,
         mol_ids=['glucose', 'acetate', 'biomass'],
-        advection_coeffs={
-            'biomass': (0, -0.1)
-        }
+        advection_coeffs={'biomass': (0, -0.1)}
     )
 
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields']})
+    # run the composite document
+    results = run_composite_document(state, time=total_time, core=core, name='diff_advec')
 
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-    }, core=core)
+    # plotting
+    plot_species_distributions_to_gif(results, out_dir='out', filename='diff_advec_results.gif')
 
-    # save the document
-    sim.save(filename='diffadv.json', outdir='out')
 
-    # save a viz figure of the initial state
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
-        core=core,
-        out_dir='out',
-        filename='diffadv_viz'
+def run_particles(total_time=60, core=None):
+    bounds = (10.0, 20.0)
+    state = get_particles_state(
+        core=core, bounds=bounds, n_bins=(10, 20),
+        n_particles=1, diffusion_rate=0.1, advection_rate=(0, -0.1), add_probability=0.4
     )
+    doc = {'state': state, 'composition': get_minimal_particle_composition(core)}
 
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
+    # run the composite document
+    results = run_composite_document(doc, time=total_time, core=core, name='particles')
 
-    # gather results
-    diffadv_results = gather_emitter_results(sim)
-
-    print('Plotting results...')
-    # plot 2d video
-    plot_species_distributions_to_gif(
-        diffadv_results,
-        out_dir='out',
-        filename='diffadv_results.gif',
-        title='',
-        skip_frames=1
-    )
+    # plotting
+    history = [step['particles'] for step in results]
+    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_with_fields.gif', bounds=bounds)
 
 
-def run_particles(
-        core,
-        total_time=60,  # Total frames
-        bounds=(10.0, 20.0),  # Bounds of the environment
-        n_bins=(4, 4),  # Number of bins in the x and y directions
-        n_particles=1,  # 20
-        diffusion_rate=0.1,
-        advection_rate=(0, -0.1),
-        add_probability=0.4,
-        field_interactions=None,
-        initial_min_max=None,
-):
-    # Get all local variables as a dictionary
-    kwargs = locals()
-    kwargs.pop('total_time')  # 'total_time' is only used here, so we pop it
+def run_comets(total_time=60, core=None):
+    bounds, n_bins = (10.0, 10.0), (10, 10)
+    mol_ids = default_config['mol_ids']
+    initial_min_max = default_config['initial_min_max']
+    state = get_spatial_dfba_state(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+    state['diffusion'] = get_diffusion_advection_spec(bounds, n_bins, mol_ids)
 
-    # initialize particles state
-    composite_state = get_particles_state(**kwargs)
+    # run the composite document
+    results = run_composite_document(state, time=total_time, core=core, name='comets')
 
-    # TODO -- is this how to link in the minimal_particle process?
-    # declare minimal particle in the composition
-    composition = get_minimal_particle_composition(core)# {
-
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'particles': ['particles'],
-        'fields': ['fields']})
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-        'composition': composition,
-    }, core=core)
-
-    # save the document
-    sim.save(
-        filename='particles.json',
-        outdir='out')
-
-    # save a viz figure of the initial state
-    plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
-        core=core,
-        out_dir='out',
-        filename='particles_viz'
-    )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-
-    # gather results
-    particles_results = gather_emitter_results(sim)
-    emitter_results = particles_results[('emitter',)]
-    # resort results
-    particles_history = [p['particles'] for p in emitter_results]
-
-    print('Plotting...')
-    # plot particles
-    plot_particles(
-        # total_time=total_time,
-        history=particles_history,
-        env_size=((0, bounds[0]), (0, bounds[1])),
-        out_dir='out',
-        filename='particles.gif',
-    )
-
-    plot_species_distributions_with_particles_to_gif(
-        particles_results,
-        out_dir='out',
-        filename='particle_with_fields.gif',
-        title='',
-        skip_frames=1,
-        bounds=bounds,
-    )
+    # plotting
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename='comets_results.gif')
 
 
-def run_comets(
-        core,
-        total_time=100.0,
-        bounds=(10.0, 10.0),
-        n_bins=(10, 10),
-        mol_ids=None,
-        initial_min_max=None,
-):
-    mol_ids = mol_ids or default_config['mol_ids']
-    initial_min_max = initial_min_max or default_config['initial_min_max']
+def run_particle_comets(total_time=60, core=None):
+    state = get_particle_comets_state()
+    doc = {'composition': get_minimal_particle_composition(core), 'state': state}
 
-    # make the composite state
-    composite_state = get_spatial_dfba_state(
-        n_bins=n_bins,
-        mol_ids=mol_ids,
-        initial_min_max=initial_min_max,
-    )
-    composite_state['diffusion'] = get_diffusion_advection_spec(
-        bounds=bounds,
-        n_bins=n_bins,
-        mol_ids=mol_ids,
-        default_diffusion_rate=1e-1,
-        default_advection_rate=(0, 0),
-        diffusion_coeffs=None,  # TODO add all these config options
-        advection_coeffs=None,
-    )
+    # run the composite document
+    results = run_composite_document(doc, time=total_time, core=core, name='particle_comets')
 
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields']})
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'state': composite_state,
-    }, core=core)
-
-    # save the document
-    sim.save(filename='comets.json', outdir='out')
-
-    # TODO: FIX VIZ (unexpected wire type?)
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='comets_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-    comets_results = gather_emitter_results(sim)
-    # print(comets_results)
-
-    print('Plotting results...')
-    # plot timeseries
-    plot_time_series(
-        comets_results,
-        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-        out_dir='out',
-        filename='comets_timeseries.png',
-    )
-
-    # plot 2d video
-    plot_species_distributions_to_gif(
-        comets_results,
-        out_dir='out',
-        filename='comets_results.gif',
-        title='',
-        skip_frames=1)
+    # plotting
+    n_bins, bounds = state['particles_process']['config']['n_bins'], state['particles_process']['config']['bounds']
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_comets_timeseries.png')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_comets_with_fields.gif', bounds=bounds)
 
 
-def run_particle_comets(
-        core,
-        total_time=50.0,
-        **kwargs
-):
-    # make the composite state
-    composite_state = get_particle_comets_state(**kwargs)
+def run_particles_dfba(total_time=60, core=None):
+    state = get_particles_dfba_state(core)
+    doc = {'composition': get_dfba_particle_composition(), 'state': state}
 
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'particles': ['particles'],
-        'fields': ['fields']})
+    # run the composite document
+    results = run_composite_document(doc, time=total_time, core=core, name='particles_dfba')
 
-    composition = get_minimal_particle_composition(core) # {
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'composition': composition,
-        'state': composite_state,
-    }, core=core)
-
-    # save the document
-    sim.save(
-        filename='particle_comets.json',
-        outdir='out')
-
-    # # save a viz figure of the initial state
-    # plot_bigraph(
-    #     state=sim.state,
-    #     schema=sim.composition,
-    #     core=core,
-    #     out_dir='out',
-    #     filename='particles_comets_viz'
-    # )
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-    particle_comets_results = gather_emitter_results(sim)
-    # print(comets_results)
-
-    print('Plotting results...')
-    n_bins = composite_state['particles_process']['config']['n_bins']
-    bounds = composite_state['particles_process']['config']['bounds']
-
-    # plot timeseries
-    plot_time_series(
-        particle_comets_results,
-        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-        out_dir='out',
-        filename='particle_comets_timeseries.png'
-    )
-
-    plot_species_distributions_with_particles_to_gif(
-        particle_comets_results,
-        out_dir='out',
-        filename='particle_comets_with_fields.gif',
-        title='',
-        skip_frames=1,
-        bounds=bounds,
-    )
-
-
-def run_particles_dfba(
-    core,
-    total_time=10.0,
-    n_bins=None,
-    bounds=None
-):
-
-    # make the composite state
-    composite_state = get_particles_dfba_state(core)
-
-    composite_state['emitter'] = emitter_from_wires({
-        'global_time': ['global_time'],
-        'particles': ['particles'],
-        'fields': ['fields']})
-
-    composition = get_dfba_particle_composition()
-    # composition = {
-    #     'particles': {
-    #         '_type': 'map',
-    #         '_value': {
-    #             'dFBA': {
-    #                 '_type': 'process',
-    #                 'address': default('string', 'local:DynamicFBA'),
-    #                 'config': default('quote', dfba_config(model_file='textbook')),
-    #                 'inputs': default('tree[wires]', {'substrates': ['local']}),
-    #                 'outputs': default('tree[wires]', {'substrates': ['exchange']})
-    #             }
-    #         }
-    #     }
-    # }
-
-    # make the composite
-    print('Making the composite...')
-    sim = Composite({
-        'composition': composition,
-        'state': composite_state
-    }, core=core)
-
-    # save the document
-    sim.save(
-        filename='particle_comets.json',
-        outdir='out')
-
-    # TODO -- save a viz figure of the initial state
-
-    # simulate
-    print('Simulating...')
-    sim.update({}, total_time)
-    particle_comets_results = gather_emitter_results(sim)
-
-    print('Plotting results...')
-    n_bins = composite_state['particles_process']['config']['n_bins']
-    bounds = composite_state['particles_process']['config']['bounds']
-
-    # plot timeseries
-    plot_time_series(
-        particle_comets_results,
-        coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-        out_dir='out',
-        filename='particle_dfba_timeseries.png'
-    )
-
-    plot_species_distributions_with_particles_to_gif(
-        particle_comets_results,
-        out_dir='out',
-        filename='particle_dfba_with_fields.gif',
-        title='',
-        skip_frames=1,
-        bounds=bounds,
-    )
+    # plotting
+    n_bins, bounds = state['particles_process']['config']['n_bins'], state['particles_process']['config']['bounds']
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_dfba_timeseries.png')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_dfba_with_fields.gif', bounds=bounds)
 
 
 if __name__ == '__main__':
@@ -470,9 +189,9 @@ if __name__ == '__main__':
     core = register_types(core)
 
     run_dfba_single(core=core)
-    run_dfba_spatial(core=core, n_bins=(4,4), total_time=60)
+    run_dfba_spatial(core=core)
     run_diffusion_process(core=core)
-    run_particles(core)
+    run_particles(core=core)
     run_comets(core=core)
-    run_particle_comets(core)
-    run_particles_dfba(core)
+    run_particle_comets(core=core)
+    run_particles_dfba(core=core)

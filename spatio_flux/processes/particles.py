@@ -124,7 +124,7 @@ class Particles(Process):
             }
         }
 
-    def initial_state(self):
+    def initial_state(self, config=None):
         # config['n_bins'] = self.config['n_bins']
         # config['bounds'] = self.config['bounds']
         # return self.generate_state(config)
@@ -445,7 +445,7 @@ def get_particles_state(
     return {
         'fields': fields,
         'particles': particles['particles'],
-        'particles_process': get_particles_spec(
+        'particle_movement': get_particles_spec(
             n_bins=n_bins,
             bounds=bounds,
             diffusion_rate=diffusion_rate,
