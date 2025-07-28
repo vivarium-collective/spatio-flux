@@ -48,7 +48,7 @@ DEFAULT_ADD_PROBABILITY = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 
-DEFAULT_RUNTIME = 40
+DEFAULT_RUNTIME = 10
 
 SIMULATIONS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
@@ -58,6 +58,16 @@ SIMULATIONS = {
     'particles': {'time': DEFAULT_RUNTIME},
     'particle_comets': {'time': DEFAULT_RUNTIME},
     'particle_dfba': {'time': DEFAULT_RUNTIME},
+}
+
+DESCRIPTIONS = {
+    'dfba_single': 'This simulation runs a single dynamic FBA (Flux Balance Analysis) process, tracking external concentrations and biomass.',
+    'dfba_spatial': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
+    'diffusion_process': 'This simulation includes finite volume diffusion and advection on a lattice.',
+    'comets': 'This simulation combines dFBA with diffusion/advection to make a spatio-temporal FBA.',
+    'particles': 'This simulation models includes particles with mass moving randomly in space, and with a minimal reaction process in each particle uptaking or secreting into its internal mass.',
+    'particle_comets': 'This simulation extends COMETS with particle that have minimal reaction processes.',
+    'particle_dfba': 'This simulation puts dFBA inside of the particles, interacting with external fields and putting on biomass into the particle mass.',
 }
 
 def reversed_bins(n_bins):
@@ -257,6 +267,9 @@ def prepare_output_dir(output_dir):
     output_path.mkdir(parents=True, exist_ok=True)
 
 
+from html import escape as html_escape
+
+
 def generate_html_report(output_dir, runtimes=None, total_runtime=None):
     output_dir = Path(output_dir)
     report_path = output_dir / 'report.html'
@@ -273,6 +286,7 @@ def generate_html_report(output_dir, runtimes=None, total_runtime=None):
         'code { background: #f1f1f1; padding: 2px 4px; border-radius: 4px; }',
         'nav ul { list-style: none; padding-left: 0; }',
         'nav ul li { margin: 5px 0; }',
+        'a.download-btn { display: inline-block; margin: 8px 0; padding: 4px 8px; background: #eee; border: 1px solid #ccc; text-decoration: none; font-size: 0.9em; border-radius: 4px; }',
         '</style>',
         '</head><body>',
         '<h1>Simulation Results</h1>'
@@ -284,7 +298,6 @@ def generate_html_report(output_dir, runtimes=None, total_runtime=None):
         html.append(f'<li><a href="#{test}">{test}</a></li>')
     html.append('</ul></nav>')
 
-    # Helper: Group files by test
     test_files = {test: [] for test in SIMULATIONS}
     others = []
 
@@ -298,11 +311,10 @@ def generate_html_report(output_dir, runtimes=None, total_runtime=None):
         else:
             others.append(file)
 
-    # Helper: Render JSON as collapsible HTML
     def json_to_html(obj):
         if isinstance(obj, dict):
             return ''.join(
-                f"<details><summary>{k}</summary>{json_to_html(v)}</details>"
+                f"<details><summary>{html_escape(str(k))}</summary>{json_to_html(v)}</details>"
                 for k, v in obj.items()
             )
         elif isinstance(obj, list):
@@ -311,60 +323,61 @@ def generate_html_report(output_dir, runtimes=None, total_runtime=None):
                 for i, v in enumerate(obj)
             )
         else:
-            return f"<code>{json.dumps(obj)}</code>"
+            return f"<code>{html_escape(json.dumps(obj))}</code>"
 
-    # Render each test section
     for test, files in test_files.items():
         if not files:
             continue
         html.append(f'<h2 id="{test}">{test}</h2>')
 
+        # Optional description
+        description = DESCRIPTIONS.get(test, '')
+        if description:
+            html.append(f'<p><em>{description}</em></p>')
+
         # Runtime
         if runtimes and test in runtimes:
             html.append(f'<p><strong>Runtime:</strong> {runtimes[test]:.2f} seconds</p>')
 
-        # Sort files into types
+        # Sort files
         json_file = next((f for f in files if f.suffix == '.json'), None)
         viz_file = next((f for f in files if f.name == f"{test}_viz.png"), None)
         pngs = sorted(f for f in files if f.suffix == '.png' and f != viz_file)
         gifs = sorted(f for f in files if f.suffix == '.gif')
 
-        # JSON schema (state only)
+        # JSON viewer
         if json_file:
             html.append(f'<h3>{json_file.name}</h3>')
+            html.append(f'<a class="download-btn" href="{json_file.name}" target="_blank">View full JSON</a>')
             try:
                 with open(json_file, 'r') as jf:
-                    data = json.load(jf)
-                state = data.get('state', {})
-                if state:
-                    html.append(json_to_html(state))
+                    full_data = json.load(jf)
+                state_data = full_data.get('state', {})
+                if state_data:
+                    html.append(json_to_html(state_data))
                 else:
                     html.append('<p><em>No "state" key found.</em></p>')
             except Exception as e:
                 html.append(f'<pre>Could not load JSON: {e}</pre>')
 
-        # Bigraph viz
+        # Bigraph visualization
         if viz_file:
             html.append(f'<h3>{viz_file.name}</h3>')
             html.append(f'<img src="{viz_file.name}" style="max-width:100%"><hr>')
 
         # PNG plots
         for f in pngs:
-            html.append(f'<h3>{f.name}</h3>')
-            html.append(f'<img src="{f.name}" style="max-width:100%"><hr>')
+            html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
 
         # GIFs
         for f in gifs:
-            html.append(f'<h3>{f.name}</h3>')
-            html.append(f'<img src="{f.name}" style="max-width:100%"><hr>')
+            html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
 
-    # Other files
     if others:
         html.append('<h2>Other Generated Files</h2>')
         for f in sorted(others):
             html.append(f'<p>{f.name}</p>')
 
-    # Total runtime
     if total_runtime:
         html.append(f'<h2>Total Runtime</h2><p><strong>{total_runtime:.2f} seconds</strong></p>')
 
