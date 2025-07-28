@@ -45,7 +45,7 @@ DEFAULT_ADD_PROBABILITY = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 
-DEFAULT_RUNTIME = 10
+DEFAULT_RUNTIME = 40
 
 SIMULATIONS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
