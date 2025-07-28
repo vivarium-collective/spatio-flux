@@ -19,6 +19,7 @@ from pathlib import Path
 import shutil
 import numpy as np
 import time
+import json
 
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
@@ -40,7 +41,7 @@ from spatio_flux.processes import (
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (6, 12)
+DEFAULT_BINS = (5, 10)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
@@ -262,40 +263,106 @@ def generate_html_report(output_dir, runtimes=None, total_runtime=None):
     all_files = list(output_dir.glob('*'))
 
     html = [
-        '<html><head><title>Simulation Results</title></head><body>',
+        '<html><head><title>Simulation Results</title>',
+        '<style>',
+        'body { font-family: sans-serif; padding: 20px; background: #fcfcfc; color: #222; }',
+        'h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 4px; }',
+        'pre { background-color: #f8f8f8; padding: 8px; border: 1px solid #ddd; overflow-x: auto; }',
+        'details { margin: 6px 0; padding-left: 1em; }',
+        'summary { font-weight: 600; cursor: pointer; }',
+        'code { background: #f1f1f1; padding: 2px 4px; border-radius: 4px; }',
+        'nav ul { list-style: none; padding-left: 0; }',
+        'nav ul li { margin: 5px 0; }',
+        '</style>',
+        '</head><body>',
         '<h1>Simulation Results</h1>'
     ]
 
-    # Group files by test name
-    test_figures = {test: [] for test in SIMULATIONS}
+    # Table of Contents
+    html.append('<nav><h2>Contents</h2><ul>')
+    for test in SIMULATIONS:
+        html.append(f'<li><a href="#{test}">{test}</a></li>')
+    html.append('</ul></nav>')
+
+    # Helper: Group files by test
+    test_files = {test: [] for test in SIMULATIONS}
     others = []
 
     for file in all_files:
         if file.name == report_path.name:
             continue
-        for test in test_figures:
+        for test in test_files:
             if file.name.startswith(test):
-                test_figures[test].append(file)
+                test_files[test].append(file)
                 break
         else:
             others.append(file)
 
-    # Test-specific sections
-    for test, files in test_figures.items():
+    # Helper: Render JSON as collapsible HTML
+    def json_to_html(obj):
+        if isinstance(obj, dict):
+            return ''.join(
+                f"<details><summary>{k}</summary>{json_to_html(v)}</details>"
+                for k, v in obj.items()
+            )
+        elif isinstance(obj, list):
+            return ''.join(
+                f"<details><summary>[{i}]</summary>{json_to_html(v)}</details>"
+                for i, v in enumerate(obj)
+            )
+        else:
+            return f"<code>{json.dumps(obj)}</code>"
+
+    # Render each test section
+    for test, files in test_files.items():
         if not files:
             continue
-        runtime_str = f" <small>(Runtime: {runtimes[test]:.2f} s)</small>" if runtimes and test in runtimes else ""
-        html.append(f'<h2>{test}{runtime_str}</h2>')
-        for f in sorted(files):
-            if f.suffix in {'.png', '.gif'}:
-                html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
-            else:
-                html.append(f'<p>Generated file: {f.name}</p>')
+        html.append(f'<h2 id="{test}">{test}</h2>')
 
-    # Miscellaneous files
+        # Runtime
+        if runtimes and test in runtimes:
+            html.append(f'<p><strong>Runtime:</strong> {runtimes[test]:.2f} seconds</p>')
+
+        # Sort files into types
+        json_file = next((f for f in files if f.suffix == '.json'), None)
+        viz_file = next((f for f in files if f.name == f"{test}_viz.png"), None)
+        pngs = sorted(f for f in files if f.suffix == '.png' and f != viz_file)
+        gifs = sorted(f for f in files if f.suffix == '.gif')
+
+        # JSON schema (state only)
+        if json_file:
+            html.append(f'<h3>{json_file.name}</h3>')
+            try:
+                with open(json_file, 'r') as jf:
+                    data = json.load(jf)
+                state = data.get('state', {})
+                if state:
+                    html.append(json_to_html(state))
+                else:
+                    html.append('<p><em>No "state" key found.</em></p>')
+            except Exception as e:
+                html.append(f'<pre>Could not load JSON: {e}</pre>')
+
+        # Bigraph viz
+        if viz_file:
+            html.append(f'<h3>{viz_file.name}</h3>')
+            html.append(f'<img src="{viz_file.name}" style="max-width:100%"><hr>')
+
+        # PNG plots
+        for f in pngs:
+            html.append(f'<h3>{f.name}</h3>')
+            html.append(f'<img src="{f.name}" style="max-width:100%"><hr>')
+
+        # GIFs
+        for f in gifs:
+            html.append(f'<h3>{f.name}</h3>')
+            html.append(f'<img src="{f.name}" style="max-width:100%"><hr>')
+
+    # Other files
     if others:
         html.append('<h2>Other Generated Files</h2>')
-        html += [f'<p>{f.name}</p>' for f in sorted(others)]
+        for f in sorted(others):
+            html.append(f'<p>{f.name}</p>')
 
     # Total runtime
     if total_runtime:
@@ -305,8 +372,6 @@ def generate_html_report(output_dir, runtimes=None, total_runtime=None):
 
     with open(report_path, 'w') as f:
         f.write('\n'.join(html))
-
-    print(f"✅ Report generated at: {report_path}")
 
 
 def main():
