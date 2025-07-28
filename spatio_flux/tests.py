@@ -15,17 +15,14 @@ Usage:
 
 """
 import argparse
-from pathlib import Path
-import shutil
 import numpy as np
 import time
-import json
 
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
-from spatio_flux.library.helpers import run_composite_document
+from spatio_flux.library.helpers import run_composite_document, prepare_output_dir, generate_html_report
 from spatio_flux.viz.plot import (
     plot_time_series,
     plot_particles_mass,
@@ -37,7 +34,7 @@ from spatio_flux.processes import (
     get_dfba_process_state, get_spatial_dfba_state,
     get_diffusion_advection_process, get_diffusion_advection_state,
     get_particle_movement_state, get_minimal_particle_composition, get_dfba_particle_composition,
-    get_particle_dfba_state, default_config, get_particle_comets_state
+    get_particle_dfba_state, get_particle_comets_state
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
@@ -259,134 +256,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def prepare_output_dir(output_dir):
-    output_path = Path(output_dir)
-    if output_path.exists():
-        print(f"🧹 Clearing existing output directory: {output_path}")
-        shutil.rmtree(output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-
-from html import escape as html_escape
-
-
-def generate_html_report(output_dir, runtimes=None, total_runtime=None):
-    output_dir = Path(output_dir)
-    report_path = output_dir / 'report.html'
-    all_files = list(output_dir.glob('*'))
-
-    html = [
-        '<html><head><title>Simulation Results</title>',
-        '<style>',
-        'body { font-family: sans-serif; padding: 20px; background: #fcfcfc; color: #222; }',
-        'h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 4px; }',
-        'pre { background-color: #f8f8f8; padding: 8px; border: 1px solid #ddd; overflow-x: auto; }',
-        'details { margin: 6px 0; padding-left: 1em; }',
-        'summary { font-weight: 600; cursor: pointer; }',
-        'code { background: #f1f1f1; padding: 2px 4px; border-radius: 4px; }',
-        'nav ul { list-style: none; padding-left: 0; }',
-        'nav ul li { margin: 5px 0; }',
-        'a.download-btn { display: inline-block; margin: 8px 0; padding: 4px 8px; background: #eee; border: 1px solid #ccc; text-decoration: none; font-size: 0.9em; border-radius: 4px; }',
-        '</style>',
-        '</head><body>',
-        '<h1>Simulation Results</h1>'
-    ]
-
-    # Table of Contents
-    html.append('<nav><h2>Contents</h2><ul>')
-    for test in SIMULATIONS:
-        html.append(f'<li><a href="#{test}">{test}</a></li>')
-    html.append('</ul></nav>')
-
-    test_files = {test: [] for test in SIMULATIONS}
-    others = []
-
-    for file in all_files:
-        if file.name == report_path.name:
-            continue
-        for test in test_files:
-            if file.name.startswith(test):
-                test_files[test].append(file)
-                break
-        else:
-            others.append(file)
-
-    def json_to_html(obj):
-        if isinstance(obj, dict):
-            return ''.join(
-                f"<details><summary>{html_escape(str(k))}</summary>{json_to_html(v)}</details>"
-                for k, v in obj.items()
-            )
-        elif isinstance(obj, list):
-            return ''.join(
-                f"<details><summary>[{i}]</summary>{json_to_html(v)}</details>"
-                for i, v in enumerate(obj)
-            )
-        else:
-            return f"<code>{html_escape(json.dumps(obj))}</code>"
-
-    for test, files in test_files.items():
-        if not files:
-            continue
-        html.append(f'<h2 id="{test}">{test}</h2>')
-
-        # Optional description
-        description = DESCRIPTIONS.get(test, '')
-        if description:
-            html.append(f'<p><em>{description}</em></p>')
-
-        # Runtime
-        if runtimes and test in runtimes:
-            html.append(f'<p><strong>Runtime:</strong> {runtimes[test]:.2f} seconds</p>')
-
-        # Sort files
-        json_file = next((f for f in files if f.suffix == '.json'), None)
-        viz_file = next((f for f in files if f.name == f"{test}_viz.png"), None)
-        pngs = sorted(f for f in files if f.suffix == '.png' and f != viz_file)
-        gifs = sorted(f for f in files if f.suffix == '.gif')
-
-        # JSON viewer
-        if json_file:
-            html.append(f'<h3>{json_file.name}</h3>')
-            html.append(f'<a class="download-btn" href="{json_file.name}" target="_blank">View full JSON</a>')
-            try:
-                with open(json_file, 'r') as jf:
-                    full_data = json.load(jf)
-                state_data = full_data.get('state', {})
-                if state_data:
-                    html.append(json_to_html(state_data))
-                else:
-                    html.append('<p><em>No "state" key found.</em></p>')
-            except Exception as e:
-                html.append(f'<pre>Could not load JSON: {e}</pre>')
-
-        # Bigraph visualization
-        if viz_file:
-            html.append(f'<h3>{viz_file.name}</h3>')
-            html.append(f'<img src="{viz_file.name}" style="max-width:100%"><hr>')
-
-        # PNG plots
-        for f in pngs:
-            html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
-
-        # GIFs
-        for f in gifs:
-            html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
-
-    if others:
-        html.append('<h2>Other Generated Files</h2>')
-        for f in sorted(others):
-            html.append(f'<p>{f.name}</p>')
-
-    if total_runtime:
-        html.append(f'<h2>Total Runtime</h2><p><strong>{total_runtime:.2f} seconds</strong></p>')
-
-    html.append('</body></html>')
-
-    with open(report_path, 'w') as f:
-        f.write('\n'.join(html))
-
-
 def main():
     args = parse_args()
 
@@ -429,7 +298,7 @@ def main():
 
     total_elapsed = time.time() - total_start
     print(f"\nCompiling HTML report...")
-    generate_html_report(output_dir, runtimes, total_elapsed)
+    generate_html_report(output_dir, SIMULATIONS, DESCRIPTIONS, runtimes, total_elapsed)
 
     print(f"\nTotal runtime for all tests: {total_elapsed:.2f} seconds")
 
