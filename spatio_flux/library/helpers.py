@@ -40,15 +40,12 @@ def initialize_fields(n_bins, initial_min_max=None):
     return fields
 
 
-def get_standard_emitter():
-    """
-    Returns a standard emitter specification for capturing global time and fields.
-    """
-    return emitter_from_wires({
-        'global_time': ['global_time'],
-        'fields': ['fields'],
-        'particles': ['particles'],
-    })
+def get_standard_emitter(state_keys):
+    OPTIONAL_KEYS = {'fields', 'particles'}
+    # Always include 'global_time', include optional keys if present
+    included_keys = ['global_time'] + [key for key in OPTIONAL_KEYS if key in state_keys]
+    emitter_spec = {key: [key] for key in included_keys}
+    return emitter_from_wires(emitter_spec)
 
 
 def run_composite_document(document, core=None, name=None, time=None):
@@ -75,7 +72,8 @@ def run_composite_document(document, core=None, name=None, time=None):
 
     document = {'state': document} if 'state' not in document else document
     if 'emitter' not in document['state']:
-        document['state']['emitter'] = get_standard_emitter()
+        state_keys = list(document['state'].keys())
+        document['state']['emitter'] = get_standard_emitter(state_keys=state_keys)
 
     print(f'Making composite {name}...')
     sim = Composite(document, core=core)
