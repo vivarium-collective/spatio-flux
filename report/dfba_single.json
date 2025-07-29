@@ -277,6 +277,7 @@
                     "value"
                 ],
                 "_description": "flat mapping from keys of strings to values of any type",
+                "_graphviz": "graphviz_map",
                 "_value": {
                     "_type": "step",
                     "_default": "default_edge",

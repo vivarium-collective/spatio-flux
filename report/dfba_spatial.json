@@ -5,74 +5,74 @@
             "glucose": {
                 "list": [
                     [
-                        1.0625006305862872,
-                        19.444161569172607,
-                        12.314705528186117,
-                        16.906477591089512,
-                        18.416319320309967
+                        18.13382730077533,
+                        1.245410349010716,
+                        4.016725986923153,
+                        15.221465520917896,
+                        12.239284760600436
                     ],
                     [
-                        15.86089591144975,
-                        16.37597184439974,
-                        2.971153879011106,
-                        0.02476663002083823,
-                        17.063741459760934
+                        10.316891573848572,
+                        14.67372032052654,
+                        3.659790151083373,
+                        5.485912060332376,
+                        9.868163003189533
                     ],
                     [
-                        11.302478101184564,
-                        1.4770643792549998,
-                        15.072309809976666,
-                        18.463542253269416,
-                        10.293564212664831
+                        19.464382089634405,
+                        6.698614839866059,
+                        3.514707024548196,
+                        2.4438166135879658,
+                        19.181841859434794
                     ],
                     [
-                        5.9427164081049995,
-                        14.688673114133863,
-                        9.031165867644528,
-                        4.341780186994717,
-                        8.107446387741092
+                        5.054503283653444,
+                        19.794665006300175,
+                        11.217172887237382,
+                        6.440462249536855,
+                        6.39730094085067
                     ],
                     [
-                        2.1788653750976783,
-                        11.485150430764888,
-                        13.834751009636312,
-                        1.567947964061145,
-                        5.393329809151415
+                        18.87577043149888,
+                        3.0037606490825675,
+                        9.658209622809927,
+                        6.6316307606474005,
+                        12.58558004057675
                     ],
                     [
-                        9.233989822140373,
-                        0.2627730828218877,
-                        6.687927833748839,
-                        15.046536834309062,
-                        8.476635977922907
+                        3.92140791140539,
+                        1.7470619413742416,
+                        11.06211658233994,
+                        2.2041591139403938,
+                        13.139063315779332
                     ],
                     [
-                        16.587110703974407,
-                        8.008994782238926,
-                        16.73600507609102,
-                        5.87362237397711,
-                        8.074498931144113
+                        13.736079635042046,
+                        2.8449487383779215,
+                        11.476579537802268,
+                        13.7779191008742,
+                        3.432115259117281
                     ],
                     [
-                        10.019095883605987,
-                        11.143473436789924,
-                        4.425377007583899,
-                        3.2317211577218563,
-                        17.552402751396418
+                        9.029075718101343,
+                        6.487433552083823,
+                        19.411686870158967,
+                        12.739519705091912,
+                        14.456093548692095
                     ],
                     [
-                        13.832125119763678,
-                        15.456671088101254,
-                        3.84560400069607,
-                        2.2415978840222395,
-                        5.6214092776086
+                        6.705601186496892,
+                        3.667366736168143,
+                        5.472713878284791,
+                        14.149288810110187,
+                        10.666819287517683
                     ],
                     [
-                        10.113453025761672,
-                        2.3079615307410895,
-                        0.13605960895305635,
-                        8.445185735634293,
-                        11.514546115227088
+                        5.183604115567871,
+                        18.961167658790337,
+                        4.968568202926635,
+                        17.9647588527127,
+                        13.767205369362923
                     ]
                 ],
                 "data": "float",
@@ -163,74 +163,74 @@
             "biomass": {
                 "list": [
                     [
-                        0.04119872304301228,
-                        0.09091137623211511,
-                        0.011332033418849375,
-                        0.08674341658540882,
-                        0.020250210208612774
+                        0.07678656474686998,
+                        0.06374049027082453,
+                        0.035865434420443314,
+                        0.04785514541726582,
+                        0.08361725609281478
                     ],
                     [
-                        0.07790533567862482,
-                        0.08127239852832507,
-                        0.01868957867288903,
-                        0.07670216325241785,
-                        0.07705121339558066
+                        0.05746755993128119,
+                        0.08374754817861577,
+                        0.0019517112674299342,
+                        0.0736048390350505,
+                        0.09168370507088407
                     ],
                     [
-                        0.017269800015041106,
-                        0.08661650334653022,
-                        0.08613843052337561,
-                        0.04529097086990075,
-                        0.017029237061988178
+                        0.05829601777019042,
+                        0.047182063481041904,
+                        0.06585211462354887,
+                        0.030795795766474156,
+                        0.03544874237373002
                     ],
                     [
-                        0.015950548555842426,
-                        0.04892314057366404,
-                        0.025492634037019915,
-                        0.013207215990628475,
-                        0.07697527968096388
+                        0.033741710068375175,
+                        0.06717704492697683,
+                        0.01461437162095205,
+                        0.09762933603409862,
+                        0.05035834053955943
                     ],
                     [
-                        0.08372781230445879,
-                        0.043110985753632314,
-                        0.01989855009760183,
-                        0.011787614144406534,
-                        0.045524559989303326
+                        0.0690343775681469,
+                        0.03258390518799503,
+                        0.08507268963659155,
+                        0.014216517798106587,
+                        0.0018021503027903175
                     ],
                     [
-                        0.006186155030359353,
-                        0.04053730229368227,
-                        0.08676032461783044,
-                        0.0386861666027451,
-                        0.01178488997956434
+                        0.0057557046518631584,
+                        0.020722429502620623,
+                        0.03424080387288332,
+                        0.031045284044796242,
+                        0.09526692837575088
                     ],
                     [
-                        0.051656658643949055,
-                        0.0848745365537955,
-                        0.09591773442309139,
-                        0.02151988398625585,
-                        0.05489721958386327
+                        0.08737269111034683,
+                        0.05209125955530756,
+                        0.018739425319438407,
+                        0.08088563989282227,
+                        0.04555345290488088
                     ],
                     [
-                        0.05045627654256362,
-                        0.08625598471149336,
-                        0.0460948068163768,
-                        0.059037131564124656,
-                        0.06927247214429287
+                        0.04372810875094188,
+                        0.08767670207314604,
+                        0.04425410942757255,
+                        0.007956393596862888,
+                        0.08148454511131636
                     ],
                     [
-                        0.08213846834915098,
-                        0.02275648710987277,
-                        0.008228329301698622,
-                        0.019446383748041186,
-                        0.0970209976647157
+                        0.06807988220602172,
+                        0.09531293180328898,
+                        0.07898401221501021,
+                        0.04204487036578282,
+                        0.06669951276745528
                     ],
                     [
-                        0.02374207455478805,
-                        0.08994656502142044,
-                        0.0901000222095154,
-                        0.08285749098678637,
-                        0.01469443519695084
+                        0.03390038627794941,
+                        0.03443049795681418,
+                        0.07976312463718754,
+                        0.06621971725846056,
+                        0.034001800753011735
                     ]
                 ],
                 "data": "float",
@@ -4394,6 +4394,7 @@
                 "value"
             ],
             "_description": "flat mapping from keys of strings to values of any type",
+            "_graphviz": "graphviz_map",
             "_value": {
                 "_type": "array",
                 "_default": "default_array",
@@ -4591,6 +4592,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -4904,6 +4906,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -5217,6 +5220,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -5530,6 +5534,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -5843,6 +5848,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -6156,6 +6162,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -6469,6 +6476,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -6782,6 +6790,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -7095,6 +7104,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -7408,6 +7418,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -7721,6 +7732,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -8034,6 +8046,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -8347,6 +8360,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -8660,6 +8674,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -8973,6 +8988,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -9286,6 +9302,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -9599,6 +9616,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -9912,6 +9930,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -10225,6 +10244,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -10538,6 +10558,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -10851,6 +10872,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -11164,6 +11186,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -11477,6 +11500,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -11790,6 +11814,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -12103,6 +12128,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -12416,6 +12442,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -12729,6 +12756,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -13042,6 +13070,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -13355,6 +13384,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -13668,6 +13698,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -13981,6 +14012,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -14294,6 +14326,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -14607,6 +14640,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -14920,6 +14954,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -15233,6 +15268,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -15546,6 +15582,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -15859,6 +15896,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -16172,6 +16210,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -16485,6 +16524,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -16798,6 +16838,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -17111,6 +17152,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -17424,6 +17466,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -17737,6 +17780,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -18050,6 +18094,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -18363,6 +18408,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -18676,6 +18722,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -18989,6 +19036,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -19302,6 +19350,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -19615,6 +19664,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
@@ -19928,6 +19978,7 @@
                         "value"
                     ],
                     "_description": "flat mapping from keys of strings to values of any type",
+                    "_graphviz": "graphviz_map",
                     "_value": {
                         "_type": "step",
                         "_default": "default_edge",
