@@ -1,18 +1,18 @@
 {
     "state": {
         "particles": {
-            "7mp3_l7QRLWq3m1NGT6OPA": {
-                "id": "7mp3_l7QRLWq3m1NGT6OPA",
+            "lTuiljsnQMqDxFFgkAypEg": {
+                "id": "lTuiljsnQMqDxFFgkAypEg",
                 "position": [
-                    "4.893224770928738",
-                    "5.238507512465506"
+                    "1.889476716021351",
+                    "0.20452692199908196"
                 ],
                 "size": "0.0",
-                "mass": "0.3074772042592032",
+                "mass": "0.2635212994225161",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.05132033878314737",
+                    "biomass": "0.020946708329341604",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -65,18 +65,18 @@
                     "shared": {}
                 }
             },
-            "YP628GibQ9KgrlSz4eoyNg": {
-                "id": "YP628GibQ9KgrlSz4eoyNg",
+            "Tdr46MMNSuWQXOWQ3M8FlQ": {
+                "id": "Tdr46MMNSuWQXOWQ3M8FlQ",
                 "position": [
-                    "4.58534832729335",
-                    "3.240928185712705"
+                    "0.7872689988098092",
+                    "6.01729909107216"
                 ],
                 "size": "0.0",
-                "mass": "0.5031037738019506",
+                "mass": "0.7501162432113601",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.09306672622378731",
+                    "biomass": "0.07281581839462721",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -129,18 +129,18 @@
                     "shared": {}
                 }
             },
-            "3yS2pdhRTDCgtwCIM6KD7A": {
-                "id": "3yS2pdhRTDCgtwCIM6KD7A",
+            "NMkQb7orTbaIIL66Qfds5g": {
+                "id": "NMkQb7orTbaIIL66Qfds5g",
                 "position": [
-                    "0.9307877908609213",
-                    "1.061737640201298"
+                    "0.2093841156276527",
+                    "7.441802231221612"
                 ],
                 "size": "0.0",
-                "mass": "0.9437276381674752",
+                "mass": "0.5711013538174932",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.005639421842996995",
+                    "biomass": "0.040314705936695616",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -193,18 +193,18 @@
                     "shared": {}
                 }
             },
-            "M120z5LOTmaOOX6Zts17xA": {
-                "id": "M120z5LOTmaOOX6Zts17xA",
+            "ZyV3tj9kRnOOXUlSOqrfwQ": {
+                "id": "ZyV3tj9kRnOOXUlSOqrfwQ",
                 "position": [
-                    "1.1301534920457263",
-                    "7.823879912368427"
+                    "2.504186136977898",
+                    "9.558713462697725"
                 ],
                 "size": "0.0",
-                "mass": "0.6165433353007758",
+                "mass": "0.825235527068896",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.027167059430868182",
+                    "biomass": "0.016628330607293608",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -257,18 +257,18 @@
                     "shared": {}
                 }
             },
-            "HCvnZ8KcQMathMLbzrRaMA": {
-                "id": "HCvnZ8KcQMathMLbzrRaMA",
+            "rL1NXYlXQW6T3vBJfWxYLA": {
+                "id": "rL1NXYlXQW6T3vBJfWxYLA",
                 "position": [
-                    "1.4136298416250965",
-                    "3.6482646024063015"
+                    "3.629034398570502",
+                    "9.128472720068185"
                 ],
                 "size": "0.0",
-                "mass": "0.7650129564060827",
+                "mass": "0.8258234930921595",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.00447358541752404",
+                    "biomass": "0.0860479936476079",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -321,18 +321,18 @@
                     "shared": {}
                 }
             },
-            "b8ZsYnZ1QHu7pZxCUuYgGQ": {
-                "id": "b8ZsYnZ1QHu7pZxCUuYgGQ",
+            "A2OAvrCgSoy_J9keCbcL4w": {
+                "id": "A2OAvrCgSoy_J9keCbcL4w",
                 "position": [
-                    "2.290197706544375",
-                    "4.845610749959144"
+                    "1.6562813891358146",
+                    "7.219236631462654"
                 ],
                 "size": "0.0",
-                "mass": "0.7651667383377238",
+                "mass": "0.8794128627950559",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.07929236796633697",
+                    "biomass": "0.0907544343643521",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -385,18 +385,18 @@
                     "shared": {}
                 }
             },
-            "eKzC3X9pSEiLotv1rSK9NQ": {
-                "id": "eKzC3X9pSEiLotv1rSK9NQ",
+            "V2yIMChiT_-c-tFQSpuOOg": {
+                "id": "V2yIMChiT_-c-tFQSpuOOg",
                 "position": [
-                    "0.5308022929907141",
-                    "1.208329469597369"
+                    "0.6538326375251902",
+                    "7.473395203038727"
                 ],
                 "size": "0.0",
-                "mass": "0.16148867435686232",
+                "mass": "0.8503076779902065",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.005639421842996995",
+                    "biomass": "0.040314705936695616",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -449,18 +449,18 @@
                     "shared": {}
                 }
             },
-            "iDZmhfwGTR-EZoCgOxiapQ": {
-                "id": "iDZmhfwGTR-EZoCgOxiapQ",
+            "TU4VopzzTIugcTFKZui0TQ": {
+                "id": "TU4VopzzTIugcTFKZui0TQ",
                 "position": [
-                    "0.0028243216592771514",
-                    "7.978353471160798"
+                    "4.222637534166946",
+                    "5.969392584448522"
                 ],
                 "size": "0.0",
-                "mass": "0.0262737556152137",
+                "mass": "0.6992500293233916",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.09446683946521799",
+                    "biomass": "0.02491833339162163",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -513,18 +513,18 @@
                     "shared": {}
                 }
             },
-            "OVh2HTtzRwmwdHLMyqBWUw": {
-                "id": "OVh2HTtzRwmwdHLMyqBWUw",
+            "FHNqJRsbQV-_hT9BnwoDxg": {
+                "id": "FHNqJRsbQV-_hT9BnwoDxg",
                 "position": [
-                    "3.6398238027059633",
-                    "6.846026345116401"
+                    "4.168171442292196",
+                    "6.570765841617908"
                 ],
                 "size": "0.0",
-                "mass": "0.7463091865032115",
+                "mass": "0.802634892804579",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.08757447423143329",
+                    "biomass": "0.010323365956325981",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -577,18 +577,18 @@
                     "shared": {}
                 }
             },
-            "HjKLQHcUSi-G7846AWlaQA": {
-                "id": "HjKLQHcUSi-G7846AWlaQA",
+            "PeseW5i_R2eZWVlXfsQB-g": {
+                "id": "PeseW5i_R2eZWVlXfsQB-g",
                 "position": [
-                    "2.9069583119426197",
-                    "2.816818395962346"
+                    "1.9783300947602638",
+                    "0.6723644218475577"
                 ],
                 "size": "0.0",
-                "mass": "0.2957325873621779",
+                "mass": "0.3317423535214499",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
-                    "biomass": "0.08958139843752366",
+                    "biomass": "0.020946708329341604",
                     "detritus": "0.0"
                 },
                 "exchange": {
@@ -854,64 +854,64 @@
             "biomass": {
                 "list": [
                     [
-                        0.06241492127434461,
-                        0.03883169976171457,
-                        0.022883425537379955,
-                        0.07917780174764733,
-                        0.0509975812701893,
-                        0.039038879944003416,
-                        0.07930286533569961,
-                        0.02027555763279483,
-                        0.05615658379882054,
-                        0.010276503935570025
+                        0.04566912027949985,
+                        0.0346758125028177,
+                        0.010916191503950769,
+                        0.07175775595036864,
+                        0.05289805288196168,
+                        0.06438944016418001,
+                        0.07558096679549653,
+                        0.022791348446184134,
+                        0.006322964653043217,
+                        0.006831461331543476
                     ],
                     [
-                        0.02312490419552811,
-                        0.07950517107346802,
-                        0.07779380470860546,
-                        0.08885665122547165,
-                        0.044399715543615895,
-                        0.053466629208265365,
-                        0.08149264894350554,
-                        0.03461093308436566,
-                        0.0667094258396079,
-                        0.03143119871065425
+                        0.014982046306668285,
+                        0.03323122055508964,
+                        0.04553499648863853,
+                        0.002588986435080576,
+                        0.08613148681098266,
+                        0.019022272493452244,
+                        0.07453270489386998,
+                        0.046835727962896125,
+                        0.03308487357030201,
+                        0.0037975288125851048
                     ],
                     [
-                        0.0863809366653811,
-                        0.007521706090166946,
-                        0.08682002305342218,
-                        0.020619363443493466,
-                        0.08064023677995444,
-                        0.0943141149343754,
-                        0.04116687862640174,
-                        0.035915030806250935,
-                        0.05566518423839725,
-                        0.07844624161821151
+                        0.027300823544239274,
+                        0.08373463130938719,
+                        0.07009550276583675,
+                        0.06864434539107395,
+                        0.08656756176458011,
+                        0.08951411638146207,
+                        0.07956884738782309,
+                        0.020547606099099926,
+                        0.038299249714774664,
+                        0.05752623448114637
                     ],
                     [
-                        0.09945412982372055,
-                        0.0766542724099794,
-                        0.004170878359042951,
-                        0.09784709862602595,
-                        0.08561096090586524,
-                        0.09658775218492467,
-                        0.02540227686900237,
-                        0.07652765152933383,
-                        0.030887676410048616,
-                        0.08704439835548526
+                        0.020002656472448557,
+                        0.07261458659262791,
+                        0.0829270373058051,
+                        0.022364736437669255,
+                        0.035414188306025184,
+                        0.06557060808485307,
+                        0.029270411625508252,
+                        0.05258653775406374,
+                        0.09679803752705346,
+                        0.0834360634307828
                     ],
                     [
-                        0.04631820280955336,
-                        0.08890940260066692,
-                        0.04319487182122203,
-                        0.021741408690834796,
-                        0.049560183491529686,
-                        0.06825033648181349,
-                        0.09919361210772847,
-                        0.0600131755500635,
-                        0.07731660940733377,
-                        0.08240743721029978
+                        0.02280043413726193,
+                        0.09292574367243635,
+                        0.007455933642924174,
+                        0.005980209815622684,
+                        0.08132163576706936,
+                        0.08533481182245792,
+                        0.07969878304406695,
+                        0.06073045137842875,
+                        0.017115493049429355,
+                        0.033833789055400666
                     ]
                 ],
                 "data": "float",
@@ -922,7 +922,7 @@
             }
         },
         "spatial_dfba": {
-            "[0,0]": {
+            "dFBA[0,0]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1018,7 +1018,7 @@
                 },
                 "shared": null
             },
-            "[0,1]": {
+            "dFBA[0,1]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1114,7 +1114,7 @@
                 },
                 "shared": null
             },
-            "[0,2]": {
+            "dFBA[0,2]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1210,7 +1210,7 @@
                 },
                 "shared": null
             },
-            "[0,3]": {
+            "dFBA[0,3]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1306,7 +1306,7 @@
                 },
                 "shared": null
             },
-            "[0,4]": {
+            "dFBA[0,4]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1402,7 +1402,7 @@
                 },
                 "shared": null
             },
-            "[0,5]": {
+            "dFBA[0,5]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1498,7 +1498,7 @@
                 },
                 "shared": null
             },
-            "[0,6]": {
+            "dFBA[0,6]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1594,7 +1594,7 @@
                 },
                 "shared": null
             },
-            "[0,7]": {
+            "dFBA[0,7]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1690,7 +1690,7 @@
                 },
                 "shared": null
             },
-            "[0,8]": {
+            "dFBA[0,8]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1786,7 +1786,7 @@
                 },
                 "shared": null
             },
-            "[0,9]": {
+            "dFBA[0,9]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1882,7 +1882,7 @@
                 },
                 "shared": null
             },
-            "[1,0]": {
+            "dFBA[1,0]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -1978,7 +1978,7 @@
                 },
                 "shared": null
             },
-            "[1,1]": {
+            "dFBA[1,1]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2074,7 +2074,7 @@
                 },
                 "shared": null
             },
-            "[1,2]": {
+            "dFBA[1,2]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2170,7 +2170,7 @@
                 },
                 "shared": null
             },
-            "[1,3]": {
+            "dFBA[1,3]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2266,7 +2266,7 @@
                 },
                 "shared": null
             },
-            "[1,4]": {
+            "dFBA[1,4]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2362,7 +2362,7 @@
                 },
                 "shared": null
             },
-            "[1,5]": {
+            "dFBA[1,5]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2458,7 +2458,7 @@
                 },
                 "shared": null
             },
-            "[1,6]": {
+            "dFBA[1,6]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2554,7 +2554,7 @@
                 },
                 "shared": null
             },
-            "[1,7]": {
+            "dFBA[1,7]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2650,7 +2650,7 @@
                 },
                 "shared": null
             },
-            "[1,8]": {
+            "dFBA[1,8]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2746,7 +2746,7 @@
                 },
                 "shared": null
             },
-            "[1,9]": {
+            "dFBA[1,9]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2842,7 +2842,7 @@
                 },
                 "shared": null
             },
-            "[2,0]": {
+            "dFBA[2,0]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -2938,7 +2938,7 @@
                 },
                 "shared": null
             },
-            "[2,1]": {
+            "dFBA[2,1]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3034,7 +3034,7 @@
                 },
                 "shared": null
             },
-            "[2,2]": {
+            "dFBA[2,2]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3130,7 +3130,7 @@
                 },
                 "shared": null
             },
-            "[2,3]": {
+            "dFBA[2,3]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3226,7 +3226,7 @@
                 },
                 "shared": null
             },
-            "[2,4]": {
+            "dFBA[2,4]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3322,7 +3322,7 @@
                 },
                 "shared": null
             },
-            "[2,5]": {
+            "dFBA[2,5]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3418,7 +3418,7 @@
                 },
                 "shared": null
             },
-            "[2,6]": {
+            "dFBA[2,6]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3514,7 +3514,7 @@
                 },
                 "shared": null
             },
-            "[2,7]": {
+            "dFBA[2,7]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3610,7 +3610,7 @@
                 },
                 "shared": null
             },
-            "[2,8]": {
+            "dFBA[2,8]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3706,7 +3706,7 @@
                 },
                 "shared": null
             },
-            "[2,9]": {
+            "dFBA[2,9]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3802,7 +3802,7 @@
                 },
                 "shared": null
             },
-            "[3,0]": {
+            "dFBA[3,0]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3898,7 +3898,7 @@
                 },
                 "shared": null
             },
-            "[3,1]": {
+            "dFBA[3,1]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -3994,7 +3994,7 @@
                 },
                 "shared": null
             },
-            "[3,2]": {
+            "dFBA[3,2]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4090,7 +4090,7 @@
                 },
                 "shared": null
             },
-            "[3,3]": {
+            "dFBA[3,3]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4186,7 +4186,7 @@
                 },
                 "shared": null
             },
-            "[3,4]": {
+            "dFBA[3,4]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4282,7 +4282,7 @@
                 },
                 "shared": null
             },
-            "[3,5]": {
+            "dFBA[3,5]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4378,7 +4378,7 @@
                 },
                 "shared": null
             },
-            "[3,6]": {
+            "dFBA[3,6]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4474,7 +4474,7 @@
                 },
                 "shared": null
             },
-            "[3,7]": {
+            "dFBA[3,7]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4570,7 +4570,7 @@
                 },
                 "shared": null
             },
-            "[3,8]": {
+            "dFBA[3,8]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4666,7 +4666,7 @@
                 },
                 "shared": null
             },
-            "[3,9]": {
+            "dFBA[3,9]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4762,7 +4762,7 @@
                 },
                 "shared": null
             },
-            "[4,0]": {
+            "dFBA[4,0]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4858,7 +4858,7 @@
                 },
                 "shared": null
             },
-            "[4,1]": {
+            "dFBA[4,1]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -4954,7 +4954,7 @@
                 },
                 "shared": null
             },
-            "[4,2]": {
+            "dFBA[4,2]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5050,7 +5050,7 @@
                 },
                 "shared": null
             },
-            "[4,3]": {
+            "dFBA[4,3]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5146,7 +5146,7 @@
                 },
                 "shared": null
             },
-            "[4,4]": {
+            "dFBA[4,4]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5242,7 +5242,7 @@
                 },
                 "shared": null
             },
-            "[4,5]": {
+            "dFBA[4,5]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5338,7 +5338,7 @@
                 },
                 "shared": null
             },
-            "[4,6]": {
+            "dFBA[4,6]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5434,7 +5434,7 @@
                 },
                 "shared": null
             },
-            "[4,7]": {
+            "dFBA[4,7]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5530,7 +5530,7 @@
                 },
                 "shared": null
             },
-            "[4,8]": {
+            "dFBA[4,8]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5626,7 +5626,7 @@
                 },
                 "shared": null
             },
-            "[4,9]": {
+            "dFBA[4,9]": {
                 "inputs": {
                     "substrates": {
                         "glucose": [
@@ -5820,11 +5820,11 @@
                 "global_time": [
                     "global_time"
                 ],
-                "particles": [
-                    "particles"
-                ],
                 "fields": [
                     "fields"
+                ],
+                "particles": [
+                    "particles"
                 ]
             },
             "outputs": null,
@@ -5832,8 +5832,8 @@
             "config": {
                 "emit": {
                     "global_time": "any",
-                    "particles": "any",
-                    "fields": "any"
+                    "fields": "any",
+                    "particles": "any"
                 }
             }
         }
@@ -6393,7 +6393,7 @@
             }
         },
         "spatial_dfba": {
-            "[0,0]": {
+            "dFBA[0,0]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -6706,7 +6706,7 @@
                     }
                 }
             },
-            "[0,1]": {
+            "dFBA[0,1]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -7019,7 +7019,7 @@
                     }
                 }
             },
-            "[0,2]": {
+            "dFBA[0,2]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -7332,7 +7332,7 @@
                     }
                 }
             },
-            "[0,3]": {
+            "dFBA[0,3]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -7645,7 +7645,7 @@
                     }
                 }
             },
-            "[0,4]": {
+            "dFBA[0,4]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -7958,7 +7958,7 @@
                     }
                 }
             },
-            "[0,5]": {
+            "dFBA[0,5]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -8271,7 +8271,7 @@
                     }
                 }
             },
-            "[0,6]": {
+            "dFBA[0,6]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -8584,7 +8584,7 @@
                     }
                 }
             },
-            "[0,7]": {
+            "dFBA[0,7]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -8897,7 +8897,7 @@
                     }
                 }
             },
-            "[0,8]": {
+            "dFBA[0,8]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -9210,7 +9210,7 @@
                     }
                 }
             },
-            "[0,9]": {
+            "dFBA[0,9]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -9523,7 +9523,7 @@
                     }
                 }
             },
-            "[1,0]": {
+            "dFBA[1,0]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -9836,7 +9836,7 @@
                     }
                 }
             },
-            "[1,1]": {
+            "dFBA[1,1]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -10149,7 +10149,7 @@
                     }
                 }
             },
-            "[1,2]": {
+            "dFBA[1,2]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -10462,7 +10462,7 @@
                     }
                 }
             },
-            "[1,3]": {
+            "dFBA[1,3]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -10775,7 +10775,7 @@
                     }
                 }
             },
-            "[1,4]": {
+            "dFBA[1,4]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -11088,7 +11088,7 @@
                     }
                 }
             },
-            "[1,5]": {
+            "dFBA[1,5]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -11401,7 +11401,7 @@
                     }
                 }
             },
-            "[1,6]": {
+            "dFBA[1,6]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -11714,7 +11714,7 @@
                     }
                 }
             },
-            "[1,7]": {
+            "dFBA[1,7]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -12027,7 +12027,7 @@
                     }
                 }
             },
-            "[1,8]": {
+            "dFBA[1,8]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -12340,7 +12340,7 @@
                     }
                 }
             },
-            "[1,9]": {
+            "dFBA[1,9]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -12653,7 +12653,7 @@
                     }
                 }
             },
-            "[2,0]": {
+            "dFBA[2,0]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -12966,7 +12966,7 @@
                     }
                 }
             },
-            "[2,1]": {
+            "dFBA[2,1]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -13279,7 +13279,7 @@
                     }
                 }
             },
-            "[2,2]": {
+            "dFBA[2,2]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -13592,7 +13592,7 @@
                     }
                 }
             },
-            "[2,3]": {
+            "dFBA[2,3]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -13905,7 +13905,7 @@
                     }
                 }
             },
-            "[2,4]": {
+            "dFBA[2,4]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -14218,7 +14218,7 @@
                     }
                 }
             },
-            "[2,5]": {
+            "dFBA[2,5]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -14531,7 +14531,7 @@
                     }
                 }
             },
-            "[2,6]": {
+            "dFBA[2,6]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -14844,7 +14844,7 @@
                     }
                 }
             },
-            "[2,7]": {
+            "dFBA[2,7]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -15157,7 +15157,7 @@
                     }
                 }
             },
-            "[2,8]": {
+            "dFBA[2,8]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -15470,7 +15470,7 @@
                     }
                 }
             },
-            "[2,9]": {
+            "dFBA[2,9]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -15783,7 +15783,7 @@
                     }
                 }
             },
-            "[3,0]": {
+            "dFBA[3,0]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -16096,7 +16096,7 @@
                     }
                 }
             },
-            "[3,1]": {
+            "dFBA[3,1]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -16409,7 +16409,7 @@
                     }
                 }
             },
-            "[3,2]": {
+            "dFBA[3,2]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -16722,7 +16722,7 @@
                     }
                 }
             },
-            "[3,3]": {
+            "dFBA[3,3]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -17035,7 +17035,7 @@
                     }
                 }
             },
-            "[3,4]": {
+            "dFBA[3,4]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -17348,7 +17348,7 @@
                     }
                 }
             },
-            "[3,5]": {
+            "dFBA[3,5]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -17661,7 +17661,7 @@
                     }
                 }
             },
-            "[3,6]": {
+            "dFBA[3,6]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -17974,7 +17974,7 @@
                     }
                 }
             },
-            "[3,7]": {
+            "dFBA[3,7]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -18287,7 +18287,7 @@
                     }
                 }
             },
-            "[3,8]": {
+            "dFBA[3,8]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -18600,7 +18600,7 @@
                     }
                 }
             },
-            "[3,9]": {
+            "dFBA[3,9]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -18913,7 +18913,7 @@
                     }
                 }
             },
-            "[4,0]": {
+            "dFBA[4,0]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -19226,7 +19226,7 @@
                     }
                 }
             },
-            "[4,1]": {
+            "dFBA[4,1]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -19539,7 +19539,7 @@
                     }
                 }
             },
-            "[4,2]": {
+            "dFBA[4,2]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -19852,7 +19852,7 @@
                     }
                 }
             },
-            "[4,3]": {
+            "dFBA[4,3]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -20165,7 +20165,7 @@
                     }
                 }
             },
-            "[4,4]": {
+            "dFBA[4,4]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -20478,7 +20478,7 @@
                     }
                 }
             },
-            "[4,5]": {
+            "dFBA[4,5]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -20791,7 +20791,7 @@
                     }
                 }
             },
-            "[4,6]": {
+            "dFBA[4,6]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -21104,7 +21104,7 @@
                     }
                 }
             },
-            "[4,7]": {
+            "dFBA[4,7]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -21417,7 +21417,7 @@
                     }
                 }
             },
-            "[4,8]": {
+            "dFBA[4,8]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -21730,7 +21730,7 @@
                     }
                 }
             },
-            "[4,9]": {
+            "dFBA[4,9]": {
                 "_type": "process",
                 "_default": "default_edge",
                 "_generate": "generate_edge",
@@ -22754,8 +22754,8 @@
             "_slice": "slice_edge",
             "_inputs": {
                 "global_time": "any",
-                "particles": "any",
-                "fields": "any"
+                "fields": "any",
+                "particles": "any"
             },
             "_outputs": null,
             "_description": "",

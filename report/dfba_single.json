@@ -1,7 +1,7 @@
 {
     "state": {
         "global_time": "0.0",
-        "dfba": {
+        "dFBA": {
             "inputs": {
                 "substrates": {
                     "glucose": [
@@ -104,7 +104,7 @@
                 "number"
             ]
         },
-        "dfba": {
+        "dFBA": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
