@@ -80,7 +80,7 @@ def reversed_bins(n_bins):
 def get_dfba_single_doc(core=None):
     mol_ids = ["glucose", "acetate", "biomass"]
     return {
-        'dfba': get_dfba_process_state(path=['fields'], mol_ids=mol_ids),
+        'dFBA': get_dfba_process_state(path=['fields'], mol_ids=mol_ids),
         'fields': {
             'glucose': 10,
             'acetate': 0,

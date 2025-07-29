@@ -118,7 +118,7 @@ def get_spatial_dfba_spec(
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
             # get a process state for each bin
-            dfba_processes_dict[f"[{i},{j}]"] = get_dfba_process_state(
+            dfba_processes_dict[f"dFBA[{i},{j}]"] = get_dfba_process_state(
                 mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
     return dfba_processes_dict
 
