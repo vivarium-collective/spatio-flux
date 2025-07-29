@@ -58,13 +58,13 @@ SIMULATIONS = {
 }
 
 DESCRIPTIONS = {
-    'dfba_single': 'This simulation runs a single dynamic FBA (Flux Balance Analysis) process, tracking external concentrations and biomass.',
+    'dfba_single': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
     'dfba_spatial': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
-    'diffusion_process': 'This simulation includes finite volume diffusion and advection on a lattice.',
-    'comets': 'This simulation combines dFBA with diffusion/advection to make a spatio-temporal FBA.',
-    'particles': 'This simulation models includes particles with mass moving randomly in space, and with a minimal reaction process in each particle uptaking or secreting into its internal mass.',
-    'particle_comets': 'This simulation extends COMETS with particle that have minimal reaction processes.',
-    'particle_dfba': 'This simulation puts dFBA inside of the particles, interacting with external fields and putting on biomass into the particle mass.',
+    'diffusion_process': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
+    'comets': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
+    'particles': 'This simulation uses particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
+    'particle_comets': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
+    'particle_dfba': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
 }
 
 def reversed_bins(n_bins):

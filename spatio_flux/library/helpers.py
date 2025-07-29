@@ -88,8 +88,8 @@ def run_composite_document(document, core=None, name=None, time=None):
         core=core,
         out_dir='out',
         filename=f'{name}_viz',
-        max_nodes_per_row=5,
         dpi='300',
+        collapse_redundant_processes=True
     )
 
     print(f'Simulating {name}...')
