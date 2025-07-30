@@ -82,9 +82,15 @@ def run_composite_document(document, core=None, name=None, time=None):
     sim.save(filename=f'{name}.json', outdir='out')
 
     # Save visualization of the initial composition
+    plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
+    plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
+
+    # if name == 'dfba_spatial':
+    #     breakpoint()
+
     plot_bigraph(
-        state=sim.state,
-        schema=sim.composition,
+        state=plot_state,
+        schema=plot_schema,
         core=core,
         out_dir='out',
         filename=f'{name}_viz',

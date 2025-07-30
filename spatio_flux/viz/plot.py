@@ -434,7 +434,7 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
 
     if total_particles > max_legend:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small',
-                   title=f"First {max_legend} particles ids shown")
+                   title=f"First {max_legend} particle ids")
     else:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
 

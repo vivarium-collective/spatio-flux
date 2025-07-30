@@ -38,7 +38,7 @@ from spatio_flux.processes import (
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (5, 10)
+DEFAULT_BINS = (6, 12)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
@@ -189,7 +189,8 @@ def get_particle_comets_doc(core=None):
         }
     }
     state = get_particle_comets_state(
-        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS, particle_advection_rate=DEFAULT_ADVECTION, mol_ids=mol_ids)
+        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS, particle_advection_rate=DEFAULT_ADVECTION,
+        n_particles=3, mol_ids=mol_ids)
     return {'state': state, 'composition': get_minimal_particle_composition(core, config=particle_config)}
 
 def plot_particle_comets(results, state):
