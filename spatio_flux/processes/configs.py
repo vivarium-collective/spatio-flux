@@ -153,7 +153,6 @@ def get_fields(n_bins, mol_ids, initial_min_max=None, initial_fields=None):
 
     return initial_fields
 
-
 def get_fields_with_schema(
         n_bins,
         mol_ids=None,
@@ -196,7 +195,6 @@ def get_spatial_many_dfba(
                 model_file=model_file, mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
     return dfba_processes_dict
 
-
 def get_spatial_many_dfba_with_fields(
         n_bins=(5, 5),
         model_file=None,
@@ -208,7 +206,6 @@ def get_spatial_many_dfba_with_fields(
         "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max, initial_fields=initial_fields),
         "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
-
 
 # ===================
 # Diffusion-Advection
@@ -258,7 +255,6 @@ def get_diffusion_advection_process(
                 'fields': ['fields']
             }
         }
-
 
 # =================
 # Particle Movement
@@ -331,6 +327,7 @@ def get_particles_state(
         bounds=(10.0, 10.0),
         fields=None,
         n_particles=10,
+        mass_range=None,
 ):
     fields = fields or {}
     # add particles process
@@ -340,6 +337,7 @@ def get_particles_state(
             'bounds': bounds,
             'fields': fields,
             'n_bins': n_bins,
+            'mass_range': mass_range,
         })
     return particles['particles']
 
@@ -364,8 +362,6 @@ def get_particle_comets_state(
     initial_min_max = initial_min_max or default_config['initial_min_max']
 
     # make the composite state with dFBA based on grid size
-
-
     composite_state = get_spatial_many_dfba_with_fields(
         model_file=model_file,
         n_bins=n_bins,
@@ -388,17 +384,6 @@ def get_particle_comets_state(
 
     # add particles process
     composite_state['particles'] = get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields)
-
-
-    # particles = Particles.generate_state(
-    #     config={
-    #         'n_particles': n_particles,
-    #         'bounds': bounds,
-    #         'fields': fields,
-    #         'n_bins': n_bins,
-    #     })
-    #
-    # composite_state['particles'] = particles['particles']
     composite_state['particle_movement'] = get_particle_movement_process(
         n_bins=n_bins,
         bounds=bounds,
@@ -410,7 +395,6 @@ def get_particle_comets_state(
     )
 
     return composite_state
-
 
 # ==============
 # dFBA-Particles
@@ -480,8 +464,6 @@ def get_particle_dfba_state(
     )
 
     return composite_state
-
-
 
 def get_dfba_particle_composition(core=None, model_file=None, config=None):
     config = config or get_dfba_config()
