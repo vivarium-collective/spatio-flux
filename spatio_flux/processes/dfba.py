@@ -182,6 +182,7 @@ class SpatialDFBA(Process):
             model_file=self.config["model_file"],
             bounds=self.config["bounds"]
         )
+        self.n_bins = config["n_bins"]
 
     def inputs(self):
         return {
@@ -190,13 +191,13 @@ class SpatialDFBA(Process):
                 '_value': {
                     '_type': 'positive_array',
                     '_shape': self.n_bins,
-                    '_data': 'positive_float'
+                    '_data': 'float'
                 },
             },
             'biomass': {
                 '_type': 'array',
                 '_shape': self.n_bins,
-                '_data': 'positive_float'
+                '_data': 'float'
             }
         }
 
@@ -207,13 +208,13 @@ class SpatialDFBA(Process):
                 '_value': {
                     '_type': 'array',
                     '_shape': self.n_bins,
-                    '_data': 'positive_float'
+                    '_data': 'float'
                 },
             },
             'biomass': {
                 '_type': 'array',
                 '_shape': self.n_bins,
-                '_data': 'positive_float'
+                '_data': 'float'
             }
         }
 
@@ -233,7 +234,7 @@ class SpatialDFBA(Process):
         for i in range(x_bins):
             for j in range(y_bins):
                 bin_idx = i * y_bins + j
-                dfba = self.dfba_grid[bin_idx]
+                # dfba = self.dfba_grid[bin_idx]
 
                 # Extract local substrate concentrations
                 local_substrates = {
@@ -245,8 +246,8 @@ class SpatialDFBA(Process):
 
                 # Run DFBA update for this bin
                 update = run_fba_update(
-                    dfba.model,
-                    dfba.config,
+                    self.model,
+                    self.config,
                     local_substrates,
                     local_biomass,
                     interval

@@ -38,7 +38,7 @@ from spatio_flux.processes import (
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (6, 12)
+DEFAULT_BINS = (5, 10)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
@@ -53,9 +53,9 @@ SIMULATION_CONFIGS = {
     'dfba_spatial_process': {'time': DEFAULT_RUNTIME},
     'diffusion_process': {'time': DEFAULT_RUNTIME},
     'comets': {'time': DEFAULT_RUNTIME},
-    # 'particles': {'time': DEFAULT_RUNTIME},
-    # 'particle_comets': {'time': DEFAULT_RUNTIME},
-    # 'particle_dfba': {'time': DEFAULT_RUNTIME},
+    'particles': {'time': DEFAULT_RUNTIME},
+    'particle_comets': {'time': DEFAULT_RUNTIME},
+    'particle_dfba': {'time': DEFAULT_RUNTIME},
 }
 
 DESCRIPTIONS = {
@@ -117,11 +117,12 @@ def get_dfba_spatial_process_doc(core=None):
     model_file = "textbook"
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
-    return {
+    doc = {
         "fields": get_fields(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids, initial_min_max=initial_min_max),
         "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids,
                                               n_bins=reversed_bins(DEFAULT_BINS))
     }
+    return doc
 
 def plot_dfba_process_spatial(results, state):
     plot_species_distributions_to_gif(results, out_dir='out', filename='dfba_spatial_process.gif')

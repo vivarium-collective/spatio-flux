@@ -111,7 +111,7 @@ def get_spatial_dfba_process(
         path=None,
 ):
     if path is None:
-        path = ["..", "fields"]
+        path = ['fields']
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
 
@@ -125,11 +125,11 @@ def get_spatial_dfba_process(
         "address": "local:SpatialDFBA",
         "config": config,
         "inputs": {
-            "substrates": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
+            "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
             "biomass": build_path(path, "biomass")
         },
         "outputs": {
-            "substrates": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
+            "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
             "biomass": build_path(path, "biomass")
         }
     }
@@ -180,16 +180,6 @@ def get_spatial_many_dfba(
             dfba_processes_dict[f"dFBA[{i},{j}]"] = get_single_dfba_process(
                 model_file=model_file, mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
     return dfba_processes_dict
-
-
-def get_spatial_dfba_process(
-        n_bins=(5, 5),
-        model_file=None,
-        mol_ids=None
-):
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
-    return {}
 
 
 def get_spatial_many_dfba_with_fields(
