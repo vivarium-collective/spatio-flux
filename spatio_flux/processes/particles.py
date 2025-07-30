@@ -15,8 +15,23 @@ from process_bigraph import Process, default
 INITIAL_MASS_RANGE = (1E-3, 1.0)
 
 
-def short_id():
-    return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')
+def short_id(length=6):
+    """
+    Generate a short, URL-safe unique ID string.
+
+    Parameters:
+        length (int): Number of bytes to use from the UUID. Determines uniqueness.
+                      Each byte adds ~1.33 characters to the final ID.
+
+    Returns:
+        str: A base64-encoded ID string of approximately 1.33 * length characters.
+
+    Example:
+        length=6 → ~8-character ID with ~2.8e14 possible values
+        length=4 → ~6-character ID with ~4.3e9 possible values
+    """
+    raw = uuid.uuid4().bytes[:length]
+    return base64.urlsafe_b64encode(raw).rstrip(b'=').decode('ascii')
 
 
 def get_bin_position(position, n_bins, env_size):

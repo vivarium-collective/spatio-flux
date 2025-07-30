@@ -29,50 +29,6 @@ def sort_results(results):
             sorted_results['fields'][key].append(value)
     return sorted_results
 
-def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png', display=False):
-    """
-    Plot mass trajectories of individual particles over time and optionally save/display the plot.
-
-    Parameters:
-    - results: list of dicts, each with keys: 'time', 'particles' (dict of particle_id -> dict with 'mass')
-    - out_dir: directory to save the plot (optional)
-    - filename: name of the output plot file (default: 'particles_mass_plot.png')
-    - display: if True, shows the plot inline (default: True)
-    """
-    # Aggregate particle mass data
-    particle_traces = {}  # pid -> list of (time, mass)
-
-    for entry in results:
-        time = entry['global_time']
-        particles = entry.get('particles', {})
-
-        for pid, pdata in particles.items():
-            if pid not in particle_traces:
-                particle_traces[pid] = []
-            particle_traces[pid].append((time, pdata['mass']))
-
-    # Plot
-    plt.figure(figsize=(10, 6))
-    for pid, time_mass in particle_traces.items():
-        times, masses = zip(*time_mass)
-        plt.plot(times, masses, label=pid)
-
-    plt.xlabel("Time")
-    plt.ylabel("Mass")
-    plt.title("Particle Mass Over Time")
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
-    plt.tight_layout()
-
-    # Save the plot to a file
-    if out_dir is not None:
-        os.makedirs(out_dir, exist_ok=True)
-        filepath = os.path.join(out_dir, filename)
-        # print(f'saving {filepath}')
-        plt.savefig(filepath)
-
-    if display:
-        plt.show()
-
 
 def plot_time_series(
         results,
@@ -434,3 +390,64 @@ def plot_particles(
         data = file.read()
         data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
     display(HTML(f'<img src="{data_url}" alt="Particle Diffusion" style="max-width:100%;"/>'))
+
+
+def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png',
+                        display=False,
+                        max_legend=10):
+    """
+    Plot mass trajectories of individual particles over time and optionally save/display the plot.
+
+    Parameters:
+    - results: list of dicts, each with keys: 'global_time', 'particles' (dict of particle_id -> dict with 'mass')
+    - out_dir: directory to save the plot (optional)
+    - filename: name of the output plot file (default: 'particles_mass_plot.png')
+    - display: if True, shows the plot inline (default: False)
+    - max_legend: maximum number of particle IDs to show in the legend (default: 10)
+    """
+    # Aggregate particle mass data
+    particle_traces = {}  # pid -> list of (time, mass)
+
+    for entry in results:
+        time = entry['global_time']
+        particles = entry.get('particles', {})
+
+        for pid, pdata in particles.items():
+            if pid not in particle_traces:
+                particle_traces[pid] = []
+            particle_traces[pid].append((time, pdata['mass']))
+
+    # Sort particle IDs for consistency
+    sorted_pids = sorted(particle_traces.keys())
+    total_particles = len(sorted_pids)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    for idx, pid in enumerate(sorted_pids):
+        times, masses = zip(*particle_traces[pid])
+        label = pid if idx < max_legend else None
+        plt.plot(times, masses, label=label)
+
+    plt.xlabel("Time")
+    plt.ylabel("Mass")
+
+    title = "Particle Mass Over Time"
+    if total_particles > max_legend:
+        title += f" (showing {max_legend} of {total_particles})"
+    plt.title(title)
+
+    if total_particles > max_legend:
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', title=f"First {max_legend} particles")
+    else:
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
+
+    plt.tight_layout()
+
+    # Save the plot to a file
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+        plt.savefig(filepath)
+
+    if display:
+        plt.show()
