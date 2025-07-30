@@ -71,7 +71,7 @@ def get_dfba_config(
     }
 
 
-def get_dfba_process_state(
+def get_single_dfba_process(
         model_file="textbook",
         mol_ids=None,
         path=None,
@@ -104,30 +104,45 @@ def get_dfba_process_state(
         }
     }
 
+def get_spatial_dfba_process(
+        model_file="textbook",
+        mol_ids=None,
+        n_bins=(5, 5),
+        path=None,
+):
+    if path is None:
+        path = ["..", "fields"]
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate", "biomass"]
+
+    # remove "biomass" from mol_ids if it exists
+    if "biomass" in mol_ids:
+        mol_ids.remove("biomass")
+    config = get_dfba_config(model_file=model_file)
+    config['n_bins'] = n_bins
+    return {
+        "_type": "process",
+        "address": "local:SpatialDFBA",
+        "config": config,
+        "inputs": {
+            "substrates": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
+            "biomass": build_path(path, "biomass")
+        },
+        "outputs": {
+            "substrates": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
+            "biomass": build_path(path, "biomass")
+        }
+    }
+
 # ============
 # Spatial DFBA
 # ============
 
-def get_spatial_dfba_spec(
-        n_bins=(5, 5),
-        mol_ids=None
-):
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
-    dfba_processes_dict = {}
-    for i in range(n_bins[0]):
-        for j in range(n_bins[1]):
-            # get a process state for each bin
-            dfba_processes_dict[f"dFBA[{i},{j}]"] = get_dfba_process_state(
-                mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
-    return dfba_processes_dict
-
-
-def get_spatial_dfba_state(
-        n_bins=(5, 5),
+def get_fields(
+        n_bins,
         mol_ids=None,
         initial_min_max=None,  # {mol_id: (min, max)}
-        initial_fields=None,   # {mol_id: np.ndarray or list of floats}
+        initial_fields=None
 ):
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
@@ -141,19 +156,52 @@ def get_spatial_dfba_state(
                 high=minmax[1],
                 size=n_bins
             )
-
-
     return {
-        "fields": {
-            "_type": "map",
-            "_value": {
-                "_type": "array",
-                "_shape": n_bins,
-                "_data": "positive_float"
-            },
-            **initial_fields,
+        "_type": "map",
+        "_value": {
+            "_type": "array",
+            "_shape": n_bins,
+            "_data": "positive_float"
         },
-        "spatial_dfba": get_spatial_dfba_spec(n_bins=n_bins, mol_ids=mol_ids)
+        **initial_fields,
+    }
+
+def get_spatial_many_dfba(
+        n_bins=(5, 5),
+        model_file=None,
+        mol_ids=None
+):
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate", "biomass"]
+    dfba_processes_dict = {}
+    for i in range(n_bins[0]):
+        for j in range(n_bins[1]):
+            # get a process state for each bin
+            dfba_processes_dict[f"dFBA[{i},{j}]"] = get_single_dfba_process(
+                model_file=model_file, mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
+    return dfba_processes_dict
+
+
+def get_spatial_dfba_process(
+        n_bins=(5, 5),
+        model_file=None,
+        mol_ids=None
+):
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate", "biomass"]
+    return {}
+
+
+def get_spatial_many_dfba_with_fields(
+        n_bins=(5, 5),
+        model_file=None,
+        mol_ids=None,
+        initial_min_max=None,  # {mol_id: (min, max)}
+        initial_fields=None,   # {mol_id: np.ndarray or list of floats}
+):
+    return {
+        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max, initial_fields=initial_fields),
+        "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 
@@ -361,6 +409,7 @@ def get_minimal_particle_composition(core, config=None):
 def get_particle_comets_state(
         n_bins=(10, 10),
         bounds=(10.0, 10.0),
+        model_file=None,
         mol_ids=None,
         n_particles=10,
         field_diffusion_rate=1e-1,
@@ -378,7 +427,8 @@ def get_particle_comets_state(
     initial_min_max = initial_min_max or default_config['initial_min_max']
 
     # make the composite state with dFBA based on grid size
-    composite_state = get_spatial_dfba_state(
+    composite_state = get_spatial_many_dfba_with_fields(
+        model_file=model_file,
         n_bins=n_bins,
         mol_ids=mol_ids,
         initial_min_max=initial_min_max
@@ -428,6 +478,7 @@ def get_particle_comets_state(
 
 def get_particle_dfba_state(
         core,
+        model_file=None,
         n_bins=(10, 10),
         bounds=(10.0, 10.0),
         mol_ids=None,
@@ -492,8 +543,10 @@ def get_particle_dfba_state(
 
 
 
-def get_dfba_particle_composition(core=None, config=None):
+def get_dfba_particle_composition(core=None, model_file=None, config=None):
     config = config or get_dfba_config()
+    if model_file:
+        config['model_file'] = model_file
     return {
         'particles': {
             '_type': 'map',
