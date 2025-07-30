@@ -111,7 +111,7 @@ def generate_html_report(
         simulations,
         descriptions,
         runtimes=None,
-        total_runtime=None
+        total_sim_time=None
 ):
     output_dir = Path(output_dir)
     report_path = output_dir / 'report.html'
@@ -220,8 +220,8 @@ def generate_html_report(
         for f in sorted(others):
             html.append(f'<p>{f.name}</p>')
 
-    if total_runtime:
-        html.append(f'<h2>Total Runtime</h2><p><strong>{total_runtime:.2f} seconds</strong></p>')
+    if total_sim_time:
+        html.append(f'<h2>Total Simulation Time</h2><p><strong>{total_sim_time:.2f} seconds</strong></p>')
 
     html.append('</body></html>')
 

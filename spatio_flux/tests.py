@@ -47,7 +47,7 @@ DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 
 DEFAULT_RUNTIME = 40
 
-SIMULATIONS = {
+SIMULATION_CONFIGS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
     'dfba_spatial': {'time': DEFAULT_RUNTIME},
     'diffusion_process': {'time': DEFAULT_RUNTIME},
@@ -211,7 +211,8 @@ def get_particle_dfba_doc(core=None):
                                     particle_boundary_to_remove=DEFAULT_ADD_BOUNDARY,
                                     particle_advection_rate=DEFAULT_ADVECTION,
                                     mol_ids=mol_ids, initial_min_max=initial_min_max)
-    return {'state': state, 'composition': get_dfba_particle_composition()}
+    doc = {'state': state, 'composition': get_dfba_particle_composition()}
+    return doc
 
 def plot_particle_dfba(results, state):
     n_bins = state['particle_movement']['config']['n_bins']
@@ -259,7 +260,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    test_names = list(SIMULATIONS.keys())
+    test_names = list(SIMULATION_CONFIGS.keys())
     tests_to_run = args.tests if args.tests else test_names
     print(f"\nSelected tests to run: {', '.join(tests_to_run)}\n")
 
@@ -270,8 +271,8 @@ def main():
     core = register_process_types(core)
     core = register_types(core)
 
+    total_sim_time = 0.0  # To track simulation time only
     runtimes = {}
-    total_start = time.time()
 
     for name in tests_to_run:
         print(f"\n🚀 Running test: {name}")
@@ -283,24 +284,24 @@ def main():
         doc = DOCUMENT_CREATORS[name](core=core)
 
         print("Sending document...")
-        config = SIMULATIONS[name]
-
-        start_time = time.time()
+        config = SIMULATION_CONFIGS[name]
+        sim_start = time.time()
         results = run_composite_document(doc, core=core, name=name, **config)
-        end_time = time.time()
-        elapsed = end_time - start_time
-        runtimes[name] = elapsed
+        sim_end = time.time()
+
+        sim_elapsed = sim_end - sim_start
+        runtimes[name] = sim_elapsed
+        total_sim_time += sim_elapsed
 
         print("Generating plots...")
         PLOTTERS[name](results, doc.get('state', doc))
 
-        print(f"✅ Completed: {name} in {elapsed:.2f} seconds")
+        print(f"✅ Completed: {name} in {sim_elapsed:.2f} seconds")
 
-    total_elapsed = time.time() - total_start
     print(f"\nCompiling HTML report...")
-    generate_html_report(output_dir, SIMULATIONS, DESCRIPTIONS, runtimes, total_elapsed)
+    generate_html_report(output_dir, SIMULATION_CONFIGS, DESCRIPTIONS, runtimes, total_sim_time)
 
-    print(f"\nTotal runtime for all tests: {total_elapsed:.2f} seconds")
+    print(f"\nTotal simulation time for all the tests: {total_sim_time:.2f} seconds")
 
 
 if __name__ == '__main__':

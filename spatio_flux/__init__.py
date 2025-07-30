@@ -98,7 +98,6 @@ bounds_type = {
 particle_type = {
     'id': 'string',
     'position': 'tuple[float,float]',
-    'size': 'float',
     'mass': default('float', 1.0),
     'local': 'map[float]',
     'exchange': 'map[float]',    # {mol_id: delta_value}
