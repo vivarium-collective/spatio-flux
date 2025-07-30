@@ -392,9 +392,7 @@ def plot_particles(
     display(HTML(f'<img src="{data_url}" alt="Particle Diffusion" style="max-width:100%;"/>'))
 
 
-def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png',
-                        display=False,
-                        max_legend=10):
+def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png', display=False, max_legend=10):
     """
     Plot mass trajectories of individual particles over time and optionally save/display the plot.
 
@@ -425,19 +423,18 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
     plt.figure(figsize=(10, 6))
     for idx, pid in enumerate(sorted_pids):
         times, masses = zip(*particle_traces[pid])
-        label = pid if idx < max_legend else None
+        label = pid if idx < max_legend else None  # Only label first max_legend particles
         plt.plot(times, masses, label=label)
 
     plt.xlabel("Time")
     plt.ylabel("Mass")
 
     title = "Particle Mass Over Time"
-    if total_particles > max_legend:
-        title += f" (showing {max_legend} of {total_particles})"
     plt.title(title)
 
     if total_particles > max_legend:
-        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', title=f"First {max_legend} particles")
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small',
+                   title=f"First {max_legend} particles ids shown")
     else:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
 
