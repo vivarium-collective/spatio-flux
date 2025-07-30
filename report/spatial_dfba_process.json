@@ -1,0 +1,912 @@
+{
+    "state": {
+        "global_time": "0.0",
+        "fields": {
+            "glucose": {
+                "list": [
+                    [
+                        4.750884995729097,
+                        13.740868478371524,
+                        5.311268043419764,
+                        18.147229513118607,
+                        2.700307741297121
+                    ],
+                    [
+                        5.647296864606393,
+                        7.435894434568413,
+                        17.0265385332101,
+                        6.002244135313224,
+                        19.22297979345533
+                    ],
+                    [
+                        7.206135304410717,
+                        11.734664991000521,
+                        6.1068291952688085,
+                        1.2620813822758437,
+                        15.612041291281312
+                    ],
+                    [
+                        18.96927356719682,
+                        16.781994821506483,
+                        15.93558441631481,
+                        6.72660753341038,
+                        10.455402787871632
+                    ],
+                    [
+                        7.446208964091257,
+                        15.39996919910827,
+                        2.439194835365761,
+                        3.626174604189538,
+                        9.244572393761715
+                    ],
+                    [
+                        10.699449244554536,
+                        0.12551447227378665,
+                        11.71733370513953,
+                        18.65539297559639,
+                        19.459414206441693
+                    ],
+                    [
+                        3.6878408336580226,
+                        11.439531834681064,
+                        1.401704520396354,
+                        6.701918298816794,
+                        11.475305420759849
+                    ],
+                    [
+                        2.8554493280463666,
+                        7.794222920550293,
+                        16.525901798522135,
+                        2.4236929061814494,
+                        12.807328210192521
+                    ],
+                    [
+                        18.191858842935133,
+                        12.95392581703329,
+                        9.219337322304513,
+                        8.279806868029123,
+                        0.03479570259631748
+                    ],
+                    [
+                        16.99519238850942,
+                        14.56885729791635,
+                        13.875017037544922,
+                        15.037368072515939,
+                        17.218337127039028
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    10,
+                    5
+                ]
+            },
+            "acetate": {
+                "list": [
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    10,
+                    5
+                ]
+            },
+            "biomass": {
+                "list": [
+                    [
+                        0.03605269713025471,
+                        0.09770535481872053,
+                        0.06260439732054354,
+                        0.008926372496296043,
+                        0.09044318276765496
+                    ],
+                    [
+                        0.013385048182507154,
+                        0.049951992830836844,
+                        0.002137344759907589,
+                        0.011187203424342207,
+                        0.07770296043307937
+                    ],
+                    [
+                        0.016247420173306926,
+                        0.07522244515457197,
+                        0.019643453186271177,
+                        0.09129953664720497,
+                        0.00782006384371965
+                    ],
+                    [
+                        0.07016072468263582,
+                        0.012588103731233403,
+                        0.07057838247919178,
+                        0.013326960810673772,
+                        0.008351164640801545
+                    ],
+                    [
+                        0.01286257495698231,
+                        0.03980449898923101,
+                        0.08994015224902752,
+                        0.014309110014773474,
+                        0.06277300663562468
+                    ],
+                    [
+                        0.025631874343340945,
+                        0.018234950167162988,
+                        0.039596493539783506,
+                        0.08771523549945422,
+                        0.019522517689436625
+                    ],
+                    [
+                        0.07129943889169936,
+                        0.06964247777448505,
+                        0.05946303688650892,
+                        0.04299817612567593,
+                        0.0518342464310702
+                    ],
+                    [
+                        0.05547599761727029,
+                        0.08460756769708645,
+                        0.017470334255043764,
+                        0.03289159789977693,
+                        0.07933474990179551
+                    ],
+                    [
+                        0.07915433204663239,
+                        0.09684184674397849,
+                        0.013071477232186636,
+                        0.048783167548466656,
+                        0.05312680001584809
+                    ],
+                    [
+                        0.06112129142999865,
+                        0.09996037907844191,
+                        0.005102178054541606,
+                        0.05210336273315719,
+                        0.021344449587967353
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    10,
+                    5
+                ]
+            }
+        },
+        "spatial_dfba": {
+            "inputs": {
+                "fields": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "biomass"
+                ]
+            },
+            "outputs": {
+                "fields": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "biomass"
+                ]
+            },
+            "interval": 1.0,
+            "address": "local:SpatialDFBA",
+            "config": {
+                "n_bins": [
+                    "10",
+                    "5"
+                ],
+                "model_file": "textbook",
+                "kinetic_params": {
+                    "glucose": [
+                        "0.5",
+                        "1.0"
+                    ],
+                    "acetate": [
+                        "0.5",
+                        "2.0"
+                    ]
+                },
+                "substrate_update_reactions": {
+                    "glucose": "EX_glc__D_e",
+                    "acetate": "EX_ac_e"
+                },
+                "bounds": {
+                    "EX_o2_e": {
+                        "lower": "-2.0",
+                        "upper": "!nil"
+                    },
+                    "ATPM": {
+                        "lower": "1.0",
+                        "upper": "1.0"
+                    }
+                }
+            },
+            "shared": null
+        },
+        "emitter": {
+            "inputs": {
+                "global_time": [
+                    "global_time"
+                ],
+                "fields": [
+                    "fields"
+                ]
+            },
+            "outputs": null,
+            "address": "local:ram-emitter",
+            "config": {
+                "emit": {
+                    "global_time": "any",
+                    "fields": "any"
+                }
+            }
+        }
+    },
+    "composition": {
+        "global_time": {
+            "_type": "float",
+            "_check": "check_float",
+            "_apply": "accumulate",
+            "_serialize": "to_string",
+            "_description": "64-bit floating point precision number",
+            "_default": 0.0,
+            "_deserialize": "deserialize_float",
+            "_divide": "divide_float",
+            "_dataclass": "dataclass_float",
+            "_inherit": [
+                "number"
+            ]
+        },
+        "fields": {
+            "_type": "map",
+            "_default": {},
+            "_generate": "generate_map",
+            "_apply": "apply_map",
+            "_serialize": "serialize_map",
+            "_deserialize": "deserialize_map",
+            "_resolve": "resolve_map",
+            "_dataclass": "dataclass_map",
+            "_check": "check_map",
+            "_slice": "slice_map",
+            "_fold": "fold_map",
+            "_divide": "divide_map",
+            "_sort": "sort_map",
+            "_type_parameters": [
+                "value"
+            ],
+            "_description": "flat mapping from keys of strings to values of any type",
+            "_graphviz": "graphviz_map",
+            "_value": {
+                "_type": "positive_array",
+                "_default": "default_array",
+                "_check": "check_array",
+                "_slice": "slice_array",
+                "_apply": "apply_non_negative_array",
+                "_serialize": "serialize_array",
+                "_deserialize": "deserialize_array",
+                "_dataclass": "dataclass_array",
+                "_resolve": "resolve_array",
+                "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
+                "_shape": [
+                    10,
+                    5
+                ],
+                "_data": "float"
+            }
+        },
+        "spatial_dfba": {
+            "_type": "process",
+            "_default": "default_edge",
+            "_generate": "generate_edge",
+            "_apply": "apply_process",
+            "_serialize": "serialize_process",
+            "_deserialize": "deserialize_process",
+            "_dataclass": "dataclass_edge",
+            "_check": "check_process",
+            "_slice": "slice_edge",
+            "_inputs": {
+                "fields": {
+                    "_type": "map",
+                    "_value": {
+                        "_type": "positive_array",
+                        "_shape": [
+                            10,
+                            5
+                        ],
+                        "_data": "float"
+                    }
+                },
+                "biomass": {
+                    "_type": "array",
+                    "_shape": [
+                        10,
+                        5
+                    ],
+                    "_data": "float"
+                }
+            },
+            "_outputs": {
+                "fields": {
+                    "_type": "map",
+                    "_value": {
+                        "_type": "array",
+                        "_shape": [
+                            10,
+                            5
+                        ],
+                        "_data": "float"
+                    }
+                },
+                "biomass": {
+                    "_type": "array",
+                    "_shape": [
+                        10,
+                        5
+                    ],
+                    "_data": "float"
+                }
+            },
+            "_description": "",
+            "inputs": {
+                "_type": "wires",
+                "_default": "default_tree",
+                "_generate": "generate_tree",
+                "_check": "check_tree",
+                "_slice": "slice_tree",
+                "_apply": "apply_tree",
+                "_serialize": "serialize_tree",
+                "_deserialize": "deserialize_tree",
+                "_dataclass": "dataclass_tree",
+                "_fold": "fold_tree",
+                "_divide": "divide_tree",
+                "_resolve": "resolve_tree",
+                "_type_parameters": [
+                    "leaf"
+                ],
+                "_description": "mapping from str to some type in a potentially nested form",
+                "_leaf": {
+                    "_type": "path",
+                    "_default": [],
+                    "_check": "check_list",
+                    "_slice": "slice_list",
+                    "_apply": "apply_path",
+                    "_serialize": "serialize_list",
+                    "_deserialize": "deserialize_list",
+                    "_dataclass": "dataclass_list",
+                    "_fold": "fold_list",
+                    "_divide": "divide_list",
+                    "_type_parameters": [
+                        "element"
+                    ],
+                    "_description": "general list type (or sublists)",
+                    "_element": {
+                        "_type": "mark",
+                        "_apply": "apply_mark",
+                        "_check": "check_mark",
+                        "_deserialize": "deserialize_mark",
+                        "_resolve": "resolve_mark"
+                    },
+                    "_inherit": [
+                        "list[mark]"
+                    ]
+                },
+                "_inherit": [
+                    "tree[path]"
+                ]
+            },
+            "outputs": {
+                "_type": "wires",
+                "_default": "default_tree",
+                "_generate": "generate_tree",
+                "_check": "check_tree",
+                "_slice": "slice_tree",
+                "_apply": "apply_tree",
+                "_serialize": "serialize_tree",
+                "_deserialize": "deserialize_tree",
+                "_dataclass": "dataclass_tree",
+                "_fold": "fold_tree",
+                "_divide": "divide_tree",
+                "_resolve": "resolve_tree",
+                "_type_parameters": [
+                    "leaf"
+                ],
+                "_description": "mapping from str to some type in a potentially nested form",
+                "_leaf": {
+                    "_type": "path",
+                    "_default": [],
+                    "_check": "check_list",
+                    "_slice": "slice_list",
+                    "_apply": "apply_path",
+                    "_serialize": "serialize_list",
+                    "_deserialize": "deserialize_list",
+                    "_dataclass": "dataclass_list",
+                    "_fold": "fold_list",
+                    "_divide": "divide_list",
+                    "_type_parameters": [
+                        "element"
+                    ],
+                    "_description": "general list type (or sublists)",
+                    "_element": {
+                        "_type": "mark",
+                        "_apply": "apply_mark",
+                        "_check": "check_mark",
+                        "_deserialize": "deserialize_mark",
+                        "_resolve": "resolve_mark"
+                    },
+                    "_inherit": [
+                        "list[mark]"
+                    ]
+                },
+                "_inherit": [
+                    "tree[path]"
+                ]
+            },
+            "_graphviz": "graphviz_edge",
+            "_inherit": [
+                "edge"
+            ],
+            "_fold": "fold_visit",
+            "_divide": "divide_process",
+            "interval": {
+                "_type": "interval",
+                "_check": "check_float",
+                "_apply": "set",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": "1.0",
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
+                "_inherit": [
+                    "float"
+                ]
+            },
+            "address": {
+                "_type": "protocol",
+                "_default": "",
+                "_check": "check_string",
+                "_apply": "replace",
+                "_serialize": "serialize_string",
+                "_deserialize": "deserialize_string",
+                "_dataclass": "dataclass_string",
+                "_description": "64-bit integer",
+                "_inherit": [
+                    "string"
+                ]
+            },
+            "config": {
+                "_type": "quote",
+                "_deserialize": "deserialize_quote",
+                "_default": "default_quote",
+                "_generate": "generate_quote",
+                "_sort": "sort_quote",
+                "_description": "protect a schema from generation, ie in the config for a nested composite which has type information we only want to evaluate inside of the composite",
+                "_graphviz": "graphviz_none"
+            },
+            "shared": {
+                "_type": "map",
+                "_default": {},
+                "_generate": "generate_map",
+                "_apply": "apply_map",
+                "_serialize": "serialize_map",
+                "_deserialize": "deserialize_map",
+                "_resolve": "resolve_map",
+                "_dataclass": "dataclass_map",
+                "_check": "check_map",
+                "_slice": "slice_map",
+                "_fold": "fold_map",
+                "_divide": "divide_map",
+                "_sort": "sort_map",
+                "_type_parameters": [
+                    "value"
+                ],
+                "_description": "flat mapping from keys of strings to values of any type",
+                "_graphviz": "graphviz_map",
+                "_value": {
+                    "_type": "step",
+                    "_default": "default_edge",
+                    "_generate": "generate_edge",
+                    "_apply": "apply_process",
+                    "_serialize": "serialize_process",
+                    "_deserialize": "deserialize_step",
+                    "_dataclass": "dataclass_edge",
+                    "_check": "check_process",
+                    "_slice": "slice_edge",
+                    "_type_parameters": [
+                        "inputs",
+                        "outputs"
+                    ],
+                    "_description": "",
+                    "inputs": {
+                        "_type": "wires",
+                        "_default": "default_tree",
+                        "_generate": "generate_tree",
+                        "_check": "check_tree",
+                        "_slice": "slice_tree",
+                        "_apply": "apply_tree",
+                        "_serialize": "serialize_tree",
+                        "_deserialize": "deserialize_tree",
+                        "_dataclass": "dataclass_tree",
+                        "_fold": "fold_tree",
+                        "_divide": "divide_tree",
+                        "_resolve": "resolve_tree",
+                        "_type_parameters": [
+                            "leaf"
+                        ],
+                        "_description": "mapping from str to some type in a potentially nested form",
+                        "_leaf": {
+                            "_type": "path",
+                            "_default": [],
+                            "_check": "check_list",
+                            "_slice": "slice_list",
+                            "_apply": "apply_path",
+                            "_serialize": "serialize_list",
+                            "_deserialize": "deserialize_list",
+                            "_dataclass": "dataclass_list",
+                            "_fold": "fold_list",
+                            "_divide": "divide_list",
+                            "_type_parameters": [
+                                "element"
+                            ],
+                            "_description": "general list type (or sublists)",
+                            "_element": {
+                                "_type": "mark",
+                                "_apply": "apply_mark",
+                                "_check": "check_mark",
+                                "_deserialize": "deserialize_mark",
+                                "_resolve": "resolve_mark"
+                            },
+                            "_inherit": [
+                                "list[mark]"
+                            ]
+                        },
+                        "_inherit": [
+                            "tree[path]"
+                        ]
+                    },
+                    "outputs": {
+                        "_type": "wires",
+                        "_default": "default_tree",
+                        "_generate": "generate_tree",
+                        "_check": "check_tree",
+                        "_slice": "slice_tree",
+                        "_apply": "apply_tree",
+                        "_serialize": "serialize_tree",
+                        "_deserialize": "deserialize_tree",
+                        "_dataclass": "dataclass_tree",
+                        "_fold": "fold_tree",
+                        "_divide": "divide_tree",
+                        "_resolve": "resolve_tree",
+                        "_type_parameters": [
+                            "leaf"
+                        ],
+                        "_description": "mapping from str to some type in a potentially nested form",
+                        "_leaf": {
+                            "_type": "path",
+                            "_default": [],
+                            "_check": "check_list",
+                            "_slice": "slice_list",
+                            "_apply": "apply_path",
+                            "_serialize": "serialize_list",
+                            "_deserialize": "deserialize_list",
+                            "_dataclass": "dataclass_list",
+                            "_fold": "fold_list",
+                            "_divide": "divide_list",
+                            "_type_parameters": [
+                                "element"
+                            ],
+                            "_description": "general list type (or sublists)",
+                            "_element": {
+                                "_type": "mark",
+                                "_apply": "apply_mark",
+                                "_check": "check_mark",
+                                "_deserialize": "deserialize_mark",
+                                "_resolve": "resolve_mark"
+                            },
+                            "_inherit": [
+                                "list[mark]"
+                            ]
+                        },
+                        "_inherit": [
+                            "tree[path]"
+                        ]
+                    },
+                    "_graphviz": "graphviz_edge",
+                    "_inherit": [
+                        "edge"
+                    ],
+                    "_fold": "fold_visit",
+                    "_divide": "divide_process",
+                    "address": {
+                        "_type": "protocol",
+                        "_default": "",
+                        "_check": "check_string",
+                        "_apply": "replace",
+                        "_serialize": "serialize_string",
+                        "_deserialize": "deserialize_string",
+                        "_dataclass": "dataclass_string",
+                        "_description": "64-bit integer",
+                        "_inherit": [
+                            "string"
+                        ]
+                    },
+                    "config": {
+                        "_type": "quote",
+                        "_deserialize": "deserialize_quote",
+                        "_default": "default_quote",
+                        "_generate": "generate_quote",
+                        "_sort": "sort_quote",
+                        "_description": "protect a schema from generation, ie in the config for a nested composite which has type information we only want to evaluate inside of the composite",
+                        "_graphviz": "graphviz_none"
+                    }
+                }
+            },
+            "instance": {
+                "_type": "any",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any"
+            }
+        },
+        "emitter": {
+            "_type": "step",
+            "_default": "default_edge",
+            "_generate": "generate_edge",
+            "_apply": "apply_process",
+            "_serialize": "serialize_process",
+            "_deserialize": "deserialize_step",
+            "_dataclass": "dataclass_edge",
+            "_check": "check_process",
+            "_slice": "slice_edge",
+            "_inputs": {
+                "global_time": "any",
+                "fields": "any"
+            },
+            "_outputs": null,
+            "_description": "",
+            "inputs": {
+                "_type": "wires",
+                "_default": "default_tree",
+                "_generate": "generate_tree",
+                "_check": "check_tree",
+                "_slice": "slice_tree",
+                "_apply": "apply_tree",
+                "_serialize": "serialize_tree",
+                "_deserialize": "deserialize_tree",
+                "_dataclass": "dataclass_tree",
+                "_fold": "fold_tree",
+                "_divide": "divide_tree",
+                "_resolve": "resolve_tree",
+                "_type_parameters": [
+                    "leaf"
+                ],
+                "_description": "mapping from str to some type in a potentially nested form",
+                "_leaf": {
+                    "_type": "path",
+                    "_default": [],
+                    "_check": "check_list",
+                    "_slice": "slice_list",
+                    "_apply": "apply_path",
+                    "_serialize": "serialize_list",
+                    "_deserialize": "deserialize_list",
+                    "_dataclass": "dataclass_list",
+                    "_fold": "fold_list",
+                    "_divide": "divide_list",
+                    "_type_parameters": [
+                        "element"
+                    ],
+                    "_description": "general list type (or sublists)",
+                    "_element": {
+                        "_type": "mark",
+                        "_apply": "apply_mark",
+                        "_check": "check_mark",
+                        "_deserialize": "deserialize_mark",
+                        "_resolve": "resolve_mark"
+                    },
+                    "_inherit": [
+                        "list[mark]"
+                    ]
+                },
+                "_inherit": [
+                    "tree[path]"
+                ]
+            },
+            "outputs": {
+                "_type": "wires",
+                "_default": "default_tree",
+                "_generate": "generate_tree",
+                "_check": "check_tree",
+                "_slice": "slice_tree",
+                "_apply": "apply_tree",
+                "_serialize": "serialize_tree",
+                "_deserialize": "deserialize_tree",
+                "_dataclass": "dataclass_tree",
+                "_fold": "fold_tree",
+                "_divide": "divide_tree",
+                "_resolve": "resolve_tree",
+                "_type_parameters": [
+                    "leaf"
+                ],
+                "_description": "mapping from str to some type in a potentially nested form",
+                "_leaf": {
+                    "_type": "path",
+                    "_default": [],
+                    "_check": "check_list",
+                    "_slice": "slice_list",
+                    "_apply": "apply_path",
+                    "_serialize": "serialize_list",
+                    "_deserialize": "deserialize_list",
+                    "_dataclass": "dataclass_list",
+                    "_fold": "fold_list",
+                    "_divide": "divide_list",
+                    "_type_parameters": [
+                        "element"
+                    ],
+                    "_description": "general list type (or sublists)",
+                    "_element": {
+                        "_type": "mark",
+                        "_apply": "apply_mark",
+                        "_check": "check_mark",
+                        "_deserialize": "deserialize_mark",
+                        "_resolve": "resolve_mark"
+                    },
+                    "_inherit": [
+                        "list[mark]"
+                    ]
+                },
+                "_inherit": [
+                    "tree[path]"
+                ]
+            },
+            "_graphviz": "graphviz_edge",
+            "_inherit": [
+                "edge"
+            ],
+            "_fold": "fold_visit",
+            "_divide": "divide_process",
+            "address": {
+                "_type": "protocol",
+                "_default": "",
+                "_check": "check_string",
+                "_apply": "replace",
+                "_serialize": "serialize_string",
+                "_deserialize": "deserialize_string",
+                "_dataclass": "dataclass_string",
+                "_description": "64-bit integer",
+                "_inherit": [
+                    "string"
+                ]
+            },
+            "config": {
+                "_type": "quote",
+                "_deserialize": "deserialize_quote",
+                "_default": "default_quote",
+                "_generate": "generate_quote",
+                "_sort": "sort_quote",
+                "_description": "protect a schema from generation, ie in the config for a nested composite which has type information we only want to evaluate inside of the composite",
+                "_graphviz": "graphviz_none"
+            },
+            "instance": {
+                "_type": "any",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any"
+            }
+        }
+    }
+}
