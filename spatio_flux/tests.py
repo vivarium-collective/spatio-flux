@@ -26,7 +26,8 @@ from spatio_flux.library.helpers import run_composite_document, prepare_output_d
 from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif, plot_particles
 )
-from spatio_flux.processes import (get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields,
+from spatio_flux.processes import (
+    get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
     get_dfba_particle_composition, get_particle_dfba_state, get_particles_state
 )
@@ -46,7 +47,7 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME = 40
+DEFAULT_RUNTIME = 60
 
 SIMULATION_CONFIGS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
@@ -99,7 +100,7 @@ def get_spatial_many_dfba_doc(core=None):
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
     n_bins = reversed_bins(DEFAULT_BINS_SMALL)
     return {
-        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
         "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
@@ -115,7 +116,7 @@ def get_spatial_dfba_process_doc(core=None):
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
     n_bins = reversed_bins(DEFAULT_BINS_SMALL)
     return {
-        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
         "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
@@ -130,7 +131,7 @@ def get_diffusion_process_doc(core=None):
     n_bins = reversed_bins(DEFAULT_BINS)
     bounds = reversed_bins(DEFAULT_BOUNDS)
     return {
-        "fields": get_fields(n_bins=n_bins),
+        "fields": get_fields_with_schema(n_bins=n_bins),
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
     }
 
@@ -162,7 +163,7 @@ def get_comets_doc(core=None):
     biomass_field[0, int(bins_x/4):int(3*bins_x/4)] = 0.1
     initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
     return {
-        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
+        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
         "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
@@ -230,6 +231,7 @@ def get_particle_comets_doc(core=None):
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
     n_particles = 3
+    add_probability = 0.1
     return {
         "state": {
             "fields": fields,
@@ -237,8 +239,8 @@ def get_particle_comets_doc(core=None):
             "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
             # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
             "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            "particle_movement": get_particle_movement_process(
-                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection)
+            "particle_movement": get_particle_movement_process(n_bins=n_bins, bounds=bounds,
+                                                               add_probability=add_probability, advection_rate=particle_advection)
         },
         "composition": get_minimal_particle_composition(core, config=particle_config)
     }

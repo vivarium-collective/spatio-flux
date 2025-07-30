@@ -138,7 +138,23 @@ def get_spatial_dfba_process(
 # Spatial DFBA
 # ============
 
-def get_fields(
+def get_fields(n_bins, mol_ids, initial_min_max=None, initial_fields=None):
+    initial_min_max = initial_min_max or {}
+    initial_fields = initial_fields or {}
+
+    for mol_id in mol_ids:
+        if mol_id not in initial_fields:
+            minmax = initial_min_max.get(mol_id, (0, 1))
+            initial_fields[mol_id] = np.random.uniform(
+                low=minmax[0],
+                high=minmax[1],
+                size=n_bins
+            )
+
+    return initial_fields
+
+
+def get_fields_with_schema(
         n_bins,
         mol_ids=None,
         initial_min_max=None,  # {mol_id: (min, max)}
@@ -147,18 +163,13 @@ def get_fields(
     initial_min_max = initial_min_max or {}
     initial_fields = initial_fields or {}
 
-    # Infer mol_ids from initial_min_max if not provided
     if mol_ids is None:
         if initial_min_max:
             mol_ids = list(initial_min_max.keys())
         else:
             mol_ids = ["glucose", "acetate", "biomass"]
 
-    for mol_id in mol_ids:
-        if mol_id not in initial_fields:
-            # Use specified min/max or default to (0,1)
-            minmax = initial_min_max.get(mol_id, (0, 1))
-            initial_fields[mol_id] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
+    initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
     return {
         "_type": "map",
@@ -194,7 +205,7 @@ def get_spatial_many_dfba_with_fields(
         initial_fields=None,   # {mol_id: np.ndarray or list of floats}
 ):
     return {
-        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max, initial_fields=initial_fields),
+        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max, initial_fields=initial_fields),
         "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
