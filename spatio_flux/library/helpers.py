@@ -211,7 +211,8 @@ def generate_html_report(
         # Bigraph visualization
         if viz_file:
             html.append(f'<h3>{viz_file.name}</h3>')
-            html.append(f'<img src="{viz_file.name}" style="max-width:100%"><hr>')
+            html.append(f'<img src="{viz_file.name}" style="max-width:100%; height:auto; max-height:600px;">')
+            # html.append(f'<img src="{viz_file.name}" style="max-width:100%"><hr>')
 
         # PNG plots
         for f in pngs:

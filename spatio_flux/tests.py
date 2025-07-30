@@ -29,7 +29,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes import (
     get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
-    get_dfba_particle_composition, get_particle_dfba_state, get_particles_state
+    get_dfba_particle_composition, get_particles_state
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
@@ -47,7 +47,7 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME = 60
+DEFAULT_RUNTIME = 10
 
 SIMULATION_CONFIGS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
@@ -139,9 +139,8 @@ def get_diffusion_process_doc(core=None):
     glc_field = np.random.uniform(low=0.1,high=1,size=n_bins)
     biomass_field = np.zeros((bins_x, bins_y))
     biomass_field[4:5,:] = 2
-    initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
     return {
-        "fields": initial_fields,  #get_fields_with_schema(n_bins=n_bins),
+        "fields": {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field},
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
     }
 
@@ -201,7 +200,7 @@ def get_particles_doc(core=None):
     n_particles = 1
     diffusion_rate = DEFAULT_DIFFUSION
     advection_rate = DEFAULT_ADVECTION
-    add_probability=DEFAULT_ADD_PROBABILITY
+    add_probability = DEFAULT_ADD_PROBABILITY
     return {
         "state": {
             "fields": initialize_fields(n_bins, initial_min_max),
@@ -236,12 +235,12 @@ def get_particle_comets_doc(core=None):
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     particle_advection = DEFAULT_ADVECTION
+    n_particles = 10
+    add_probability = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
     fields['biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
     fields['biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
-    n_particles = 20
-    add_probability = 0.1
     return {
         "state": {
             "fields": fields,
@@ -267,16 +266,21 @@ def get_particle_dfba_doc(core=None):
     model_file = "textbook"
     mol_ids = ['glucose', 'acetate']
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
-    state = get_particle_dfba_state(
-        core, model_file=model_file, mol_ids=mol_ids, n_particles=2,
-        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
-        initial_min_max=initial_min_max,
-        particle_add_probability=DEFAULT_ADD_PROBABILITY,
-        particle_boundary_to_add=DEFAULT_ADD_BOUNDARY,
-        particle_boundary_to_remove=DEFAULT_ADD_BOUNDARY,
-        particle_advection_rate=DEFAULT_ADVECTION)
+    bounds = DEFAULT_BOUNDS
+    n_bins = DEFAULT_BINS
+    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 2
+    add_probability = 0.1
+    particle_advection = DEFAULT_ADVECTION
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {
-        "state": state,
+        "state": {
+            "fields": fields,
+            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            "particle_movement": get_particle_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection,
+                                                               add_probability=add_probability)
+        },
         "composition": get_dfba_particle_composition(model_file=model_file)
     }
 
