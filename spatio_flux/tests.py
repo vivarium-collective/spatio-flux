@@ -23,33 +23,34 @@ from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
 from spatio_flux.library.helpers import run_composite_document, prepare_output_dir, generate_html_report
-from spatio_flux.viz.plot import (
-    plot_time_series,
-    plot_particles_mass,
-    plot_species_distributions_to_gif,
-    plot_species_distributions_with_particles_to_gif,
-    plot_particles
+from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
+    plot_species_distributions_with_particles_to_gif, plot_particles
 )
-from spatio_flux.processes import (
-    get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields,
-    get_diffusion_advection_process,
-    get_particle_movement_state, get_minimal_particle_composition, get_dfba_particle_composition,
-    get_particle_dfba_state, get_particle_comets_state
+from spatio_flux.processes import (get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields,
+    get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
+    get_dfba_particle_composition, get_particle_dfba_state, get_particles_state
 )
 
 DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (5, 10)
+DEFAULT_BINS = (10, 20)
+DEFAULT_BINS_SMALL = (4, 8)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
+DEFAULT_INITIAL_MIN_MAX = {
+        'glucose': (10, 10),
+        'acetate': (0, 0),
+        'biomass': (0, 0.1),
+        'detritus': (0, 0)
+    }
 
-DEFAULT_RUNTIME = 10
+DEFAULT_RUNTIME = 40
 
 SIMULATION_CONFIGS = {
     'dfba_single': {'time': DEFAULT_RUNTIME},
-    'many_dfba_spatial': {'time': DEFAULT_RUNTIME},
+    'spatial_many_dfba': {'time': DEFAULT_RUNTIME},
     'spatial_dfba_process': {'time': DEFAULT_RUNTIME},
     'diffusion_process': {'time': DEFAULT_RUNTIME},
     'comets': {'time': DEFAULT_RUNTIME},
@@ -60,8 +61,8 @@ SIMULATION_CONFIGS = {
 
 DESCRIPTIONS = {
     'dfba_single': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    'many_dfba_spatial': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
-    'spatial_dfba_process': '',
+    'spatial_many_dfba': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
+    'spatial_dfba_process': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
     'diffusion_process': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
     'comets': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
     'particles': 'This simulation uses particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
@@ -96,15 +97,15 @@ def get_spatial_many_dfba_doc(core=None):
     model_file = "textbook"
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
+    n_bins = reversed_bins(DEFAULT_BINS_SMALL)
     return {
-        "fields": get_fields(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids, initial_min_max=initial_min_max),
-        "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=reversed_bins(DEFAULT_BINS))
+        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+        "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 def plot_spatial_many_dfba(results, state):
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_many_dfba_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_many_dfba_results.gif')
-
 
 # --- DFBA Spatial Process ---------------------------------------------
 
@@ -112,9 +113,10 @@ def get_spatial_dfba_process_doc(core=None):
     model_file = "textbook"
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
+    n_bins = reversed_bins(DEFAULT_BINS_SMALL)
     return {
-        "fields": get_fields(n_bins=reversed_bins(DEFAULT_BINS), mol_ids=mol_ids, initial_min_max=initial_min_max),
-        "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=reversed_bins(DEFAULT_BINS))
+        "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+        "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 def plot_dfba_process_spatial(results, state):
@@ -128,7 +130,7 @@ def get_diffusion_process_doc(core=None):
     n_bins = reversed_bins(DEFAULT_BINS)
     bounds = reversed_bins(DEFAULT_BOUNDS)
     return {
-        "fields": get_fields(n_bins=reversed_bins(DEFAULT_BINS)),
+        "fields": get_fields(n_bins=n_bins),
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
     }
 
@@ -142,7 +144,6 @@ def get_comets_doc(core=None):
     mol_ids = ['glucose', 'acetate', 'biomass']
     n_bins = reversed_bins(DEFAULT_BINS)
     bounds = reversed_bins(DEFAULT_BOUNDS)
-    initial_min_max = {'glucose': (10, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     diffusion_coeffs = {'glucose': 3e-1, 'acetate': 1e-1, 'biomass': 1e-1}
     advection_coeffs = {'biomass': DEFAULT_ADVECTION}
 
@@ -160,10 +161,10 @@ def get_comets_doc(core=None):
     biomass_field = np.zeros((bins_x, bins_y))
     biomass_field[0, int(bins_x/4):int(3*bins_x/4)] = 0.1
     initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
-
     return {
         "fields": get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+        "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+        # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
 
@@ -176,7 +177,6 @@ def plot_comets(results, state):
 
 def get_particles_doc(core=None):
     initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
-    # Particle configuration
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
@@ -187,12 +187,20 @@ def get_particles_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_movement_state(n_particles=1, bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
-                                        diffusion_rate=DEFAULT_DIFFUSION, advection_rate=DEFAULT_ADVECTION,
-                                        add_probability=DEFAULT_ADD_PROBABILITY, initial_min_max=initial_min_max)
+    n_bins = DEFAULT_BINS
+    bounds = DEFAULT_BOUNDS
+    n_particles = 1
+    diffusion_rate = DEFAULT_DIFFUSION
+    advection_rate = DEFAULT_ADVECTION
+    add_probability=DEFAULT_ADD_PROBABILITY
     return {
-        'state': state,
-        'composition': get_minimal_particle_composition(core=core, config=particle_config)
+        "state": {
+            'fields': initialize_fields(n_bins, initial_min_max),
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
+            'particle_movement': get_particle_movement_process( n_bins=n_bins, bounds=bounds,
+                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability)
+        },
+        "composition": get_minimal_particle_composition(core=core, config=particle_config)
     }
 
 def plot_particles_sim(results, state):
@@ -216,14 +224,23 @@ def get_particle_comets_doc(core=None):
             'mass': (1.0, 0.001)
         }
     }
-    state = get_particle_comets_state(
-        model_file=model_file, mol_ids=mol_ids,
-        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
-        particle_advection_rate=DEFAULT_ADVECTION,
-        n_particles=3)
+    n_bins = DEFAULT_BINS
+    bounds = DEFAULT_BOUNDS
+    particle_advection = DEFAULT_ADVECTION
+
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
+    n_particles = 3
     return {
-        'state': state,
-        'composition': get_minimal_particle_composition(core, config=particle_config)
+        "state": {
+            "fields": fields,
+            "particles": get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields),
+            "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+            # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
+            "particle_movement": get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection)
+        },
+        "composition": get_minimal_particle_composition(core, config=particle_config)
     }
 
 def plot_particle_comets(results, state):

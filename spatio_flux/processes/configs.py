@@ -144,19 +144,22 @@ def get_fields(
         initial_min_max=None,  # {mol_id: (min, max)}
         initial_fields=None
 ):
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
     initial_min_max = initial_min_max or {}
     initial_fields = initial_fields or {}
+
+    # Infer mol_ids from initial_min_max if not provided
+    if mol_ids is None:
+        if initial_min_max:
+            mol_ids = list(initial_min_max.keys())
+        else:
+            mol_ids = ["glucose", "acetate", "biomass"]
+
     for mol_id in mol_ids:
         if mol_id not in initial_fields:
-            # if initial_fields is not provided, initialize with random values
+            # Use specified min/max or default to (0,1)
             minmax = initial_min_max.get(mol_id, (0, 1))
-            initial_fields[mol_id] = np.random.uniform(
-                low=minmax[0],
-                high=minmax[1],
-                size=n_bins
-            )
+            initial_fields[mol_id] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
+
     return {
         "_type": "map",
         "_value": {
@@ -276,46 +279,6 @@ def get_particle_movement_process(
         }
     }
 
-
-def get_particle_movement_state(
-        n_bins=(20, 20),
-        bounds=(10.0, 10.0),
-        n_particles=15,
-        diffusion_rate=0.1,
-        advection_rate=(0, -0.1),
-        boundary_to_add=None,
-        add_probability=0.4,
-        initial_min_max=None,
-):
-    if boundary_to_add is None:
-        boundary_to_add = ['top']
-    fields = initialize_fields(n_bins, initial_min_max)
-
-    # initialize particles
-    # TODO -- this needs to be a static method??
-    particles = Particles.generate_state(
-        config={
-            'n_particles': n_particles,
-            'n_bins': n_bins,
-            'bounds': bounds,
-            # 'fields': fields
-        }
-    )
-
-    return {
-        'fields': fields,
-        'particles': particles['particles'],
-        'particle_movement': get_particle_movement_process(
-            n_bins=n_bins,
-            bounds=bounds,
-            diffusion_rate=diffusion_rate,
-            advection_rate=advection_rate,
-            add_probability=add_probability,
-            boundary_to_add=boundary_to_add,
-        )
-    }
-
-
 # ===============
 # Particle-COMETS
 # ===============
@@ -352,6 +315,22 @@ def get_minimal_particle_composition(core, config=None):
         }
     }
 
+def get_particles_state(
+        n_bins=(10, 10),
+        bounds=(10.0, 10.0),
+        fields=None,
+        n_particles=10,
+):
+    fields = fields or {}
+    # add particles process
+    particles = Particles.generate_state(
+        config={
+            'n_particles': n_particles,
+            'bounds': bounds,
+            'fields': fields,
+            'n_bins': n_bins,
+        })
+    return particles['particles']
 
 def get_particle_comets_state(
         n_bins=(10, 10),
@@ -374,6 +353,8 @@ def get_particle_comets_state(
     initial_min_max = initial_min_max or default_config['initial_min_max']
 
     # make the composite state with dFBA based on grid size
+
+
     composite_state = get_spatial_many_dfba_with_fields(
         model_file=model_file,
         n_bins=n_bins,
@@ -382,9 +363,7 @@ def get_particle_comets_state(
     )
     # add diffusion/advection process
     composite_state['diffusion'] = get_diffusion_advection_process(
-        bounds=bounds,
-        n_bins=n_bins,
-        mol_ids=mol_ids,
+        bounds=bounds,n_bins=n_bins,mol_ids=mol_ids,
         default_diffusion_rate=field_diffusion_rate,
         default_advection_rate=field_advection_rate,
         diffusion_coeffs=None,  #TODO -- add diffusion coeffs config
@@ -397,15 +376,18 @@ def get_particle_comets_state(
         fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
 
     # add particles process
-    particles = Particles.generate_state(
-        config={
-            'n_particles': n_particles,
-            'bounds': bounds,
-            'fields': fields,
-            'n_bins': n_bins,
-        })
+    composite_state['particles'] = get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields)
 
-    composite_state['particles'] = particles['particles']
+
+    # particles = Particles.generate_state(
+    #     config={
+    #         'n_particles': n_particles,
+    #         'bounds': bounds,
+    #         'fields': fields,
+    #         'n_bins': n_bins,
+    #     })
+    #
+    # composite_state['particles'] = particles['particles']
     composite_state['particle_movement'] = get_particle_movement_process(
         n_bins=n_bins,
         bounds=bounds,

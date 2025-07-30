@@ -53,7 +53,7 @@ def generate_single_particle_state(config=None):
     config = config or {}
     bounds = config['bounds']
     n_bins = config['n_bins']
-    fields = config.get('fields', {})
+    fields = config.get('fields') or {}
     mol_ids = fields.keys()
     mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
