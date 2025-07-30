@@ -146,6 +146,7 @@ def get_fields(
 ):
     if mol_ids is None:
         mol_ids = ["glucose", "acetate", "biomass"]
+    initial_min_max = initial_min_max or {}
     initial_fields = initial_fields or {}
     for mol_id in mol_ids:
         if mol_id not in initial_fields:
@@ -243,50 +244,6 @@ def get_diffusion_advection_process(
                 'fields': ['fields']
             }
         }
-
-
-def get_diffusion_advection_state(
-        bounds=(10.0, 10.0),
-        n_bins=(5, 5),
-        mol_ids=None,
-        initial_max=None,
-        default_diffusion_rate=1e-1,
-        default_advection_rate=(0, 0),
-        diffusion_coeffs=None,
-        advection_coeffs=None,
-):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
-    if initial_max is None:
-        initial_max = {
-            'glucose': 20,
-            'acetate': 0.01,
-            'biomass': 0.1
-        }
-    initial_fields = {
-        mol_id: np.random.uniform(low=0, high=initial_max[mol_id], size=n_bins)
-        for mol_id in mol_ids}
-
-    return {
-        'fields': {
-            '_type': 'map',
-            '_value': {
-                '_type': 'array',
-                '_shape': n_bins,
-                '_data': 'positive_float'
-            },
-            **initial_fields,
-        },
-        'diffusion': get_diffusion_advection_process(
-            bounds=bounds,
-            n_bins=n_bins,
-            mol_ids=mol_ids,
-            default_diffusion_rate=default_diffusion_rate,
-            default_advection_rate=default_advection_rate,
-            diffusion_coeffs=diffusion_coeffs,
-            advection_coeffs=advection_coeffs,
-        ),
-    }
 
 
 # =================
