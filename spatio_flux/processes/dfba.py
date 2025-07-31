@@ -21,57 +21,60 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.b
 # Define static bounds for specific models (can customize per model if needed)
 default_bounds = {}
 
-# Metadata for each model
-MODEL_METADATA = {
-    "iAF1260.xml": {
-        "label": "E. coli core model",
-        "organism": "Escherichia coli K-12 MG1655",
-        "category": "facultative anaerobe",
-        "context": "gut, lab chassis"
+MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models')
+
+MODEL_REGISTRY_DFBA = {
+    'textbook': {
+        'filename': 'textbook',
+        'bounds': {
+            "EX_o2_e": {"lower": -2, "upper": None},
+            "ATPM": {"lower": 1, "upper": 1}},
+        'kinetic_params': {
+            "glucose": (0.5, 1),
+            "acetate": (0.5, 2)
+        }
     },
-    "iCN900.xml": {
-        "label": "C. difficile model",
-        "organism": "Clostridioides difficile 630",
-        "category": "strict anaerobe",
-        "context": "gut pathogen"
+    'ecoli': {
+        'filename': 'iAF1260.xml',
+        'label': 'E. coli K-12 MG1655',
+        'organism': 'Escherichia coli',
+        'category': 'facultative anaerobe',
+        'context': 'gut, lab chassis',
+        'bounds': {}
     },
-    "iJN746.xml": {
-        "label": "P. putida KT2440 (reduced)",
-        "organism": "Pseudomonas putida",
-        "category": "aerobic soil bacterium",
-        "context": "environmental, synthetic consortia"
+    'cdiff': {
+        'filename': 'iCN900.xml',
+        'label': 'Clostridioides difficile 630',
+        'organism': 'Clostridioides difficile',
+        'category': 'strict anaerobe',
+        'context': 'gut pathogen',
+        'bounds': {}
     },
-    "iMM904.xml": {
-        "label": "S. cerevisiae (budding yeast)",
-        "organism": "Saccharomyces cerevisiae S288C",
-        "category": "eukaryotic yeast",
-        "context": "fermentation, cross-domain communities"
+    'pputida': {
+        'filename': 'iJN746.xml',
+        'label': 'Pseudomonas putida KT2440',
+        'organism': 'Pseudomonas putida',
+        'category': 'aerobic soil bacterium',
+        'context': 'environmental, synthetic consortia',
+        'bounds': {}
     },
-    "iNF517.xml": {
-        "label": "Lactococcus lactis MG1363",
-        "organism": "Lactococcus lactis",
-        "category": "facultative anaerobe",
-        "context": "probiotic, dairy microbiome"
+    'yeast': {
+        'filename': 'iMM904.xml',
+        'label': 'Saccharomyces cerevisiae S288C',
+        'organism': 'Saccharomyces cerevisiae',
+        'category': 'eukaryotic yeast',
+        'context': 'fermentation, cross-domain communities',
+        'bounds': {}
+    },
+    'llactis': {
+        'filename': 'iNF517.xml',
+        'label': 'Lactococcus lactis MG1363',
+        'organism': 'Lactococcus lactis',
+        'category': 'facultative anaerobe',
+        'context': 'probiotic, dairy microbiome',
+        'bounds': {}
     },
 }
-
-
-def load_all_models(models_dir='spatio_flux/models'):
-    """
-    Load all FBA models from the models directory and return them
-    with associated metadata.
-    """
-    loaded_models = {}
-    for filename in os.listdir(models_dir):
-        if filename.endswith('.xml') and filename in MODEL_METADATA:
-            filepath = os.path.join(models_dir, filename)
-            model = load_fba_model(filepath, bounds=default_bounds)
-            metadata = MODEL_METADATA[filename]
-            loaded_models[filename] = {
-                "model": model,
-                "metadata": metadata
-            }
-    return loaded_models
 
 
 def load_fba_model(model_file, bounds):

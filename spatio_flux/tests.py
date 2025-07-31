@@ -29,7 +29,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes import (
     get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
-    get_dfba_particle_composition, get_particles_state
+    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA
 )
 
 
@@ -86,7 +86,7 @@ def inverse_tuple(tu):
 # --- DFBA Single ---------------------------------------------------
 
 def get_dfba_single_doc(core=None):
-    model_file = "textbook"
+    model_file = MODEL_REGISTRY_DFBA["textbook"]
     mol_ids = ["glucose", "acetate", "biomass"]
     return {
         "dFBA": get_single_dfba_process(model_file=model_file, mol_ids=mol_ids, path=['fields']),
