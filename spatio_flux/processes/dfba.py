@@ -6,7 +6,7 @@ A pluggable dynamic Flux Balance Analysis (dFBA) process.
 Performs time-stepped metabolic modeling by combining COBRApy-based
 optimization with kinetic uptake constraints.
 """
-
+import os
 import warnings
 import numpy as np
 from copy import deepcopy
@@ -17,6 +17,61 @@ from process_bigraph import Process
 # Suppress known benign warnings from COBRApy
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
 warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
+
+# Define static bounds for specific models (can customize per model if needed)
+default_bounds = {}
+
+# Metadata for each model
+MODEL_METADATA = {
+    "iAF1260.xml": {
+        "label": "E. coli core model",
+        "organism": "Escherichia coli K-12 MG1655",
+        "category": "facultative anaerobe",
+        "context": "gut, lab chassis"
+    },
+    "iCN900.xml": {
+        "label": "C. difficile model",
+        "organism": "Clostridioides difficile 630",
+        "category": "strict anaerobe",
+        "context": "gut pathogen"
+    },
+    "iJN746.xml": {
+        "label": "P. putida KT2440 (reduced)",
+        "organism": "Pseudomonas putida",
+        "category": "aerobic soil bacterium",
+        "context": "environmental, synthetic consortia"
+    },
+    "iMM904.xml": {
+        "label": "S. cerevisiae (budding yeast)",
+        "organism": "Saccharomyces cerevisiae S288C",
+        "category": "eukaryotic yeast",
+        "context": "fermentation, cross-domain communities"
+    },
+    "iNF517.xml": {
+        "label": "Lactococcus lactis MG1363",
+        "organism": "Lactococcus lactis",
+        "category": "facultative anaerobe",
+        "context": "probiotic, dairy microbiome"
+    },
+}
+
+
+def load_all_models(models_dir='spatio_flux/models'):
+    """
+    Load all FBA models from the models directory and return them
+    with associated metadata.
+    """
+    loaded_models = {}
+    for filename in os.listdir(models_dir):
+        if filename.endswith('.xml') and filename in MODEL_METADATA:
+            filepath = os.path.join(models_dir, filename)
+            model = load_fba_model(filepath, bounds=default_bounds)
+            metadata = MODEL_METADATA[filename]
+            loaded_models[filename] = {
+                "model": model,
+                "metadata": metadata
+            }
+    return loaded_models
 
 
 def load_fba_model(model_file, bounds):

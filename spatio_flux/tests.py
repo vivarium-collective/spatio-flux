@@ -32,6 +32,7 @@ from spatio_flux.processes import (
     get_dfba_particle_composition, get_particles_state
 )
 
+
 DEFAULT_BOUNDS = (5.0, 10.0)
 DEFAULT_BINS = (10, 20)
 DEFAULT_BINS_SMALL = (5, 10)
