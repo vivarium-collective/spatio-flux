@@ -90,10 +90,13 @@ def load_fba_model(model_file, bounds):
     --------
     cobra.Model instance with bounds applied
     """
-    if model_file.endswith(".xml"):
-        model = cobra.io.read_sbml_model(model_file)
-    else:
-        model = load_model(model_file)
+    try:
+        if model_file.endswith(".xml"):
+            model = cobra.io.read_sbml_model(model_file)
+        else:
+            model = load_model(model_file)
+    except:
+        raise ValueError(f"Failed to load model from {model_file}. Ensure it is a valid SBML file or registered model name.")
 
     for rxn_id, limits in bounds.items():
         rxn = model.reactions.get_by_id(rxn_id)

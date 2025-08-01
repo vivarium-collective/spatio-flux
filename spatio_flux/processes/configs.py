@@ -74,6 +74,7 @@ def get_dfba_config(
 def get_single_dfba_process(
         model_file="textbook",
         mol_ids=None,
+        biomass_id="biomass",
         path=None,
         i=None,
         j=None,
@@ -84,11 +85,11 @@ def get_single_dfba_process(
     if path is None:
         path = ["..", "fields"]
     if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
+        mol_ids = ["glucose", "acetate"]
 
     # remove "biomass" from mol_ids if it exists
-    if "biomass" in mol_ids:
-        mol_ids.remove("biomass")
+    if biomass_id in mol_ids:
+        mol_ids.remove(biomass_id)
 
     return {
         "_type": "process",
@@ -96,11 +97,11 @@ def get_single_dfba_process(
         "config": get_dfba_config(model_file=model_file),
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass", i, j)
+            "biomass": build_path(path, biomass_id, i, j)
         },
         "outputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass", i, j)
+            "biomass": build_path(path, biomass_id, i, j)
         }
     }
 
