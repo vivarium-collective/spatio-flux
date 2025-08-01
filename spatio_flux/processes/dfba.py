@@ -23,56 +23,56 @@ default_bounds = {}
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models')
 
+core_exchange_fluxes = [
+    'EX_glc__D_e',  # universal carbon
+    'EX_o2_e',      # aerobic respiration
+    'EX_nh4_e',     # nitrogen source
+    'EX_pi_e',      # phosphate
+    'EX_co2_e',     # universal byproduct
+    'EX_h2o_e',     # universal byproduct
+    'EX_h_e',       # proton gradient / acid-base balance
+    'EX_ac_e',      # fermentative overflow
+    'EX_etoh_e',    # ethanol (esp. for yeast)
+]
+
+default_kinetics = {
+    'substrate_update_reactions': {
+        "glucose": "EX_glc__D_e",
+        "acetate": "EX_ac_e"
+    },
+    'kinetic_params': {
+        "glucose": (0.5, 1),
+        "acetate": (0.5, 2)
+    }
+}
+
 MODEL_REGISTRY_DFBA = {
     'textbook': {
         'filename': 'textbook',
         'bounds': {
             "EX_o2_e": {"lower": -2, "upper": None},
             "ATPM": {"lower": 1, "upper": 1}},
-        'kinetic_params': {
-            "glucose": (0.5, 1),
-            "acetate": (0.5, 2)
-        }
+        'config': default_kinetics,
     },
     'ecoli': {
         'filename': 'iAF1260.xml',
-        'label': 'E. coli K-12 MG1655',
-        'organism': 'Escherichia coli',
-        'category': 'facultative anaerobe',
-        'context': 'gut, lab chassis',
-        'bounds': {}
+        'config': default_kinetics,
     },
     'cdiff': {
         'filename': 'iCN900.xml',
-        'label': 'Clostridioides difficile 630',
-        'organism': 'Clostridioides difficile',
-        'category': 'strict anaerobe',
-        'context': 'gut pathogen',
-        'bounds': {}
+        'config': default_kinetics,
     },
     'pputida': {
         'filename': 'iJN746.xml',
-        'label': 'Pseudomonas putida KT2440',
-        'organism': 'Pseudomonas putida',
-        'category': 'aerobic soil bacterium',
-        'context': 'environmental, synthetic consortia',
-        'bounds': {}
+        'config': default_kinetics,
     },
     'yeast': {
         'filename': 'iMM904.xml',
-        'label': 'Saccharomyces cerevisiae S288C',
-        'organism': 'Saccharomyces cerevisiae',
-        'category': 'eukaryotic yeast',
-        'context': 'fermentation, cross-domain communities',
-        'bounds': {}
+        'config': default_kinetics,
     },
     'llactis': {
         'filename': 'iNF517.xml',
-        'label': 'Lactococcus lactis MG1363',
-        'organism': 'Lactococcus lactis',
-        'category': 'facultative anaerobe',
-        'context': 'probiotic, dairy microbiome',
-        'bounds': {}
+        'config': default_kinetics,
     },
 }
 
@@ -103,6 +103,7 @@ def load_fba_model(model_file, bounds):
             rxn.upper_bound = limits["upper"]
 
     return model
+
 
 def run_fba_update(model, config, substrates, biomass, interval):
     """
@@ -217,6 +218,7 @@ class DynamicFBA(Process):
             interval
         )
 
+
 class SpatialDFBA(Process):
     """
     A spatial extension of DynamicFBA using one DFBA instance per bin.
@@ -320,3 +322,54 @@ class SpatialDFBA(Process):
             'fields': delta_fields,
             'biomass': delta_biomass
         }
+
+
+def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1e-1):
+    """
+    Load model, apply bounds and kinetic constraints, run FBA, and print important exchange reactions.
+    """
+    print(f"\n=== Analyzing model: {model_key} ===")
+
+    filename = config['filename']
+    if filename.endswith('.xml'):
+        model_path = os.path.join(model_dir, filename)
+        model = load_fba_model(model_path, config.get('bounds', {}))
+    else:
+        model = load_fba_model(filename, config.get('bounds', {}))  # named model
+
+    # Apply kinetic substrate constraints if available
+    substrate_updates = config.get('substrate_update_reactions', {})
+    kinetic_params = config.get('kinetic_params', {})
+    for substrate, rxn_id in substrate_updates.items():
+        if rxn_id in model.reactions:
+            Km, Vmax = kinetic_params.get(substrate, (0.5, 1.0))
+            rxn = model.reactions.get_by_id(rxn_id)
+            rxn.lower_bound = -Vmax
+            rxn.upper_bound = 0
+            print(f"  Applied kinetic bound to {rxn_id}: [-{Vmax}, 0]")
+
+    # Run FBA
+    solution = model.optimize()
+    if solution.status != 'optimal':
+        print(f"  ⚠ Optimization not optimal (status: {solution.status})")
+    else:
+        print(f"  ✅ Objective value: {solution.objective_value:.4f}")
+
+    # Print only important exchange reactions
+    print("  Important exchange reactions:")
+    user_constrained_rxns = set(config.get('bounds', {}).keys()) | set(substrate_updates.values())
+    for rxn in model.exchanges:
+        flux = solution.fluxes.get(rxn.id, 0.0)
+        default_bounds = (-1000.0, 1000.0) if rxn.reversibility else (0.0, 1000.0)
+        is_user_defined = rxn.id in user_constrained_rxns
+        is_constrained = (rxn.lower_bound, rxn.upper_bound) != default_bounds
+        is_active = abs(flux) > flux_epsilon
+
+        if is_user_defined or is_constrained or is_active:
+            print(f"    {rxn.id:20s} Bounds: ({rxn.lower_bound:6.1f}, {rxn.upper_bound:6.1f})  Flux: {flux:7.3f}")
+
+
+# Example usage
+if __name__ == "__main__":
+    for model_key, config in MODEL_REGISTRY_DFBA.items():
+        analyze_fba_model_minimal_media(model_key, config, MODEL_DIR)
