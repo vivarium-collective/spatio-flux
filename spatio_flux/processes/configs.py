@@ -51,18 +51,6 @@ def get_dfba_config(
         substrate_update_reactions=None,
         bounds=None
 ):
-    if substrate_update_reactions is None:
-        substrate_update_reactions = {
-            "glucose": "EX_glc__D_e",
-            "acetate": "EX_ac_e"}
-    if bounds is None:
-        bounds = {
-            "EX_o2_e": {"lower": -2, "upper": None},
-            "ATPM": {"lower": 1, "upper": 1}}
-    if kinetic_params is None:
-        kinetic_params = {
-            "glucose": (0.5, 1),
-            "acetate": (0.5, 2)}
     return {
         "model_file": model_file,
         "kinetic_params": kinetic_params,

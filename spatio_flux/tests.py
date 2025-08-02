@@ -31,7 +31,10 @@ from spatio_flux.processes import (
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
     get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA
 )
-
+import pprint
+def pf(obj):
+    pp = pprint.PrettyPrinter(indent=4)
+    return pp.pformat(obj)
 
 DEFAULT_BOUNDS = (5.0, 10.0)
 DEFAULT_BINS = (10, 20)
@@ -86,7 +89,7 @@ def inverse_tuple(tu):
 # ===================================================================
 # Functions to get documents and make plots for different experiments
 # ===================================================================
-import pprint
+
 # --- DFBA Single ---------------------------------------------------
 
 def get_dfba_single_doc(core=None):
@@ -102,7 +105,7 @@ def get_dfba_single_doc(core=None):
 def plot_dfba_single(results, state):
     plot_time_series(
         results,
-        field_names=["glucose", "acetate", "biomassXYZ"],
+        field_names=["glucose", "acetate", "biomass"],
         out_dir='out', filename='dfba_single_timeseries.png')
 
 
@@ -127,17 +130,15 @@ def get_multi_dfba(core=None):
             **initial_biomass
         }
     }
+    print(f'Multi DFBA document:\n{pf(doc)}')
     return doc
 
 def plot_multi_dfba(results, state):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     species_ids = model_ids + ["glucose", "acetate"]
-    # plot_time_series(results,  out_dir='out', filename='multi_dfba_timeseries.png')
     plot_time_series(
-        results,
-        field_names=species_ids,
+        results, field_names=species_ids, log_scale=True,
         out_dir='out', filename='multi_dfba_timeseries.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename='multi_dfba_results.gif')
 
 
 # --- Many DFBA Spatial ---------------------------------------------------

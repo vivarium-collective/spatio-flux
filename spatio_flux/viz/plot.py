@@ -37,57 +37,67 @@ def plot_time_series(
         out_dir=None,
         filename='time_series.png',
         display=False,
+        log_scale=False,
 ):
     """
     Plots time series for specified fields and coordinates from the results dictionary.
 
-    :param results: Dictionary containing the results with keys 'time' and 'fields'.
-                    Example: {'time': [0.1, 0.2, 0.3 ...], 'fields': {'glucose': [nparray_time0, nparray_time1], ...}}
+    :param results: Dictionary with 'time' and 'fields'.
     :param field_names: List of field names to plot.
-                        Example: ['glucose', 'other chemical']
-    :param coordinates: List of coordinates (indices) to plot.
-                        Example: [(0, 0), (1, 2)]
+    :param coordinates: List of (x, y) index tuples. If None, assume scalar values.
+    :param out_dir: Directory to save the plot.
+    :param filename: Name of the saved file.
+    :param display: If True, display the plot.
+    :param log_scale: If True, apply log scaling to the y-axis.
     """
-    # coordinates = coordinates or [(0, 0)]
     field_names = field_names or ['glucose', 'acetate', 'biomass']
     sorted_results = sort_results(results)
     times = sorted_results['time']
 
-    # Initialize the plot
     fig, ax = plt.subplots(figsize=(12, 6))
 
     for field_name in field_names:
-        if field_name in sorted_results['fields']:
-            field_data = sorted_results['fields'][field_name]
-            if coordinates is None:
-                ax.plot(times, field_data, label=field_name)
-            else:
-                for coord in coordinates:
-                    x, y = coord
+        if field_name not in sorted_results['fields']:
+            print(f"Field '{field_name}' not found in results['fields']")
+            continue
+
+        field_data = sorted_results['fields'][field_name]
+
+        if coordinates is None:
+            # Assume scalar time series
+            ax.plot(times, field_data, label=field_name)
+        else:
+            for coord in coordinates:
+                x, y = coord
+                try:
                     time_series = [field_data[t][x, y] for t in range(len(times))]
                     ax.plot(times, time_series, label=f'{field_name} at {coord}')
-                    # plot log scale on y axis
-                    # ax.set_yscale('log')
-        else:
-            print(f"Field '{field_name}' not found in results['fields']")
+                except Exception as e:
+                    print(f"Error plotting {field_name} at {coord}: {e}")
 
-    # Adding plot labels and legend
+    # Axis configuration
+    if log_scale:
+        ax.set_yscale('log')
+        y_label = "Value (log scale)"
+    else:
+        y_label = "Value (linear scale)"
+
     ax.set_xlabel('Time')
-    ax.set_ylabel('Value')
+    ax.set_ylabel(y_label)
     ax.set_title('Time Series Plot')
     ax.legend()
 
-    # Save the plot to a file
+    # Save
     if out_dir is not None:
         os.makedirs(out_dir, exist_ok=True)
         filepath = os.path.join(out_dir, filename)
-        # print(f'saving {filepath}')
         plt.savefig(filepath)
     else:
         filepath = filename
+
     if display:
-        # Display the plot
         plt.show()
+
 
 
 def plot_snapshots(
