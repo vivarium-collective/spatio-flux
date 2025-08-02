@@ -48,7 +48,7 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME = 10
+DEFAULT_RUNTIME = 20
 
 SIMULATION_CONFIGS = {
     # 'dfba_single': {'time': DEFAULT_RUNTIME},
@@ -86,19 +86,24 @@ def inverse_tuple(tu):
 # ===================================================================
 # Functions to get documents and make plots for different experiments
 # ===================================================================
-
+import pprint
 # --- DFBA Single ---------------------------------------------------
 
 def get_dfba_single_doc(core=None):
-    dissolved_model_file = MODEL_REGISTRY_DFBA["textbook"]['filename']
-    mol_ids = ["glucose", "acetate", "biomass"]
-    return {
-        "dFBA": get_single_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, path=['fields']),
-        "fields": {'glucose': 10, 'acetate': 0, 'biomass': 0.1}
+    dissolved_model_file = MODEL_REGISTRY_DFBA["textbook"]["filename"]
+    mol_ids = ["glucose", "acetate"]
+    biomass_id = "biomass"
+    doc = {
+        "dFBA": get_single_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, biomass_id=biomass_id, path=["fields"]),
+        "fields": {'glucose': 10, 'acetate': 0, biomass_id: 0.1}
     }
+    return doc
 
 def plot_dfba_single(results, state):
-    plot_time_series(results, out_dir='out', filename='dfba_single_timeseries.png')
+    plot_time_series(
+        results,
+        field_names=["glucose", "acetate", "biomassXYZ"],
+        out_dir='out', filename='dfba_single_timeseries.png')
 
 
 # --- Multiple DFBAs ---------------------------------------------------
@@ -106,21 +111,32 @@ def plot_dfba_single(results, state):
 def get_multi_dfba(core=None):
     mol_ids = ['glucose', 'acetate']
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
-    species_ids = model_ids + mol_ids
     dfbas = {}
     for model_id, spec in MODEL_REGISTRY_DFBA.items():
-        if model_id not in ['textbook',]:
-            continue
         model_file = spec['filename']
-        dfbas[model_id] =  get_single_dfba_process(model_file=model_file, mol_ids=species_ids, biomass_id=model_id, path=['fields']),
+        process_id = f'dfba_{model_id}'
+        dfbas[process_id] =  get_single_dfba_process(
+            model_file=model_file, mol_ids=mol_ids, biomass_id=model_id, path=['fields'])
+    initial_biomass = {organism: 0.1 for organism in model_ids}
+
     doc = {
         **dfbas,
-        "fields": {'glucose': 10, 'acetate': 0, 'biomass': 0.1}
+        "fields": {
+            "glucose": 10,
+            "acetate": 0,
+            **initial_biomass
+        }
     }
     return doc
 
 def plot_multi_dfba(results, state):
-    plot_time_series(results,  out_dir='out', filename='multi_dfba_timeseries.png')
+    model_ids = list(MODEL_REGISTRY_DFBA.keys())
+    species_ids = model_ids + ["glucose", "acetate"]
+    # plot_time_series(results,  out_dir='out', filename='multi_dfba_timeseries.png')
+    plot_time_series(
+        results,
+        field_names=species_ids,
+        out_dir='out', filename='multi_dfba_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='multi_dfba_results.gif')
 
 

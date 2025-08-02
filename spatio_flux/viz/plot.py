@@ -152,9 +152,19 @@ def plot_species_distributions_to_gif(
 
     # Compute global min and max for each species
     global_min_max = {
-        species: (np.min(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])),
-                  np.max(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])))
-        for species in species_names}
+        species: (
+            np.min(np.concatenate([
+                val.flatten() if isinstance(val, np.ndarray) else np.array([val])
+                for val in sorted_results['fields'][species][:n_times]
+            ])),
+            np.max(np.concatenate([
+                val.flatten() if isinstance(val, np.ndarray) else np.array([val])
+                for val in sorted_results['fields'][species][:n_times]
+            ]))
+        )
+        for species in species_names
+        if species in sorted_results['fields']
+    }
 
     images = []
     for i in range(0, n_times, skip_frames):
@@ -163,9 +173,15 @@ def plot_species_distributions_to_gif(
             axs = [axs]
 
         for j, species in enumerate(species_names):
+            field_val = sorted_results['fields'][species][i]
+
+            if not isinstance(field_val, np.ndarray) or field_val.ndim != 2:
+                # print(f"Skipping {species} at t={times[i]:.2f}: not a 2D array")
+                continue  # skip scalars or 1D arrays
+
             ax = axs[j]
             vmin, vmax = global_min_max[species]
-            img = ax.imshow(sorted_results['fields'][species][i], interpolation='nearest', vmin=vmin, vmax=vmax)
+            img = ax.imshow(field_val, interpolation='nearest', vmin=vmin, vmax=vmax)
             ax.set_title(f'{species} at t = {times[i]:.2f}')
             plt.colorbar(img, ax=ax)
 
