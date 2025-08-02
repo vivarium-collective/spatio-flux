@@ -23,26 +23,14 @@ default_bounds = {}
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models')
 
-core_exchange_fluxes = [
-    'EX_glc__D_e',  # universal carbon
-    'EX_o2_e',      # aerobic respiration
-    'EX_nh4_e',     # nitrogen source
-    'EX_pi_e',      # phosphate
-    'EX_co2_e',     # universal byproduct
-    'EX_h2o_e',     # universal byproduct
-    'EX_h_e',       # proton gradient / acid-base balance
-    'EX_ac_e',      # fermentative overflow
-    'EX_etoh_e',    # ethanol (esp. for yeast)
-]
-
 default_kinetics = {
     'substrate_update_reactions': {
-        "glucose": "EX_glc__D_e",
-        "acetate": "EX_ac_e"
+        'glucose': 'EX_glc__D_e',
+        'acetate': 'EX_ac_e'
     },
     'kinetic_params': {
-        "glucose": (0.5, 1),
-        "acetate": (0.5, 2)
+        'glucose': (0.5, 1),
+        'acetate': (0.5, 2)
     }
 }
 
@@ -50,29 +38,83 @@ MODEL_REGISTRY_DFBA = {
     'textbook': {
         'filename': 'textbook',
         'bounds': {
-            "EX_o2_e": {"lower": -2, "upper": None},
-            "ATPM": {"lower": 1, "upper": 1}},
-        'config': default_kinetics,
+            'EX_o2_e': {'lower': -2, 'upper': None},
+            'ATPM': {'lower': 1, 'upper': 1}},
+        'config': {
+            'substrate_update_reactions': {
+                'glucose': 'EX_glc__D_e',
+                'acetate': 'EX_ac_e'
+            },
+            'kinetic_params': {
+                'glucose': (0.5, 1),
+                'acetate': (0.5, 2)
+            }
+        },
     },
     'ecoli': {
         'filename': 'models/iAF1260.xml',
-        'config': default_kinetics,
+        'config': {
+            'substrate_update_reactions': {
+                'glucose': 'EX_glc__D_e',
+                'acetate': 'EX_ac_e'
+            },
+            'kinetic_params': {
+                'glucose': (0.5, 1),
+                'acetate': (0.5, 2)
+            }
+        },
     },
     'cdiff': {
         'filename': 'models/iCN900.xml',
-        'config': default_kinetics,
+        'config': {
+            'substrate_update_reactions': {
+                'glucose': 'EX_glc__D_e',
+                'acetate': 'EX_ac_e'
+            },
+            'kinetic_params': {
+                'glucose': (0.5, 1),
+                'acetate': (0.5, 2)
+            }
+        },
     },
     'pputida': {
         'filename': 'models/iJN746.xml',
-        'config': default_kinetics,
+        'config': {
+            'substrate_update_reactions': {
+                'glucose': 'EX_glc__D_e',
+                'acetate': 'EX_ac_e'
+            },
+            'kinetic_params': {
+                'glucose': (0.5, 1),
+                'acetate': (0.5, 2)
+            }
+        },
     },
     'yeast': {
         'filename': 'models/iMM904.xml',
-        'config': default_kinetics,
+        'config': {
+            'substrate_update_reactions': {
+                'glucose': 'EX_glc__D_e',
+                'acetate': 'EX_ac_e'
+            },
+            'kinetic_params': {
+                'glucose': (0.5, 1),
+                'acetate': (0.5, 2)
+            }
+        },
     },
     'llactis': {
         'filename': 'models/iNF517.xml',
-        'config': default_kinetics,
+        'config': {
+            'substrate_update_reactions': {
+                'glucose': 'EX_glc__D_e',
+                'acetate': 'EX_ac_e'
+            },
+            'kinetic_params': {
+                'glucose': (0.5, 1),
+                'acetate': (0.5, 2)
+            }
+        },
     },
 }
 
@@ -326,50 +368,90 @@ class SpatialDFBA(Process):
             'biomass': delta_biomass
         }
 
+def restore_bounds_safely(rxn, lb, ub):
+    """Restore bounds safely regardless of current invalid state."""
+    # Set to dummy permissive bounds first to avoid intermediate errors
+    rxn.lower_bound = -1000
+    rxn.upper_bound = 1000
+    rxn.lower_bound = lb
+    rxn.upper_bound = ub
 
-def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1e-1):
+def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1e-5, top_k=10):
     """
-    Load model, apply bounds and kinetic constraints, run FBA, and print important exchange reactions.
+    Load model, apply bounds and kinetic constraints, run FBA, and print important exchange reactions,
+    including the top growth-limiting ones based on flux knockouts.
     """
     print(f"\n=== Analyzing model: {model_key} ===")
 
-    filename = config['filename']
+    filename = config['filename'].removeprefix('models/')
     if filename.endswith('.xml'):
         model_path = os.path.join(model_dir, filename)
         model = load_fba_model(model_path, config.get('bounds', {}))
     else:
         model = load_fba_model(filename, config.get('bounds', {}))  # named model
 
-    # Apply kinetic substrate constraints if available
-    substrate_updates = config.get('substrate_update_reactions', {})
-    kinetic_params = config.get('kinetic_params', {})
-    for substrate, rxn_id in substrate_updates.items():
-        if rxn_id in model.reactions:
-            Km, Vmax = kinetic_params.get(substrate, (0.5, 1.0))
-            rxn = model.reactions.get_by_id(rxn_id)
-            rxn.lower_bound = -Vmax
-            rxn.upper_bound = 0
-            print(f"  Applied kinetic bound to {rxn_id}: [-{Vmax}, 0]")
-
-    # Run FBA
+    # Run base FBA
     solution = model.optimize()
     if solution.status != 'optimal':
         print(f"  ⚠ Optimization not optimal (status: {solution.status})")
-    else:
-        print(f"  ✅ Objective value: {solution.objective_value:.4f}")
+        return
+    baseline_growth = solution.objective_value
+    print(f"  ✅ Objective value: {baseline_growth:.4f}")
 
-    # Print only important exchange reactions
+    # Identify and print important exchange reactions
     print("  Important exchange reactions:")
-    user_constrained_rxns = set(config.get('bounds', {}).keys()) | set(substrate_updates.values())
+    active_exchanges = []
+
     for rxn in model.exchanges:
         flux = solution.fluxes.get(rxn.id, 0.0)
         default_bounds = (-1000.0, 1000.0) if rxn.reversibility else (0.0, 1000.0)
-        is_user_defined = rxn.id in user_constrained_rxns
+        # is_user_defined = rxn.id in user_constrained_rxns
         is_constrained = (rxn.lower_bound, rxn.upper_bound) != default_bounds
         is_active = abs(flux) > flux_epsilon
 
-        if is_user_defined or is_constrained or is_active:
-            print(f"    {rxn.id:20s} Bounds: ({rxn.lower_bound:6.1f}, {rxn.upper_bound:6.1f})  Flux: {flux:7.3f}")
+        if is_constrained or is_active:
+            if flux > flux_epsilon:
+                print(f"    {rxn.id:20s} Bounds: ({rxn.lower_bound:6.1f}, {rxn.upper_bound:6.1f})  Flux: {flux:12.6f}")
+        if is_active:
+            active_exchanges.append((rxn, flux))
+
+    # Test knockouts and measure growth rate impact
+    limiting_rxns = []
+    for rxn, flux in active_exchanges:
+        original_lb, original_ub = rxn.lower_bound, rxn.upper_bound
+
+        # SAFE KNOCKOUT: make bounds valid before zeroing
+        rxn.lower_bound = -1000.0
+        rxn.upper_bound = 1000.0
+        rxn.lower_bound = 0.0
+        rxn.upper_bound = 0.0
+
+        perturbed_sol = model.optimize()
+
+        # SAFE RESTORE of original bounds
+        restore_bounds_safely(rxn, original_lb, original_ub)
+
+        if perturbed_sol.status == 'optimal':
+            drop = baseline_growth - perturbed_sol.objective_value
+            if drop > 1e-12 and perturbed_sol.objective_value > 1E-12:  # ensure non-trivial growth
+                limiting_rxns.append({
+                    'id': rxn.id,
+                    'flux': flux,
+                    'drop': drop,
+                    'new_growth': perturbed_sol.objective_value
+                })
+        else:
+            print(f"    ⚠ Blocking {rxn.id} made the model infeasible")
+
+    # Sort and report top K
+    if limiting_rxns:
+        limiting_rxns.sort(key=lambda r: r['drop'], reverse=True)
+        print(f"\n  🚨 Top {min(top_k, len(limiting_rxns))} growth-limiting exchanges:")
+        for i, rxn in enumerate(limiting_rxns[:top_k], 1):
+            print(
+                f"    {i}. {rxn['id']:20s}  Flux: {rxn['flux']:9.4f}  Growth drop: {rxn['drop']:.6f} → {rxn['new_growth']:.6f}")
+    else:
+        print("\n  ⚠ No exchange flux significantly limits growth.")
 
 
 # Example usage
