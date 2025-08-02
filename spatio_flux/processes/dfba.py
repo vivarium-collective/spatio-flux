@@ -55,23 +55,23 @@ MODEL_REGISTRY_DFBA = {
         'config': default_kinetics,
     },
     'ecoli': {
-        'filename': 'iAF1260.xml',
+        'filename': 'models/iAF1260.xml',
         'config': default_kinetics,
     },
     'cdiff': {
-        'filename': 'iCN900.xml',
+        'filename': 'models/iCN900.xml',
         'config': default_kinetics,
     },
     'pputida': {
-        'filename': 'iJN746.xml',
+        'filename': 'models/iJN746.xml',
         'config': default_kinetics,
     },
     'yeast': {
-        'filename': 'iMM904.xml',
+        'filename': 'models/iMM904.xml',
         'config': default_kinetics,
     },
     'llactis': {
-        'filename': 'iNF517.xml',
+        'filename': 'models/iNF517.xml',
         'config': default_kinetics,
     },
 }
