@@ -29,7 +29,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes import (
     get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
-    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA
+    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA,
 )
 import pprint
 def pf(obj):
@@ -53,9 +53,11 @@ DEFAULT_INITIAL_MIN_MAX = {
 
 DEFAULT_RUNTIME = 20
 
+dfba_singles = {}
+
 SIMULATION_CONFIGS = {
-    # 'dfba_single': {'time': DEFAULT_RUNTIME},
-    'multi_dfba': {'time': DEFAULT_RUNTIME},
+    'dfba_single': {'time': DEFAULT_RUNTIME},
+    # 'multi_dfba': {'time': DEFAULT_RUNTIME},
     # 'spatial_many_dfba': {'time': DEFAULT_RUNTIME},
     # 'spatial_dfba_process': {'time': DEFAULT_RUNTIME},
     # 'diffusion_process': {'time': DEFAULT_RUNTIME},
@@ -65,6 +67,7 @@ SIMULATION_CONFIGS = {
     # 'particle_dfba': {'time': DEFAULT_RUNTIME},
     # 'particle_dfba_comets': {'time': DEFAULT_RUNTIME},
 }
+
 
 DESCRIPTIONS = {
     'dfba_single': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
@@ -96,20 +99,27 @@ def get_dfba_single_doc(core=None):
     dissolved_model_file = MODEL_REGISTRY_DFBA["textbook"]["filename"]
     mol_ids = ["glucose", "acetate"]
     biomass_id = "biomass"
-    doc = {
+    return {
         "dFBA": get_single_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, biomass_id=biomass_id, path=["fields"]),
         "fields": {'glucose': 10, 'acetate': 0, biomass_id: 0.1}
     }
-    return doc
 
-def plot_dfba_single(results, state):
+def plot_dfba_single(results, state, filename='dfba_single_timeseries.png'):
+    field_names = list(state["fields"].keys())
     plot_time_series(
         results,
-        field_names=["glucose", "acetate", "biomass"],
-        out_dir='out', filename='dfba_single_timeseries.png')
+        field_names=field_names,
+        out_dir='out', filename=filename)
 
 
 # --- Multiple DFBAs ---------------------------------------------------
+def get_field_names(model_registry):
+    all_fields = set()
+    for model_info in model_registry.values():
+        config = model_info.get('config', {})
+        all_fields.update(config.get('substrate_update_reactions', {}).keys())
+        all_fields.update(config.get('kinetic_params', {}).keys())
+    return sorted(all_fields)
 
 def get_multi_dfba(core=None):
     mol_ids = ['glucose', 'acetate']
@@ -121,23 +131,27 @@ def get_multi_dfba(core=None):
         dfbas[process_id] =  get_single_dfba_process(
             model_file=model_file, mol_ids=mol_ids, biomass_id=model_id, path=['fields'])
     initial_biomass = {organism: 0.1 for organism in model_ids}
-
+    field_names = get_field_names(MODEL_REGISTRY_DFBA)
+    more_fields = {mol_id: 0.1 for mol_id in field_names if mol_id not in ['glucose', 'acetate']}
     doc = {
         **dfbas,
         "fields": {
             "glucose": 10,
             "acetate": 0,
+            **more_fields,
             **initial_biomass
         }
     }
-    print(f'Multi DFBA document:\n{pf(doc)}')
     return doc
 
-def plot_multi_dfba(results, state):
+def plot_multi_dfba(results, state, filename='multi_dfba_timeseries.png'):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
-    species_ids = model_ids + ["glucose", "acetate"]
+    field_names = get_field_names(MODEL_REGISTRY_DFBA)
+    species_ids = model_ids + field_names
     plot_time_series(
-        results, field_names=species_ids, log_scale=True,
+        results, field_names=species_ids,
+        log_scale=True,
+        normalize=True,
         out_dir='out', filename='multi_dfba_timeseries.png')
 
 
@@ -153,7 +167,7 @@ def get_spatial_many_dfba_doc(core=None):
         "spatial_dfba": get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
-def plot_spatial_many_dfba(results, state):
+def plot_spatial_many_dfba(results, state, filename='spatial_many_dfba_timeseries.png'):
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_many_dfba_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_many_dfba_results.gif')
 
@@ -169,7 +183,7 @@ def get_spatial_dfba_process_doc(core=None):
         "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
-def plot_dfba_process_spatial(results, state):
+def plot_dfba_process_spatial(results, state, filename='spatial_dfba_process_timeseries.png'):
     plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_dfba_process.gif')
 
 # --- Diffusion Advection-----------------------------------------------
@@ -190,7 +204,7 @@ def get_diffusion_process_doc(core=None):
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
     }
 
-def plot_diffusion_process(results, state):
+def plot_diffusion_process(results, state, filename='diffusion_process_timeseries.png'):
     plot_species_distributions_to_gif(results, out_dir='out', filename='diffusion_process.gif')
 
 # --- COMETS -----------------------------------------------------------
@@ -222,7 +236,7 @@ def get_comets_doc(core=None):
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
 
-def plot_comets(results, state):
+def plot_comets(results, state, filename='comets_timeseries.png'):
     n_bins = state['diffusion']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
     plot_species_distributions_to_gif(results, out_dir='out', filename='comets_results.gif')
@@ -257,7 +271,7 @@ def get_particles_doc(core=None):
         "composition": get_minimal_particle_composition(core=core, config=particle_config)
     }
 
-def plot_particles_sim(results, state):
+def plot_particles_sim(results, state, filename='particles_timeseries.png'):
     bounds = state['particle_movement']['config']['bounds']
     history = [step['particles'] for step in results]
     plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
@@ -300,7 +314,7 @@ def get_particle_comets_doc(core=None):
         "composition": get_minimal_particle_composition(core, config=particle_config)
     }
 
-def plot_particle_comets(results, state):
+def plot_particle_comets(results, state, filename='particle_comets_timeseries.png'):
     bounds = state['particle_movement']['config']['bounds']
     n_bins = state['particle_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_comets_timeseries.png')
@@ -330,7 +344,7 @@ def get_particle_dfba_doc(core=None):
         "composition": get_dfba_particle_composition(model_file=particle_model_file)
     }
 
-def plot_particle_dfba(results, state):
+def plot_particle_dfba(results, state, filename='particle_dfba_timeseries.png'):
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
@@ -366,7 +380,7 @@ def get_particle_dfba_comets_doc(core=None):
         "composition": get_dfba_particle_composition(model_file=particle_model_file)
     }
 
-def plot_particle_dfba_comets(results, state):
+def plot_particle_dfba_comets(results, state, filename='particle_dfba_comets_timeseries.png'):
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
@@ -403,6 +417,68 @@ PLOTTERS = {
     'particle_dfba': plot_particle_dfba,
     'particle_dfba_comets': plot_particle_dfba_comets,
 }
+
+def generate_dfba_single_registry_extensions(model_registry, base_doc_func, base_plot_func, default_runtime=10.0):
+    simulation_configs = {}
+    document_creators = {}
+    plotters = {}
+
+    for model_key in model_registry:
+        tag = f"{model_key}_dfba_single"
+
+        # 1. Add to simulation config
+        simulation_configs[tag] = {'time': default_runtime}
+
+        # 2. Create and add a document creator function
+        def make_doc_func(model_key):
+            def doc_func(core=None):
+                model_file = model_registry[model_key]['filename']
+                mol_ids = list(model_registry[model_key]
+                               .get('config', {})
+                               .get('substrate_update_reactions', {})
+                               .keys())
+                biomass_id = "biomass"
+                return {
+                    "dFBA": get_single_dfba_process(
+                        model_file=model_file,
+                        mol_ids=mol_ids,
+                        biomass_id=biomass_id,
+                        path=["fields"]
+                    ),
+                    "fields": {mol_id: 10 for mol_id in mol_ids} | {biomass_id: 0.1}
+                }
+            return doc_func
+
+        document_creators[tag] = make_doc_func(model_key)
+
+        # 3. Create and add a plotting function
+        def make_plot_func():
+            def plot_func(results, state):
+                mol_ids = list(model_registry[model_key]
+                               .get('config', {})
+                               .get('substrate_update_reactions', {})
+                               .keys())
+                plot_dfba_single(
+                    results,
+                    state=state,
+                    filename=f'{tag}_timeseries.png'
+                )
+            return plot_func
+
+        plotters[tag] = make_plot_func()
+
+    return simulation_configs, document_creators, plotters
+
+org_dfba_configs, org_dfba_docs, org_dfba_plotters = generate_dfba_single_registry_extensions(
+    MODEL_REGISTRY_DFBA,
+    base_doc_func=get_dfba_single_doc,
+    base_plot_func=plot_dfba_single,
+    default_runtime=DEFAULT_RUNTIME
+)
+SIMULATION_CONFIGS.update(org_dfba_configs)
+DOCUMENT_CREATORS.update(org_dfba_docs)
+PLOTTERS.update(org_dfba_plotters)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run selected simulations.")

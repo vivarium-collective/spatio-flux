@@ -38,6 +38,7 @@ def plot_time_series(
         filename='time_series.png',
         display=False,
         log_scale=False,
+        normalize=False,
 ):
     """
     Plots time series for specified fields and coordinates from the results dictionary.
@@ -49,6 +50,7 @@ def plot_time_series(
     :param filename: Name of the saved file.
     :param display: If True, display the plot.
     :param log_scale: If True, apply log scaling to the y-axis.
+    :param normalize: If True, normalize all values to their initial value at time zero.
     """
     field_names = field_names or ['glucose', 'acetate', 'biomass']
     sorted_results = sort_results(results)
@@ -65,12 +67,19 @@ def plot_time_series(
 
         if coordinates is None:
             # Assume scalar time series
-            ax.plot(times, field_data, label=field_name)
+            data = field_data
+            if normalize:
+                initial = data[0] if data[0] != 0 else 1e-12
+                data = [v / initial for v in data]
+            ax.plot(times, data, label=field_name)
         else:
             for coord in coordinates:
                 x, y = coord
                 try:
                     time_series = [field_data[t][x, y] for t in range(len(times))]
+                    if normalize:
+                        initial = time_series[0] if time_series[0] != 0 else 1e-12
+                        time_series = [v / initial for v in time_series]
                     ax.plot(times, time_series, label=f'{field_name} at {coord}')
                 except Exception as e:
                     print(f"Error plotting {field_name} at {coord}: {e}")
@@ -78,13 +87,13 @@ def plot_time_series(
     # Axis configuration
     if log_scale:
         ax.set_yscale('log')
-        y_label = "Value (log scale)"
+        y_label = "Relative Value (log scale)" if normalize else "Value (log scale)"
     else:
-        y_label = "Value (linear scale)"
+        y_label = "Relative Value (linear scale)" if normalize else "Value (linear scale)"
 
     ax.set_xlabel('Time')
     ax.set_ylabel(y_label)
-    ax.set_title('Time Series Plot')
+    ax.set_title('Time Series Plot' + (" (Normalized)" if normalize else ""))
     ax.legend()
 
     # Save

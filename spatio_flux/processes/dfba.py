@@ -43,11 +43,13 @@ MODEL_REGISTRY_DFBA = {
         'config': {
             'substrate_update_reactions': {
                 'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e'
+                'acetate': 'EX_ac_e',
+                'formate': 'EX_for_e',
             },
             'kinetic_params': {
                 'glucose': (0.5, 1),
-                'acetate': (0.5, 2)
+                'acetate': (0.5, 2),
+                'formate': (0.5, 1),
             }
         },
     },
@@ -56,11 +58,11 @@ MODEL_REGISTRY_DFBA = {
         'config': {
             'substrate_update_reactions': {
                 'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e'
+                # 'acetate': 'EX_ac_e'
             },
             'kinetic_params': {
                 'glucose': (0.5, 1),
-                'acetate': (0.5, 2)
+                # 'acetate': (0.5, 2)
             }
         },
     },
@@ -82,11 +84,11 @@ MODEL_REGISTRY_DFBA = {
         'config': {
             'substrate_update_reactions': {
                 'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e'
+                'glycerol': 'EX_gly_e'
             },
             'kinetic_params': {
                 'glucose': (0.5, 1),
-                'acetate': (0.5, 2)
+                'glycerol': (0.5, 2)
             }
         },
     },
@@ -95,11 +97,11 @@ MODEL_REGISTRY_DFBA = {
         'config': {
             'substrate_update_reactions': {
                 'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e'
+                'ethanol': 'EX_etoh_e'
             },
             'kinetic_params': {
                 'glucose': (0.5, 1),
-                'acetate': (0.5, 2)
+                'ethanol': (0.5, 2)
             }
         },
     },
@@ -108,15 +110,51 @@ MODEL_REGISTRY_DFBA = {
         'config': {
             'substrate_update_reactions': {
                 'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e'
+                'ammonium': 'EX_nh4_e',
+                'glutamine': 'EX_gln__L_e',
+                'arginine': 'EX_arg__L_e'
             },
             'kinetic_params': {
                 'glucose': (0.5, 1),
-                'acetate': (0.5, 2)
+                'ammonium': (0.5, 1),
+                'glutamine': (0.5, 2),
+                'arginine': (0.5, 2)
             }
         },
     },
 }
+
+
+
+
+def validate_model_registry_substrates(model_registry):
+    """
+    Validate that 'substrate_update_reactions' and 'kinetic_params' fields match for each model.
+    Also returns the set of all substrate fields across all models.
+
+    :param model_registry: A dictionary like MODEL_REGISTRY_DFBA.
+    :return: A sorted list of unique substrate fields used across all models.
+    """
+    all_fields = set()
+
+    for model_key, model_info in model_registry.items():
+        config = model_info.get('config', {})
+        reactions = config.get('substrate_update_reactions', {})
+        kinetics = config.get('kinetic_params', {})
+
+        fields_reactions = set(reactions.keys())
+        fields_kinetics = set(kinetics.keys())
+
+        if fields_reactions != fields_kinetics:
+            raise AssertionError(
+                f"Mismatch in substrate fields for model '{model_key}':\n"
+                f"  In substrate_update_reactions: {sorted(fields_reactions)}\n"
+                f"  In kinetic_params:             {sorted(fields_kinetics)}"
+            )
+
+        all_fields.update(fields_reactions)
+
+    return sorted(all_fields)
 
 
 def load_fba_model(model_file, bounds):
