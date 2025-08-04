@@ -414,10 +414,11 @@ def restore_bounds_safely(rxn, lb, ub):
     rxn.lower_bound = lb
     rxn.upper_bound = ub
 
+
 def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1e-5, top_k=10):
     """
     Load model, apply bounds and kinetic constraints, run FBA, and print important exchange reactions,
-    including the top growth-limiting ones based on flux knockouts.
+    including minimal media, main sources of uptake, and top growth-limiting exchanges.
     """
     print(f"\n=== Analyzing model: {model_key} ===")
 
@@ -436,42 +437,59 @@ def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1
     baseline_growth = solution.objective_value
     print(f"  ✅ Objective value: {baseline_growth:.4f}")
 
-    # Identify and print important exchange reactions
-    print("  Important exchange reactions:")
+    # Track exchange reaction data
     active_exchanges = []
+    uptake_reactions = []
 
+    print("\n  Important exchange reactions:")
     for rxn in model.exchanges:
         flux = solution.fluxes.get(rxn.id, 0.0)
         default_bounds = (-1000.0, 1000.0) if rxn.reversibility else (0.0, 1000.0)
-        # is_user_defined = rxn.id in user_constrained_rxns
         is_constrained = (rxn.lower_bound, rxn.upper_bound) != default_bounds
         is_active = abs(flux) > flux_epsilon
 
         if is_constrained or is_active:
             if flux > flux_epsilon:
                 print(f"    {rxn.id:20s} Bounds: ({rxn.lower_bound:6.1f}, {rxn.upper_bound:6.1f})  Flux: {flux:12.6f}")
+            elif flux < -flux_epsilon:
+                uptake_reactions.append((rxn.id, flux))
+                print(f"    {rxn.id:20s} Bounds: ({rxn.lower_bound:6.1f}, {rxn.upper_bound:6.1f})  Flux: {flux:12.6f}  [uptake]")
+
         if is_active:
             active_exchanges.append((rxn, flux))
 
-    # Test knockouts and measure growth rate impact
+    # --- Minimal Media Report ---
+    minimal_media = sorted([(rxn_id, flux) for rxn_id, flux in uptake_reactions], key=lambda x: x[1])
+    if minimal_media:
+        print("\n  📦 Minimal media (required uptake):")
+        for rxn_id, flux in minimal_media:
+            print(f"    {rxn_id:20s}  Uptake flux: {flux:10.6f}")
+    else:
+        print("\n  ⚠ No uptake reactions identified for minimal media.")
+
+    # --- Top Uptake Sources ---
+    top_uptake = sorted(uptake_reactions, key=lambda x: abs(x[1]), reverse=True)[:top_k]
+    print(f"\n  🔋 Top {len(top_uptake)} sources of uptake:")
+    for i, (rxn_id, flux) in enumerate(top_uptake, 1):
+        print(f"    {i}. {rxn_id:20s}  Flux: {flux:10.6f}")
+
+    # --- Knockout Analysis ---
     limiting_rxns = []
     for rxn, flux in active_exchanges:
         original_lb, original_ub = rxn.lower_bound, rxn.upper_bound
 
-        # SAFE KNOCKOUT: make bounds valid before zeroing
+        # SAFE KNOCKOUT
         rxn.lower_bound = -1000.0
         rxn.upper_bound = 1000.0
         rxn.lower_bound = 0.0
         rxn.upper_bound = 0.0
 
         perturbed_sol = model.optimize()
-
-        # SAFE RESTORE of original bounds
         restore_bounds_safely(rxn, original_lb, original_ub)
 
         if perturbed_sol.status == 'optimal':
             drop = baseline_growth - perturbed_sol.objective_value
-            if drop > 1e-12 and perturbed_sol.objective_value > 1E-12:  # ensure non-trivial growth
+            if drop > 1e-12 and perturbed_sol.objective_value > 1e-12:
                 limiting_rxns.append({
                     'id': rxn.id,
                     'flux': flux,
@@ -481,7 +499,7 @@ def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1
         else:
             print(f"    ⚠ Blocking {rxn.id} made the model infeasible")
 
-    # Sort and report top K
+    # --- Top Growth-Limiting Reactions ---
     if limiting_rxns:
         limiting_rxns.sort(key=lambda r: r['drop'], reverse=True)
         print(f"\n  🚨 Top {min(top_k, len(limiting_rxns))} growth-limiting exchanges:")

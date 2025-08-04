@@ -32,55 +32,11 @@ from spatio_flux.processes import (
     get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA,
 )
 import pprint
+
+
 def pf(obj):
     pp = pprint.PrettyPrinter(indent=4)
     return pp.pformat(obj)
-
-DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (10, 20)
-DEFAULT_BINS_SMALL = (5, 10)
-DEFAULT_ADVECTION = (0, -0.1)
-DEFAULT_DIFFUSION = 0.1
-DEFAULT_ADD_PROBABILITY = 0.4
-DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
-DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
-DEFAULT_INITIAL_MIN_MAX = {
-        'glucose': (10, 10),
-        'acetate': (0, 0),
-        'biomass': (0, 0.1),
-        'detritus': (0, 0)
-    }
-
-DEFAULT_RUNTIME = 20
-
-dfba_singles = {}
-
-SIMULATION_CONFIGS = {
-    'dfba_single': {'time': DEFAULT_RUNTIME},
-    # 'multi_dfba': {'time': DEFAULT_RUNTIME},
-    # 'spatial_many_dfba': {'time': DEFAULT_RUNTIME},
-    # 'spatial_dfba_process': {'time': DEFAULT_RUNTIME},
-    # 'diffusion_process': {'time': DEFAULT_RUNTIME},
-    # 'comets': {'time': DEFAULT_RUNTIME},
-    # 'particles': {'time': DEFAULT_RUNTIME},
-    # 'particle_comets': {'time': DEFAULT_RUNTIME},
-    # 'particle_dfba': {'time': DEFAULT_RUNTIME},
-    # 'particle_dfba_comets': {'time': DEFAULT_RUNTIME},
-}
-
-
-DESCRIPTIONS = {
-    'dfba_single': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    'multi_dfba': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
-    'spatial_many_dfba': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
-    'spatial_dfba_process': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
-    'diffusion_process': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
-    'comets': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
-    'particles': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
-    'particle_comets': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
-    'particle_dfba': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
-    'particle_dfba_comets': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
-}
 
 def reversed_tuple(tu):
     return tuple(reversed(tu))
@@ -95,10 +51,16 @@ def inverse_tuple(tu):
 
 # --- DFBA Single ---------------------------------------------------
 
-def get_dfba_single_doc(core=None):
-    dissolved_model_file = MODEL_REGISTRY_DFBA["textbook"]["filename"]
-    mol_ids = ["glucose", "acetate"]
-    biomass_id = "biomass"
+def get_dfba_single_doc(
+        core=None,
+        dissolved_model_file=None,
+        mol_ids=None,
+        biomass_id = "biomass"
+):
+    if mol_ids is None:
+        mol_ids = ["glucose", "acetate"]
+    if dissolved_model_file is None:
+        dissolved_model_file = MODEL_REGISTRY_DFBA["textbook"]["filename"]
     return {
         "dFBA": get_single_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, biomass_id=biomass_id, path=["fields"]),
         "fields": {'glucose': 10, 'acetate': 0, biomass_id: 0.1}
@@ -113,6 +75,7 @@ def plot_dfba_single(results, state, filename='dfba_single_timeseries.png'):
 
 
 # --- Multiple DFBAs ---------------------------------------------------
+
 def get_field_names(model_registry):
     all_fields = set()
     for model_info in model_registry.values():
@@ -153,7 +116,6 @@ def plot_multi_dfba(results, state, filename='multi_dfba_timeseries.png'):
         log_scale=True,
         normalize=True,
         out_dir='out', filename='multi_dfba_timeseries.png')
-
 
 # --- Many DFBA Spatial ---------------------------------------------------
 
@@ -352,9 +314,7 @@ def plot_particle_dfba(results, state, filename='particle_dfba_timeseries.png'):
     plot_particles_mass(results, out_dir='out', filename='particle_dfba_mass.png')
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename='particle_dfba_with_fields.gif')
 
-
 # --- dFBA-Particles-COMETS ---------------------------------------------------
-
 
 def get_particle_dfba_comets_doc(core=None):
     dissolved_model_file = "textbook"
@@ -392,92 +352,85 @@ def plot_particle_dfba_comets(results, state, filename='particle_dfba_comets_tim
 # Functions for running tests and generating reports
 # ==================================================
 
-DOCUMENT_CREATORS = {
-    'dfba_single': get_dfba_single_doc,
-    'multi_dfba': get_multi_dfba,
-    'spatial_many_dfba': get_spatial_many_dfba_doc,
-    'spatial_dfba_process': get_spatial_dfba_process_doc,
-    'diffusion_process': get_diffusion_process_doc,
-    'comets': get_comets_doc,
-    'particles': get_particles_doc,
-    'particle_comets': get_particle_comets_doc,
-    'particle_dfba': get_particle_dfba_doc,
-    'particle_dfba_comets': get_particle_dfba_comets_doc,
+DEFAULT_BOUNDS = (5.0, 10.0)
+DEFAULT_BINS = (10, 20)
+DEFAULT_BINS_SMALL = (5, 10)
+DEFAULT_ADVECTION = (0, -0.1)
+DEFAULT_DIFFUSION = 0.1
+DEFAULT_ADD_PROBABILITY = 0.4
+DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
+DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
+DEFAULT_INITIAL_MIN_MAX = {
+        'glucose': (10, 10),
+        'acetate': (0, 0),
+        'biomass': (0, 0.1),
+        'detritus': (0, 0)
+    }
+
+DEFAULT_RUNTIME = 20
+
+SIMULATIONS = {
+    'dfba_single': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'multi_dfba': {
+        'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
+        'doc_func': get_multi_dfba,
+        'plot_func': plot_multi_dfba,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'spatial_many_dfba': {
+        'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
+        'doc_func': get_spatial_many_dfba_doc,
+        'plot_func': plot_spatial_many_dfba,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'spatial_dfba_process': {
+        'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
+        'doc_func': get_spatial_dfba_process_doc,
+        'plot_func': plot_dfba_process_spatial,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'diffusion_process': {
+        'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
+        'doc_func': get_diffusion_process_doc,
+        'plot_func': plot_diffusion_process,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'comets': {
+        'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
+        'doc_func': get_comets_doc,
+        'plot_func': plot_comets,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'particles': {
+        'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
+        'doc_func': get_particles_doc,
+        'plot_func': plot_particles_sim,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'particle_comets': {
+        'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
+        'doc_func': get_particle_comets_doc,
+        'plot_func': plot_particle_comets,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    'particle_dfba': {
+        'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
+        'doc_func': get_particle_dfba_doc,
+        'plot_func': plot_particle_dfba,
+        'config': {'time': DEFAULT_RUNTIME}
+    },
+    # 'particle_dfba_comets': {
+    #     'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
+    #     'doc_func': get_particle_dfba_comets_doc,
+    #     'plot_func': plot_particle_dfba_comets,
+    #     'config': {'time': DEFAULT_RUNTIME}
+    # },
 }
-
-PLOTTERS = {
-    'dfba_single': plot_dfba_single,
-    'multi_dfba': plot_multi_dfba,
-    'spatial_many_dfba': plot_spatial_many_dfba,
-    'spatial_dfba_process': plot_dfba_process_spatial,
-    'diffusion_process': plot_diffusion_process,
-    'comets': plot_comets,
-    'particles': plot_particles_sim,
-    'particle_comets': plot_particle_comets,
-    'particle_dfba': plot_particle_dfba,
-    'particle_dfba_comets': plot_particle_dfba_comets,
-}
-
-def generate_dfba_single_registry_extensions(model_registry, base_doc_func, base_plot_func, default_runtime=10.0):
-    simulation_configs = {}
-    document_creators = {}
-    plotters = {}
-
-    for model_key in model_registry:
-        tag = f"{model_key}_dfba_single"
-
-        # 1. Add to simulation config
-        simulation_configs[tag] = {'time': default_runtime}
-
-        # 2. Create and add a document creator function
-        def make_doc_func(model_key):
-            def doc_func(core=None):
-                model_file = model_registry[model_key]['filename']
-                mol_ids = list(model_registry[model_key]
-                               .get('config', {})
-                               .get('substrate_update_reactions', {})
-                               .keys())
-                biomass_id = "biomass"
-                return {
-                    "dFBA": get_single_dfba_process(
-                        model_file=model_file,
-                        mol_ids=mol_ids,
-                        biomass_id=biomass_id,
-                        path=["fields"]
-                    ),
-                    "fields": {mol_id: 10 for mol_id in mol_ids} | {biomass_id: 0.1}
-                }
-            return doc_func
-
-        document_creators[tag] = make_doc_func(model_key)
-
-        # 3. Create and add a plotting function
-        def make_plot_func():
-            def plot_func(results, state):
-                mol_ids = list(model_registry[model_key]
-                               .get('config', {})
-                               .get('substrate_update_reactions', {})
-                               .keys())
-                plot_dfba_single(
-                    results,
-                    state=state,
-                    filename=f'{tag}_timeseries.png'
-                )
-            return plot_func
-
-        plotters[tag] = make_plot_func()
-
-    return simulation_configs, document_creators, plotters
-
-org_dfba_configs, org_dfba_docs, org_dfba_plotters = generate_dfba_single_registry_extensions(
-    MODEL_REGISTRY_DFBA,
-    base_doc_func=get_dfba_single_doc,
-    base_plot_func=plot_dfba_single,
-    default_runtime=DEFAULT_RUNTIME
-)
-SIMULATION_CONFIGS.update(org_dfba_configs)
-DOCUMENT_CREATORS.update(org_dfba_docs)
-PLOTTERS.update(org_dfba_plotters)
 
 
 def parse_args():
@@ -493,10 +446,6 @@ def parse_args():
 def main():
     args = parse_args()
 
-    test_names = list(SIMULATION_CONFIGS.keys())
-    tests_to_run = args.tests if args.tests else test_names
-    print(f"\nSelected tests to run: {', '.join(tests_to_run)}\n")
-
     output_dir = args.output
     prepare_output_dir(output_dir)
 
@@ -504,20 +453,27 @@ def main():
     core = register_process_types(core)
     core = register_types(core)
 
+
     total_sim_time = 0.0  # To track simulation time only
     runtimes = {}
 
+    test_names = list(SIMULATIONS.keys())
+    tests_to_run = args.tests if args.tests else test_names
+    print(f"\nSelected tests to run: {', '.join(tests_to_run)}\n")
+
     for name in tests_to_run:
         print(f"\n🚀 Running test: {name}")
-        if name not in DOCUMENT_CREATORS:
-            print(f"Skipping unknown test: '{name}' (no document creator found)")
+        if name not in SIMULATIONS:
+            print(f"Skipping unknown test: '{name}'")
             continue
 
+        sim_info = SIMULATIONS[name]
+
         print("Creating document...")
-        doc = DOCUMENT_CREATORS[name](core=core)
+        doc = sim_info['doc_func'](core=core)
 
         print("Sending document...")
-        config = SIMULATION_CONFIGS[name]
+        config = sim_info.get('config', {})
         sim_start = time.time()
         results = run_composite_document(doc, core=core, name=name, **config)
         sim_end = time.time()
@@ -527,14 +483,18 @@ def main():
         total_sim_time += sim_elapsed
 
         print("Generating plots...")
-        PLOTTERS[name](results, doc.get('state', doc))
+        sim_info['plot_func'](results, doc.get('state', doc))
 
         print(f"✅ Completed: {name} in {sim_elapsed:.2f} seconds")
 
     print(f"\nCompiling HTML report...")
-    generate_html_report(output_dir, SIMULATION_CONFIGS, DESCRIPTIONS, runtimes, total_sim_time)
-
-    print(f"\nTotal simulation time for all the tests: {total_sim_time:.2f} seconds")
+    generate_html_report(
+        output_dir,
+        {k: v['config'] for k, v in SIMULATIONS.items()},
+        {k: v['description'] for k, v in SIMULATIONS.items()},
+        runtimes,
+        total_sim_time
+    )
 
 
 if __name__ == '__main__':
