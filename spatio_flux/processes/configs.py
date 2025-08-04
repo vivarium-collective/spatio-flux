@@ -98,17 +98,18 @@ def get_single_dfba_process(
 def get_spatial_dfba_process(
         model_file="textbook",
         mol_ids=None,
+        biomass_id="biomass",
         n_bins=(5, 5),
         path=None,
 ):
     if path is None:
         path = ['fields']
     if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
+        mol_ids = ["glucose", "acetate"]
 
     # remove "biomass" from mol_ids if it exists
-    if "biomass" in mol_ids:
-        mol_ids.remove("biomass")
+    if biomass_id in mol_ids:
+        mol_ids.remove(biomass_id)
 
     if model_file in MODEL_REGISTRY_DFBA:
         config = MODEL_REGISTRY_DFBA.get(model_file, {})
@@ -122,11 +123,11 @@ def get_spatial_dfba_process(
         "config": config,
         "inputs": {
             "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass")
+            "biomass": build_path(path, biomass_id)
         },
         "outputs": {
             "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass")
+            "biomass": build_path(path, biomass_id)
         }
     }
 

@@ -319,7 +319,7 @@ def get_particle_dfba_doc(core=None, config=None):
     n_bins = DEFAULT_BINS
     advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 2
-    add_probability = 0.1
+    add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {
@@ -327,8 +327,8 @@ def get_particle_dfba_doc(core=None, config=None):
             "fields": fields,
             "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            "particle_movement": get_particle_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection,
-                                                               add_probability=add_probability)
+            "particle_movement": get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
         },
         "composition": get_dfba_particle_composition(model_file=particle_model_id)
     }
@@ -346,27 +346,28 @@ def plot_particle_dfba(results, state, config=None):
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 
 def get_particle_dfba_comets_doc(core=None, config=None):
-    dissolved_model_file = "textbook"
-    particle_model_file = "textbook"
-    mol_ids = ['glucose', 'acetate']
-    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
+    particle_model_id = config.get('particle_model_id', "textbook")
+    dissolved_model_id = config.get('dissolved_model_id', "textbook")
+
+    mol_ids = ['glucose', 'acetate', 'biomass']
+    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
     advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 2
-    add_probability = 0.1
+    add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {
         "state": {
             "fields": fields,
             "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins),
+            "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins),
             "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            "particle_movement": get_particle_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection,
-                                                               add_probability=add_probability)
+            "particle_movement": get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
         },
-        "composition": get_dfba_particle_composition(model_file=particle_model_file)
+        "composition": get_dfba_particle_composition(model_file=particle_model_id)
     }
 
 def plot_particle_dfba_comets(results, state, config=None):
@@ -469,22 +470,24 @@ SIMULATIONS = {
         'time': DEFAULT_RUNTIME,
         'config': {}
     },
-    'particle_dfba': {
+    'particle_dfba_fields': {
         'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
         'doc_func': get_particle_dfba_doc,
         'plot_func': plot_particle_dfba,
         'time': DEFAULT_RUNTIME,
         'config': {
             'particle_model_id': 'textbook'
-        }
+        },
+        'plot_config': {'filename': 'particle_dfba_fields'}
     },
-    # 'particle_dfba_comets': {
-    #     'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
-    #     'doc_func': get_particle_dfba_comets_doc,
-    #     'plot_func': plot_particle_dfba_comets,
-    #     'time': DEFAULT_RUNTIME,
-    #     'config': {}
-    # },
+    'particle_dfba_comets': {
+        'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
+        'doc_func': get_particle_dfba_comets_doc,
+        'plot_func': plot_particle_dfba_comets,
+        'time': DEFAULT_RUNTIME,
+        'config': {},
+        'plot_config': {'filename': 'particle_dfba_comets'}
+    },
 }
 
 
