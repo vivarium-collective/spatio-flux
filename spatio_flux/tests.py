@@ -29,7 +29,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes import (
     get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
-    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA,
+    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
 )
 import pprint
 
@@ -53,15 +53,21 @@ def inverse_tuple(tu):
 
 def get_dfba_single_doc(
         core=None,
+        biomass_id=None,
         config=None,
 ):
-    biomass_id = config.get('biomass_id', 'biomass')
-    return {
-        "dFBA": get_single_dfba_process(
-            path=["fields"], **config,
-        ),
+    biomass_id = biomass_id or 'biomass'
+    model_id = config.get('model_id', 'textbook')
+    dfba_process = get_dfba_process_from_registry(
+        model_id=model_id,
+        biomass_id=biomass_id,
+        path=["fields"]
+    )
+    doc = {
+        "dFBA": dfba_process,
         "fields": {'glucose': 10, 'acetate': 0, biomass_id: 0.1}
     }
+    return doc
 
 def plot_dfba_single(results, state, filename='dfba_single_timeseries.png'):
     field_names = list(state["fields"].keys())
@@ -372,15 +378,7 @@ SIMULATIONS = {
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME,
-        'config': {
-            'bounds': {
-                "EX_o2_e": {"lower": -2, "upper": None},
-                "ATPM": {"lower": 1, "upper": 1}
-            },
-            'model_file': "textbook",
-            'mol_ids': ["glucose", "acetate"],
-            'biomass_id': "biomass",
-        }
+        'config': {'model_id': 'textbook'}
     },
     # 'ecoli_dfba': {
     #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',

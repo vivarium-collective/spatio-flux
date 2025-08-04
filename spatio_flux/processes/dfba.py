@@ -13,6 +13,7 @@ from copy import deepcopy
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process
+from spatio_flux.library.helpers import build_path
 
 # Suppress known benign warnings from COBRApy
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
@@ -37,20 +38,19 @@ default_kinetics = {
 MODEL_REGISTRY_DFBA = {
     'textbook': {
         'filename': 'textbook',
-        'bounds': {
-            'EX_o2_e': {'lower': -2, 'upper': None},
-            'ATPM': {'lower': 1, 'upper': 1}},
         'config': {
             'substrate_update_reactions': {
                 'glucose': 'EX_glc__D_e',
                 'acetate': 'EX_ac_e',
-                'formate': 'EX_for_e',
             },
             'kinetic_params': {
                 'glucose': (0.5, 1),
                 'acetate': (0.5, 2),
-                'formate': (0.5, 1),
-            }
+            },
+            'bounds': {
+                'EX_o2_e': {'lower': -2, 'upper': None},
+                'ATPM': {'lower': 1, 'upper': 1}
+            },
         },
     },
     'ecoli': {
@@ -63,7 +63,11 @@ MODEL_REGISTRY_DFBA = {
             'kinetic_params': {
                 'glucose': (0.5, 1),
                 # 'acetate': (0.5, 2)
-            }
+            },
+            'bounds': {
+                'EX_o2_e': {'lower': -2, 'upper': None},
+                'ATPM': {'lower': 1, 'upper': 1}
+            },
         },
     },
     'cdiff': {
@@ -125,7 +129,30 @@ MODEL_REGISTRY_DFBA = {
 }
 
 
+def get_dfba_process_from_registry(
+    model_id,
+    path,
+    biomass_id=None,
+    i=None,
+    j=None,
+):
+    model_config = MODEL_REGISTRY_DFBA[model_id]['config']
+    mol_ids = model_config['substrate_update_reactions'].keys()
+    biomass_id = biomass_id or 'biomass'
 
+    return {
+        "_type": "process",
+        "address": "local:DynamicFBA",
+        "config": model_config,
+        "inputs": {
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, i, j)
+        },
+        "outputs": {
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, i, j)
+        }
+    }
 
 def validate_model_registry_substrates(model_registry):
     """
@@ -276,8 +303,8 @@ class DynamicFBA(Process):
 
     def initialize(self, config):
         self.model = load_fba_model(
-            model_file=self.config["model_file"],
-            bounds=self.config["bounds"]
+            model_file=config["model_file"],
+            bounds=config["bounds"]
         )
 
     def inputs(self):
