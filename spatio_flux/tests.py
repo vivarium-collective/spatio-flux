@@ -69,12 +69,14 @@ def get_dfba_single_doc(
     }
     return doc
 
-def plot_dfba_single(results, state, filename='dfba_single_timeseries.png'):
+def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseries.png'):
+    config = config or {}
     field_names = list(state["fields"].keys())
+    filename = config.get('filename', 'dfba_single_timeseries')
     plot_time_series(
         results,
         field_names=field_names,
-        out_dir='out', filename=filename)
+        out_dir='out', filename=f'{filename}.png',)
 
 
 # --- Multiple DFBAs ---------------------------------------------------
@@ -110,7 +112,9 @@ def get_multi_dfba(core=None, config=None):
     }
     return doc
 
-def plot_multi_dfba(results, state, filename='multi_dfba_timeseries.png'):
+def plot_multi_dfba(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'dfba_multi_timeseries.png')
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     species_ids = model_ids + field_names
@@ -118,7 +122,7 @@ def plot_multi_dfba(results, state, filename='multi_dfba_timeseries.png'):
         results, field_names=species_ids,
         log_scale=True,
         normalize=True,
-        out_dir='out', filename='multi_dfba_timeseries.png')
+        out_dir='out', filename=filename)
 
 # --- Many DFBA Spatial ---------------------------------------------------
 
@@ -132,9 +136,12 @@ def get_spatial_many_dfba_doc(core=None, config=None):
         "spatial_dfba": get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
-def plot_spatial_many_dfba(results, state, filename='spatial_many_dfba_timeseries.png'):
-    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_many_dfba_timeseries.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_many_dfba_results.gif')
+def plot_spatial_many_dfba(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'spatial_many_dfba_timeseries')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}.png')
+    plot_species_distributions_to_gif(
+        results, out_dir='out', filename=f'{filename}.gif')
 
 # --- DFBA Spatial Process ---------------------------------------------
 
@@ -377,22 +384,25 @@ SIMULATIONS = {
         'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME,
-        'config': {'model_id': 'textbook'}
+        'time': 60,
+        'config': {'model_id': 'textbook'},
+        'plot_config': {'filename': 'dfba_single'}
     },
-    # 'ecoli_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'config': {'time': DEFAULT_RUNTIME}
+    'ecoli_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': 60,
+        'config': {'model_id': 'ecoli'},
+        'plot_config': {'filename': 'ecoli_dfba'}
+    },
+    # 'multi_dfba': {
+    #     'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
+    #     'doc_func': get_multi_dfba,
+    #     'plot_func': plot_multi_dfba,
+    #     'time': DEFAULT_RUNTIME,
+    #     'config': {}
     # },
-    'multi_dfba': {
-        'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
-        'doc_func': get_multi_dfba,
-        'plot_func': plot_multi_dfba,
-        'time': DEFAULT_RUNTIME,
-        'config': {}
-    },
     # 'spatial_many_dfba': {
     #     'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
     #     'doc_func': get_spatial_many_dfba_doc,
@@ -481,7 +491,7 @@ def main():
         sim_info = SIMULATIONS[name]
 
         print("Creating document...")
-        config = sim_info['config'] if 'config' in sim_info else {}
+        config = sim_info.get('config', {})
         doc = sim_info['doc_func'](core=core, config=config)
 
         print("Sending document...")
@@ -495,7 +505,8 @@ def main():
         total_sim_time += sim_elapsed
 
         print("Generating plots...")
-        sim_info['plot_func'](results, doc.get('state', doc))
+        plot_config = sim_info.get('plot_config', {})
+        sim_info['plot_func'](results, doc.get('state', doc), config=plot_config)
 
         print(f"✅ Completed: {name} in {sim_elapsed:.2f} seconds")
 

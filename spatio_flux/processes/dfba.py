@@ -38,93 +38,81 @@ default_kinetics = {
 MODEL_REGISTRY_DFBA = {
     'textbook': {
         'filename': 'textbook',
-        'config': {
-            'substrate_update_reactions': {
-                'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e',
-            },
-            'kinetic_params': {
-                'glucose': (0.5, 1),
-                'acetate': (0.5, 2),
-            },
-            'bounds': {
-                'EX_o2_e': {'lower': -2, 'upper': None},
-                'ATPM': {'lower': 1, 'upper': 1}
-            },
+        'substrate_update_reactions': {
+            'glucose': 'EX_glc__D_e',
+            'acetate': 'EX_ac_e',
+        },
+        'kinetic_params': {
+            'glucose': (0.5, 1),
+            'acetate': (0.5, 2),
+        },
+        'bounds': {
+            'EX_o2_e': {'lower': -2, 'upper': None},
+            'ATPM': {'lower': 1, 'upper': 1}
         },
     },
     'ecoli': {
         'filename': 'models/iAF1260.xml',
-        'config': {
-            'substrate_update_reactions': {
-                'glucose': 'EX_glc__D_e',
-                # 'acetate': 'EX_ac_e'
-            },
-            'kinetic_params': {
-                'glucose': (0.5, 1),
-                # 'acetate': (0.5, 2)
-            },
-            'bounds': {
-                'EX_o2_e': {'lower': -2, 'upper': None},
-                'ATPM': {'lower': 1, 'upper': 1}
-            },
+        'substrate_update_reactions': {
+            'glucose': 'EX_glc__D_e',
+            # 'acetate': 'EX_ac_e'
+        },
+        'kinetic_params': {
+            'glucose': (0.5, 1),
+            # 'acetate': (0.5, 2)
+        },
+        'bounds': {
+            'EX_o2_e': {'lower': -2, 'upper': None},
+            'ATPM': {'lower': 1, 'upper': 1}
         },
     },
     'cdiff': {
         'filename': 'models/iCN900.xml',
-        'config': {
-            'substrate_update_reactions': {
-                'glucose': 'EX_glc__D_e',
-                'acetate': 'EX_ac_e'
-            },
-            'kinetic_params': {
-                'glucose': (0.5, 1),
-                'acetate': (0.5, 2)
-            }
+        'substrate_update_reactions': {
+            'glucose': 'EX_glc__D_e',
+            'acetate': 'EX_ac_e'
         },
+        'kinetic_params': {
+            'glucose': (0.5, 1),
+            'acetate': (0.5, 2)
+        }
     },
     'pputida': {
         'filename': 'models/iJN746.xml',
-        'config': {
-            'substrate_update_reactions': {
-                'glucose': 'EX_glc__D_e',
-                'glycerol': 'EX_gly_e'
-            },
-            'kinetic_params': {
-                'glucose': (0.5, 1),
-                'glycerol': (0.5, 2)
-            }
+        'substrate_update_reactions': {
+            'glucose': 'EX_glc__D_e',
+            'glycerol': 'EX_gly_e'
         },
+        'kinetic_params': {
+            'glucose': (0.5, 1),
+            'glycerol': (0.5, 2)
+        }
     },
     'yeast': {
         'filename': 'models/iMM904.xml',
-        'config': {
-            'substrate_update_reactions': {
-                'glucose': 'EX_glc__D_e',
-                'ethanol': 'EX_etoh_e'
-            },
-            'kinetic_params': {
-                'glucose': (0.5, 1),
-                'ethanol': (0.5, 2)
-            }
+        'substrate_update_reactions': {
+            'glucose': 'EX_glc__D_e',
+            'ethanol': 'EX_etoh_e'
         },
+        'kinetic_params': {
+            'glucose': (0.5, 1),
+            'ethanol': (0.5, 2)
+        }
     },
     'llactis': {
         'filename': 'models/iNF517.xml',
-        'config': {
-            'substrate_update_reactions': {
-                'glucose': 'EX_glc__D_e',
-                'ammonium': 'EX_nh4_e',
-                'glutamine': 'EX_gln__L_e',
-                'arginine': 'EX_arg__L_e'
-            },
-            'kinetic_params': {
-                'glucose': (0.5, 1),
-                'ammonium': (0.5, 1),
-                'glutamine': (0.5, 2),
-                'arginine': (0.5, 2)
-            }
+        'substrate_update_reactions': {
+            'glucose': 'EX_glc__D_e',
+            'ammonium': 'EX_nh4_e',
+            'glutamine': 'EX_gln__L_e',
+            'arginine': 'EX_arg__L_e'
         },
+        'kinetic_params': {
+            'glucose': (0.5, 1),
+            'ammonium': (0.5, 1),
+            'glutamine': (0.5, 2),
+            'arginine': (0.5, 2)
+        }
     },
 }
 
@@ -136,7 +124,7 @@ def get_dfba_process_from_registry(
     i=None,
     j=None,
 ):
-    model_config = MODEL_REGISTRY_DFBA[model_id]['config']
+    model_config = MODEL_REGISTRY_DFBA[model_id]
     mol_ids = model_config['substrate_update_reactions'].keys()
     biomass_id = biomass_id or 'biomass'
 
@@ -303,7 +291,7 @@ class DynamicFBA(Process):
 
     def initialize(self, config):
         self.model = load_fba_model(
-            model_file=config["model_file"],
+            model_file=config["filename"],
             bounds=config["bounds"]
         )
 
