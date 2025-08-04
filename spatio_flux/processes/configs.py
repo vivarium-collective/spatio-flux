@@ -63,6 +63,7 @@ def get_single_dfba_process(
         model_file="textbook",
         mol_ids=None,
         biomass_id="biomass",
+        bounds=None,
         path=None,
         i=None,
         j=None,
@@ -82,7 +83,7 @@ def get_single_dfba_process(
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
-        "config": get_dfba_config(model_file=model_file),
+        "config": get_dfba_config(model_file=model_file, bounds=bounds),
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
             "biomass": build_path(path, biomass_id, i, j)
