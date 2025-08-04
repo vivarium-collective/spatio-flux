@@ -37,7 +37,7 @@ default_kinetics = {
 
 MODEL_REGISTRY_DFBA = {
     'textbook': {
-        'filename': 'textbook',
+        'model_file': 'textbook',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'acetate': 'EX_ac_e',
@@ -52,7 +52,7 @@ MODEL_REGISTRY_DFBA = {
         },
     },
     'ecoli': {
-        'filename': 'models/iAF1260.xml',
+        'model_file': 'models/iAF1260.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             # 'acetate': 'EX_ac_e'
@@ -67,7 +67,7 @@ MODEL_REGISTRY_DFBA = {
         },
     },
     'cdiff': {
-        'filename': 'models/iCN900.xml',
+        'model_file': 'models/iCN900.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'acetate': 'EX_ac_e'
@@ -78,7 +78,7 @@ MODEL_REGISTRY_DFBA = {
         }
     },
     'pputida': {
-        'filename': 'models/iJN746.xml',
+        'model_file': 'models/iJN746.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'glycerol': 'EX_gly_e'
@@ -89,7 +89,7 @@ MODEL_REGISTRY_DFBA = {
         }
     },
     'yeast': {
-        'filename': 'models/iMM904.xml',
+        'model_file': 'models/iMM904.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'ethanol': 'EX_etoh_e'
@@ -100,7 +100,7 @@ MODEL_REGISTRY_DFBA = {
         }
     },
     'llactis': {
-        'filename': 'models/iNF517.xml',
+        'model_file': 'models/iNF517.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'ammonium': 'EX_nh4_e',
@@ -231,8 +231,14 @@ def run_fba_update(model, config, substrates, biomass, interval):
     for substrate, reaction_id in config["substrate_update_reactions"].items():
         Km, Vmax = config["kinetic_params"][substrate]
         substrate_concentration = substrates[substrate]
-        uptake_rate = Vmax * substrate_concentration / (Km + substrate_concentration)
-        model.reactions.get_by_id(reaction_id).lower_bound = -uptake_rate
+        uptake_rate = -1 * Vmax * substrate_concentration / (Km + substrate_concentration)
+
+        if model.reactions.get_by_id(reaction_id).upper_bound < uptake_rate:
+            # If the current upper bound is lower than the calculated uptake rate, adjust it
+            model.reactions.get_by_id(reaction_id).upper_bound = uptake_rate
+
+        # set the lower bound
+        model.reactions.get_by_id(reaction_id).lower_bound = uptake_rate
 
     # Run FBA optimization
     solution = model.optimize()
@@ -291,7 +297,7 @@ class DynamicFBA(Process):
 
     def initialize(self, config):
         self.model = load_fba_model(
-            model_file=config["filename"],
+            model_file=config["model_file"],
             bounds=config["bounds"]
         )
 
@@ -437,12 +443,12 @@ def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1
     """
     print(f"\n=== Analyzing model: {model_key} ===")
 
-    filename = config['filename'].removeprefix('models/')
-    if filename.endswith('.xml'):
-        model_path = os.path.join(model_dir, filename)
+    model_file = config['model_file'].removeprefix('models/')
+    if model_file.endswith('.xml'):
+        model_path = os.path.join(model_dir, model_file)
         model = load_fba_model(model_path, config.get('bounds', {}))
     else:
-        model = load_fba_model(filename, config.get('bounds', {}))  # named model
+        model = load_fba_model(model_file, config.get('bounds', {}))  # named model
 
     # Run base FBA
     solution = model.optimize()

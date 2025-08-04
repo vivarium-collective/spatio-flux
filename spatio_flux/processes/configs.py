@@ -4,6 +4,7 @@ from process_bigraph import default
 from spatio_flux.library.helpers import initialize_fields, build_path
 from spatio_flux.processes import MinimalParticle
 from spatio_flux.processes.particles import Particles
+from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
 
 default_config = {
@@ -108,7 +109,12 @@ def get_spatial_dfba_process(
     # remove "biomass" from mol_ids if it exists
     if "biomass" in mol_ids:
         mol_ids.remove("biomass")
-    config = get_dfba_config(model_file=model_file)
+
+    if model_file in MODEL_REGISTRY_DFBA:
+        config = MODEL_REGISTRY_DFBA.get(model_file, {})
+    else:
+        config = get_dfba_config(model_file=model_file)
+
     config['n_bins'] = n_bins
     return {
         "_type": "process",
@@ -175,14 +181,14 @@ def get_spatial_many_dfba(
         model_file=None,
         mol_ids=None
 ):
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
             # get a process state for each bin
-            dfba_processes_dict[f"dFBA[{i},{j}]"] = get_single_dfba_process(
-                model_file=model_file, mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
+            dfba_process = get_dfba_process_from_registry(
+                model_id=model_file, path=["..", "fields"], i=i, j=j)
+            dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
+
     return dfba_processes_dict
 
 def get_spatial_many_dfba_with_fields(

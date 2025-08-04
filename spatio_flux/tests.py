@@ -94,10 +94,14 @@ def get_multi_dfba(core=None, config=None):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     dfbas = {}
     for model_id, spec in MODEL_REGISTRY_DFBA.items():
-        model_file = spec['filename']
         process_id = f'dfba_{model_id}'
-        dfbas[process_id] =  get_single_dfba_process(
-            model_file=model_file, mol_ids=mol_ids, biomass_id=model_id, path=['fields'])
+        dfba_process = get_dfba_process_from_registry(
+            model_id=model_id,
+            biomass_id=model_id,
+            path=["fields"]
+        )
+        dfbas[process_id] = dfba_process
+
     initial_biomass = {organism: 0.1 for organism in model_ids}
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     more_fields = {mol_id: 0.1 for mol_id in field_names if mol_id not in ['glucose', 'acetate']}
@@ -138,8 +142,8 @@ def get_spatial_many_dfba_doc(core=None, config=None):
 
 def plot_spatial_many_dfba(results, state, config=None):
     config = config or {}
-    filename = config.get('filename', 'spatial_many_dfba_timeseries')
-    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}.png')
+    filename = config.get('filename', 'spatial_many_dfba')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_species_distributions_to_gif(
         results, out_dir='out', filename=f'{filename}.gif')
 
@@ -155,8 +159,12 @@ def get_spatial_dfba_process_doc(core=None, config=None):
         "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
-def plot_dfba_process_spatial(results, state, filename='spatial_dfba_process_timeseries.png'):
-    plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_dfba_process.gif')
+def plot_dfba_process_spatial(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'spatial_dfba_process')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out',
+                     filename=f'{filename}_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}.gif')
 
 # --- Diffusion Advection-----------------------------------------------
 
@@ -176,8 +184,10 @@ def get_diffusion_process_doc(core=None, config=None):
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
     }
 
-def plot_diffusion_process(results, state, filename='diffusion_process_timeseries.png'):
-    plot_species_distributions_to_gif(results, out_dir='out', filename='diffusion_process.gif')
+def plot_diffusion_process(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'diffusion_process')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}.gif')
 
 # --- COMETS -----------------------------------------------------------
 
@@ -208,10 +218,12 @@ def get_comets_doc(core=None, config=None):
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
 
-def plot_comets(results, state, filename='comets_timeseries.png'):
+def plot_comets(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'comets')
     n_bins = state['diffusion']['config']['n_bins']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename='comets_results.gif')
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_results.gif')
 
 # --- Particles -----------------------------------------------------------
 
@@ -243,11 +255,13 @@ def get_particles_doc(core=None, config=None):
         "composition": get_minimal_particle_composition(core=core, config=particle_config)
     }
 
-def plot_particles_sim(results, state, filename='particles_timeseries.png'):
+def plot_particles_sim(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particles_with_fields')
     bounds = state['particle_movement']['config']['bounds']
     history = [step['particles'] for step in results]
-    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particles_with_fields.gif', bounds=bounds)
+    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename=f'{filename}.gif')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_with_fields.gif', bounds=bounds)
 
 # --- Particle-COMETS ----------------------------------------------------
 
@@ -286,11 +300,13 @@ def get_particle_comets_doc(core=None, config=None):
         "composition": get_minimal_particle_composition(core, config=particle_config)
     }
 
-def plot_particle_comets(results, state, filename='particle_comets_timeseries.png'):
+def plot_particle_comets(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particle_comets')
     bounds = state['particle_movement']['config']['bounds']
     n_bins = state['particle_movement']['config']['n_bins']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_comets_timeseries.png')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_comets_with_fields.gif', bounds=bounds)
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_with_fields.gif', bounds=bounds)
 
 # --- dFBA-Particles ---------------------------------------------------
 
@@ -316,13 +332,15 @@ def get_particle_dfba_doc(core=None, config=None):
         "composition": get_dfba_particle_composition(model_file=particle_model_file)
     }
 
-def plot_particle_dfba(results, state, filename='particle_dfba_timeseries.png'):
+def plot_particle_dfba(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particle_dfba')
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename='particle_dfba_timeseries.png')
-    plot_particles_mass(results, out_dir='out', filename='particle_dfba_mass.png')
-    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename='particle_dfba_with_fields.gif')
+                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
 
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 
@@ -350,13 +368,15 @@ def get_particle_dfba_comets_doc(core=None, config=None):
         "composition": get_dfba_particle_composition(model_file=particle_model_file)
     }
 
-def plot_particle_dfba_comets(results, state, filename='particle_dfba_comets_timeseries.png'):
+def plot_particle_dfba_comets(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particle_dfba_comets')
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename='particle_dfba_comets_timeseries.png')
-    plot_particles_mass(results, out_dir='out', filename='particle_dfba_comets_mass.png')
-    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename='particle_dfba_comets_with_fields.gif')
+                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
 
 # ==================================================
 # Functions for running tests and generating reports
@@ -380,76 +400,87 @@ DEFAULT_INITIAL_MIN_MAX = {
 DEFAULT_RUNTIME = 20
 
 SIMULATIONS = {
-    'dfba_single': {
-        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': 60,
-        'config': {'model_id': 'textbook'},
-        'plot_config': {'filename': 'dfba_single'}
-    },
-    'ecoli_dfba': {
-        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': 60,
-        'config': {'model_id': 'ecoli'},
-        'plot_config': {'filename': 'ecoli_dfba'}
-    },
+    # 'dfba_single': {
+    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+    #     'doc_func': get_dfba_single_doc,
+    #     'plot_func': plot_dfba_single,
+    #     'time': 60,
+    #     'config': {'model_id': 'textbook'},
+    #     'plot_config': {'filename': 'dfba_single'}
+    # },
+    # 'ecoli_dfba': {
+    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+    #     'doc_func': get_dfba_single_doc,
+    #     'plot_func': plot_dfba_single,
+    #     'time': 60,
+    #     'config': {'model_id': 'ecoli'},
+    #     'plot_config': {'filename': 'ecoli_dfba'}
+    # },
     # 'multi_dfba': {
     #     'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
     #     'doc_func': get_multi_dfba,
     #     'plot_func': plot_multi_dfba,
     #     'time': DEFAULT_RUNTIME,
-    #     'config': {}
+    #     'config': {},
+    #     'plot_config': {'filename': 'multi_dfba'}
     # },
     # 'spatial_many_dfba': {
     #     'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
     #     'doc_func': get_spatial_many_dfba_doc,
     #     'plot_func': plot_spatial_many_dfba,
-    #     'config': {'time': DEFAULT_RUNTIME}
+    #     'time': DEFAULT_RUNTIME,
+    #     'config': {'model_id': 'textbook'},
+    #     'plot_config': {'filename': 'spatial_many_dfba'}
     # },
     # 'spatial_dfba_process': {
     #     'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
     #     'doc_func': get_spatial_dfba_process_doc,
     #     'plot_func': plot_dfba_process_spatial,
-    #     'config': {'time': DEFAULT_RUNTIME}
+    #     'time': 60,
+    #     'config': {'model_id': 'textbook'},
+    #     'plot_config': {'filename': 'spatial_dfba_process'}
     # },
-    # 'diffusion_process': {
-    #     'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
-    #     'doc_func': get_diffusion_process_doc,
-    #     'plot_func': plot_diffusion_process,
-    #     'config': {'time': DEFAULT_RUNTIME}
-    # },
-    # 'comets': {
-    #     'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
-    #     'doc_func': get_comets_doc,
-    #     'plot_func': plot_comets,
-    #     'config': {'time': DEFAULT_RUNTIME}
-    # },
-    # 'particles': {
-    #     'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
-    #     'doc_func': get_particles_doc,
-    #     'plot_func': plot_particles_sim,
-    #     'config': {'time': DEFAULT_RUNTIME}
-    # },
+    'diffusion_process': {
+        'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
+        'doc_func': get_diffusion_process_doc,
+        'plot_func': plot_diffusion_process,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
+    'comets': {
+        'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
+        'doc_func': get_comets_doc,
+        'plot_func': plot_comets,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
+    'particles': {
+        'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
+        'doc_func': get_particles_doc,
+        'plot_func': plot_particles_sim,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
     # 'particle_comets': {
     #     'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
     #     'doc_func': get_particle_comets_doc,
     #     'plot_func': plot_particle_comets,
-    #     'config': {'time': DEFAULT_RUNTIME}
+    #     'time': DEFAULT_RUNTIME,
+    #     'config': {}
     # },
     # 'particle_dfba': {
     #     'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
     #     'doc_func': get_particle_dfba_doc,
     #     'plot_func': plot_particle_dfba,
-    #     'config': {'time': DEFAULT_RUNTIME}
+    #     'time': DEFAULT_RUNTIME,
+    #     'config': {}
     # },
     # 'particle_dfba_comets': {
     #     'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
     #     'doc_func': get_particle_dfba_comets_doc,
     #     'plot_func': plot_particle_dfba_comets,
-    #     'config': {'time': DEFAULT_RUNTIME}
+    #     'time': DEFAULT_RUNTIME,
+    #     'config': {}
     # },
 }
 
