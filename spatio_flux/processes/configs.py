@@ -396,10 +396,11 @@ def get_particle_comets_state(
 # dFBA-Particles
 # ==============
 
-def get_dfba_particle_composition(core=None, model_file=None, config=None):
-    config = config or get_dfba_config()
-    if model_file:
-        config['model_file'] = model_file
+def get_dfba_particle_composition(core=None, model_file=None):
+    if model_file in MODEL_REGISTRY_DFBA:
+        config = MODEL_REGISTRY_DFBA[model_file]
+    else:
+        config = get_dfba_config(model_file=model_file)
     return {
         'particles': {
             '_type': 'map',
@@ -416,17 +417,6 @@ def get_dfba_particle_composition(core=None, model_file=None, config=None):
                         'substrates': ['exchange'],
                         'biomass': ['mass']
                     })
-                    # 'inputs': {
-                    #     'substrates': ['local']
-                    #     # TODO --do we have rewire?
-                    #     # 'substrates': {
-                    #     #     '_path': ['local'],
-                    #     #     'biomass': ['mass']
-                    #     # }
-                    # },
-                    # 'outputs': {
-                    #     'substrates': ['exchange']
-                    # }
                 }
             }
         }
