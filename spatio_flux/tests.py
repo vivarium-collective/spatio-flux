@@ -27,49 +27,16 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
     plot_species_distributions_with_particles_to_gif, plot_particles
 )
 from spatio_flux.processes import (
-    get_single_dfba_process, get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema,
+    get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
-    get_dfba_particle_composition, get_particle_dfba_state, get_particles_state
+    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
 )
+import pprint
 
-DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (10, 20)
-DEFAULT_BINS_SMALL = (5, 10)
-DEFAULT_ADVECTION = (0, -0.1)
-DEFAULT_DIFFUSION = 0.1
-DEFAULT_ADD_PROBABILITY = 0.4
-DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
-DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
-DEFAULT_INITIAL_MIN_MAX = {
-        'glucose': (10, 10),
-        'acetate': (0, 0),
-        'biomass': (0, 0.1),
-        'detritus': (0, 0)
-    }
 
-DEFAULT_RUNTIME = 60
-
-SIMULATION_CONFIGS = {
-    'dfba_single': {'time': DEFAULT_RUNTIME},
-    'spatial_many_dfba': {'time': DEFAULT_RUNTIME},
-    'spatial_dfba_process': {'time': DEFAULT_RUNTIME},
-    'diffusion_process': {'time': DEFAULT_RUNTIME},
-    'comets': {'time': DEFAULT_RUNTIME},
-    'particles': {'time': DEFAULT_RUNTIME},
-    'particle_comets': {'time': DEFAULT_RUNTIME},
-    'particle_dfba': {'time': DEFAULT_RUNTIME},
-}
-
-DESCRIPTIONS = {
-    'dfba_single': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    'spatial_many_dfba': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
-    'spatial_dfba_process': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
-    'diffusion_process': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
-    'comets': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
-    'particles': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
-    'particle_comets': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
-    'particle_dfba': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
-}
+def pf(obj):
+    pp = pprint.PrettyPrinter(indent=4)
+    return pp.pformat(obj)
 
 def reversed_tuple(tu):
     return tuple(reversed(tu))
@@ -84,51 +51,133 @@ def inverse_tuple(tu):
 
 # --- DFBA Single ---------------------------------------------------
 
-def get_dfba_single_doc(core=None):
-    model_file = "textbook"
-    mol_ids = ["glucose", "acetate", "biomass"]
-    return {
-        "dFBA": get_single_dfba_process(model_file=model_file, mol_ids=mol_ids, path=['fields']),
-        "fields": {'glucose': 10, 'acetate': 0, 'biomass': 0.1}
+def get_dfba_single_doc(
+        core=None,
+        biomass_id=None,
+        config=None,
+):
+    biomass_id = biomass_id or 'biomass'
+    model_id = config.get('model_id', 'textbook')
+    dfba_process = get_dfba_process_from_registry(
+        model_id=model_id,
+        biomass_id=biomass_id,
+        path=["fields"]
+    )
+    doc = {
+        "dFBA": dfba_process,
+        "fields": {'glucose': 10, 'acetate': 0, biomass_id: 0.1}
     }
+    return doc
 
-def plot_dfba_single(results, state):
-    plot_time_series(results, out_dir='out', filename='dfba_single_timeseries.png')
+def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseries.png'):
+    config = config or {}
+    field_names = list(state["fields"].keys())
+    filename = config.get('filename', 'dfba_single_timeseries')
+    plot_time_series(
+        results,
+        field_names=field_names,
+        out_dir='out', filename=f'{filename}.png',)
+
+
+# --- Multiple DFBAs ---------------------------------------------------
+
+def get_multi_dfba(core=None, config=None):
+    mol_ids = ['glucose', 'acetate']
+    model_ids = list(MODEL_REGISTRY_DFBA.keys())
+    dfbas = {}
+    for model_id, spec in MODEL_REGISTRY_DFBA.items():
+        process_id = f'dfba_{model_id}'
+        dfba_process = get_dfba_process_from_registry(
+            model_id=model_id,
+            biomass_id=model_id,
+            path=["fields"]
+        )
+        dfbas[process_id] = dfba_process
+
+    initial_biomass = {organism: 0.1 for organism in model_ids}
+    field_names = get_field_names(MODEL_REGISTRY_DFBA)
+    more_fields = {mol_id: 0.1 for mol_id in field_names if mol_id not in ['glucose', 'acetate']}
+    doc = {
+        **dfbas,
+        "fields": {
+            "glucose": 10,
+            "acetate": 0,
+            **more_fields,
+            **initial_biomass
+        }
+    }
+    return doc
+
+def plot_multi_dfba(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'dfba_multi_timeseries.png')
+    model_ids = list(MODEL_REGISTRY_DFBA.keys())
+    field_names = get_field_names(MODEL_REGISTRY_DFBA)
+    species_ids = model_ids + field_names
+    plot_time_series(
+        results, field_names=species_ids,
+        log_scale=True,
+        normalize=True,
+        out_dir='out', filename=filename)
 
 # --- Many DFBA Spatial ---------------------------------------------------
 
-def get_spatial_many_dfba_doc(core=None):
-    model_file = "textbook"
+def get_spatial_many_dfba_doc(core=None, config=None):
+    dissolved_model_file = "textbook"
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     return {
         "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-        "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
+        "spatial_dfba": get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
-def plot_spatial_many_dfba(results, state):
-    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename='spatial_many_dfba_timeseries.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_many_dfba_results.gif')
+def plot_spatial_many_dfba(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'spatial_many_dfba')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_species_distributions_to_gif(
+        results, out_dir='out', filename=f'{filename}.gif')
 
 # --- DFBA Spatial Process ---------------------------------------------
 
-def get_spatial_dfba_process_doc(core=None):
-    model_file = "textbook"
+def get_spatial_dfba_process_doc(core=None, config=None):
+    # make the fields
     mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
+    initial_min_max = {"glucose": (20, 20), "acetate": (0, 0), "biomass": (0.01, 0.01)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
-    return {
-        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-        "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
-    }
+    initial_fields = {}
+    initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
-def plot_dfba_process_spatial(results, state):
-    plot_species_distributions_to_gif(results, out_dir='out', filename='spatial_dfba_process.gif')
+    # make the spatial dfba with different models and parameters
+    spatial_dfba_config = {
+        "n_bins": n_bins,
+        "models": MODEL_REGISTRY_DFBA,
+        "model_grid": [
+            ["textbook", "textbook", "textbook", "textbook", "textbook"],
+            ["ecoli", "ecoli", "ecoli", "ecoli", "ecoli"],
+            ["cdiff", "cdiff", "cdiff", "cdiff", "cdiff"],
+            ["pputida", "pputida", "pputida", "pputida", "pputida"],
+            ["yeast", "yeast", "yeast", "yeast", "yeast"],
+            ["llactis", "llactis", "llactis", "llactis", "llactis"]
+        ]
+    }
+    doc = {
+        "fields": initial_fields,
+        "spatial_dfba": get_spatial_dfba_process(model_file="textbook", config=spatial_dfba_config)
+    }
+    return doc
+
+def plot_dfba_process_spatial(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'spatial_dfba_process')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out',
+                     filename=f'{filename}_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}.gif')
 
 # --- Diffusion Advection-----------------------------------------------
 
-def get_diffusion_process_doc(core=None):
+def get_diffusion_process_doc(core=None, config=None):
     mol_ids = ['glucose', 'acetate', 'biomass']
     advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_bins = reversed_tuple(DEFAULT_BINS)
@@ -138,20 +187,21 @@ def get_diffusion_process_doc(core=None):
     acetate_field = np.zeros((bins_x, bins_y))
     glc_field = np.random.uniform(low=0.1,high=1,size=n_bins)
     biomass_field = np.zeros((bins_x, bins_y))
-    biomass_field[4:5,:] = 2
-    initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
+    biomass_field[4:5,:] = 10
     return {
-        "fields": initial_fields,  #get_fields_with_schema(n_bins=n_bins),
+        "fields": {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field},
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
     }
 
-def plot_diffusion_process(results, state):
-    plot_species_distributions_to_gif(results, out_dir='out', filename='diffusion_process.gif')
+def plot_diffusion_process(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'diffusion_process')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}.gif')
 
 # --- COMETS -----------------------------------------------------------
 
-def get_comets_doc(core=None):
-    model_file = "textbook"
+def get_comets_doc(core=None, config=None):
+    dissolved_model_file = "textbook"
     mol_ids = ['glucose', 'acetate', 'biomass']
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
@@ -170,21 +220,36 @@ def get_comets_doc(core=None):
     biomass_field = np.zeros((bins_y, bins_x))
     biomass_field[0, int(bins_x/4):int(3*bins_x/4)] = 0.1
     initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
-    return {
+
+    # place models on the grid
+    model_grid = np.zeros((bins_y, bins_x), dtype='U20')
+    model_grid[0, 0] = 'ecoli'
+
+    config = {
+        "mol_ids": mol_ids,
+        "n_bins": n_bins,
+        "models": MODEL_REGISTRY_DFBA,
+        "model_grid": model_grid
+    }
+
+    doc = {
         "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+        "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, config=config),
         # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
+    return doc
 
-def plot_comets(results, state):
+def plot_comets(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'comets')
     n_bins = state['diffusion']['config']['n_bins']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='comets_timeseries.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename='comets_results.gif')
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_results.gif')
 
 # --- Particles -----------------------------------------------------------
 
-def get_particles_doc(core=None):
+def get_particles_doc(core=None, config=None):
     initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
     particle_config = {
         'reactions': {
@@ -201,7 +266,7 @@ def get_particles_doc(core=None):
     n_particles = 1
     diffusion_rate = DEFAULT_DIFFUSION
     advection_rate = DEFAULT_ADVECTION
-    add_probability=DEFAULT_ADD_PROBABILITY
+    add_probability = DEFAULT_ADD_PROBABILITY
     return {
         "state": {
             "fields": initialize_fields(n_bins, initial_min_max),
@@ -212,16 +277,18 @@ def get_particles_doc(core=None):
         "composition": get_minimal_particle_composition(core=core, config=particle_config)
     }
 
-def plot_particles_sim(results, state):
+def plot_particles_sim(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particles_with_fields')
     bounds = state['particle_movement']['config']['bounds']
     history = [step['particles'] for step in results]
-    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename='particles.gif')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particles_with_fields.gif', bounds=bounds)
+    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename=f'{filename}.gif')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_with_fields.gif', bounds=bounds)
 
 # --- Particle-COMETS ----------------------------------------------------
 
-def get_particle_comets_doc(core=None):
-    model_file = "textbook"
+def get_particle_comets_doc(core=None, config=None):
+    dissolved_model_file = "textbook"
     mol_ids = ['glucose', 'acetate', 'detritus', 'biomass']
     particle_config = {
         'reactions': {
@@ -236,17 +303,21 @@ def get_particle_comets_doc(core=None):
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     particle_advection = DEFAULT_ADVECTION
+    n_particles = 10
+    add_probability = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
     fields['biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
     fields['biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
-    n_particles = 20
-    add_probability = 0.1
+
+    # spatial dfba config
+    spatial_dfba_config = {"mol_ids": mol_ids, "n_bins": n_bins}
+
     return {
         "state": {
             "fields": fields,
             "particles": get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields, mass_range=(1E0, 1E1)),
-            "spatial_dfba": get_spatial_dfba_process(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+            "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, config=spatial_dfba_config),
             # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
             "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
             "particle_movement": get_particle_movement_process(n_bins=n_bins, bounds=bounds,
@@ -255,65 +326,208 @@ def get_particle_comets_doc(core=None):
         "composition": get_minimal_particle_composition(core, config=particle_config)
     }
 
-def plot_particle_comets(results, state):
+def plot_particle_comets(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particle_comets')
     bounds = state['particle_movement']['config']['bounds']
     n_bins = state['particle_movement']['config']['n_bins']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename='particle_comets_timeseries.png')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename='particle_comets_with_fields.gif', bounds=bounds)
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_with_fields.gif', bounds=bounds)
 
 # --- dFBA-Particles ---------------------------------------------------
 
-def get_particle_dfba_doc(core=None):
-    model_file = "textbook"
+def get_particle_dfba_doc(core=None, config=None):
+    particle_model_id = config.get('particle_model_id', "textbook")
+
     mol_ids = ['glucose', 'acetate']
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
-    state = get_particle_dfba_state(
-        core, model_file=model_file, mol_ids=mol_ids, n_particles=2,
-        bounds=DEFAULT_BOUNDS, n_bins=DEFAULT_BINS,
-        initial_min_max=initial_min_max,
-        particle_add_probability=DEFAULT_ADD_PROBABILITY,
-        particle_boundary_to_add=DEFAULT_ADD_BOUNDARY,
-        particle_boundary_to_remove=DEFAULT_ADD_BOUNDARY,
-        particle_advection_rate=DEFAULT_ADVECTION)
+    bounds = DEFAULT_BOUNDS
+    n_bins = DEFAULT_BINS
+    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 2
+    add_probability = 0.2
+    particle_advection = DEFAULT_ADVECTION
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {
-        "state": state,
-        "composition": get_dfba_particle_composition(model_file=model_file)
+        "state": {
+            "fields": fields,
+            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            "particle_movement": get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
+        },
+        "composition": get_dfba_particle_composition(model_file=particle_model_id)
     }
 
-def plot_particle_dfba(results, state):
+def plot_particle_dfba(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particle_dfba')
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename='particle_dfba_timeseries.png')
-    plot_particles_mass(results, out_dir='out', filename='particle_dfba_mass.png')
-    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename='particle_dfba_with_fields.gif')
+                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
 
+# --- dFBA-Particles-COMETS ---------------------------------------------------
+
+def get_particle_dfba_comets_doc(core=None, config=None):
+    particle_model_id = config.get('particle_model_id', "textbook")
+    dissolved_model_id = config.get('dissolved_model_id', "textbook")
+
+    mol_ids = ['glucose', 'acetate', 'biomass']
+    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    bounds = DEFAULT_BOUNDS
+    n_bins = DEFAULT_BINS
+    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 2
+    add_probability = 0.2
+    particle_advection = DEFAULT_ADVECTION
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+
+    # spatial dfba config
+    spatial_dfba_config = {"mol_ids": mol_ids, "n_bins": n_bins}
+
+    return {
+        "state": {
+            "fields": fields,
+            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_id, config=spatial_dfba_config),
+            "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            "particle_movement": get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
+        },
+        "composition": get_dfba_particle_composition(model_file=particle_model_id)
+    }
+
+def plot_particle_dfba_comets(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particle_dfba_comets')
+    n_bins = state['particle_movement']['config']['n_bins']
+    bounds = state['particle_movement']['config']['bounds']
+    plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
 
 # ==================================================
 # Functions for running tests and generating reports
 # ==================================================
 
-DOCUMENT_CREATORS = {
-    'dfba_single': get_dfba_single_doc,
-    'spatial_many_dfba': get_spatial_many_dfba_doc,
-    'spatial_dfba_process': get_spatial_dfba_process_doc,
-    'diffusion_process': get_diffusion_process_doc,
-    'comets': get_comets_doc,
-    'particles': get_particles_doc,
-    'particle_comets': get_particle_comets_doc,
-    'particle_dfba': get_particle_dfba_doc,
+DEFAULT_BOUNDS = (5.0, 10.0)
+DEFAULT_BINS = (10, 20)
+DEFAULT_BINS_SMALL = (5, 10)
+DEFAULT_ADVECTION = (0, -0.1)
+DEFAULT_DIFFUSION = 0.1
+DEFAULT_ADD_PROBABILITY = 0.4
+DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
+DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
+DEFAULT_INITIAL_MIN_MAX = {
+        'glucose': (10, 10),
+        'acetate': (0, 0),
+        'biomass': (0, 0.1),
+        'detritus': (0, 0)
+    }
+
+DEFAULT_RUNTIME = 20
+
+SIMULATIONS = {
+    'ecoli_core_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': 40,
+        'config': {'model_id': 'textbook'},
+        'plot_config': {'filename': 'ecoli_core_dfba'}
+    },
+    'ecoli_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': 40,
+        'config': {'model_id': 'ecoli'},
+        'plot_config': {'filename': 'ecoli_dfba'}
+    },
+    'cdiff_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': 100,
+        'config': {'model_id': 'cdiff'},
+        'plot_config': {'filename': 'cdiff_dfba'}
+    },
+    'multi_dfba': {
+        'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
+        'doc_func': get_multi_dfba,
+        'plot_func': plot_multi_dfba,
+        'time': DEFAULT_RUNTIME,
+        'config': {},
+        'plot_config': {'filename': 'multi_dfba'}
+    },
+    'spatial_many_dfba': {
+        'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
+        'doc_func': get_spatial_many_dfba_doc,
+        'plot_func': plot_spatial_many_dfba,
+        'time': DEFAULT_RUNTIME,
+        'config': {'model_id': 'textbook'},
+        'plot_config': {'filename': 'spatial_many_dfba'}
+    },
+    'spatial_dfba_process': {
+        'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
+        'doc_func': get_spatial_dfba_process_doc,
+        'plot_func': plot_dfba_process_spatial,
+        'time': 60,
+        'config': {'model_id': 'textbook'},
+        'plot_config': {'filename': 'spatial_dfba_process'}
+    },
+    'diffusion_process': {
+        'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
+        'doc_func': get_diffusion_process_doc,
+        'plot_func': plot_diffusion_process,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
+    'comets': {
+        'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
+        'doc_func': get_comets_doc,
+        'plot_func': plot_comets,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
+    'particles': {
+        'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
+        'doc_func': get_particles_doc,
+        'plot_func': plot_particles_sim,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
+    'particle_comets': {
+        'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
+        'doc_func': get_particle_comets_doc,
+        'plot_func': plot_particle_comets,
+        'time': DEFAULT_RUNTIME,
+        'config': {}
+    },
+    'particle_dfba_fields': {
+        'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
+        'doc_func': get_particle_dfba_doc,
+        'plot_func': plot_particle_dfba,
+        'time': DEFAULT_RUNTIME,
+        'config': {
+            'particle_model_id': 'textbook'
+        },
+        'plot_config': {'filename': 'particle_dfba_fields'}
+    },
+    'particle_dfba_comets': {
+        'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
+        'doc_func': get_particle_dfba_comets_doc,
+        'plot_func': plot_particle_dfba_comets,
+        'time': DEFAULT_RUNTIME,
+        'config': {},
+        'plot_config': {'filename': 'particle_dfba_comets'}
+    },
 }
 
-PLOTTERS = {
-    'dfba_single': plot_dfba_single,
-    'spatial_many_dfba': plot_spatial_many_dfba,
-    'spatial_dfba_process': plot_dfba_process_spatial,
-    'diffusion_process': plot_diffusion_process,
-    'comets': plot_comets,
-    'particles': plot_particles_sim,
-    'particle_comets': plot_particle_comets,
-    'particle_dfba': plot_particle_dfba,
-}
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run selected simulations.")
@@ -328,10 +542,6 @@ def parse_args():
 def main():
     args = parse_args()
 
-    test_names = list(SIMULATION_CONFIGS.keys())
-    tests_to_run = args.tests if args.tests else test_names
-    print(f"\nSelected tests to run: {', '.join(tests_to_run)}\n")
-
     output_dir = args.output
     prepare_output_dir(output_dir)
 
@@ -339,22 +549,30 @@ def main():
     core = register_process_types(core)
     core = register_types(core)
 
+
     total_sim_time = 0.0  # To track simulation time only
     runtimes = {}
 
+    test_names = list(SIMULATIONS.keys())
+    tests_to_run = args.tests if args.tests else test_names
+    print(f"\nSelected tests to run: {', '.join(tests_to_run)}\n")
+
     for name in tests_to_run:
         print(f"\n🚀 Running test: {name}")
-        if name not in DOCUMENT_CREATORS:
-            print(f"Skipping unknown test: '{name}' (no document creator found)")
+        if name not in SIMULATIONS:
+            print(f"Skipping unknown test: '{name}'")
             continue
 
+        sim_info = SIMULATIONS[name]
+
         print("Creating document...")
-        doc = DOCUMENT_CREATORS[name](core=core)
+        config = sim_info.get('config', {})
+        doc = sim_info['doc_func'](core=core, config=config)
 
         print("Sending document...")
-        config = SIMULATION_CONFIGS[name]
+        runtime = sim_info.get('time', DEFAULT_RUNTIME)
         sim_start = time.time()
-        results = run_composite_document(doc, core=core, name=name, **config)
+        results = run_composite_document(doc, core=core, name=name, time=runtime)
         sim_end = time.time()
 
         sim_elapsed = sim_end - sim_start
@@ -362,14 +580,19 @@ def main():
         total_sim_time += sim_elapsed
 
         print("Generating plots...")
-        PLOTTERS[name](results, doc.get('state', doc))
+        plot_config = sim_info.get('plot_config', {})
+        sim_info['plot_func'](results, doc.get('state', doc), config=plot_config)
 
         print(f"✅ Completed: {name} in {sim_elapsed:.2f} seconds")
 
     print(f"\nCompiling HTML report...")
-    generate_html_report(output_dir, SIMULATION_CONFIGS, DESCRIPTIONS, runtimes, total_sim_time)
-
-    print(f"\nTotal simulation time for all the tests: {total_sim_time:.2f} seconds")
+    generate_html_report(
+        output_dir,
+        {k: v['config'] for k, v in SIMULATIONS.items()},
+        {k: v['description'] for k, v in SIMULATIONS.items()},
+        runtimes,
+        total_sim_time
+    )
 
 
 if __name__ == '__main__':

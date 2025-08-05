@@ -1,10 +1,11 @@
 import numpy as np
+from bigraph_schema import deep_merge
 
 from process_bigraph import default
 from spatio_flux.library.helpers import initialize_fields, build_path
 from spatio_flux.processes import MinimalParticle
 from spatio_flux.processes.particles import Particles
-
+from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
 default_config = {
     'total_time': 100.0,
@@ -51,20 +52,8 @@ def get_dfba_config(
         substrate_update_reactions=None,
         bounds=None
 ):
-    if substrate_update_reactions is None:
-        substrate_update_reactions = {
-            "glucose": "EX_glc__D_e",
-            "acetate": "EX_ac_e"}
-    if bounds is None:
-        bounds = {
-            "EX_o2_e": {"lower": -2, "upper": None},
-            "ATPM": {"lower": 1, "upper": 1}}
-    if kinetic_params is None:
-        kinetic_params = {
-            "glucose": (0.5, 1),
-            "acetate": (0.5, 2)}
     return {
-        "model_file": model_file,
+        "default_model_file": model_file,
         "kinetic_params": kinetic_params,
         "substrate_update_reactions": substrate_update_reactions,
         "bounds": bounds
@@ -74,6 +63,8 @@ def get_dfba_config(
 def get_single_dfba_process(
         model_file="textbook",
         mol_ids=None,
+        biomass_id="biomass",
+        bounds=None,
         path=None,
         i=None,
         j=None,
@@ -84,53 +75,59 @@ def get_single_dfba_process(
     if path is None:
         path = ["..", "fields"]
     if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
+        mol_ids = ["glucose", "acetate"]
 
     # remove "biomass" from mol_ids if it exists
-    if "biomass" in mol_ids:
-        mol_ids.remove("biomass")
+    if biomass_id in mol_ids:
+        mol_ids.remove(biomass_id)
 
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
-        "config": get_dfba_config(model_file=model_file),
+        "config": get_dfba_config(model_file=model_file, bounds=bounds),
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass", i, j)
+            "biomass": build_path(path, biomass_id, i, j)
         },
         "outputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass", i, j)
+            "biomass": build_path(path, biomass_id, i, j)
         }
     }
 
 def get_spatial_dfba_process(
         model_file="textbook",
-        mol_ids=None,
-        n_bins=(5, 5),
+        config=None,
         path=None,
 ):
-    if path is None:
-        path = ['fields']
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
+    assert 'n_bins' in config, "Configuration must include 'n_bins' for spatial DFBA."
+
+    path = path or ['fields']
+    mol_ids = config.get("mol_ids") or ["glucose", "acetate"]
+    biomass_id = config.get("biomass_id") or "biomass"
 
     # remove "biomass" from mol_ids if it exists
-    if "biomass" in mol_ids:
-        mol_ids.remove("biomass")
-    config = get_dfba_config(model_file=model_file)
-    config['n_bins'] = n_bins
+    if biomass_id in mol_ids:
+        mol_ids.remove(biomass_id)
+
+    if model_file in MODEL_REGISTRY_DFBA:
+        dfba_config = MODEL_REGISTRY_DFBA.get(model_file, {})
+    else:
+        dfba_config = get_dfba_config(model_file=model_file)
+
+    config = deep_merge(config, dfba_config)
+
     return {
         "_type": "process",
         "address": "local:SpatialDFBA",
         "config": config,
         "inputs": {
             "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass")
+            "biomass": build_path(path, biomass_id)
         },
         "outputs": {
             "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
-            "biomass": build_path(path, "biomass")
+            "biomass": build_path(path, biomass_id)
         }
     }
 
@@ -185,14 +182,14 @@ def get_spatial_many_dfba(
         model_file=None,
         mol_ids=None
 ):
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate", "biomass"]
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
             # get a process state for each bin
-            dfba_processes_dict[f"dFBA[{i},{j}]"] = get_single_dfba_process(
-                model_file=model_file, mol_ids=mol_ids, path=["..", "fields"], i=i, j=j)
+            dfba_process = get_dfba_process_from_registry(
+                model_id=model_file, path=["..", "fields"], i=i, j=j)
+            dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
+
     return dfba_processes_dict
 
 def get_spatial_many_dfba_with_fields(
@@ -400,75 +397,11 @@ def get_particle_comets_state(
 # dFBA-Particles
 # ==============
 
-def get_particle_dfba_state(
-        core,
-        model_file=None,
-        n_bins=(10, 10),
-        bounds=(10.0, 10.0),
-        mol_ids=None,
-        n_particles=10,
-        field_diffusion_rate=1e-1,
-        field_advection_rate=(0, 0),
-        particle_diffusion_rate=1e-1,
-        particle_advection_rate=(0, 0),
-        particle_add_probability=0.3,
-        particle_boundary_to_add=None,
-        particle_boundary_to_remove=None,
-        initial_min_max=None,
-):
-    # check if particle_boundary is None, but empty list is ok
-    if particle_boundary_to_add is None or not isinstance(particle_boundary_to_add, list):
-        particle_boundary_to_add = default_config['particle_boundary_to_add']
-    if particle_boundary_to_remove is None or not isinstance(particle_boundary_to_remove, list):
-        particle_boundary_to_remove = default_config['particle_boundary_to_remove']
-    mol_ids = mol_ids or default_config['mol_ids']
-    initial_min_max = initial_min_max or default_config['initial_min_max']
-
-    # initialize the composite state
-    composite_state = {}
-
-    # add diffusion/advection process
-    composite_state['diffusion'] = get_diffusion_advection_process(
-        bounds=bounds,
-        n_bins=n_bins,
-        mol_ids=mol_ids,
-        default_diffusion_rate=field_diffusion_rate,
-        default_advection_rate=field_advection_rate,
-        diffusion_coeffs=None,  #TODO -- add diffusion coeffs config
-        advection_coeffs=None,
-    )
-    # initialize fields
-    fields = {}
-    for field, minmax in initial_min_max.items():
-        fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
-
-    # add particles process
-    particles = Particles.generate_state(
-        config={
-            'n_particles': n_particles,
-            'bounds': bounds,
-            'fields': fields,
-            'n_bins': n_bins,
-        })
-
-    composite_state['fields'] = fields
-    composite_state['particles'] = particles['particles']
-    composite_state['particle_movement'] = get_particle_movement_process(
-        n_bins=n_bins,
-        bounds=bounds,
-        diffusion_rate=particle_diffusion_rate,
-        advection_rate=particle_advection_rate,
-        add_probability=particle_add_probability,
-        boundary_to_add=particle_boundary_to_add,
-        boundary_to_remove=particle_boundary_to_remove,
-    )
-
-    return composite_state
-
-def get_dfba_particle_composition(core=None, model_file=None, config=None):
-    config = config or get_dfba_config()
-    if model_file:
-        config['model_file'] = model_file
+def get_dfba_particle_composition(core=None, model_file=None):
+    if model_file in MODEL_REGISTRY_DFBA:
+        config = MODEL_REGISTRY_DFBA[model_file]
+    else:
+        config = get_dfba_config(model_file=model_file)
     return {
         'particles': {
             '_type': 'map',
@@ -485,17 +418,6 @@ def get_dfba_particle_composition(core=None, model_file=None, config=None):
                         'substrates': ['exchange'],
                         'biomass': ['mass']
                     })
-                    # 'inputs': {
-                    #     'substrates': ['local']
-                    #     # TODO --do we have rewire?
-                    #     # 'substrates': {
-                    #     #     '_path': ['local'],
-                    #     #     'biomass': ['mass']
-                    #     # }
-                    # },
-                    # 'outputs': {
-                    #     'substrates': ['exchange']
-                    # }
                 }
             }
         }

@@ -37,57 +37,76 @@ def plot_time_series(
         out_dir=None,
         filename='time_series.png',
         display=False,
+        log_scale=False,
+        normalize=False,
 ):
     """
     Plots time series for specified fields and coordinates from the results dictionary.
 
-    :param results: Dictionary containing the results with keys 'time' and 'fields'.
-                    Example: {'time': [0.1, 0.2, 0.3 ...], 'fields': {'glucose': [nparray_time0, nparray_time1], ...}}
+    :param results: Dictionary with 'time' and 'fields'.
     :param field_names: List of field names to plot.
-                        Example: ['glucose', 'other chemical']
-    :param coordinates: List of coordinates (indices) to plot.
-                        Example: [(0, 0), (1, 2)]
+    :param coordinates: List of (x, y) index tuples. If None, assume scalar values.
+    :param out_dir: Directory to save the plot.
+    :param filename: Name of the saved file.
+    :param display: If True, display the plot.
+    :param log_scale: If True, apply log scaling to the y-axis.
+    :param normalize: If True, normalize all values to their initial value at time zero.
     """
-    # coordinates = coordinates or [(0, 0)]
     field_names = field_names or ['glucose', 'acetate', 'biomass']
     sorted_results = sort_results(results)
     times = sorted_results['time']
 
-    # Initialize the plot
     fig, ax = plt.subplots(figsize=(12, 6))
 
     for field_name in field_names:
-        if field_name in sorted_results['fields']:
-            field_data = sorted_results['fields'][field_name]
-            if coordinates is None:
-                ax.plot(times, field_data, label=field_name)
-            else:
-                for coord in coordinates:
-                    x, y = coord
-                    time_series = [field_data[t][x, y] for t in range(len(times))]
-                    ax.plot(times, time_series, label=f'{field_name} at {coord}')
-                    # plot log scale on y axis
-                    # ax.set_yscale('log')
-        else:
+        if field_name not in sorted_results['fields']:
             print(f"Field '{field_name}' not found in results['fields']")
+            continue
 
-    # Adding plot labels and legend
+        field_data = sorted_results['fields'][field_name]
+
+        if coordinates is None:
+            # Assume scalar time series
+            data = field_data
+            if normalize:
+                initial = data[0] if data[0] != 0 else 1e-12
+                data = [v / initial for v in data]
+            ax.plot(times, data, label=field_name)
+        else:
+            for coord in coordinates:
+                x, y = coord
+                try:
+                    time_series = [field_data[t][x, y] for t in range(len(times))]
+                    if normalize:
+                        initial = time_series[0] if time_series[0] != 0 else 1e-12
+                        time_series = [v / initial for v in time_series]
+                    ax.plot(times, time_series, label=f'{field_name} at {coord}')
+                except Exception as e:
+                    print(f"Error plotting {field_name} at {coord}: {e}")
+
+    # Axis configuration
+    if log_scale:
+        ax.set_yscale('log')
+        y_label = "Relative Value (log scale)" if normalize else "Value (log scale)"
+    else:
+        y_label = "Relative Value (linear scale)" if normalize else "Value (linear scale)"
+
     ax.set_xlabel('Time')
-    ax.set_ylabel('Value')
-    ax.set_title('Time Series Plot')
+    ax.set_ylabel(y_label)
+    ax.set_title('Time Series Plot' + (" (Normalized)" if normalize else ""))
     ax.legend()
 
-    # Save the plot to a file
+    # Save
     if out_dir is not None:
         os.makedirs(out_dir, exist_ok=True)
         filepath = os.path.join(out_dir, filename)
-        # print(f'saving {filepath}')
         plt.savefig(filepath)
     else:
         filepath = filename
+
     if display:
-        # Display the plot
         plt.show()
+
 
 
 def plot_snapshots(
@@ -152,9 +171,19 @@ def plot_species_distributions_to_gif(
 
     # Compute global min and max for each species
     global_min_max = {
-        species: (np.min(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])),
-                  np.max(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])))
-        for species in species_names}
+        species: (
+            np.min(np.concatenate([
+                val.flatten() if isinstance(val, np.ndarray) else np.array([val])
+                for val in sorted_results['fields'][species][:n_times]
+            ])),
+            np.max(np.concatenate([
+                val.flatten() if isinstance(val, np.ndarray) else np.array([val])
+                for val in sorted_results['fields'][species][:n_times]
+            ]))
+        )
+        for species in species_names
+        if species in sorted_results['fields']
+    }
 
     images = []
     for i in range(0, n_times, skip_frames):
@@ -163,9 +192,15 @@ def plot_species_distributions_to_gif(
             axs = [axs]
 
         for j, species in enumerate(species_names):
+            field_val = sorted_results['fields'][species][i]
+
+            if not isinstance(field_val, np.ndarray) or field_val.ndim != 2:
+                # print(f"Skipping {species} at t={times[i]:.2f}: not a 2D array")
+                continue  # skip scalars or 1D arrays
+
             ax = axs[j]
             vmin, vmax = global_min_max[species]
-            img = ax.imshow(sorted_results['fields'][species][i], interpolation='nearest', vmin=vmin, vmax=vmax)
+            img = ax.imshow(field_val, interpolation='nearest', vmin=vmin, vmax=vmax)
             ax.set_title(f'{species} at t = {times[i]:.2f}')
             plt.colorbar(img, ax=ax)
 

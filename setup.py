@@ -20,6 +20,8 @@ setup(
     packages=[
         'spatio_flux.processes',
         'spatio_flux.viz',
+        'spatio_flux.library',
+        'spatio_flux.models',
         'spatio_flux',
     ],
     classifiers=[
