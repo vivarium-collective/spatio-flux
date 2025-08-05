@@ -15,8 +15,9 @@ Usage:
 
 """
 import argparse
-import numpy as np
 import time
+import pprint
+import numpy as np
 
 from process_bigraph import default, register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
@@ -31,7 +32,6 @@ from spatio_flux.processes import (
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
     get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
 )
-import pprint
 
 
 def pf(obj):
