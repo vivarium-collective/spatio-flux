@@ -1,11 +1,11 @@
 import numpy as np
+from bigraph_schema import deep_merge
 
 from process_bigraph import default
 from spatio_flux.library.helpers import initialize_fields, build_path
 from spatio_flux.processes import MinimalParticle
 from spatio_flux.processes.particles import Particles
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
-
 
 default_config = {
     'total_time': 100.0,
@@ -100,6 +100,8 @@ def get_spatial_dfba_process(
         config=None,
         path=None,
 ):
+    assert 'n_bins' in config, "Configuration must include 'n_bins' for spatial DFBA."
+
     path = path or ['fields']
     mol_ids = config.get("mol_ids") or ["glucose", "acetate"]
     biomass_id = config.get("biomass_id") or "biomass"
@@ -109,9 +111,11 @@ def get_spatial_dfba_process(
         mol_ids.remove(biomass_id)
 
     if model_file in MODEL_REGISTRY_DFBA:
-        config = MODEL_REGISTRY_DFBA.get(model_file, {})
+        dfba_config = MODEL_REGISTRY_DFBA.get(model_file, {})
     else:
-        config = get_dfba_config(model_file=model_file)
+        dfba_config = get_dfba_config(model_file=model_file)
+
+    config = deep_merge(config, dfba_config)
 
     return {
         "_type": "process",
