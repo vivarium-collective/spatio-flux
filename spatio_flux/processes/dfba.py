@@ -335,18 +335,55 @@ class SpatialDFBA(Process):
 
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
-        'model_file': 'string',
+        'model_file': 'maybe[string]',  # if provided, will fill unspecified model grid locations
+        'models': 'map[string]',        # for multiple models
+        'model_grid': 'list',  #'list[list[string]',  # grid of model IDs
         'kinetic_params': 'map[tuple[float,float]]',
         'substrate_update_reactions': 'map[string]',
         'bounds': 'map[bounds]',
     }
 
     def initialize(self, config):
-        self.model = load_fba_model(
-            model_file=self.config["model_file"],
-            bounds=self.config["bounds"]
-        )
-        self.n_bins = config["n_bins"]
+        self.n_bins = config['n_bins']
+        self.default_model_file = config.get("default_model_file")
+
+        # Load models
+        self.models = {}
+        model_configs = config.get('models', {})
+        for model_id, model_config in model_configs.items():
+            self.models[model_id] = load_fba_model(
+                model_file=model_config['model_file'],
+                bounds=model_config['bounds']
+            )
+
+        # Register default model if provided
+        if self.default_model_file and 'default' not in self.models:
+            self.models['default'] = load_fba_model(
+                model_file=self.default_model_file,
+                bounds={}  # Use appropriate default bounds
+            )
+
+        # Initialize model grid with 'default'
+        model_grid_array = np.full(self.n_bins, '', dtype='U20')
+
+        # Update from model_grid_config if provided
+        model_grid_config = config.get('model_grid')
+        if model_grid_config is not None:
+            model_grid_config = np.array(model_grid_config, dtype='U20')
+
+            # Update only where model_grid_config has non-empty strings
+            for index, value in np.ndenumerate(model_grid_config):
+                if value != '':
+                    model_grid_array[index] = value
+
+        # Validate all entries in final model_grid
+        unique_ids = set(np.unique(model_grid_array))
+        unique_ids.discard('')
+        unknown_ids = unique_ids - set(self.models.keys())
+        if unknown_ids:
+            raise ValueError(f"Unknown model IDs in model_grid: {unknown_ids}")
+
+        self.model_grid = model_grid_array
 
     def inputs(self):
         return {
@@ -397,7 +434,7 @@ class SpatialDFBA(Process):
         # Loop through each grid cell
         for i in range(x_bins):
             for j in range(y_bins):
-                bin_idx = i * y_bins + j
+                # bin_idx = i * y_bins + j
                 # dfba = self.dfba_grid[bin_idx]
 
                 # Extract local substrate concentrations
@@ -408,9 +445,16 @@ class SpatialDFBA(Process):
 
                 local_biomass = biomass_field[i, j]
 
+                # get the local model from the model gri
+                model_id = self.model_grid[i][j]
+                if model_id == '':
+                    continue  # skip empty cells
+
+                model = self.models[model_id]
+
                 # Run DFBA update for this bin
                 update = run_fba_update(
-                    self.model,
+                    model,
                     self.config,
                     local_substrates,
                     local_biomass,
@@ -535,3 +579,12 @@ def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1
 if __name__ == "__main__":
     for model_key, config in MODEL_REGISTRY_DFBA.items():
         analyze_fba_model_minimal_media(model_key, config, MODEL_DIR)
+
+
+def get_field_names(model_registry):
+    all_fields = set()
+    for model_info in model_registry.values():
+        config = model_info.get('config', {})
+        all_fields.update(config.get('substrate_update_reactions', {}).keys())
+        all_fields.update(config.get('kinetic_params', {}).keys())
+    return sorted(all_fields)

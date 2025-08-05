@@ -53,7 +53,7 @@ def get_dfba_config(
         bounds=None
 ):
     return {
-        "model_file": model_file,
+        "default_model_file": model_file,
         "kinetic_params": kinetic_params,
         "substrate_update_reactions": substrate_update_reactions,
         "bounds": bounds
@@ -97,15 +97,12 @@ def get_single_dfba_process(
 
 def get_spatial_dfba_process(
         model_file="textbook",
-        mol_ids=None,
-        biomass_id="biomass",
-        n_bins=(5, 5),
+        config=None,
         path=None,
 ):
-    if path is None:
-        path = ['fields']
-    if mol_ids is None:
-        mol_ids = ["glucose", "acetate"]
+    path = path or ['fields']
+    mol_ids = config.get("mol_ids") or ["glucose", "acetate"]
+    biomass_id = config.get("biomass_id") or "biomass"
 
     # remove "biomass" from mol_ids if it exists
     if biomass_id in mol_ids:
@@ -116,7 +113,6 @@ def get_spatial_dfba_process(
     else:
         config = get_dfba_config(model_file=model_file)
 
-    config['n_bins'] = n_bins
     return {
         "_type": "process",
         "address": "local:SpatialDFBA",

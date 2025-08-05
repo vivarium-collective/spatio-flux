@@ -1,4 +1,5 @@
-from spatio_flux.processes.dfba import DynamicFBA, SpatialDFBA, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry
+from spatio_flux.processes.dfba import (
+    DynamicFBA, SpatialDFBA, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry, get_field_names)
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection
 from spatio_flux.processes.particles import Particles, MinimalParticle
 

@@ -85,9 +85,6 @@ def run_composite_document(document, core=None, name=None, time=None):
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
     plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
 
-    # if name == 'dfba_spatial':
-    #     breakpoint()
-
     plot_bigraph(
         state=plot_state,
         schema=plot_schema,
