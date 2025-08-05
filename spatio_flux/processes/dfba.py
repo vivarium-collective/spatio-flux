@@ -9,6 +9,8 @@ optimization with kinetic uptake constraints.
 import os
 import warnings
 import numpy as np
+from pathlib import Path
+
 from copy import deepcopy
 import cobra
 from cobra.io import load_model
@@ -52,7 +54,7 @@ MODEL_REGISTRY_DFBA = {
         },
     },
     'ecoli': {
-        'model_file': 'models/iAF1260.xml',
+        'model_file': 'iAF1260.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             # 'acetate': 'EX_ac_e'
@@ -67,7 +69,7 @@ MODEL_REGISTRY_DFBA = {
         },
     },
     'cdiff': {
-        'model_file': 'models/iCN900.xml',
+        'model_file': 'iCN900.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'acetate': 'EX_ac_e'
@@ -78,7 +80,7 @@ MODEL_REGISTRY_DFBA = {
         }
     },
     'pputida': {
-        'model_file': 'models/iJN746.xml',
+        'model_file': 'iJN746.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'glycerol': 'EX_gly_e'
@@ -89,7 +91,7 @@ MODEL_REGISTRY_DFBA = {
         }
     },
     'yeast': {
-        'model_file': 'models/iMM904.xml',
+        'model_file': 'iMM904.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'ethanol': 'EX_etoh_e'
@@ -100,7 +102,7 @@ MODEL_REGISTRY_DFBA = {
         }
     },
     'llactis': {
-        'model_file': 'models/iNF517.xml',
+        'model_file': 'iNF517.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'ammonium': 'EX_nh4_e',
@@ -185,10 +187,18 @@ def load_fba_model(model_file, bounds):
     --------
     cobra.Model instance with bounds applied
     """
+    # Get the path to the directory containing *this* file
+    base_dir = Path(__file__).resolve().parent
+    models_dir = base_dir / '..' / 'models'
+    full_path = (models_dir / model_file).resolve()
+
     try:
-        if model_file.endswith(".xml"):
-            model = cobra.io.read_sbml_model(model_file)
+        if model_file.endswith('.xml'):
+            if not full_path.exists():
+                raise FileNotFoundError(f"SBML file not found at: {full_path}")
+            model = cobra.io.read_sbml_model(str(full_path))
         else:
+            # Load a named model from registry
             model = load_model(model_file)
     except:
         raise ValueError(f"Failed to load model from {model_file}. Ensure it is a valid SBML file or registered model name.")
