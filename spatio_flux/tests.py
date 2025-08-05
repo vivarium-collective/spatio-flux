@@ -158,10 +158,11 @@ def get_spatial_dfba_process_doc(core=None, config=None):
             ["cdiff", "cdiff"]
         ]
     }
-    return {
+    doc = {
         "fields": initial_fields,
         "spatial_dfba": get_spatial_dfba_process(model_file="textbook", config=spatial_dfba_config)
     }
+    return doc
 
 def plot_dfba_process_spatial(results, state, config=None):
     config = config or {}

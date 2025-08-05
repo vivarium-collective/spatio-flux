@@ -195,9 +195,11 @@ def load_fba_model(model_file, bounds):
 
     for rxn_id, limits in bounds.items():
         rxn = model.reactions.get_by_id(rxn_id)
-        if limits.get("lower") is not None:
+        lower = limits.get("lower")
+        upper = limits.get("upper")
+        if lower is not None and lower != {}:
             rxn.lower_bound = limits["lower"]
-        if limits.get("upper") is not None:
+        if upper is not None and upper != {}:
             rxn.upper_bound = limits["upper"]
 
     return model
@@ -336,7 +338,7 @@ class SpatialDFBA(Process):
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
         'model_file': 'maybe[string]',  # if provided, will fill unspecified model grid locations
-        'models': 'map[string,map]',        # for multiple models
+        'models': 'any',  #map[string,map]',        # for multiple models
         'model_grid': 'list',  #'list[list[string]',  # grid of model IDs
         'kinetic_params': 'map[tuple[float,float]]',
         'substrate_update_reactions': 'map[string]',
@@ -353,7 +355,7 @@ class SpatialDFBA(Process):
         for model_id, model_config in model_configs.items():
             self.models[model_id] = load_fba_model(
                 model_file=model_config['model_file'],
-                bounds=model_config['bounds']
+                bounds=model_config.get('bounds', {})
             )
 
         # Register default model if provided
