@@ -1,9 +1,9 @@
 {
     "state": {
         "global_time": "0.0",
-        "spatial_dfba": {
+        "dFBA": {
             "inputs": {
-                "fields": {
+                "substrates": {
                     "glucose": [
                         "fields",
                         "glucose"
@@ -19,7 +19,7 @@
                 ]
             },
             "outputs": {
-                "fields": {
+                "substrates": {
                     "glucose": [
                         "fields",
                         "glucose"
@@ -35,22 +35,9 @@
                 ]
             },
             "interval": 1.0,
-            "address": "local:SpatialDFBA",
+            "address": "local:DynamicFBA",
             "config": {
-                "n_bins": [
-                    "10",
-                    "5"
-                ],
-                "model_file": "textbook",
-                "models": {},
-                "model_grid": [
-                    "['textbook', 'textbook', 'textbook', 'textbook', 'textbook']",
-                    "['ecoli', 'ecoli', 'ecoli', 'ecoli', 'ecoli']",
-                    "['cdiff', 'cdiff', 'cdiff', 'cdiff', 'cdiff']",
-                    "['pputida', 'pputida', 'pputida', 'pputida', 'pputida']",
-                    "['yeast', 'yeast', 'yeast', 'yeast', 'yeast']",
-                    "['llactis', 'llactis', 'llactis', 'llactis', 'llactis']"
-                ],
+                "model_file": "iCN900.xml",
                 "kinetic_params": {
                     "glucose": [
                         "0.5",
@@ -65,16 +52,7 @@
                     "glucose": "EX_glc__D_e",
                     "acetate": "EX_ac_e"
                 },
-                "bounds": {
-                    "EX_o2_e": {
-                        "lower": "-2.0",
-                        "upper": "!nil"
-                    },
-                    "ATPM": {
-                        "lower": "1.0",
-                        "upper": "1.0"
-                    }
-                }
+                "bounds": {}
             },
             "shared": null
         },
@@ -97,243 +75,9 @@
             }
         },
         "fields": {
-            "glucose": {
-                "list": [
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ],
-                    [
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0,
-                        20.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    10,
-                    5
-                ]
-            },
-            "acetate": {
-                "list": [
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    10,
-                    5
-                ]
-            },
-            "biomass": {
-                "list": [
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    10,
-                    5
-                ]
-            }
+            "glucose": "10.0",
+            "acetate": "0.0",
+            "biomass": "0.1"
         }
     },
     "composition": {
@@ -351,7 +95,7 @@
                 "number"
             ]
         },
-        "spatial_dfba": {
+        "dFBA": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -362,46 +106,12 @@
             "_check": "check_process",
             "_slice": "slice_edge",
             "_inputs": {
-                "fields": {
-                    "_type": "map",
-                    "_value": {
-                        "_type": "positive_array",
-                        "_shape": [
-                            10,
-                            5
-                        ],
-                        "_data": "float"
-                    }
-                },
-                "biomass": {
-                    "_type": "array",
-                    "_shape": [
-                        10,
-                        5
-                    ],
-                    "_data": "float"
-                }
+                "substrates": "map[positive_float]",
+                "biomass": "positive_float"
             },
             "_outputs": {
-                "fields": {
-                    "_type": "map",
-                    "_value": {
-                        "_type": "array",
-                        "_shape": [
-                            10,
-                            5
-                        ],
-                        "_data": "float"
-                    }
-                },
-                "biomass": {
-                    "_type": "array",
-                    "_shape": [
-                        10,
-                        5
-                    ],
-                    "_data": "float"
-                }
+                "substrates": "map[float]",
+                "biomass": "float"
             },
             "_description": "",
             "inputs": {
@@ -874,76 +584,46 @@
         },
         "fields": {
             "glucose": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
+                "_type": "positive_float",
+                "_check": "check_float",
+                "_apply": "apply_non_negative",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": 0.0,
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
                 "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    10,
-                    5
-                ],
-                "_data": "float"
+                    "float"
+                ]
             },
             "acetate": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
+                "_type": "positive_float",
+                "_check": "check_float",
+                "_apply": "apply_non_negative",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": 0.0,
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
                 "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    10,
-                    5
-                ],
-                "_data": "float"
+                    "float"
+                ]
             },
             "biomass": {
-                "_type": "array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_shape": [
-                    10,
-                    5
-                ],
-                "_data": "float"
+                "_type": "positive_float",
+                "_check": "check_float",
+                "_apply": "apply_non_negative",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": 0.0,
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
+                "_inherit": [
+                    "float"
+                ]
             }
         }
     }

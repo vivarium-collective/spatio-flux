@@ -791,6 +791,8 @@
                     "10"
                 ],
                 "model_file": "textbook",
+                "models": {},
+                "model_grid": [],
                 "kinetic_params": {
                     "glucose": [
                         "0.5",

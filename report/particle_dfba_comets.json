@@ -1,631 +1,133 @@
 {
     "state": {
         "particles": {
-            "n1vr8Qs8": {
-                "id": "n1vr8Qs8",
+            "6v8qknPE": {
+                "id": "6v8qknPE",
                 "position": [
-                    "3.202556195455843",
-                    "5.3566728681049005"
+                    "3.2312567837654216",
+                    "1.3560993791473874"
                 ],
-                "mass": "1.2797786949655388",
+                "mass": "0.5803410267895841",
                 "local": {
-                    "glucose": "10.0",
+                    "glucose": "7.64048529893115",
                     "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
+                    "biomass": "0.06620979081543076"
                 },
                 "exchange": {
                     "glucose": "0.0",
                     "acetate": "0.0",
-                    "detritus": "0.0",
                     "biomass": "0.0"
                 },
-                "minimal_particle": {
+                "dFBA": {
                     "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
                         "substrates": [
                             "local"
+                        ],
+                        "biomass": [
+                            "mass"
                         ]
                     },
                     "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
                         "substrates": [
                             "exchange"
+                        ],
+                        "biomass": [
+                            "mass"
                         ]
                     },
                     "interval": 1.0,
-                    "address": "local:MinimalParticle",
+                    "address": "local:DynamicFBA",
                     "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
+                        "model_file": "textbook",
                         "kinetic_params": {
                             "glucose": [
                                 "0.5",
-                                "0.01"
+                                "1.0"
                             ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
+                            "acetate": [
+                                "0.5",
+                                "2.0"
                             ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {
+                            "EX_o2_e": {
+                                "lower": "-2.0",
+                                "upper": "!nil"
+                            },
+                            "ATPM": {
+                                "lower": "1.0",
+                                "upper": "1.0"
+                            }
                         }
                     },
                     "shared": {}
                 }
             },
-            "3Q88p_mS": {
-                "id": "3Q88p_mS",
+            "DQgUa6Dw": {
+                "id": "DQgUa6Dw",
                 "position": [
-                    "0.28692565337507137",
-                    "8.111555002086982"
+                    "0.49130828131943804",
+                    "2.6330527427627706"
                 ],
-                "mass": "1.7541890769576352",
+                "mass": "0.7133781312281682",
                 "local": {
-                    "glucose": "10.0",
+                    "glucose": "6.317668609111297",
                     "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
+                    "biomass": "0.04756496004470733"
                 },
                 "exchange": {
                     "glucose": "0.0",
                     "acetate": "0.0",
-                    "detritus": "0.0",
                     "biomass": "0.0"
                 },
-                "minimal_particle": {
+                "dFBA": {
                     "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
                         "substrates": [
                             "local"
+                        ],
+                        "biomass": [
+                            "mass"
                         ]
                     },
                     "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
                         "substrates": [
                             "exchange"
+                        ],
+                        "biomass": [
+                            "mass"
                         ]
                     },
                     "interval": 1.0,
-                    "address": "local:MinimalParticle",
+                    "address": "local:DynamicFBA",
                     "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
+                        "model_file": "textbook",
                         "kinetic_params": {
                             "glucose": [
                                 "0.5",
-                                "0.01"
+                                "1.0"
                             ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "V5WN9AOU": {
-                "id": "V5WN9AOU",
-                "position": [
-                    "4.428167300989713",
-                    "5.622208409628321"
-                ],
-                "mass": "3.114069451054216",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
+                            "acetate": [
                                 "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
+                                "2.0"
                             ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "xwzdvMSr": {
-                "id": "xwzdvMSr",
-                "position": [
-                    "0.4299268745901652",
-                    "4.793450554483087"
-                ],
-                "mass": "7.892800840567674",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
                         },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "xQZ7FH-r": {
-                "id": "xQZ7FH-r",
-                "position": [
-                    "2.6760632671707603",
-                    "6.0659077581892085"
-                ],
-                "mass": "5.772139345040472",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
                         },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "NcZy-FIT": {
-                "id": "NcZy-FIT",
-                "position": [
-                    "4.780681649221107",
-                    "1.9956419316929719"
-                ],
-                "mass": "9.92097842748359",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
+                        "bounds": {
+                            "EX_o2_e": {
+                                "lower": "-2.0",
+                                "upper": "!nil"
                             },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
+                            "ATPM": {
+                                "lower": "1.0",
+                                "upper": "1.0"
                             }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "T7Wlg1hm": {
-                "id": "T7Wlg1hm",
-                "position": [
-                    "3.6172674964934663",
-                    "6.236538093986347"
-                ],
-                "mass": "5.726111395155006",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "buNqv7DM": {
-                "id": "buNqv7DM",
-                "position": [
-                    "2.4080336712546577",
-                    "9.486826538493048"
-                ],
-                "mass": "8.420956752019489",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "WqzZPk1-": {
-                "id": "WqzZPk1-",
-                "position": [
-                    "2.6044605536529413",
-                    "3.0225279304447827"
-                ],
-                "mass": "6.356849492573471",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "vSlLaxPc": {
-                "id": "vSlLaxPc",
-                "position": [
-                    "0.47245788594093174",
-                    "7.371850980891923"
-                ],
-                "mass": "9.9937194613964",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
                         }
                     },
                     "shared": {}
@@ -633,6 +135,52 @@
             }
         },
         "global_time": "0.0",
+        "diffusion": {
+            "inputs": {
+                "fields": [
+                    "fields"
+                ]
+            },
+            "outputs": {
+                "fields": [
+                    "fields"
+                ]
+            },
+            "interval": 1.0,
+            "address": "local:DiffusionAdvection",
+            "config": {
+                "n_bins": [
+                    "10",
+                    "20"
+                ],
+                "bounds": [
+                    "5.0",
+                    "10.0"
+                ],
+                "default_diffusion_rate": "0.1",
+                "default_diffusion_dt": "0.1",
+                "diffusion_coeffs": {
+                    "glucose": "0.1",
+                    "acetate": "0.1",
+                    "biomass": "0.1"
+                },
+                "advection_coeffs": {
+                    "glucose": [
+                        "0.0",
+                        "0.0"
+                    ],
+                    "acetate": [
+                        "0.0",
+                        "0.0"
+                    ],
+                    "biomass": [
+                        "0.0",
+                        "0.1"
+                    ]
+                }
+            },
+            "shared": null
+        },
         "spatial_dfba": {
             "inputs": {
                 "fields": {
@@ -643,10 +191,6 @@
                     "acetate": [
                         "fields",
                         "acetate"
-                    ],
-                    "detritus": [
-                        "fields",
-                        "detritus"
                     ]
                 },
                 "biomass": [
@@ -663,10 +207,6 @@
                     "acetate": [
                         "fields",
                         "acetate"
-                    ],
-                    "detritus": [
-                        "fields",
-                        "detritus"
                     ]
                 },
                 "biomass": [
@@ -711,52 +251,6 @@
             },
             "shared": null
         },
-        "diffusion": {
-            "inputs": {
-                "fields": [
-                    "fields"
-                ]
-            },
-            "outputs": {
-                "fields": [
-                    "fields"
-                ]
-            },
-            "interval": 1.0,
-            "address": "local:DiffusionAdvection",
-            "config": {
-                "n_bins": [
-                    "10",
-                    "20"
-                ],
-                "bounds": [
-                    "5.0",
-                    "10.0"
-                ],
-                "default_diffusion_rate": "0.1",
-                "default_diffusion_dt": "0.1",
-                "diffusion_coeffs": {
-                    "glucose": "0.1",
-                    "acetate": "0.1",
-                    "detritus": "0.1"
-                },
-                "advection_coeffs": {
-                    "glucose": [
-                        "0.0",
-                        "0.0"
-                    ],
-                    "acetate": [
-                        "0.0",
-                        "0.0"
-                    ],
-                    "detritus": [
-                        "0.0",
-                        "0.0"
-                    ]
-                }
-            },
-            "shared": null
-        },
         "particle_movement": {
             "inputs": {
                 "particles": [
@@ -790,7 +284,7 @@
                     "0.0",
                     "-0.1"
                 ],
-                "add_probability": "0.1",
+                "add_probability": "0.2",
                 "boundary_to_add": [
                     "top"
                 ],
@@ -829,224 +323,224 @@
             "glucose": {
                 "list": [
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        3.0384108958568925,
+                        6.423371902877059,
+                        6.859843076594583,
+                        9.62348328082847,
+                        9.533285003757904,
+                        6.317668609111297,
+                        4.260583371217079,
+                        5.170199675136944,
+                        7.113582968105209,
+                        3.5867207915723682,
+                        8.630548540335353,
+                        8.899949478116376,
+                        7.000548810610217,
+                        4.134892089395862,
+                        1.5492024372590674,
+                        1.0869335964550157,
+                        2.982395939154037,
+                        8.38930546664483,
+                        4.838797384056338,
+                        2.575345368532336
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        8.12065487830207,
+                        3.6244580520784373,
+                        2.6744162849390523,
+                        6.427645828431617,
+                        1.949165090994511,
+                        1.1230084558301665,
+                        8.437869615956906,
+                        4.326711260977781,
+                        6.543081482537149,
+                        1.6380538524632589,
+                        3.4647982454718598,
+                        8.93747321222922,
+                        2.0676033586246723,
+                        2.3424337292068866,
+                        6.03441705219506,
+                        1.4778380673303197,
+                        8.628720708155495,
+                        1.2074239598727396,
+                        8.239942405512906,
+                        9.883053076171553
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        7.098914594688538,
+                        4.524747543401023,
+                        2.5960488698129556,
+                        5.821340997899105,
+                        1.8774338002266002,
+                        5.53703645988829,
+                        5.683785349451429,
+                        5.331693810279983,
+                        2.9193250067511527,
+                        1.8724615106688083,
+                        5.621301568866203,
+                        2.702383837084021,
+                        2.6974324280910293,
+                        1.112322091993398,
+                        8.217825919010597,
+                        7.5534816400678935,
+                        8.006411356900916,
+                        2.3682191352493964,
+                        9.419357398134656,
+                        6.222777927263506
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        1.628412285541632,
+                        3.2697474928279324,
+                        5.594127319642354,
+                        1.1245375471648287,
+                        2.72235921881839,
+                        9.844813603510598,
+                        4.0912822482629805,
+                        4.137099709116051,
+                        3.5999724165538627,
+                        6.348230762625371,
+                        8.188960387884183,
+                        8.080537589696883,
+                        2.014483440031481,
+                        5.771785473149443,
+                        8.021786349658157,
+                        3.800845616847501,
+                        6.522818361388961,
+                        2.781080991580943,
+                        2.8335261832871246,
+                        8.491729477417994
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        3.0997716044819885,
+                        5.472088054464137,
+                        8.807174916651888,
+                        6.228813919471017,
+                        7.780314963275035,
+                        8.645210391253805,
+                        6.230183731347338,
+                        6.280859867811175,
+                        3.7006895666782444,
+                        5.455709227910404,
+                        6.752489096734052,
+                        7.914997155839237,
+                        7.260365823642012,
+                        2.99853554465345,
+                        4.2200226061209385,
+                        5.341342011627095,
+                        5.144482947462726,
+                        5.319251487469436,
+                        9.187051266751535,
+                        1.6359534834608525
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        9.028715211149784,
+                        2.328183530097154,
+                        3.00292930193259,
+                        1.596473941876484,
+                        1.4692827096457706,
+                        1.885788791061839,
+                        7.704433534669719,
+                        6.117925418535284,
+                        4.9309793604297605,
+                        9.551919979825334,
+                        4.737741684660326,
+                        2.4554953094951015,
+                        3.7916032882772273,
+                        8.06047201803505,
+                        1.6445206103741818,
+                        3.9412420001491575,
+                        2.243893055001844,
+                        4.894288880685625,
+                        9.334323662267014,
+                        2.083993586340034
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        9.374437681843808,
+                        3.3983077756037203,
+                        7.64048529893115,
+                        2.4845019711323384,
+                        5.648120641674586,
+                        7.9705338088636895,
+                        5.075922287259384,
+                        2.456082499008123,
+                        7.100882556706566,
+                        8.466321458625565,
+                        9.824202055054567,
+                        3.1976152561940374,
+                        5.135845457351632,
+                        7.658587110747504,
+                        9.91934443181102,
+                        1.9041877928501514,
+                        7.875375265461024,
+                        4.632986489281181,
+                        8.83041470890186,
+                        3.0431256730402954
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        9.899204507079451,
+                        9.14688194535814,
+                        1.7551342287015979,
+                        6.142390239266494,
+                        4.23515412670071,
+                        6.865064428592895,
+                        8.629703366107735,
+                        1.1539443949450363,
+                        7.5492014000137235,
+                        6.061668240557667,
+                        8.677725041856391,
+                        1.2407277270802908,
+                        7.210020094938567,
+                        5.748157841407304,
+                        7.218968096392011,
+                        2.5612921357884026,
+                        1.6108059029174084,
+                        7.000519098424306,
+                        2.2043230210786016,
+                        5.74830179102957
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        1.1551799707572181,
+                        3.5990755987413983,
+                        6.783722872322807,
+                        8.422660750497077,
+                        5.67586613436758,
+                        5.266955822482102,
+                        8.613753511800896,
+                        8.48215938004563,
+                        3.7600238487254654,
+                        9.437416719564517,
+                        2.6341163536631247,
+                        2.127187729886916,
+                        6.494293091270636,
+                        1.8386899407013788,
+                        1.4021645425118534,
+                        6.397826608286494,
+                        8.057692686536399,
+                        1.4669493352061116,
+                        5.518022947619012,
+                        4.102337007943493
                     ],
                     [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
+                        7.194539660924594,
+                        2.8728377051996246,
+                        1.0579535365004964,
+                        2.807339247149127,
+                        7.865468075526242,
+                        3.1313161678337207,
+                        7.30197592112461,
+                        3.204453886375115,
+                        1.6558379655311977,
+                        5.922132289381303,
+                        8.869917389983247,
+                        1.1741103393162278,
+                        2.5636647593635065,
+                        5.946754172215854,
+                        4.564216409473369,
+                        3.4560063154214227,
+                        9.55797662585855,
+                        9.834104310948748,
+                        5.780123626510398,
+                        8.247652305152085
                     ]
                 ],
                 "data": "float",
@@ -1284,456 +778,227 @@
                     20
                 ]
             },
-            "detritus": {
-                "list": [
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    10,
-                    20
-                ]
-            },
             "biomass": {
                 "list": [
                     [
-                        0.0,
-                        0.0,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.08499305478943357,
+                        0.050250208437560964,
+                        0.08943868694608204,
+                        0.030596848524293275,
+                        0.030710762429054208,
+                        0.04756496004470733,
+                        0.07568985909174526,
+                        0.05643505397410953,
+                        0.016918419630145332,
+                        0.0969319765440807,
+                        0.00737972659020918,
+                        0.04280022036875898,
+                        0.09102529622578882,
+                        0.07882468012578188,
+                        0.025175201587882712,
+                        0.046055087877945024,
+                        0.05725924790951206,
+                        0.04442595852992274,
+                        0.03432019927531197,
+                        0.0911251945101408
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.03594434076975276,
+                        0.05471518867225897,
+                        0.0936534931590642,
+                        0.05052370944875262,
+                        0.08214642181498528,
+                        0.02675834337548615,
+                        0.03083269091669918,
+                        0.09820549488064752,
+                        0.06516994467894817,
+                        0.07217620120766724,
+                        0.014629616802656821,
+                        0.04012153873730531,
+                        0.08711987127399214,
+                        0.07281506122299683,
+                        0.0207395166086264,
+                        0.0810379023519386,
+                        0.057749084723822924,
+                        0.038861627385269784,
+                        0.0399723058641579,
+                        0.001762323369755914
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.05725217796689001,
+                        0.07051337900035534,
+                        0.024652656295816634,
+                        0.09830719965081931,
+                        0.002577012160509984,
+                        0.049912932574282656,
+                        0.004612118303902991,
+                        0.08675538152886045,
+                        0.014271192157915669,
+                        0.08580147017853806,
+                        0.094766936690655,
+                        0.04447769704342622,
+                        0.05187345004345544,
+                        0.010808786005747018,
+                        0.035604746438599025,
+                        0.08027121396126126,
+                        0.028498436907872227,
+                        0.09498505165549907,
+                        0.03827804221599203,
+                        0.03094484869551736
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.002485610447045039,
+                        0.07804339345775207,
+                        0.011526525172888914,
+                        0.059498738712763045,
+                        0.04513890323793346,
+                        0.04587144238550909,
+                        0.04099903361325296,
+                        0.06083810532844859,
+                        0.03387638527378326,
+                        0.0506459269466001,
+                        0.032578000208365945,
+                        0.036736772590304105,
+                        0.03404051043956013,
+                        0.056658754928358285,
+                        0.05359673113886563,
+                        0.012006420943498575,
+                        0.05921374097804876,
+                        0.039745360985572714,
+                        0.05082710335226103,
+                        0.07630848280688224
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.01104005639979936,
+                        0.09617558483013261,
+                        0.0036688772135382687,
+                        0.011944737700116849,
+                        0.05810096571014204,
+                        0.000408532082934876,
+                        0.052352156035388064,
+                        0.0806117422292214,
+                        0.06050721623791097,
+                        0.011347773722814036,
+                        0.007469527502174212,
+                        0.0213559855756171,
+                        0.02254709200830657,
+                        0.06147525041258785,
+                        0.06168266986581499,
+                        0.019413535851306174,
+                        0.04141611741723117,
+                        0.029760266608727427,
+                        0.08291368480619393,
+                        0.02913154789311151
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.01834636912115839,
+                        0.06193948119033278,
+                        0.07871324938649005,
+                        0.026922818416750618,
+                        0.048729432288161595,
+                        0.005030618596623549,
+                        0.0798477068193814,
+                        0.0842598752770064,
+                        0.08163288975376237,
+                        0.02118169162858683,
+                        0.0037808375663473948,
+                        0.05564201140961751,
+                        0.04902259742059918,
+                        0.02738970133225015,
+                        0.04544564924794292,
+                        0.058822536574192154,
+                        0.07439623148805023,
+                        0.095155641772758,
+                        0.006529705422659016,
+                        0.04195801854303362
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.0726533101857064,
+                        0.00756012745246305,
+                        0.06620979081543076,
+                        0.09342863989036075,
+                        0.04703986135079707,
+                        0.023361793436559267,
+                        0.062460509600590214,
+                        0.055833440353905466,
+                        0.04236181220109302,
+                        0.09972289908207015,
+                        0.06812300983932472,
+                        0.09623018319571708,
+                        0.023349735684327057,
+                        0.03716942518500271,
+                        0.024071399007261785,
+                        0.09465026235311218,
+                        0.09554534364647238,
+                        0.09236660301086275,
+                        0.08339772641625699,
+                        0.011093294506748798
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.04273341305546599,
+                        0.010448419232635587,
+                        0.029028924152826485,
+                        0.020624336286154954,
+                        0.07038161937292035,
+                        0.08058753583573545,
+                        0.023733741547149648,
+                        0.05906586299663136,
+                        0.06998884792109016,
+                        0.08751367002162158,
+                        0.062139771001838366,
+                        0.07705153617784398,
+                        0.08497675901102823,
+                        0.04274711263030067,
+                        0.08091066119624175,
+                        0.06959189800652878,
+                        0.01976331457404902,
+                        0.012747320892243275,
+                        0.02625451117172474,
+                        0.02317519058135097
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.07451170467017036,
+                        0.017444731419284043,
+                        0.09777261571863521,
+                        0.01680154870181181,
+                        0.02836079635956078,
+                        0.04449594979023507,
+                        0.06267551566730002,
+                        0.07421729476968453,
+                        0.05314258595081393,
+                        0.08303207328513751,
+                        0.06860452232585457,
+                        0.07349404982234871,
+                        0.0208993340006459,
+                        0.05472305866250182,
+                        0.0807510344321248,
+                        0.020756571652674496,
+                        0.05583243457451359,
+                        0.06923203829223662,
+                        0.08085794483489675,
+                        0.0688068453602547
                     ],
                     [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.01579638206664108,
+                        0.018344595151393094,
+                        0.06798215322608113,
+                        0.0754632828914319,
+                        0.06737542843305944,
+                        0.03604734690808457,
+                        0.03870285396482909,
+                        0.021694826702220373,
+                        0.04742766813523728,
+                        0.040007808240145194,
+                        0.014920390424381159,
+                        0.023608931699902403,
+                        0.01138403002035472,
+                        0.044954654063821056,
+                        0.02081113670390863,
+                        0.03743673083094347,
+                        0.0020618775947894297,
+                        0.05324827968230366,
+                        0.08763723461861064,
+                        0.03489734189994522
                     ]
                 ],
                 "data": "float",
@@ -1791,17 +1056,17 @@
                     "_1": "float"
                 },
                 "mass": {
-                    "_type": "float",
+                    "_type": "positive_float",
                     "_check": "check_float",
-                    "_apply": "accumulate",
+                    "_apply": "apply_non_negative",
                     "_serialize": "to_string",
                     "_description": "64-bit floating point precision number",
-                    "_default": 1.0,
+                    "_default": 0.0,
                     "_deserialize": "deserialize_float",
                     "_divide": "divide_float",
                     "_dataclass": "dataclass_float",
                     "_inherit": [
-                        "number"
+                        "float"
                     ]
                 },
                 "local": {
@@ -1873,7 +1138,7 @@
                     }
                 },
                 "_type": "particle",
-                "minimal_particle": {
+                "dFBA": {
                     "_type": "process",
                     "_default": "default_edge",
                     "_generate": "generate_edge",
@@ -1883,19 +1148,23 @@
                     "_dataclass": "dataclass_edge",
                     "_check": "check_process",
                     "_slice": "slice_edge",
-                    "_type_parameters": [
-                        "inputs",
-                        "outputs"
-                    ],
+                    "_inputs": {
+                        "substrates": "map[positive_float]",
+                        "biomass": "positive_float"
+                    },
+                    "_outputs": {
+                        "substrates": "map[float]",
+                        "biomass": "float"
+                    },
                     "_description": "",
                     "inputs": {
                         "_type": "tree[wires]",
                         "_default": {
-                            "mass": [
-                                "mass"
-                            ],
                             "substrates": [
                                 "local"
+                            ],
+                            "biomass": [
+                                "mass"
                             ]
                         },
                         "_generate": "generate_tree",
@@ -1945,11 +1214,11 @@
                     "outputs": {
                         "_type": "tree[wires]",
                         "_default": {
-                            "mass": [
-                                "mass"
-                            ],
                             "substrates": [
                                 "exchange"
+                            ],
+                            "biomass": [
+                                "mass"
                             ]
                         },
                         "_generate": "generate_tree",
@@ -2018,7 +1287,7 @@
                     },
                     "address": {
                         "_type": "string",
-                        "_default": "local:MinimalParticle",
+                        "_default": "local:DynamicFBA",
                         "_check": "check_string",
                         "_apply": "replace",
                         "_serialize": "serialize_string",
@@ -2033,25 +1302,30 @@
                         "_type": "quote",
                         "_deserialize": "deserialize_quote",
                         "_default": {
-                            "reactions": {
-                                "grow": {
-                                    "reactant": "glucose",
-                                    "product": "mass"
-                                },
-                                "release": {
-                                    "reactant": "mass",
-                                    "product": "detritus"
-                                }
+                            "model_file": "textbook",
+                            "substrate_update_reactions": {
+                                "glucose": "EX_glc__D_e",
+                                "acetate": "EX_ac_e"
                             },
                             "kinetic_params": {
                                 "glucose": [
                                     0.5,
-                                    0.01
+                                    1.0
                                 ],
-                                "mass": [
-                                    1.0,
-                                    0.001
+                                "acetate": [
+                                    0.5,
+                                    2.0
                                 ]
+                            },
+                            "bounds": {
+                                "EX_o2_e": {
+                                    "lower": -2.0,
+                                    "upper": null
+                                },
+                                "ATPM": {
+                                    "lower": 1.0,
+                                    "upper": 1.0
+                                }
                             }
                         },
                         "_generate": "generate_quote",
@@ -2216,14 +1490,6 @@
                                 "_graphviz": "graphviz_none"
                             }
                         }
-                    },
-                    "_inputs": {
-                        "mass": "float",
-                        "substrates": "map[positive_float]"
-                    },
-                    "_outputs": {
-                        "mass": "float",
-                        "substrates": "map[float]"
                     }
                 }
             },
@@ -2244,7 +1510,7 @@
                 "number"
             ]
         },
-        "spatial_dfba": {
+        "diffusion": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -2263,16 +1529,8 @@
                             10,
                             20
                         ],
-                        "_data": "float"
+                        "_data": "positive_float"
                     }
-                },
-                "biomass": {
-                    "_type": "array",
-                    "_shape": [
-                        10,
-                        20
-                    ],
-                    "_data": "float"
                 }
             },
             "_outputs": {
@@ -2284,16 +1542,8 @@
                             10,
                             20
                         ],
-                        "_data": "float"
+                        "_data": "positive_float"
                     }
-                },
-                "biomass": {
-                    "_type": "array",
-                    "_shape": [
-                        10,
-                        20
-                    ],
-                    "_data": "float"
                 }
             },
             "_description": "",
@@ -2609,7 +1859,7 @@
                 "_graphviz": "graphviz_any"
             }
         },
-        "diffusion": {
+        "spatial_dfba": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -2628,8 +1878,16 @@
                             10,
                             20
                         ],
-                        "_data": "positive_float"
+                        "_data": "float"
                     }
+                },
+                "biomass": {
+                    "_type": "array",
+                    "_shape": [
+                        10,
+                        20
+                    ],
+                    "_data": "float"
                 }
             },
             "_outputs": {
@@ -2641,8 +1899,16 @@
                             10,
                             20
                         ],
-                        "_data": "positive_float"
+                        "_data": "float"
                     }
+                },
+                "biomass": {
+                    "_type": "array",
+                    "_shape": [
+                        10,
+                        20
+                    ],
+                    "_data": "float"
                 }
             },
             "_description": "",

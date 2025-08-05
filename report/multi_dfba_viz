@@ -1,0 +1,189 @@
+digraph bigraph {
+	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields',)" [label=<fields>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<glucose>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<acetate>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'textbook')" [label=<textbook>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'ecoli')" [label=<ecoli>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'cdiff')" [label=<cdiff>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'glycerol')" [label=<glycerol>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'pputida')" [label=<pputida>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'ethanol')" [label=<ethanol>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'yeast')" [label=<yeast>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'ammonium')" [label=<ammonium>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'glutamine')" [label=<glutamine>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'arginine')" [label=<arginine>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'llactis')" [label=<llactis>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
+	"('dfba_textbook',)" [label=dfba_textbook]
+	"('dfba_ecoli',)" [label=dfba_ecoli]
+	"('dfba_cdiff',)" [label=dfba_cdiff]
+	"('dfba_pputida',)" [label=dfba_pputida]
+	"('dfba_yeast',)" [label=dfba_yeast]
+	"('dfba_llactis',)" [label=dfba_llactis]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'textbook')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'ecoli')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'cdiff')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'glycerol')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'pputida')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'ethanol')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'yeast')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'ammonium')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'glutamine')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'arginine')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'llactis')" [arrowhead=none constraint=true penwidth=2]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_textbook',)" {
+		"('fields', 'glucose')" -> "('dfba_textbook',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_textbook',)" {
+		"('fields', 'acetate')" -> "('dfba_textbook',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'textbook')" [label=<textbook> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_textbook',)" {
+		"('fields', 'textbook')" -> "('dfba_textbook',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_ecoli',)" {
+		"('fields', 'glucose')" -> "('dfba_ecoli',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'ecoli')" [label=<ecoli> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_ecoli',)" {
+		"('fields', 'ecoli')" -> "('dfba_ecoli',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_cdiff',)" {
+		"('fields', 'glucose')" -> "('dfba_cdiff',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'cdiff')" [label=<cdiff> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_cdiff',)" {
+		"('fields', 'cdiff')" -> "('dfba_cdiff',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_cdiff',)" {
+		"('fields', 'acetate')" -> "('dfba_cdiff',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glycerol')" [label=<glycerol> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_pputida',)" {
+		"('fields', 'glycerol')" -> "('dfba_pputida',)" [label=<substrates/glycerol> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_pputida',)" {
+		"('fields', 'glucose')" -> "('dfba_pputida',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'pputida')" [label=<pputida> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_pputida',)" {
+		"('fields', 'pputida')" -> "('dfba_pputida',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'ethanol')" [label=<ethanol> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_yeast',)" {
+		"('fields', 'ethanol')" -> "('dfba_yeast',)" [label=<substrates/ethanol> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'yeast')" [label=<yeast> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_yeast',)" {
+		"('fields', 'yeast')" -> "('dfba_yeast',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_yeast',)" {
+		"('fields', 'glucose')" -> "('dfba_yeast',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_llactis',)" {
+		"('fields', 'ammonium')" -> "('dfba_llactis',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glutamine')" [label=<glutamine> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_llactis',)" {
+		"('fields', 'glutamine')" -> "('dfba_llactis',)" [label=<substrates/glutamine> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_llactis',)" {
+		"('fields', 'glucose')" -> "('dfba_llactis',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'llactis')" [label=<llactis> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_llactis',)" {
+		"('fields', 'llactis')" -> "('dfba_llactis',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'arginine')" [label=<arginine> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('dfba_llactis',)" {
+		"('fields', 'arginine')" -> "('dfba_llactis',)" [label=<substrates/arginine> constraint=true fontsize="10pt" labelloc=t]
+	}
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields',)" [label=<fields>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<glucose>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<acetate>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'textbook')" [label=<textbook>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'ecoli')" [label=<ecoli>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'cdiff')" [label=<cdiff>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'glycerol')" [label=<glycerol>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'pputida')" [label=<pputida>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'ethanol')" [label=<ethanol>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'yeast')" [label=<yeast>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'ammonium')" [label=<ammonium>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'glutamine')" [label=<glutamine>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'arginine')" [label=<arginine>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	"('fields', 'llactis')" [label=<llactis>]
+}
