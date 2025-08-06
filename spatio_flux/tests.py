@@ -78,7 +78,6 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
         field_names=field_names,
         out_dir='out', filename=f'{filename}.png',)
 
-
 # --- Multiple DFBAs ---------------------------------------------------
 
 def get_multi_dfba(core=None, config=None):
@@ -148,6 +147,10 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
+
+    bins_y, bins_x = n_bins
+    horizontal_gradient = np.linspace(0, 20, bins_x).reshape(1, -1)  # Create the gradient for a single row.
+    initial_fields["glucose"] = np.repeat(horizontal_gradient, bins_y, axis=0)  # Replicate the gradient across all rows.
 
     # make the spatial dfba with different models and parameters
     spatial_dfba_config = {
