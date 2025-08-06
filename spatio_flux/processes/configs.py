@@ -96,7 +96,7 @@ def get_single_dfba_process(
     }
 
 def get_spatial_dfba_process(
-        model_file="textbook",
+        model_id="ecoli core",
         config=None,
         path=None,
 ):
@@ -110,10 +110,10 @@ def get_spatial_dfba_process(
     if biomass_id in mol_ids:
         mol_ids.remove(biomass_id)
 
-    if model_file in MODEL_REGISTRY_DFBA:
-        dfba_config = MODEL_REGISTRY_DFBA.get(model_file, {})
+    if model_id in MODEL_REGISTRY_DFBA:
+        dfba_config = MODEL_REGISTRY_DFBA.get(model_id, {})
     else:
-        dfba_config = get_dfba_config(model_file=model_file)
+        dfba_config = get_dfba_config(model_file=model_id)
 
     config = deep_merge(config, dfba_config)
 
@@ -337,61 +337,6 @@ def get_particles_state(
             'mass_range': mass_range,
         })
     return particles['particles']
-
-def get_particle_comets_state(
-        n_bins=(10, 10),
-        bounds=(10.0, 10.0),
-        model_file=None,
-        mol_ids=None,
-        n_particles=10,
-        field_diffusion_rate=1e-1,
-        field_advection_rate=(0, 0),
-        particle_diffusion_rate=1e-1,
-        particle_advection_rate=(0, 0),
-        particle_add_probability=0.3,
-        particle_boundary_to_add=None,
-        particle_boundary_to_remove=None,
-        initial_min_max=None,
-):
-    particle_boundary_to_add = particle_boundary_to_add or default_config['particle_boundary_to_add']
-    particle_boundary_to_remove = particle_boundary_to_remove or default_config['particle_boundary_to_remove']
-    mol_ids = mol_ids or default_config['mol_ids']
-    initial_min_max = initial_min_max or default_config['initial_min_max']
-
-    # make the composite state with dFBA based on grid size
-    composite_state = get_spatial_many_dfba_with_fields(
-        model_file=model_file,
-        n_bins=n_bins,
-        mol_ids=mol_ids,
-        initial_min_max=initial_min_max
-    )
-    # add diffusion/advection process
-    composite_state['diffusion'] = get_diffusion_advection_process(
-        bounds=bounds,n_bins=n_bins,mol_ids=mol_ids,
-        default_diffusion_rate=field_diffusion_rate,
-        default_advection_rate=field_advection_rate,
-        diffusion_coeffs=None,  #TODO -- add diffusion coeffs config
-        advection_coeffs=None,
-    )
-
-    # initialize fields
-    fields = {}
-    for field, minmax in initial_min_max.items():
-        fields[field] = np.random.uniform(low=minmax[0], high=minmax[1], size=n_bins)
-
-    # add particles process
-    composite_state['particles'] = get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields)
-    composite_state['particle_movement'] = get_particle_movement_process(
-        n_bins=n_bins,
-        bounds=bounds,
-        diffusion_rate=particle_diffusion_rate,
-        advection_rate=particle_advection_rate,
-        add_probability=particle_add_probability,
-        boundary_to_add=particle_boundary_to_add,
-        boundary_to_remove=particle_boundary_to_remove,
-    )
-
-    return composite_state
 
 # ==============
 # dFBA-Particles

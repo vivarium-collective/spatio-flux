@@ -201,6 +201,12 @@ def load_fba_model(model_file, bounds):
     --------
     cobra.Model instance with bounds applied
     """
+    if model_file in MODEL_REGISTRY_DFBA:
+        # Load a named model from the registry
+        model_config = MODEL_REGISTRY_DFBA[model_file]
+        model_file = model_config['model_file']
+
+
     # Get the path to the directory containing *this* file
     base_dir = Path(__file__).resolve().parent
     models_dir = base_dir / '..' / 'models'
