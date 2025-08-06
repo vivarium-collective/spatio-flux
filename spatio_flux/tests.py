@@ -53,7 +53,7 @@ def inverse_tuple(tu):
 
 def get_dfba_single_doc(
         core=None,
-        biomass_id=None,
+        biomass_id=None,  # TODO -- config only
         config=None,
 ):
     biomass_id = biomass_id or 'biomass'
@@ -73,10 +73,7 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
     config = config or {}
     field_names = list(state["fields"].keys())
     filename = config.get('filename', 'dfba_single_timeseries')
-    plot_time_series(
-        results,
-        field_names=field_names,
-        out_dir='out', filename=f'{filename}.png',)
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',)
 
 # --- Multiple DFBAs ---------------------------------------------------
 
@@ -181,19 +178,19 @@ def plot_dfba_process_spatial(results, state, config=None):
 # --- Diffusion Advection-----------------------------------------------
 
 def get_diffusion_process_doc(core=None, config=None):
-    mol_ids = ['glucose', 'acetate', 'biomass']
+    mol_ids = ['glucose', 'biomass']
     advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION, 'biomass': DEFAULT_DIFFUSION/10}
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
-    bins_x, bins_y = n_bins
     # initialize fields
-    acetate_field = np.zeros((bins_x, bins_y))
-    glc_field = np.random.uniform(low=0.1,high=1,size=n_bins)
-    biomass_field = np.zeros((bins_x, bins_y))
+    glc_field = np.random.uniform(low=0.1,high=2,size=n_bins)
+    biomass_field = np.zeros(n_bins)
     biomass_field[4:5,:] = 10
     return {
-        "fields": {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field},
-        "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+        "fields": {'biomass': biomass_field, 'glucose': glc_field},
+        "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
+                                                     diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs),
     }
 
 def plot_diffusion_process(results, state, config=None):
@@ -213,19 +210,19 @@ def get_comets_doc(core=None, config=None):
     bins_y, bins_x = n_bins
 
     # initialize acetate concentration to zero
-    acetate_field = np.zeros((bins_y, bins_x))
+    acetate_field = np.zeros(n_bins)
 
     # a vertical glucose concentration gradient
     vertical_gradient = np.linspace(0, 10, bins_y).reshape(-1, 1)  # Create the gradient for a single column.
     glc_field = np.repeat(vertical_gradient, bins_x, axis=1)  # Replicate the gradient across all columns.
 
     # place some biomass
-    biomass_field = np.zeros((bins_y, bins_x))
+    biomass_field = np.zeros(n_bins)
     biomass_field[0, int(bins_x/4):int(3*bins_x/4)] = 0.1
     initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
 
     # place models on the grid
-    model_grid = np.zeros((bins_y, bins_x), dtype='U20')
+    model_grid = np.zeros(n_bins, dtype='U20')
     model_grid[0, 0] = 'ecoli'
 
     config = {
