@@ -1,7 +1,7 @@
 {
     "state": {
         "global_time": "0.0",
-        "dFBA": {
+        "textbook dFBA": {
             "inputs": {
                 "substrates": {
                     "glucose": [
@@ -15,7 +15,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "textbook biomass"
                 ]
             },
             "outputs": {
@@ -31,7 +31,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "textbook biomass"
                 ]
             },
             "interval": 1.0,
@@ -84,9 +84,9 @@
             }
         },
         "fields": {
-            "glucose": "10.0",
+            "glucose": "2.0",
             "acetate": "0.0",
-            "biomass": "0.1"
+            "textbook biomass": "0.1"
         }
     },
     "composition": {
@@ -104,7 +104,7 @@
                 "number"
             ]
         },
-        "dFBA": {
+        "textbook dFBA": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -620,7 +620,7 @@
                     "float"
                 ]
             },
-            "biomass": {
+            "textbook biomass": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",

@@ -1,7 +1,7 @@
 {
     "state": {
         "global_time": "0.0",
-        "dFBA": {
+        "cdiff dFBA": {
             "inputs": {
                 "substrates": {
                     "glucose": [
@@ -15,7 +15,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "cdiff biomass"
                 ]
             },
             "outputs": {
@@ -31,7 +31,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "cdiff biomass"
                 ]
             },
             "interval": 1.0,
@@ -75,9 +75,9 @@
             }
         },
         "fields": {
-            "glucose": "10.0",
+            "glucose": "1.0",
             "acetate": "0.0",
-            "biomass": "0.1"
+            "cdiff biomass": "0.1"
         }
     },
     "composition": {
@@ -95,7 +95,7 @@
                 "number"
             ]
         },
-        "dFBA": {
+        "cdiff dFBA": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -611,7 +611,7 @@
                     "float"
                 ]
             },
-            "biomass": {
+            "cdiff biomass": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",
