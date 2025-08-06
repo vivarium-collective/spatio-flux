@@ -53,19 +53,22 @@ def inverse_tuple(tu):
 
 def get_dfba_single_doc(
         core=None,
-        # biomass_id=None,  # TODO -- config only
         config=None,
 ):
-    model_id = config.get('model_id', 'textbook')
+    model_id = config.get('model_id', 'ecoli core')
     biomass_id = config.get('biomass_id', f'{model_id} biomass')
     dfba_process = get_dfba_process_from_registry(
         model_id=model_id,
         biomass_id=biomass_id,
         path=['fields']
     )
+    substrates = list(dfba_process['inputs']['substrates'].keys())
     initial_fields = config.get('initial_fields', {'glucose': 2, 'acetate': 0})
     if biomass_id not in initial_fields:
         initial_fields[biomass_id] = 0.1
+    for substrate in substrates:
+        if substrate not in initial_fields:
+            initial_fields[substrate] = 10.0
     doc = {
         f'{model_id} dFBA': dfba_process,
         'fields': initial_fields
@@ -74,7 +77,7 @@ def get_dfba_single_doc(
 
 def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseries.png'):
     config = config or {}
-    field_names = list(state["fields"].keys())
+    field_names = list(state['fields'].keys())
     filename = config.get('filename', 'dfba_single_timeseries')
     plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',)
 
@@ -89,7 +92,7 @@ def get_multi_dfba(core=None, config=None):
         dfba_process = get_dfba_process_from_registry(
             model_id=model_id,
             biomass_id=model_id,
-            path=["fields"]
+            path=['fields']
         )
         dfbas[process_id] = dfba_process
 
@@ -98,9 +101,9 @@ def get_multi_dfba(core=None, config=None):
     more_fields = {mol_id: 0.1 for mol_id in field_names if mol_id not in ['glucose', 'acetate']}
     doc = {
         **dfbas,
-        "fields": {
-            "glucose": 10,
-            "acetate": 0,
+        'fields': {
+            'glucose': 10,
+            'acetate': 0,
             **more_fields,
             **initial_biomass
         }
@@ -122,13 +125,13 @@ def plot_multi_dfba(results, state, config=None):
 # --- Many DFBA Spatial ---------------------------------------------------
 
 def get_spatial_many_dfba_doc(core=None, config=None):
-    dissolved_model_file = "textbook"
+    dissolved_model_file = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {"glucose": (0, 20), "acetate": (0, 0), "biomass": (0, 0.1)}
+    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     return {
-        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-        "spatial_dfba": get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
+        'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+        'spatial_dfba': get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 def plot_spatial_many_dfba(results, state, config=None):
@@ -143,31 +146,31 @@ def plot_spatial_many_dfba(results, state, config=None):
 def get_spatial_dfba_process_doc(core=None, config=None):
     # make the fields
     mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {"glucose": (20, 20), "acetate": (0, 0), "biomass": (0.01, 0.01)}
+    initial_min_max = {'glucose': (20, 20), 'acetate': (0, 0), 'biomass': (0.01, 0.01)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
     bins_y, bins_x = n_bins
     horizontal_gradient = np.linspace(0, 20, bins_x).reshape(1, -1)  # Create the gradient for a single row.
-    initial_fields["glucose"] = np.repeat(horizontal_gradient, bins_y, axis=0)  # Replicate the gradient across all rows.
+    initial_fields['glucose'] = np.repeat(horizontal_gradient, bins_y, axis=0)  # Replicate the gradient across all rows.
 
     # make the spatial dfba with different models and parameters
     spatial_dfba_config = {
-        "n_bins": n_bins,
-        "models": MODEL_REGISTRY_DFBA,
-        "model_grid": [
-            ["textbook", "textbook", "textbook", "textbook", "textbook"],
-            ["ecoli", "ecoli", "ecoli", "ecoli", "ecoli"],
-            ["cdiff", "cdiff", "cdiff", "cdiff", "cdiff"],
-            ["pputida", "pputida", "pputida", "pputida", "pputida"],
-            ["yeast", "yeast", "yeast", "yeast", "yeast"],
-            ["llactis", "llactis", "llactis", "llactis", "llactis"]
+        'n_bins': n_bins,
+        'models': MODEL_REGISTRY_DFBA,
+        'model_grid': [
+            ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core'],
+            ['ecoli', 'ecoli', 'ecoli', 'ecoli', 'ecoli'],
+            ['cdiff', 'cdiff', 'cdiff', 'cdiff', 'cdiff'],
+            ['pputida', 'pputida', 'pputida', 'pputida', 'pputida'],
+            ['yeast', 'yeast', 'yeast', 'yeast', 'yeast'],
+            ['llactis', 'llactis', 'llactis', 'llactis', 'llactis']
         ]
     }
     doc = {
-        "fields": initial_fields,
-        "spatial_dfba": get_spatial_dfba_process(model_file="textbook", config=spatial_dfba_config)
+        'fields': initial_fields,
+        'spatial_dfba': get_spatial_dfba_process(model_file='ecoli core', config=spatial_dfba_config)
     }
     return doc
 
@@ -191,8 +194,8 @@ def get_diffusion_process_doc(core=None, config=None):
     biomass_field = np.zeros(n_bins)
     biomass_field[4:5,:] = 10
     return {
-        "fields": {'biomass': biomass_field, 'glucose': glc_field},
-        "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
+        'fields': {'biomass': biomass_field, 'glucose': glc_field},
+        'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
                                                      diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs),
     }
 
@@ -204,7 +207,7 @@ def plot_diffusion_process(results, state, config=None):
 # --- COMETS -----------------------------------------------------------
 
 def get_comets_doc(core=None, config=None):
-    dissolved_model_file = "textbook"
+    dissolved_model_file = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'biomass']
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
@@ -229,17 +232,17 @@ def get_comets_doc(core=None, config=None):
     model_grid[0, 0] = 'ecoli'
 
     config = {
-        "mol_ids": mol_ids,
-        "n_bins": n_bins,
-        "models": MODEL_REGISTRY_DFBA,
-        "model_grid": model_grid
+        'mol_ids': mol_ids,
+        'n_bins': n_bins,
+        'models': MODEL_REGISTRY_DFBA,
+        'model_grid': model_grid
     }
 
     doc = {
-        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, config=config),
-        # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
-        "diffusion": get_diffusion_advection_process(
+        'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
+        'spatial_dfba': get_spatial_dfba_process(model_file=dissolved_model_file, config=config),
+        # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+        'diffusion': get_diffusion_advection_process(
             bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
     return doc
@@ -272,13 +275,13 @@ def get_particles_doc(core=None, config=None):
     advection_rate = DEFAULT_ADVECTION
     add_probability = DEFAULT_ADD_PROBABILITY
     return {
-        "state": {
-            "fields": initialize_fields(n_bins, initial_min_max),
-            "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
-            "particle_movement": get_particle_movement_process( n_bins=n_bins, bounds=bounds,
+        'state': {
+            'fields': initialize_fields(n_bins, initial_min_max),
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
+            'particle_movement': get_particle_movement_process( n_bins=n_bins, bounds=bounds,
                 diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability)
         },
-        "composition": get_minimal_particle_composition(core=core, config=particle_config)
+        'composition': get_minimal_particle_composition(core=core, config=particle_config)
     }
 
 def plot_particles_sim(results, state, config=None):
@@ -292,7 +295,7 @@ def plot_particles_sim(results, state, config=None):
 # --- Particle-COMETS ----------------------------------------------------
 
 def get_particle_comets_doc(core=None, config=None):
-    dissolved_model_file = "textbook"
+    dissolved_model_file = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'detritus', 'biomass']
     particle_config = {
         'reactions': {
@@ -315,19 +318,19 @@ def get_particle_comets_doc(core=None, config=None):
     fields['biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
 
     # spatial dfba config
-    spatial_dfba_config = {"mol_ids": mol_ids, "n_bins": n_bins}
+    spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
 
     return {
-        "state": {
-            "fields": fields,
-            "particles": get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields, mass_range=(1E0, 1E1)),
-            "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_file, config=spatial_dfba_config),
-            # "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
-            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            "particle_movement": get_particle_movement_process(n_bins=n_bins, bounds=bounds,
+        'state': {
+            'fields': fields,
+            'particles': get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields, mass_range=(1E0, 1E1)),
+            'spatial_dfba': get_spatial_dfba_process(model_file=dissolved_model_file, config=spatial_dfba_config),
+            # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
+            'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
                                                                add_probability=add_probability, advection_rate=particle_advection)
         },
-        "composition": get_minimal_particle_composition(core, config=particle_config)
+        'composition': get_minimal_particle_composition(core, config=particle_config)
     }
 
 def plot_particle_comets(results, state, config=None):
@@ -341,7 +344,7 @@ def plot_particle_comets(results, state, config=None):
 # --- dFBA-Particles ---------------------------------------------------
 
 def get_particle_dfba_doc(core=None, config=None):
-    particle_model_id = config.get('particle_model_id', "textbook")
+    particle_model_id = config.get('particle_model_id', 'ecoli core')
 
     mol_ids = ['glucose', 'acetate']
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
@@ -353,14 +356,14 @@ def get_particle_dfba_doc(core=None, config=None):
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {
-        "state": {
-            "fields": fields,
-            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            "particle_movement": get_particle_movement_process(
+        'state': {
+            'fields': fields,
+            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            'particle_movement': get_particle_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
         },
-        "composition": get_dfba_particle_composition(model_file=particle_model_id)
+        'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
 
 def plot_particle_dfba(results, state, config=None):
@@ -376,8 +379,8 @@ def plot_particle_dfba(results, state, config=None):
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 
 def get_particle_dfba_comets_doc(core=None, config=None):
-    particle_model_id = config.get('particle_model_id', "textbook")
-    dissolved_model_id = config.get('dissolved_model_id', "textbook")
+    particle_model_id = config.get('particle_model_id', 'ecoli core')
+    dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
 
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
@@ -390,18 +393,18 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # spatial dfba config
-    spatial_dfba_config = {"mol_ids": mol_ids, "n_bins": n_bins}
+    spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
 
     return {
-        "state": {
-            "fields": fields,
-            "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            "spatial_dfba": get_spatial_dfba_process(model_file=dissolved_model_id, config=spatial_dfba_config),
-            "particles": get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            "particle_movement": get_particle_movement_process(
+        'state': {
+            'fields': fields,
+            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            'spatial_dfba': get_spatial_dfba_process(model_file=dissolved_model_id, config=spatial_dfba_config),
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            'particle_movement': get_particle_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
         },
-        "composition": get_dfba_particle_composition(model_file=particle_model_id)
+        'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
 
 def plot_particle_dfba_comets(results, state, config=None):
@@ -442,7 +445,7 @@ SIMULATIONS = {
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'textbook'},
+        'config': {'model_id': 'ecoli core', 'initial_fields': {'glucose': 10, 'acetate': 0}},
         'plot_config': {'filename': 'ecoli_core_dfba'}
     },
     'ecoli_dfba': {
@@ -450,7 +453,7 @@ SIMULATIONS = {
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'ecoli'},
+        'config': {'model_id': 'ecoli', 'initial_fields': {'glucose': 10, 'formate': 5}},
         'plot_config': {'filename': 'ecoli_dfba'}
     },
     'cdiff_dfba': {
@@ -458,8 +461,32 @@ SIMULATIONS = {
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 1, 'acetate': 0}},
+        'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 2, 'acetate': 10}},
         'plot_config': {'filename': 'cdiff_dfba'}
+    },
+    'pputida_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'pputida', 'initial_fields': {'glucose': 1}},
+        'plot_config': {'filename': 'pputida_dfba'}
+    },
+    'yeast_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'yeast', 'initial_fields': {'glucose': 5}},
+        'plot_config': {'filename': 'yeast_dfba'}
+    },
+    'llactis_dfba': {
+        'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'llactis', 'initial_fields': {'glucose': 100, 'llactis biomass': 2.0}},
+        'plot_config': {'filename': 'llactis_dfba'}
     },
     'multi_dfba': {
         'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
@@ -474,7 +501,7 @@ SIMULATIONS = {
         'doc_func': get_spatial_many_dfba_doc,
         'plot_func': plot_spatial_many_dfba,
         'time': DEFAULT_RUNTIME_SHORT,
-        'config': {'model_id': 'textbook'},
+        'config': {'model_id': 'ecoli core'},
         'plot_config': {'filename': 'spatial_many_dfba'}
     },
     'spatial_dfba_process': {
@@ -482,7 +509,7 @@ SIMULATIONS = {
         'doc_func': get_spatial_dfba_process_doc,
         'plot_func': plot_dfba_process_spatial,
         'time': DEFAULT_RUNTIME_SHORT,
-        'config': {'model_id': 'textbook'},
+        'config': {'model_id': 'ecoli core'},
         'plot_config': {'filename': 'spatial_dfba_process'}
     },
     'diffusion_process': {
@@ -519,7 +546,7 @@ SIMULATIONS = {
         'plot_func': plot_particle_dfba,
         'time': DEFAULT_RUNTIME_LONG,
         'config': {
-            'particle_model_id': 'textbook'
+            'particle_model_id': 'ecoli core'
         },
         'plot_config': {'filename': 'particle_dfba_fields'}
     },
@@ -535,7 +562,7 @@ SIMULATIONS = {
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run selected simulations.")
+    parser = argparse.ArgumentParser(description='Run selected simulations.')
     parser.add_argument(
         '--tests', nargs='*', default=None,
         help='Names of tests to run. If none given, runs the full set.'
