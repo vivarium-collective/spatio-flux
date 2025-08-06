@@ -219,17 +219,18 @@ def get_comets_doc(core=None, config=None):
     acetate_field = np.zeros(n_bins)
 
     # a vertical glucose concentration gradient
-    vertical_gradient = np.linspace(0.1, 10, bins_y).reshape(-1, 1)  # Create the gradient for a single column.
+    vertical_gradient = np.linspace(0.01, 10, bins_y).reshape(-1, 1)  # Create the gradient for a single column.
     glc_field = np.repeat(vertical_gradient, bins_x, axis=1)  # Replicate the gradient across all columns.
 
     # place some biomass
     biomass_field = np.zeros(n_bins)
-    biomass_field[0:1, int(bins_x/4):int(3*bins_x/4)] = 0.2
+    biomass_field[0:1, int(bins_x/4):int(3*bins_x/4)] = 0.1
     initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
 
     # place models on the grid
     model_grid = np.zeros(n_bins, dtype='U20')
-    model_grid[0, 0] = 'ecoli'
+    model_grid[:] = 'ecoli core'
+    model_grid = model_grid.tolist()
 
     config = {
         'mol_ids': mol_ids,
@@ -237,7 +238,6 @@ def get_comets_doc(core=None, config=None):
         'models': MODEL_REGISTRY_DFBA,
         'model_grid': model_grid
     }
-
     doc = {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
         'spatial_dfba': get_spatial_dfba_process(model_file=dissolved_model_file, config=config),

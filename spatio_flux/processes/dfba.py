@@ -364,7 +364,7 @@ class SpatialDFBA(Process):
         'n_bins': 'tuple[integer,integer]',
         'model_file': 'maybe[string]',  # if provided, will fill unspecified model grid locations
         'models': 'any',  #map[string,map]',        # for multiple models
-        'model_grid': 'list',  #'list[list[string]',  # grid of model IDs
+        'model_grid': 'list[list[string]]',  #'list[list[string]',  # grid of model IDs
         'kinetic_params': 'map[tuple[float,float]]',
         'substrate_update_reactions': 'map[string]',
         'bounds': 'map[bounds]',
