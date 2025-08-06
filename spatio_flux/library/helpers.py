@@ -197,7 +197,12 @@ def generate_html_report(
             try:
                 with open(json_file, 'r') as jf:
                     full_data = json.load(jf)
-                state_data = full_data.get('state', {})
+                # Filter out 'emitter' and 'global_time' top-level keys
+                state_data = {
+                    key: value for key, value in full_data.get('state', {}).items()
+                    if key not in ['emitter', 'global_time']
+                }
+
                 if state_data:
                     html.append(json_to_html(state_data))
                 else:
