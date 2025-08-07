@@ -378,7 +378,7 @@ class SpatialDFBA(Process):
 
     def initialize(self, config):
         self.n_bins = config['n_bins']
-        self.default_model_file = config.get("default_model_file")
+        self.default_model_file = config.get("model_file")
 
         # Load models
         self.models = {}
@@ -393,11 +393,15 @@ class SpatialDFBA(Process):
         if self.default_model_file and 'default' not in self.models:
             self.models['default'] = load_fba_model(
                 model_file=self.default_model_file,
-                bounds={}  # Use appropriate default bounds
+                bounds=config.get('bounds', {})
             )
 
-        # Initialize model grid with 'default'
-        model_grid_array = np.full(self.n_bins, '', dtype='U20')
+        # Initialize model grid
+        if self.default_model_file:
+            # Fill with 'default' model if specified
+            model_grid_array = np.full(self.n_bins, 'default', dtype='U20')
+        else:
+            model_grid_array = np.full(self.n_bins, '', dtype='U20')
 
         # Update from model_grid_config if provided
         model_grid_config = config.get('model_grid')

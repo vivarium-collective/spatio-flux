@@ -1,5 +1,5 @@
 """
-Simulation Runner and Visualizer for Spatio-Temporal Flux Processes
+Simulation Runner and Visualizer for Spatio-Flux Processes and Composites
 
 This script defines a suite of modular simulation experiments involving dynamic
 spatial processes such as diffusion, advection, dynamic flux balance analysis (DFBA),
@@ -16,14 +16,14 @@ Usage:
 """
 import argparse
 import time
-import pprint
 import numpy as np
 
-from process_bigraph import default, register_types as register_process_types
+from process_bigraph import register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
-from spatio_flux.library.helpers import run_composite_document, prepare_output_dir, generate_html_report
+from spatio_flux.library.helpers import run_composite_document, prepare_output_dir, generate_html_report, \
+    reversed_tuple, inverse_tuple
 from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif, plot_particles
 )
@@ -34,20 +34,9 @@ from spatio_flux.processes import (
 )
 
 
-def pf(obj):
-    pp = pprint.PrettyPrinter(indent=4)
-    return pp.pformat(obj)
-
-def reversed_tuple(tu):
-    return tuple(reversed(tu))
-
-def inverse_tuple(tu):
-    return tuple(-x for x in tu)
-
-
-# ===================================================================
-# Functions to get documents and make plots for different experiments
-# ===================================================================
+# ====================================================================
+# Functions to get documents and make plots for different compositions
+# ====================================================================
 
 # --- DFBA Single ---------------------------------------------------
 
@@ -278,7 +267,7 @@ def get_particles_doc(core=None, config=None):
         'state': {
             'fields': initialize_fields(n_bins, initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
-            'particle_movement': get_particle_movement_process( n_bins=n_bins, bounds=bounds,
+            'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
                 diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability)
         },
         'composition': get_minimal_particle_composition(core=core, config=particle_config)
@@ -383,11 +372,11 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
 
     mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
     advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    n_particles = 2
+    n_particles = 10
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -395,7 +384,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     # spatial dfba config
     spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
 
-    return {
+    doc = {
         'state': {
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
@@ -406,13 +395,14 @@ def get_particle_dfba_comets_doc(core=None, config=None):
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
+    return doc
 
 def plot_particle_dfba_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_dfba_comets')
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
-    plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+    plot_time_series(results, field_names=['glucose', 'acetate', 'biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
@@ -440,116 +430,116 @@ DEFAULT_RUNTIME_SHORT = 20
 DEFAULT_RUNTIME_LONG = 60
 
 SIMULATIONS = {
-    # 'ecoli_core_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'ecoli core', 'initial_fields': {'glucose': 10, 'acetate': 0}},
-    #     'plot_config': {'filename': 'ecoli_core_dfba'}
-    # },
-    # 'ecoli_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'ecoli', 'initial_fields': {'glucose': 10, 'formate': 5}},
-    #     'plot_config': {'filename': 'ecoli_dfba'}
-    # },
-    # 'cdiff_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 2, 'acetate': 10}},
-    #     'plot_config': {'filename': 'cdiff_dfba'}
-    # },
-    # 'pputida_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'pputida', 'initial_fields': {'glucose': 1}},
-    #     'plot_config': {'filename': 'pputida_dfba'}
-    # },
-    # 'yeast_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'yeast', 'initial_fields': {'glucose': 5}},
-    #     'plot_config': {'filename': 'yeast_dfba'}
-    # },
-    # 'llactis_dfba': {
-    #     'description': 'This simulation runs a single dFBA (dynamic Flux Balance Analysis) process, tracking external concentrations and biomass.',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'llactis', 'initial_fields': {'glucose': 100, 'llactis biomass': 2.0}},
-    #     'plot_config': {'filename': 'llactis_dfba'}
-    # },
-    # 'multi_dfba': {
-    #     'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
-    #     'doc_func': get_multi_dfba,
-    #     'plot_func': plot_multi_dfba,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {},
-    #     'plot_config': {'filename': 'multi_dfba'}
-    # },
-    # 'spatial_many_dfba': {
-    #     'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
-    #     'doc_func': get_spatial_many_dfba_doc,
-    #     'plot_func': plot_spatial_many_dfba,
-    #     'time': DEFAULT_RUNTIME_SHORT,
-    #     'config': {'model_id': 'ecoli core'},
-    #     'plot_config': {'filename': 'spatial_many_dfba'}
-    # },
-    # 'spatial_dfba_process': {
-    #     'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
-    #     'doc_func': get_spatial_dfba_process_doc,
-    #     'plot_func': plot_dfba_process_spatial,
-    #     'time': DEFAULT_RUNTIME_SHORT,
-    #     'config': {'model_id': 'ecoli core'},
-    #     'plot_config': {'filename': 'spatial_dfba_process'}
-    # },
-    # 'diffusion_process': {
-    #     'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
-    #     'doc_func': get_diffusion_process_doc,
-    #     'plot_func': plot_diffusion_process,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {}
-    # },
-    # 'comets': {
-    #     'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
-    #     'doc_func': get_comets_doc,
-    #     'plot_func': plot_comets,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {}
-    # },
-    # 'particles': {
-    #     'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
-    #     'doc_func': get_particles_doc,
-    #     'plot_func': plot_particles_sim,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {}
-    # },
-    # 'particle_comets': {
-    #     'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
-    #     'doc_func': get_particle_comets_doc,
-    #     'plot_func': plot_particle_comets,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {}
-    # },
-    # 'particle_dfba_fields': {
-    #     'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
-    #     'doc_func': get_particle_dfba_doc,
-    #     'plot_func': plot_particle_dfba,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {
-    #         'particle_model_id': 'ecoli core'
-    #     },
-    #     'plot_config': {'filename': 'particle_dfba_fields'}
-    # },
+    'ecoli_core_dfba': {
+        'description': 'This simulation runs a dFBA (dynamic Flux Balance Analysis) model of E. coli core metabolism, tracking external concentrations and biomass.',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'ecoli core', 'initial_fields': {'glucose': 10, 'acetate': 0}},
+        'plot_config': {'filename': 'ecoli_core_dfba'}
+    },
+    'ecoli_dfba': {
+        'description': 'This simulation runs a dFBA of the large E. coli metabolic model, iAF1260',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'ecoli', 'initial_fields': {'glucose': 10, 'formate': 5}},
+        'plot_config': {'filename': 'ecoli_dfba'}
+    },
+    'cdiff_dfba': {
+        'description': 'This simulation runs a dFBA model of Clostridioides difficile. iCN900',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 2, 'acetate': 10}},
+        'plot_config': {'filename': 'cdiff_dfba'}
+    },
+    'pputida_dfba': {
+        'description': 'This simulation runs a dFBA model of Pseudomonas putida, iJN746',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'pputida', 'initial_fields': {'glucose': 1}},
+        'plot_config': {'filename': 'pputida_dfba'}
+    },
+    'yeast_dfba': {
+        'description': 'This simulation runs a dFBA model of Saccharomyces cerevisiae (yeast), iMM904',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'yeast', 'initial_fields': {'glucose': 5}},
+        'plot_config': {'filename': 'yeast_dfba'}
+    },
+    'llactis_dfba': {
+        'description': 'This simulation runs a dFBA model of Lactococcus lactis, iNF517',
+        'doc_func': get_dfba_single_doc,
+        'plot_func': plot_dfba_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'model_id': 'llactis', 'initial_fields': {'glucose': 100, 'llactis biomass': 2.0}},
+        'plot_config': {'filename': 'llactis_dfba'}
+    },
+    'multi_dfba': {
+        'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
+        'doc_func': get_multi_dfba,
+        'plot_func': plot_multi_dfba,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {},
+        'plot_config': {'filename': 'multi_dfba'}
+    },
+    'spatial_many_dfba': {
+        'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
+        'doc_func': get_spatial_many_dfba_doc,
+        'plot_func': plot_spatial_many_dfba,
+        'time': DEFAULT_RUNTIME_SHORT,
+        'config': {'model_id': 'ecoli core'},
+        'plot_config': {'filename': 'spatial_many_dfba'}
+    },
+    'spatial_dfba_process': {
+        'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
+        'doc_func': get_spatial_dfba_process_doc,
+        'plot_func': plot_dfba_process_spatial,
+        'time': DEFAULT_RUNTIME_SHORT,
+        'config': {'model_id': 'ecoli core'},
+        'plot_config': {'filename': 'spatial_dfba_process'}
+    },
+    'diffusion_process': {
+        'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
+        'doc_func': get_diffusion_process_doc,
+        'plot_func': plot_diffusion_process,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {}
+    },
+    'comets': {
+        'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
+        'doc_func': get_comets_doc,
+        'plot_func': plot_comets,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {}
+    },
+    'particles': {
+        'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
+        'doc_func': get_particles_doc,
+        'plot_func': plot_particles_sim,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {}
+    },
+    'particle_comets': {
+        'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
+        'doc_func': get_particle_comets_doc,
+        'plot_func': plot_particle_comets,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {}
+    },
+    'particle_dfba_fields': {
+        'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
+        'doc_func': get_particle_dfba_doc,
+        'plot_func': plot_particle_dfba,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {
+            'particle_model_id': 'ecoli core'
+        },
+        'plot_config': {'filename': 'particle_dfba_fields'}
+    },
     'particle_dfba_comets': {
         'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
         'doc_func': get_particle_dfba_comets_doc,

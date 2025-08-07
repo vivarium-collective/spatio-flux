@@ -1,4 +1,5 @@
 import json
+import pprint
 import shutil
 from datetime import datetime
 from html import escape as html_escape
@@ -236,3 +237,16 @@ def generate_html_report(
 
     with open(report_path, 'w') as f:
         f.write('\n'.join(html))
+
+
+def pf(obj):
+    pp = pprint.PrettyPrinter(indent=4)
+    return pp.pformat(obj)
+
+
+def reversed_tuple(tu):
+    return tuple(reversed(tu))
+
+
+def inverse_tuple(tu):
+    return tuple(-x for x in tu)
