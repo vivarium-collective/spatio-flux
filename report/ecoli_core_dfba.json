@@ -1,7 +1,7 @@
 {
     "state": {
         "global_time": "0.0",
-        "textbook dFBA": {
+        "ecoli core dFBA": {
             "inputs": {
                 "substrates": {
                     "glucose": [
@@ -15,7 +15,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "textbook biomass"
+                    "ecoli core biomass"
                 ]
             },
             "outputs": {
@@ -31,7 +31,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "textbook biomass"
+                    "ecoli core biomass"
                 ]
             },
             "interval": 1.0,
@@ -84,9 +84,9 @@
             }
         },
         "fields": {
-            "glucose": "2.0",
+            "glucose": "10.0",
             "acetate": "0.0",
-            "textbook biomass": "0.1"
+            "ecoli core biomass": "0.1"
         }
     },
     "composition": {
@@ -104,7 +104,7 @@
                 "number"
             ]
         },
-        "textbook dFBA": {
+        "ecoli core dFBA": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -620,7 +620,7 @@
                     "float"
                 ]
             },
-            "textbook biomass": {
+            "ecoli core biomass": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",

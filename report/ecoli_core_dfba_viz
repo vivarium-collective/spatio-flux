@@ -8,29 +8,29 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<acetate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'textbook biomass')" [label=<textbook biomass>]
+	"('fields', 'ecoli core biomass')" [label=<ecoli core biomass>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('textbook dFBA',)" [label="textbook dFBA"]
+	"('ecoli core dFBA',)" [label="ecoli core dFBA"]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'textbook biomass')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'ecoli core biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('textbook dFBA',)" {
-		"('fields', 'glucose')" -> "('textbook dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	"('fields', 'ecoli core biomass')" [label=<ecoli core biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('ecoli core dFBA',)" {
+		"('fields', 'ecoli core biomass')" -> "('ecoli core dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('textbook dFBA',)" {
-		"('fields', 'acetate')" -> "('textbook dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('ecoli core dFBA',)" {
+		"('fields', 'acetate')" -> "('ecoli core dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'textbook biomass')" [label=<textbook biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('textbook dFBA',)" {
-		"('fields', 'textbook biomass')" -> "('textbook dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('ecoli core dFBA',)" {
+		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -40,5 +40,5 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<acetate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'textbook biomass')" [label=<textbook biomass>]
+	"('fields', 'ecoli core biomass')" [label=<ecoli core biomass>]
 }

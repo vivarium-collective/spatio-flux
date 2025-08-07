@@ -1,7 +1,7 @@
 {
     "state": {
         "global_time": "0.0",
-        "dfba_textbook": {
+        "dfba_ecoli core": {
             "inputs": {
                 "substrates": {
                     "glucose": [
@@ -15,7 +15,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "textbook"
+                    "ecoli core"
                 ]
             },
             "outputs": {
@@ -31,7 +31,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "textbook"
+                    "ecoli core"
                 ]
             },
             "interval": 1.0,
@@ -71,6 +71,10 @@
                     "glucose": [
                         "fields",
                         "glucose"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
                     ]
                 },
                 "biomass": [
@@ -83,6 +87,10 @@
                     "glucose": [
                         "fields",
                         "glucose"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
                     ]
                 },
                 "biomass": [
@@ -98,21 +106,17 @@
                     "glucose": [
                         "0.5",
                         "1.0"
+                    ],
+                    "formate": [
+                        "0.5",
+                        "1.0"
                     ]
                 },
                 "substrate_update_reactions": {
-                    "glucose": "EX_glc__D_e"
+                    "glucose": "EX_glc__D_e",
+                    "formate": "EX_for_e"
                 },
-                "bounds": {
-                    "EX_o2_e": {
-                        "lower": "-2.0",
-                        "upper": "!nil"
-                    },
-                    "ATPM": {
-                        "lower": "1.0",
-                        "upper": "1.0"
-                    }
-                }
+                "bounds": {}
             },
             "shared": null
         },
@@ -178,9 +182,13 @@
                         "fields",
                         "glucose"
                     ],
-                    "glycerol": [
+                    "ammonium": [
                         "fields",
-                        "glycerol"
+                        "ammonium"
+                    ],
+                    "glycolate": [
+                        "fields",
+                        "glycolate"
                     ]
                 },
                 "biomass": [
@@ -194,9 +202,13 @@
                         "fields",
                         "glucose"
                     ],
-                    "glycerol": [
+                    "ammonium": [
                         "fields",
-                        "glycerol"
+                        "ammonium"
+                    ],
+                    "glycolate": [
+                        "fields",
+                        "glycolate"
                     ]
                 },
                 "biomass": [
@@ -210,17 +222,22 @@
                 "model_file": "iJN746.xml",
                 "kinetic_params": {
                     "glucose": [
+                        "1.0",
+                        "2.0"
+                    ],
+                    "ammonium": [
+                        "2.0",
+                        "4.0"
+                    ],
+                    "glycolate": [
                         "0.5",
                         "1.0"
-                    ],
-                    "glycerol": [
-                        "0.5",
-                        "2.0"
                     ]
                 },
                 "substrate_update_reactions": {
                     "glucose": "EX_glc__D_e",
-                    "glycerol": "EX_gly_e"
+                    "ammonium": "EX_nh4_e",
+                    "glycolate": "EX_glyclt_e"
                 },
                 "bounds": {}
             },
@@ -233,9 +250,9 @@
                         "fields",
                         "glucose"
                     ],
-                    "ethanol": [
+                    "ammonium": [
                         "fields",
-                        "ethanol"
+                        "ammonium"
                     ]
                 },
                 "biomass": [
@@ -249,9 +266,9 @@
                         "fields",
                         "glucose"
                     ],
-                    "ethanol": [
+                    "ammonium": [
                         "fields",
-                        "ethanol"
+                        "ammonium"
                     ]
                 },
                 "biomass": [
@@ -268,14 +285,14 @@
                         "0.5",
                         "1.0"
                     ],
-                    "ethanol": [
+                    "ammonium": [
                         "0.5",
-                        "2.0"
+                        "1.0"
                     ]
                 },
                 "substrate_update_reactions": {
                     "glucose": "EX_glc__D_e",
-                    "ethanol": "EX_etoh_e"
+                    "ammonium": "EX_nh4_e"
                 },
                 "bounds": {}
             },
@@ -288,17 +305,13 @@
                         "fields",
                         "glucose"
                     ],
-                    "ammonium": [
+                    "glutatmate": [
                         "fields",
-                        "ammonium"
+                        "glutatmate"
                     ],
-                    "glutamine": [
+                    "serine": [
                         "fields",
-                        "glutamine"
-                    ],
-                    "arginine": [
-                        "fields",
-                        "arginine"
+                        "serine"
                     ]
                 },
                 "biomass": [
@@ -312,17 +325,13 @@
                         "fields",
                         "glucose"
                     ],
-                    "ammonium": [
+                    "glutatmate": [
                         "fields",
-                        "ammonium"
+                        "glutatmate"
                     ],
-                    "glutamine": [
+                    "serine": [
                         "fields",
-                        "glutamine"
-                    ],
-                    "arginine": [
-                        "fields",
-                        "arginine"
+                        "serine"
                     ]
                 },
                 "biomass": [
@@ -337,26 +346,21 @@
                 "kinetic_params": {
                     "glucose": [
                         "0.5",
-                        "1.0"
+                        "1.25"
                     ],
-                    "ammonium": [
-                        "0.5",
-                        "1.0"
+                    "glutatmate": [
+                        "0.05",
+                        "0.1"
                     ],
-                    "glutamine": [
-                        "0.5",
-                        "2.0"
-                    ],
-                    "arginine": [
-                        "0.5",
-                        "2.0"
+                    "serine": [
+                        "0.05",
+                        "0.1"
                     ]
                 },
                 "substrate_update_reactions": {
                     "glucose": "EX_glc__D_e",
-                    "ammonium": "EX_nh4_e",
-                    "glutamine": "EX_gln__L_e",
-                    "arginine": "EX_arg__L_e"
+                    "glutatmate": "EX_glu__L_e",
+                    "serine": "EX_ser__L_e"
                 },
                 "bounds": {}
             },
@@ -383,16 +387,16 @@
         "fields": {
             "glucose": "10.0",
             "acetate": "0.0",
-            "textbook": "0.1",
+            "ecoli core": "0.1",
+            "formate": "0.0",
             "ecoli": "0.1",
             "cdiff": "0.1",
-            "glycerol": "0.0",
-            "pputida": "0.1",
-            "ethanol": "0.0",
-            "yeast": "0.1",
             "ammonium": "0.0",
-            "glutamine": "0.0",
-            "arginine": "0.0",
+            "glycolate": "0.0",
+            "pputida": "0.1",
+            "yeast": "0.1",
+            "glutatmate": "0.0",
+            "serine": "0.0",
             "llactis": "0.1"
         }
     },
@@ -411,7 +415,7 @@
                 "number"
             ]
         },
-        "dfba_textbook": {
+        "dfba_ecoli core": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -2582,7 +2586,21 @@
                     "float"
                 ]
             },
-            "textbook": {
+            "ecoli core": {
+                "_type": "positive_float",
+                "_check": "check_float",
+                "_apply": "apply_non_negative",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": 0.0,
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
+                "_inherit": [
+                    "float"
+                ]
+            },
+            "formate": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",
@@ -2624,7 +2642,21 @@
                     "float"
                 ]
             },
-            "glycerol": {
+            "ammonium": {
+                "_type": "positive_float",
+                "_check": "check_float",
+                "_apply": "apply_non_negative",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": 0.0,
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
+                "_inherit": [
+                    "float"
+                ]
+            },
+            "glycolate": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",
@@ -2652,20 +2684,6 @@
                     "float"
                 ]
             },
-            "ethanol": {
-                "_type": "positive_float",
-                "_check": "check_float",
-                "_apply": "apply_non_negative",
-                "_serialize": "to_string",
-                "_description": "64-bit floating point precision number",
-                "_default": 0.0,
-                "_deserialize": "deserialize_float",
-                "_divide": "divide_float",
-                "_dataclass": "dataclass_float",
-                "_inherit": [
-                    "float"
-                ]
-            },
             "yeast": {
                 "_type": "positive_float",
                 "_check": "check_float",
@@ -2680,7 +2698,7 @@
                     "float"
                 ]
             },
-            "ammonium": {
+            "glutatmate": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",
@@ -2694,21 +2712,7 @@
                     "float"
                 ]
             },
-            "glutamine": {
-                "_type": "positive_float",
-                "_check": "check_float",
-                "_apply": "apply_non_negative",
-                "_serialize": "to_string",
-                "_description": "64-bit floating point precision number",
-                "_default": 0.0,
-                "_deserialize": "deserialize_float",
-                "_divide": "divide_float",
-                "_dataclass": "dataclass_float",
-                "_inherit": [
-                    "float"
-                ]
-            },
-            "arginine": {
+            "serine": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",

@@ -6,35 +6,40 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<glucose>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'acetate')" [label=<acetate>]
+	"('fields', 'ammonium')" [label=<ammonium>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'biomass')" [label=<biomass>]
+	"('fields', 'glycolate')" [label=<glycolate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('spatial_dfba',)" [label=<spatial_dfba>]
+	"('fields', 'pputida biomass')" [label=<pputida biomass>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('spatial_dfba', 'dFBA[0,0]')" [label="dFBA[*] (x50)"]
+	"('pputida dFBA',)" [label="pputida dFBA"]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'ammonium')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'biomass')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'glycolate')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('spatial_dfba',)" -> "('spatial_dfba', 'dFBA[0,0]')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'pputida biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', 'dFBA[0,0]')" {
-		"('fields', 'glucose')" -> "('spatial_dfba', 'dFBA[0,0]')" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'glucose')" -> "('pputida dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'biomass')" [label=<biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', 'dFBA[0,0]')" {
-		"('fields', 'biomass')" -> "('spatial_dfba', 'dFBA[0,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'ammonium')" -> "('pputida dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba', 'dFBA[0,0]')" {
-		"('fields', 'acetate')" -> "('spatial_dfba', 'dFBA[0,0]')" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	"('fields', 'glycolate')" [label=<glycolate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'glycolate')" -> "('pputida dFBA',)" [label=<substrates/glycolate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'pputida biomass')" [label=<pputida biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'pputida biomass')" -> "('pputida dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -42,9 +47,9 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<glucose>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'acetate')" [label=<acetate>]
+	"('fields', 'ammonium')" [label=<ammonium>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'biomass')" [label=<biomass>]
+	"('fields', 'glycolate')" [label=<glycolate>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('spatial_dfba',)" [label=<spatial_dfba>]
+	"('fields', 'pputida biomass')" [label=<pputida biomass>]
 }

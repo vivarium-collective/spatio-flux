@@ -44,12 +44,48 @@
                 "model_file": "textbook",
                 "models": {},
                 "model_grid": [
-                    "['textbook', 'textbook', 'textbook', 'textbook', 'textbook']",
-                    "['ecoli', 'ecoli', 'ecoli', 'ecoli', 'ecoli']",
-                    "['cdiff', 'cdiff', 'cdiff', 'cdiff', 'cdiff']",
-                    "['pputida', 'pputida', 'pputida', 'pputida', 'pputida']",
-                    "['yeast', 'yeast', 'yeast', 'yeast', 'yeast']",
-                    "['llactis', 'llactis', 'llactis', 'llactis', 'llactis']"
+                    [
+                        "ecoli core",
+                        "ecoli core",
+                        "ecoli core",
+                        "ecoli core",
+                        "ecoli core"
+                    ],
+                    [
+                        "ecoli",
+                        "ecoli",
+                        "ecoli",
+                        "ecoli",
+                        "ecoli"
+                    ],
+                    [
+                        "cdiff",
+                        "cdiff",
+                        "cdiff",
+                        "cdiff",
+                        "cdiff"
+                    ],
+                    [
+                        "pputida",
+                        "pputida",
+                        "pputida",
+                        "pputida",
+                        "pputida"
+                    ],
+                    [
+                        "yeast",
+                        "yeast",
+                        "yeast",
+                        "yeast",
+                        "yeast"
+                    ],
+                    [
+                        "llactis",
+                        "llactis",
+                        "llactis",
+                        "llactis",
+                        "llactis"
+                    ]
                 ],
                 "kinetic_params": {
                     "glucose": [

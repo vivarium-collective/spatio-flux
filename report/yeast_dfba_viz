@@ -6,31 +6,31 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<glucose>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'formate')" [label=<formate>]
+	"('fields', 'ammonium')" [label=<ammonium>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'ecoli biomass')" [label=<ecoli biomass>]
+	"('fields', 'yeast biomass')" [label=<yeast biomass>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('ecoli dFBA',)" [label="ecoli dFBA"]
+	"('yeast dFBA',)" [label="yeast dFBA"]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'formate')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'ammonium')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'ecoli biomass')" [arrowhead=none constraint=true penwidth=2]
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'formate')" [label=<formate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('ecoli dFBA',)" {
-		"('fields', 'formate')" -> "('ecoli dFBA',)" [label=<substrates/formate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'ecoli biomass')" [label=<ecoli biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('ecoli dFBA',)" {
-		"('fields', 'ecoli biomass')" -> "('ecoli dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
+	"('fields',)" -> "('fields', 'yeast biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('ecoli dFBA',)" {
-		"('fields', 'glucose')" -> "('ecoli dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('yeast dFBA',)" {
+		"('fields', 'glucose')" -> "('yeast dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('yeast dFBA',)" {
+		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'yeast biomass')" [label=<yeast biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('yeast dFBA',)" {
+		"('fields', 'yeast biomass')" -> "('yeast dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
@@ -38,7 +38,7 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<glucose>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'formate')" [label=<formate>]
+	"('fields', 'ammonium')" [label=<ammonium>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	"('fields', 'ecoli biomass')" [label=<ecoli biomass>]
+	"('fields', 'yeast biomass')" [label=<yeast biomass>]
 }

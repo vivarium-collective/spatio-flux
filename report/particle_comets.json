@@ -1,13 +1,13 @@
 {
     "state": {
         "particles": {
-            "z0IAbg2U": {
-                "id": "z0IAbg2U",
+            "b0w9VUyT": {
+                "id": "b0w9VUyT",
                 "position": [
-                    "3.972103154894144",
-                    "9.37126241975536"
+                    "0.7778665494558484",
+                    "4.886349699727576"
                 ],
-                "mass": "8.194889546721907",
+                "mass": "3.1337227904225564",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -64,13 +64,13 @@
                     "shared": {}
                 }
             },
-            "GJ9d-b0G": {
-                "id": "GJ9d-b0G",
+            "osSrBBxB": {
+                "id": "osSrBBxB",
                 "position": [
-                    "1.1279000131043255",
-                    "8.174026786715315"
+                    "3.0420184177711795",
+                    "5.980310251949952"
                 ],
-                "mass": "9.326717575821048",
+                "mass": "4.0588795818872345",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -127,13 +127,13 @@
                     "shared": {}
                 }
             },
-            "T-Ad32BR": {
-                "id": "T-Ad32BR",
+            "dwbkbtF2": {
+                "id": "dwbkbtF2",
                 "position": [
-                    "0.817193170012045",
-                    "8.30254299529432"
+                    "2.8610602151140534",
+                    "3.5167543811154967"
                 ],
-                "mass": "4.610288651882547",
+                "mass": "9.704055464645709",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -190,13 +190,13 @@
                     "shared": {}
                 }
             },
-            "c1PKIdv2": {
-                "id": "c1PKIdv2",
+            "nW_Bw-eg": {
+                "id": "nW_Bw-eg",
                 "position": [
-                    "2.7572277946272736",
-                    "2.6304377893739552"
+                    "3.4291336262619203",
+                    "7.3360908761405845"
                 ],
-                "mass": "6.029720382674386",
+                "mass": "1.6310395386120384",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -253,13 +253,13 @@
                     "shared": {}
                 }
             },
-            "oOui3ltQ": {
-                "id": "oOui3ltQ",
+            "VB_nH1aW": {
+                "id": "VB_nH1aW",
                 "position": [
-                    "3.6203193691274227",
-                    "8.397891508409899"
+                    "2.517560273476258",
+                    "9.995881360043398"
                 ],
-                "mass": "9.93785633222708",
+                "mass": "4.068074439185058",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -316,13 +316,13 @@
                     "shared": {}
                 }
             },
-            "z8z2scez": {
-                "id": "z8z2scez",
+            "CMNjiaNI": {
+                "id": "CMNjiaNI",
                 "position": [
-                    "2.4109415910756904",
-                    "0.2727500992566245"
+                    "2.2412670882087604",
+                    "4.8707125028089635"
                 ],
-                "mass": "3.169781601890507",
+                "mass": "1.883228520497928",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -379,13 +379,13 @@
                     "shared": {}
                 }
             },
-            "qIEg8ctO": {
-                "id": "qIEg8ctO",
+            "CbYRCApq": {
+                "id": "CbYRCApq",
                 "position": [
-                    "4.952577772879257",
-                    "2.635412267769768"
+                    "3.431333723290702",
+                    "8.379496609382207"
                 ],
-                "mass": "8.37315771894395",
+                "mass": "6.777919262830169",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -442,13 +442,13 @@
                     "shared": {}
                 }
             },
-            "M2OflbrX": {
-                "id": "M2OflbrX",
+            "ks5TuG3u": {
+                "id": "ks5TuG3u",
                 "position": [
-                    "1.4795106566028564",
-                    "7.225579783436162"
+                    "4.441330468274446",
+                    "0.2788677951325924"
                 ],
-                "mass": "9.09742195254031",
+                "mass": "4.530112912663633",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -505,76 +505,13 @@
                     "shared": {}
                 }
             },
-            "-NDjLiA5": {
-                "id": "-NDjLiA5",
+            "M36hd-Xn": {
+                "id": "M36hd-Xn",
                 "position": [
-                    "4.214825758234449",
-                    "0.20843993515242243"
+                    "0.9498637926103226",
+                    "3.1658644637134703"
                 ],
-                "mass": "1.7467514666102621",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "4UxGfs3B": {
-                "id": "4UxGfs3B",
-                "position": [
-                    "1.748642247844715",
-                    "7.862616304332505"
-                ],
-                "mass": "8.19800630569155",
+                "mass": "5.809938256935658",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -808,11 +745,11 @@
                 "global_time": [
                     "global_time"
                 ],
-                "particles": [
-                    "particles"
-                ],
                 "fields": [
                     "fields"
+                ],
+                "particles": [
+                    "particles"
                 ]
             },
             "outputs": null,
@@ -820,8 +757,8 @@
             "config": {
                 "emit": {
                     "global_time": "any",
-                    "particles": "any",
-                    "fields": "any"
+                    "fields": "any",
+                    "particles": "any"
                 }
             }
         },
@@ -3321,8 +3258,8 @@
             "_slice": "slice_edge",
             "_inputs": {
                 "global_time": "any",
-                "particles": "any",
-                "fields": "any"
+                "fields": "any",
+                "particles": "any"
             },
             "_outputs": null,
             "_description": "",

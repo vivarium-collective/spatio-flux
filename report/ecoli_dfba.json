@@ -7,6 +7,10 @@
                     "glucose": [
                         "fields",
                         "glucose"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
                     ]
                 },
                 "biomass": [
@@ -19,6 +23,10 @@
                     "glucose": [
                         "fields",
                         "glucose"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
                     ]
                 },
                 "biomass": [
@@ -34,21 +42,17 @@
                     "glucose": [
                         "0.5",
                         "1.0"
+                    ],
+                    "formate": [
+                        "0.5",
+                        "1.0"
                     ]
                 },
                 "substrate_update_reactions": {
-                    "glucose": "EX_glc__D_e"
+                    "glucose": "EX_glc__D_e",
+                    "formate": "EX_for_e"
                 },
-                "bounds": {
-                    "EX_o2_e": {
-                        "lower": "-2.0",
-                        "upper": "!nil"
-                    },
-                    "ATPM": {
-                        "lower": "1.0",
-                        "upper": "1.0"
-                    }
-                }
+                "bounds": {}
             },
             "shared": null
         },
@@ -71,7 +75,8 @@
             }
         },
         "fields": {
-            "glucose": "2.0",
+            "glucose": "10.0",
+            "formate": "5.0",
             "ecoli biomass": "0.1"
         }
     },
@@ -579,6 +584,20 @@
         },
         "fields": {
             "glucose": {
+                "_type": "positive_float",
+                "_check": "check_float",
+                "_apply": "apply_non_negative",
+                "_serialize": "to_string",
+                "_description": "64-bit floating point precision number",
+                "_default": 0.0,
+                "_deserialize": "deserialize_float",
+                "_divide": "divide_float",
+                "_dataclass": "dataclass_float",
+                "_inherit": [
+                    "float"
+                ]
+            },
+            "formate": {
                 "_type": "positive_float",
                 "_check": "check_float",
                 "_apply": "apply_non_negative",

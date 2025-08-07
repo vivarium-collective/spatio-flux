@@ -75,8 +75,8 @@
             }
         },
         "fields": {
-            "glucose": "1.0",
-            "acetate": "0.0",
+            "glucose": "2.0",
+            "acetate": "10.0",
             "cdiff biomass": "0.1"
         }
     },
