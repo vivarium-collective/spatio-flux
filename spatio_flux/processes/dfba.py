@@ -471,9 +471,6 @@ class SpatialDFBA(Process):
         # Loop through each grid cell
         for i in range(x_bins):
             for j in range(y_bins):
-                # bin_idx = i * y_bins + j
-                # dfba = self.dfba_grid[bin_idx]
-
                 # Extract local substrate concentrations
                 local_substrates = {
                     mol_id: substrate_fields[mol_id][i, j]

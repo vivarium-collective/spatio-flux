@@ -30,6 +30,58 @@ def sort_results(results):
     return sorted_results
 
 
+def plot_model_grid(model_grid, out_dir='out', filename='model_grid.png',
+                    title=None, show_border_coords=True):
+
+    if not model_grid or not isinstance(model_grid, (list, tuple)):
+        raise ValueError("model_grid must be a non-empty 2D list/tuple.")
+
+    n_rows = len(model_grid)
+    n_cols = len(model_grid[0]) if n_rows else 0
+    if any(len(row) != n_cols for row in model_grid):
+        raise ValueError("All rows must have the same number of columns.")
+
+    # Add coordinate headers if requested
+    if show_border_coords:
+        table_data = [[""] + [str(c) for c in range(n_cols)]]
+        for r in range(n_rows):
+            table_data.append([str(r)] + list(model_grid[r]))
+    else:
+        table_data = [list(row) for row in model_grid]
+
+    # Create figure sized tightly around content
+    fig_w = max(1.5, len(table_data[0]) * 0.6)
+    fig_h = max(1.5, (len(table_data)+1) * 0.2)
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h), dpi=150)
+    ax.axis('off')
+
+    # Draw table with full borders
+    table = ax.table(
+        cellText=table_data,
+        loc='center',
+        cellLoc='center',
+        edges='closed'
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+
+    # Uniform borders
+    for (row, col), cell in table.get_celld().items():
+        cell.set_linewidth(0.8)
+        cell.set_edgecolor('black')
+
+    # Tight layout: remove extra space above/below
+    if title:
+        ax.set_title(title, fontsize=10, pad=2)
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+
+    os.makedirs(out_dir, exist_ok=True)
+    filepath = os.path.join(out_dir, filename)
+    fig.savefig(filepath, bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
+    return filepath
+
+
 def plot_time_series(
         results,
         field_names=None,

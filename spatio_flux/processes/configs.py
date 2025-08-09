@@ -96,7 +96,7 @@ def get_single_dfba_process(
     }
 
 def get_spatial_dfba_process(
-        model_id="ecoli core",
+        model_id=None,  # choose default from ['ecoli core', 'ecoli', 'cdiff', 'pputida', 'yeast', 'llactis']
         config=None,
         path=None,
 ):
