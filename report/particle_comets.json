@@ -1,13 +1,13 @@
 {
     "state": {
         "particles": {
-            "A2wU0K1l": {
-                "id": "A2wU0K1l",
+            "THBr78Vz": {
+                "id": "THBr78Vz",
                 "position": [
-                    "1.0622784368029676",
-                    "5.739616976538259"
+                    "4.637925144282459",
+                    "2.7139787959930475"
                 ],
-                "mass": "2.335718837650402",
+                "mass": "9.521920735310838",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -64,13 +64,13 @@
                     "shared": {}
                 }
             },
-            "uXvrgUbk": {
-                "id": "uXvrgUbk",
+            "8ILQBsph": {
+                "id": "8ILQBsph",
                 "position": [
-                    "1.1008247152446287",
-                    "4.849083497967018"
+                    "1.7719618272441378",
+                    "9.66718187486297"
                 ],
-                "mass": "2.816574642194799",
+                "mass": "6.706425493871353",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -127,13 +127,391 @@
                     "shared": {}
                 }
             },
-            "i-XQ3ko2": {
-                "id": "i-XQ3ko2",
+            "VKzBCT2M": {
+                "id": "VKzBCT2M",
                 "position": [
-                    "0.05494177280815249",
-                    "1.1929743427313322"
+                    "4.320571543934077",
+                    "9.896899677884301"
                 ],
-                "mass": "3.791323680062427",
+                "mass": "2.2974415164335302",
+                "local": {
+                    "glucose": "10.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "exchange": {
+                    "glucose": "0.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "minimal_particle": {
+                    "inputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "local"
+                        ]
+                    },
+                    "outputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "exchange"
+                        ]
+                    },
+                    "interval": 1.0,
+                    "address": "local:MinimalParticle",
+                    "config": {
+                        "reactions": {
+                            "grow": {
+                                "reactant": "glucose",
+                                "product": "mass"
+                            },
+                            "release": {
+                                "reactant": "mass",
+                                "product": "detritus"
+                            }
+                        },
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "0.01"
+                            ],
+                            "mass": [
+                                "1.0",
+                                "0.001"
+                            ]
+                        }
+                    },
+                    "shared": {}
+                }
+            },
+            "CVdg_DSs": {
+                "id": "CVdg_DSs",
+                "position": [
+                    "0.6555700831536304",
+                    "9.533617162893206"
+                ],
+                "mass": "4.736381412075385",
+                "local": {
+                    "glucose": "10.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "exchange": {
+                    "glucose": "0.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "minimal_particle": {
+                    "inputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "local"
+                        ]
+                    },
+                    "outputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "exchange"
+                        ]
+                    },
+                    "interval": 1.0,
+                    "address": "local:MinimalParticle",
+                    "config": {
+                        "reactions": {
+                            "grow": {
+                                "reactant": "glucose",
+                                "product": "mass"
+                            },
+                            "release": {
+                                "reactant": "mass",
+                                "product": "detritus"
+                            }
+                        },
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "0.01"
+                            ],
+                            "mass": [
+                                "1.0",
+                                "0.001"
+                            ]
+                        }
+                    },
+                    "shared": {}
+                }
+            },
+            "un3OYv5I": {
+                "id": "un3OYv5I",
+                "position": [
+                    "3.5142247446254316",
+                    "4.376035034337784"
+                ],
+                "mass": "6.673952748082454",
+                "local": {
+                    "glucose": "10.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "exchange": {
+                    "glucose": "0.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "minimal_particle": {
+                    "inputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "local"
+                        ]
+                    },
+                    "outputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "exchange"
+                        ]
+                    },
+                    "interval": 1.0,
+                    "address": "local:MinimalParticle",
+                    "config": {
+                        "reactions": {
+                            "grow": {
+                                "reactant": "glucose",
+                                "product": "mass"
+                            },
+                            "release": {
+                                "reactant": "mass",
+                                "product": "detritus"
+                            }
+                        },
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "0.01"
+                            ],
+                            "mass": [
+                                "1.0",
+                                "0.001"
+                            ]
+                        }
+                    },
+                    "shared": {}
+                }
+            },
+            "pvpdmvyp": {
+                "id": "pvpdmvyp",
+                "position": [
+                    "3.845992866233639",
+                    "1.616294237549829"
+                ],
+                "mass": "8.340099694440148",
+                "local": {
+                    "glucose": "10.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "exchange": {
+                    "glucose": "0.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "minimal_particle": {
+                    "inputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "local"
+                        ]
+                    },
+                    "outputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "exchange"
+                        ]
+                    },
+                    "interval": 1.0,
+                    "address": "local:MinimalParticle",
+                    "config": {
+                        "reactions": {
+                            "grow": {
+                                "reactant": "glucose",
+                                "product": "mass"
+                            },
+                            "release": {
+                                "reactant": "mass",
+                                "product": "detritus"
+                            }
+                        },
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "0.01"
+                            ],
+                            "mass": [
+                                "1.0",
+                                "0.001"
+                            ]
+                        }
+                    },
+                    "shared": {}
+                }
+            },
+            "6FtQ4oh1": {
+                "id": "6FtQ4oh1",
+                "position": [
+                    "0.23751813835932833",
+                    "6.731323771858333"
+                ],
+                "mass": "2.3749409864954902",
+                "local": {
+                    "glucose": "10.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "exchange": {
+                    "glucose": "0.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "minimal_particle": {
+                    "inputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "local"
+                        ]
+                    },
+                    "outputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "exchange"
+                        ]
+                    },
+                    "interval": 1.0,
+                    "address": "local:MinimalParticle",
+                    "config": {
+                        "reactions": {
+                            "grow": {
+                                "reactant": "glucose",
+                                "product": "mass"
+                            },
+                            "release": {
+                                "reactant": "mass",
+                                "product": "detritus"
+                            }
+                        },
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "0.01"
+                            ],
+                            "mass": [
+                                "1.0",
+                                "0.001"
+                            ]
+                        }
+                    },
+                    "shared": {}
+                }
+            },
+            "k6Jz8IvN": {
+                "id": "k6Jz8IvN",
+                "position": [
+                    "1.3709487155165334",
+                    "9.960283848526167"
+                ],
+                "mass": "9.188062379720948",
+                "local": {
+                    "glucose": "10.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "exchange": {
+                    "glucose": "0.0",
+                    "acetate": "0.0",
+                    "detritus": "0.0",
+                    "biomass": "0.0"
+                },
+                "minimal_particle": {
+                    "inputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "local"
+                        ]
+                    },
+                    "outputs": {
+                        "mass": [
+                            "mass"
+                        ],
+                        "substrates": [
+                            "exchange"
+                        ]
+                    },
+                    "interval": 1.0,
+                    "address": "local:MinimalParticle",
+                    "config": {
+                        "reactions": {
+                            "grow": {
+                                "reactant": "glucose",
+                                "product": "mass"
+                            },
+                            "release": {
+                                "reactant": "mass",
+                                "product": "detritus"
+                            }
+                        },
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "0.01"
+                            ],
+                            "mass": [
+                                "1.0",
+                                "0.001"
+                            ]
+                        }
+                    },
+                    "shared": {}
+                }
+            },
+            "XhL4QHTN": {
+                "id": "XhL4QHTN",
+                "position": [
+                    "0.2358591028558238",
+                    "2.845105157220539"
+                ],
+                "mass": "8.477161140028812",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -190,391 +568,13 @@
                     "shared": {}
                 }
             },
-            "Oayf8BvP": {
-                "id": "Oayf8BvP",
+            "LutKbk7A": {
+                "id": "LutKbk7A",
                 "position": [
-                    "3.8165721984601424",
-                    "6.458395518371617"
+                    "1.1361489558125326",
+                    "2.9800007363013603"
                 ],
-                "mass": "5.879940025330402",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "dN6X6DEJ": {
-                "id": "dN6X6DEJ",
-                "position": [
-                    "1.9056458385362085",
-                    "1.698034277019097"
-                ],
-                "mass": "5.297548292260681",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "H09xt3JE": {
-                "id": "H09xt3JE",
-                "position": [
-                    "4.780707966911737",
-                    "4.930938750523034"
-                ],
-                "mass": "6.646525322455915",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "Qm-Du8ZN": {
-                "id": "Qm-Du8ZN",
-                "position": [
-                    "0.49139563589611357",
-                    "5.889946412130358"
-                ],
-                "mass": "7.006539228174788",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "aYP5Oyte": {
-                "id": "aYP5Oyte",
-                "position": [
-                    "1.2730703023823842",
-                    "6.845029808845204"
-                ],
-                "mass": "8.690922875245693",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "8CbvdM0J": {
-                "id": "8CbvdM0J",
-                "position": [
-                    "1.4176638483005695",
-                    "2.3370117946139954"
-                ],
-                "mass": "6.255581890719712",
-                "local": {
-                    "glucose": "10.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "exchange": {
-                    "glucose": "0.0",
-                    "acetate": "0.0",
-                    "detritus": "0.0",
-                    "biomass": "0.0"
-                },
-                "minimal_particle": {
-                    "inputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "local"
-                        ]
-                    },
-                    "outputs": {
-                        "mass": [
-                            "mass"
-                        ],
-                        "substrates": [
-                            "exchange"
-                        ]
-                    },
-                    "interval": 1.0,
-                    "address": "local:MinimalParticle",
-                    "config": {
-                        "reactions": {
-                            "grow": {
-                                "reactant": "glucose",
-                                "product": "mass"
-                            },
-                            "release": {
-                                "reactant": "mass",
-                                "product": "detritus"
-                            }
-                        },
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "0.01"
-                            ],
-                            "mass": [
-                                "1.0",
-                                "0.001"
-                            ]
-                        }
-                    },
-                    "shared": {}
-                }
-            },
-            "X--5NY0P": {
-                "id": "X--5NY0P",
-                "position": [
-                    "3.5819170246134044",
-                    "0.6200915715771371"
-                ],
-                "mass": "6.852885045726241",
+                "mass": "7.193495023959923",
                 "local": {
                     "glucose": "10.0",
                     "acetate": "0.0",
@@ -799,7 +799,9 @@
                     "bottom",
                     "left",
                     "right"
-                ]
+                ],
+                "division_mass_threshold": "5.0",
+                "division_jitter": "0.001"
             },
             "shared": null
         },
@@ -808,11 +810,11 @@
                 "global_time": [
                     "global_time"
                 ],
-                "fields": [
-                    "fields"
-                ],
                 "particles": [
                     "particles"
+                ],
+                "fields": [
+                    "fields"
                 ]
             },
             "outputs": null,
@@ -820,8 +822,8 @@
             "config": {
                 "emit": {
                     "global_time": "any",
-                    "fields": "any",
-                    "particles": "any"
+                    "particles": "any",
+                    "fields": "any"
                 }
             }
         },
@@ -3321,8 +3323,8 @@
             "_slice": "slice_edge",
             "_inputs": {
                 "global_time": "any",
-                "fields": "any",
-                "particles": "any"
+                "particles": "any",
+                "fields": "any"
             },
             "_outputs": null,
             "_description": "",
