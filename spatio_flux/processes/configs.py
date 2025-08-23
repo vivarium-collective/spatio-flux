@@ -265,6 +265,7 @@ def get_particle_movement_process(
         add_probability=0.0,
         boundary_to_add=['top'],
         boundary_to_remove=['top', 'bottom', 'left', 'right'],
+        division_mass_threshold=0.0,
 ):
     config = locals()
     # Remove any key-value pair where the value is None

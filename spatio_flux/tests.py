@@ -32,6 +32,7 @@ from spatio_flux.processes import (
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
     get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
 )
+from spatio_flux.processes import DIVISION_MASS_THRESHOLD
 
 
 # ====================================================================
@@ -269,6 +270,8 @@ def plot_comets(results, state, config=None):
 # --- Particles -----------------------------------------------------------
 
 def get_particles_doc(core=None, config=None):
+    division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+
     initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
     particle_config = {
         'reactions': {
@@ -291,7 +294,7 @@ def get_particles_doc(core=None, config=None):
             'fields': initialize_fields(n_bins, initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
             'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
-                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability)
+                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability, division_mass_threshold=division_mass_threshold)
         },
         'composition': get_minimal_particle_composition(core=core, config=particle_config)
     }
@@ -307,6 +310,8 @@ def plot_particles_sim(results, state, config=None):
 # --- Particle-COMETS ----------------------------------------------------
 
 def get_particle_comets_doc(core=None, config=None):
+    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+
     dissolved_model_id = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'detritus', 'biomass']
     particle_config = {
@@ -340,7 +345,7 @@ def get_particle_comets_doc(core=None, config=None):
             # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
             'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
-                                                               add_probability=add_probability, advection_rate=particle_advection)
+                                                               add_probability=add_probability, advection_rate=particle_advection, division_mass_threshold=division_mass_threshold)
         },
         'composition': get_minimal_particle_composition(core, config=particle_config)
     }
@@ -357,6 +362,7 @@ def plot_particle_comets(results, state, config=None):
 
 def get_particle_dfba_doc(core=None, config=None):
     particle_model_id = config.get('particle_model_id', 'ecoli core')
+    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     mol_ids = ['glucose', 'acetate']
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
@@ -373,7 +379,7 @@ def get_particle_dfba_doc(core=None, config=None):
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particle_movement': get_particle_movement_process(
-                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability, division_mass_threshold=division_mass_threshold)
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
@@ -393,6 +399,7 @@ def plot_particle_dfba(results, state, config=None):
 def get_particle_dfba_comets_doc(core=None, config=None):
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
+    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     mol_ids = ['glucose', 'acetate', 'biomass']
     initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'biomass': (0, 0.1)}
@@ -414,7 +421,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
             'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particle_movement': get_particle_movement_process(
-                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability)
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability, division_mass_threshold=division_mass_threshold)
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }

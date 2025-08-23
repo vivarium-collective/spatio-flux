@@ -17,6 +17,7 @@ dependencies = [
     "scipy",
     "cobra",
     "imageio",
+    "pytest"
 ]
 
 # Optional/dev dependencies

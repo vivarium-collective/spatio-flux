@@ -13,6 +13,7 @@ from process_bigraph import Process, default
 
 # Constants
 INITIAL_MASS_RANGE = (1E-3, 1.0)
+DIVISION_MASS_THRESHOLD = 5.0  # Default mass threshold for division
 
 
 def short_id(length=6):
@@ -71,6 +72,7 @@ def generate_single_particle_state(config=None):
     }
 
 
+
 class Particles(Process):
     config_schema = {
         'bounds': 'tuple[float,float]',
@@ -79,7 +81,12 @@ class Particles(Process):
         'advection_rate': default('tuple[float,float]', (0, 0)),
         'add_probability': 'float',
         'boundary_to_add': default('list[boundary_side]', ['top']),
-        'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom'])
+        'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom']),
+        # division config ---
+        # If <= 0, division is disabled
+        'division_mass_threshold': default('float', 0.0),
+        # Fraction of the larger domain dimension used as jitter radius for children placement
+        'division_jitter': default('float', 1e-3),
     }
 
     def initialize(self, config):
@@ -135,56 +142,97 @@ class Particles(Process):
         return {'particles': particles}
 
     def update(self, state, interval):
-        # Retrieve current particles and field values
         particles = state['particles']
         fields = state['fields']
 
-        # Initialize structures for updated particles and field values
         updated_particles = {'_remove': [], '_add': {}}
-        updated_fields = {
-            mol_id: np.zeros_like(field)
-            for mol_id, field in fields.items()
-        }
+        updated_fields = {mol_id: np.zeros_like(field) for mol_id, field in fields.items()}
 
-        # Loop through each particle
+        # helpers
+        def clamp_in_bounds(x, y):
+            x_min, x_max = self.env_size[0]
+            y_min, y_max = self.env_size[1]
+            buffer = 0.0001
+            return (
+                float(np.clip(x, x_min + buffer, x_max - buffer)),
+                float(np.clip(y, y_min + buffer, y_max - buffer)),
+            )
+
+        def child_at(pos, parent):
+            # build a child by copying parent and adjusting id, mass, position, local, exchange
+            cid = short_id()
+            cx, cy = pos
+            col, row = get_bin_position((cx, cy), self.config['n_bins'], self.env_size)
+            local = get_local_field_values(fields, col, row)
+            child = dict(parent)  # shallow copy is fine for flat fields
+            child['id'] = cid
+            child['mass'] = parent['mass'] / 2.0
+            child['position'] = (cx, cy)          # absolute position for newly-added particles
+            child['local'] = local
+            # reset exchanges for the next tick
+            exch = parent.get('exchange', {})
+            child['exchange'] = {m: 0.0 for m in exch}
+            return cid, child
+
+        # main loop
         for pid, particle in particles.items():
-            # Sample random motion (diffusion + advection)
+            # motion
             dx, dy = np.random.normal(0, self.config['diffusion_rate'], 2) + self.config['advection_rate']
             new_x = particle['position'][0] + dx
             new_y = particle['position'][1] + dy
 
-            # Remove particle if it hits a configured removal boundary
+            # removal by boundary
             if self.check_boundary_hit(new_x, new_y):
                 updated_particles['_remove'].append(pid)
                 continue
 
-            # Keep particles inside the environment bounds with a small buffer
-            x_min, x_max = self.env_size[0]
-            y_min, y_max = self.env_size[1]
-            buffer = 0.0001
-            new_x = np.clip(new_x, x_min + buffer, x_max - buffer)
-            new_y = np.clip(new_y, y_min + buffer, y_max - buffer)
-
-            # Determine the grid cell (bin) the particle is now in
+            # keep inside bounds
+            new_x, new_y = clamp_in_bounds(new_x, new_y)
             new_pos = (new_x, new_y)
-            column, row = get_bin_position(new_pos, self.config['n_bins'], self.env_size)
 
-            # Retrieve local field values at the particle's new location
-            local = get_local_field_values(fields, column, row)
+            # env bin + local fields
+            col, row = get_bin_position(new_pos, self.config['n_bins'], self.env_size)
+            local = get_local_field_values(fields, col, row)
 
-            # Apply the particle’s exchange values to the environment fields
-            exchange = particle['exchange']
-            for mol_id, rate in exchange.items():
-                updated_fields[mol_id][column, row] += rate
+            # write exchange to fields (parent contributes this tick)
+            for mol_id, rate in particle.get('exchange', {}).items():
+                updated_fields[mol_id][col, row] += rate
 
-            # Update the particle’s state
+            # --- NEW: division check ---
+            thr = self.config['division_mass_threshold']
+            if thr > 0.0 and particle.get('mass', 0.0) >= thr:
+                # remove parent
+                updated_particles['_remove'].append(pid)
+
+                # jitter radius
+                width = self.env_size[0][1] - self.env_size[0][0]
+                height = self.env_size[1][1] - self.env_size[1][0]
+                r = max(width, height) * self.config['division_jitter']
+                angle = float(np.random.uniform(0, 2 * np.pi))
+                ox = r * np.cos(angle)
+                oy = r * np.sin(angle)
+
+                # two child positions, clamped
+                c1_pos = clamp_in_bounds(new_x + ox, new_y + oy)
+                c2_pos = clamp_in_bounds(new_x - ox, new_y - oy)
+
+                # create children
+                c1_id, c1 = child_at(c1_pos, particle)
+                c2_id, c2 = child_at(c2_pos, particle)
+
+                updated_particles['_add'][c1_id] = c1
+                updated_particles['_add'][c2_id] = c2
+                continue  # skip normal update for parent
+
+            # normal per-tick update (no division)
             updated_particles[pid] = {
-                'position': (dx, dy),  # Store delta; use new_pos if you prefer absolute
-                'local': local,  # Updated local concentrations
-                'exchange': {mol_id: 0.0 for mol_id in exchange}  # Reset exchanges
+                # store delta to match your existing convention; switch to new_pos if you prefer absolute
+                'position': (dx, dy),
+                'local': local,
+                'exchange': {m: 0.0 for m in particle.get('exchange', {})},
             }
 
-        # Randomly add new particles at designated boundaries
+        # random birth from boundaries
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
                 position = self.get_boundary_position(boundary)
