@@ -1,9 +1,13 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "spatio-flux"
 version = "0.0.1"
-description = "a demonstration of process composition rebuilding and extending comets by composing functional components"
+description = "A demonstration of process composition rebuilding and extending COMETS by composing functional components"
 readme = "README.md"
-requires-python = "==3.12.9"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "bigraph-schema",
     "process-bigraph",
@@ -13,14 +17,26 @@ dependencies = [
     "scipy",
     "cobra",
     "imageio",
-    "pytest"
 ]
 
-[tool.setuptools]
-packages = [
-    "spatio_flux"
+# Optional/dev dependencies
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "build",
 ]
 
+# Make sure all subpackages are included
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["spatio_flux*"]
+exclude = ["tests*", "docs*"]
+
+# If you want console entry points later, uncomment and edit:
+# [project.scripts]
+# spatio-flux = "spatio_flux.cli:main"
+
+# uv local editable sources
 [tool.uv.sources]
 bigraph-schema = { path = "../bigraph-schema", editable = true }
 process-bigraph = { path = "../process-bigraph", editable = true }
