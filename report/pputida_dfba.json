@@ -88,10 +88,10 @@
             }
         },
         "fields": {
-            "glucose": "1.0",
+            "glucose": "8.0",
             "ammonium": "10.0",
             "glycolate": "10.0",
-            "pputida biomass": "0.1"
+            "pputida biomass": "2.0"
         }
     },
     "composition": {

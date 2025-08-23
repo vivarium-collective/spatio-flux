@@ -41,7 +41,7 @@
                     "10",
                     "5"
                 ],
-                "model_file": "textbook",
+                "model_file": "!nil",
                 "models": {},
                 "model_grid": [
                     [
@@ -85,32 +85,39 @@
                         "llactis",
                         "llactis",
                         "llactis"
+                    ],
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
                     ]
                 ],
-                "kinetic_params": {
-                    "glucose": [
-                        "0.5",
-                        "1.0"
-                    ],
-                    "acetate": [
-                        "0.5",
-                        "2.0"
-                    ]
-                },
-                "substrate_update_reactions": {
-                    "glucose": "EX_glc__D_e",
-                    "acetate": "EX_ac_e"
-                },
-                "bounds": {
-                    "EX_o2_e": {
-                        "lower": "-2.0",
-                        "upper": "!nil"
-                    },
-                    "ATPM": {
-                        "lower": "1.0",
-                        "upper": "1.0"
-                    }
-                }
+                "kinetic_params": {},
+                "substrate_update_reactions": {},
+                "bounds": {}
             },
             "shared": null
         },

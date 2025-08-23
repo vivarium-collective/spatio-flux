@@ -22,16 +22,6 @@ digraph bigraph {
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'pputida biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('pputida dFBA',)" {
-		"('fields', 'glucose')" -> "('pputida dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
-	subgraph "('pputida dFBA',)" {
-		"('fields', 'ammonium')" -> "('pputida dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glycolate')" [label=<glycolate> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('pputida dFBA',)" {
 		"('fields', 'glycolate')" -> "('pputida dFBA',)" [label=<substrates/glycolate> constraint=true fontsize="10pt" labelloc=t]
@@ -40,6 +30,16 @@ digraph bigraph {
 	"('fields', 'pputida biomass')" [label=<pputida biomass> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	subgraph "('pputida dFBA',)" {
 		"('fields', 'pputida biomass')" -> "('pputida dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'glucose')" -> "('pputida dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'ammonium')" -> "('pputida dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=circle]
