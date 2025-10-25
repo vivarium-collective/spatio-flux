@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'spatio_flux/tests.py'
+      - 'spatio_flux/experiments/test_suite.py'
       - '.github/workflows/run-tests-and-publish-report.yml'
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
       - name: Run tests and generate report
         run: |
           mkdir -p out
-          python spatio_flux/tests.py --output out
+          python spatio_flux/experiments/test_suite.py --output out
 
       - name: Commit and push report to gh-pages
         run: |
