@@ -82,6 +82,10 @@ def run_composite_document(document, core=None, name=None, time=None):
     # Save composition JSON
     sim.save(filename=f'{name}.json', outdir='out')
 
+    # get representation string
+    rep = core.representation(document)
+    print(f'Composition representation:\n{rep}')
+
     # Save visualization of the initial composition
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
     plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
