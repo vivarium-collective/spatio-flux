@@ -1,7 +1,7 @@
 from process_bigraph import register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 from bigraph_viz import plot_bigraph
-from spatio_flux import register_types
+from spatio_flux import register_types, TYPES_DICT
 
 
 # ---- Single-process docs (one node per plot) ------------------------
@@ -95,28 +95,34 @@ PROCESS_DOCS = {
 
 
 def main():
+    outdir = 'out'
     core = VivariumTypes()
     core = register_process_types(core)
     core = register_types(core)
 
-
+    # plot the processes
     for name, get_doc in PROCESS_DOCS.items():
         document = get_doc(core=core)
-        # composite = Composite(document=document, core=core)
-        # plot_state = gather_emitter_results(
-        #     composite=composite,
-        #     emitter=core.get_emitter('default'),
-        #     time=0,
-        # )
-        # plot_schema = composite.get_schema()
-
 
         plot_bigraph(
             state=document,
             # schema=plot_schema,
             core=core,
-            out_dir='out',
-            filename=f'{name}_viz',
+            out_dir=outdir,
+            filename=f'{name}_process',
+            dpi='300',
+            collapse_redundant_processes=True
+        )
+
+    # plot the types
+    for type_name, type_class in TYPES_DICT.items():
+        plot_bigraph(
+            state={type_name: type_class},
+            # schema=,
+            show_types=True,
+            core=core,
+            out_dir=outdir,
+            filename=f'{type_name}_type',
             dpi='300',
             collapse_redundant_processes=True
         )
