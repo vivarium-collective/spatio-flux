@@ -7,8 +7,6 @@ Simulates 2D diffusion and advection on scalar fields using finite differences.
 Each species field evolves over time according to:
 - Diffusion (via a Laplacian kernel)
 - Advection (via gradient approximation in x and y directions)
-
-Fields are updated iteratively with time step `dt <= diffusion_dt` to ensure stability.
 """
 
 import numpy as np

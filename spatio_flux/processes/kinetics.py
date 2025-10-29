@@ -72,9 +72,6 @@ def get_autotrophic_kinetics_config():
 
 
 
-
-
-
 class MonodKinetics(Process):
     """
     A minimal particle that performs reactions based on Michaelis-Menten kinetics.

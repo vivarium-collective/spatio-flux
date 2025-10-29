@@ -19,16 +19,7 @@ DIVISION_MASS_THRESHOLD = 5.0
 
 
 def short_id(length=6):
-    """
-    Generate a short, URL-safe unique ID string.
-
-    Parameters:
-        length (int): Number of bytes to use from the UUID. Determines uniqueness.
-                      Each byte adds ~1.33 characters to the final ID.
-
-    Returns:
-        str: A base64-encoded ID string of approximately 1.33 * length characters.
-    """
+    """Generate a short, URL-safe unique ID string"""
     raw = uuid.uuid4().bytes[:length]
     return base64.urlsafe_b64encode(raw).rstrip(b'=').decode('ascii')
 
@@ -239,8 +230,6 @@ class ParticleDivision(Process):
       - Tracks particle 'mass' only.
       - If mass >= division_mass_threshold, parent is removed and two children
         are created with half mass each, placed near the parent's position.
-
-    No movement, no environment/fields, no boundary handling.
     """
 
     # Same division-related knobs as in Particles, nothing else.
