@@ -3,7 +3,7 @@ from bigraph_schema import deep_merge
 
 from process_bigraph import default
 from spatio_flux.library.helpers import initialize_fields, build_path
-from spatio_flux.processes import MinimalParticle
+from spatio_flux.processes import MonodKinetics
 from spatio_flux.processes.particles import Particles
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
@@ -289,7 +289,7 @@ def get_particle_movement_process(
 # ===============
 
 def get_minimal_particle_composition(core, config=None):
-    config = config or core.default(MinimalParticle.config_schema)
+    config = config or core.default(MonodKinetics.config_schema)
     return {
         'particles': {
             '_type': 'map',
@@ -297,7 +297,7 @@ def get_minimal_particle_composition(core, config=None):
                 # '_inherit': 'particle',
                 'minimal_particle': {
                     '_type': 'process',
-                    'address': default('string', 'local:MinimalParticle'),
+                    'address': default('string', 'local:MonodKinetics'),
                     'config': default('quote', config),
                     '_inputs': {
                         'mass': 'float',

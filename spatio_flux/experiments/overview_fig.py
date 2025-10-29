@@ -85,7 +85,7 @@ def get_minimal_kinetic_doc(core=None, config=None):
     return {
         'minimal_kinetic': {
             "_type": "process",
-            "address": "local:MinimalParticle",
+            "address": "local:MonodKinetics",
             "config": {},
         }
     }
