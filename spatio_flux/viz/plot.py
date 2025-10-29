@@ -1,16 +1,48 @@
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-import imageio.v2 as imageio
 import io
 import base64
-
-from IPython.core.display import HTML
-from IPython.core.display_functions import display
+import numpy as np
+import matplotlib.pyplot as plt
 from IPython.display import display, HTML
 from imageio import v2 as imageio
-from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
 
+
+def _evenly_spaced_indices(n_items, n_pick):
+    """Choose n_pick indices spread across [0, n_items-1]."""
+    n_pick = max(1, min(n_pick, n_items))
+    return [int(round(k*(n_items-1)/(n_pick-1))) for k in range(n_pick)] if n_pick > 1 else [0]
+
+def _global_minmax_per_field(sorted_results, field_names):
+    """Compute global vmin/vmax per field across all time points."""
+    mm = {}
+    for f in field_names:
+        frames = sorted_results['fields'][f]
+        flat = np.concatenate([np.asarray(fr).ravel() for fr in frames])
+        mm[f] = (float(np.min(flat)), float(np.max(flat)))
+    return mm
+
+def _ensure_dir_and_path(out_dir, filename):
+    os.makedirs(out_dir, exist_ok=True)
+    return os.path.join(out_dir, filename) if out_dir else filename
+
+def _coerce_axes_grid(axes, n_rows, n_cols):
+    """Return axes[r][c] for both 1D/2D cases."""
+    if n_rows == 1 and n_cols == 1:
+        return np.array([[axes]])
+    if n_rows == 1:
+        return np.array([axes if isinstance(axes, (list, np.ndarray)) else [axes]])
+    if n_cols == 1:
+        return np.array([[ax] for ax in (axes if isinstance(axes, (list, np.ndarray)) else [axes])])
+    return axes
+
+def _draw_particles(ax, particles, mass_scaling, xmax, ymax, color='b', min_mass=0.01):
+    """Overlay particles on ax (reuses your logic)."""
+    for p in particles.values():
+        x, y = p['position']
+        mass = max(p.get('mass', min_mass), min_mass)
+        if 0 <= x <= xmax and 0 <= y <= ymax:
+            ax.scatter(x, y, s=mass * mass_scaling, color=color)
 
 def sort_results(results):
     if ('emitter',) in results:
@@ -535,3 +567,138 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
 
     if display:
         plt.show()
+
+
+def plot_snapshots_grid(
+    results,
+    *,
+    field_names=None,
+    n_snapshots=4,
+    bounds=None,
+    cmap='viridis',
+    out_dir=None,
+    filename='snapshots.png',
+    suptitle=None,
+    mass_scaling=10.0,
+    row_label_pad=0.3,
+):
+    """Plot spatial fields and particles (if present) consistently in world coordinates."""
+    if bounds is None:
+        raise ValueError("bounds=(xmax, ymax) required.")
+    xmax, ymax = bounds
+    extent = [0, xmax, 0, ymax]
+
+    # --- Normalize results structure ---
+    if isinstance(results, dict):
+        if ('emitter',) in results:
+            data = results[('emitter',)]
+        elif 'emitter' in results:
+            data = results['emitter']
+        else:
+            vals = [v for v in results.values() if isinstance(v, list)]
+            data = vals[0] if vals else results
+    else:
+        data = results
+    if not isinstance(data, list) or not data:
+        raise ValueError("results must be a non-empty list of simulation steps")
+
+    # --- Extract fields & times ---
+    times = [step['global_time'] for step in data]
+    field_keys = list(data[0]['fields'].keys())
+    fields = {f: [step['fields'][f] for step in data] for f in field_keys}
+
+    # --- Choose fields ---
+    if field_names is None:
+        field_names = field_keys
+    else:
+        field_names = [f for f in field_names if f in field_keys]
+    if not field_names:
+        raise ValueError("No valid fields to plot.")
+
+    n_rows = len(field_names)
+    n_times = len(times)
+    n_snapshots = min(n_snapshots, n_times)
+    col_indices = np.linspace(0, n_times - 1, n_snapshots, dtype=int)
+    col_times = [times[i] for i in col_indices]
+    n_cols = len(col_indices)
+
+    # --- Compute vmin/vmax per field ---
+    vminmax = {f: (float(np.min(np.concatenate([np.ravel(x) for x in arrs]))),
+                   float(np.max(np.concatenate([np.ravel(x) for x in arrs]))))
+               for f, arrs in fields.items() if f in field_names}
+
+    # --- Setup figure ---
+    fig_w = max(3.5 * n_cols, 6)
+    fig_h = max(3.0 * n_rows, 3)
+    fig = plt.figure(figsize=(fig_w, fig_h))
+    gs = GridSpec(n_rows, n_cols + 1, figure=fig,
+                  width_ratios=[1] * n_cols + [0.04],
+                  wspace=0.02, hspace=0.05)
+
+    # --- Titles across top ---
+    for j, t in enumerate(col_times):
+        ax = fig.add_subplot(gs[0, j])
+        ax.set_title(f"t = {t:.2f}", pad=6)
+        ax.remove()
+
+    # --- Plot each field row ---
+    for r, field in enumerate(field_names):
+        vmin, vmax = vminmax[field]
+        images = []
+        for c, ti in enumerate(col_indices):
+            ax = fig.add_subplot(gs[r, c])
+
+            # Consistent orientation — world space (x,y)
+            arr = np.asarray(fields[field][ti])
+            arr = np.fliplr(np.rot90(arr, k=3))
+            im = ax.imshow(
+                arr, cmap=cmap, vmin=vmin, vmax=vmax,
+                extent=extent, origin='lower', interpolation='nearest', aspect='equal'
+            )
+            images.append(im)
+
+            # Overlay particles if present
+            step = data[ti]
+            if 'particles' in step and step['particles']:
+                for p in step['particles'].values():
+                    x, y = p['position']
+                    if 0 <= x <= xmax and 0 <= y <= ymax:
+                        size = max(p.get('mass', 0.01), 0.01) * mass_scaling
+                        ax.scatter(x, y, s=size, color=p.get('color', 'b'))
+
+            # Axes setup
+            ax.set_xlim(0, xmax)
+            ax.set_ylim(0, ymax)
+            ax.set_xticks([0, xmax])
+            ax.set_yticks([0, ymax])
+            ax.tick_params(axis='both', which='both', length=2, labelsize=8)
+            ax.set_xlabel('')
+            ax.set_ylabel('')
+            if r > 0:
+                ax.set_title('')
+
+        # Colorbar for this row
+        cax = fig.add_subplot(gs[r, -1])
+        cb = fig.colorbar(images[-1], cax=cax)
+        cb.ax.tick_params(length=2, labelsize=8)
+
+        # Row label (field name)
+        first_ax = fig.axes[r * (n_cols + 1)]
+        pos = first_ax.get_position(fig)
+        x = pos.x0 - (row_label_pad / fig.get_size_inches()[0])
+        y = (pos.y0 + pos.y1) / 2
+        fig.text(x, y, field, ha='right', va='center', fontsize=11)
+
+    if suptitle:
+        fig.suptitle(suptitle, fontsize=14, y=0.98)
+
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+        path = os.path.join(out_dir, filename)
+    else:
+        path = filename
+
+    fig.savefig(path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    return path
+
