@@ -1,7 +1,8 @@
 from spatio_flux.processes.dfba import (
     DynamicFBA, SpatialDFBA, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry, get_field_names)
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection
-from spatio_flux.processes.particles import Particles, DIVISION_MASS_THRESHOLD
+from spatio_flux.processes.particles import Particles
+from spatio_flux.processes.divide import ParticleDivision, DIVISION_MASS_THRESHOLD
 from spatio_flux.processes.kinetics import MonodKinetics
 
 # configs
@@ -9,7 +10,7 @@ from spatio_flux.processes.configs import (
     default_config, get_single_dfba_process, get_fields,
     get_spatial_many_dfba_with_fields, get_diffusion_advection_process, get_minimal_particle_composition,
     get_dfba_particle_composition, get_spatial_dfba_process, get_fields_with_schema, get_spatial_many_dfba, get_particles_state,
-    get_particle_movement_process, initialize_fields
+    get_particle_movement_process, initialize_fields, get_particle_divide_process,
 )
 
 PROCESS_DICT = {
@@ -18,6 +19,7 @@ PROCESS_DICT = {
     'DiffusionAdvection': DiffusionAdvection,
     'Particles': Particles,
     'MonodKinetics': MonodKinetics,
+    'ParticleDivision': ParticleDivision,
 }
 
 

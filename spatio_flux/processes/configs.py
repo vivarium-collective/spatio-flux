@@ -281,8 +281,26 @@ def get_particle_movement_process(
         'outputs': {
             'particles': ['particles'],
             'fields': ['fields']
+        },
+    }
+
+def get_particle_divide_process(
+        division_mass_threshold=0.0
+):
+    return {
+        '_type': 'process',
+        'address': 'local:ParticleDivision',
+        'config': {
+            'division_mass_threshold': division_mass_threshold
+        },
+        'inputs': {
+            'particles': ['particles']
+        },
+        'outputs': {
+            'particles': ['particles']
         }
     }
+
 
 # ===============
 # Particle-COMETS

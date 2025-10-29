@@ -13,7 +13,6 @@ from process_bigraph import Process, default
 
 # Constants
 INITIAL_MASS_RANGE = (1E-3, 1.0)
-DIVISION_MASS_THRESHOLD = 5.0  # Default mass threshold for division
 
 
 def short_id(length=6):
@@ -26,10 +25,6 @@ def short_id(length=6):
 
     Returns:
         str: A base64-encoded ID string of approximately 1.33 * length characters.
-
-    Example:
-        length=6 → ~8-character ID with ~2.8e14 possible values
-        length=4 → ~6-character ID with ~4.3e9 possible values
     """
     raw = uuid.uuid4().bytes[:length]
     return base64.urlsafe_b64encode(raw).rstrip(b'=').decode('ascii')
@@ -65,12 +60,12 @@ def generate_single_particle_state(config=None):
     exchanges = {f: 0.0 for f in mol_ids}
 
     return {
+        'id': config.get('id', None),
         'position': position,
         'local': local,
         'mass': mass,
         'exchange': exchanges
     }
-
 
 
 class Particles(Process):
@@ -79,14 +74,9 @@ class Particles(Process):
         'n_bins': 'tuple[integer,integer]',
         'diffusion_rate': default('float', 1e-1),
         'advection_rate': default('tuple[float,float]', (0, 0)),
-        'add_probability': 'float',
+        'add_probability': default('float', 0.0),
         'boundary_to_add': default('list[boundary_side]', ['top']),
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom']),
-        # division config ---
-        # If <= 0, division is disabled
-        'division_mass_threshold': default('float', 0.0),
-        # Fraction of the larger domain dimension used as jitter radius for children placement
-        'division_jitter': default('float', 1e-3),
     }
 
     def initialize(self, config):
@@ -131,13 +121,14 @@ class Particles(Process):
         particles = {}
         for _ in range(n_particles):
             pid = short_id()
-            particles[pid] = generate_single_particle_state({
+            pstate = generate_single_particle_state({
                 'bounds': bounds,
                 'mass_range': mass_range,
                 'n_bins': n_bins,
                 'fields': fields,
+                'id': pid,
             })
-            particles[pid]['id'] = pid
+            particles[pid] = pstate
 
         return {'particles': particles}
 
@@ -157,22 +148,6 @@ class Particles(Process):
                 float(np.clip(x, x_min + buffer, x_max - buffer)),
                 float(np.clip(y, y_min + buffer, y_max - buffer)),
             )
-
-        def child_at(pos, parent):
-            # build a child by copying parent and adjusting id, mass, position, local, exchange
-            cid = short_id()
-            cx, cy = pos
-            col, row = get_bin_position((cx, cy), self.config['n_bins'], self.env_size)
-            local = get_local_field_values(fields, col, row)
-            child = dict(parent)  # shallow copy is fine for flat fields
-            child['id'] = cid
-            child['mass'] = parent['mass'] / 2.0
-            child['position'] = (cx, cy)          # absolute position for newly-added particles
-            child['local'] = local
-            # reset exchanges for the next tick
-            exch = parent.get('exchange', {})
-            child['exchange'] = {m: 0.0 for m in exch}
-            return cid, child
 
         # main loop
         for pid, particle in particles.items():
@@ -198,35 +173,9 @@ class Particles(Process):
             for mol_id, rate in particle.get('exchange', {}).items():
                 updated_fields[mol_id][col, row] += rate
 
-            # --- NEW: division check ---
-            thr = self.config['division_mass_threshold']
-            if thr > 0.0 and particle.get('mass', 0.0) >= thr:
-                # remove parent
-                updated_particles['_remove'].append(pid)
-
-                # jitter radius
-                width = self.env_size[0][1] - self.env_size[0][0]
-                height = self.env_size[1][1] - self.env_size[1][0]
-                r = max(width, height) * self.config['division_jitter']
-                angle = float(np.random.uniform(0, 2 * np.pi))
-                ox = r * np.cos(angle)
-                oy = r * np.sin(angle)
-
-                # two child positions, clamped
-                c1_pos = clamp_in_bounds(new_x + ox, new_y + oy)
-                c2_pos = clamp_in_bounds(new_x - ox, new_y - oy)
-
-                # create children
-                c1_id, c1 = child_at(c1_pos, particle)
-                c2_id, c2 = child_at(c2_pos, particle)
-
-                updated_particles['_add'][c1_id] = c1
-                updated_particles['_add'][c2_id] = c2
-                continue  # skip normal update for parent
-
-            # normal per-tick update (no division)
+            # per-tick particle update (no division)
             updated_particles[pid] = {
-                # store delta to match your existing convention; switch to new_pos if you prefer absolute
+                # store delta (dx, dy) to match existing convention; switch to absolute if you prefer
                 'position': (dx, dy),
                 'local': local,
                 'exchange': {m: 0.0 for m in particle.get('exchange', {})},
@@ -269,5 +218,3 @@ class Particles(Process):
             return np.random.uniform(*self.env_size[0]), self.env_size[1][1]
         elif boundary == 'bottom':
             return np.random.uniform(*self.env_size[0]), self.env_size[1][0]
-
-
