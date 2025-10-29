@@ -274,8 +274,8 @@ class DynamicFBA(Process):
 
     Inputs:
     -------
-    - substrates (map[positive_float]): External concentrations of substrates.
-    - biomass (positive_float): Current biomass level.
+    - substrates (map[concentration]): External concentrations of substrates.
+    - biomass (concentration): Current biomass level.
 
     Outputs:
     --------
@@ -303,8 +303,8 @@ class DynamicFBA(Process):
 
     def inputs(self):
         return {
-            "substrates": "map[positive_float]",  # external concentrations
-            "biomass": "positive_float",
+            "substrates": "map[concentration]",  # external concentrations
+            "biomass": "concentration",
         }
 
     def outputs(self):

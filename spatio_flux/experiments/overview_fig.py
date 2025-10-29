@@ -16,7 +16,7 @@ from vivarium.vivarium import VivariumTypes
 from bigraph_viz import plot_bigraph
 
 # spatio-flux core types & helpers
-from spatio_flux import register_types, TYPES_DICT
+from spatio_flux import register_types, SPATIO_FLUX_TYPES
 from spatio_flux.library.helpers import run_composite_document, prepare_output_dir
 from spatio_flux.experiments.test_suite import SIMULATIONS, DEFAULT_RUNTIME_LONG
 from spatio_flux.processes import PROCESS_DOCS
@@ -132,8 +132,8 @@ def build_type_figs(core, outdir: Path) -> List[Path]:
     """Generate individual type figures (panel b)."""
     _ensure_outdir(outdir)
     generated: List[Path] = []
-    for type_name in sorted(TYPES_DICT.keys()):
-        type_schema = TYPES_DICT[type_name]
+    for type_name in sorted(SPATIO_FLUX_TYPES.keys()):
+        type_schema = SPATIO_FLUX_TYPES[type_name]
         fname = f"{type_name}_type"
         plot_bigraph(
             state={type_name: type_schema},
@@ -211,7 +211,7 @@ def assemble_overview_figure(
 
     # Make a/b a bit bigger so embedded text is readable
     # (You can tweak these three weights to taste.)
-    panel_weights = (0.22, 0.22, 0.56)  # (a, b, c)
+    panel_weights = (0.16, 0.08, 0.76)  # (a, b, c)
     gs_root = GridSpec(3, 1, height_ratios=panel_weights, hspace=0.06, figure=fig)
 
     # --- Panel a: Processes (tighter grid spacing, bigger tiles) ---

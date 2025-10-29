@@ -87,7 +87,7 @@ class ParticleMovement(Process):
                 '_value': {
                     '_type': 'array',
                     '_shape': self.config['n_bins'],
-                    '_data': 'positive_float'
+                    '_data': 'concentration'
                 },
             }
         }

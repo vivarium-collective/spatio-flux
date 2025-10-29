@@ -97,14 +97,13 @@ bounds_type = {
 
 particle_type = {
     'id': 'string',
-    'position': 'tuple[float,float]',
+    'position': 'position',
     'mass': default('float', 1.0),
-    'local': 'map[float]',
-    'exchange': 'map[float]',    # {mol_id: delta_value}
+    'local': 'map[concentration]',
+    'exchange': 'map[float]',    # TODO is this counts?
 }
 
 boundary_side = 'enum[left,right,top,bottom]'
-
 
 substrate_role_type = 'enum[reactant,product,enzyme]'
 kinetics_type = {
@@ -113,12 +112,29 @@ kinetics_type = {
     'role': 'substrate_role'}
 reaction_type = 'map[kinetics]'
 
+fields_type =  {
+                '_type': 'map',
+                '_value': {
+                    '_type': 'array',
+                    # '_shape': self.config['n_bins'],
+                    '_data': 'concentration'
+                },
+        }
+
+
+SPATIO_FLUX_TYPES = {
+    'particle': particle_type,
+    'bounds': bounds_type,
+    'fields': fields_type,
+    'concentration': positive_float,
+    'position': 'tuple[float,float]',
+    # TODO fields, concentrations, fluxes, etc.
+}
 
 TYPES_DICT = {
+    **SPATIO_FLUX_TYPES,
     'positive_float': positive_float,
     'positive_array': positive_array,
-    'bounds': bounds_type,
-    'particle': particle_type,
     'boundary_side': boundary_side,
     'substrate_role': substrate_role_type,
     'kinetics': kinetics_type,

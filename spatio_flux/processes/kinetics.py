@@ -84,7 +84,7 @@ class MonodKinetics(Process):
     Inputs:
     -------
     - mass (float): current mass of the particle
-    - substrates (map[positive_float]): concentrations of external substrates
+    - substrates (map[concentration]): concentrations of external substrates
 
     Outputs:
     --------
@@ -123,7 +123,7 @@ class MonodKinetics(Process):
     def inputs(self):
         return {
             'mass': 'float',
-            'substrates': 'map[positive_float]'
+            'substrates': 'map[concentration]'
         }
 
     def outputs(self):

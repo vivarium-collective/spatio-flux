@@ -172,7 +172,7 @@ def get_fields_with_schema(
         "_value": {
             "_type": "array",
             "_shape": n_bins,
-            "_data": "positive_float"
+            "_data": "concentration"
         },
         **initial_fields,
     }
@@ -319,7 +319,7 @@ def get_minimal_particle_composition(core, config=None):
                     'config': default('quote', config),
                     '_inputs': {
                         'mass': 'float',
-                        'substrates': 'map[positive_float]'
+                        'substrates': 'map[concentration]'
                     },
                     '_outputs':  {
                         'mass': 'float',
