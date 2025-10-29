@@ -137,50 +137,45 @@ def _first_frame(path: Path) -> Image.Image | None:
         print(f"⚠ Could not extract first frame: {path} ({e.__class__.__name__})")
         return None
 
-def _preferred_output_images(base_prefix: str, outdir: Path) -> List[Path]:
+def _preferred_output_images(base_prefix: str, outdir: Path):
     """
-    Return curated simulation output images for a given test base name,
-    preferring matplotlib PNG outputs (not *_viz), and only then GIFs.
+    Return the single best simulation output image for a given test base name.
 
     Preference order:
-      1) *_timeseries.png
-      2) {base}.png
-      3) other {base}*.png (excluding *_viz.png and *_schema.png)
-      4) {base}*.gif (excluding *_viz.gif)
+      1) *_snapshots.png
+      2) *_timeseries.png
+      3) {base}.png
+      4) other {base}*.png (excluding *_viz.png and *_schema.png)
+      5) {base}*.gif (excluding *_viz.gif)
     """
-    candidates: List[Path] = []
+    # 1) Prefer *_snapshots.png
+    snap = outdir / f"{base_prefix}_snapshots.png"
+    if snap.exists():
+        return [snap]
 
-    # 1) *_timeseries.png
-    candidates += sorted(outdir.glob(f"{base_prefix}_timeseries.png"))
+    # 2) Then *_timeseries.png
+    ts = outdir / f"{base_prefix}_timeseries.png"
+    if ts.exists():
+        return [ts]
 
-    # 2) {base}.png
-    p = outdir / f"{base_prefix}.png"
-    if p.exists():
-        candidates.append(p)
+    # 3) Then exact {base}.png
+    base_png = outdir / f"{base_prefix}.png"
+    if base_png.exists():
+        return [base_png]
 
-    # 3) other pngs for this base (but not topology viz or schema shots)
-    others = [
-        p for p in sorted(outdir.glob(f"{base_prefix}_*.png"))
-        if "_viz" not in p.name and "_schema" not in p.name
-           and not p.name.endswith("_timeseries.png")
-    ]
-    candidates += others
+    # 4) Any other PNG (excluding viz/schema)
+    for p in sorted(outdir.glob(f"{base_prefix}_*.png")):
+        if "_viz" not in p.name and "_schema" not in p.name and not any(
+            p.name.endswith(s) for s in ("_snapshots.png", "_timeseries.png")
+        ):
+            return [p]
 
-    # 4) GIFs (fallback)
-    gifs = [
-        p for p in sorted(outdir.glob(f"{base_prefix}_*.gif"))
-        if "_viz" not in p.name
-    ]
-    candidates += gifs
+    # 5) Fallback: first valid GIF (excluding viz)
+    for p in sorted(outdir.glob(f"{base_prefix}_*.gif")):
+        if "_viz" not in p.name:
+            return [p]
 
-    # dedupe
-    seen = set()
-    uniq = []
-    for c in candidates:
-        if c not in seen:
-            uniq.append(c)
-            seen.add(c)
-    return uniq
+    return None
 
 # ---------- Build sections ----------
 
@@ -263,7 +258,6 @@ def run_selected_sims(core, outdir: Path, tests_to_run: List[str]) -> List[Tuple
         # Figure out best outputs from the sim's plotter naming
         base_prefix = plot_config.get("filename") or name
         output_candidates = _preferred_output_images(base_prefix, outdir)
-
         results_summary.append((name, viz_png, output_candidates))
 
     return results_summary
@@ -383,17 +377,28 @@ DEFAULT_TESTS = [
     "diffusion_process",
     "comets",
     "particles",
+    "particle_comets",
+    "particle_dfba_fields",
+    "particle_dfba_comets"
 ]
 
 def parse_args():
     p = argparse.ArgumentParser(description="Build spatio-flux overview panels")
-    p.add_argument("--section", choices=["processes", "types", "simulate", "assemble", "all"],
-                   default="all", help="Which part(s) to run")
+    p.add_argument(
+        "--section",
+        choices=["processes", "types", "simulate", "assemble", "all"],
+        default="assemble",  # TODO -- change to "all" once everything is fast
+        help="Which part(s) to run (default: assemble only)"
+    )
     p.add_argument("--output", default="out", help="Output directory")
-    p.add_argument("--tests", nargs="*", default=None,
-                   help="Subset of SIMULATIONS to run (names from test_suite.SIMULATIONS)")
-    p.add_argument("--clean", action="store_true",
-                   help="If set, clears the output directory before running")
+    p.add_argument(
+        "--tests", nargs="*", default=None,
+        help="Subset of SIMULATIONS to run (names from test_suite.SIMULATIONS)"
+    )
+    p.add_argument(
+        "--clean", action="store_true",
+        help="If set, clears the output directory before running"
+    )
     return p.parse_args()
 
 def main():
