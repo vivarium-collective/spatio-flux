@@ -9,10 +9,13 @@ reads local field values, and can contribute to the environment.
 import base64
 import uuid
 import numpy as np
+from bigraph_schema import default
 from process_bigraph import Process, default
+
 
 # Constants
 INITIAL_MASS_RANGE = (1E-3, 1.0)
+DIVISION_MASS_THRESHOLD = 5.0
 
 
 def short_id(length=6):
@@ -68,7 +71,7 @@ def generate_single_particle_state(config=None):
     }
 
 
-class Particles(Process):
+class ParticleMovement(Process):
     config_schema = {
         'bounds': 'tuple[float,float]',
         'n_bins': 'tuple[integer,integer]',
@@ -139,11 +142,17 @@ class Particles(Process):
         updated_particles = {'_remove': [], '_add': {}}
         updated_fields = {mol_id: np.zeros_like(field) for mol_id, field in fields.items()}
 
+        # time step and transport params
+        dt = float(interval)
+        D = float(self.config['diffusion_rate'])  # diffusion coefficient (len^2 / time)
+        vx, vy = self.config['advection_rate']  # advection velocity (len / time)
+        sigma = np.sqrt(2.0 * D * dt)  # Brownian std per axis
+
         # helpers
         def clamp_in_bounds(x, y):
             x_min, x_max = self.env_size[0]
             y_min, y_max = self.env_size[1]
-            buffer = 0.0001
+            buffer = 1e-4
             return (
                 float(np.clip(x, x_min + buffer, x_max - buffer)),
                 float(np.clip(y, y_min + buffer, y_max - buffer)),
@@ -151,8 +160,11 @@ class Particles(Process):
 
         # main loop
         for pid, particle in particles.items():
-            # motion
-            dx, dy = np.random.normal(0, self.config['diffusion_rate'], 2) + self.config['advection_rate']
+            # motion: Brownian ~ N(0, 2D dt) + deterministic drift v dt
+            dx, dy = np.random.normal(0.0, sigma, 2)
+            dx += vx * dt
+            dy += vy * dt
+
             new_x = particle['position'][0] + dx
             new_y = particle['position'][1] + dy
 
@@ -169,19 +181,21 @@ class Particles(Process):
             col, row = get_bin_position(new_pos, self.config['n_bins'], self.env_size)
             local = get_local_field_values(fields, col, row)
 
-            # write exchange to fields (parent contributes this tick)
+            # apply exchange to fields
+            # If 'exchange' values are per-time fluxes, integrate with dt:
             for mol_id, rate in particle.get('exchange', {}).items():
-                updated_fields[mol_id][col, row] += rate
+                updated_fields[mol_id][col, row] += rate * dt  # use '* dt' if rate is per unit time
 
-            # per-tick particle update (no division)
+            # per-tick particle update
             updated_particles[pid] = {
-                # store delta (dx, dy) to match existing convention; switch to absolute if you prefer
+                # store displacement to match your convention
                 'position': (dx, dy),
                 'local': local,
                 'exchange': {m: 0.0 for m in particle.get('exchange', {})},
             }
 
-        # random birth from boundaries
+        # random birth from boundaries (per-tick probability).
+        # If you want time-consistent births: let p = 1 - exp(-lambda * dt).
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
                 position = self.get_boundary_position(boundary)
@@ -195,7 +209,6 @@ class Particles(Process):
                 new_particle['id'] = pid
                 updated_particles['_add'][pid] = new_particle
 
-        # Return the updated particle states and field updates
         return {
             'particles': updated_particles,
             'fields': updated_fields
@@ -218,3 +231,122 @@ class Particles(Process):
             return np.random.uniform(*self.env_size[0]), self.env_size[1][1]
         elif boundary == 'bottom':
             return np.random.uniform(*self.env_size[0]), self.env_size[1][0]
+
+
+class ParticleDivision(Process):
+    """
+    Stand-alone division process:
+      - Tracks particle 'mass' only.
+      - If mass >= division_mass_threshold, parent is removed and two children
+        are created with half mass each, placed near the parent's position.
+
+    No movement, no environment/fields, no boundary handling.
+    """
+
+    # Same division-related knobs as in Particles, nothing else.
+    config_schema = {
+        # If <= 0, division is disabled
+        'division_mass_threshold': default('float', 0.0),
+        # Fraction of a reference length used as jitter radius for child placement.
+        # Reference length is inferred from current particle cloud extent (max range of x or y);
+        # if not inferable, falls back to 1.0.
+        'division_jitter': default('float', 1e-3),
+    }
+
+    def initialize(self, config):
+        # No environment to set up
+        pass
+
+    def inputs(self):
+        # Only particles are needed
+        return {
+            'particles': 'map[particle]',
+        }
+
+    def outputs(self):
+        # Emit particle deltas in the same convention: _remove, _add, and/or per-id updates
+        return {
+            'particles': 'map[particle]',
+        }
+
+    def initial_state(self, config=None):
+        # No default state; upstream composition provides particles
+        return {}
+
+    def _infer_ref_length(self, particles):
+        """Infer a reference length from particle positions for jitter scaling."""
+        xs, ys = [], []
+        for p in particles.values():
+            pos = p.get('position')
+            if isinstance(pos, (list, tuple)) and len(pos) == 2:
+                xs.append(float(pos[0]))
+                ys.append(float(pos[1]))
+        if len(xs) >= 2 and len(ys) >= 2:
+            xrange_ = (max(xs) - min(xs))
+            yrange_ = (max(ys) - min(ys))
+            ref = max(xrange_, yrange_)
+            return ref if ref > 0 else 1.0
+        return 1.0
+
+    def _make_child(self, parent, new_pos):
+        """Create a child particle from parent with half mass and reset exchanges."""
+        cid = short_id()
+        child = dict(parent)  # shallow copy; particle is assumed flat
+        child['id'] = cid
+        child['mass'] = max(parent.get('mass', 0.0), 0.0) / 2.0
+        child['position'] = (float(new_pos[0]), float(new_pos[1]))
+        # carry local as-is if present (no environment management here)
+        # reset exchanges if present
+        exch = parent.get('exchange', {})
+        if isinstance(exch, dict):
+            child['exchange'] = {k: 0.0 for k in exch.keys()}
+        return cid, child
+
+    def update(self, state, interval):
+        particles = state['particles']
+
+        updated_particles = {'_remove': [], '_add': {}}
+        thr = float(self.config['division_mass_threshold'])
+        if thr <= 0.0 or not particles:
+            # Division disabled or nothing to do: no changes
+            return {'particles': {}}
+
+        # Pre-compute reference length for jitter radius
+        ref_len = self._infer_ref_length(particles)
+        r = float(self.config['division_jitter']) * ref_len
+
+        for pid, particle in particles.items():
+            mass = float(particle.get('mass', 0.0))
+            if mass >= thr:
+                # Remove parent
+                updated_particles['_remove'].append(pid)
+
+                # Parent position (fallback to (0,0) if missing)
+                px, py = (0.0, 0.0)
+                pos = particle.get('position')
+                if isinstance(pos, (list, tuple)) and len(pos) == 2:
+                    px, py = float(pos[0]), float(pos[1])
+
+                # Symmetric jitter around parent
+                if r > 0.0:
+                    angle = float(np.random.uniform(0.0, 2.0 * np.pi))
+                    ox, oy = r * np.cos(angle), r * np.sin(angle)
+                else:
+                    ox, oy = 0.0, 0.0
+
+                c1_pos = (px + ox, py + oy)
+                c2_pos = (px - ox, py - oy)
+
+                c1_id, c1 = self._make_child(particle, c1_pos)
+                c2_id, c2 = self._make_child(particle, c2_pos)
+
+                updated_particles['_add'][c1_id] = c1
+                updated_particles['_add'][c2_id] = c2
+
+            # No else: we don't modify non-dividing particles in this process
+
+        # If nothing changed, return empty delta so upstream can skip writes
+        if not updated_particles['_remove'] and not updated_particles['_add']:
+            return {'particles': {}}
+
+        return {'particles': updated_particles}

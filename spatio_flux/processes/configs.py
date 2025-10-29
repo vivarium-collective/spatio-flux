@@ -4,7 +4,7 @@ from bigraph_schema import deep_merge
 from process_bigraph import default
 from spatio_flux.library.helpers import initialize_fields, build_path
 from spatio_flux.processes import MonodKinetics
-from spatio_flux.processes.particles import Particles
+from spatio_flux.processes.particles import ParticleMovement
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
 default_config = {
@@ -347,7 +347,7 @@ def get_particles_state(
 ):
     fields = fields or {}
     # add particles process
-    particles = Particles.generate_state(
+    particles = ParticleMovement.generate_state(
         config={
             'n_particles': n_particles,
             'bounds': bounds,

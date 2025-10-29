@@ -9,7 +9,7 @@ from process_bigraph import ProcessTypes
 from vivarium.vivarium import Vivarium, render_path
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
-from spatio_flux.processes.particles import Particles
+from spatio_flux.processes.particles import ParticleMovement
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
 
 
@@ -42,7 +42,7 @@ class SpatioFluxVivarium(Vivarium):
         bounds = None
         for path, process in self.composite.process_paths.items():
             instance = process.get('instance')
-            if isinstance(instance, Particles):
+            if isinstance(instance, ParticleMovement):
                 bounds = process['config']['bounds']
                 break
         if bounds is None:

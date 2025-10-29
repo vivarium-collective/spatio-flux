@@ -1,13 +1,8 @@
 # spatio_flux/experiments/overview_fig.py
 
-import os
-import io
-import json
 import math
 import time
-import glob
 import argparse
-import textwrap
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -90,12 +85,24 @@ def get_minimal_kinetic_doc(core=None, config=None):
         }
     }
 
+def get_division_doc(core=None, config=None):
+    return {
+        'particle_division': {
+            "_type": "process",
+            "address": "local:ParticleDivision",
+            "config": {
+                "mass_threshold": 2.0,
+            },
+        }
+    }
+
 PROCESS_DOCS = {
-    'dfba_single': get_dfba_single_doc,
-    'spatial_dfba_single': get_spatial_dfba_doc,
-    'diffusion_advection_single': get_diffusion_advection_doc,
-    'particles_single': get_particles_doc,
-    'minimal_kinetic_single': get_minimal_kinetic_doc,
+    'dfba': get_dfba_single_doc,
+    'spatial_dfba': get_spatial_dfba_doc,
+    'diffusion_advection': get_diffusion_advection_doc,
+    'minimal_kinetic': get_minimal_kinetic_doc,
+    'particle_movement': get_particles_doc,
+    'particle_division': get_division_doc,
 }
 
 # ---------- Utilities ----------
@@ -113,8 +120,9 @@ def _load_rgba(path: Path) -> Image.Image | None:
         return None
 
 def _grid_shape(n_items: int, max_cols: int) -> Tuple[int, int]:
+    """Return (rows, cols) with cols in [1..max_cols] and rows >= 0 (may be 0 if n_items==0)."""
     cols = min(max_cols, max(1, n_items))
-    rows = math.ceil(n_items / cols)
+    rows = math.ceil(n_items / cols) if n_items > 0 else 0
     return rows, cols
 
 def _panel_from_images(ax_array, images: List[Image.Image], titles: List[str] = None):
@@ -126,18 +134,19 @@ def _panel_from_images(ax_array, images: List[Image.Image], titles: List[str] = 
                 ax.set_title(titles[i], fontsize=9, pad=3)
 
 def _first_frame(path: Path) -> Image.Image | None:
+    """Return the first frame of an animated image as RGBA, closing the file handle."""
     try:
-        im = Image.open(path)
-        try:
-            im.seek(0)
-        except Exception:
-            pass
-        return im.convert("RGBA")
+        with Image.open(path) as im:
+            try:
+                im.seek(0)
+            except Exception:
+                pass
+            return im.convert("RGBA")
     except Exception as e:
         print(f"⚠ Could not extract first frame: {path} ({e.__class__.__name__})")
         return None
 
-def _preferred_output_images(base_prefix: str, outdir: Path):
+def _preferred_output_images(base_prefix: str, outdir: Path) -> List[Path]:
     """
     Return the single best simulation output image for a given test base name.
 
@@ -147,6 +156,7 @@ def _preferred_output_images(base_prefix: str, outdir: Path):
       3) {base}.png
       4) other {base}*.png (excluding *_viz.png and *_schema.png)
       5) {base}*.gif (excluding *_viz.gif)
+    Always returns a list (possibly empty).
     """
     # 1) Prefer *_snapshots.png
     snap = outdir / f"{base_prefix}_snapshots.png"
@@ -163,19 +173,21 @@ def _preferred_output_images(base_prefix: str, outdir: Path):
     if base_png.exists():
         return [base_png]
 
-    # 4) Any other PNG (excluding viz/schema)
+    # 4) Any other PNG (excluding viz/schema/snapshots/timeseries)
     for p in sorted(outdir.glob(f"{base_prefix}_*.png")):
-        if "_viz" not in p.name and "_schema" not in p.name and not any(
-            p.name.endswith(s) for s in ("_snapshots.png", "_timeseries.png")
-        ):
-            return [p]
+        if "_viz" in p.name or "_schema" in p.name:
+            continue
+        if p.name.endswith("_snapshots.png") or p.name.endswith("_timeseries.png"):
+            continue
+        return [p]
 
-    # 5) Fallback: first valid GIF (excluding viz)
-    for p in sorted(outdir.glob(f"{base_prefix}_*.gif")):
+    # 5) Fallback: first valid GIF (excluding viz), case-insensitive
+    gif_candidates = sorted(outdir.glob(f"{base_prefix}_*.gif")) + sorted(outdir.glob(f"{base_prefix}_*.GIF"))
+    for p in gif_candidates:
         if "_viz" not in p.name:
             return [p]
 
-    return None
+    return []
 
 # ---------- Build sections ----------
 
@@ -203,7 +215,8 @@ def build_type_figs(core, outdir: Path) -> List[Path]:
     """Generate individual type figures (panel b)."""
     _ensure_outdir(outdir)
     generated: List[Path] = []
-    for type_name, type_schema in TYPES_DICT.items():
+    for type_name in sorted(TYPES_DICT.keys()):
+        type_schema = TYPES_DICT[type_name]
         fname = f"{type_name}_type"
         plot_bigraph(
             state={type_name: type_schema},
@@ -246,7 +259,7 @@ def run_selected_sims(core, outdir: Path, tests_to_run: List[str]) -> List[Tuple
         sim_start = time.time()
         results = run_composite_document(doc, core=core, name=name, time=runtime)
         sim_end = time.time()
-        print(f"✅ Completed: {name} in {sim_end - sim_start:.2f} seconds")
+        print(f"✅ Completed: {name} in {sim_end - sim_start:.2f} s")
 
         print("Generating plots...")
         plot_config = sim_info.get("plot_config", {})
@@ -258,7 +271,7 @@ def run_selected_sims(core, outdir: Path, tests_to_run: List[str]) -> List[Tuple
         # Figure out best outputs from the sim's plotter naming
         base_prefix = plot_config.get("filename") or name
         output_candidates = _preferred_output_images(base_prefix, outdir)
-        results_summary.append((name, viz_png, output_candidates))
+        results_summary.append((name, viz_png, output_candidates or []))
 
     return results_summary
 
@@ -270,6 +283,7 @@ def assemble_overview_figure(
     type_pngs: List[Path],
     sim_rows: List[Tuple[str, Path, List[Path]]],
     figsize=(20, 26),
+    dpi=200,
     save_name="overview_figure.png",
 ):
     """
@@ -281,7 +295,7 @@ def assemble_overview_figure(
     Note: Schema panel removed (only matplotlib outputs shown).
     """
     _ensure_outdir(outdir)
-    fig = plt.figure(figsize=figsize, dpi=200)
+    fig = plt.figure(figsize=figsize, dpi=dpi)
 
     # Compact a+b, let c take most space
     pr_rows, pr_cols = _grid_shape(len(process_pngs), max_cols=4)
@@ -289,27 +303,47 @@ def assemble_overview_figure(
     n_sims = len(sim_rows)
 
     # Height ratios: give 70% to sims, split remaining for a/b
-    a_h = max(1, pr_rows)
-    b_h = max(1, ty_rows)
-    c_h = max(6, 3 * n_sims)  # each sim row gets generous height
+    a_h = max(1, pr_rows)  # ensure positive
+    b_h = max(1, ty_rows)  # ensure positive
+    c_h = max(6, 3 * max(1, n_sims))  # ensure nonzero even if no sims
     total = a_h + b_h + c_h
     heights = [a_h/total, b_h/total, c_h/total]
 
     gs_root = GridSpec(3, 1, height_ratios=heights, hspace=0.18, figure=fig)
 
     # --- Panel a: Processes ---
-    gs_a = GridSpecFromSubplotSpec(pr_rows, pr_cols, subplot_spec=gs_root[0], wspace=0.05, hspace=0.12)
-    proc_axes = [fig.add_subplot(gs_a[i // pr_cols, i % pr_cols]) for i in range(pr_rows * pr_cols)]
-    proc_images = [im for p in process_pngs for im in [_load_rgba(p)] if im is not None]
-    _panel_from_images(proc_axes, proc_images, titles=[p.stem for p in process_pngs if (outdir/p.name).exists()])
+    if len(process_pngs) > 0:
+        gs_a = GridSpecFromSubplotSpec(pr_rows, pr_cols, subplot_spec=gs_root[0], wspace=0.05, hspace=0.12)
+        proc_axes = [fig.add_subplot(gs_a[i // pr_cols, i % pr_cols]) for i in range(pr_rows * pr_cols)]
+        proc_images = [im for p in process_pngs for im in [_load_rgba(p)] if im is not None]
+        _panel_from_images(
+            proc_axes,
+            proc_images,
+            titles=[p.stem.replace("_", " ") for p in process_pngs if (outdir / p.name).exists()],
+        )
+    else:
+        ax = fig.add_subplot(gs_root[0])
+        ax.axis("off")
+        ax.text(0.5, 0.5, "No process figures found", ha="center", va="center", fontsize=11)
+
     pos_a = gs_root[0].get_position(fig)
     fig.text(pos_a.x0, pos_a.y1 + 0.008, "a. Processes", fontsize=14, weight="bold", va="bottom", ha="left")
 
     # --- Panel b: Types ---
-    gs_b = GridSpecFromSubplotSpec(ty_rows, ty_cols, subplot_spec=gs_root[1], wspace=0.04, hspace=0.10)
-    type_axes = [fig.add_subplot(gs_b[i // ty_cols, i % ty_cols]) for i in range(ty_rows * ty_cols)]
-    type_images = [im for p in type_pngs for im in [_load_rgba(p)] if im is not None]
-    _panel_from_images(type_axes, type_images, titles=[p.stem for p in type_pngs if (outdir/p.name).exists()])
+    if len(type_pngs) > 0:
+        gs_b = GridSpecFromSubplotSpec(ty_rows, ty_cols, subplot_spec=gs_root[1], wspace=0.04, hspace=0.10)
+        type_axes = [fig.add_subplot(gs_b[i // ty_cols, i % ty_cols]) for i in range(ty_rows * ty_cols)]
+        type_images = [im for p in type_pngs for im in [_load_rgba(p)] if im is not None]
+        _panel_from_images(
+            type_axes,
+            type_images,
+            titles=[p.stem.replace("_", " ") for p in type_pngs if (outdir / p.name).exists()],
+        )
+    else:
+        ax = fig.add_subplot(gs_root[1])
+        ax.axis("off")
+        ax.text(0.5, 0.5, "No type figures found", ha="center", va="center", fontsize=11)
+
     pos_b = gs_root[1].get_position(fig)
     fig.text(pos_b.x0, pos_b.y1 + 0.008, "b. Types", fontsize=14, weight="bold", va="bottom", ha="left")
 
@@ -324,13 +358,15 @@ def assemble_overview_figure(
             viz_img = _load_rgba(viz_png)
             if viz_img is not None:
                 ax0.imshow(viz_img)
-            ax0.set_title(f"{sim_name} bigraph", fontsize=11)
+            else:
+                ax0.text(0.5, 0.5, "Viz not found", ha="center", va="center")
+            ax0.set_title(f"{sim_name.replace('_', ' ')} bigraph", fontsize=11)
 
             # col 1: preferred outputs (stack up to 2)
             ax1 = fig.add_subplot(gs_c[r, 1]); ax1.axis("off")
 
             shown = []
-            for p in output_pngs:
+            for p in (output_pngs or []):
                 if p.suffix.lower() == ".gif":
                     im = _first_frame(p)
                 else:
@@ -356,14 +392,21 @@ def assemble_overview_figure(
                     stacked.paste(im, (0, y))
                     y += im.height
                 ax1.imshow(stacked)
-            ax1.set_title(f"{sim_name} outputs", fontsize=11)
+            ax1.set_title(f"{sim_name.replace('_', ' ')} outputs", fontsize=11)
 
+        pos_c = gs_root[2].get_position(fig)
+        fig.text(pos_c.x0, pos_c.y1 + 0.008, "c. Simulation outputs", fontsize=14, weight="bold",
+                 va="bottom", ha="left")
+    else:
+        ax = fig.add_subplot(gs_root[2])
+        ax.axis("off")
+        ax.text(0.5, 0.5, "No simulation outputs found", ha="center", va="center", fontsize=11)
         pos_c = gs_root[2].get_position(fig)
         fig.text(pos_c.x0, pos_c.y1 + 0.008, "c. Simulation outputs", fontsize=14, weight="bold",
                  va="bottom", ha="left")
 
     out_path = outdir / save_name
-    fig.savefig(out_path, bbox_inches="tight", pad_inches=0.05)
+    fig.savefig(out_path, bbox_inches="tight", pad_inches=0.05, metadata={"Creator": "spatio_flux overview_fig.py"})
     fig.savefig(out_path.with_suffix(".pdf"), bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
     print(f"Overview saved to: {out_path}")
@@ -399,6 +442,9 @@ def parse_args():
         "--clean", action="store_true",
         help="If set, clears the output directory before running"
     )
+    p.add_argument("--dpi", type=int, default=200, help="DPI for the overview figure")
+    p.add_argument("--figsize", type=float, nargs=2, metavar=("W", "H"), default=(20, 26),
+                   help="Figure size in inches (width height)")
     return p.parse_args()
 
 def main():
@@ -450,9 +496,9 @@ def main():
             # collect candidates from any of those prefixes
             outs: List[Path] = []
             for bp in base_prefixes:
-                outs += _preferred_output_images(bp, outdir)
+                outs.extend(_preferred_output_images(bp, outdir))
             # dedupe while preserving order
-            dedupe = []
+            dedupe: List[Path] = []
             seen = set()
             for p in outs:
                 if p not in seen:
@@ -467,7 +513,8 @@ def main():
             sorted(process_pngs),
             sorted(type_pngs),
             sim_rows=sim_rows_input,
-            figsize=(20, 26),  # tall page to emphasize simulations
+            figsize=tuple(args.figsize),  # tall page to emphasize simulations
+            dpi=args.dpi,
             save_name="overview_figure.png",
         )
 

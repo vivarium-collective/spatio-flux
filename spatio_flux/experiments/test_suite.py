@@ -31,9 +31,9 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
-    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry, get_particle_divide_process,
+    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
+    get_particle_divide_process, DIVISION_MASS_THRESHOLD,
 )
-from spatio_flux.processes import DIVISION_MASS_THRESHOLD
 
 
 # ====================================================================
@@ -484,8 +484,8 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME_SHORT = 20
-DEFAULT_RUNTIME_LONG = 60
+DEFAULT_RUNTIME_SHORT = 10
+DEFAULT_RUNTIME_LONG = 20
 
 SIMULATIONS = {
     'ecoli_core_dfba': {
