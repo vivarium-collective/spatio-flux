@@ -26,4 +26,88 @@ def register_processes(core):
     for process_name, process in PROCESS_DICT.items():
         core.register_process(process_name, process)
     return core
-    
+
+
+def get_dfba_single_doc(core=None, config=None):
+    return {
+        'dfba': {
+            "_type": "process",
+            "address": "local:DynamicFBA",
+            "config": {"model_file": "textbook"},
+        }
+    }
+
+
+def get_spatial_dfba_doc(core=None, config=None):
+    return {
+        'spatial_dfba': {
+            "_type": "process",
+            "address": "local:SpatialDFBA",
+            "config": {"n_bins": (5, 10)},
+        }
+    }
+
+
+def get_diffusion_advection_doc(core=None, config=None):
+    return {
+        'diffusion_advection': {
+            "_type": "process",
+            "address": "local:DiffusionAdvection",
+            "config": {
+                "n_bins": (5, 10),
+                "bounds": (5.0, 10.0),
+                "default_diffusion_rate": 1e-1,
+                "default_diffusion_dt": 1e-1,
+                "diffusion_coeffs": {},
+                "advection_coeffs": {},
+            },
+        }
+    }
+
+
+def get_particles_doc(core=None, config=None):
+    return {
+        'particles': {
+            "_type": "process",
+            "address": "local:Particles",
+            "config": {
+                "n_bins": (5, 10),
+                "bounds": (5.0, 10.0),
+                "diffusion_rate": 1e-1,
+                "advection_rate": (0.0, -0.1),
+                "add_probability": 0.0,
+            },
+        }
+    }
+
+
+def get_minimal_kinetic_doc(core=None, config=None):
+    return {
+        'minimal_kinetic': {
+            "_type": "process",
+            "address": "local:MonodKinetics",
+            "config": {},
+        }
+    }
+
+
+def get_division_doc(core=None, config=None):
+    return {
+        'particle_division': {
+            "_type": "process",
+            "address": "local:ParticleDivision",
+            "config": {
+                "mass_threshold": 2.0,
+            },
+        }
+    }
+
+
+PROCESS_DOCS = {
+    'dfba': get_dfba_single_doc,
+    'spatial_dfba': get_spatial_dfba_doc,
+    'diffusion_advection': get_diffusion_advection_doc,
+    'minimal_kinetic': get_minimal_kinetic_doc,
+    'particle_movement': get_particles_doc,
+    'particle_division': get_division_doc,
+}

@@ -343,7 +343,7 @@ def get_particle_comets_doc(core=None, config=None):
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     particle_advection = DEFAULT_ADVECTION
-    n_particles = 10
+    n_particles = 2
     add_probability = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
@@ -430,7 +430,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
     advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    n_particles = 10
+    n_particles = 2
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
