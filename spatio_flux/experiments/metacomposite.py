@@ -1,13 +1,118 @@
+from pathlib import Path
+from copy import deepcopy
+
 from bigraph_viz import plot_bigraph
 from vivarium.vivarium import VivariumTypes
 from process_bigraph import register_types as register_process_types
-from spatio_flux.processes import PROCESS_DICT, PROCESS_DOCS
-from spatio_flux import register_types, SPATIO_FLUX_TYPES
+from spatio_flux.processes import PROCESS_DOCS
+from spatio_flux import register_types
+
+# ------------- helpers -----------------
+
+def ensure_dir(p: str | Path) -> Path:
+    p = Path(p)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+def type_label(schema_piece: dict) -> str:
+    """
+    Produce a readable, reasonably unique label for a port/store type.
+    Handles:
+      - {'_type': 'float'} or 'map'/'array' with nested _value/_shape
+      - nested dicts with '_value' holding inner type
+    Falls back to 'unknown' when schematic info is too thin.
+    """
+    if not isinstance(schema_piece, dict):
+        return "unknown"
+
+    # direct type
+    if "_type" in schema_piece and isinstance(schema_piece["_type"], str):
+        t = schema_piece["_type"]
+
+        # Expand containers with more context
+        if t in ("map", "array", "struct"):
+            inner = schema_piece.get("_value", {})
+            inner_t = type_label(inner)
+            shape = schema_piece.get("_shape")
+            if t == "array" and shape is not None:
+                return f"{t}<{inner_t}>[{shape}]"
+            return f"{t}<{inner_t}>"
+        return t
+
+    # nested value
+    if "_value" in schema_piece:
+        return type_label(schema_piece["_value"])
+
+    return "unknown"
+
+def add_process_node(state: dict, proc_name: str):
+    if proc_name not in state:
+        state[proc_name] = {}
+    state[proc_name].update({
+        "_type": "process",
+        "_inputs": {},
+        "_outputs": {},
+        "inputs": {},
+        "outputs": {},
+    })
+
+
+# ------------- main pipeline -----------------
+
+def build_per_process_figs(core, outdir: Path, show_types: bool = True):
+    for proc_name in sorted(PROCESS_DOCS.keys()):
+        get_doc = PROCESS_DOCS[proc_name]
+        try:
+            doc = get_doc(core=core)
+            schema, state = core.generate({}, doc)
+        except Exception as e:
+            print(f"[skip] {proc_name}: failed to generate ({e})")
+            continue
+
+        # reshape state for bigraph_viz
+        state = deepcopy(state)
+        add_process_node(state, proc_name)
+
+        inputs = schema[proc_name]["_inputs"]
+        outputs = schema[proc_name]["_outputs"]
+
+        # annotate schemas into the node (for disconnected view)
+        for k, s in inputs.items():
+            state[proc_name]["_inputs"][k] = s
+        for k, s in outputs.items():
+            state[proc_name]["_outputs"][k] = s
+
+        # disconnected
+        plot_bigraph(
+            state=state,
+            core=core,
+            out_dir=str(outdir),
+            filename=f"{proc_name}_disconnected",
+            dpi="300",
+            collapse_redundant_processes=True,
+            show_types=show_types,
+        )
+
+        # connect each port to a store with the *same name* (your current pattern)
+        for k in inputs:
+            state[proc_name]["inputs"][k] = [k]
+        for k in outputs:
+            state[proc_name]["outputs"][k] = [k]
+
+        # connected
+        plot_bigraph(
+            state=state,
+            core=core,
+            out_dir=str(outdir),
+            filename=f"{proc_name}_connected",
+            dpi="300",
+            collapse_redundant_processes=True,
+            show_types=show_types,
+        )
 
 
 def main():
-
-    outdir = "out/metacomposite"
+    outdir = ensure_dir("out/metacomposite")
 
     # establish core
     core = VivariumTypes()
@@ -15,56 +120,11 @@ def main():
     core = register_types(core)
 
     print("Registered Processes:")
-    for process_name, get_doc in PROCESS_DOCS.items():
-        print(f"- {process_name}")
-        doc = get_doc(core=core)
-        print(doc)
+    for proc_name in sorted(PROCESS_DOCS.keys()):
+        print(f"- {proc_name}")
 
-        # full_state = core.fill({}, doc)
-        schema, state = core.generate({}, doc)
-        # full_state = core.fill(schema, state)
-
-        inputs = schema[process_name]['_inputs']
-        outputs = schema[process_name]['_outputs']
-        state[process_name]['_type'] = 'process'
-        state[process_name]['_inputs'] = {}
-        state[process_name]['_outputs'] = {}
-        state[process_name]['inputs'] = {}
-        state[process_name]['outputs'] = {}
-
-        # add inputs and outputs port schemas to state for visualization
-        for input_name, input_schema in inputs.items():
-            state[process_name]['_inputs'].update({input_name: input_schema})
-        for output_name, output_schema in outputs.items():
-            state[process_name]['_outputs'].update({output_name: output_schema})
-
-        fname = f"{process_name}_disconnected"
-        plot_bigraph(
-            state=state,
-            core=core,
-            out_dir=str(outdir),
-            filename=fname,
-            dpi="300",
-            collapse_redundant_processes=True,
-        )
-
-        # add inputs and outputs port connections to state for visualization
-        for input_name, input_schema in inputs.items():
-            state[process_name]['inputs'].update({input_name: [input_name]})
-        for output_name, output_schema in outputs.items():
-            state[process_name]['outputs'].update({output_name: [output_name]})
-
-        fname = f"{process_name}_connected"
-        plot_bigraph(
-            state=state,
-            core=core,
-            out_dir=str(outdir),
-            filename=fname,
-            dpi="300",
-            show_types=True, # this helps see the type information in the stores
-            collapse_redundant_processes=True,
-        )
-
+    # 1) keep your per-process disconnected/connected figs
+    build_per_process_figs(core, outdir, show_types=True)
 
 
 if __name__ == "__main__":
