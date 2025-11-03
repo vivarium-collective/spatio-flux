@@ -21,39 +21,49 @@ def main():
         print(doc)
 
         # full_state = core.fill({}, doc)
-        schema, doc = core.generate({}, doc)
+        schema, state = core.generate({}, doc)
         # full_state = core.fill(schema, state)
 
         inputs = schema[process_name]['_inputs']
         outputs = schema[process_name]['_outputs']
-        doc[process_name]['_inputs'] = {}
-        doc[process_name]['_outputs'] = {}
-        doc[process_name]['inputs'] = {}
-        doc[process_name]['outputs'] = {}
+        state[process_name]['_type'] = 'process'
+        state[process_name]['_inputs'] = {}
+        state[process_name]['_outputs'] = {}
+        state[process_name]['inputs'] = {}
+        state[process_name]['outputs'] = {}
 
-        # add inputs and outputs types
+        # add inputs and outputs port schemas to state for visualization
         for input_name, input_schema in inputs.items():
-            doc[process_name]['_inputs'].update({input_name: input_schema})
-            # state[process_name]['inputs'].update({input_name: [input_name]})
+            state[process_name]['_inputs'].update({input_name: input_schema})
         for output_name, output_schema in outputs.items():
-            doc[process_name]['_outputs'].update({output_name: output_schema})
-            # state[process_name]['outputs'].update({output_name: [output_name]})
+            state[process_name]['_outputs'].update({output_name: output_schema})
 
-        fname = f"{process_name}_process"
+        fname = f"{process_name}_disconnected"
         plot_bigraph(
-            state=doc,
+            state=state,
             core=core,
             out_dir=str(outdir),
             filename=fname,
             dpi="300",
             collapse_redundant_processes=True,
         )
-        # png = outdir / f"{fname}.png"
 
+        # add inputs and outputs port connections to state for visualization
+        for input_name, input_schema in inputs.items():
+            state[process_name]['inputs'].update({input_name: [input_name]})
+        for output_name, output_schema in outputs.items():
+            state[process_name]['outputs'].update({output_name: [output_name]})
 
-        # breakpoint()
-            # top_schema, top_state = core.infer_wires(input_schema, state, doc)
-
+        fname = f"{process_name}_connected"
+        plot_bigraph(
+            state=state,
+            core=core,
+            out_dir=str(outdir),
+            filename=fname,
+            dpi="300",
+            show_types=True, # this helps see the type information in the stores
+            collapse_redundant_processes=True,
+        )
 
 
 
