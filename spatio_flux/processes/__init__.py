@@ -16,7 +16,7 @@ PROCESS_DICT = {
     'DynamicFBA': DynamicFBA,
     'SpatialDFBA': SpatialDFBA,
     'DiffusionAdvection': DiffusionAdvection,
-    'Particles': ParticleMovement,
+    'ParticleMovement': ParticleMovement,
     'MonodKinetics': MonodKinetics,
     'ParticleDivision': ParticleDivision,
 }
@@ -67,9 +67,9 @@ def get_diffusion_advection_doc(core=None, config=None):
 
 def get_particles_doc(core=None, config=None):
     return {
-        'particles': {
+        'particle_movement': {
             "_type": "process",
-            "address": "local:Particles",
+            "address": "local:ParticleMovement",
             "config": {
                 "n_bins": (5, 10),
                 "bounds": (5.0, 10.0),

@@ -273,7 +273,7 @@ def get_particle_movement_process(
 
     return {
         '_type': 'process',
-        'address': 'local:Particles',
+        'address': 'local:ParticleMovement',
         'config': config,
         'inputs': {
             'particles': ['particles'],
