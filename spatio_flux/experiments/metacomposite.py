@@ -1,5 +1,3 @@
-# metacomposite_overview.py
-
 import math
 from pathlib import Path
 from copy import deepcopy
@@ -75,24 +73,70 @@ def build_per_process_figs(core, outdir, show_types=True, per_fig_dpi=300):
         )
 
 
+# ---------- pairwise composite figures ----------
+def build_pairwise_composite_figs(core, outdir, show_types=True, per_fig_dpi=300):
+
+    process_names = sorted(PROCESS_DOCS.keys())
+    compiled = {}
+    for name in process_names:
+        try:
+            doc = PROCESS_DOCS[name](core=core)
+            schema, state = core.generate({}, doc)
+        except Exception as e:
+            print(f"[skip] {name}: {e}"); continue
+
+        state = deepcopy(state)
+        add_process_node(state, name)
+
+        # add the ports
+        ins = schema[name]["_inputs"]
+        outs = schema[name]["_outputs"]
+        for k, v in ins.items():  state[name]["_inputs"][k]  = v
+        for k, v in outs.items(): state[name]["_outputs"][k] = v
+
+        compiled[name] = (schema, state)
+
+        # # wire ports to same-named stores
+        # for k in ins:  state[name]["inputs"][k]  = [k]
+        # for k in outs: state[name]["outputs"][k] = [k]
+
+    # --- Identify processes with matching ports ---
+    pairs = []
+    for i_idx, i in enumerate(process_names):
+        for j in process_names[i_idx + 1:]:
+            schema_i, state_i = compiled[i]
+            schema_j, state_j = compiled[j]
+
+            breakpoint()
+            pass
+
+
+        # plot_bigraph(
+        #     state=state, core=core, out_dir=str(outdir),
+        #     filename=f"{name}_connected", dpi=str(per_fig_dpi),
+        #     collapse_redundant_processes=True, show_types=show_types
+        # )
+
+
 # ---------- overview assembly (matplotlib) ----------
-def assemble_overview_ab(
+def assemble_overview_abc(
     outdir,
     cols=3,
-    figsize=(16, 22),      # bigger canvas (inches)
-    fig_dpi=200,           # crisp preview in notebooks
-    save_dpi=300,          # crisp file on disk
-    title_fs=22,           # big readable panel titles
-    save_name="overview_ab.png"
+    figsize=(16, 30),      # taller canvas for three panels
+    fig_dpi=200,
+    save_dpi=300,
+    title_fs=22,
+    save_name="overview_abc.png"
 ):
     outdir = Path(outdir)
     disc_paths = _collect_images(outdir, "disconnected")
     conn_paths = _collect_images(outdir, "connected")
+    comp_paths = _collect_images(outdir, "composite")
 
     fig = plt.figure(figsize=figsize, dpi=fig_dpi)
-    gs_root = GridSpec(2, 1, height_ratios=(1, 1), hspace=0.08, figure=fig)
+    gs_root = GridSpec(3, 1, height_ratios=(1, 1, 1), hspace=0.08, figure=fig)
 
-    # Panel (a): disconnected
+    # (a) Disconnected
     a_rows, a_cols = _grid_shape(len(disc_paths), max_cols=cols)
     if len(disc_paths) > 0 and a_rows > 0:
         gs_a = GridSpecFromSubplotSpec(a_rows, a_cols, subplot_spec=gs_root[0], wspace=0.02, hspace=0.04)
@@ -101,14 +145,14 @@ def assemble_overview_ab(
         for i, ax in enumerate(axes_a):
             ax.axis("off")
             if i < len(imgs_a):
-                ax.imshow(imgs_a[i], interpolation="none")  # avoid smoothing
+                ax.imshow(imgs_a[i], interpolation="none")
     else:
         ax = fig.add_subplot(gs_root[0]); ax.axis("off")
         ax.text(0.5, 0.5, "No disconnected figures found", ha="center", va="center", fontsize=12)
     pos_a = gs_root[0].get_position(fig)
     fig.text(pos_a.x0, pos_a.y1 + 0.006, "(a) Disconnected processes", fontsize=title_fs, weight="bold", va="bottom", ha="left")
 
-    # Panel (b): connected
+    # (b) Connected (self-wired)
     b_rows, b_cols = _grid_shape(len(conn_paths), max_cols=cols)
     if len(conn_paths) > 0 and b_rows > 0:
         gs_b = GridSpecFromSubplotSpec(b_rows, b_cols, subplot_spec=gs_root[1], wspace=0.02, hspace=0.04)
@@ -123,6 +167,22 @@ def assemble_overview_ab(
         ax.text(0.5, 0.5, "No connected figures found", ha="center", va="center", fontsize=12)
     pos_b = gs_root[1].get_position(fig)
     fig.text(pos_b.x0, pos_b.y1 + 0.006, "(b) Connected processes", fontsize=title_fs, weight="bold", va="bottom", ha="left")
+
+    # (c) Composites
+    c_rows, c_cols = _grid_shape(len(comp_paths), max_cols=cols)
+    if len(comp_paths) > 0 and c_rows > 0:
+        gs_c = GridSpecFromSubplotSpec(c_rows, c_cols, subplot_spec=gs_root[2], wspace=0.02, hspace=0.04)
+        axes_c = [fig.add_subplot(gs_c[i // c_cols, i % c_cols]) for i in range(c_rows * c_cols)]
+        imgs_c = [im for p in comp_paths for im in [_load_rgba(p)] if im is not None]
+        for i, ax in enumerate(axes_c):
+            ax.axis("off")
+            if i < len(imgs_c):
+                ax.imshow(imgs_c[i], interpolation="none")
+    else:
+        ax = fig.add_subplot(gs_root[2]); ax.axis("off")
+        ax.text(0.5, 0.5, "No composite figures found", ha="center", va="center", fontsize=12)
+    pos_c = gs_root[2].get_position(fig)
+    fig.text(pos_c.x0, pos_c.y1 + 0.006, "(c) Composites (pairwise-compatible)", fontsize=title_fs, weight="bold", va="bottom", ha="left")
 
     out_path = outdir / save_name
     fig.savefig(out_path, bbox_inches="tight", pad_inches=0.05, dpi=save_dpi)
@@ -147,8 +207,11 @@ def main():
     # 1) build per-process figs at high dpi
     build_per_process_figs(core, outdir, show_types=True, per_fig_dpi=300)
 
-    # 2) assemble overview with big titles
-    assemble_overview_ab(outdir, cols=3, figsize=(16, 22), fig_dpi=200, save_dpi=300, title_fs=22)
+    # 2) build pairwise composite figs
+    build_pairwise_composite_figs(core, outdir, show_types=True, per_fig_dpi=300)
+
+    # 3) assemble overview (a, b, c)
+    assemble_overview_abc(outdir, cols=3, figsize=(16, 30), fig_dpi=200, save_dpi=300, title_fs=22)
 
 if __name__ == "__main__":
     main()
