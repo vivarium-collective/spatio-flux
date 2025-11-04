@@ -107,6 +107,9 @@ def build_pairwise_composite_figs(core, outdir, show_types=True, per_fig_dpi=300
             schema_i, state_i = compiled[i]
             schema_j, state_j = compiled[j]
 
+            i_inputs = state_i[i]["_inputs"]
+            # TODO -- we need to get the 'map[concentration]' to come through instead of 'map[float]'
+
             breakpoint()
             pass
 
