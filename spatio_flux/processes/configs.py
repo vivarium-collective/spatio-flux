@@ -277,10 +277,35 @@ def get_particle_movement_process(
         'config': config,
         'inputs': {
             'particles': ['particles'],
-            'fields': ['fields']},
+            # 'fields': ['fields']
+        },
         'outputs': {
             'particles': ['particles'],
-            'fields': ['fields']
+            # 'fields': ['fields']
+        },
+    }
+
+def get_particle_exchange_process(
+        n_bins=(20, 20),
+        bounds=(10.0, 10.0),
+        rates_are_per_time=True,
+        apply_mass_balance=False,
+):
+    config = locals()
+    # Remove any key-value pair where the value is None
+    config = {key: value for key, value in config.items() if value is not None}
+
+    return {
+        '_type': 'process',
+        'address': 'local:ParticleExchange',
+        'config': config,
+        'inputs': {
+            'particles': ['particles'],
+            'fields': ['fields'],
+        },
+        'outputs': {
+            'particles': ['particles'],
+            'fields': ['fields'],
         },
     }
 

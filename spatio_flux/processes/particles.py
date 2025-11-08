@@ -10,7 +10,7 @@ import base64
 import uuid
 import numpy as np
 from bigraph_schema import default
-from process_bigraph import Process, default
+from process_bigraph import Process, Step, default
 
 
 # Constants
@@ -74,26 +74,14 @@ class ParticleMovement(Process):
     }
 
     def initialize(self, config):
-        self.env_size = (
-            (0, config['bounds'][0]),
-            (0, config['bounds'][1])
-        )
+        self.env_size = ((0, config['bounds'][0]), (0, config['bounds'][1]))
 
     def inputs(self):
-        return {
-            'particles': 'map[particle]',
-            'fields': {
-                '_type': 'map',
-                '_value': {
-                    '_type': 'array',
-                    '_shape': self.config['n_bins'],
-                    '_data': 'concentration'
-                },
-            }
-        }
+        # Movement doesn't need fields anymore.
+        return {'particles': 'map[particle]'}
 
     def outputs(self):
-        return self.inputs()
+        return {'particles': 'map[particle]'}
 
     def initial_state(self, config=None):
         return {}
@@ -101,16 +89,11 @@ class ParticleMovement(Process):
     @staticmethod
     def generate_state(config=None):
         config = config or {}
-        fields = config.get('fields', {})
-        n_bins = config.get('n_bins', (1, 1))
         bounds = config.get('bounds', (1.0, 1.0))
+        n_bins = config.get('n_bins', (1, 1))
         n_particles = config.get('n_particles', 15)
         mass_range = config.get('mass_range') or INITIAL_MASS_RANGE
-
-        if fields:
-            actual_shape = next(iter(fields.values())).shape
-            if actual_shape != n_bins:
-                raise ValueError(f"Shape mismatch: fields {actual_shape} vs n_bins {n_bins}")
+        fields = config.get('fields', {})  # optional, used by generate_single_particle_state if provided
 
         particles = {}
         for _ in range(n_particles):
@@ -123,23 +106,18 @@ class ParticleMovement(Process):
                 'id': pid,
             })
             particles[pid] = pstate
-
         return {'particles': particles}
 
     def update(self, state, interval):
         particles = state['particles']
-        fields = state['fields']
 
         updated_particles = {'_remove': [], '_add': {}}
-        updated_fields = {mol_id: np.zeros_like(field) for mol_id, field in fields.items()}
 
-        # time step and transport params
         dt = float(interval)
-        D = float(self.config['diffusion_rate'])  # diffusion coefficient (len^2 / time)
-        vx, vy = self.config['advection_rate']  # advection velocity (len / time)
-        sigma = np.sqrt(2.0 * D * dt)  # Brownian std per axis
+        D = float(self.config['diffusion_rate'])
+        vx, vy = self.config['advection_rate']
+        sigma = np.sqrt(2.0 * D * dt)
 
-        # helpers
         def clamp_in_bounds(x, y):
             x_min, x_max = self.env_size[0]
             y_min, y_max = self.env_size[1]
@@ -149,9 +127,7 @@ class ParticleMovement(Process):
                 float(np.clip(y, y_min + buffer, y_max - buffer)),
             )
 
-        # main loop
         for pid, particle in particles.items():
-            # motion: Brownian ~ N(0, 2D dt) + deterministic drift v dt
             dx, dy = np.random.normal(0.0, sigma, 2)
             dx += vx * dt
             dy += vy * dt
@@ -159,51 +135,31 @@ class ParticleMovement(Process):
             new_x = particle['position'][0] + dx
             new_y = particle['position'][1] + dy
 
-            # removal by boundary
             if self.check_boundary_hit(new_x, new_y):
                 updated_particles['_remove'].append(pid)
                 continue
 
-            # keep inside bounds
             new_x, new_y = clamp_in_bounds(new_x, new_y)
-            new_pos = (new_x, new_y)
 
-            # env bin + local fields
-            col, row = get_bin_position(new_pos, self.config['n_bins'], self.env_size)
-            local = get_local_field_values(fields, col, row)
-
-            # apply exchange to fields
-            # If 'exchange' values are per-time fluxes, integrate with dt:
-            for mol_id, rate in particle.get('exchange', {}).items():
-                updated_fields[mol_id][col, row] += rate * dt  # use '* dt' if rate is per unit time
-
-            # per-tick particle update
+            # store displacement to follow your convention (aggregator updates absolute downstream)
             updated_particles[pid] = {
-                # store displacement to match your convention
-                'position': (dx, dy),
-                'local': local,
-                'exchange': {m: 0.0 for m in particle.get('exchange', {})},
+                'position': (dx, dy)
             }
 
-        # random birth from boundaries (per-tick probability).
-        # If you want time-consistent births: let p = 1 - exp(-lambda * dt).
+        # births (Poisson-ish per tick)
         for boundary in self.config['boundary_to_add']:
             if np.random.rand() < self.config['add_probability']:
                 position = self.get_boundary_position(boundary)
                 new_particle = generate_single_particle_state({
                     'bounds': self.config['bounds'],
                     'n_bins': self.config['n_bins'],
-                    'fields': fields,
                     'position': position
                 })
                 pid = short_id()
                 new_particle['id'] = pid
                 updated_particles['_add'][pid] = new_particle
 
-        return {
-            'particles': updated_particles,
-            'fields': updated_fields
-        }
+        return {'particles': updated_particles}
 
     def check_boundary_hit(self, x, y):
         return (
@@ -224,7 +180,76 @@ class ParticleMovement(Process):
             return np.random.uniform(*self.env_size[0]), self.env_size[1][0]
 
 
-class ParticleDivision(Process):
+class ParticleExchange(Step):
+    config_schema = {
+        'bounds': 'tuple[float,float]',
+        'n_bins': 'tuple[integer,integer]',
+    }
+
+    def initialize(self, config):
+        self.env_size = ((0, config['bounds'][0]), (0, config['bounds'][1]))
+
+    def inputs(self):
+        return {
+            'particles': 'map[particle]',
+            'fields': {
+                '_type': 'map',
+                '_value': {
+                    '_type': 'array',
+                    '_shape': self.config['n_bins'],
+                    '_data': 'concentration'
+                },
+            }
+        }
+
+    def outputs(self):
+        # Writes to fields (bin-wise deltas) and annotates particles with local samples;
+        # optionally zeroes/decays exchange terms.
+        return {
+            'particles': 'map[particle]',
+            'fields': {
+                '_type': 'map',
+                '_value': {
+                    '_type': 'array',
+                    '_shape': self.config['n_bins'],
+                    '_data': 'concentration'
+                },
+            }
+        }
+
+    def initial_state(self, config=None):
+        return {}
+
+    def update(self, state):
+        particles = state['particles']
+        fields = state['fields']
+
+        updated_particles = {}
+        updated_fields = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
+
+        for pid, p in particles.items():
+            x, y = p['position']
+            col, row = get_bin_position((x, y), self.config['n_bins'], self.env_size)
+            local = get_local_field_values(fields, col, row)
+            p_update = {'local': local}
+
+            # Apply exchange fluxes into field bins
+            exch = p.get('exchange', {})
+            for mol_id, rate in exch.items():
+                updated_fields[mol_id][col, row] += rate
+
+            if 'exchange' in p:
+                p_update['exchange'] = {m: 0.0 for m in p['exchange']}
+
+            updated_particles[pid] = p_update
+
+        return {
+            'particles': updated_particles,
+            'fields': updated_fields
+        }
+
+
+class ParticleDivision(Step):
     """
     Stand-alone division process:
       - Tracks particle 'mass' only.
@@ -291,7 +316,7 @@ class ParticleDivision(Process):
             child['exchange'] = {k: 0.0 for k in exch.keys()}
         return cid, child
 
-    def update(self, state, interval):
+    def update(self, state):
         particles = state['particles']
 
         updated_particles = {'_remove': [], '_add': {}}

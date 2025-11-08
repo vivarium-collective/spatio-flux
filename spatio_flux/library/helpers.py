@@ -116,7 +116,7 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
         out_dir=outdir,
         filename=f"{name}_viz",
         dpi="300",
-        collapse_redundant_processes=True,
+        # collapse_redundant_processes=True,
     )
 
     print(f"⏱ Simulating {name} for {time}s...")
