@@ -243,6 +243,8 @@ class ParticleExchange(Step):
 
             updated_particles[pid] = p_update
 
+        print(f'current particle: {state["particles"]}')
+        print(f'particle exchange: {updated_particles}')
         return {
             'particles': updated_particles,
             'fields': updated_fields
@@ -363,4 +365,6 @@ class ParticleDivision(Step):
         if not updated_particles['_remove'] and not updated_particles['_add']:
             return {'particles': {}}
 
-        return {'particles': updated_particles}
+        return {
+            'particles': updated_particles
+        }

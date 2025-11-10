@@ -314,6 +314,8 @@ class DynamicFBA(Process):
         }
 
     def update(self, inputs, interval):
+        print(f"dFBA inputs: {inputs}")
+
         update = run_fba_update(
             self.model,
             self.config,
