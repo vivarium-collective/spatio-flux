@@ -53,6 +53,7 @@ def generate_single_particle_state(config=None):
     local = get_local_field_values(fields, column=x, row=y)
     exchanges = {f: 0.0 for f in mol_ids}
 
+    # TODO -- how is particle movement getting field information?
     return {
         'id': config.get('id', None),
         'position': position,
@@ -77,7 +78,6 @@ class ParticleMovement(Process):
         self.env_size = ((0, config['bounds'][0]), (0, config['bounds'][1]))
 
     def inputs(self):
-        # Movement doesn't need fields anymore.
         return {'particles': 'map[particle]'}
 
     def outputs(self):
@@ -153,11 +153,13 @@ class ParticleMovement(Process):
                 new_particle = generate_single_particle_state({
                     'bounds': self.config['bounds'],
                     'n_bins': self.config['n_bins'],
-                    'position': position
+                    'position': position,
                 })
                 pid = short_id()
                 new_particle['id'] = pid
                 updated_particles['_add'][pid] = new_particle
+
+                print("Added particle at boundary", boundary, "with id", pid)
 
         return {'particles': updated_particles}
 
@@ -221,9 +223,7 @@ class ParticleExchange(Step):
             col, row = get_bin_position((x, y), self.config['n_bins'], self.env_size)
             local_after = get_local_field_values(fields, col, row)
             local_delta = {
-                m: local_after[m] - local_before.get(m, 0.0)
-                for m in local_after
-                if (local_after[m] - local_before.get(m, 0.0)) != 0
+                m: local_after[m] - local_before.get(m, 0.0) for m in local_after
             }
             p_update = {'local': local_delta}
 
@@ -239,8 +239,7 @@ class ParticleExchange(Step):
 
             particle_updates[pid] = p_update
 
-        print(f'current particle: {state["particles"]}')
-        print(f'particle update: {particle_updates}')
+        print(f"Particle Updates: {particle_updates}")
         return {
             'particles': particle_updates,
             'fields': field_updates

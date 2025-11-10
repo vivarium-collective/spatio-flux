@@ -425,6 +425,7 @@ def plot_particle_dfba(results, state, config=None):
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 
 def get_particle_dfba_comets_doc(core=None, config=None):
+    config = config or {}
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
@@ -470,6 +471,7 @@ def plot_particle_dfba_comets(results, state, config=None):
     plot_species_distributions_with_particles_to_gif(
         results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
+
 # ==================================================
 # Functions for running tests and generating reports
 # ==================================================
@@ -490,7 +492,7 @@ DEFAULT_INITIAL_MIN_MAX = {
     }
 
 DEFAULT_RUNTIME_SHORT = 10
-DEFAULT_RUNTIME_LONG = 20
+DEFAULT_RUNTIME_LONG = 60
 
 SIMULATIONS = {
     # 'ecoli_core_dfba': {

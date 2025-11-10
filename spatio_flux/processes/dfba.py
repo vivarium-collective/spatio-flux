@@ -229,6 +229,9 @@ def run_fba_update(model, config, substrates, biomass, interval):
 
     # Set uptake bounds using Michaelis-Menten kinetics
     for substrate, reaction_id in config["substrate_update_reactions"].items():
+        # if substrate not in substrates:
+        #     continue
+
         Km, Vmax = config["kinetic_params"][substrate]
         substrate_concentration = substrates[substrate]
         uptake_rate = -1 * Vmax * substrate_concentration / (Km + substrate_concentration)
@@ -248,6 +251,9 @@ def run_fba_update(model, config, substrates, biomass, interval):
         delta_biomass = mu * biomass * interval
 
         for substrate, rxn_id in config["substrate_update_reactions"].items():
+            # if substrate not in substrates:
+            #     continue
+
             flux = solution.fluxes[rxn_id] * biomass * interval
             delta = max(flux, -substrates[substrate])  # prevent negative concentrations
             update_substrates[substrate] = delta
@@ -314,8 +320,6 @@ class DynamicFBA(Process):
         }
 
     def update(self, inputs, interval):
-        print(f"dFBA inputs: {inputs}")
-
         update = run_fba_update(
             self.model,
             self.config,
