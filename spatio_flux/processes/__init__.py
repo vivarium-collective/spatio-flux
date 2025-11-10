@@ -85,9 +85,6 @@ def get_particles_doc(core=None, config=None):
             "config": {
                 "n_bins": (5, 10),
                 "bounds": (5.0, 10.0),
-                "diffusion_rate": 1e-1,
-                "advection_rate": (0.0, -0.1),
-                "add_probability": 0.0,
             },
         }
     }

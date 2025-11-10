@@ -141,7 +141,7 @@ class ParticleMovement(Process):
 
             new_x, new_y = clamp_in_bounds(new_x, new_y)
 
-            # store displacement to follow your convention (aggregator updates absolute downstream)
+            # store displacement
             updated_particles[pid] = {
                 'position': (dx, dy)
             }
@@ -203,19 +203,7 @@ class ParticleExchange(Step):
         }
 
     def outputs(self):
-        # Writes to fields (bin-wise deltas) and annotates particles with local samples;
-        # optionally zeroes/decays exchange terms.
-        return {
-            'particles': 'map[particle]',
-            'fields': {
-                '_type': 'map',
-                '_value': {
-                    '_type': 'array',
-                    '_shape': self.config['n_bins'],
-                    '_data': 'concentration'
-                },
-            }
-        }
+        return self.inputs()
 
     def initial_state(self, config=None):
         return {}
@@ -224,30 +212,38 @@ class ParticleExchange(Step):
         particles = state['particles']
         fields = state['fields']
 
-        updated_particles = {}
-        updated_fields = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
+        particle_updates = {}
+        field_updates = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
 
         for pid, p in particles.items():
             x, y = p['position']
+            local_before = p['local']
             col, row = get_bin_position((x, y), self.config['n_bins'], self.env_size)
-            local = get_local_field_values(fields, col, row)
-            p_update = {'local': local}
+            local_after = get_local_field_values(fields, col, row)
+            local_delta = {
+                m: local_after[m] - local_before.get(m, 0.0)
+                for m in local_after
+                if (local_after[m] - local_before.get(m, 0.0)) != 0
+            }
+            p_update = {'local': local_delta}
 
             # Apply exchange fluxes into field bins
+            # TODO convert to concentration?
             exch = p.get('exchange', {})
-            for mol_id, rate in exch.items():
-                updated_fields[mol_id][col, row] += rate
+            for mol_id, delta in exch.items():
+                field_updates[mol_id][col, row] += delta
 
             if 'exchange' in p:
-                p_update['exchange'] = {m: 0.0 for m in p['exchange']}
+                p_update['exchange'] = {
+                    mol_id: -delta for mol_id, delta in p['exchange'].items()}
 
-            updated_particles[pid] = p_update
+            particle_updates[pid] = p_update
 
         print(f'current particle: {state["particles"]}')
-        print(f'particle exchange: {updated_particles}')
+        print(f'particle update: {particle_updates}')
         return {
-            'particles': updated_particles,
-            'fields': updated_fields
+            'particles': particle_updates,
+            'fields': field_updates
         }
 
 

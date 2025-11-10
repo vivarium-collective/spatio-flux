@@ -83,7 +83,8 @@ def apply_non_negative_array(schema, current, update, top_schema, top_state, pat
 
 positive_float = {
     '_inherit': 'float',
-    '_apply': apply_non_negative}
+    '_apply': apply_non_negative
+}
 
 positive_array = {
     '_inherit': 'array',
