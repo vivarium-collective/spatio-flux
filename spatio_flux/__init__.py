@@ -99,9 +99,9 @@ bounds_type = {
 particle_type = {
     'id': 'string',
     'position': 'position',
-    'mass': default('float', 1.0),
+    'mass': default('concentration', 1.0),
     'local': 'map[concentration]',
-    'exchange': 'map[float]',    # TODO is this counts?
+    'exchange': 'map[delta]',    # TODO is this counts?
 }
 
 boundary_side = 'enum[left,right,top,bottom]'
@@ -124,11 +124,12 @@ fields_type =  {
 
 
 SPATIO_FLUX_TYPES = {
+    'position': 'tuple[float,float]',
+    'delta': 'float',
+    'concentration': positive_float,
     'particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,
-    'concentration': positive_float,
-    'position': 'tuple[float,float]',
     # TODO fields, concentrations, fluxes, etc.
 }
 

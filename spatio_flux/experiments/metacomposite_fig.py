@@ -52,7 +52,7 @@ def main():
     name = "metacomposite"
     outdir = "out"
 
-    document = get_particle_multi_dfba_comets_doc(config={'n_bins': (3, 3)})
+    document = get_particle_multi_dfba_comets_doc(config={'n_bins': (2, 2)})
     core = VivariumTypes()
     core = register_types(core)
     document = {'state': document} if 'state' not in document else document
@@ -90,7 +90,8 @@ def main():
         out_dir=outdir,
         filename=f"{name}_viz",
         dpi="300",
-        collapse_redundant_processes=True,
+        show_types=True,
+        # collapse_redundant_processes=True,
     )
 
 

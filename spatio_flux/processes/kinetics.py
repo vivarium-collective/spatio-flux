@@ -88,8 +88,8 @@ class MonodKinetics(Process):
 
     Outputs:
     --------
-    - mass (float): net change in mass
-    - substrates (map[float]): net change in substrate concentrations
+    - mass (delta): net change in mass
+    - substrates (map[delta]): net change in substrate concentrations
 
     Notes:
     ------
@@ -122,14 +122,14 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'mass': 'float',
+            'mass': 'concentration',
             'substrates': 'map[concentration]'
         }
 
     def outputs(self):
         return {
-            'mass': 'float',
-            'substrates': 'map[float]'
+            'mass': 'delta',
+            'substrates': 'map[delta]'
         }
 
     def update(self, state, interval):
