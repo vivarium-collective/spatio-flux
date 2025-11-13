@@ -158,43 +158,57 @@ class ParticleMovement(Process):
         vx, vy = self.config['advection_rate']
         sigma = np.sqrt(2.0 * D * dt)
 
-        def clamp_in_bounds(x, y):
-            x_min, x_max = self.env_size[0]
-            y_min, y_max = self.env_size[1]
-            buffer = 1e-4
+        # precompute bounds + buffer
+        (x_min, x_max), (y_min, y_max) = self.env_size
+        buffer = 1e-4
+        x_lo, x_hi = x_min + buffer, x_max - buffer
+        y_lo, y_hi = y_min + buffer, y_max - buffer
+
+        def clamp_delta_in_bounds(x_old, y_old, x_new, y_new):
+            x_clamped = np.clip(x_new, x_lo, x_hi)
+            y_clamped = np.clip(y_new, y_lo, y_hi)
             return (
-                float(np.clip(x, x_min + buffer, x_max - buffer)),
-                float(np.clip(y, y_min + buffer, y_max - buffer)),
+                float(x_clamped - x_old),
+                float(y_clamped - y_old),
             )
 
         for pid, particle in particles.items():
+            old_x, old_y = particle['position']
+
+            # proposed displacement
             dx, dy = np.random.normal(0.0, sigma, 2)
             dx += vx * dt
             dy += vy * dt
 
-            new_x = particle['position'][0] + dx
-            new_y = particle['position'][1] + dy
+            new_x = old_x + dx
+            new_y = old_y + dy
 
+            # kill if it crosses a removal boundary
             if self.check_boundary_hit(new_x, new_y):
                 updated_particles['_remove'].append(pid)
                 continue
 
-            new_x_clamped, new_y_clamped = clamp_in_bounds(new_x, new_y)
-            actual_dx = new_x_clamped - new_x
-            actual_dy = new_y_clamped - new_y
+            # clamp and convert to actual delta
+            actual_dx, actual_dy = clamp_delta_in_bounds(old_x, old_y, new_x, new_y)
             updated_particles[pid] = {'position': (actual_dx, actual_dy)}
 
         # births (Poisson-ish per tick)
+        add_prob = self.config['add_probability']
+        bounds = self.config['bounds']
+        n_bins = self.config['n_bins']
+
         for boundary in self.config['boundary_to_add']:
-            if np.random.rand() < self.config['add_probability']:
+            if np.random.rand() < add_prob:
                 position = self.get_boundary_position(boundary)
                 new_particle = generate_single_particle_state({
-                    'bounds': self.config['bounds'],
-                    'n_bins': self.config['n_bins'],
-                    'position': position})
+                    'bounds': bounds,
+                    'n_bins': n_bins,
+                    'position': position,
+                })
                 pid = short_id()
                 new_particle['id'] = pid
                 updated_particles['_add'][pid] = new_particle
+
         return {'particles': updated_particles}
 
     def check_boundary_hit(self, x, y):
@@ -249,34 +263,52 @@ class ParticleExchange(Step):
         fields = state['fields']
 
         particle_updates = {}
+        # initialize zero-delta arrays for each field
         field_updates = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
 
         for pid, p in particles.items():
             x, y = p['position']
-            local_before = p['local']
             col, row = get_bin_position((x, y), self.config['n_bins'], self.env_size)
+
+            # ---- local field sampling ----
             local_after = get_local_field_values(fields, col, row)
-            local_delta = {
-                m: local_after[m] - local_before.get(m, 0.0) for m in local_after
+            local_before = p.get('local', {}) or {}
+
+            if not local_before:
+                # first time: add entire local map
+                local_update = {'_add': local_after}
+            else:
+                # subsequent times: store the delta
+                local_update = {
+                    m: local_after[m] - local_before.get(m, 0.0)
+                    for m in local_after
+                }
+
+            # ---- exchange: particle ↔ field ----
+            exch = p.get('exchange', {}) or {}
+
+            # apply exchange to field bin
+            # convention: positive value -> adds to field at this bin
+            for mol_id, delta in exch.items():
+                # you can multiply by dt here if exch is a rate
+                field_updates[mol_id][col, row] += delta
+
+            # update particle's exchange state
+            if not exch:
+                # initialize exchange map if missing/empty
+                exchange_update = {'_add': {m: 0.0 for m in fields.keys()}}
+            else:
+                # after applying, zero out the exchange (command consumed)
+                exchange_update = {mol_id: 0.0 for mol_id in exch}
+
+            particle_updates[pid] = {
+                'local': local_update,
+                'exchange': exchange_update,
             }
-
-            if not p['local']:
-                p_update = {'local': {'_add': local_after}}
-            else:
-                p_update = {'local': local_delta}
-
-            if not p['exchange']:
-                p_update['exchange'] = {'_add': {m: 0.0 for m in fields.keys()}}
-            else:
-                # TODO convert to concentration?
-                p_update['exchange'] = {
-                    mol_id: -delta for mol_id, delta in p['exchange'].items()}
-
-            particle_updates[pid] = p_update
 
         return {
             'particles': particle_updates,
-            'fields': field_updates
+            'fields': field_updates,
         }
 
 
