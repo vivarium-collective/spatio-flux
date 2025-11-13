@@ -99,9 +99,9 @@ def build_plot_settings(particle_id=None, n_bins=(2, 2)):
     - Mass/Biomass unified 'bridge' color across families
     - Local/Exchange children colored consistently (both generic and particle-scoped)
     """
-    # enumerate all dFBA nodes from n_bins
-    dFBA_nodes = [('spatial_dfba', f'dFBA[{i},{j}]')
-                  for i in range(n_bins[0]) for j in range(n_bins[1])]
+    # # enumerate all dFBA nodes from n_bins
+    # dFBA_nodes = [('spatial_dfba', f'dFBA[{i},{j}]')
+    #               for i in range(n_bins[0]) for j in range(n_bins[1])]
 
     # ---- fills (family-first) ----
     fills = {
@@ -122,7 +122,8 @@ def build_plot_settings(particle_id=None, n_bins=(2, 2)):
 
         # dFBA family (blues)
         ('spatial_dfba',):                       COLORS["dfba_light"],
-        **{node: COLORS["dfba_base"] for node in dFBA_nodes},
+        ('spatial_dfba', 'dFBA[0,0]'): COLORS["dfba_base"]
+        # **{node: COLORS["dfba_base"] for node in dFBA_nodes},
     }
 
     # unique particle + particle-owned states (guarded)
