@@ -196,7 +196,9 @@ def main():
     plot_settings.update(dict(
         dpi='300',
         show_types=True,
-        collapse_redundant_processes=False))
+        collapse_redundant_processes={
+            'exclude': [('particle_movement',), ('particle_division',)]}
+    ))
 
     plot_bigraph(
         state=plot_state,
@@ -204,10 +206,7 @@ def main():
         core=core,
         out_dir=outdir,
         filename=f"{name}_viz",
-        **plot_settings
-        # dpi="300",
-        # show_types=True,
-        # collapse_redundant_processes=True,
+        **plot_settings,
     )
 
 
