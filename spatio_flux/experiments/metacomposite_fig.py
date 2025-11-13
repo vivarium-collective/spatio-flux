@@ -2,15 +2,15 @@ import os
 import json
 
 from spatio_flux.experiments.test_suite import DEFAULT_BOUNDS, DEFAULT_BINS, DEFAULT_ADVECTION
-from spatio_flux.library.helpers import get_standard_emitter, inverse_tuple, reversed_tuple
+from spatio_flux.library.colors import build_plot_settings
+from spatio_flux.library.helpers import inverse_tuple, reversed_tuple
 from spatio_flux import register_types
 from vivarium.vivarium import VivariumTypes, Composite
 from bigraph_viz import plot_bigraph
 
 from spatio_flux.processes import DIVISION_MASS_THRESHOLD, get_fields, get_diffusion_advection_process, \
     get_spatial_many_dfba, get_particles_state, get_particle_movement_process, get_particle_exchange_process, \
-    get_particle_divide_process, get_dfba_particle_composition, get_fields_with_schema, get_single_dfba_process, \
-    get_dfba_process_from_registry
+    get_particle_divide_process, get_dfba_particle_composition, get_fields_with_schema, get_dfba_process_from_registry
 
 
 # -------------------------------------------------------------------
@@ -174,110 +174,6 @@ DOC_BUILDERS = {
 }
 
 
-# -------------
-# plot settings
-# -------------
-
-
-COLORS = {
-    # --- PARTICLES FAMILY (sage greens + darker processes) ---
-    "particles_base":  "#B8D0C0",   # soft light sage for container and states
-    "particles_process": "#6F9C81", # muted green for movement/division
-
-    # --- dFBA FAMILY (cool desaturated blues) ---
-    "dfba_base":   "#5C7FA0",       # medium desaturated blue
-    "dfba_light":  "#C3D5E4",       # pale blue-gray
-
-    # --- FIELDS FAMILY (warm muted rose & red) ---
-    "fields":      "#D1918C",       # dusty rose
-    "diffusion":   "#B7504D",       # muted brick red (stronger red balance)
-
-    # --- CROSS-DOMAIN / BRIDGES ---
-    "particle_exchange_bridge": "#B4B899",  # olive-sage bridge tone
-
-    # --- dfBA-LIKE SUPPORT FAMILIES (cool neutrals) ---
-    "local":       "#D6DDF0",       # pale periwinkle
-    "exchange":    "#B6D0D8",       # cool gray-cyan
-}
-
-
-# --- simple color utilities ---
-def _hex_to_rgb(h):
-    h = h.lstrip("#")
-    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
-
-def _rgb_to_hex(rgb):
-    return "#" + "".join(f"{max(0, min(255, v)):02x}" for v in rgb)
-
-def _darken(h, factor=0.78):  # ~22% darker for borders
-    r, g, b = _hex_to_rgb(h)
-    return _rgb_to_hex((int(r*factor), int(g*factor), int(b*factor)))
-
-def build_plot_settings(particle_id=None, n_bins=(2, 2)):
-    """
-    Returns plot_settings with calm palette, auto-derived borders, and modular family rules.
-    - Particles: greens (container, processes, id/position)
-    - dFBA: blues (family + all dFBA[i,j] + particle-scoped dFBA)
-    - Fields/diffusion/substrates: warm tones
-    - Mass/Biomass unified 'bridge' color across families
-    - Local/Exchange children colored consistently (both generic and particle-scoped)
-    """
-    # # enumerate all dFBA nodes from n_bins
-    # dFBA_nodes = [('spatial_dfba', f'dFBA[{i},{j}]')
-    #               for i in range(n_bins[0]) for j in range(n_bins[1])]
-
-    # ---- fills (family-first) ----
-    fills = {
-        # particle family (greens)
-        ('particles',):                          COLORS["particles_base"],
-        ('particle_movement',):                  COLORS["particles_process"],
-        ('particle_division',):                  COLORS["particles_process"],
-        ('particle_exchange',):                  COLORS["particle_exchange_bridge"],
-
-        # fields & diffusion + field substrates
-        ('fields',):                             COLORS["fields"],
-        ('fields', 'glucose'):                   COLORS["fields"],
-        ('fields', 'acetate'):                   COLORS["fields"],
-        ('fields', 'dissolved biomass'):         COLORS["fields"],
-        ('diffusion',):                          COLORS["diffusion"],
-
-        # dFBA family (blues)
-        ('spatial_dfba',):                       COLORS["dfba_light"],
-        ('spatial_dfba', 'dFBA[0,0]'):           COLORS["dfba_base"],
-        ('dFBA',):                               COLORS["dfba_base"],
-        # **{node: COLORS["dfba_base"] for node in dFBA_nodes},
-    }
-
-    # unique particle + particle-owned states (guarded)
-    if particle_id:
-        fills.update({
-            ('particles', particle_id):               COLORS["particles_base"],
-            ('particles', particle_id, 'id'):         COLORS["particles_base"],
-            ('particles', particle_id, 'position'):   COLORS["particles_base"],
-            ('particles', particle_id, 'local'):      COLORS["local"],
-            ('particles', particle_id, 'exchange'):   COLORS["exchange"],
-            ('particles', particle_id, 'local', 'acetate'):  COLORS["local"],
-            ('particles', particle_id, 'local', 'glucose'):  COLORS["local"],
-            ('particles', particle_id, 'local', 'dissolved biomass'): COLORS["local"],
-            ('particles', particle_id, 'exchange', 'acetate'): COLORS["exchange"],
-            ('particles', particle_id, 'exchange', 'glucose'): COLORS["exchange"],
-            ('particles', particle_id, 'exchange', 'dissolved biomass'): COLORS["exchange"],
-            # particle-scoped dFBA
-            ('particles', particle_id, 'dFBA'):       COLORS["dfba_base"],
-            # mass/biomass bridge under particle
-            ('particles', particle_id, 'mass'):       COLORS["particles_base"],
-        })
-
-    # ---- borders (auto = darker of fill; override here if needed) ----
-    borders = {k: _darken(v) for k, v in fills.items()}
-
-    # Return only the color maps (you can add dpi/show_types externally if desired)
-    return {
-        'node_fill_colors': fills,
-        'node_border_colors': borders,
-    }
-
-
 def main():
     outdir = "out"
     n_bins = (10, 5)
@@ -335,7 +231,7 @@ def main():
             particle_id = list(plot_state['particles'].keys())[0]
 
         # plot settings
-        plot_settings = build_plot_settings(particle_id=particle_id, n_bins=n_bins)
+        plot_settings = build_plot_settings(particle_ids=particle_id, n_bins=n_bins)
         plot_settings.update(dict(
             dpi='300',
             show_values=True,

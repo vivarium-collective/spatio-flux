@@ -11,6 +11,7 @@ from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, gather_emitter_results
 from process_bigraph.emitter import emitter_from_wires
 from vivarium.vivarium import VivariumTypes
+from spatio_flux.library.colors import build_plot_settings
 
 
 def build_path(base_path, mol_id, i=None, j=None):
@@ -109,16 +110,41 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
     plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
 
+    # get particles for coloring
+    particle_ids = []
+    if 'particles' in plot_state and plot_state['particles']:
+        particle_ids = list(plot_state['particles'].keys())
+
+    n_bins = ()
+    if 'fields' in plot_state:
+        for value in plot_state['fields'].values():
+            if isinstance(value, np.ndarray):
+                if value.ndim == 2:
+                    n_bins =  value.shape  # (n, m)
+
+    # spatio-flux-specific plot settings
+    plot_settings = build_plot_settings(
+        particle_ids=particle_ids,
+        n_bins=n_bins
+    )
+    plot_settings.update(dict(
+        dpi='300',
+        show_values=True,
+        show_types=True,
+        collapse_redundant_processes={
+            'exclude': [('particle_movement',), ('particle_division',)]
+        },
+        value_char_limit=20,
+        type_char_limit=40,
+    ))
+
     plot_bigraph(
         state=plot_state,
         schema=plot_schema,
         core=core,
         out_dir=outdir,
         filename=f"{name}_viz",
-        dpi="300",
-        collapse_redundant_processes={
-            'exclude': [('particle_movement',), ('particle_division',)]
-        },
+        **plot_settings
     )
 
     print(f"⏱ Simulating {name} for {time}s...")
