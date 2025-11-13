@@ -18,11 +18,11 @@ def get_particle_multi_dfba_comets_doc(core=None, config=None):
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
-    mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
     n_bins = config.get('n_bins', DEFAULT_BINS)
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 1
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
@@ -35,7 +35,7 @@ def get_particle_multi_dfba_comets_doc(core=None, config=None):
         'state': {
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dfba': get_spatial_many_dfba(model_file=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins),
+            'spatial_dfba': get_spatial_many_dfba(model_file=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins, biomass_id="dissolved biomass"),
             # 'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particle_movement': get_particle_movement_process(
@@ -49,11 +49,8 @@ def get_particle_multi_dfba_comets_doc(core=None, config=None):
 
 
 COLORS = {
-    # --- PARTICLES FAMILY (sage greens, lighter states + darker processes) ---
-    # States (lighter)
+    # --- PARTICLES FAMILY (sage greens + darker processes) ---
     "particles_base":  "#B8D0C0",   # soft light sage for container and states
-    "particles_mid":   "#D9E7DF",   # very pale tint for id/position
-    # Processes (darker)
     "particles_process": "#6F9C81", # muted green for movement/division
 
     # --- dFBA FAMILY (cool desaturated blues) ---
@@ -65,17 +62,12 @@ COLORS = {
     "diffusion":   "#B7504D",       # muted brick red (stronger red balance)
 
     # --- CROSS-DOMAIN / BRIDGES ---
-    "particle_exchange_bridge": "#B4B899",  # olive-sage bridge tone (particles ↔ fields)
+    "particle_exchange_bridge": "#B4B899",  # olive-sage bridge tone
 
     # --- dfBA-LIKE SUPPORT FAMILIES (cool neutrals) ---
     "local":       "#D6DDF0",       # pale periwinkle
     "exchange":    "#B6D0D8",       # cool gray-cyan
-    "mass":        "#93B7B4",       # cooler blue-green gray (distinct from particles)
 }
-
-
-
-
 
 
 # --- simple color utilities ---
@@ -109,15 +101,13 @@ def build_plot_settings(particle_id=None, n_bins=(2, 2)):
         ('particles',):                          COLORS["particles_base"],
         ('particle_movement',):                  COLORS["particles_process"],
         ('particle_division',):                  COLORS["particles_process"],
-        ('particle_exchange',):                  COLORS["exchange"],
-
-        # shared color for mass/biomass across families
-        ('fields', 'biomass'):                   COLORS["mass"],
+        ('particle_exchange',):                  COLORS["particle_exchange_bridge"],
 
         # fields & diffusion + field substrates
         ('fields',):                             COLORS["fields"],
         ('fields', 'glucose'):                   COLORS["fields"],
         ('fields', 'acetate'):                   COLORS["fields"],
+        ('fields', 'dissolved biomass'):         COLORS["fields"],
         ('diffusion',):                          COLORS["diffusion"],
 
         # dFBA family (blues)
@@ -129,19 +119,21 @@ def build_plot_settings(particle_id=None, n_bins=(2, 2)):
     # unique particle + particle-owned states (guarded)
     if particle_id:
         fills.update({
-            ('particles', particle_id):               COLORS["particles_mid"],
-            ('particles', particle_id, 'id'):         COLORS["particles_mid"],
-            ('particles', particle_id, 'position'):   COLORS["particles_mid"],
+            ('particles', particle_id):               COLORS["particles_base"],
+            ('particles', particle_id, 'id'):         COLORS["particles_base"],
+            ('particles', particle_id, 'position'):   COLORS["particles_base"],
             ('particles', particle_id, 'local'):      COLORS["local"],
             ('particles', particle_id, 'exchange'):   COLORS["exchange"],
             ('particles', particle_id, 'local', 'acetate'):  COLORS["local"],
             ('particles', particle_id, 'local', 'glucose'):  COLORS["local"],
+            ('particles', particle_id, 'local', 'dissolved biomass'): COLORS["local"],
             ('particles', particle_id, 'exchange', 'acetate'): COLORS["exchange"],
             ('particles', particle_id, 'exchange', 'glucose'): COLORS["exchange"],
+            ('particles', particle_id, 'exchange', 'dissolved biomass'): COLORS["exchange"],
             # particle-scoped dFBA
             ('particles', particle_id, 'dFBA'):       COLORS["dfba_base"],
             # mass/biomass bridge under particle
-            ('particles', particle_id, 'mass'):       COLORS["mass"],
+            ('particles', particle_id, 'mass'):       COLORS["particles_base"],
         })
 
     # ---- borders (auto = darker of fill; override here if needed) ----
@@ -157,7 +149,7 @@ def build_plot_settings(particle_id=None, n_bins=(2, 2)):
 def main():
     name = "metacomposite"
     outdir = "out"
-    n_bins = (1, 3)
+    n_bins = (10, 5)
 
     document = get_particle_multi_dfba_comets_doc(config={'n_bins': n_bins})
     core = VivariumTypes()

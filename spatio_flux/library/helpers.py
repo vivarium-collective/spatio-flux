@@ -117,7 +117,8 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
         filename=f"{name}_viz",
         dpi="300",
         collapse_redundant_processes={
-        'exclude': [('particle_movement',), ('particle_division',)]},
+            'exclude': [('particle_movement',), ('particle_division',)]
+        },
     )
 
     print(f"⏱ Simulating {name} for {time}s...")

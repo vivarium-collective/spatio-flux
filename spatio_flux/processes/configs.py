@@ -180,14 +180,16 @@ def get_fields_with_schema(
 def get_spatial_many_dfba(
         n_bins=(5, 5),
         model_file=None,
-        mol_ids=None
+        mol_ids=None,
+        biomass_id="dissolved biomass",
 ):
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
             # get a process state for each bin
             dfba_process = get_dfba_process_from_registry(
-                model_id=model_file, path=["..", "fields"], i=i, j=j)
+                model_id=model_file, path=["..", "fields"],
+                biomass_id=biomass_id, i=i, j=j)
             dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
 
     return dfba_processes_dict
