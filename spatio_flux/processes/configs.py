@@ -61,9 +61,9 @@ def get_dfba_config(
 
 
 def get_single_dfba_process(
-        model_file="textbook",
+        model_id="ecoli core",
         mol_ids=None,
-        biomass_id="biomass",
+        biomass_id="dissolved biomass",
         bounds=None,
         path=None,
         i=None,
@@ -81,10 +81,19 @@ def get_single_dfba_process(
     if biomass_id in mol_ids:
         mol_ids.remove(biomass_id)
 
+    config = {'mol_ids': mol_ids, 'biomass_id': biomass_id}
+
+    if model_id in MODEL_REGISTRY_DFBA:
+        dfba_config = MODEL_REGISTRY_DFBA.get(model_id, {})
+    else:
+        dfba_config = get_dfba_config(model_file=model_id)
+
+    config = deep_merge(config, dfba_config)
+
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
-        "config": get_dfba_config(model_file=model_file, bounds=bounds),
+        "config": config,
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
             "biomass": build_path(path, biomass_id, i, j)

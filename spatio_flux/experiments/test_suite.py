@@ -118,8 +118,8 @@ def plot_multi_dfba(results, state, config=None):
 
 def get_spatial_many_dfba_doc(core=None, config=None):
     dissolved_model_file = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     return {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
@@ -155,9 +155,9 @@ def build_model_grid(n_bins, model_positions=None):
 
 def get_spatial_dfba_process_doc(core=None, config=None):
     # make the fields
-    mol_ids = ['glucose', 'acetate', 'biomass']
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (20, 20), 'glycolate': (10,10), 'ammonium': (10, 10),
-                       'acetate': (0, 0), 'biomass': (0.01, 0.01)}
+                       'acetate': (0, 0), 'dissolved biomass': (0.01, 0.01)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
@@ -199,9 +199,9 @@ def plot_dfba_process_spatial(results, state, config=None):
 # --- Diffusion Advection-----------------------------------------------
 
 def get_diffusion_process_doc(core=None, config=None):
-    mol_ids = ['glucose', 'biomass']
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'biomass': DEFAULT_DIFFUSION/10}
+    mol_ids = ['glucose', 'dissolved biomass']
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'dissolved biomass': DEFAULT_DIFFUSION/10}
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
     # initialize fields
@@ -209,7 +209,7 @@ def get_diffusion_process_doc(core=None, config=None):
     biomass_field = np.zeros(n_bins)
     biomass_field[4:5,:] = 10
     return {
-        'fields': {'biomass': biomass_field, 'glucose': glc_field},
+        'fields': {'dissolved biomass': biomass_field, 'glucose': glc_field},
         'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
                                                      diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs),
     }
@@ -223,11 +223,11 @@ def plot_diffusion_process(results, state, config=None):
 
 def get_comets_doc(core=None, config=None):
     dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'biomass']
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
-    diffusion_coeffs = {'glucose': 0, 'acetate': 1e-1, 'biomass': 5e-2}
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    diffusion_coeffs = {'glucose': 0, 'acetate': 1e-1, 'dissolved biomass': 5e-2}
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     bins_y, bins_x = n_bins
 
     # initialize acetate concentration to zero
@@ -240,7 +240,7 @@ def get_comets_doc(core=None, config=None):
     # place some biomass
     biomass_field = np.zeros(n_bins)
     biomass_field[0:1, int(bins_x/4):int(3*bins_x/4)] = 0.1
-    initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
+    initial_fields = {'dissolved biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
 
     # place models on the grid
     model_grid = np.zeros(n_bins, dtype='U20')
@@ -331,7 +331,7 @@ def get_particle_comets_doc(core=None, config=None):
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'detritus', 'biomass']
+    mol_ids = ['glucose', 'acetate', 'detritus', 'dissolved biomass']
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
@@ -349,8 +349,8 @@ def get_particle_comets_doc(core=None, config=None):
     add_probability = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
-    fields['biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
-    fields['biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
+    fields['dissolved biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
+    fields['dissolved biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
 
     # spatial dfba config
     spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
@@ -391,7 +391,7 @@ def get_particle_dfba_doc(core=None, config=None):
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 1
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
@@ -430,11 +430,11 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
-    mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 1
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
@@ -463,7 +463,7 @@ def plot_particle_dfba_comets(results, state, config=None):
     filename = config.get('filename', 'particle_dfba_comets')
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
-    plot_time_series(results, field_names=['glucose', 'acetate', 'biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
@@ -487,7 +487,7 @@ DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 DEFAULT_INITIAL_MIN_MAX = {
         'glucose': (10, 10),
         'acetate': (0, 0),
-        'biomass': (0, 0.1),
+        'dissolved biomass': (0, 0.1),
         'detritus': (0, 0)
     }
 
