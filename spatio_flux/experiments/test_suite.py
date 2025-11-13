@@ -588,13 +588,13 @@ SIMULATIONS = {
     #     'time': DEFAULT_RUNTIME_LONG,
     #     'config': {}
     # },
-    # 'particle_comets': {
-    #     'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
-    #     'doc_func': get_particle_comets_doc,
-    #     'plot_func': plot_particle_comets,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {}
-    # },
+    'particle_comets': {
+        'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
+        'doc_func': get_particle_comets_doc,
+        'plot_func': plot_particle_comets,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {}
+    },
     'particle_dfba_fields': {
         'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
         'doc_func': get_particle_dfba_doc,

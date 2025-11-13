@@ -48,11 +48,117 @@ def get_particle_multi_dfba_comets_doc(core=None, config=None):
     return doc
 
 
+COLORS = {
+    # --- PARTICLES FAMILY (sage greens, lighter states + darker processes) ---
+    # States (lighter)
+    "particles_base":  "#B8D0C0",   # soft light sage for container and states
+    "particles_mid":   "#D9E7DF",   # very pale tint for id/position
+    # Processes (darker)
+    "particles_process": "#6F9C81", # muted green for movement/division
+
+    # --- dFBA FAMILY (cool desaturated blues) ---
+    "dfba_base":   "#5C7FA0",       # medium desaturated blue
+    "dfba_light":  "#C3D5E4",       # pale blue-gray
+
+    # --- FIELDS FAMILY (warm muted rose & red) ---
+    "fields":      "#D1918C",       # dusty rose
+    "diffusion":   "#B7504D",       # muted brick red (stronger red balance)
+
+    # --- CROSS-DOMAIN / BRIDGES ---
+    "particle_exchange_bridge": "#B4B899",  # olive-sage bridge tone (particles ↔ fields)
+
+    # --- dfBA-LIKE SUPPORT FAMILIES (cool neutrals) ---
+    "local":       "#D6DDF0",       # pale periwinkle
+    "exchange":    "#B6D0D8",       # cool gray-cyan
+    "mass":        "#93B7B4",       # cooler blue-green gray (distinct from particles)
+}
+
+
+
+
+
+
+# --- simple color utilities ---
+def _hex_to_rgb(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+def _rgb_to_hex(rgb):
+    return "#" + "".join(f"{max(0, min(255, v)):02x}" for v in rgb)
+
+def _darken(h, factor=0.78):  # ~22% darker for borders
+    r, g, b = _hex_to_rgb(h)
+    return _rgb_to_hex((int(r*factor), int(g*factor), int(b*factor)))
+
+def build_plot_settings(particle_id=None, n_bins=(2, 2)):
+    """
+    Returns plot_settings with calm palette, auto-derived borders, and modular family rules.
+    - Particles: greens (container, processes, id/position)
+    - dFBA: blues (family + all dFBA[i,j] + particle-scoped dFBA)
+    - Fields/diffusion/substrates: warm tones
+    - Mass/Biomass unified 'bridge' color across families
+    - Local/Exchange children colored consistently (both generic and particle-scoped)
+    """
+    # enumerate all dFBA nodes from n_bins
+    dFBA_nodes = [('spatial_dfba', f'dFBA[{i},{j}]')
+                  for i in range(n_bins[0]) for j in range(n_bins[1])]
+
+    # ---- fills (family-first) ----
+    fills = {
+        # particle family (greens)
+        ('particles',):                          COLORS["particles_base"],
+        ('particle_movement',):                  COLORS["particles_process"],
+        ('particle_division',):                  COLORS["particles_process"],
+        ('particle_exchange',):                  COLORS["exchange"],
+
+        # shared color for mass/biomass across families
+        ('fields', 'biomass'):                   COLORS["mass"],
+
+        # fields & diffusion + field substrates
+        ('fields',):                             COLORS["fields"],
+        ('fields', 'glucose'):                   COLORS["fields"],
+        ('fields', 'acetate'):                   COLORS["fields"],
+        ('diffusion',):                          COLORS["diffusion"],
+
+        # dFBA family (blues)
+        ('spatial_dfba',):                       COLORS["dfba_light"],
+        **{node: COLORS["dfba_base"] for node in dFBA_nodes},
+    }
+
+    # unique particle + particle-owned states (guarded)
+    if particle_id:
+        fills.update({
+            ('particles', particle_id):               COLORS["particles_mid"],
+            ('particles', particle_id, 'id'):         COLORS["particles_mid"],
+            ('particles', particle_id, 'position'):   COLORS["particles_mid"],
+            ('particles', particle_id, 'local'):      COLORS["local"],
+            ('particles', particle_id, 'exchange'):   COLORS["exchange"],
+            ('particles', particle_id, 'local', 'acetate'):  COLORS["local"],
+            ('particles', particle_id, 'local', 'glucose'):  COLORS["local"],
+            ('particles', particle_id, 'exchange', 'acetate'): COLORS["exchange"],
+            ('particles', particle_id, 'exchange', 'glucose'): COLORS["exchange"],
+            # particle-scoped dFBA
+            ('particles', particle_id, 'dFBA'):       COLORS["dfba_base"],
+            # mass/biomass bridge under particle
+            ('particles', particle_id, 'mass'):       COLORS["mass"],
+        })
+
+    # ---- borders (auto = darker of fill; override here if needed) ----
+    borders = {k: _darken(v) for k, v in fills.items()}
+
+    # Return only the color maps (you can add dpi/show_types externally if desired)
+    return {
+        'node_fill_colors': fills,
+        'node_border_colors': borders,
+    }
+
+
 def main():
     name = "metacomposite"
     outdir = "out"
+    n_bins = (1, 3)
 
-    document = get_particle_multi_dfba_comets_doc(config={'n_bins': (2, 2)})
+    document = get_particle_multi_dfba_comets_doc(config={'n_bins': n_bins})
     core = VivariumTypes()
     core = register_types(core)
     document = {'state': document} if 'state' not in document else document
@@ -83,14 +189,24 @@ def main():
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
     plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
 
+    particle_id = list(plot_state['particles'].keys())[0]
+
+    # plot
+    plot_settings = build_plot_settings(particle_id=particle_id, n_bins=n_bins)
+    plot_settings.update(dict(
+        dpi='300',
+        show_types=True,
+        collapse_redundant_processes=False))
+
     plot_bigraph(
         state=plot_state,
         schema=plot_schema,
         core=core,
         out_dir=outdir,
         filename=f"{name}_viz",
-        dpi="300",
-        show_types=True,
+        **plot_settings
+        # dpi="300",
+        # show_types=True,
         # collapse_redundant_processes=True,
     )
 

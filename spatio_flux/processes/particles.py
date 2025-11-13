@@ -35,8 +35,48 @@ def get_bin_position(position, n_bins, env_size):
     return min(max(x_bin, 0), x_bins - 1), min(max(y_bin, 0), y_bins - 1)
 
 
-def get_local_field_values(fields, column, row):
-    return {mol_id: field[column, row] for mol_id, field in fields.items()}
+import numpy as np
+
+def get_local_field_values(fields, column, row, default=np.nan):
+    """
+    Safely read per-molecule field values at (column,row).
+    - Works with 1D or 2D arrays
+    - Clamps indices
+    - Returns `default` for empty arrays
+    """
+    local_values = {}
+    for mol_id, field in fields.items():
+        arr = np.asarray(field)
+
+        # Empty field → return default (np.nan by default)
+        if arr.size == 0:
+            local_values[mol_id] = default
+            continue
+
+        if arr.ndim == 2:
+            # Clamp with shape-aware bounds
+            c = int(np.clip(column, 0, arr.shape[0] - 1))
+            r = int(np.clip(row,    0, arr.shape[1] - 1))
+            local_values[mol_id] = arr[c, r]
+        elif arr.ndim == 1:
+            c = int(np.clip(column, 0, arr.shape[0] - 1))
+            local_values[mol_id] = arr[c]
+        else:
+            # Try squeezing unusual shapes (e.g., (1, N) or (N, 1))
+            arr2 = np.squeeze(arr)
+            if arr2.ndim in (1, 2) and arr2.size > 0:
+                # Recurse once with the squeezed array
+                if arr2.ndim == 2:
+                    c = int(np.clip(column, 0, arr2.shape[0] - 1))
+                    r = int(np.clip(row,    0, arr2.shape[1] - 1))
+                    local_values[mol_id] = arr2[c, r]
+                else:
+                    c = int(np.clip(column, 0, arr2.shape[0] - 1))
+                    local_values[mol_id] = arr2[c]
+            else:
+                raise ValueError(f"Unsupported field shape {arr.shape} for {mol_id}")
+    return local_values
+
 
 
 def generate_single_particle_state(config=None):
@@ -139,12 +179,10 @@ class ParticleMovement(Process):
                 updated_particles['_remove'].append(pid)
                 continue
 
-            new_x, new_y = clamp_in_bounds(new_x, new_y)
-
-            # store displacement
-            updated_particles[pid] = {
-                'position': (dx, dy)
-            }
+            new_x_clamped, new_y_clamped = clamp_in_bounds(new_x, new_y)
+            actual_dx = new_x_clamped - new_x
+            actual_dy = new_y_clamped - new_y
+            updated_particles[pid] = {'position': (actual_dx, actual_dy)}
 
         # births (Poisson-ish per tick)
         for boundary in self.config['boundary_to_add']:
@@ -153,14 +191,10 @@ class ParticleMovement(Process):
                 new_particle = generate_single_particle_state({
                     'bounds': self.config['bounds'],
                     'n_bins': self.config['n_bins'],
-                    'position': position,
-                })
+                    'position': position})
                 pid = short_id()
                 new_particle['id'] = pid
                 updated_particles['_add'][pid] = new_particle
-
-                print("Added particle at boundary", boundary, "with id", pid)
-
         return {'particles': updated_particles}
 
     def check_boundary_hit(self, x, y):
@@ -225,21 +259,21 @@ class ParticleExchange(Step):
             local_delta = {
                 m: local_after[m] - local_before.get(m, 0.0) for m in local_after
             }
-            p_update = {'local': local_delta}
 
-            # Apply exchange fluxes into field bins
-            # TODO convert to concentration?
-            exch = p.get('exchange', {})
-            for mol_id, delta in exch.items():
-                field_updates[mol_id][col, row] += delta
+            if not p['local']:
+                p_update = {'local': {'_add': local_after}}
+            else:
+                p_update = {'local': local_delta}
 
-            if 'exchange' in p:
+            if not p['exchange']:
+                p_update['exchange'] = {'_add': {m: 0.0 for m in fields.keys()}}
+            else:
+                # TODO convert to concentration?
                 p_update['exchange'] = {
                     mol_id: -delta for mol_id, delta in p['exchange'].items()}
 
             particle_updates[pid] = p_update
 
-        print(f"Particle Updates: {particle_updates}")
         return {
             'particles': particle_updates,
             'fields': field_updates
