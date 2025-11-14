@@ -117,8 +117,16 @@ def build_plot_settings(
             ("particles", pid):             COLORS["particles_base"],
             ("particles", pid, "id"):       COLORS["particles_base"],
             ("particles", pid, "position"): COLORS["particles_base"],
-            # ...
+            ("particles", pid, "mass"):     COLORS["particles_base"],
+            ('particles', pid, 'local'):    COLORS["local"],
+            ('particles', pid, 'exchange'): COLORS["exchange"],
+            ('particles', pid, 'dFBA'):     COLORS["dfba_base"],
+            ('particles', pid, 'kinetics'):  COLORS["dfba_base"],
         })
+
+        for species in field_species:
+            fills[('particles', pid, 'local', species)] = COLORS["local"]
+            fills[('particles', pid, 'exchange', species)] = COLORS["exchange"]
 
     borders = {k: _darken(v) for k, v in fills.items()}
 

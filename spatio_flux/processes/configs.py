@@ -342,14 +342,14 @@ def get_particle_divide_process(
 # Particle-COMETS
 # ===============
 
-def get_minimal_particle_composition(core, config=None):
+def get_kinetic_particle_composition(core, config=None):
     config = config or core.default(MonodKinetics.config_schema)
     return {
         'particles': {
             '_type': 'map',
             '_value': {
                 # '_inherit': 'particle',
-                'minimal_particle': {
+                'kinetics': {
                     '_type': 'process',
                     'address': default('string', 'local:MonodKinetics'),
                     'config': default('quote', config),

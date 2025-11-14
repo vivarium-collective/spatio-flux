@@ -1,7 +1,7 @@
 
 import numpy as np
 from spatio_flux import SpatioFluxVivarium
-from spatio_flux.processes import get_minimal_particle_composition
+from spatio_flux.processes import get_kinetic_particle_composition
 
 
 def run_vivarium_particles():
@@ -51,7 +51,7 @@ def run_vivarium_particles():
                     'kcat': 0.001,
                     'role': 'product'}
             }}}
-    particle_schema = get_minimal_particle_composition(v6.core, minimal_particle_config)
+    particle_schema = get_kinetic_particle_composition(v6.core, minimal_particle_config)
     v6.merge_schema(path=['particles'], schema=particle_schema['particles'])
 
     # add particles to the initial state

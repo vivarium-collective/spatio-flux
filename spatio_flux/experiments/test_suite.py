@@ -31,7 +31,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_particle_movement_process, get_particle_exchange_process,
-    initialize_fields, get_minimal_particle_composition,
+    initialize_fields, get_kinetic_particle_composition,
     get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
     get_particle_divide_process, DIVISION_MASS_THRESHOLD,
 )
@@ -48,7 +48,7 @@ def get_dfba_single_doc(
         config=None,
 ):
     model_id = config.get('model_id', 'ecoli core')
-    biomass_id = config.get('biomass_id', f'dissolved biomass')
+    biomass_id = config.get('biomass_id', f'{model_id} biomass')
     dfba_process = get_dfba_process_from_registry(
         model_id=model_id,
         biomass_id=biomass_id,
@@ -307,7 +307,7 @@ def get_particles_doc(core=None, config=None):
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_minimal_particle_composition(core=core, config=particle_config)
+        'composition': get_kinetic_particle_composition(core=core, config=particle_config)
     }
 
 def plot_particles_sim(results, state, config=None):
@@ -367,7 +367,7 @@ def get_particle_comets_doc(core=None, config=None):
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_minimal_particle_composition(core, config=particle_config)
+        'composition': get_kinetic_particle_composition(core, config=particle_config)
     }
 
 def plot_particle_comets(results, state, config=None):
