@@ -100,8 +100,9 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     # Save the underlying schema as JSON (machine-readable)
     schema_file = os.path.join(outdir, f"{name}_schema.json")
     try:
+        serialized = core.serialize(sim.composition, sim.state)
         with open(schema_file, "w") as f:
-            json.dump(document, f, indent=2)
+            json.dump(serialized, f, indent=2)
         print(f"💾 Saved schema JSON → {schema_file}")
     except Exception as e:
         print(f"⚠ Could not save schema JSON: {e}")
@@ -250,6 +251,9 @@ def generate_html_report(
             try:
                 with open(json_file, 'r') as jf:
                     full_data = json.load(jf)
+                    if 'state' not in full_data:
+                        full_data = {'state': full_data}
+
                 # Filter out 'emitter' and 'global_time' top-level keys
                 state_data = {
                     key: value for key, value in full_data.get('state', {}).items()

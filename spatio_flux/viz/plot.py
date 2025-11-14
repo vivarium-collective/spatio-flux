@@ -49,13 +49,14 @@ def sort_results(results):
         results = results[('emitter',)]
     if results[0] is None:
         return
+
     sorted_results = {'fields': {
-        key: [] for key in results[0]['fields'].keys()
+        key: [] for key in results[0].get('fields', {}).keys()
     }, 'time': []}
 
     for results in results:
         time = results['global_time']
-        fields = results['fields']
+        fields = results.get('fields', {})
         sorted_results['time'].append(time)
         for key, value in fields.items():
             sorted_results['fields'][key].append(value)
@@ -365,7 +366,7 @@ def plot_species_distributions_with_particles_to_gif(
     images = []
 
     for i in range(0, n_times, skip_frames):
-        fields = results[i]['fields']
+        fields = results[i].get('fields', {})
         particles = results[i]['particles']
 
         fig, axs = plt.subplots(
@@ -604,7 +605,7 @@ def plot_snapshots_grid(
 
     # --- Extract fields & times ---
     times = [step['global_time'] for step in data]
-    field_keys = list(data[0]['fields'].keys())
+    field_keys = list(data[0].get('fields', {}).keys())
     fields = {f: [step['fields'][f] for step in data] for f in field_keys}
 
     # --- Choose fields ---
@@ -612,10 +613,13 @@ def plot_snapshots_grid(
         field_names = field_keys
     else:
         field_names = [f for f in field_names if f in field_keys]
-    if not field_names:
-        raise ValueError("No valid fields to plot.")
 
-    n_rows = len(field_names)
+    if not field_names:
+        # raise ValueError("No valid fields to plot.")
+        n_rows = 1
+    else:
+        n_rows = len(field_names)
+
     n_times = len(times)
     n_snapshots = min(n_snapshots, n_times)
     col_indices = np.linspace(0, n_times - 1, n_snapshots, dtype=int)
