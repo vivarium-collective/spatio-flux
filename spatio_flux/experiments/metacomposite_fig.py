@@ -166,11 +166,26 @@ def get_single_dfba_doc(core=None, config=None):
 
 
 DOC_BUILDERS = {
-    "metacomposite": get_particle_multi_dfba_comets_doc,
-    "particles_movement": get_particles_movement_doc,
-    "fields_diffusion": get_fields_diffusion_doc,
-    "spatial_dfba": get_spatial_dfba_doc,
-    "single_dfba": get_single_dfba_doc,
+    "metacomposite": {
+        'doc_func': get_particle_multi_dfba_comets_doc,
+        'plot_func': None,
+    },
+    "particles_movement": {
+        'doc_func': get_particles_movement_doc,
+        'plot_func': None,
+    },
+    "fields_diffusion": {
+        'doc_func': get_fields_diffusion_doc,
+        'plot_func': None,
+    },
+    "spatial_dfba": {
+        'doc_func': get_spatial_dfba_doc,
+        'plot_func': None,
+    },
+    "single_dfba": {
+        'doc_func': get_single_dfba_doc,
+        'plot_func': None,
+    }
 }
 
 
@@ -185,8 +200,9 @@ def main():
 
     os.makedirs(outdir, exist_ok=True)
 
-    for name, doc_fn in DOC_BUILDERS.items():
+    for name, doc_spec in DOC_BUILDERS.items():
         print(f"\n=== Building document: {name} ===")
+        doc_fn = doc_spec['doc_func']
 
         # build document
         document = doc_fn(config=config)

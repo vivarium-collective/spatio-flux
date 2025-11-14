@@ -34,7 +34,39 @@ def _darken(h, factor=0.78):  # ~22% darker for borders
     return _rgb_to_hex((int(r*factor), int(g*factor), int(b*factor)))
 
 
-def build_plot_settings(particle_ids=None, n_bins=(2, 2)):
+# ---- default species lists (can be overridden in build_plot_settings) ----
+DEFAULT_FIELD_SPECIES = [
+    "glucose",
+    "acetate",
+    "formate",
+    "ammonium",
+    "serine",
+    "lactate",
+    "glycolate",
+    "glutamate",
+    "detritus",
+    "biomass",
+    "dissolved biomass",
+]
+
+DEFAULT_FIELD_BIOMASS_SPECIES = [
+    "pputida",
+    "llactis",
+    "ecoli",
+    "ecoli core",
+    "yeast",
+    "cdiff",
+    "biomass",
+    "dissolved biomass",
+]
+
+
+def build_plot_settings(
+    particle_ids=None,
+    n_bins=(2, 2),
+    field_species=None,
+    field_biomass_species=None,
+):
     # Normalize particle_ids into a list
     if particle_ids is None:
         particle_ids = []
@@ -43,56 +75,54 @@ def build_plot_settings(particle_ids=None, n_bins=(2, 2)):
     else:
         particle_ids = list(particle_ids)
 
-    # ---- fills (family-first) ----
+    # Use defaults if not provided
+    field_species = field_species or list(DEFAULT_FIELD_SPECIES)
+    field_biomass_species = field_biomass_species or list(DEFAULT_FIELD_BIOMASS_SPECIES)
+
     fills = {
-        # particle family (greens)
-        ('particles',):                          COLORS["particles_base"],
-        ('particle_movement',):                  COLORS["particles_process"],
-        ('particle_division',):                  COLORS["particles_process"],
-        ('particle_exchange',):                  COLORS["particle_exchange_bridge"],
+        # particle family
+        ("particles",):             COLORS["particles_base"],
+        ("particle_movement",):     COLORS["particles_process"],
+        ("particle_division",):     COLORS["particles_process"],
+        ("particle_exchange",):     COLORS["particle_exchange_bridge"],
 
-        # fields & diffusion + field substrates
-        ('fields',):                             COLORS["fields"],
-        ('fields', 'glucose'):                   COLORS["fields"],
-        ('fields', 'acetate'):                   COLORS["fields"],
-        ('fields', 'dissolved biomass'):         COLORS["fields"],
-        ('diffusion',):                          COLORS["diffusion"],
+        # containers
+        ("fields",):                COLORS["fields"],
+        ("diffusion",):             COLORS["diffusion"],
 
-        # dFBA family (blues)
-        ('spatial_dfba',):                       COLORS["dfba_light"],
-        ('spatial_dfba', 'dFBA[0,0]'):           COLORS["dfba_base"],
-        ('dFBA',):                               COLORS["dfba_base"],
+        # dFBA
+        ("spatial_dfba",):          COLORS["dfba_light"],
+        ("spatial_dfba", "dFBA[0,0]"): COLORS["dfba_base"],
+        ("dFBA",):                  COLORS["dfba_base"],
     }
 
-    # ---- particle-specific fills (repeat per particle) ----
+    # --- auto-generate field species ---
+    for s in field_species:
+        # (fields, species)
+        fills[("fields", s)] = COLORS["fields"]
+
+        # (fields, species biomass) – for things like "pputida", "llactis", etc.
+        biomass_name = f"{s} biomass"
+        fills[("fields", biomass_name)] = COLORS["fields"]
+
+    # --- explicitly named biomass fields ---
+    for s in field_biomass_species:
+        fills[("fields", s)] = COLORS["fields"]
+        fills[("fields", f'{s} biomass')] = COLORS["fields"]
+        fills[(f'{s} dFBA',)] = COLORS["dfba_base"]
+
+    # ---- particle-specific stuff unchanged, example: ----
     for pid in particle_ids:
         fills.update({
-            ('particles', pid):                           COLORS["particles_base"],
-            ('particles', pid, 'id'):                     COLORS["particles_base"],
-            ('particles', pid, 'position'):               COLORS["particles_base"],
-
-            ('particles', pid, 'local'):                  COLORS["local"],
-            ('particles', pid, 'exchange'):               COLORS["exchange"],
-
-            ('particles', pid, 'local', 'acetate'):        COLORS["local"],
-            ('particles', pid, 'local', 'glucose'):        COLORS["local"],
-            ('particles', pid, 'local', 'dissolved biomass'): COLORS["local"],
-
-            ('particles', pid, 'exchange', 'acetate'):     COLORS["exchange"],
-            ('particles', pid, 'exchange', 'glucose'):     COLORS["exchange"],
-            ('particles', pid, 'exchange', 'dissolved biomass'): COLORS["exchange"],
-
-            # particle-scoped dFBA
-            ('particles', pid, 'dFBA'):                    COLORS["dfba_base"],
-
-            # mass/biomass bridge under particle
-            ('particles', pid, 'mass'):                    COLORS["particles_base"],
+            ("particles", pid):             COLORS["particles_base"],
+            ("particles", pid, "id"):       COLORS["particles_base"],
+            ("particles", pid, "position"): COLORS["particles_base"],
+            # ...
         })
 
-    # ---- borders = darker versions of fills ----
     borders = {k: _darken(v) for k, v in fills.items()}
 
     return {
-        'node_fill_colors': fills,
-        'node_border_colors': borders,
+        "node_fill_colors": fills,
+        "node_border_colors": borders,
     }

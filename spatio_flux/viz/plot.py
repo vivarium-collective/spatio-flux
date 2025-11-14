@@ -136,7 +136,7 @@ def plot_time_series(
     :param log_scale: If True, apply log scaling to the y-axis.
     :param normalize: If True, normalize all values to their initial value at time zero.
     """
-    field_names = field_names or ['glucose', 'acetate', 'biomass']
+    field_names = field_names or ['glucose', 'acetate', 'dissolved biomass']
     sorted_results = sort_results(results)
     times = sorted_results['time']
 

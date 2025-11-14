@@ -101,12 +101,12 @@ MODEL_REGISTRY_DFBA = {
         'model_file': 'iNF517.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
-            'glutatmate': 'EX_glu__L_e',
+            'glutamate': 'EX_glu__L_e',
             'serine': 'EX_ser__L_e',
         },
         'kinetic_params': {
             'glucose': (0.5, 1.25),
-            'glutatmate': (0.05, 0.1),
+            'glutamate': (0.05, 0.1),
             'serine': (0.05, 0.1),
         }
     },

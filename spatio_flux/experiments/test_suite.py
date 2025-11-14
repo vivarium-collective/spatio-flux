@@ -48,7 +48,7 @@ def get_dfba_single_doc(
         config=None,
 ):
     model_id = config.get('model_id', 'ecoli core')
-    biomass_id = config.get('biomass_id', f'{model_id} biomass')
+    biomass_id = config.get('biomass_id', f'dissolved biomass')
     dfba_process = get_dfba_process_from_registry(
         model_id=model_id,
         biomass_id=biomass_id,
@@ -80,7 +80,7 @@ def get_multi_dfba(core=None, config=None):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     dfbas = {}
     for model_id, spec in MODEL_REGISTRY_DFBA.items():
-        process_id = f'dfba_{model_id}'
+        process_id = f'{model_id} dFBA'
         dfba_process = get_dfba_process_from_registry(
             model_id=model_id,
             biomass_id=model_id,
@@ -491,8 +491,8 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME_SHORT = 20
-DEFAULT_RUNTIME_LONG = 60
+DEFAULT_RUNTIME_SHORT = 10  # 20
+DEFAULT_RUNTIME_LONG = 20   # 60
 
 SIMULATIONS = {
     'ecoli_core_dfba': {

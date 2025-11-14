@@ -11,13 +11,13 @@ default_config = {
     'total_time': 100.0,
     'bounds': (10.0, 20.0),
     'n_bins': (8, 16),
-    'mol_ids': ['glucose', 'acetate', 'biomass', 'detritus'],
+    'mol_ids': ['glucose', 'acetate', 'dissolved biomass', 'detritus'],
     'field_diffusion_rate': 1e-1,
     'field_advection_rate': (0, 0),
     'initial_min_max': {
         'glucose': (10, 10),
         'acetate': (0, 0),
-        'biomass': (0, 0.1),
+        'dissolved biomass': (0, 0.1),
         'detritus': (0, 0)
     },
     # set particles
@@ -113,7 +113,7 @@ def get_spatial_dfba_process(
 
     path = path or ['fields']
     mol_ids = config.get("mol_ids") or ["glucose", "acetate"]
-    biomass_id = config.get("biomass_id") or "biomass"
+    biomass_id = config.get("biomass_id") or "dissolved biomass"
 
     # remove "biomass" from mol_ids if it exists
     if biomass_id in mol_ids:
@@ -172,7 +172,7 @@ def get_fields_with_schema(
         if initial_min_max:
             mol_ids = list(initial_min_max.keys())
         else:
-            mol_ids = ["glucose", "acetate", "biomass"]
+            mol_ids = ["glucose", "acetate", "dissolved biomass"]
 
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
@@ -229,7 +229,7 @@ def get_diffusion_advection_process(
         advection_coeffs=None,
 ):
     if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     if diffusion_coeffs is None:
         diffusion_coeffs = {}
     if advection_coeffs is None:
