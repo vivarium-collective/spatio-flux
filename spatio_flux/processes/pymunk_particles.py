@@ -11,6 +11,7 @@ from bigraph_schema import default
 from process_bigraph import Composite, gather_emitter_results, Process
 from process_bigraph.emitter import emitter_from_wires
 from spatio_flux.plots.multibody_plots import simulation_to_gif
+from spatio_flux.library.helpers import get_standard_emitter
 
 
 def daughter_locations(parent_state, *, gap=1.0, daughter_length=None, daughter_radius=None):
@@ -697,21 +698,9 @@ def make_initial_state(
 
 
 def run_pymunk_particles():
-    from spatio_flux import core_import
-    core = core_import()
-    initial_state = make_initial_state(
-        n_microbes=2,
-        n_particles=1000,
-        env_size=600,
-        elasticity=0.0,
-        particle_radius_range=(1, 8),
-        microbe_length_range=(50, 100),
-        microbe_radius_range=(10, 15)
-    )
 
     # run simulation
-    interval = 0.1
-    steps = 2000
+    interval = 2000
     config = {
         'env_size': 600,
         'gravity': 0,  # -9.81,
@@ -734,11 +723,14 @@ def run_pymunk_particles():
         }
     }
 
-    # emitter state
-    # emitter_spec = {'agents': ['cells'],
-    #                 'particles': ['particles'],
-    #                 'time': ['global_time']}
-    # emitter_state = emitter_from_wires(emitter_spec)
+    initial_state = make_initial_state(
+        n_particles=100,
+        env_size=600,
+        elasticity=0.0,
+        particle_radius_range=(1, 8),
+        microbe_length_range=(50, 100),
+        microbe_radius_range=(10, 15)
+    )
 
     # grow and divide schema
     cell_schema = {}
@@ -753,7 +745,7 @@ def run_pymunk_particles():
     # )
 
     # complete document
-    doc = {
+    document = {
         'state': {
             **initial_state,
             **processes,
@@ -762,30 +754,21 @@ def run_pymunk_particles():
         'composition': cell_schema,
     }
 
+    if 'emitter' not in document['state']:
+        state_keys = list(document['state'].keys())
+        document['state']['emitter'] = get_standard_emitter(state_keys=state_keys)
+
     # create the composite simulation
-    sim = Composite(doc, core=core)
+    from spatio_flux import core_import
+    core = core_import()
+    sim = Composite(document, core=core)
 
     # Save composition JSON
     name = 'pymunk_growth_division'
     sim.save(filename=f'{name}.json', outdir='out')
 
-    # Save visualization of the initial composition
-    plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
-    plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
-
-    # plot_bigraph(
-    #     state=plot_state,
-    #     schema=plot_schema,
-    #     core=core,
-    #     out_dir='out',
-    #     filename=f'{name}_viz',
-    #     dpi='300',
-    #     collapse_redundant_processes=True
-    # )
-
     # run the simulation
-    total_time = interval * steps
-    sim.run(total_time)
+    sim.run(interval)
     results = gather_emitter_results(sim)[('emitter',)]
 
     print(f'Simulation completed with {len(results)} steps.')

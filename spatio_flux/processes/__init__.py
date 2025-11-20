@@ -13,7 +13,10 @@ from spatio_flux.processes.configs import (
     get_particle_movement_process, get_particle_exchange_process, initialize_fields, get_particle_divide_process,
 )
 
+from process_bigraph.emitter import RAMEmitter
+
 PROCESS_DICT = {
+    'ram-emitter': RAMEmitter,
     'DynamicFBA': DynamicFBA,
     'SpatialDFBA': SpatialDFBA,
     'DiffusionAdvection': DiffusionAdvection,
