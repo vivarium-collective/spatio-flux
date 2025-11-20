@@ -102,10 +102,12 @@ def build_phylogeny_colors(frames, agents_key='agents', seed=None, base_s=0.70, 
 # ================= CORE RENDERER =================
 class GifRenderer:
     def __init__(
-        self, env_size, barriers, figure_size_inches, dpi, show_time_title,
+        self, bounds, barriers, figure_size_inches, dpi, show_time_title,
         world_pad, max_line_px
     ):
-        self.env_size = float(env_size)
+        x_max, y_max = bounds
+        self.x_max = float(x_max)
+        self.y_max = float(y_max)
         self.show_time_title = show_time_title
         self.max_line_px = int(max_line_px)
 
@@ -114,8 +116,8 @@ class GifRenderer:
         self.canvas = FigureCanvas(self.fig)
         self.ax = self.fig.add_subplot(111)
         self.ax.set_aspect('equal', adjustable='box')
-        self.ax.set_xlim(0, self.env_size)
-        self.ax.set_ylim(0, self.env_size)
+        self.ax.set_xlim(0, self.x_max)
+        self.ax.set_ylim(0, self.y_max)
         self.ax.set_axis_off()
         self.ax.set_autoscale_on(False)
 
@@ -283,7 +285,7 @@ def simulation_to_gif(
     out_path = filename if os.path.dirname(filename) else os.path.join(out_dir, filename)
     out_path = os.path.abspath(os.path.expanduser(out_path))
 
-    env_size = float(config['env_size'])
+    bounds = config['bounds']
     barriers = config.get('barriers', [])
 
     # color policy
@@ -301,7 +303,7 @@ def simulation_to_gif(
             return uniform_color if uniform_color is not None else default_rgb
 
     # render
-    renderer = GifRenderer(env_size, barriers, figure_size_inches, dpi, show_time_title, world_pad, max_line_px)
+    renderer = GifRenderer(bounds, barriers, figure_size_inches, dpi, show_time_title, world_pad, max_line_px)
     try:
         pil_frames = [renderer.draw_frame(step, agents_key, _color, max_radius_px) for step in frames]
     finally:

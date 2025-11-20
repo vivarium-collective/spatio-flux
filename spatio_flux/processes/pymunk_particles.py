@@ -75,21 +75,15 @@ def local_impulse_point_for_shape(shape):
 class PymunkParticleMovement(Process):
     """
     Pymunk-backed version of ParticleMovement.
-
-    - Same ports: particles: map[particle]
-    - Same-ish config keys: bounds, n_bins, add_probability, boundary_to_add,
-      boundary_to_remove
-    - Output uses delta semantics (position is a displacement).
     """
     config_schema = {
         # Match ParticleMovement
         'bounds': 'tuple[float,float]',             # (x_max, y_max)
-        'n_bins': 'tuple[integer,integer]',
         'add_probability': default('float', 0.0),
         'boundary_to_add': default('list[boundary_side]', ['top']),
         'boundary_to_remove': default(
             'list[boundary_side]',
-            ['left', 'right', 'top', 'bottom']
+            ['left', 'right', 'top']
         ),
 
         # Pymunk-specific (mostly optional knobs)
@@ -702,9 +696,10 @@ def run_pymunk_particles():
     # run simulation
     interval = 2000
     config = {
-        'env_size': 600,
+        # 'env_size': 600,
         'gravity': 0,  # -9.81,
         'elasticity': 0.1,
+        'bounds': (600.0, 600.0),
     }
 
     processes = {
