@@ -6,53 +6,11 @@ import numpy as np
 
 from bigraph_schema import default
 from process_bigraph import ProcessTypes
-from vivarium.vivarium import Vivarium, render_path
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
 from spatio_flux.processes.particles import ParticleMovement
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
 
-
-
-class SpatioFluxVivarium(Vivarium):
-    def __init__(self,
-                 document=None,
-                 # require=None,
-                 # emitter_config=None
-                 ):
-
-        # Use your repo's core unless overridden
-        # core = MyCustomCore()
-        processes = PROCESS_DICT
-        types = TYPES_DICT
-        super().__init__(
-            document=document,
-            processes=processes,
-            types=types,
-            # core=core,
-            # require=require,
-            # emitter_config=emitter_config,
-        )
-
-    def plot_particles_snapshots(
-            self,
-            skip_frames=1,
-    ):
-        results = self.get_results()
-        bounds = None
-        for path, process in self.composite.process_paths.items():
-            instance = process.get('instance')
-            if isinstance(instance, ParticleMovement):
-                bounds = process['config']['bounds']
-                break
-        if bounds is None:
-            raise ValueError("No Particles process found.")
-
-        plot_species_distributions_with_particles_to_gif(
-            results,
-            skip_frames=skip_frames,
-            bounds=bounds
-        )
 
 def apply_non_negative(schema, current, update, top_schema, top_state, path, core):
     new_value = current + update
@@ -149,4 +107,11 @@ def register_types(core):
         core.register(type_name, type_schema)
     for process_name, process in PROCESS_DICT.items():
         core.register_process(process_name, process)
+    return core
+
+
+def core_import(core=None, config=None):
+    if not core:
+        core = ProcessTypes()
+    register_types(core)
     return core

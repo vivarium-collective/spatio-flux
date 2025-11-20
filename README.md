@@ -65,4 +65,3 @@ If you use or adapt this repository, please cite:
 
 **Developed and maintained by** the [Vivarium Collective](https://vivarium-collective.github.io)  
 **Contact:** [Eran Agmon](https://github.com/eranagmon)
-[//]: # (* [Build COMETS with vivarium-interface]&#40;https://vivarium-collective.github.io/spatio-flux/demo/build_comets.html&#41;)

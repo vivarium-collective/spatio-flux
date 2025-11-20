@@ -8,7 +8,9 @@ import random
 import pymunk
 
 from bigraph_schema import default
-from process_bigraph import Process
+from process_bigraph import Composite, gather_emitter_results, Process
+from process_bigraph.emitter import emitter_from_wires
+from spatio_flux.plots.multibody_plots import simulation_to_gif
 
 
 def daughter_locations(parent_state, *, gap=1.0, daughter_length=None, daughter_radius=None):
@@ -694,40 +696,107 @@ def make_initial_state(
     return {agents_key: agents, particles_key: particles}
 
 
-def get_mother_machine_config(
-    env_size=600,
-    spacer_thickness=5,
-    channel_height=500,
-    channel_space=50
-):
-    barriers = []
-    y_start = 0  # Start at the bottom of the environment
-    y_end = channel_height  # Height of the channel
+def run_pymunk_particles():
+    from spatio_flux import core_import
+    core = core_import()
+    initial_state = make_initial_state(
+        n_microbes=2,
+        n_particles=1000,
+        env_size=600,
+        elasticity=0.0,
+        particle_radius_range=(1, 8),
+        microbe_length_range=(50, 100),
+        microbe_radius_range=(10, 15)
+    )
 
-    # Calculate how many barriers can fit within the env_size
-    num_channels = int(env_size / (spacer_thickness + channel_space))
-
-    # Generate barriers based on calculated number
-    x_position = spacer_thickness + channel_space
-    for _ in range(num_channels):
-        barrier = {
-            'start': (x_position, y_start),
-            'end': (x_position, y_end),
-            'thickness': spacer_thickness
-        }
-        barriers.append(barrier)
-
-        # Update x_position for the next barrier, adding the space for the channel
-        x_position += spacer_thickness + channel_space
-
-    return {
-        'env_size': env_size,
-        'barriers': barriers
+    # run simulation
+    interval = 0.1
+    steps = 2000
+    config = {
+        'env_size': 600,
+        'gravity': 0,  # -9.81,
+        'elasticity': 0.1,
     }
 
+    processes = {
+        'multibody': {
+            '_type': 'process',
+            'address': 'local:PymunkParticleMovement',
+            'config': config,
+            'inputs': {
+                # 'agents': ['cells'],
+                'particles': ['particles'],
+            },
+            'outputs': {
+                # 'agents': ['cells'],
+                'particles': ['particles'],
+            }
+        }
+    }
 
-def run_pymunk_particles():
-    pass
+    # emitter state
+    # emitter_spec = {'agents': ['cells'],
+    #                 'particles': ['particles'],
+    #                 'time': ['global_time']}
+    # emitter_state = emitter_from_wires(emitter_spec)
+
+    # grow and divide schema
+    cell_schema = {}
+    # cell_schema = get_grow_divide_schema(
+    #     core=core,
+    #     config={
+    #         'agents_key': 'cells',
+    #         'rate': 0.02,
+    #         'threshold': 80.0,
+    #         'mutate': True,
+    #     }
+    # )
+
+    # complete document
+    doc = {
+        'state': {
+            **initial_state,
+            **processes,
+            # **{'emitter': emitter_state},
+        },
+        'composition': cell_schema,
+    }
+
+    # create the composite simulation
+    sim = Composite(doc, core=core)
+
+    # Save composition JSON
+    name = 'pymunk_growth_division'
+    sim.save(filename=f'{name}.json', outdir='out')
+
+    # Save visualization of the initial composition
+    plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
+    plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
+
+    # plot_bigraph(
+    #     state=plot_state,
+    #     schema=plot_schema,
+    #     core=core,
+    #     out_dir='out',
+    #     filename=f'{name}_viz',
+    #     dpi='300',
+    #     collapse_redundant_processes=True
+    # )
+
+    # run the simulation
+    total_time = interval * steps
+    sim.run(total_time)
+    results = gather_emitter_results(sim)[('emitter',)]
+
+    print(f'Simulation completed with {len(results)} steps.')
+
+    # make video
+    simulation_to_gif(results,
+                      filename='circlesandsegments',
+                      config=config,
+                      color_by_phylogeny=True,
+                      # skip_frames=10
+                      )
 
 
 if __name__ == '__main__':

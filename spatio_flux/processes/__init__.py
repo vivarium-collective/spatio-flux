@@ -3,6 +3,7 @@ from spatio_flux.processes.dfba import (
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection
 from spatio_flux.processes.particles import ParticleMovement, DIVISION_MASS_THRESHOLD, ParticleDivision, ParticleExchange
 from spatio_flux.processes.kinetics import MonodKinetics
+from spatio_flux.processes.pymunk_particles import PymunkParticleMovement
 
 # configs
 from spatio_flux.processes.configs import (
@@ -17,6 +18,7 @@ PROCESS_DICT = {
     'SpatialDFBA': SpatialDFBA,
     'DiffusionAdvection': DiffusionAdvection,
     'ParticleMovement': ParticleMovement,
+    'PymunkParticleMovement': PymunkParticleMovement,
     'MonodKinetics': MonodKinetics,
     'ParticleDivision': ParticleDivision,
     'ParticleExchange': ParticleExchange,
