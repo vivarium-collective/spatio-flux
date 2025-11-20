@@ -592,7 +592,7 @@ def build_particle(
     # position
     x=None, y=None, margin=5.0,
     # kinematics
-    velocity=None, speed_range=(0.0, 10.0),
+    velocity=None, speed_range=(0.0, 0.0),
     # geometry / mass (circle)
     radius=None, mass=None, density=0.015,
     radius_range=(1.0, 10.0)
@@ -757,7 +757,7 @@ def make_initial_state(
     # particle defaults
     particle_radius_range=(1.0, 10.0),
     particle_mass_density=0.015,
-    particle_speed_range=(0.0, 10.0),
+    particle_speed_range=(0.0, 0.0),
     # placement
     margin=5.0,
     avoid_overlap_circles=True,
@@ -790,12 +790,14 @@ def run_pymunk_particles():
     # run simulation
     interval = 100
     config = {
-        'gravity': -0.2, #-9.81,
+        'gravity': -0.1, #-9.81,
         'elasticity': 0.1,
         'bounds': (100.0, 300.0),
         'boundary_to_remove': [], #['right', 'left'],
         'add_probability': 0.3,
-        'new_particle_radius_range': (0.5, 1.5),
+        'new_particle_radius_range': (0.5, 2.5),
+        'jitter_per_second': 0.5,
+        'damping_per_second': .998,
     }
     n_particles = 200
 
