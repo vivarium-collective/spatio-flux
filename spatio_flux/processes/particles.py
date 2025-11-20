@@ -108,14 +108,15 @@ class ParticleMovement(Process):
         'bounds': 'tuple[float,float]',
         'n_bins': 'tuple[integer,integer]',
         'diffusion_rate': default('float', 1e-1),
-        'advection_rate': default('tuple[float,float]', (0, 0)),
+        'advection_rate': default('tuple[float,float]', (0.0, 0.0)),
+        'settling_velocity': default('float', 0.01),   # NEW — downward drift per second
         'add_probability': default('float', 0.0),
         'boundary_to_add': default('list[boundary_side]', ['top']),
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom']),
     }
 
     def initialize(self, config):
-        self.env_size = ((0, config['bounds'][0]), (0, config['bounds'][1]))
+        self.env_size = ((0.0, config['bounds'][0]), (0.0, config['bounds'][1]))
 
     def inputs(self):
         return {'particles': 'map[particle]'}
@@ -126,108 +127,103 @@ class ParticleMovement(Process):
     def initial_state(self, config=None):
         return {}
 
-    @staticmethod
-    def generate_state(config=None):
-        config = config or {}
-        bounds = config.get('bounds', (1.0, 1.0))
-        n_bins = config.get('n_bins', (1, 1))
-        n_particles = config.get('n_particles', 15)
-        mass_range = config.get('mass_range') or INITIAL_MASS_RANGE
-        fields = config.get('fields', {})  # optional, used by generate_single_particle_state if provided
-
-        particles = {}
-        for _ in range(n_particles):
-            pid = short_id()
-            pstate = generate_single_particle_state({
-                'bounds': bounds,
-                'mass_range': mass_range,
-                'n_bins': n_bins,
-                'fields': fields,
-                'id': pid,
-            })
-            particles[pid] = pstate
-        return {'particles': particles}
+    # ------------------------------------------------------------------
 
     def update(self, state, interval):
         particles = state['particles']
 
-        updated_particles = {'_remove': [], '_add': {}}
-
         dt = float(interval)
-        D = float(self.config['diffusion_rate'])
+        D = self.config['diffusion_rate']
         vx, vy = self.config['advection_rate']
+        settling = self.config['settling_velocity']
+
         sigma = np.sqrt(2.0 * D * dt)
 
-        # precompute bounds + buffer
         (x_min, x_max), (y_min, y_max) = self.env_size
         buffer = 1e-4
         x_lo, x_hi = x_min + buffer, x_max - buffer
         y_lo, y_hi = y_min + buffer, y_max - buffer
 
-        def clamp_delta_in_bounds(x_old, y_old, x_new, y_new):
-            x_clamped = np.clip(x_new, x_lo, x_hi)
-            y_clamped = np.clip(y_new, y_lo, y_hi)
-            return (
-                float(x_clamped - x_old),
-                float(y_clamped - y_old),
-            )
+        # Localize for speed
+        remove_boundaries = set(self.config['boundary_to_remove'])
+        check_left   = 'left' in remove_boundaries
+        check_right  = 'right' in remove_boundaries
+        check_top    = 'top' in remove_boundaries
+        check_bottom = 'bottom' in remove_boundaries
 
-        for pid, particle in particles.items():
-            old_x, old_y = particle['position']
+        updated = {'_remove': [], '_add': {}}
 
-            # proposed displacement
+        # --------------------------------------------------------------
+        #                   MAIN PARTICLE UPDATE LOOP
+        # --------------------------------------------------------------
+        for pid, p in particles.items():
+            old_x, old_y = p['position']
+
+            # Brownian + advection
             dx, dy = np.random.normal(0.0, sigma, 2)
             dx += vx * dt
             dy += vy * dt
 
+            # Settling (positive settling means downward)
+            dy -= settling * dt
+
             new_x = old_x + dx
             new_y = old_y + dy
 
-            # kill if it crosses a removal boundary
-            if self.check_boundary_hit(new_x, new_y):
-                updated_particles['_remove'].append(pid)
+            # --------------------
+            # Removal boundaries
+            # --------------------
+            if (
+                (check_left   and new_x < x_min) or
+                (check_right  and new_x > x_max) or
+                (check_top    and new_y > y_max) or
+                (check_bottom and new_y < y_min)
+            ):
+                updated['_remove'].append(pid)
                 continue
 
-            # clamp and convert to actual delta
-            actual_dx, actual_dy = clamp_delta_in_bounds(old_x, old_y, new_x, new_y)
-            updated_particles[pid] = {'position': (actual_dx, actual_dy)}
+            # --------------------
+            # Clamp in-bounds
+            # --------------------
+            x_clamped = new_x if x_lo <= new_x <= x_hi else np.clip(new_x, x_lo, x_hi)
+            y_clamped = new_y if y_lo <= new_y <= y_hi else np.clip(new_y, y_lo, y_hi)
 
-        # births (Poisson-ish per tick)
+            updated[pid] = {
+                'position': (x_clamped - old_x, y_clamped - old_y)
+            }
+
+        # --------------------------------------------------------------
+        #                     NEW PARTICLE BIRTHS
+        # --------------------------------------------------------------
         add_prob = self.config['add_probability']
-        bounds = self.config['bounds']
-        n_bins = self.config['n_bins']
+        if add_prob > 0.0:
+            for boundary in self.config['boundary_to_add']:
+                if np.random.rand() < add_prob:
+                    position = self.get_boundary_position(boundary)
+                    pid = short_id()
+                    new_p = generate_single_particle_state({
+                        'bounds': self.config['bounds'],
+                        'n_bins': self.config['n_bins'],
+                        'position': position,
+                        'id': pid,
+                    })
+                    updated['_add'][pid] = new_p
 
-        for boundary in self.config['boundary_to_add']:
-            if np.random.rand() < add_prob:
-                position = self.get_boundary_position(boundary)
-                new_particle = generate_single_particle_state({
-                    'bounds': bounds,
-                    'n_bins': n_bins,
-                    'position': position,
-                })
-                pid = short_id()
-                new_particle['id'] = pid
-                updated_particles['_add'][pid] = new_particle
+        return {'particles': updated}
 
-        return {'particles': updated_particles}
-
-    def check_boundary_hit(self, x, y):
-        return (
-            ('left' in self.config['boundary_to_remove'] and x < self.env_size[0][0]) or
-            ('right' in self.config['boundary_to_remove'] and x > self.env_size[0][1]) or
-            ('top' in self.config['boundary_to_remove'] and y > self.env_size[1][1]) or
-            ('bottom' in self.config['boundary_to_remove'] and y < self.env_size[1][0])
-        )
+    # ------------------------------------------------------------------
 
     def get_boundary_position(self, boundary):
+        (x_min, x_max), (y_min, y_max) = self.env_size
         if boundary == 'left':
-            return self.env_size[0][0], np.random.uniform(*self.env_size[1])
-        elif boundary == 'right':
-            return self.env_size[0][1], np.random.uniform(*self.env_size[1])
-        elif boundary == 'top':
-            return np.random.uniform(*self.env_size[0]), self.env_size[1][1]
-        elif boundary == 'bottom':
-            return np.random.uniform(*self.env_size[0]), self.env_size[1][0]
+            return (x_min, np.random.uniform(y_min, y_max))
+        if boundary == 'right':
+            return (x_max, np.random.uniform(y_min, y_max))
+        if boundary == 'top':
+            return (np.random.uniform(x_min, x_max), y_max)
+        if boundary == 'bottom':
+            return (np.random.uniform(x_min, x_max), y_min)
+
 
 
 class ParticleExchange(Step):

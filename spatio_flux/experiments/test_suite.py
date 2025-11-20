@@ -452,7 +452,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
-    n_bins = DEFAULT_BINS
+    n_bins = DEFAULT_BINS  #DEFAULT_BINS
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 1
     add_probability = 0.2
@@ -497,22 +497,23 @@ def get_metacomposite_doc(core=None, config=None):
     config = config or {}
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
-    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+    division_mass_threshold = 3 # config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
-    n_bins = DEFAULT_BINS_SMALL
+    n_bins = DEFAULT_BINS
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    n_particles = 1
-    add_probability = 0.2
-    particle_advection = DEFAULT_ADVECTION
+    n_particles = 4
+    add_probability = 0.3
+    particle_advection = (0, -0.2) #DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     doc = {
         'state': {
             'fields': fields,
-            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            'diffusion': get_diffusion_advection_process(
+                bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particle_movement': get_particle_movement_process(
@@ -544,7 +545,7 @@ def plot_metacomposite(results, state, config=None):
 
 DEFAULT_BOUNDS = (5.0, 10.0)
 DEFAULT_BINS = (10, 20)
-DEFAULT_BINS_SMALL = (5, 10)
+DEFAULT_BINS_SMALL = (2, 4)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
@@ -557,8 +558,9 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME_SHORT = 10  # 20
-DEFAULT_RUNTIME_LONG = 20   # 60
+DEFAULT_RUNTIME_SHORT = 20  # 20
+DEFAULT_RUNTIME_LONG = 60   # 60
+DEFAULT_RUNTIME_VERY_LONG = 200  # 120
 
 SIMULATIONS = {
     'ecoli_core_dfba': {
@@ -690,7 +692,7 @@ SIMULATIONS = {
         'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
         'doc_func': get_metacomposite_doc,
         'plot_func': plot_metacomposite,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_VERY_LONG,
         'config': {},
         'plot_config': {'filename': 'metacomposite'}
     },
