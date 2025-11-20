@@ -1,24 +1,23 @@
 """
 TODO: use an actual grow/divide process for demo
 """
-import uuid
 import random
 import math
-import random
+import uuid
+
 import pymunk
 
-from bigraph_schema import default
 from process_bigraph import Composite, gather_emitter_results, Process
 from process_bigraph.emitter import emitter_from_wires
 from spatio_flux.plots.multibody_plots import simulation_to_gif
 from spatio_flux.library.helpers import get_standard_emitter
 
 
-def daughter_locations(parent_state, *, gap=1.0, daughter_length=None, daughter_radius=None):
+def daughter_positions(parent_state, *, gap=1.0, daughter_length=None, daughter_radius=None):
     """
-    Compute daughter center locations so they do not overlap, accounting for geometry.
+    Compute daughter center position so they do not overlap, accounting for geometry.
     """
-    px, py = parent_state['location']
+    px, py = parent_state['position']
     angle = float(parent_state.get('angle', 0.0))
     dtype = parent_state.get('type', 'circle')
 
@@ -71,312 +70,314 @@ def local_impulse_point_for_shape(shape):
     return (0.0, 0.0)
 
 
-
 class PymunkParticleMovement(Process):
-    """
-    Pymunk-backed version of ParticleMovement.
-    """
     config_schema = {
-        # Match ParticleMovement
-        'bounds': 'tuple[float,float]',             # (x_max, y_max)
-        'add_probability': default('float', 0.0),
-        'boundary_to_add': default('list[boundary_side]', ['top']),
-        'boundary_to_remove': default(
-            'list[boundary_side]',
-            ['left', 'right', 'top']
-        ),
+        # Align with ParticleMovement
+        'bounds':        {'_type': 'tuple[float,float]',   '_default': (500.0, 500.0)},
+        'n_bins':        {'_type': 'tuple[integer,integer]', '_default': (1, 1)},
+        'diffusion_rate':   {'_type': 'float', '_default': 1e-1},
+        'advection_rate':   {'_type': 'tuple[float,float]', '_default': (0.0, 0.0)},
+        'add_probability':  {'_type': 'float', '_default': 0.0},
+        'boundary_to_add':  {'_type': 'list[boundary_side]', '_default': ['top']},
+        'boundary_to_remove': {
+            '_type': 'list[boundary_side]',
+            '_default': ['left', 'right', 'top', 'bottom'],
+        },
+        # Newborn particle configuration
+        'new_particle_radius_range': {
+            '_type': 'tuple[float,float]',
+            '_default': (1.0, 10.0),
+        },
+        'new_particle_mass_range': {
+            '_type': 'tuple[float,float]',
+            '_default': (0.0, 0.0),
+        },
+        'new_particle_density': {
+            '_type': 'float',
+            '_default': 0.015,
+        },
+        'new_particle_speed_range': {
+            '_type': 'tuple[float,float]',
+            '_default': (0.0, 0.0),  # start at rest by default
+        },
 
-        # Pymunk-specific (mostly optional knobs)
-        'substeps': default('integer', 100),
-        'gravity': default('float', -9.81),
-        'damping_per_second': default('float', 0.98),
-        'jitter_per_second': default('float', 1e-2),
-        'friction': default('float', 0.8),
-        'elasticity': default('float', 0.0),
-        'wall_thickness': default('float', 5.0),
-        'barriers': default('list[map]', []),
+        # Existing Pymunk controls
+        'substeps':          {'_type': 'integer', '_default': 100},
+        'damping_per_second': {'_type': 'float', '_default': 0.98},
+        'gravity':           {'_type': 'float', '_default': -9.81},
+        'friction':          {'_type': 'float', '_default': 0.8},
+        'elasticity':        {'_type': 'float', '_default': 0.0},
+        'jitter_per_second': {'_type': 'float', '_default': 1e-2},  # base impulse std
+        'barriers':          'list[map]',
+        'wall_thickness':    {'_type': 'float', '_default': 100.0},
     }
 
-    def __init__(self, config=None, core=None):
-        super().__init__(config, core)
+    def initialize(self, config=None):
 
-        # Domain: (0, x_max) x (0, y_max)
-        x_max, y_max = self.config['bounds']
-        self.env_size = ((0.0, float(x_max)), (0.0, float(y_max)))
+        # convenience
+        self.bounds = self.config['bounds']  # (x_max, y_max)
+        x_max, y_max = float(self.bounds[0]), float(self.bounds[1])
+        self.env_size = ((0.0, x_max), (0.0, y_max))
 
+        self.substeps = int(self.config.get('substeps', 100))
+        self.damping_per_second = float(self.config.get('damping_per_second', 0.98))
+        self.jitter_per_second = float(self.config.get('jitter_per_second', 1e-2))
+
+        # align with ParticleMovement knobs
+        self.diffusion_rate = float(self.config.get('diffusion_rate', 1e-1))
+        self.advection_rate = tuple(self.config.get('advection_rate', (0.0, 0.0)))
+        self.add_probability = float(self.config.get('add_probability', 0.0))
+        self.boundary_to_add = list(self.config.get('boundary_to_add', ['top']))
+        self.boundary_to_remove = set(
+            self.config.get('boundary_to_remove', ['left', 'right', 'top', 'bottom'])
+        )
+
+        # newborn particle config
+        self.new_radius_range = tuple(
+            self.config.get('new_particle_radius_range', (1.0, 10.0))
+        )
+        self.new_mass_range = tuple(
+            self.config.get('new_particle_mass_range', (0.0, 0.0))
+        )
+        self.new_density = float(self.config.get('new_particle_density', 0.015))
+        self.new_speed_range = tuple(
+            self.config.get('new_particle_speed_range', (0.0, 0.0))
+        )
         # Pymunk space
         self.space = pymunk.Space()
         self.space.gravity = (0.0, float(self.config['gravity']))
-        self.substeps = int(self.config['substeps'])
-        self.damping_per_second = float(self.config['damping_per_second'])
-        self.jitter_per_second = float(self.config['jitter_per_second'])
 
         self.friction = float(self.config['friction'])
         self.elasticity = float(self.config['elasticity'])
-        self.wall_thickness = float(self.config['wall_thickness'])
+        self.wall_thickness = float(self.config.get('wall_thickness', 100.0))
 
-        # Map: pid -> {'body', 'shape', 'radius', ...}
-        self.bodies = {}
+        # internal registry
+        self.agents = {}
 
-        # Build walls based on bounds and boundary_to_remove
+        # add walls only on sides that are NOT removal boundaries
         self._build_walls()
 
-        # Optional custom barriers
+        # add custom barriers
         for barrier in self.config.get('barriers', []):
-            self._add_barrier(barrier)
+            self.add_barrier(barrier)
 
-    # ------------------------------------------------------------------
-    # Schema alignment
-    # ------------------------------------------------------------------
-
-    def inputs(self):
-        # Same as ParticleMovement
-        return {'particles': 'map[particle]'}
-
-    def outputs(self):
-        # Same as ParticleMovement
-        return {'particles': 'map[particle]'}
-
-    def initial_state(self, config=None):
-        # Let the upstream composite decide initial particles,
-        # or you can seed here if desired.
-        return {}
-
-    @staticmethod
-    def generate_state(config=None):
-        """
-        Optional helper for seeding particles, roughly analogous to
-        ParticleMovement.generate_state. You can also just ignore this and
-        seed particles elsewhere.
-        """
-        config = config or {}
-        bounds = config.get('bounds', (100.0, 100.0))
-        n_particles = config.get('n_particles', 10)
-        elasticity = config.get('elasticity', 0.0)
-
-        env_size = float(bounds[0])  # assuming square for placement helper
-        rng = random.Random(config.get('seed'))
-
-        particles = place_circles(
-            rng, env_size, n_particles,
-            margin=5.0,
-            avoid_overlap=True,
-            extra_gap=2.0,
-            max_tries=200,
-            particle_kwargs=dict(
-                elasticity=elasticity,
-            ),
-        )
-
-        # Convert 'location' -> 'position' to match particle schema
-        for pid, p in particles.items():
-            p['position'] = p.pop('location')
-
-        return {'particles': particles}
-
-    # ------------------------------------------------------------------
-    # Core update
-    # ------------------------------------------------------------------
-
-    def update(self, state, interval):
-        """
-        Pymunk step that:
-        - syncs Pymunk bodies from incoming particles
-        - integrates physics
-        - emits delta updates in ParticleMovement style:
-            {
-                'particles': {
-                    '_remove': [...],
-                    '_add': {pid: full_state, ...},
-                    existing_pid: {'position': (dx, dy)},
-                    ...
-                }
-            }
-        """
-        particles_in = state.get('particles', {}) or {}
-        dt_total = float(interval)
-
-        # 1. Sync domain with incoming particles (add/update/remove bodies)
-        self._sync_bodies_from_particles(particles_in)
-
-        # 2. Step Pymunk
-        n_steps = max(1, int(self.substeps))
-        dt = dt_total / n_steps if n_steps > 0 else dt_total
-        d_step = self.damping_per_second ** max(dt, 0.0)
-
-        for _ in range(n_steps):
-            self.space.damping = d_step
-            for body in self.space.bodies:
-                self._apply_jitter_force(body, dt)
-            self.space.step(dt)
-
-        # 3. Build delta-style output
-        (x_min, x_max), (y_min, y_max) = self.env_size
-        remove_sides = set(self.config['boundary_to_remove'])
-
-        deltas = {'_remove': [], '_add': {}}
-
-        # Existing particles: compute displacement
-        for pid, obj in list(self.bodies.items()):
-            body = obj['body']
-            x, y = body.position.x, body.position.y
-
-            # Check removal boundaries (if no wall is present on that side)
-            kill = (
-                ('left' in remove_sides and x < x_min) or
-                ('right' in remove_sides and x > x_max) or
-                ('bottom' in remove_sides and y < y_min) or
-                ('top' in remove_sides and y > y_max)
-            )
-            if kill:
-                deltas['_remove'].append(pid)
-                self.space.remove(body, obj['shape'])
-                del self.bodies[pid]
-                continue
-
-            # If this particle was in the input, give a displacement update
-            if pid in particles_in:
-                old_x, old_y = particles_in[pid]['position']
-                dx = float(x - old_x)
-                dy = float(y - old_y)
-                deltas[pid] = {'position': (dx, dy)}
-
-        # 4. Births from boundaries (same config semantics as ParticleMovement)
-        add_prob = float(self.config['add_probability'])
-        if add_prob > 0.0:
-            for side in self.config['boundary_to_add']:
-                if random.random() < add_prob:
-                    pid, pstate = self._spawn_new_particle_at_boundary(side)
-                    if pid is not None:
-                        deltas['_add'][pid] = pstate
-
-        return {'particles': deltas}
-
-    # ------------------------------------------------------------------
-    # Wall + barrier construction
     # ------------------------------------------------------------------
 
     def _build_walls(self):
         (x_min, x_max), (y_min, y_max) = self.env_size
         t = self.wall_thickness
-        remove_sides = set(self.config['boundary_to_remove'])
+        body = self.space.static_body
 
         def add_segment(a, b):
-            seg = pymunk.Segment(self.space.static_body, a, b, t)
+            seg = pymunk.Segment(body, a, b, t)
             seg.elasticity = self.elasticity
             seg.friction = self.friction
             self.space.add(seg)
 
-        # Only add walls for sides that are NOT removal boundaries
-        if 'bottom' not in remove_sides:
-            add_segment((x_min, y_min), (x_max, y_min))
-        if 'top' not in remove_sides:
-            add_segment((x_min, y_max), (x_max, y_max))
-        if 'left' not in remove_sides:
-            add_segment((x_min, y_min), (x_min, y_max))
-        if 'right' not in remove_sides:
-            add_segment((x_max, y_min), (x_max, y_max))
+        # Bottom
+        if 'bottom' not in self.boundary_to_remove:
+            add_segment((x_min - t, y_min - t), (x_max + t, y_min - t))
+        # Right
+        if 'right' not in self.boundary_to_remove:
+            add_segment((x_max + t, y_min - t), (x_max + t, y_max + t))
+        # Top
+        if 'top' not in self.boundary_to_remove:
+            add_segment((x_max + t, y_max + t), (x_min - t, y_max + t))
+        # Left
+        if 'left' not in self.boundary_to_remove:
+            add_segment((x_min - t, y_max + t), (x_min - t, y_min - t))
 
-    def _add_barrier(self, barrier):
+    def add_barrier(self, barrier):
         start_x, start_y = barrier['start']
         end_x, end_y = barrier['end']
-        thickness = barrier.get('thickness', self.wall_thickness)
+        start = pymunk.Vec2d(start_x, start_y)
+        end = pymunk.Vec2d(end_x, end_y)
+        thickness = barrier.get('thickness', 1)
+        segment = pymunk.Segment(self.space.static_body, start, end, thickness)
+        segment.elasticity = barrier.get('elasticity', 1.0)
+        segment.friction = barrier.get('friction', 0.5)
+        self.space.add(segment)
 
-        seg = pymunk.Segment(
-            self.space.static_body,
-            (start_x, start_y),
-            (end_x, end_y),
-            thickness,
-        )
-        seg.elasticity = barrier.get('elasticity', self.elasticity)
-        seg.friction = barrier.get('friction', self.friction)
-        self.space.add(seg)
+    def inputs(self):
+        return {
+            'particles': 'map[particle]',
+        }
 
-    # ------------------------------------------------------------------
-    # Sync between particle dicts and Pymunk bodies
-    # ------------------------------------------------------------------
+    def outputs(self):
+        return {
+            'particles': 'map[particle]',
+        }
 
-    def _sync_bodies_from_particles(self, particles_in):
-        """Create/update/remove Pymunk bodies to match incoming particles."""
-        incoming_ids = set(particles_in.keys())
-        existing_ids = set(self.bodies.keys())
-
-        # Remove stale bodies
-        for pid in existing_ids - incoming_ids:
-            body = self.bodies[pid]['body']
-            shape = self.bodies[pid]['shape']
-            self.space.remove(body, shape)
-            del self.bodies[pid]
-
-        # Add/update existing
-        for pid, attrs in particles_in.items():
-            self._upsert_body(pid, attrs)
-
-    def _upsert_body(self, pid, attrs):
+    def _spawn_new_particle_at_boundary(self, side):
         """
-        Ensure a Pymunk circle body exists and is in sync with the particle
-        state. We treat every particle as a circle here.
+        Spawn a new circle near a boundary using configured radius/mass ranges,
+        via the shared `build_particle` helper.
         """
-        # position: accept either 'position' (ParticleMovement) or 'location' (your utils)
-        pos = attrs.get('position', attrs.get('location', (0.0, 0.0)))
-        vx, vy = attrs.get('velocity', (0.0, 0.0))
-        radius = float(attrs.get('radius', 5.0))
-        mass = float(attrs.get('mass', 1.0))
+        (x_min, x_max), (y_min, y_max) = self.env_size
+        margin = 2.0
 
-        if pid not in self.bodies:
-            # create new body+shape
-            inertia = pymunk.moment_for_circle(mass, 0, radius)
-            body = pymunk.Body(mass, inertia)
-            body.position = pos
-            body.velocity = (vx, vy)
-            shape = pymunk.Circle(body, radius)
-            shape.elasticity = attrs.get('elasticity', self.elasticity)
-            shape.friction = attrs.get('friction', self.friction)
-            self.space.add(body, shape)
-            self.bodies[pid] = {
-                'body': body,
-                'shape': shape,
-                'radius': radius,
-                'mass': mass,
-            }
+        # Decide radius / mass
+        rng = random  # module has .uniform etc., works fine
+
+        mass_min, mass_max = self.new_mass_range
+        use_mass_range = mass_max > mass_min and mass_min > 0.0
+
+        if use_mass_range:
+            # Sample mass, derive radius from density
+            mass = rng.uniform(mass_min, mass_max)
+            radius = circle_radius_from_mass(mass, self.new_density)
         else:
-            obj = self.bodies[pid]
-            body = obj['body']
-            shape = obj['shape']
+            # Sample radius, derive mass from density
+            r_min, r_max = self.new_radius_range
+            radius = rng.uniform(r_min, r_max)
+            mass = circle_mass_from_radius(radius, self.new_density)
 
-            # Update mass/geom if changed
-            if abs(obj['radius'] - radius) > 1e-9 or abs(obj['mass'] - mass) > 1e-9:
-                # rebuild shape
-                self.space.remove(shape)
-                inertia = pymunk.moment_for_circle(mass, 0, radius)
-                body.mass = mass
-                body.moment = inertia
-                new_shape = pymunk.Circle(body, radius)
-                new_shape.elasticity = attrs.get('elasticity', self.elasticity)
-                new_shape.friction = attrs.get('friction', self.friction)
-                self.space.add(new_shape)
-                obj['shape'] = new_shape
-                obj['radius'] = radius
-                obj['mass'] = mass
+        # Place along the requested boundary, respecting radius
+        if side == 'left':
+            x = x_min + margin + radius
+            y = rng.uniform(y_min + margin + radius, y_max - (margin + radius))
+        elif side == 'right':
+            x = x_max - margin - radius
+            y = rng.uniform(y_min + margin + radius, y_max - (margin + radius))
+        elif side == 'bottom':
+            x = rng.uniform(x_min + margin + radius, x_max - (margin + radius))
+            y = y_min + margin + radius
+        elif side == 'top':
+            x = rng.uniform(x_min + margin + radius, x_max - (margin + radius))
+            y = y_max - margin - radius
+        else:
+            return None, None
 
-            # Update pose/velocity
-            body.position = pos
-            body.velocity = (vx, vy)
+        # Use the shared helper to build a proper particle record
+        pid, pstate = build_particle(
+            rng,
+            self.bounds,  # (x_max, y_max)
+            elasticity=self.elasticity,
+            id_prefix='p',
+            x=float(x),
+            y=float(y),
+            velocity=(0.0, 0.0),  # or use self.new_speed_range if you want motion
+            radius=float(radius),
+            mass=float(mass),
+            density=self.new_density,
+            radius_range=self.new_radius_range,
+        )
+
+        # Ensure friction is included (build_particle doesn’t add it)
+        pstate['friction'] = self.friction
+
+        return pid, pstate
 
     # ------------------------------------------------------------------
-    # Jitter + births
+    # Core update: same style, but uses advection/diffusion config
     # ------------------------------------------------------------------
 
-    def _apply_jitter_force(self, body, dt):
+    def update(self, inputs, interval):
         """
-        Small random impulses to avoid perfectly straight motion.
+        Efficiently sync particles without allocating a combined dict,
+        step the physics, then emit per-particle *deltas* in position.
+
+        Existing particles:
+            position = (dx, dy)  # delta from previous position
+
+        New particles (spawned internally via add_probability):
+            position = (x, y)    # absolute position (full state)
         """
-        if not body.shapes:
+        particles_in = inputs.get('particles', {}) or {}
+        particle_ids = set(particles_in)
+
+        # ------- sync bodies (no combined dict) -------
+        existing_ids = set(self.agents)
+        new_ids = particle_ids
+
+        # remove stale
+        for dead_id in existing_ids - new_ids:
+            body = self.agents[dead_id]['body']
+            shape = self.agents[dead_id]['shape']
+            self.space.remove(body, shape)
+            del self.agents[dead_id]
+
+        # add/update particles
+        for _id, attrs in particles_in.items():
+            self.manage_object(_id, attrs)
+
+        # ------- integrate -------
+        n_steps = max(1, int(self.config.get('substeps', 100)))
+        dt = float(interval) / n_steps
+        d_step = self.damping_per_second ** max(dt, 0.0)
+
+        for _ in range(n_steps):
+            self.space.damping = d_step
+            for body in self.space.bodies:
+                self.apply_jitter_force(body, dt)
+            self.space.step(dt)
+
+        particles_out = {'_add': {}}
+
+        # ------- births from boundaries (use self.add_probability) -------
+        newborn_ids = set()
+        if self.add_probability > 0.0:
+            for side in self.boundary_to_add:
+                if random.random() < self.add_probability:
+                    pid, pstate = self._spawn_new_particle_at_boundary(side)
+                    if pid is not None:
+                        # create body in pymunk
+                        self.manage_object(pid, pstate)
+                        newborn_ids.add(pid)
+                        # also treat as "in" for emission
+                        particles_out['_add'][pid] = pstate
+
+        # ------- emit in one pass (no full_state build) -------
+        for _id, obj in self.agents.items():
+            # only report objects that were present on this tick's inputs
+            # (including newborns we just injected into particles_in)
+            if _id in particles_in:
+                body = obj['body']
+                new_x, new_y = body.position.x, body.position.y
+                old_state = particles_in.get(_id, {})
+                old_pos = old_state.get('position')
+
+                # Existing particles: emit delta
+                if _id not in newborn_ids and old_pos is not None:
+                    old_x, old_y = old_pos
+                    dx = float(new_x - old_x)
+                    dy = float(new_y - old_y)
+                    pos_value = (dx, dy)
+                else:
+                    # Newborns (or particles without previous position):
+                    # emit absolute position as full state
+                    pos_value = (float(new_x), float(new_y))
+
+                if obj['type'] == 'circle':
+                    rec = {
+                        'type': obj['type'],
+                        'position': pos_value,
+                        'velocity': (body.velocity.x, body.velocity.y),
+                        'inertia': body.moment,
+                    }
+                else:  # 'segment'
+                    rec = {
+                        'type': obj['type'],
+                        'position': pos_value,
+                        'velocity': (body.velocity.x, body.velocity.y),
+                        'inertia': body.moment,
+                        'angle': body.angle,
+                    }
+
+                particles_out[_id] = rec
+
+        return {'particles': particles_out}
+
+    # ------------------------------------------------------------------
+    # Jitter (diffusion-like) scaled by diffusion_rate
+    # ------------------------------------------------------------------
+
+    def apply_jitter_force(self, body, dt):
+        shape = next(iter(body.shapes)) if body.shapes else None
+        if not shape:
             return
 
-        shape = next(iter(body.shapes))
-
-        # Simple "random point on circle" jitter
+        # simple "random point on circle" jitter
         if isinstance(shape, pymunk.Circle):
             r = shape.radius
             theta = random.uniform(0, 2 * math.pi)
@@ -384,51 +385,165 @@ class PymunkParticleMovement(Process):
         else:
             local_point = (0.0, 0.0)
 
-        sigma = self.jitter_per_second * math.sqrt(max(dt, 1e-12))
+        # scale jitter with diffusion_rate
+        base_sigma = self.jitter_per_second * math.sqrt(max(dt, 1e-12))
+        sigma = base_sigma * math.sqrt(max(self.diffusion_rate, 1e-12))
+
         fx = random.normalvariate(0.0, sigma)
         fy = random.normalvariate(0.0, sigma)
         body.apply_impulse_at_local_point((fx, fy), local_point)
 
-    def _spawn_new_particle_at_boundary(self, side):
-        """
-        Spawn a new circle near a boundary, return (pid, particle_state)
-        in *particle schema* (position, radius, mass, etc.)
-        """
-        (x_min, x_max), (y_min, y_max) = self.env_size
-        margin = 2.0
-        radius = 5.0
-        mass = 1.0
+    def update_bodies(self, agents):
+        existing_ids = set(self.agents.keys())
+        new_ids = set(agents.keys())
 
-        if side == 'left':
-            x = x_min + margin + radius
-            y = random.uniform(y_min + margin, y_max - margin)
-        elif side == 'right':
-            x = x_max - margin - radius
-            y = random.uniform(y_min + margin, y_max - margin)
-        elif side == 'bottom':
-            x = random.uniform(x_min + margin, x_max - margin)
-            y = y_min + margin + radius
-        elif side == 'top':
-            x = random.uniform(x_min + margin, x_max - margin)
-            y = y_max - margin - radius
+        # Remove objects not in the new state
+        for agent_id in existing_ids - new_ids:
+            body = self.agents[agent_id]['body']
+            shape = self.agents[agent_id]['shape']
+            self.space.remove(body, shape)
+            del self.agents[agent_id]
+
+        # Add or update existing objects
+        for agent_id, attrs in agents.items():
+            self.manage_object(agent_id, attrs)
+
+    def manage_object(self, agent_id, attrs):
+        agent = self.agents.get(agent_id)
+        if not agent:
+            self.create_new_object(agent_id, attrs)
+            return
+
+        body = agent['body']
+        old_shape = agent['shape']
+        old_type = agent['type']
+
+        # robust defaults
+        shape_type = attrs.get('type', old_type or 'circle')
+        mass = float(attrs.get('mass', body.mass))
+        vx, vy = attrs.get('velocity', (0.0, 0.0))
+        body.mass = mass
+        body.position = pymunk.Vec2d(*attrs.get('position', (body.position.x, body.position.y)))
+        body.velocity = pymunk.Vec2d(vx, vy)
+
+        needs_rebuild = False
+        if shape_type == 'circle':
+            radius = float(attrs['radius'])
+            if not isinstance(old_shape, pymunk.Circle) or abs(
+                    old_shape.radius - radius) > 1e-9 or old_type != 'circle':
+                needs_rebuild = True
+            if needs_rebuild:
+                new_shape = pymunk.Circle(body, radius)
+                body.moment = pymunk.moment_for_circle(mass, 0, radius)
+        elif shape_type == 'segment':
+            length = float(attrs['length'])
+            radius = float(attrs['radius'])
+            angle = float(attrs['angle'])
+            # local endpoints
+            start = pymunk.Vec2d(-length / 2, 0).rotated(angle)
+            end = pymunk.Vec2d(length / 2, 0).rotated(angle)
+            if not isinstance(old_shape, pymunk.Segment) or abs(
+                    old_shape.radius - radius) > 1e-9 or old_type != 'segment':
+                needs_rebuild = True
+            if needs_rebuild:
+                new_shape = pymunk.Segment(body, start, end, radius)
+                body.moment = pymunk.moment_for_segment(mass, start, end, radius)
+            body.angle = angle
+            body.length = length
+            body.width = radius * 2
         else:
-            return None, None
+            raise ValueError(f"Unknown shape type: {shape_type}")
 
-        pid = f"p_{uuid.uuid4().hex[:6]}"
-        pstate = {
-            'id': pid,
-            'position': (float(x), float(y)),
-            'velocity': (0.0, 0.0),
-            'radius': float(radius),
-            'mass': float(mass),
-            'elasticity': self.elasticity,
+        # swap shape if needed
+        if needs_rebuild:
+            # preserve material params
+            elasticity = attrs.get('elasticity', self.config['elasticity'])
+            friction = attrs.get('friction', self.config['friction'])
+            new_shape.elasticity = elasticity
+            new_shape.friction = friction
+
+            self.space.remove(old_shape)
+            self.space.add(new_shape)
+            agent['shape'] = new_shape
+
+        # keep dict in sync
+        agent['type'] = shape_type
+        agent['mass'] = mass
+        if shape_type == 'circle':
+            agent['radius'] = radius
+            agent['angle'] = None
+            agent['length'] = None
+        else:
+            agent['radius'] = radius
+            agent['angle'] = body.angle
+            agent['length'] = body.length
+
+    def create_new_object(self, agent_id, attrs):
+        shape_type = attrs.get('type', 'circle')
+        mass = float(attrs.get('mass', 1.0))
+        vx, vy = attrs.get('velocity', (0.0, 0.0))
+        pos = attrs.get('position', (0.0, 0.0))
+
+        if shape_type == 'circle':
+            radius = float(attrs['radius'])
+            inertia = pymunk.moment_for_circle(mass, 0, radius)
+            body = pymunk.Body(mass, inertia)
+            body.position = pos
+            body.velocity = (vx, vy)
+            shape = pymunk.Circle(body, radius)
+            angle = None
+            length = None
+        elif shape_type == 'segment':
+            length = float(attrs['length'])
+            radius = float(attrs['radius'])
+            angle = float(attrs['angle'])
+            start = (-length / 2, 0)
+            end = (length / 2, 0)
+            inertia = pymunk.moment_for_segment(mass, start, end, radius)
+            body = pymunk.Body(mass, inertia)
+            body.position = pos
+            body.velocity = (vx, vy)
+            body.angle = angle
+            body.length = length
+            body.width = radius * 2
+            shape = pymunk.Segment(body, start, end, radius)
+        else:
+            raise ValueError(f"Unknown shape type: {shape_type}")
+
+        shape.elasticity = attrs.get('elasticity', self.config['elasticity'])
+        shape.friction = attrs.get('friction', self.config['friction'])
+
+        self.space.add(body, shape)
+        self.agents[agent_id] = {
+            'body': body,
+            'shape': shape,
+            'type': shape_type,
+            'mass': mass,
+            'radius': radius,
+            'angle': angle,
+            'length': length,
         }
 
-        # Also create body immediately so it's present next tick
-        self._upsert_body(pid, pstate)
-        return pid, pstate
+    def get_state_update(self):
+        state = {}
+        for agent_id, obj in self.agents.items():
+            if obj['type'] == 'circle':
 
-
+                state[agent_id] = {
+                    'type': obj['type'],
+                    'position': (obj['body'].position.x, obj['body'].position.y),
+                    'velocity': (obj['body'].velocity.x, obj['body'].velocity.y),
+                    'inertia': obj['body'].moment,
+                }
+            elif obj['type'] == 'segment':
+                state[agent_id] = {
+                    'type': obj['type'],
+                    'position': (obj['body'].position.x, obj['body'].position.y),
+                    'velocity': (obj['body'].velocity.x, obj['body'].velocity.y),
+                    'inertia': obj['body'].moment,
+                    'angle': obj['body'].angle
+                }
+        return state
 
 
 # -------------------------
@@ -470,7 +585,7 @@ def capsule_length_from_mass(mass, radius, density):
 
 def build_particle(
     rng,
-    env_size,
+    bounds,
     *,
     elasticity=0.0,
     id_prefix='p',
@@ -479,11 +594,12 @@ def build_particle(
     # kinematics
     velocity=None, speed_range=(0.0, 10.0),
     # geometry / mass (circle)
-    radius=None, mass=None, density=0.015
+    radius=None, mass=None, density=0.015,
+    radius_range=(1.0, 10.0)
 ):
     # derive geometry/mass if needed
     if radius is None and mass is None:
-        radius = rng.uniform(1.0, 10.0)
+        radius = rng.uniform(*radius_range)
     if mass is None:
         mass = circle_mass_from_radius(radius, density)
     if radius is None:
@@ -492,8 +608,8 @@ def build_particle(
     # position
     if x is None or y is None:
         r = radius
-        x = rng.uniform(margin + r, env_size - (margin + r))
-        y = rng.uniform(margin + r, env_size - (margin + r))
+        x = rng.uniform(margin + r, bounds[0] - (margin + r))
+        y = rng.uniform(margin + r, bounds[1] - (margin + r))
 
     # velocity
     if velocity is None:
@@ -507,14 +623,14 @@ def build_particle(
         'type': 'circle',
         'mass': float(mass),
         'radius': float(radius),
-        'location': (float(x), float(y)),
+        'position': (float(x), float(y)),
         'velocity': (float(vx), float(vy)),
         'elasticity': float(elasticity),
     }
 
 def build_microbe(
     rng,
-    env_size,
+    bounds,
     *,
     agent_id=None,          # <-- optional explicit id
     elasticity=0.0,
@@ -543,8 +659,8 @@ def build_microbe(
     dx, dy = (length / 2.0) * math.cos(angle), (length / 2.0) * math.sin(angle)
     pad = radius + margin
     if x is None or y is None:
-        x = rng.uniform(pad + abs(dx), env_size - (pad + abs(dx)))
-        y = rng.uniform(pad + abs(dy), env_size - (pad + abs(dy)))
+        x = rng.uniform(pad + abs(dx), bounds[0] - (pad + abs(dx)))
+        y = rng.uniform(pad + abs(dy), bounds[1] - (pad + abs(dy)))
 
     if velocity is None:
         speed = rng.uniform(*speed_range)
@@ -561,7 +677,7 @@ def build_microbe(
         'length': float(length),
         'radius': float(radius),
         'angle': float(angle),
-        'location': (float(x), float(y)),
+        'position': (float(x), float(y)),
         'velocity': (float(vx), float(vy)),
         'elasticity': float(elasticity),
     }
@@ -571,13 +687,13 @@ def build_microbe(
 # -------------------------
 
 def circles_overlap(c1, c2, extra_gap=0.0):
-    (x1, y1), r1 = c1['location'], c1['radius']
-    (x2, y2), r2 = c2['location'], c2['radius']
+    (x1, y1), r1 = c1['position'], c1['radius']
+    (x2, y2), r2 = c2['position'], c2['radius']
     dx, dy = x1 - x2, y1 - y2
     return (dx*dx + dy*dy) < (r1 + r2 + extra_gap) ** 2
 
 def place_circles(
-    rng, env_size, n,
+    rng, bounds, n,
     *,
     margin=5.0,
     avoid_overlap=True,
@@ -591,23 +707,23 @@ def place_circles(
     for _ in range(n):
         if avoid_overlap:
             for _try in range(max_tries):
-                pid, cand = build_particle(rng, env_size, margin=margin, **particle_kwargs)
+                pid, cand = build_particle(rng, bounds, margin=margin, **particle_kwargs)
                 if all(not circles_overlap(cand, prev, extra_gap) for prev in placed):
                     placed.append(cand)
                     out[pid] = cand
                     break
             else:
-                pid, cand = build_particle(rng, env_size, margin=margin, **particle_kwargs)
+                pid, cand = build_particle(rng, bounds, margin=margin, **particle_kwargs)
                 placed.append(cand)
                 out[pid] = cand
         else:
-            pid, cand = build_particle(rng, env_size, margin=margin, **particle_kwargs)
+            pid, cand = build_particle(rng, bounds, margin=margin, **particle_kwargs)
             placed.append(cand)
             out[pid] = cand
     return out
 
 def place_microbes(
-    rng, env_size, n,
+    rng, bounds, n,
     *,
     margin=5.0,
     microbe_kwargs=None,
@@ -622,7 +738,7 @@ def place_microbes(
             agent_id = ids[i]
         elif id_factory is not None:
             agent_id = id_factory(i)
-        aid, obj = build_microbe(rng, env_size, margin=margin, agent_id=agent_id, **microbe_kwargs)
+        aid, obj = build_microbe(rng, bounds, margin=margin, agent_id=agent_id, **microbe_kwargs)
         out[aid] = obj
     return out
 
@@ -632,23 +748,16 @@ def place_microbes(
 # -------------------------
 
 def make_initial_state(
-    n_microbes=2,
     n_particles=2,
-    env_size=600.0,
+    bounds=(600.0, 600.0),
     *,
-    agents_key='cells',
-    particles_key='particles',
+    agents_key='particles',
     seed=None,
     elasticity=0.0,
     # particle defaults
     particle_radius_range=(1.0, 10.0),
     particle_mass_density=0.015,
     particle_speed_range=(0.0, 10.0),
-    # microbe defaults
-    microbe_length_range=(40.0, 120.0),
-    microbe_radius_range=(6.0, 24.0),
-    microbe_mass_density=0.02,
-    microbe_speed_range=(0.0, 0.4),
     # placement
     margin=5.0,
     avoid_overlap_circles=True,
@@ -658,7 +767,7 @@ def make_initial_state(
     rng = make_rng(seed)
 
     particles = place_circles(
-        rng, env_size, n_particles,
+        rng, bounds, n_particles,
         margin=margin,
         avoid_overlap=avoid_overlap_circles,
         extra_gap=min_gap,
@@ -667,40 +776,28 @@ def make_initial_state(
             elasticity=elasticity,
             density=particle_mass_density,
             speed_range=particle_speed_range,
+            radius_range=particle_radius_range,
             # you can override radius/mass/velocity here if desired
             # radius=..., mass=..., velocity=(vx, vy), x=..., y=...
         )
     )
 
-    agents = place_microbes(
-        rng, env_size, n_microbes,
-        margin=margin,
-        microbe_kwargs=dict(
-            elasticity=elasticity,
-            density=microbe_mass_density,
-            speed_range=microbe_speed_range,
-            length_range=microbe_length_range,
-            radius_range=microbe_radius_range,
-        ),
-        # e.g., fixed IDs:
-        # ids=[f"a_seed{i}" for i in range(n_microbes)],
-        # or dynamic:
-        # id_factory=lambda i: f"a_{uuid.uuid4().hex[:6]}",
-    )
-
-    return {agents_key: agents, particles_key: particles}
+    return {agents_key: particles}
 
 
 def run_pymunk_particles():
 
     # run simulation
-    interval = 2000
+    interval = 100
     config = {
-        # 'env_size': 600,
-        'gravity': 0,  # -9.81,
+        'gravity': -0.2, #-9.81,
         'elasticity': 0.1,
-        'bounds': (600.0, 600.0),
+        'bounds': (100.0, 300.0),
+        'boundary_to_remove': [], #['right', 'left'],
+        'add_probability': 0.3,
+        'new_particle_radius_range': (0.5, 1.5),
     }
+    n_particles = 200
 
     processes = {
         'multibody': {
@@ -708,45 +805,26 @@ def run_pymunk_particles():
             'address': 'local:PymunkParticleMovement',
             'config': config,
             'inputs': {
-                # 'agents': ['cells'],
                 'particles': ['particles'],
             },
             'outputs': {
-                # 'agents': ['cells'],
                 'particles': ['particles'],
             }
         }
     }
 
     initial_state = make_initial_state(
-        n_particles=100,
-        env_size=600,
-        elasticity=0.0,
-        particle_radius_range=(1, 8),
-        microbe_length_range=(50, 100),
-        microbe_radius_range=(10, 15)
+        n_particles=n_particles,
+        bounds=config['bounds'],
+        particle_radius_range=config['new_particle_radius_range'],
     )
-
-    # grow and divide schema
-    cell_schema = {}
-    # cell_schema = get_grow_divide_schema(
-    #     core=core,
-    #     config={
-    #         'agents_key': 'cells',
-    #         'rate': 0.02,
-    #         'threshold': 80.0,
-    #         'mutate': True,
-    #     }
-    # )
 
     # complete document
     document = {
         'state': {
             **initial_state,
             **processes,
-            # **{'emitter': emitter_state},
         },
-        'composition': cell_schema,
     }
 
     if 'emitter' not in document['state']:
@@ -759,7 +837,7 @@ def run_pymunk_particles():
     sim = Composite(document, core=core)
 
     # Save composition JSON
-    name = 'pymunk_growth_division'
+    name = 'pymunk_particles'
     sim.save(filename=f'{name}.json', outdir='out')
 
     # run the simulation
@@ -770,9 +848,10 @@ def run_pymunk_particles():
 
     # make video
     simulation_to_gif(results,
-                      filename='circlesandsegments',
+                      filename='particles_falling',
                       config=config,
                       color_by_phylogeny=True,
+                      agents_key='particles'
                       # skip_frames=10
                       )
 

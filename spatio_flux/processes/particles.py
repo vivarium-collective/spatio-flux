@@ -109,7 +109,6 @@ class ParticleMovement(Process):
         'n_bins': 'tuple[integer,integer]',
         'diffusion_rate': default('float', 1e-1),
         'advection_rate': default('tuple[float,float]', (0.0, 0.0)),
-        'settling_velocity': default('float', 0.01),   # NEW — downward drift per second
         'add_probability': default('float', 0.0),
         'boundary_to_add': default('list[boundary_side]', ['top']),
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom']),
@@ -135,7 +134,6 @@ class ParticleMovement(Process):
         dt = float(interval)
         D = self.config['diffusion_rate']
         vx, vy = self.config['advection_rate']
-        settling = self.config['settling_velocity']
 
         sigma = np.sqrt(2.0 * D * dt)
 
@@ -163,9 +161,6 @@ class ParticleMovement(Process):
             dx, dy = np.random.normal(0.0, sigma, 2)
             dx += vx * dt
             dy += vy * dt
-
-            # Settling (positive settling means downward)
-            dy -= settling * dt
 
             new_x = old_x + dx
             new_y = old_y + dy

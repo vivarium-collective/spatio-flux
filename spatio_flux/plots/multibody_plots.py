@@ -52,7 +52,7 @@ def _infer_plot_type(o):
 
 def _is_plot_entity(o):
     if not isinstance(o, dict): return False
-    loc = o.get('location')
+    loc = o.get('position')
     return isinstance(loc, (tuple, list)) and len(loc) == 2 and _infer_plot_type(o) is not None
 
 def _is_entity_map(v): return isinstance(v, dict) and all(_is_plot_entity(x) for x in v.values())
@@ -175,7 +175,7 @@ class GifRenderer:
         # circles
         for aid, o in layer.items():
             if o.get('type') != 'circle': continue
-            cx, cy = o['location']; r = float(o['radius'])
+            cx, cy = o['position']; r = float(o['radius'])
             if not _finite(cx, cy, r) or r <= 0: continue
             px0, py0 = self.ax.transData.transform((cx - r, cy - r))
             px1, py1 = self.ax.transData.transform((cx + r, cy + r))
@@ -196,7 +196,7 @@ class GifRenderer:
             L = float(o['length'])
             r = float(o['radius'])
             ang = _norm_angle(float(o['angle']))
-            cx, cy = o['location']
+            cx, cy = o['position']
             if not _finite(cx, cy, L, r, ang) or L <= 0 or r <= 0: continue
 
             half = 0.5 * L

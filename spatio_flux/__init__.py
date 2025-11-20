@@ -53,10 +53,16 @@ bounds_type = {
     'lower': 'maybe[float]',
     'upper': 'maybe[float]'}
 
+set_float = {
+    '_type': 'float',
+    '_apply': 'set'}
 
 particle_type = {
     'id': 'string',
+    'type': 'enum[circle,segment]',
     'position': 'position',
+    'velocity': 'tuple[set_float,set_float]',
+    'inertia': 'set_float',
     'mass': default('concentration', 1.0),
     'local': 'map[concentration]',
     'exchange': 'map[delta]',    # TODO is this counts?
@@ -85,6 +91,7 @@ SPATIO_FLUX_TYPES = {
     'position': 'tuple[float,float]',
     'delta': 'float',
     'concentration': positive_float,
+    'set_float': set_float,
     'particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,
