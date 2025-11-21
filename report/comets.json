@@ -2,7 +2,7 @@
     "state": {
         "global_time": "0.0",
         "fields": {
-            "biomass": {
+            "dissolved biomass": {
                 "list": [
                     [
                         0.0,
@@ -764,7 +764,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "dissolved biomass"
                 ]
             },
             "outputs": {
@@ -780,7 +780,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "dissolved biomass"
                 ]
             },
             "interval": 1.0,
@@ -1150,6 +1150,11 @@
             "_fold": "fold_map",
             "_divide": "divide_map",
             "_sort": "sort_map",
+            "_type_parameters": [
+                "value"
+            ],
+            "_description": "flat mapping from keys of strings to values of any type",
+            "_graphviz": "graphviz_map",
             "_value": {
                 "_type": "positive_array",
                 "_default": "default_array",
@@ -1161,31 +1166,20 @@
                 "_dataclass": "dataclass_array",
                 "_resolve": "resolve_array",
                 "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
                 "_shape": [
                     20,
                     10
                 ],
-                "_data": {
-                    "_type": "positive_float",
-                    "_check": "check_float",
-                    "_apply": "apply_non_negative",
-                    "_serialize": "to_string",
-                    "_description": "64-bit floating point precision number",
-                    "_default": 0.0,
-                    "_deserialize": "deserialize_float",
-                    "_divide": "divide_float",
-                    "_dataclass": "dataclass_float",
-                    "_inherit": [
-                        "float"
-                    ]
-                },
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ]
-            },
-            "_description": "flat mapping from keys of strings to values of any type",
-            "_graphviz": "graphviz_map"
+                "_data": "float"
+            }
         },
         "spatial_dfba": {
             "_type": "process",
@@ -1356,15 +1350,22 @@
             },
             "address": {
                 "_type": "protocol",
-                "_default": "",
-                "_check": "check_string",
-                "_apply": "replace",
-                "_serialize": "serialize_string",
-                "_deserialize": "deserialize_string",
-                "_dataclass": "dataclass_string",
-                "_description": "64-bit integer",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any",
                 "_inherit": [
-                    "string"
+                    "any"
                 ]
             },
             "config": {
@@ -1512,15 +1513,22 @@
                     "_divide": "divide_process",
                     "address": {
                         "_type": "protocol",
-                        "_default": "",
-                        "_check": "check_string",
-                        "_apply": "replace",
-                        "_serialize": "serialize_string",
-                        "_deserialize": "deserialize_string",
-                        "_dataclass": "dataclass_string",
-                        "_description": "64-bit integer",
+                        "_default": "default_any",
+                        "_slice": "slice_any",
+                        "_apply": "apply_any",
+                        "_check": "check_any",
+                        "_sort": "sort_any",
+                        "_generate": "generate_any",
+                        "_serialize": "serialize_any",
+                        "_deserialize": "deserialize_any",
+                        "_dataclass": "dataclass_any",
+                        "_resolve": "resolve_any",
+                        "_fold": "fold_any",
+                        "_bind": "bind_any",
+                        "_divide": "divide_any",
+                        "_graphviz": "graphviz_any",
                         "_inherit": [
-                            "string"
+                            "any"
                         ]
                     },
                     "config": {
@@ -1566,12 +1574,12 @@
                 "fields": {
                     "_type": "map",
                     "_value": {
-                        "_type": "positive_array",
+                        "_type": "array",
                         "_shape": [
                             20,
                             10
                         ],
-                        "_data": "positive_float"
+                        "_data": "concentration"
                     }
                 }
             },
@@ -1584,7 +1592,7 @@
                             20,
                             10
                         ],
-                        "_data": "positive_float"
+                        "_data": "concentration"
                     }
                 }
             },
@@ -1705,15 +1713,22 @@
             },
             "address": {
                 "_type": "protocol",
-                "_default": "",
-                "_check": "check_string",
-                "_apply": "replace",
-                "_serialize": "serialize_string",
-                "_deserialize": "deserialize_string",
-                "_dataclass": "dataclass_string",
-                "_description": "64-bit integer",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any",
                 "_inherit": [
-                    "string"
+                    "any"
                 ]
             },
             "config": {
@@ -1861,15 +1876,22 @@
                     "_divide": "divide_process",
                     "address": {
                         "_type": "protocol",
-                        "_default": "",
-                        "_check": "check_string",
-                        "_apply": "replace",
-                        "_serialize": "serialize_string",
-                        "_deserialize": "deserialize_string",
-                        "_dataclass": "dataclass_string",
-                        "_description": "64-bit integer",
+                        "_default": "default_any",
+                        "_slice": "slice_any",
+                        "_apply": "apply_any",
+                        "_check": "check_any",
+                        "_sort": "sort_any",
+                        "_generate": "generate_any",
+                        "_serialize": "serialize_any",
+                        "_deserialize": "deserialize_any",
+                        "_dataclass": "dataclass_any",
+                        "_resolve": "resolve_any",
+                        "_fold": "fold_any",
+                        "_bind": "bind_any",
+                        "_divide": "divide_any",
+                        "_graphviz": "graphviz_any",
                         "_inherit": [
-                            "string"
+                            "any"
                         ]
                     },
                     "config": {
@@ -2019,15 +2041,22 @@
             "_divide": "divide_process",
             "address": {
                 "_type": "protocol",
-                "_default": "",
-                "_check": "check_string",
-                "_apply": "replace",
-                "_serialize": "serialize_string",
-                "_deserialize": "deserialize_string",
-                "_dataclass": "dataclass_string",
-                "_description": "64-bit integer",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any",
                 "_inherit": [
-                    "string"
+                    "any"
                 ]
             },
             "config": {

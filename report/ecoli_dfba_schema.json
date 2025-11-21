@@ -1,0 +1,81 @@
+{
+  "global_time": "0.0",
+  "ecoli dFBA": {
+    "inputs": {
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "ecoli biomass"
+      ]
+    },
+    "outputs": {
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "ecoli biomass"
+      ]
+    },
+    "interval": 1.0,
+    "address": "local:DynamicFBA",
+    "config": {
+      "model_file": "iAF1260.xml",
+      "kinetic_params": {
+        "glucose": [
+          "0.5",
+          "1.0"
+        ],
+        "formate": [
+          "0.5",
+          "1.0"
+        ]
+      },
+      "substrate_update_reactions": {
+        "glucose": "EX_glc__D_e",
+        "formate": "EX_for_e"
+      },
+      "bounds": {}
+    },
+    "shared": null
+  },
+  "emitter": {
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "fields": [
+        "fields"
+      ]
+    },
+    "outputs": null,
+    "address": "local:ram-emitter",
+    "config": {
+      "emit": {
+        "global_time": "any",
+        "fields": "any"
+      }
+    }
+  },
+  "fields": {
+    "glucose": "10.0",
+    "formate": "5.0",
+    "ecoli biomass": "0.1"
+  }
+}

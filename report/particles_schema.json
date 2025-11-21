@@ -1,0 +1,73 @@
+{
+  "global_time": "0.0",
+  "brownian_movement": {
+    "inputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "interval": 1.0,
+    "address": "local:BrownianMovement",
+    "config": {
+      "bounds": [
+        "5.0",
+        "10.0"
+      ],
+      "n_bins": [
+        "10",
+        "20"
+      ],
+      "diffusion_rate": "0.1",
+      "advection_rate": [
+        "0.0",
+        "-0.1"
+      ],
+      "add_probability": "0.4",
+      "boundary_to_add": [
+        "top"
+      ],
+      "boundary_to_remove": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ]
+    },
+    "shared": null
+  },
+  "emitter": {
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": null,
+    "address": "local:ram-emitter",
+    "config": {
+      "emit": {
+        "global_time": "any",
+        "particles": "any"
+      }
+    }
+  },
+  "particles": {
+    "Y6MqgTGf": {
+      "id": "Y6MqgTGf",
+      "position": [
+        "4.111894444244335",
+        "7.882648224910428"
+      ],
+      "mass": "0.7544617319431972",
+      "local": {},
+      "exchange": {}
+    }
+  }
+}

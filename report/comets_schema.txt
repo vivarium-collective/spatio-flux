@@ -1,0 +1,1 @@
+(state:(fields:map|spatial_dfba:process|diffusion:process|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)

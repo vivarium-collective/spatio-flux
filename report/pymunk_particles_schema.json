@@ -1,0 +1,95 @@
+{
+  "global_time": "0.0",
+  "pymunk_particles": {
+    "inputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "interval": 1.0,
+    "address": "local:PymunkParticleMovement",
+    "config": {
+      "bounds": [
+        "100.0",
+        "300.0"
+      ],
+      "n_bins": [
+        "1",
+        "1"
+      ],
+      "diffusion_rate": "0.1",
+      "advection_rate": [
+        "0.0",
+        "0.0"
+      ],
+      "add_probability": "0.3",
+      "boundary_to_add": [
+        "top"
+      ],
+      "boundary_to_remove": [],
+      "new_particle_radius_range": [
+        "0.5",
+        "2.5"
+      ],
+      "new_particle_mass_range": [
+        "0.0",
+        "0.0"
+      ],
+      "new_particle_density": "0.015",
+      "new_particle_speed_range": [
+        "0.0",
+        "0.0"
+      ],
+      "substeps": "100",
+      "damping_per_second": "0.998",
+      "gravity": "-0.2",
+      "friction": "0.8",
+      "elasticity": "0.1",
+      "jitter_per_second": "0.5",
+      "barriers": [],
+      "wall_thickness": "100.0"
+    },
+    "shared": null
+  },
+  "emitter": {
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": null,
+    "address": "local:ram-emitter",
+    "config": {
+      "emit": {
+        "global_time": "any",
+        "particles": "any"
+      }
+    }
+  },
+  "particles": {
+    "p_b6cb5a": {
+      "id": "",
+      "position": [
+        "84.4015460954288",
+        "190.34124154107795"
+      ],
+      "mass": "0.07051508504381657",
+      "local": {},
+      "exchange": {},
+      "type": "circle",
+      "velocity": [
+        "0.0",
+        "0.0"
+      ],
+      "inertia": "0.0"
+    }
+  }
+}

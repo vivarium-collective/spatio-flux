@@ -1,0 +1,1 @@
+(state:(ecoli core dFBA:process|ecoli dFBA:process|cdiff dFBA:process|pputida dFBA:process|yeast dFBA:process|llactis dFBA:process|fields:(glucose:10|acetate:0|ecoli core:0.1|ecoli:0.1|cdiff:0.1|pputida:0.1|yeast:0.1|llactis:0.1)|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)

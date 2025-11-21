@@ -1,0 +1,268 @@
+{
+  "global_time": "0.0",
+  "spatial_dfba": {
+    "inputs": {
+      "fields": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "fields": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "interval": 1.0,
+    "address": "local:SpatialDFBA",
+    "config": {
+      "n_bins": [
+        "6",
+        "5"
+      ],
+      "model_file": "!nil",
+      "models": {},
+      "model_grid": [
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli",
+          "ecoli",
+          "ecoli",
+          "ecoli",
+          "ecoli"
+        ],
+        [
+          "cdiff",
+          "cdiff",
+          "cdiff",
+          "cdiff",
+          "cdiff"
+        ],
+        [
+          "pputida",
+          "pputida",
+          "pputida",
+          "pputida",
+          "pputida"
+        ],
+        [
+          "yeast",
+          "yeast",
+          "yeast",
+          "yeast",
+          "yeast"
+        ],
+        [
+          "llactis",
+          "llactis",
+          "llactis",
+          "llactis",
+          "llactis"
+        ]
+      ],
+      "kinetic_params": {},
+      "substrate_update_reactions": {},
+      "bounds": {}
+    },
+    "shared": null
+  },
+  "emitter": {
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "fields": [
+        "fields"
+      ]
+    },
+    "outputs": null,
+    "address": "local:ram-emitter",
+    "config": {
+      "emit": {
+        "global_time": "any",
+        "fields": "any"
+      }
+    }
+  },
+  "fields": {
+    "glucose": {
+      "list": [
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ]
+      ],
+      "data": "float",
+      "shape": [
+        6,
+        5
+      ]
+    },
+    "acetate": {
+      "list": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "data": "float",
+      "shape": [
+        6,
+        5
+      ]
+    },
+    "dissolved biomass": {
+      "list": [
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ]
+      ],
+      "data": "float",
+      "shape": [
+        6,
+        5
+      ]
+    }
+  }
+}

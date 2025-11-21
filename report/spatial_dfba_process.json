@@ -15,7 +15,7 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "dissolved biomass"
                 ]
             },
             "outputs": {
@@ -31,14 +31,14 @@
                 },
                 "biomass": [
                     "fields",
-                    "biomass"
+                    "dissolved biomass"
                 ]
             },
             "interval": 1.0,
             "address": "local:SpatialDFBA",
             "config": {
                 "n_bins": [
-                    "10",
+                    "6",
                     "5"
                 ],
                 "model_file": "!nil",
@@ -85,34 +85,6 @@
                         "llactis",
                         "llactis",
                         "llactis"
-                    ],
-                    [
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
-                    ],
-                    [
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
-                    ],
-                    [
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
-                    ],
-                    [
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
                     ]
                 ],
                 "kinetic_params": {},
@@ -183,39 +155,11 @@
                         10.0,
                         15.0,
                         20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
                     ]
                 ],
                 "data": "float",
                 "shape": [
-                    10,
+                    6,
                     5
                 ]
             },
@@ -262,43 +206,15 @@
                         0.0,
                         0.0,
                         0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
                     ]
                 ],
                 "data": "float",
                 "shape": [
-                    10,
+                    6,
                     5
                 ]
             },
-            "biomass": {
+            "dissolved biomass": {
                 "list": [
                     [
                         0.01,
@@ -341,39 +257,11 @@
                         0.01,
                         0.01,
                         0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
-                    ],
-                    [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
                     ]
                 ],
                 "data": "float",
                 "shape": [
-                    10,
+                    6,
                     5
                 ]
             }
@@ -410,7 +298,7 @@
                     "_value": {
                         "_type": "positive_array",
                         "_shape": [
-                            10,
+                            6,
                             5
                         ],
                         "_data": "float"
@@ -419,7 +307,7 @@
                 "biomass": {
                     "_type": "array",
                     "_shape": [
-                        10,
+                        6,
                         5
                     ],
                     "_data": "float"
@@ -431,7 +319,7 @@
                     "_value": {
                         "_type": "array",
                         "_shape": [
-                            10,
+                            6,
                             5
                         ],
                         "_data": "float"
@@ -440,7 +328,7 @@
                 "biomass": {
                     "_type": "array",
                     "_shape": [
-                        10,
+                        6,
                         5
                     ],
                     "_data": "float"
@@ -563,15 +451,22 @@
             },
             "address": {
                 "_type": "protocol",
-                "_default": "",
-                "_check": "check_string",
-                "_apply": "replace",
-                "_serialize": "serialize_string",
-                "_deserialize": "deserialize_string",
-                "_dataclass": "dataclass_string",
-                "_description": "64-bit integer",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any",
                 "_inherit": [
-                    "string"
+                    "any"
                 ]
             },
             "config": {
@@ -719,15 +614,22 @@
                     "_divide": "divide_process",
                     "address": {
                         "_type": "protocol",
-                        "_default": "",
-                        "_check": "check_string",
-                        "_apply": "replace",
-                        "_serialize": "serialize_string",
-                        "_deserialize": "deserialize_string",
-                        "_dataclass": "dataclass_string",
-                        "_description": "64-bit integer",
+                        "_default": "default_any",
+                        "_slice": "slice_any",
+                        "_apply": "apply_any",
+                        "_check": "check_any",
+                        "_sort": "sort_any",
+                        "_generate": "generate_any",
+                        "_serialize": "serialize_any",
+                        "_deserialize": "deserialize_any",
+                        "_dataclass": "dataclass_any",
+                        "_resolve": "resolve_any",
+                        "_fold": "fold_any",
+                        "_bind": "bind_any",
+                        "_divide": "divide_any",
+                        "_graphviz": "graphviz_any",
                         "_inherit": [
-                            "string"
+                            "any"
                         ]
                     },
                     "config": {
@@ -877,15 +779,22 @@
             "_divide": "divide_process",
             "address": {
                 "_type": "protocol",
-                "_default": "",
-                "_check": "check_string",
-                "_apply": "replace",
-                "_serialize": "serialize_string",
-                "_deserialize": "deserialize_string",
-                "_dataclass": "dataclass_string",
-                "_description": "64-bit integer",
+                "_default": "default_any",
+                "_slice": "slice_any",
+                "_apply": "apply_any",
+                "_check": "check_any",
+                "_sort": "sort_any",
+                "_generate": "generate_any",
+                "_serialize": "serialize_any",
+                "_deserialize": "deserialize_any",
+                "_dataclass": "dataclass_any",
+                "_resolve": "resolve_any",
+                "_fold": "fold_any",
+                "_bind": "bind_any",
+                "_divide": "divide_any",
+                "_graphviz": "graphviz_any",
                 "_inherit": [
-                    "string"
+                    "any"
                 ]
             },
             "config": {
@@ -936,7 +845,7 @@
                     "array"
                 ],
                 "_shape": [
-                    10,
+                    6,
                     5
                 ],
                 "_data": "float"
@@ -961,12 +870,12 @@
                     "array"
                 ],
                 "_shape": [
-                    10,
+                    6,
                     5
                 ],
                 "_data": "float"
             },
-            "biomass": {
+            "dissolved biomass": {
                 "_type": "array",
                 "_default": "default_array",
                 "_check": "check_array",
@@ -983,7 +892,7 @@
                 ],
                 "_description": "an array of arbitrary dimension",
                 "_shape": [
-                    10,
+                    6,
                     5
                 ],
                 "_data": "float"

@@ -1,0 +1,1 @@
+(state:(particles:(p_b6cb5a:(type:circle|mass:0.07051508504381657|radius:1.2232647218144723|position:(84.4015460954288|190.34124154107795)|velocity:(0.0|0.0)|elasticity:0.0))|pymunk_particles:process|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)

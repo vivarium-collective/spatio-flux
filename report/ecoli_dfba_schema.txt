@@ -1,0 +1,1 @@
+(state:(ecoli dFBA:process|fields:(glucose:10|formate:5|ecoli biomass:0.1)|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)
