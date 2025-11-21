@@ -60,7 +60,6 @@ set_float = {
 simple_particle_type = {
     'id': 'string',
     'position': 'position',
-    'velocity': 'tuple[set_float,set_float]',
     'mass': default('concentration', 1.0),
     'local': 'map[concentration]',
     'exchange': 'map[delta]',  # TODO is this counts?
@@ -69,6 +68,7 @@ simple_particle_type = {
 particle_type = {
     '_inherit': 'simple_particle',
     'type': 'enum[circle,segment]',
+    'velocity': 'tuple[set_float,set_float]',
     'inertia': 'set_float',
 }
 

@@ -31,7 +31,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
-    get_diffusion_advection_process, get_particle_movement_process, get_particle_exchange_process,
+    get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
     initialize_fields, get_kinetic_particle_composition,
     get_dfba_particle_composition, get_particles_state,
     MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
@@ -140,18 +140,25 @@ def plot_spatial_many_dfba(results, state, config=None):
 
 def build_model_grid(n_bins, model_positions=None):
     rows, cols = n_bins
+    out_of_bounds = []
 
-    # Start with all empty strings
-    model_grid = [['' for _ in range(cols)] for _ in range(rows)]
-
-    # If we have models to place, insert them
     if model_positions:
         for model_id, positions in model_positions.items():
             for (r, c) in positions:
-                if 0 <= r < rows and 0 <= c < cols:
-                    model_grid[r][c] = model_id
-                else:
-                    raise ValueError(f"Position {(r, c)} is out of bounds for grid {n_bins}")
+                if not (0 <= r < rows and 0 <= c < cols):
+                    out_of_bounds.append((model_id, (r, c)))
+
+    if out_of_bounds:
+        raise ValueError(
+            f"The following positions are out of bounds for grid {n_bins}: {out_of_bounds}"
+        )
+
+    # Build grid
+    model_grid = [['' for _ in range(cols)] for _ in range(rows)]
+    if model_positions:
+        for model_id, positions in model_positions.items():
+            for (r, c) in positions:
+                model_grid[r][c] = model_id
 
     return model_grid
 
@@ -161,7 +168,7 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (20, 20), 'glycolate': (10,10), 'ammonium': (10, 10),
                        'acetate': (0, 0), 'dissolved biomass': (0.01, 0.01)}
-    n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
+    n_bins = reversed_tuple((5, 6))  # TODO automatically align with species grid
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
@@ -288,19 +295,20 @@ def get_particles_alone_doc(core=None, config=None):
     diffusion_rate = DEFAULT_DIFFUSION
     advection_rate = DEFAULT_ADVECTION
     add_probability = DEFAULT_ADD_PROBABILITY
-    return {
+    doc = {
         'state': {
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
-            'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
-                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability),
+            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds,
+                                                               diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability),
         },
         'composition': {}
     }
+    return doc
 
 def plot_particles_sim(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particles')
-    bounds = state['particle_movement']['config']['bounds']
+    bounds = state['brownian_movement']['config']['bounds']
     history = [step['particles'] for step in results]
     plot_particles(
         history=history, env_size=((0, bounds[0]), (0, bounds[1])),
@@ -339,8 +347,8 @@ def get_particles_with_fields_doc(core=None, config=None):
         'state': {
             'fields': initialize_fields(n_bins, initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
-            'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
-                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability),
+            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds,
+                                                               diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
@@ -384,7 +392,7 @@ def get_particle_comets_doc(core=None, config=None):
             'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
             # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            'particle_movement': get_particle_movement_process(
+            'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, add_probability=add_probability, advection_rate=particle_advection),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
@@ -395,8 +403,8 @@ def get_particle_comets_doc(core=None, config=None):
 def plot_particle_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_comets')
-    bounds = state['particle_movement']['config']['bounds']
-    n_bins = state['particle_movement']['config']['n_bins']
+    bounds = state['brownian_movement']['config']['bounds']
+    n_bins = state['brownian_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
                         bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
@@ -423,7 +431,7 @@ def get_particle_dfba_doc(core=None, config=None):
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            'particle_movement': get_particle_movement_process(
+            'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
@@ -434,8 +442,8 @@ def get_particle_dfba_doc(core=None, config=None):
 def plot_particle_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_dfba')
-    n_bins = state['particle_movement']['config']['n_bins']
-    bounds = state['particle_movement']['config']['bounds']
+    n_bins = state['brownian_movement']['config']['n_bins']
+    bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
@@ -471,7 +479,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            'particle_movement': get_particle_movement_process(
+            'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
@@ -483,8 +491,8 @@ def get_particle_dfba_comets_doc(core=None, config=None):
 def plot_particle_dfba_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_dfba_comets')
-    n_bins = state['particle_movement']['config']['n_bins']
-    bounds = state['particle_movement']['config']['bounds']
+    n_bins = state['brownian_movement']['config']['n_bins']
+    bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
@@ -519,7 +527,7 @@ def get_metacomposite_doc(core=None, config=None):
                 bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            'particle_movement': get_particle_movement_process(
+            'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
@@ -531,8 +539,8 @@ def get_metacomposite_doc(core=None, config=None):
 def plot_metacomposite(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'metacomposite')
-    n_bins = state['particle_movement']['config']['n_bins']
-    bounds = state['particle_movement']['config']['bounds']
+    n_bins = state['brownian_movement']['config']['n_bins']
+    bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
@@ -546,6 +554,8 @@ def plot_metacomposite(results, state, config=None):
 # ---- PYMUNK PARTICLES ------------------------------------------------
 
 def get_pymunk_particles_doc(core=None, config=None):
+    n_particles = config.get('n_particles', 1)
+
     # run simulation
     config = {
         'gravity': -0.2,  # -9.81,
@@ -557,7 +567,7 @@ def get_pymunk_particles_doc(core=None, config=None):
         'jitter_per_second': 0.5,
         'damping_per_second': .998,
     }
-    n_particles = 200
+
 
     processes = {
         'pymunk_particles': {
@@ -759,7 +769,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine.',
         'doc_func': get_pymunk_particles_doc,
         'plot_func': plot_pymunk_particles,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {}
     }

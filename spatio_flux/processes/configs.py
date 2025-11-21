@@ -268,7 +268,7 @@ def get_diffusion_advection_process(
 # Particle Movement
 # =================
 
-def get_particle_movement_process(
+def get_brownian_movement_process(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
         diffusion_rate=1e-1,

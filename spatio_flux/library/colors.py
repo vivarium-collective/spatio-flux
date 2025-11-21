@@ -82,7 +82,7 @@ def build_plot_settings(
     fills = {
         # particle family
         ("particles",):             COLORS["particles_base"],
-        ("particle_movement",):     COLORS["particles_process"],
+        ("brownian_movement",):     COLORS["particles_process"],
         ("particle_division",):     COLORS["particles_process"],
         ("particle_exchange",):     COLORS["particle_exchange_bridge"],
 
