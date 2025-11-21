@@ -747,11 +747,10 @@ def place_microbes(
 # High-level initializer
 # -------------------------
 
-def get_pymunk_particles_state(
+def get_newtonian_particles_state(
     n_particles=2,
     bounds=(600.0, 600.0),
     *,
-    agents_key='particles',
     seed=None,
     elasticity=0.0,
     # particle defaults
@@ -782,7 +781,7 @@ def get_pymunk_particles_state(
         )
     )
 
-    return {agents_key: particles}
+    return particles
 
 
 def run_pymunk_particles():
@@ -815,11 +814,11 @@ def run_pymunk_particles():
         }
     }
 
-    initial_state = get_pymunk_particles_state(
+    initial_state =  {'particles': get_newtonian_particles_state(
         n_particles=n_particles,
         bounds=config['bounds'],
         particle_radius_range=config['new_particle_radius_range'],
-    )
+    )}
 
     # complete document
     document = {
