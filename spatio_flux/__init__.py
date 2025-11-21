@@ -8,7 +8,7 @@ from bigraph_schema import default
 from process_bigraph import ProcessTypes
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
-from spatio_flux.processes.particles import ParticleMovement
+from spatio_flux.processes.particles import BrownianMovement
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
 
 
@@ -57,15 +57,19 @@ set_float = {
     '_type': 'float',
     '_apply': 'set'}
 
-particle_type = {
+simple_particle_type = {
     'id': 'string',
-    'type': 'enum[circle,segment]',
     'position': 'position',
     'velocity': 'tuple[set_float,set_float]',
-    'inertia': 'set_float',
     'mass': default('concentration', 1.0),
     'local': 'map[concentration]',
-    'exchange': 'map[delta]',    # TODO is this counts?
+    'exchange': 'map[delta]',  # TODO is this counts?
+}
+
+particle_type = {
+    '_inherit': 'simple_particle',
+    'type': 'enum[circle,segment]',
+    'inertia': 'set_float',
 }
 
 boundary_side = 'enum[left,right,top,bottom]'
@@ -92,6 +96,7 @@ SPATIO_FLUX_TYPES = {
     'delta': 'float',
     'concentration': positive_float,
     'set_float': set_float,
+    'simple_particle': simple_particle_type,
     'particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,

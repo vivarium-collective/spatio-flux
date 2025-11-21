@@ -1,7 +1,7 @@
 from spatio_flux.processes.dfba import (
     DynamicFBA, SpatialDFBA, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry, get_field_names)
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection
-from spatio_flux.processes.particles import ParticleMovement, DIVISION_MASS_THRESHOLD, ParticleDivision, ParticleExchange
+from spatio_flux.processes.particles import BrownianMovement, DIVISION_MASS_THRESHOLD, ParticleDivision, ParticleExchange
 from spatio_flux.processes.kinetics import MonodKinetics
 from spatio_flux.processes.pymunk_particles import PymunkParticleMovement
 
@@ -20,7 +20,7 @@ PROCESS_DICT = {
     'DynamicFBA': DynamicFBA,
     'SpatialDFBA': SpatialDFBA,
     'DiffusionAdvection': DiffusionAdvection,
-    'ParticleMovement': ParticleMovement,
+    'BrownianMovement': BrownianMovement,
     'PymunkParticleMovement': PymunkParticleMovement,
     'MonodKinetics': MonodKinetics,
     'ParticleDivision': ParticleDivision,
@@ -75,7 +75,7 @@ def get_particles_doc(core=None, config=None):
     return {
         'particle_movement': {
             "_type": "process",
-            "address": "local:ParticleMovement",
+            "address": "local:BrownianMovement",
             "config": {
                 "n_bins": (5, 10),
                 "bounds": (5.0, 10.0),
