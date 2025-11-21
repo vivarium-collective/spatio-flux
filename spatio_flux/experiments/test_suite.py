@@ -553,7 +553,82 @@ def plot_metacomposite(results, state, config=None):
 
 # ---- PYMUNK PARTICLES ------------------------------------------------
 
+def get_pymunk_particles_wiring_state(config=None):
+    return {
+        '_type': 'process',
+        'address': 'local:PymunkParticleMovement',
+        'config': config,
+        'inputs': {
+            'particles': ['particles'],
+        },
+        'outputs': {
+            'particles': ['particles'],
+        }
+    }
+
 def get_pymunk_particles_doc(core=None, config=None):
+    n_particles = config.get('n_particles', 1)
+
+    # run simulation
+    config = {
+        'gravity': -0.2,  # -9.81,
+        'elasticity': 0.1,
+        'bounds': (100.0, 300.0),
+        'boundary_to_remove': [],  # ['right', 'left'],
+        'add_probability': 0.3,
+        'new_particle_radius_range': (0.5, 2.5),
+        'jitter_per_second': 0.5,
+        'damping_per_second': .998,
+    }
+
+
+    processes = {
+        'pymunk_particles': get_pymunk_particles_wiring_state(config=config),
+    }
+
+    initial_state = get_pymunk_particles_state(
+        n_particles=n_particles,
+        bounds=config['bounds'],
+        particle_radius_range=config['new_particle_radius_range'],
+    )
+
+    # complete document
+    return {
+        'state': {
+            **initial_state,
+            **processes,
+        },
+    }
+
+def plot_pymunk_particles(results, state, config=None):
+    filename = config.get('filename', 'pymunk_particles')
+    pymunk_config = state['pymunk_particles']['config']
+    pymunk_simulation_to_gif(results,
+                             filename=f'{filename}_video.gif',
+                             config=pymunk_config,
+                             # color_by_phylogeny=True,
+                             agents_key='particles'
+                             )
+
+
+def get_pymunk_comets_doc(core=None, config=None):
+    config = config or {}
+    particle_model_id = config.get('particle_model_id', 'ecoli core')
+    dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
+    division_mass_threshold = 3 # config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
+    bounds = DEFAULT_BOUNDS
+    n_bins = DEFAULT_BINS
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 4
+    add_probability = 0.3
+    particle_advection = (0, -0.2) #DEFAULT_ADVECTION
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+
+
+    # pymunk
     n_particles = config.get('n_particles', 1)
 
     # run simulation
@@ -589,15 +664,23 @@ def get_pymunk_particles_doc(core=None, config=None):
         particle_radius_range=config['new_particle_radius_range'],
     )
 
-    # complete document
-    return {
+    doc = {
         'state': {
-            **initial_state,
-            **processes,
+            'fields': fields,
+            'diffusion': get_diffusion_advection_process(
+                bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            # 'brownian_movement': get_brownian_movement_process(
+            #     n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
+        'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
+    return doc
 
-def plot_pymunk_particles(results, state, config=None):
+def plot_pymunk_comets(results, state, config=None):
     filename = config.get('filename', 'pymunk_particles')
     pymunk_config = state['pymunk_particles']['config']
     pymunk_simulation_to_gif(results,
@@ -606,6 +689,7 @@ def plot_pymunk_particles(results, state, config=None):
                              # color_by_phylogeny=True,
                              agents_key='particles'
                              )
+
 
 
 # ==================================================
@@ -769,6 +853,14 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine.',
         'doc_func': get_pymunk_particles_doc,
         'plot_func': plot_pymunk_particles,
+        'time': DEFAULT_RUNTIME_LONGER,
+        'config': {},
+        'plot_config': {}
+    },
+    'pymunk_particles_dfba': {
+        'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine.',
+        'doc_func': get_pymunk_comets_doc,
+        'plot_func': plot_pymunk_comets,
         'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {}

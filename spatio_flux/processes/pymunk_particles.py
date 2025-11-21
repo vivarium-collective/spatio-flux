@@ -19,7 +19,7 @@ def daughter_positions(parent_state, *, gap=1.0, daughter_length=None, daughter_
     """
     px, py = parent_state['position']
     angle = float(parent_state.get('angle', 0.0))
-    dtype = parent_state.get('type', 'circle')
+    dtype = parent_state.get('shape', 'circle')
 
     if dtype == 'segment':
         Lp = float(parent_state.get('length', 1.0))
@@ -293,8 +293,8 @@ class PymunkParticleMovement(Process):
         # remove stale
         for dead_id in existing_ids - new_ids:
             body = self.agents[dead_id]['body']
-            shape = self.agents[dead_id]['shape']
-            self.space.remove(body, shape)
+            shape_instance = self.agents[dead_id]['shape_instance']
+            self.space.remove(body, shape_instance)
             del self.agents[dead_id]
 
         # add/update particles
@@ -348,16 +348,16 @@ class PymunkParticleMovement(Process):
                     # emit absolute position as full state
                     pos_value = (float(new_x), float(new_y))
 
-                if obj['type'] == 'circle':
+                if obj['shape'] == 'circle':
                     rec = {
-                        'type': obj['type'],
+                        'shape': obj['shape'],
                         'position': pos_value,
                         'velocity': (body.velocity.x, body.velocity.y),
                         'inertia': body.moment,
                     }
                 else:  # 'segment'
                     rec = {
-                        'type': obj['type'],
+                        'shape': obj['shape'],
                         'position': pos_value,
                         'velocity': (body.velocity.x, body.velocity.y),
                         'inertia': body.moment,
@@ -400,8 +400,8 @@ class PymunkParticleMovement(Process):
         # Remove objects not in the new state
         for agent_id in existing_ids - new_ids:
             body = self.agents[agent_id]['body']
-            shape = self.agents[agent_id]['shape']
-            self.space.remove(body, shape)
+            shape_instance = self.agents[agent_id]['shape_instance']
+            self.space.remove(body, shape_instance)
             del self.agents[agent_id]
 
         # Add or update existing objects
@@ -415,11 +415,11 @@ class PymunkParticleMovement(Process):
             return
 
         body = agent['body']
-        old_shape = agent['shape']
-        old_type = agent['type']
+        old_shape = agent['shape_instance']
+        old_type = agent['shape']
 
         # robust defaults
-        shape_type = attrs.get('type', old_type or 'circle')
+        shape_type = attrs.get('shape', old_type or 'circle')
         mass = float(attrs.get('mass', body.mass))
         vx, vy = attrs.get('velocity', (0.0, 0.0))
         body.mass = mass
@@ -464,10 +464,10 @@ class PymunkParticleMovement(Process):
 
             self.space.remove(old_shape)
             self.space.add(new_shape)
-            agent['shape'] = new_shape
+            agent['shape_instance'] = new_shape
 
         # keep dict in sync
-        agent['type'] = shape_type
+        agent['shape'] = shape_type
         agent['mass'] = mass
         if shape_type == 'circle':
             agent['radius'] = radius
@@ -479,7 +479,7 @@ class PymunkParticleMovement(Process):
             agent['length'] = body.length
 
     def create_new_object(self, agent_id, attrs):
-        shape_type = attrs.get('type', 'circle')
+        shape_type = attrs.get('shape', 'circle')
         mass = float(attrs.get('mass', 1.0))
         vx, vy = attrs.get('velocity', (0.0, 0.0))
         pos = attrs.get('position', (0.0, 0.0))
@@ -516,8 +516,8 @@ class PymunkParticleMovement(Process):
         self.space.add(body, shape)
         self.agents[agent_id] = {
             'body': body,
-            'shape': shape,
-            'type': shape_type,
+            'shape_instance': shape,
+            'shape': shape_type,
             'mass': mass,
             'radius': radius,
             'angle': angle,
@@ -527,17 +527,17 @@ class PymunkParticleMovement(Process):
     def get_state_update(self):
         state = {}
         for agent_id, obj in self.agents.items():
-            if obj['type'] == 'circle':
+            if obj['shape'] == 'circle':
 
                 state[agent_id] = {
-                    'type': obj['type'],
+                    'shape': obj['shape'],
                     'position': (obj['body'].position.x, obj['body'].position.y),
                     'velocity': (obj['body'].velocity.x, obj['body'].velocity.y),
                     'inertia': obj['body'].moment,
                 }
-            elif obj['type'] == 'segment':
+            elif obj['shape'] == 'segment':
                 state[agent_id] = {
-                    'type': obj['type'],
+                    'shape': obj['shape'],
                     'position': (obj['body'].position.x, obj['body'].position.y),
                     'velocity': (obj['body'].velocity.x, obj['body'].velocity.y),
                     'inertia': obj['body'].moment,
@@ -620,7 +620,7 @@ def build_particle(
         vx, vy = velocity
 
     return make_id(id_prefix), {
-        'type': 'circle',
+        'shape': 'circle',
         'mass': float(mass),
         'radius': float(radius),
         'position': (float(x), float(y)),
@@ -672,7 +672,7 @@ def build_microbe(
     _id = agent_id or make_id(id_prefix)
     return _id, {
         'id': _id,                 # <-- include id in the object
-        'type': 'segment',
+        'shape': 'segment',
         'mass': float(mass),
         'length': float(length),
         'radius': float(radius),

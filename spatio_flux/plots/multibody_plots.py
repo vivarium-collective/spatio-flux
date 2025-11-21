@@ -44,7 +44,7 @@ def _bbox_outside(px_bbox, img_bbox, pad_px):
             y1 < iy0 - pad_px or y0 > iy1 + pad_px)
 
 def _infer_plot_type(o):
-    t = o.get('type')
+    t = o.get('shape')
     if t in ('circle', 'segment'): return t
     if 'radius' in o and 'length' in o: return 'segment'
     if 'radius' in o: return 'circle'
@@ -67,9 +67,9 @@ def merge_plot_layers(data, merged_key='agents'):
             if k == merged_key or not _is_entity_map(v): continue
             for ent_id, ent in v.items():
                 out_id = ent_id if ent_id not in existing else f"{k}:{ent_id}"
-                if ent.get('type') not in ('circle', 'segment'):
+                if ent.get('shape') not in ('circle', 'segment'):
                     t = _infer_plot_type(ent)
-                    if t is not None: ent = {**ent, 'type': t}
+                    if t is not None: ent = {**ent, 'shape': t}
                 base[out_id] = ent
                 existing.add(out_id)
             step_out.pop(k, None)
@@ -174,7 +174,7 @@ class GifRenderer:
 
         # circles
         for aid, o in layer.items():
-            if o.get('type') != 'circle': continue
+            if o.get('shape') != 'circle': continue
             cx, cy = o['position']; r = float(o['radius'])
             if not _finite(cx, cy, r) or r <= 0: continue
             px0, py0 = self.ax.transData.transform((cx - r, cy - r))
@@ -192,7 +192,7 @@ class GifRenderer:
 
         # segments (shortened by exactly 2*radius)
         for aid, o in layer.items():
-            if o.get('type') != 'segment': continue
+            if o.get('shape') != 'segment': continue
             L = float(o['length'])
             r = float(o['radius'])
             ang = _norm_angle(float(o['angle']))

@@ -67,7 +67,7 @@ simple_particle_type = {
 
 particle_type = {
     '_inherit': 'simple_particle',
-    'type': 'enum[circle,segment]',
+    'shape': 'enum[circle,segment]',
     'velocity': 'tuple[set_float,set_float]',
     'inertia': 'set_float',
 }
