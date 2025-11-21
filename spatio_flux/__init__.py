@@ -6,53 +6,11 @@ import numpy as np
 
 from bigraph_schema import default
 from process_bigraph import ProcessTypes
-from vivarium.vivarium import Vivarium, render_path
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
-from spatio_flux.processes.particles import Particles
+from spatio_flux.processes.particles import ParticleMovement
 from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
 
-
-
-class SpatioFluxVivarium(Vivarium):
-    def __init__(self,
-                 document=None,
-                 # require=None,
-                 # emitter_config=None
-                 ):
-
-        # Use your repo's core unless overridden
-        # core = MyCustomCore()
-        processes = PROCESS_DICT
-        types = TYPES_DICT
-        super().__init__(
-            document=document,
-            processes=processes,
-            types=types,
-            # core=core,
-            # require=require,
-            # emitter_config=emitter_config,
-        )
-
-    def plot_particles_snapshots(
-            self,
-            skip_frames=1,
-    ):
-        results = self.get_results()
-        bounds = None
-        for path, process in self.composite.process_paths.items():
-            instance = process.get('instance')
-            if isinstance(instance, Particles):
-                bounds = process['config']['bounds']
-                break
-        if bounds is None:
-            raise ValueError("No Particles process found.")
-
-        plot_species_distributions_with_particles_to_gif(
-            results,
-            skip_frames=skip_frames,
-            bounds=bounds
-        )
 
 def apply_non_negative(schema, current, update, top_schema, top_state, path, core):
     new_value = current + update
@@ -83,7 +41,8 @@ def apply_non_negative_array(schema, current, update, top_schema, top_state, pat
 
 positive_float = {
     '_inherit': 'float',
-    '_apply': apply_non_negative}
+    '_apply': apply_non_negative
+}
 
 positive_array = {
     '_inherit': 'array',
@@ -94,17 +53,22 @@ bounds_type = {
     'lower': 'maybe[float]',
     'upper': 'maybe[float]'}
 
+set_float = {
+    '_type': 'float',
+    '_apply': 'set'}
 
 particle_type = {
     'id': 'string',
-    'position': 'tuple[float,float]',
-    'mass': default('float', 1.0),
-    'local': 'map[float]',
-    'exchange': 'map[float]',    # {mol_id: delta_value}
+    'type': 'enum[circle,segment]',
+    'position': 'position',
+    'velocity': 'tuple[set_float,set_float]',
+    'inertia': 'set_float',
+    'mass': default('concentration', 1.0),
+    'local': 'map[concentration]',
+    'exchange': 'map[delta]',    # TODO is this counts?
 }
 
 boundary_side = 'enum[left,right,top,bottom]'
-
 
 substrate_role_type = 'enum[reactant,product,enzyme]'
 kinetics_type = {
@@ -113,12 +77,31 @@ kinetics_type = {
     'role': 'substrate_role'}
 reaction_type = 'map[kinetics]'
 
+fields_type =  {
+                '_type': 'map',
+                '_value': {
+                    '_type': 'array',
+                    # '_shape': self.config['n_bins'],
+                    '_data': 'concentration'
+                },
+        }
+
+
+SPATIO_FLUX_TYPES = {
+    'position': 'tuple[float,float]',
+    'delta': 'float',
+    'concentration': positive_float,
+    'set_float': set_float,
+    'particle': particle_type,
+    'bounds': bounds_type,
+    'fields': fields_type,
+    # TODO fields, concentrations, fluxes, etc.
+}
 
 TYPES_DICT = {
+    **SPATIO_FLUX_TYPES,
     'positive_float': positive_float,
     'positive_array': positive_array,
-    'bounds': bounds_type,
-    'particle': particle_type,
     'boundary_side': boundary_side,
     'substrate_role': substrate_role_type,
     'kinetics': kinetics_type,
@@ -131,4 +114,11 @@ def register_types(core):
         core.register(type_name, type_schema)
     for process_name, process in PROCESS_DICT.items():
         core.register_process(process_name, process)
+    return core
+
+
+def core_import(core=None, config=None):
+    if not core:
+        core = ProcessTypes()
+    register_types(core)
     return core

@@ -3,21 +3,21 @@ from bigraph_schema import deep_merge
 
 from process_bigraph import default
 from spatio_flux.library.helpers import initialize_fields, build_path
-from spatio_flux.processes import MinimalParticle
-from spatio_flux.processes.particles import Particles
+from spatio_flux.processes import MonodKinetics
+from spatio_flux.processes.particles import ParticleMovement
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
 default_config = {
     'total_time': 100.0,
     'bounds': (10.0, 20.0),
     'n_bins': (8, 16),
-    'mol_ids': ['glucose', 'acetate', 'biomass', 'detritus'],
+    'mol_ids': ['glucose', 'acetate', 'dissolved biomass', 'detritus'],
     'field_diffusion_rate': 1e-1,
     'field_advection_rate': (0, 0),
     'initial_min_max': {
         'glucose': (10, 10),
         'acetate': (0, 0),
-        'biomass': (0, 0.1),
+        'dissolved biomass': (0, 0.1),
         'detritus': (0, 0)
     },
     # set particles
@@ -61,9 +61,9 @@ def get_dfba_config(
 
 
 def get_single_dfba_process(
-        model_file="textbook",
+        model_id="ecoli core",
         mol_ids=None,
-        biomass_id="biomass",
+        biomass_id="dissolved biomass",
         bounds=None,
         path=None,
         i=None,
@@ -81,10 +81,19 @@ def get_single_dfba_process(
     if biomass_id in mol_ids:
         mol_ids.remove(biomass_id)
 
+    config = {'mol_ids': mol_ids, 'biomass_id': biomass_id}
+
+    if model_id in MODEL_REGISTRY_DFBA:
+        dfba_config = MODEL_REGISTRY_DFBA.get(model_id, {})
+    else:
+        dfba_config = get_dfba_config(model_file=model_id)
+
+    config = deep_merge(config, dfba_config)
+
     return {
         "_type": "process",
         "address": "local:DynamicFBA",
-        "config": get_dfba_config(model_file=model_file, bounds=bounds),
+        "config": config,
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
             "biomass": build_path(path, biomass_id, i, j)
@@ -104,7 +113,7 @@ def get_spatial_dfba_process(
 
     path = path or ['fields']
     mol_ids = config.get("mol_ids") or ["glucose", "acetate"]
-    biomass_id = config.get("biomass_id") or "biomass"
+    biomass_id = config.get("biomass_id") or "dissolved biomass"
 
     # remove "biomass" from mol_ids if it exists
     if biomass_id in mol_ids:
@@ -163,7 +172,7 @@ def get_fields_with_schema(
         if initial_min_max:
             mol_ids = list(initial_min_max.keys())
         else:
-            mol_ids = ["glucose", "acetate", "biomass"]
+            mol_ids = ["glucose", "acetate", "dissolved biomass"]
 
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
@@ -172,7 +181,7 @@ def get_fields_with_schema(
         "_value": {
             "_type": "array",
             "_shape": n_bins,
-            "_data": "positive_float"
+            "_data": "concentration"
         },
         **initial_fields,
     }
@@ -180,14 +189,16 @@ def get_fields_with_schema(
 def get_spatial_many_dfba(
         n_bins=(5, 5),
         model_file=None,
-        mol_ids=None
+        mol_ids=None,
+        biomass_id="dissolved biomass",
 ):
     dfba_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
             # get a process state for each bin
             dfba_process = get_dfba_process_from_registry(
-                model_id=model_file, path=["..", "fields"], i=i, j=j)
+                model_id=model_file, path=["..", "fields"],
+                biomass_id=biomass_id, i=i, j=j)
             dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
 
     return dfba_processes_dict
@@ -218,7 +229,7 @@ def get_diffusion_advection_process(
         advection_coeffs=None,
 ):
     if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'biomass']
+        mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     if diffusion_coeffs is None:
         diffusion_coeffs = {}
     if advection_coeffs is None:
@@ -273,35 +284,78 @@ def get_particle_movement_process(
 
     return {
         '_type': 'process',
-        'address': 'local:Particles',
+        'address': 'local:ParticleMovement',
         'config': config,
         'inputs': {
             'particles': ['particles'],
-            'fields': ['fields']},
+            # 'fields': ['fields']
+        },
         'outputs': {
             'particles': ['particles'],
-            'fields': ['fields']
+            # 'fields': ['fields']
+        },
+    }
+
+def get_particle_exchange_process(
+        n_bins=(20, 20),
+        bounds=(10.0, 10.0),
+        rates_are_per_time=True,
+        apply_mass_balance=False,
+):
+    config = locals()
+    # Remove any key-value pair where the value is None
+    config = {key: value for key, value in config.items() if value is not None}
+
+    return {
+        '_type': 'process',
+        'address': 'local:ParticleExchange',
+        'config': config,
+        'inputs': {
+            'particles': ['particles'],
+            'fields': ['fields'],
+        },
+        'outputs': {
+            'particles': ['particles'],
+            'fields': ['fields'],
+        },
+    }
+
+def get_particle_divide_process(
+        division_mass_threshold=0.0
+):
+    return {
+        '_type': 'process',
+        'address': 'local:ParticleDivision',
+        'config': {
+            'division_mass_threshold': division_mass_threshold
+        },
+        'inputs': {
+            'particles': ['particles']
+        },
+        'outputs': {
+            'particles': ['particles']
         }
     }
+
 
 # ===============
 # Particle-COMETS
 # ===============
 
-def get_minimal_particle_composition(core, config=None):
-    config = config or core.default(MinimalParticle.config_schema)
+def get_kinetic_particle_composition(core, config=None):
+    config = config or core.default(MonodKinetics.config_schema)
     return {
         'particles': {
             '_type': 'map',
             '_value': {
                 # '_inherit': 'particle',
-                'minimal_particle': {
+                'kinetics': {
                     '_type': 'process',
-                    'address': default('string', 'local:MinimalParticle'),
+                    'address': default('string', 'local:MonodKinetics'),
                     'config': default('quote', config),
                     '_inputs': {
                         'mass': 'float',
-                        'substrates': 'map[positive_float]'
+                        'substrates': 'map[concentration]'
                     },
                     '_outputs':  {
                         'mass': 'float',
@@ -329,7 +383,7 @@ def get_particles_state(
 ):
     fields = fields or {}
     # add particles process
-    particles = Particles.generate_state(
+    particles = ParticleMovement.generate_state(
         config={
             'n_particles': n_particles,
             'bounds': bounds,

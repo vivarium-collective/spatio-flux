@@ -1,3 +1,4 @@
+import os
 import json
 import pprint
 import shutil
@@ -10,6 +11,7 @@ from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, gather_emitter_results
 from process_bigraph.emitter import emitter_from_wires
 from vivarium.vivarium import VivariumTypes
+from spatio_flux.library.colors import build_plot_settings
 
 
 def build_path(base_path, mol_id, i=None, j=None):
@@ -49,7 +51,7 @@ def get_standard_emitter(state_keys):
     return emitter_from_wires(emitter_spec)
 
 
-def run_composite_document(document, core=None, name=None, time=None):
+def run_composite_document(document, core=None, name=None, time=None, outdir="out"):
     """
     Instantiates and runs a Composite simulation.
 
@@ -58,49 +60,100 @@ def run_composite_document(document, core=None, name=None, time=None):
         time (float): Simulation duration.
         core (VivariumTypes): Core schema registration object.
         name (str): Output name prefix.
+        outdir (str): Output directory.
 
     Returns:
         dict: Simulation results emitted during the run.
     """
     time = time or 60
+    os.makedirs(outdir, exist_ok=True)
+
     if core is None:
         from spatio_flux import register_types
         core = VivariumTypes()
         core = register_types(core)
+
     if name is None:
         date = datetime.now().strftime('%Y%m%d_%H%M%S')
         name = f'spatio_flux_{date}'
 
+    # Ensure proper structure for Vivarium Composite
     document = {'state': document} if 'state' not in document else document
     if 'emitter' not in document['state']:
         state_keys = list(document['state'].keys())
         document['state']['emitter'] = get_standard_emitter(state_keys=state_keys)
 
-    print(f'Making composite {name}...')
+    print(f"🧩 Making composite {name}...")
+
     sim = Composite(document, core=core)
 
     # Save composition JSON
-    sim.save(filename=f'{name}.json', outdir='out')
+    sim.save(filename=f"{name}.json", outdir=outdir)
 
-    # Save visualization of the initial composition
+    # Save representation string (human-readable schema summary)
+    rep = core.representation(document)
+    rep_file = os.path.join(outdir, f"{name}_schema.txt")
+    with open(rep_file, "w") as f:
+        f.write(rep)
+    print(f"💾 Saved schema representation → {rep_file}")
+
+    # Save the underlying schema as JSON (machine-readable)
+    schema_file = os.path.join(outdir, f"{name}_schema.json")
+    try:
+        serialized = core.serialize(sim.composition, sim.state)
+        with open(schema_file, "w") as f:
+            json.dump(serialized, f, indent=2)
+        print(f"💾 Saved schema JSON → {schema_file}")
+    except Exception as e:
+        print(f"⚠ Could not save schema JSON: {e}")
+
+    # Visualize initial composition
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
     plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
+
+    # get particles for coloring
+    particle_ids = []
+    if 'particles' in plot_state and plot_state['particles']:
+        particle_ids = list(plot_state['particles'].keys())
+
+    n_bins = ()
+    if 'fields' in plot_state:
+        for value in plot_state['fields'].values():
+            if isinstance(value, np.ndarray):
+                if value.ndim == 2:
+                    n_bins =  value.shape  # (n, m)
+
+    # spatio-flux-specific plot settings
+    plot_settings = build_plot_settings(
+        particle_ids=particle_ids,
+        n_bins=n_bins
+    )
+    plot_settings.update(dict(
+        dpi='300',
+        show_values=True,
+        show_types=True,
+        collapse_redundant_processes={
+            'exclude': [('particle_movement',), ('particle_division',)]
+        },
+        value_char_limit=20,
+        type_char_limit=40,
+    ))
 
     plot_bigraph(
         state=plot_state,
         schema=plot_schema,
         core=core,
-        out_dir='out',
-        filename=f'{name}_viz',
-        dpi='300',
-        collapse_redundant_processes=True
+        out_dir=outdir,
+        filename=f"{name}_viz",
+        **plot_settings
     )
 
-    print(f'Simulating {name}...')
+    print(f"⏱ Simulating {name} for {time}s...")
     sim.run(time)
     results = gather_emitter_results(sim)
-    return results[('emitter',)]
+    print(f"✅ Simulation complete: {name}")
 
+    return results[('emitter',)]
 
 def prepare_output_dir(output_dir):
     output_path = Path(output_dir)
@@ -198,6 +251,9 @@ def generate_html_report(
             try:
                 with open(json_file, 'r') as jf:
                     full_data = json.load(jf)
+                    if 'state' not in full_data:
+                        full_data = {'state': full_data}
+
                 # Filter out 'emitter' and 'global_time' top-level keys
                 state_data = {
                     key: value for key, value in full_data.get('state', {}).items()

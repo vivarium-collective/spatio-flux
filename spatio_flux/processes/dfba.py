@@ -10,14 +10,12 @@ import os
 import warnings
 import numpy as np
 from pathlib import Path
-
-from copy import deepcopy
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process
 from spatio_flux.library.helpers import build_path
 
-# Suppress known benign warnings from COBRApy
+# Suppress benign warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
 warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
 
@@ -58,17 +56,11 @@ MODEL_REGISTRY_DFBA = {
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'formate': 'EX_for_e',
-            # 'acetate': 'EX_ac_e'
         },
         'kinetic_params': {
             'glucose': (0.5, 1),
             'formate': (0.5, 1),
-            # 'acetate': (0.5, 2)
         },
-        # 'bounds': {
-        #     'EX_o2_e': {'lower': -2, 'upper': None},
-        #     'ATPM': {'lower': 1, 'upper': 1}
-        # },
     },
     'cdiff': {
         'model_file': 'iCN900.xml',
@@ -87,13 +79,11 @@ MODEL_REGISTRY_DFBA = {
             'glucose': 'EX_glc__D_e',
             'ammonium': 'EX_nh4_e',
             'glycolate': 'EX_glyclt_e'
-            # 'glycerol': 'EX_gly_e'
         },
         'kinetic_params': {
             'glucose': (1, 2),
             'ammonium': (2, 4),
             'glycolate': (0.5, 1)
-            # 'glycerol': (0.5, 2)
         }
     },
     'yeast': {
@@ -101,33 +91,23 @@ MODEL_REGISTRY_DFBA = {
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
             'ammonium': 'EX_nh4_e',
-            # 'ethanol': 'EX_etoh_e',
-            # 'formate': 'EX_for_e',
         },
         'kinetic_params': {
             'glucose': (0.5, 1),
             'ammonium': (0.5, 1),
-            # 'ethanol': (0.5, 2),
-            # 'formate': (0.5, 1),
         }
     },
     'llactis': {
         'model_file': 'iNF517.xml',
         'substrate_update_reactions': {
             'glucose': 'EX_glc__D_e',
-            'glutatmate': 'EX_glu__L_e',
+            'glutamate': 'EX_glu__L_e',
             'serine': 'EX_ser__L_e',
-            # 'ammonium': 'EX_nh4_e',
-            # 'glutamine': 'EX_gln__L_e',
-            # 'arginine': 'EX_arg__L_e'
         },
         'kinetic_params': {
             'glucose': (0.5, 1.25),
-            'glutatmate': (0.05, 0.1),
+            'glutamate': (0.05, 0.1),
             'serine': (0.05, 0.1),
-            # 'ammonium': (0.5, 1),
-            # 'glutamine': (0.5, 2),
-            # 'arginine': (0.5, 2)
         }
     },
 }
@@ -162,9 +142,6 @@ def validate_model_registry_substrates(model_registry):
     """
     Validate that 'substrate_update_reactions' and 'kinetic_params' fields match for each model.
     Also returns the set of all substrate fields across all models.
-
-    :param model_registry: A dictionary like MODEL_REGISTRY_DFBA.
-    :return: A sorted list of unique substrate fields used across all models.
     """
     all_fields = set()
 
@@ -191,15 +168,6 @@ def validate_model_registry_substrates(model_registry):
 def load_fba_model(model_file, bounds):
     """
     Load an SBML or named model and apply static bounds.
-
-    Parameters:
-    -----------
-    - model_file: str, path to SBML or name of registered model
-    - bounds: dict, {reaction_id: {'lower': val, 'upper': val}}
-
-    Returns:
-    --------
-    cobra.Model instance with bounds applied
     """
     if model_file in MODEL_REGISTRY_DFBA:
         # Load a named model from the registry
@@ -261,6 +229,9 @@ def run_fba_update(model, config, substrates, biomass, interval):
 
     # Set uptake bounds using Michaelis-Menten kinetics
     for substrate, reaction_id in config["substrate_update_reactions"].items():
+        # if substrate not in substrates:
+        #     continue
+
         Km, Vmax = config["kinetic_params"][substrate]
         substrate_concentration = substrates[substrate]
         uptake_rate = -1 * Vmax * substrate_concentration / (Km + substrate_concentration)
@@ -280,6 +251,9 @@ def run_fba_update(model, config, substrates, biomass, interval):
         delta_biomass = mu * biomass * interval
 
         for substrate, rxn_id in config["substrate_update_reactions"].items():
+            # if substrate not in substrates:
+            #     continue
+
             flux = solution.fluxes[rxn_id] * biomass * interval
             delta = max(flux, -substrates[substrate])  # prevent negative concentrations
             update_substrates[substrate] = delta
@@ -306,13 +280,13 @@ class DynamicFBA(Process):
 
     Inputs:
     -------
-    - substrates (map[positive_float]): External concentrations of substrates.
-    - biomass (positive_float): Current biomass level.
+    - substrates (map[concentration]): External concentrations of substrates.
+    - biomass (concentration): Current biomass level.
 
     Outputs:
     --------
-    - substrates (map[float]): Changes in substrate concentrations.
-    - biomass (float): Change in biomass.
+    - substrates (map[delta]): Changes in substrate concentrations.
+    - biomass (delta): Change in biomass.
 
     Notes:
     ------
@@ -335,14 +309,14 @@ class DynamicFBA(Process):
 
     def inputs(self):
         return {
-            "substrates": "map[positive_float]",  # external concentrations
-            "biomass": "positive_float",
+            "substrates": "map[concentration]",  # external concentrations
+            "biomass": "concentration",
         }
 
     def outputs(self):
         return {
-            "substrates": "map[float]",   # deltas (not absolute concentrations)
-            "biomass": "float",           # delta biomass
+            "substrates": "map[delta]",   # deltas (not absolute concentrations)
+            "biomass": "delta",           # delta biomass
         }
 
     def update(self, inputs, interval):
@@ -359,11 +333,6 @@ class DynamicFBA(Process):
 class SpatialDFBA(Process):
     """
     A spatial extension of DynamicFBA using one DFBA instance per bin.
-
-    Configuration:
-    --------------
-    - n_bins (tuple[int, int]): Number of (x, y) bins.
-    - Remaining config keys passed to each DynamicFBA.
     """
 
     config_schema = {
@@ -680,7 +649,6 @@ def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1
         print("  ⚠ No exchange flux significantly limits growth under minimal media.")
 
 
-# Example usage
 if __name__ == "__main__":
     for model_key, config in MODEL_REGISTRY_DFBA.items():
         analyze_fba_model_minimal_media(model_key, config, MODEL_DIR)

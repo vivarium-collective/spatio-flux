@@ -25,14 +25,16 @@ from spatio_flux import register_types
 from spatio_flux.library.helpers import run_composite_document, prepare_output_dir, generate_html_report, \
     reversed_tuple, inverse_tuple
 from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
-    plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid
+    plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
+    plot_snapshots_grid,
 )
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
-    get_diffusion_advection_process, get_particle_movement_process, initialize_fields, get_minimal_particle_composition,
+    get_diffusion_advection_process, get_particle_movement_process, get_particle_exchange_process,
+    initialize_fields, get_kinetic_particle_composition,
     get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
+    get_particle_divide_process, DIVISION_MASS_THRESHOLD,
 )
-from spatio_flux.processes import DIVISION_MASS_THRESHOLD
 
 
 # ====================================================================
@@ -78,7 +80,7 @@ def get_multi_dfba(core=None, config=None):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     dfbas = {}
     for model_id, spec in MODEL_REGISTRY_DFBA.items():
-        process_id = f'dfba_{model_id}'
+        process_id = f'{model_id} dFBA'
         dfba_process = get_dfba_process_from_registry(
             model_id=model_id,
             biomass_id=model_id,
@@ -116,8 +118,8 @@ def plot_multi_dfba(results, state, config=None):
 
 def get_spatial_many_dfba_doc(core=None, config=None):
     dissolved_model_file = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     return {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
@@ -129,7 +131,7 @@ def plot_spatial_many_dfba(results, state, config=None):
     filename = config.get('filename', 'spatial_many_dfba')
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_species_distributions_to_gif(
-        results, out_dir='out', filename=f'{filename}.gif')
+        results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- DFBA Spatial Process ---------------------------------------------
 
@@ -153,9 +155,9 @@ def build_model_grid(n_bins, model_positions=None):
 
 def get_spatial_dfba_process_doc(core=None, config=None):
     # make the fields
-    mol_ids = ['glucose', 'acetate', 'biomass']
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (20, 20), 'glycolate': (10,10), 'ammonium': (10, 10),
-                       'acetate': (0, 0), 'biomass': (0.01, 0.01)}
+                       'acetate': (0, 0), 'dissolved biomass': (0.01, 0.01)}
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
@@ -192,14 +194,14 @@ def plot_dfba_process_spatial(results, state, config=None):
     model_grid = state['spatial_dfba']['config']['model_grid']
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_model_grid(model_grid, title='model grid', show_border_coords=True, out_dir='out', filename=f'{filename}_model_grid.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}.gif')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- Diffusion Advection-----------------------------------------------
 
 def get_diffusion_process_doc(core=None, config=None):
-    mol_ids = ['glucose', 'biomass']
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'biomass': DEFAULT_DIFFUSION/10}
+    mol_ids = ['glucose', 'dissolved biomass']
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'dissolved biomass': DEFAULT_DIFFUSION/10}
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
     # initialize fields
@@ -207,7 +209,7 @@ def get_diffusion_process_doc(core=None, config=None):
     biomass_field = np.zeros(n_bins)
     biomass_field[4:5,:] = 10
     return {
-        'fields': {'biomass': biomass_field, 'glucose': glc_field},
+        'fields': {'dissolved biomass': biomass_field, 'glucose': glc_field},
         'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
                                                      diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs),
     }
@@ -215,17 +217,17 @@ def get_diffusion_process_doc(core=None, config=None):
 def plot_diffusion_process(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'diffusion_process')
-    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}.gif')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- COMETS -----------------------------------------------------------
 
 def get_comets_doc(core=None, config=None):
     dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'biomass']
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
-    diffusion_coeffs = {'glucose': 0, 'acetate': 1e-1, 'biomass': 5e-2}
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    diffusion_coeffs = {'glucose': 0, 'acetate': 1e-1, 'dissolved biomass': 5e-2}
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     bins_y, bins_x = n_bins
 
     # initialize acetate concentration to zero
@@ -238,7 +240,7 @@ def get_comets_doc(core=None, config=None):
     # place some biomass
     biomass_field = np.zeros(n_bins)
     biomass_field[0:1, int(bins_x/4):int(3*bins_x/4)] = 0.1
-    initial_fields = {'biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
+    initial_fields = {'dissolved biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
 
     # place models on the grid
     model_grid = np.zeros(n_bins, dtype='U20')
@@ -264,12 +266,53 @@ def plot_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'comets')
     n_bins = state['diffusion']['config']['n_bins']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_results.gif')
+    bounds = state['diffusion']['config']['bounds']
+    plot_time_series(
+        results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
+                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
+                        suptitle='Fields snapshots')
+
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- Particles -----------------------------------------------------------
 
-def get_particles_doc(core=None, config=None):
+def get_particles_alone_doc(core=None, config=None):
+    n_bins = DEFAULT_BINS
+    bounds = DEFAULT_BOUNDS
+    n_particles = 1
+    diffusion_rate = DEFAULT_DIFFUSION
+    advection_rate = DEFAULT_ADVECTION
+    add_probability = DEFAULT_ADD_PROBABILITY
+    return {
+        'state': {
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
+            'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
+                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability),
+        },
+        'composition': {}
+    }
+
+def plot_particles_sim(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'particles')
+    bounds = state['particle_movement']['config']['bounds']
+    history = [step['particles'] for step in results]
+    plot_particles(
+        history=history, env_size=((0, bounds[0]), (0, bounds[1])),
+        out_dir='out', filename=f'{filename}_particles_alone_video.gif')
+    plot_species_distributions_with_particles_to_gif(
+        results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
+
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
+                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
+                        suptitle='Fields snapshots')
+
+
+# --- Particles with Fields -----------------------------------------------------------
+
+def get_particles_with_fields_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
@@ -294,18 +337,12 @@ def get_particles_doc(core=None, config=None):
             'fields': initialize_fields(n_bins, initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds),
             'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
-                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability, division_mass_threshold=division_mass_threshold)
+                diffusion_rate=diffusion_rate, advection_rate=advection_rate, add_probability=add_probability),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_minimal_particle_composition(core=core, config=particle_config)
+        'composition': get_kinetic_particle_composition(core=core, config=particle_config)
     }
-
-def plot_particles_sim(results, state, config=None):
-    config = config or {}
-    filename = config.get('filename', 'particles')
-    bounds = state['particle_movement']['config']['bounds']
-    history = [step['particles'] for step in results]
-    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename=f'{filename}_alone.gif')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_with_fields.gif', bounds=bounds)
 
 # --- Particle-COMETS ----------------------------------------------------
 
@@ -313,7 +350,7 @@ def get_particle_comets_doc(core=None, config=None):
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'detritus', 'biomass']
+    mol_ids = ['glucose', 'acetate', 'detritus', 'dissolved biomass']
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
@@ -327,12 +364,12 @@ def get_particle_comets_doc(core=None, config=None):
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     particle_advection = DEFAULT_ADVECTION
-    n_particles = 10
+    n_particles = 1
     add_probability = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
-    fields['biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
-    fields['biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
+    fields['dissolved biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
+    fields['dissolved biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
 
     # spatial dfba config
     spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
@@ -344,10 +381,12 @@ def get_particle_comets_doc(core=None, config=None):
             'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
             # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            'particle_movement': get_particle_movement_process(n_bins=n_bins, bounds=bounds,
-                                                               add_probability=add_probability, advection_rate=particle_advection, division_mass_threshold=division_mass_threshold)
+            'particle_movement': get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, add_probability=add_probability, advection_rate=particle_advection),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_minimal_particle_composition(core, config=particle_config)
+        'composition': get_kinetic_particle_composition(core, config=particle_config)
     }
 
 def plot_particle_comets(results, state, config=None):
@@ -356,7 +395,10 @@ def plot_particle_comets(results, state, config=None):
     bounds = state['particle_movement']['config']['bounds']
     n_bins = state['particle_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_with_fields.gif', bounds=bounds)
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
+                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(
+        results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
 
 # --- dFBA-Particles ---------------------------------------------------
 
@@ -368,8 +410,8 @@ def get_particle_dfba_doc(core=None, config=None):
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    n_particles = 2
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 1
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -379,7 +421,9 @@ def get_particle_dfba_doc(core=None, config=None):
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particle_movement': get_particle_movement_process(
-                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability, division_mass_threshold=division_mass_threshold)
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
@@ -392,21 +436,25 @@ def plot_particle_dfba(results, state, config=None):
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
+                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(
+        results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 
 def get_particle_dfba_comets_doc(core=None, config=None):
+    config = config or {}
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
-    mol_ids = ['glucose', 'acetate', 'biomass']
-    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'biomass': (0, 0.1)}
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
-    n_bins = DEFAULT_BINS
-    advection_coeffs = {'biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    n_particles = 10
+    n_bins = DEFAULT_BINS  #DEFAULT_BINS
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 1
     add_probability = 0.2
     particle_advection = DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -421,7 +469,9 @@ def get_particle_dfba_comets_doc(core=None, config=None):
             'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particle_movement': get_particle_movement_process(
-                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability, division_mass_threshold=division_mass_threshold)
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
@@ -432,10 +482,62 @@ def plot_particle_dfba_comets(results, state, config=None):
     filename = config.get('filename', 'particle_dfba_comets')
     n_bins = state['particle_movement']['config']['n_bins']
     bounds = state['particle_movement']['config']['bounds']
-    plot_time_series(results, field_names=['glucose', 'acetate', 'biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
                      out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_with_fields.gif')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
+                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(
+        results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
+
+
+# --- METACOMPOSITE ---------------------------------------------------
+
+def get_metacomposite_doc(core=None, config=None):
+    config = config or {}
+    particle_model_id = config.get('particle_model_id', 'ecoli core')
+    dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
+    division_mass_threshold = 3 # config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
+    bounds = DEFAULT_BOUNDS
+    n_bins = DEFAULT_BINS
+    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    n_particles = 4
+    add_probability = 0.3
+    particle_advection = (0, -0.2) #DEFAULT_ADVECTION
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+
+    doc = {
+        'state': {
+            'fields': fields,
+            'diffusion': get_diffusion_advection_process(
+                bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
+            'particle_movement': get_particle_movement_process(
+                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
+        },
+        'composition': get_dfba_particle_composition(model_file=particle_model_id)
+    }
+    return doc
+
+def plot_metacomposite(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'metacomposite')
+    n_bins = state['particle_movement']['config']['n_bins']
+    bounds = state['particle_movement']['config']['bounds']
+    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
+                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(
+        results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
+
 
 # ==================================================
 # Functions for running tests and generating reports
@@ -443,7 +545,7 @@ def plot_particle_dfba_comets(results, state, config=None):
 
 DEFAULT_BOUNDS = (5.0, 10.0)
 DEFAULT_BINS = (10, 20)
-DEFAULT_BINS_SMALL = (5, 10)
+DEFAULT_BINS_SMALL = (2, 4)
 DEFAULT_ADVECTION = (0, -0.1)
 DEFAULT_DIFFUSION = 0.1
 DEFAULT_ADD_PROBABILITY = 0.4
@@ -452,12 +554,13 @@ DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 DEFAULT_INITIAL_MIN_MAX = {
         'glucose': (10, 10),
         'acetate': (0, 0),
-        'biomass': (0, 0.1),
+        'dissolved biomass': (0, 0.1),
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME_SHORT = 20
-DEFAULT_RUNTIME_LONG = 60
+DEFAULT_RUNTIME_SHORT = 20  # 20
+DEFAULT_RUNTIME_LONG = 60   # 60
+DEFAULT_RUNTIME_VERY_LONG = 200  # 120
 
 SIMULATIONS = {
     'ecoli_core_dfba': {
@@ -476,22 +579,22 @@ SIMULATIONS = {
         'config': {'model_id': 'ecoli', 'initial_fields': {'glucose': 10, 'formate': 5}},
         'plot_config': {'filename': 'ecoli_dfba'}
     },
-    'cdiff_dfba': {
-        'description': 'This simulation runs a dFBA model of Clostridioides difficile. iCN900',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 2, 'acetate': 10}},
-        'plot_config': {'filename': 'cdiff_dfba'}
-    },
-    'pputida_dfba': {
-        'description': 'This simulation runs a dFBA model of Pseudomonas putida, iJN746',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'pputida', 'initial_fields': {'glucose': 8, 'pputida biomass': 2}},
-        'plot_config': {'filename': 'pputida_dfba'}
-    },
+    # 'cdiff_dfba': {
+    #     'description': 'This simulation runs a dFBA model of Clostridioides difficile. iCN900',
+    #     'doc_func': get_dfba_single_doc,
+    #     'plot_func': plot_dfba_single,
+    #     'time': DEFAULT_RUNTIME_LONG,
+    #     'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 2, 'acetate': 10}},
+    #     'plot_config': {'filename': 'cdiff_dfba'}
+    # },
+    # 'pputida_dfba': {
+    #     'description': 'This simulation runs a dFBA model of Pseudomonas putida, iJN746',
+    #     'doc_func': get_dfba_single_doc,
+    #     'plot_func': plot_dfba_single,
+    #     'time': DEFAULT_RUNTIME_LONG,
+    #     'config': {'model_id': 'pputida', 'initial_fields': {'glucose': 8, 'pputida biomass': 2}},
+    #     'plot_config': {'filename': 'pputida_dfba'}
+    # },
     'yeast_dfba': {
         'description': 'This simulation runs a dFBA model of Saccharomyces cerevisiae (yeast), iMM904',
         'doc_func': get_dfba_single_doc,
@@ -500,14 +603,14 @@ SIMULATIONS = {
         'config': {'model_id': 'yeast', 'initial_fields': {'glucose': 5}},
         'plot_config': {'filename': 'yeast_dfba'}
     },
-    'llactis_dfba': {
-        'description': 'This simulation runs a dFBA model of Lactococcus lactis, iNF517',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'llactis', 'initial_fields': {'glucose': 100, 'llactis biomass': 2.0}},
-        'plot_config': {'filename': 'llactis_dfba'}
-    },
+    # 'llactis_dfba': {
+    #     'description': 'This simulation runs a dFBA model of Lactococcus lactis, iNF517',
+    #     'doc_func': get_dfba_single_doc,
+    #     'plot_func': plot_dfba_single,
+    #     'time': DEFAULT_RUNTIME_LONG,
+    #     'config': {'model_id': 'llactis', 'initial_fields': {'glucose': 100, 'llactis biomass': 2.0}},
+    #     'plot_config': {'filename': 'llactis_dfba'}
+    # },
     'multi_dfba': {
         'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
         'doc_func': get_multi_dfba,
@@ -547,11 +650,18 @@ SIMULATIONS = {
         'config': {}
     },
     'particles': {
-        'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
-        'doc_func': get_particles_doc,
+        'description': 'This simulation uses Brownian particles with mass moving randomly in space.',
+        'doc_func': get_particles_alone_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {}
+        'config': {'filename': 'particles'}
+    },
+    'particles_fields': {
+        'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
+        'doc_func': get_particles_with_fields_doc,
+        'plot_func': plot_particles_sim,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {'filename': 'particles_fields'}
     },
     'particle_comets': {
         'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
@@ -577,6 +687,14 @@ SIMULATIONS = {
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'particle_dfba_comets'}
+    },
+    'metacomposite': {
+        'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
+        'doc_func': get_metacomposite_doc,
+        'plot_func': plot_metacomposite,
+        'time': DEFAULT_RUNTIME_VERY_LONG,
+        'config': {},
+        'plot_config': {'filename': 'metacomposite'}
     },
 }
 

@@ -7,8 +7,6 @@ Simulates 2D diffusion and advection on scalar fields using finite differences.
 Each species field evolves over time according to:
 - Diffusion (via a Laplacian kernel)
 - Advection (via gradient approximation in x and y directions)
-
-Fields are updated iteratively with time step `dt <= diffusion_dt` to ensure stability.
 """
 
 import numpy as np
@@ -62,9 +60,9 @@ class DiffusionAdvection(Process):
             'fields': {
                 '_type': 'map',
                 '_value': {
-                    '_type': 'positive_array',
+                    '_type': 'array',
                     '_shape': self.config['n_bins'],
-                    '_data': 'positive_float'
+                    '_data': 'concentration'
                 },
             }
         }
@@ -76,7 +74,7 @@ class DiffusionAdvection(Process):
                 '_value': {
                     '_type': 'array',
                     '_shape': self.config['n_bins'],
-                    '_data': 'positive_float'
+                    '_data': 'concentration'
                 },
             }
         }
