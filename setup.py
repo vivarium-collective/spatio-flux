@@ -47,5 +47,6 @@ setup(
         "imageio",
         "matplotlib",
         "numpy",
+        "pymunk",
     ]
 )
