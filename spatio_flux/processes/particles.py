@@ -103,7 +103,7 @@ def generate_single_particle_state(config=None):
     }
 
 
-class ParticleMovement(Process):
+class BrownianMovement(Process):
     config_schema = {
         'bounds': 'tuple[float,float]',
         'n_bins': 'tuple[integer,integer]',
@@ -118,13 +118,35 @@ class ParticleMovement(Process):
         self.env_size = ((0.0, config['bounds'][0]), (0.0, config['bounds'][1]))
 
     def inputs(self):
-        return {'particles': 'map[particle]'}
+        return {'particles': 'map[simple_particle]'}
 
     def outputs(self):
-        return {'particles': 'map[particle]'}
+        return {'particles': 'map[simple_particle]'}
 
     def initial_state(self, config=None):
         return {}
+
+    @staticmethod
+    def generate_state(config=None):
+        config = config or {}
+        bounds = config.get('bounds', (1.0, 1.0))
+        n_bins = config.get('n_bins', (1, 1))
+        n_particles = config.get('n_particles', 15)
+        mass_range = config.get('mass_range') or INITIAL_MASS_RANGE
+        fields = config.get('fields', {})  # optional, used by generate_single_particle_state if provided
+
+        particles = {}
+        for _ in range(n_particles):
+            pid = short_id()
+            pstate = generate_single_particle_state({
+                'bounds': bounds,
+                'mass_range': mass_range,
+                'n_bins': n_bins,
+                'fields': fields,
+                'id': pid,
+            })
+            particles[pid] = pstate
+        return {'particles': particles}
 
     # ------------------------------------------------------------------
 
@@ -232,7 +254,7 @@ class ParticleExchange(Step):
 
     def inputs(self):
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[simple_particle]',
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -328,13 +350,13 @@ class ParticleDivision(Step):
     def inputs(self):
         # Only particles are needed
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[simple_particle]',
         }
 
     def outputs(self):
         # Emit particle deltas in the same convention: _remove, _add, and/or per-id updates
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[simple_particle]',
         }
 
     def initial_state(self, config=None):

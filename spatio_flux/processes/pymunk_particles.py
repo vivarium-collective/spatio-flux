@@ -790,7 +790,7 @@ def run_pymunk_particles():
     # run simulation
     interval = 100
     config = {
-        'gravity': -0.1, #-9.81,
+        'gravity': -0.2, #-9.81,
         'elasticity': 0.1,
         'bounds': (100.0, 300.0),
         'boundary_to_remove': [], #['right', 'left'],
