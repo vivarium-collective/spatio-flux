@@ -28,12 +28,15 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
     plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
     plot_snapshots_grid,
 )
+from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_particle_movement_process, get_particle_exchange_process,
     initialize_fields, get_kinetic_particle_composition,
-    get_dfba_particle_composition, get_particles_state, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
+    get_dfba_particle_composition, get_particles_state,
+    MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
     get_particle_divide_process, DIVISION_MASS_THRESHOLD,
+    get_pymunk_particles_state,
 )
 
 
@@ -539,6 +542,62 @@ def plot_metacomposite(results, state, config=None):
         results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 
+
+# ---- PYMUNK PARTICLES ------------------------------------------------
+
+def get_pymunk_particles_doc(core=None, config=None):
+    # run simulation
+    config = {
+        'gravity': -0.2,  # -9.81,
+        'elasticity': 0.1,
+        'bounds': (100.0, 300.0),
+        'boundary_to_remove': [],  # ['right', 'left'],
+        'add_probability': 0.3,
+        'new_particle_radius_range': (0.5, 2.5),
+        'jitter_per_second': 0.5,
+        'damping_per_second': .998,
+    }
+    n_particles = 200
+
+    processes = {
+        'pymunk_particles': {
+            '_type': 'process',
+            'address': 'local:PymunkParticleMovement',
+            'config': config,
+            'inputs': {
+                'particles': ['particles'],
+            },
+            'outputs': {
+                'particles': ['particles'],
+            }
+        }
+    }
+
+    initial_state = get_pymunk_particles_state(
+        n_particles=n_particles,
+        bounds=config['bounds'],
+        particle_radius_range=config['new_particle_radius_range'],
+    )
+
+    # complete document
+    return {
+        'state': {
+            **initial_state,
+            **processes,
+        },
+    }
+
+def plot_pymunk_particles(results, state, config=None):
+    filename = config.get('filename', 'pymunk_particles')
+    pymunk_config = state['pymunk_particles']['config']
+    pymunk_simulation_to_gif(results,
+                             filename=f'{filename}_video.gif',
+                             config=pymunk_config,
+                             # color_by_phylogeny=True,
+                             agents_key='particles'
+                             )
+
+
 # ==================================================
 # Functions for running tests and generating reports
 # ==================================================
@@ -560,7 +619,7 @@ DEFAULT_INITIAL_MIN_MAX = {
 
 DEFAULT_RUNTIME_SHORT = 20  # 20
 DEFAULT_RUNTIME_LONG = 60   # 60
-DEFAULT_RUNTIME_VERY_LONG = 200  # 120
+DEFAULT_RUNTIME_LONGER = 200  # 120
 
 SIMULATIONS = {
     'ecoli_core_dfba': {
@@ -692,10 +751,18 @@ SIMULATIONS = {
         'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
         'doc_func': get_metacomposite_doc,
         'plot_func': plot_metacomposite,
-        'time': DEFAULT_RUNTIME_VERY_LONG,
+        'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {'filename': 'metacomposite'}
     },
+    'pymunk_particles': {
+        'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine.',
+        'doc_func': get_pymunk_particles_doc,
+        'plot_func': plot_pymunk_particles,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {},
+        'plot_config': {}
+    }
 }
 
 

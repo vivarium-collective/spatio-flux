@@ -9,7 +9,7 @@ import pymunk
 
 from process_bigraph import Composite, gather_emitter_results, Process
 from process_bigraph.emitter import emitter_from_wires
-from spatio_flux.plots.multibody_plots import simulation_to_gif
+from spatio_flux.plots.multibody_plots import pymunk_simulation_to_gif
 from spatio_flux.library.helpers import get_standard_emitter
 
 
@@ -747,7 +747,7 @@ def place_microbes(
 # High-level initializer
 # -------------------------
 
-def make_initial_state(
+def get_pymunk_particles_state(
     n_particles=2,
     bounds=(600.0, 600.0),
     *,
@@ -815,7 +815,7 @@ def run_pymunk_particles():
         }
     }
 
-    initial_state = make_initial_state(
+    initial_state = get_pymunk_particles_state(
         n_particles=n_particles,
         bounds=config['bounds'],
         particle_radius_range=config['new_particle_radius_range'],
@@ -849,13 +849,13 @@ def run_pymunk_particles():
     print(f'Simulation completed with {len(results)} steps.')
 
     # make video
-    simulation_to_gif(results,
-                      filename='particles_falling',
-                      config=config,
-                      color_by_phylogeny=True,
-                      agents_key='particles'
-                      # skip_frames=10
-                      )
+    pymunk_simulation_to_gif(results,
+                             filename='particles_falling',
+                             config=config,
+                             color_by_phylogeny=True,
+                             agents_key='particles'
+                             # skip_frames=10
+                             )
 
 
 if __name__ == '__main__':

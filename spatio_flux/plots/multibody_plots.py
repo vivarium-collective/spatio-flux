@@ -244,7 +244,7 @@ class GifRenderer:
         return Image.fromarray(rgba[:, :, :3].copy())
 
 # ================= PUBLIC API =================
-def simulation_to_gif(
+def pymunk_simulation_to_gif(
     data,
     config,
     agents_key='agents',
