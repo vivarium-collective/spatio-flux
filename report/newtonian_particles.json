@@ -1,7 +1,7 @@
 {
     "state": {
         "global_time": "0.0",
-        "pymunk_particles": {
+        "newtonian_particles": {
             "inputs": {
                 "particles": [
                     "particles"
@@ -76,16 +76,16 @@
             }
         },
         "particles": {
-            "p_b6cb5a": {
+            "p_5ed302": {
                 "id": "",
                 "position": [
-                    "84.4015460954288",
-                    "190.34124154107795"
+                    "16.23093984487177",
+                    "78.88719038342497"
                 ],
-                "mass": "0.07051508504381657",
+                "mass": "0.06105424503968494",
                 "local": {},
                 "exchange": {},
-                "type": "circle",
+                "shape": "circle",
                 "velocity": [
                     "0.0",
                     "0.0"
@@ -109,7 +109,7 @@
                 "number"
             ]
         },
-        "pymunk_particles": {
+        "newtonian_particles": {
             "_type": "process",
             "_default": "default_edge",
             "_generate": "generate_edge",
@@ -777,7 +777,7 @@
                 "_inherit": [
                     "simple_particle"
                 ],
-                "type": {
+                "shape": {
                     "_type": "enum",
                     "_default": "default_enum",
                     "_apply": "apply_enum",
