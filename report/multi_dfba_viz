@@ -93,14 +93,14 @@ digraph bigraph {
 		"('fields', 'glucose')" -> "('ecoli dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	subgraph "('cdiff dFBA',)" {
-		"('fields', 'glucose')" -> "('cdiff dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'cdiff')" [label=<cdiff> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('cdiff dFBA',)" {
 		"('fields', 'cdiff')" -> "('cdiff dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	subgraph "('cdiff dFBA',)" {
+		"('fields', 'glucose')" -> "('cdiff dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -113,9 +113,9 @@ digraph bigraph {
 		"('fields', 'glycolate')" -> "('pputida dFBA',)" [label=<substrates/glycolate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'pputida')" [label=<pputida> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('pputida dFBA',)" {
-		"('fields', 'pputida')" -> "('pputida dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'ammonium')" -> "('pputida dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -123,9 +123,14 @@ digraph bigraph {
 		"('fields', 'glucose')" -> "('pputida dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'pputida')" [label=<pputida> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('pputida dFBA',)" {
-		"('fields', 'ammonium')" -> "('pputida dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'pputida')" -> "('pputida dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	subgraph "('yeast dFBA',)" {
+		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -138,14 +143,9 @@ digraph bigraph {
 		"('fields', 'yeast')" -> "('yeast dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	subgraph "('yeast dFBA',)" {
-		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'glutamate')" [label=<glutamate> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('llactis dFBA',)" {
-		"('fields', 'glutamate')" -> "('llactis dFBA',)" [label=<substrates/glutamate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('llactis dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'serine')" [label=<serine> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -153,14 +153,14 @@ digraph bigraph {
 		"('fields', 'serine')" -> "('llactis dFBA',)" [label=<substrates/serine> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glutamate')" [label=<glutamate> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	subgraph "('llactis dFBA',)" {
+		"('fields', 'glutamate')" -> "('llactis dFBA',)" [label=<substrates/glutamate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'llactis')" [label=<llactis> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('llactis dFBA',)" {
 		"('fields', 'llactis')" -> "('llactis dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	subgraph "('llactis dFBA',)" {
-		"('fields', 'glucose')" -> "('llactis dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -191,44 +191,44 @@ digraph bigraph {
 	"('fields', 'serine')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>serine</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'llactis')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>llactis</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.1</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
-	"('fields',)" [color="#a3716d"]
-	"('fields', 'glucose')" [color="#a3716d"]
-	"('fields', 'acetate')" [color="#a3716d"]
-	"('fields', 'formate')" [color="#a3716d"]
-	"('fields', 'ammonium')" [color="#a3716d"]
-	"('fields', 'serine')" [color="#a3716d"]
-	"('fields', 'glycolate')" [color="#a3716d"]
-	"('fields', 'glutamate')" [color="#a3716d"]
-	"('fields', 'pputida')" [color="#a3716d"]
-	"('pputida dFBA',)" [color="#47637c"]
-	"('fields', 'llactis')" [color="#a3716d"]
-	"('llactis dFBA',)" [color="#47637c"]
-	"('fields', 'ecoli')" [color="#a3716d"]
-	"('ecoli dFBA',)" [color="#47637c"]
-	"('fields', 'ecoli core')" [color="#a3716d"]
-	"('ecoli core dFBA',)" [color="#47637c"]
-	"('fields', 'yeast')" [color="#a3716d"]
-	"('yeast dFBA',)" [color="#47637c"]
-	"('fields', 'cdiff')" [color="#a3716d"]
-	"('cdiff dFBA',)" [color="#47637c"]
-	"('fields',)" [color="#D1918C" style=filled]
-	"('fields', 'glucose')" [color="#D1918C" style=filled]
-	"('fields', 'acetate')" [color="#D1918C" style=filled]
-	"('fields', 'formate')" [color="#D1918C" style=filled]
-	"('fields', 'ammonium')" [color="#D1918C" style=filled]
-	"('fields', 'serine')" [color="#D1918C" style=filled]
-	"('fields', 'glycolate')" [color="#D1918C" style=filled]
-	"('fields', 'glutamate')" [color="#D1918C" style=filled]
-	"('fields', 'pputida')" [color="#D1918C" style=filled]
-	"('pputida dFBA',)" [color="#5C7FA0" style=filled]
-	"('fields', 'llactis')" [color="#D1918C" style=filled]
-	"('llactis dFBA',)" [color="#5C7FA0" style=filled]
-	"('fields', 'ecoli')" [color="#D1918C" style=filled]
-	"('ecoli dFBA',)" [color="#5C7FA0" style=filled]
-	"('fields', 'ecoli core')" [color="#D1918C" style=filled]
-	"('ecoli core dFBA',)" [color="#5C7FA0" style=filled]
-	"('fields', 'yeast')" [color="#D1918C" style=filled]
-	"('yeast dFBA',)" [color="#5C7FA0" style=filled]
-	"('fields', 'cdiff')" [color="#D1918C" style=filled]
-	"('cdiff dFBA',)" [color="#5C7FA0" style=filled]
+	"('fields',)" [color="#b4ad88"]
+	"('fields', 'glucose')" [color="#b4ad88"]
+	"('fields', 'acetate')" [color="#b4ad88"]
+	"('fields', 'formate')" [color="#b4ad88"]
+	"('fields', 'ammonium')" [color="#b4ad88"]
+	"('fields', 'serine')" [color="#b4ad88"]
+	"('fields', 'glycolate')" [color="#b4ad88"]
+	"('fields', 'glutamate')" [color="#b4ad88"]
+	"('fields', 'pputida')" [color="#b4ad88"]
+	"('pputida dFBA',)" [color="#8f3b38"]
+	"('fields', 'llactis')" [color="#b4ad88"]
+	"('llactis dFBA',)" [color="#8f3b38"]
+	"('fields', 'ecoli')" [color="#b4ad88"]
+	"('ecoli dFBA',)" [color="#8f3b38"]
+	"('fields', 'ecoli core')" [color="#b4ad88"]
+	"('ecoli core dFBA',)" [color="#8f3b38"]
+	"('fields', 'yeast')" [color="#b4ad88"]
+	"('yeast dFBA',)" [color="#8f3b38"]
+	"('fields', 'cdiff')" [color="#b4ad88"]
+	"('cdiff dFBA',)" [color="#8f3b38"]
+	"('fields',)" [color="#E8DFAF" style=filled]
+	"('fields', 'glucose')" [color="#E8DFAF" style=filled]
+	"('fields', 'acetate')" [color="#E8DFAF" style=filled]
+	"('fields', 'formate')" [color="#E8DFAF" style=filled]
+	"('fields', 'ammonium')" [color="#E8DFAF" style=filled]
+	"('fields', 'serine')" [color="#E8DFAF" style=filled]
+	"('fields', 'glycolate')" [color="#E8DFAF" style=filled]
+	"('fields', 'glutamate')" [color="#E8DFAF" style=filled]
+	"('fields', 'pputida')" [color="#E8DFAF" style=filled]
+	"('pputida dFBA',)" [color="#B84C48" style=filled]
+	"('fields', 'llactis')" [color="#E8DFAF" style=filled]
+	"('llactis dFBA',)" [color="#B84C48" style=filled]
+	"('fields', 'ecoli')" [color="#E8DFAF" style=filled]
+	"('ecoli dFBA',)" [color="#B84C48" style=filled]
+	"('fields', 'ecoli core')" [color="#E8DFAF" style=filled]
+	"('ecoli core dFBA',)" [color="#B84C48" style=filled]
+	"('fields', 'yeast')" [color="#E8DFAF" style=filled]
+	"('yeast dFBA',)" [color="#B84C48" style=filled]
+	"('fields', 'cdiff')" [color="#E8DFAF" style=filled]
+	"('cdiff dFBA',)" [color="#B84C48" style=filled]
 }

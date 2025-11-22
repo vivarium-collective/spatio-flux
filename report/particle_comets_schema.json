@@ -1,143 +1,17 @@
 {
   "particles": {
-    "H8ngm2Wf": {
-      "id": "H8ngm2Wf",
+    "CViQ1QA_": {
+      "id": "CViQ1QA_",
       "position": [
-        "3.750821166704673",
-        "3.436965058572686"
+        "3.2388440363572606",
+        "3.4546908148127553"
       ],
-      "mass": "3.6286598020332512",
+      "mass": "4.069676922925419",
       "local": {
         "glucose": "10.0",
-        "acetate": "0.0",
-        "detritus": "0.0",
-        "dissolved biomass": "0.0"
-      },
-      "exchange": {
-        "glucose": "0.0",
-        "acetate": "0.0",
-        "detritus": "0.0",
-        "dissolved biomass": "0.0"
-      },
-      "kinetics": {
-        "inputs": {
-          "mass": [
-            "mass"
-          ],
-          "substrates": [
-            "local"
-          ]
-        },
-        "outputs": {
-          "mass": [
-            "mass"
-          ],
-          "substrates": [
-            "exchange"
-          ]
-        },
-        "interval": 1.0,
-        "address": "local:MonodKinetics",
-        "config": {
-          "reactions": {
-            "grow": {
-              "reactant": "glucose",
-              "product": "mass"
-            },
-            "release": {
-              "reactant": "mass",
-              "product": "detritus"
-            }
-          },
-          "kinetic_params": {
-            "glucose": [
-              "0.5",
-              "0.01"
-            ],
-            "mass": [
-              "1.0",
-              "0.001"
-            ]
-          }
-        },
-        "shared": {}
-      }
-    },
-    "EqfY4XpJ": {
-      "id": "EqfY4XpJ",
-      "position": [
-        "3.7510084699298223",
-        "3.438956268632386"
-      ],
-      "mass": "3.6286598020332512",
-      "local": {
-        "glucose": "10.0",
-        "acetate": "0.0",
-        "detritus": "0.0",
-        "dissolved biomass": "0.0"
-      },
-      "exchange": {
-        "glucose": "0.0",
-        "acetate": "0.0",
-        "detritus": "0.0",
-        "dissolved biomass": "0.0"
-      },
-      "kinetics": {
-        "inputs": {
-          "mass": [
-            "mass"
-          ],
-          "substrates": [
-            "local"
-          ]
-        },
-        "outputs": {
-          "mass": [
-            "mass"
-          ],
-          "substrates": [
-            "exchange"
-          ]
-        },
-        "interval": 1.0,
-        "address": "local:MonodKinetics",
-        "config": {
-          "reactions": {
-            "grow": {
-              "reactant": "glucose",
-              "product": "mass"
-            },
-            "release": {
-              "reactant": "mass",
-              "product": "detritus"
-            }
-          },
-          "kinetic_params": {
-            "glucose": [
-              "0.5",
-              "0.01"
-            ],
-            "mass": [
-              "1.0",
-              "0.001"
-            ]
-          }
-        },
-        "shared": {}
-      }
-    },
-    "pFZB-wYQ": {
-      "id": "",
-      "position": [
-        "0.0",
-        "0.0"
-      ],
-      "mass": "1.0",
-      "local": {
-        "glucose": "0.0",
-        "acetate": "0.0",
-        "detritus": "0.0",
-        "dissolved biomass": "0.0"
+        "acetate": "0",
+        "detritus": "0",
+        "dissolved biomass": "0"
       },
       "exchange": {
         "glucose": "0.0",
@@ -410,11 +284,11 @@
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     },
     "outputs": null,
@@ -422,8 +296,8 @@
     "config": {
       "emit": {
         "global_time": "any",
-        "particles": "any",
-        "fields": "any"
+        "fields": "any",
+        "particles": "any"
       }
     }
   },

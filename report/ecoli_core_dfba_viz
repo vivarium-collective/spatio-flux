@@ -18,11 +18,6 @@ digraph bigraph {
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'ecoli core biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	subgraph "('ecoli core dFBA',)" {
-		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'ecoli core biomass')" [label=<ecoli core biomass> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('ecoli core dFBA',)" {
 		"('fields', 'ecoli core biomass')" -> "('ecoli core dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
@@ -31,6 +26,11 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('ecoli core dFBA',)" {
 		"('fields', 'acetate')" -> "('ecoli core dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	subgraph "('ecoli core dFBA',)" {
+		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -41,14 +41,14 @@ digraph bigraph {
 	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'ecoli core biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ecoli core biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.1</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
-	"('fields',)" [color="#a3716d"]
-	"('fields', 'glucose')" [color="#a3716d"]
-	"('fields', 'acetate')" [color="#a3716d"]
-	"('fields', 'ecoli core biomass')" [color="#a3716d"]
-	"('ecoli core dFBA',)" [color="#47637c"]
-	"('fields',)" [color="#D1918C" style=filled]
-	"('fields', 'glucose')" [color="#D1918C" style=filled]
-	"('fields', 'acetate')" [color="#D1918C" style=filled]
-	"('fields', 'ecoli core biomass')" [color="#D1918C" style=filled]
-	"('ecoli core dFBA',)" [color="#5C7FA0" style=filled]
+	"('fields',)" [color="#b4ad88"]
+	"('fields', 'glucose')" [color="#b4ad88"]
+	"('fields', 'acetate')" [color="#b4ad88"]
+	"('fields', 'ecoli core biomass')" [color="#b4ad88"]
+	"('ecoli core dFBA',)" [color="#8f3b38"]
+	"('fields',)" [color="#E8DFAF" style=filled]
+	"('fields', 'glucose')" [color="#E8DFAF" style=filled]
+	"('fields', 'acetate')" [color="#E8DFAF" style=filled]
+	"('fields', 'ecoli core biomass')" [color="#E8DFAF" style=filled]
+	"('ecoli core dFBA',)" [color="#B84C48" style=filled]
 }

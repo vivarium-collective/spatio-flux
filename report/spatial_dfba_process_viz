@@ -19,6 +19,11 @@ digraph bigraph {
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	subgraph "('spatial_dfba',)" {
+		"('fields', 'acetate')" -> "('spatial_dfba',)" [label=<fields/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'dissolved biomass')" [label=<dissolved biomass> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('spatial_dfba',)" {
 		"('fields', 'dissolved biomass')" -> "('spatial_dfba',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
@@ -27,11 +32,6 @@ digraph bigraph {
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('spatial_dfba',)" {
 		"('fields', 'glucose')" -> "('spatial_dfba',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'acetate')" [label=<acetate> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	subgraph "('spatial_dfba',)" {
-		"('fields', 'acetate')" -> "('spatial_dfba',)" [label=<fields/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -43,14 +43,14 @@ digraph bigraph {
  […</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array[(6|5),float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.01 0.01 0.01 0.0…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[(6|5),float]</FONT></TD></TR></TABLE>>]
-	"('fields',)" [color="#a3716d"]
-	"('spatial_dfba',)" [color="#98a6b1"]
-	"('fields', 'glucose')" [color="#a3716d"]
-	"('fields', 'acetate')" [color="#a3716d"]
-	"('fields', 'dissolved biomass')" [color="#a3716d"]
-	"('fields',)" [color="#D1918C" style=filled]
-	"('spatial_dfba',)" [color="#C3D5E4" style=filled]
-	"('fields', 'glucose')" [color="#D1918C" style=filled]
-	"('fields', 'acetate')" [color="#D1918C" style=filled]
-	"('fields', 'dissolved biomass')" [color="#D1918C" style=filled]
+	"('fields',)" [color="#b4ad88"]
+	"('spatial_dfba',)" [color="#b38c89"]
+	"('fields', 'glucose')" [color="#b4ad88"]
+	"('fields', 'acetate')" [color="#b4ad88"]
+	"('fields', 'dissolved biomass')" [color="#b4ad88"]
+	"('fields',)" [color="#E8DFAF" style=filled]
+	"('spatial_dfba',)" [color="#E6B4B0" style=filled]
+	"('fields', 'glucose')" [color="#E8DFAF" style=filled]
+	"('fields', 'acetate')" [color="#E8DFAF" style=filled]
+	"('fields', 'dissolved biomass')" [color="#E8DFAF" style=filled]
 }

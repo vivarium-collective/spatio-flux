@@ -18,9 +18,9 @@ digraph bigraph {
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'yeast biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'yeast biomass')" [label=<yeast biomass> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('yeast dFBA',)" {
-		"('fields', 'yeast biomass')" -> "('yeast dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	"('fields', 'glucose')" [label=<glucose> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -28,9 +28,9 @@ digraph bigraph {
 		"('fields', 'glucose')" -> "('yeast dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	"('fields', 'ammonium')" [label=<ammonium> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'yeast biomass')" [label=<yeast biomass> constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	subgraph "('yeast dFBA',)" {
-		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'yeast biomass')" -> "('yeast dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -41,14 +41,14 @@ digraph bigraph {
 	"('fields', 'ammonium')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ammonium</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 10</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'yeast biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>yeast biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.1</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
-	"('fields',)" [color="#a3716d"]
-	"('fields', 'glucose')" [color="#a3716d"]
-	"('fields', 'ammonium')" [color="#a3716d"]
-	"('fields', 'yeast biomass')" [color="#a3716d"]
-	"('yeast dFBA',)" [color="#47637c"]
-	"('fields',)" [color="#D1918C" style=filled]
-	"('fields', 'glucose')" [color="#D1918C" style=filled]
-	"('fields', 'ammonium')" [color="#D1918C" style=filled]
-	"('fields', 'yeast biomass')" [color="#D1918C" style=filled]
-	"('yeast dFBA',)" [color="#5C7FA0" style=filled]
+	"('fields',)" [color="#b4ad88"]
+	"('fields', 'glucose')" [color="#b4ad88"]
+	"('fields', 'ammonium')" [color="#b4ad88"]
+	"('fields', 'yeast biomass')" [color="#b4ad88"]
+	"('yeast dFBA',)" [color="#8f3b38"]
+	"('fields',)" [color="#E8DFAF" style=filled]
+	"('fields', 'glucose')" [color="#E8DFAF" style=filled]
+	"('fields', 'ammonium')" [color="#E8DFAF" style=filled]
+	"('fields', 'yeast biomass')" [color="#E8DFAF" style=filled]
+	"('yeast dFBA',)" [color="#B84C48" style=filled]
 }
