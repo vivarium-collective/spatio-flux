@@ -830,7 +830,7 @@ SIMULATIONS = {
         'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
         'doc_func': get_metacomposite_doc,
         'plot_func': plot_metacomposite,
-        'time': DEFAULT_RUNTIME_LONGER,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'metacomposite'}
     },

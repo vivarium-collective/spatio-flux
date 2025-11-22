@@ -114,8 +114,43 @@ class BrownianMovement(Process):
         'boundary_to_remove': default('list[boundary_side]', ['left', 'right', 'top', 'bottom']),
     }
 
+    # ------------------------------------------------------------------
+    #                    INITIALIZATION / CONSTANTS
+    # ------------------------------------------------------------------
+
     def initialize(self, config):
         self.env_size = ((0.0, config['bounds'][0]), (0.0, config['bounds'][1]))
+
+        (x_min, x_max), (y_min, y_max) = self.env_size
+
+        # Small buffer to avoid numerical issues at the exact boundary
+        buffer = 1e-4
+        self.x_min, self.x_max = x_min, x_max
+        self.y_min, self.y_max = y_min, y_max
+        self.x_lo, self.x_hi = x_min + buffer, x_max - buffer
+        self.y_lo, self.y_hi = y_min + buffer, y_max - buffer
+
+        # Precompute diffusion factor: sigma = sqrt(2 * D * dt) -> we store sqrt(2D)
+        D = config['diffusion_rate']
+        self._sqrt_2D = np.sqrt(2.0 * D)
+
+        # Advection
+        self.vx, self.vy = config['advection_rate']
+
+        # Removal boundary flags
+        remove_boundaries = set(config['boundary_to_remove'])
+        self.check_left   = 'left'   in remove_boundaries
+        self.check_right  = 'right'  in remove_boundaries
+        self.check_top    = 'top'    in remove_boundaries
+        self.check_bottom = 'bottom' in remove_boundaries
+
+        # Addition boundaries + cached config
+        self.add_boundaries = tuple(config['boundary_to_add'])
+        self.add_prob = float(config['add_probability'])
+        self.bounds = config['bounds']
+        self.n_bins = config['n_bins']
+
+    # ------------------------------------------------------------------
 
     def inputs(self):
         return {'particles': 'map[simple_particle]'}
@@ -149,78 +184,91 @@ class BrownianMovement(Process):
         return {'particles': particles}
 
     # ------------------------------------------------------------------
+    #                           MAIN UPDATE
+    # ------------------------------------------------------------------
 
     def update(self, state, interval):
         particles = state['particles']
-
-        dt = float(interval)
-        D = self.config['diffusion_rate']
-        vx, vy = self.config['advection_rate']
-
-        sigma = np.sqrt(2.0 * D * dt)
-
-        (x_min, x_max), (y_min, y_max) = self.env_size
-        buffer = 1e-4
-        x_lo, x_hi = x_min + buffer, x_max - buffer
-        y_lo, y_hi = y_min + buffer, y_max - buffer
-
-        # Localize for speed
-        remove_boundaries = set(self.config['boundary_to_remove'])
-        check_left   = 'left' in remove_boundaries
-        check_right  = 'right' in remove_boundaries
-        check_top    = 'top' in remove_boundaries
-        check_bottom = 'bottom' in remove_boundaries
-
         updated = {'_remove': [], '_add': {}}
 
+        # Fast path: no particles and no births
+        if not particles and self.add_prob <= 0.0:
+            return {'particles': updated}
+
+        dt = float(interval)
+        # sigma = sqrt(2 * D * dt) but we precomputed sqrt(2D)
+        sigma = self._sqrt_2D * np.sqrt(dt)
+
+        x_min, x_max = self.x_min, self.x_max
+        y_min, y_max = self.y_min, self.y_max
+        x_lo, x_hi = self.x_lo, self.x_hi
+        y_lo, y_hi = self.y_lo, self.y_hi
+
         # --------------------------------------------------------------
-        #                   MAIN PARTICLE UPDATE LOOP
+        #                VECTORIZED PARTICLE POSITION UPDATE
         # --------------------------------------------------------------
-        for pid, p in particles.items():
-            old_x, old_y = p['position']
+        if particles:
+            # Convert dict -> parallel arrays (ids, positions)
+            items = list(particles.items())
+            pids = [pid for pid, _ in items]
+            pos = np.array([p['position'] for _, p in items], dtype=float)  # shape (N, 2)
 
-            # Brownian + advection
-            dx, dy = np.random.normal(0.0, sigma, 2)
-            dx += vx * dt
-            dy += vy * dt
+            N = pos.shape[0]
 
-            new_x = old_x + dx
-            new_y = old_y + dy
+            # Draw all Brownian steps at once
+            steps = np.random.normal(loc=0.0, scale=sigma, size=(N, 2))
+            # Add advection drift
+            steps[:, 0] += self.vx * dt
+            steps[:, 1] += self.vy * dt
 
-            # --------------------
-            # Removal boundaries
-            # --------------------
-            if (
-                (check_left   and new_x < x_min) or
-                (check_right  and new_x > x_max) or
-                (check_top    and new_y > y_max) or
-                (check_bottom and new_y < y_min)
-            ):
-                updated['_remove'].append(pid)
-                continue
+            new_pos = pos + steps  # shape (N, 2)
 
-            # --------------------
-            # Clamp in-bounds
-            # --------------------
-            x_clamped = new_x if x_lo <= new_x <= x_hi else np.clip(new_x, x_lo, x_hi)
-            y_clamped = new_y if y_lo <= new_y <= y_hi else np.clip(new_y, y_lo, y_hi)
+            # Vectorized boundary checks
+            out_mask = np.zeros(N, dtype=bool)
+            if self.check_left:
+                out_mask |= (new_pos[:, 0] < x_min)
+            if self.check_right:
+                out_mask |= (new_pos[:, 0] > x_max)
+            if self.check_top:
+                out_mask |= (new_pos[:, 1] > y_max)
+            if self.check_bottom:
+                out_mask |= (new_pos[:, 1] < y_min)
 
-            updated[pid] = {
-                'position': (x_clamped - old_x, y_clamped - old_y)
-            }
+            # Indices for particles that remain in the system
+            in_mask = ~out_mask
+
+            # Clamp in-bounds (only for those that remain)
+            if np.any(in_mask):
+                new_pos[in_mask, 0] = np.clip(new_pos[in_mask, 0], x_lo, x_hi)
+                new_pos[in_mask, 1] = np.clip(new_pos[in_mask, 1], y_lo, y_hi)
+
+            # Fill removal list
+            if np.any(out_mask):
+                remove_idx = np.nonzero(out_mask)[0]
+                updated['_remove'] = [pids[i] for i in remove_idx]
+
+            # For remaining particles, store *displacement* (delta) as expected
+            if np.any(in_mask):
+                keep_idx = np.nonzero(in_mask)[0]
+                # displacements = new_pos - old pos
+                disp = new_pos[keep_idx] - pos[keep_idx]  # shape (K, 2)
+                for i, (dx, dy) in zip(keep_idx, disp):
+                    pid = pids[i]
+                    updated[pid] = {
+                        'position': (dx, dy)
+                    }
 
         # --------------------------------------------------------------
         #                     NEW PARTICLE BIRTHS
         # --------------------------------------------------------------
-        add_prob = self.config['add_probability']
-        if add_prob > 0.0:
-            for boundary in self.config['boundary_to_add']:
-                if np.random.rand() < add_prob:
+        if self.add_prob > 0.0:
+            for boundary in self.add_boundaries:
+                if np.random.rand() < self.add_prob:
                     position = self.get_boundary_position(boundary)
                     pid = short_id()
                     new_p = generate_single_particle_state({
-                        'bounds': self.config['bounds'],
-                        'n_bins': self.config['n_bins'],
+                        'bounds': self.bounds,
+                        'n_bins': self.n_bins,
                         'position': position,
                         'id': pid,
                     })
@@ -240,6 +288,7 @@ class BrownianMovement(Process):
             return (np.random.uniform(x_min, x_max), y_max)
         if boundary == 'bottom':
             return (np.random.uniform(x_min, x_max), y_min)
+
 
 
 
