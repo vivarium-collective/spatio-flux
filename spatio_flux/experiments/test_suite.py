@@ -235,7 +235,7 @@ def get_comets_doc(core=None, config=None):
     dissolved_model_id = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     n_bins = reversed_tuple(DEFAULT_BINS)
-    bounds = reversed_tuple(DEFAULT_BOUNDS)
+    bounds = reversed_tuple(DEFAULT_BOUNDS)   # TODO -- undo reversal when fixing other code
     diffusion_coeffs = {'glucose': 0, 'acetate': 1e-1, 'dissolved biomass': 5e-2}
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     bins_y, bins_x = n_bins
@@ -613,7 +613,7 @@ def plot_newtonian_particles(results, state, config=None):
 
 # --- PYMUNK COMETS ------------------------------------------------
 
-def get_pymunk_comets_doc(core=None, config=None):
+def get_newtonian_particle_comets_doc(core=None, config=None):
     config = config or {}
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
@@ -625,7 +625,6 @@ def get_pymunk_comets_doc(core=None, config=None):
     n_bins = DEFAULT_BINS
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 4
-    add_probability = 0.3
     particle_advection = (0, -0.2) #DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
@@ -637,11 +636,11 @@ def get_pymunk_comets_doc(core=None, config=None):
     config = {
         'gravity': -0.2,  # -9.81,
         'elasticity': 0.1,
-        'bounds': (100.0, 300.0),
+        'bounds': bounds,  # (5.0, 10.0) is much smaller
         'boundary_to_remove': [],  # ['right', 'left'],
         'add_probability': 0.3,
-        'new_particle_radius_range': (0.5, 2.5),
-        'jitter_per_second': 0.5,
+        'new_particle_radius_range': (0.05, 0.2),
+        'jitter_per_second': 0.3,
         'damping_per_second': .998,
     }
 
@@ -664,16 +663,18 @@ def get_pymunk_comets_doc(core=None, config=None):
     }
     return doc
 
-def plot_pymunk_comets(results, state, config=None):
-    filename = config.get('filename', 'newtonian_particles')
+def plot_newtonian_particle_comets(results, state, config=None):
+    filename = config.get('filename', 'newtonian_particle_comets')
     pymunk_config = state['newtonian_particles']['config']
+    bounds = state['newtonian_particles']['config']['bounds']
     pymunk_simulation_to_gif(results,
                              filename=f'{filename}_video.gif',
                              config=pymunk_config,
                              # color_by_phylogeny=True,
                              agents_key='particles'
                              )
-
+    plot_species_distributions_with_particles_to_gif(
+        results, bounds=bounds, out_dir='out', filename=f'{filename}_fields_video.gif')
 
 
 # ==================================================
@@ -695,7 +696,7 @@ DEFAULT_INITIAL_MIN_MAX = {
         'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME_SHORT = 20  # 20
+DEFAULT_RUNTIME_SHORT = 10  # 20
 DEFAULT_RUNTIME_LONG = 60   # 60
 DEFAULT_RUNTIME_LONGER = 200  # 120
 
@@ -843,8 +844,8 @@ SIMULATIONS = {
     },
     'newtonian_particle_comets': {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
-        'doc_func': get_pymunk_comets_doc,
-        'plot_func': plot_pymunk_comets,
+        'doc_func': get_newtonian_particle_comets_doc,
+        'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_SHORT,
         'config': {},
         'plot_config': {}

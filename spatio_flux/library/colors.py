@@ -1,23 +1,30 @@
 COLORS = {
-    # --- PARTICLES FAMILY (sage greens + darker processes) ---
-    "particles_base":  "#B8D0C0",   # soft light sage for container and states
-    "particles_process": "#6F9C81", # muted green for movement/division
+    # --- PARTICLES (greens) ---
+    "particles_base":        "#C9DCCF",
+    "particles_process":     "#7FA889",
 
-    # --- dFBA FAMILY (cool desaturated blues) ---
-    "dfba_base":   "#5C7FA0",       # medium desaturated blue
-    "dfba_light":  "#C3D5E4",       # pale blue-gray
+    # --- NEWTONIAN PARTICLES (teal greens) ---
+    "newtonian_particles_process": "#3F716F",
+    "newtonian_particles_state":   "#8DBFBA",
 
-    # --- FIELDS FAMILY (warm muted rose & red) ---
-    "fields":      "#D1918C",       # dusty rose
-    "diffusion":   "#B7504D",       # muted brick red (stronger red balance)
+    # --- FIELDS (LB media yellows) ---
+    "fields":      "#E8DFAF",
+    "diffusion":   "#C8A837",
 
-    # --- CROSS-DOMAIN / BRIDGES ---
-    "particle_exchange_bridge": "#B4B899",  # olive-sage bridge tone
+    # --- dFBA (metabolic reds) ---
+    "dfba_base":   "#B84C48",
+    "dfba_light":  "#E6B4B0",
 
-    # --- dfBA-LIKE SUPPORT FAMILIES (cool neutrals) ---
-    "local":       "#D6DDF0",       # pale periwinkle
-    "exchange":    "#B6D0D8",       # cool gray-cyan
+    # --- LOCAL / EXCHANGE (fields ↔ dFBA bridge: yellow → orange) ---
+    "local":       "#E9C88B",
+    "exchange":    "#D9A56F",
+
+    # --- PARTICLE ↔ FIELD BRIDGE (green → yellow olive) ---
+    "particle_exchange_bridge": "#BFC78F",
 }
+
+
+
 
 
 def _hex_to_rgb(h):
@@ -86,6 +93,9 @@ def build_plot_settings(
         ("particle_division",):     COLORS["particles_process"],
         ("particle_exchange",):     COLORS["particle_exchange_bridge"],
 
+        # newtonian particle family
+        ("newtonian_particles",):           COLORS["newtonian_particles_process"],
+
         # containers
         ("fields",):                COLORS["fields"],
         ("diffusion",):             COLORS["diffusion"],
@@ -122,6 +132,12 @@ def build_plot_settings(
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_base"],
             ('particles', pid, 'kinetics'):  COLORS["dfba_base"],
+            ('particles', pid, 'shape'):  COLORS["newtonian_particles_state"],
+            ('particles', pid, 'velocity'):  COLORS["newtonian_particles_state"],
+            ('particles', pid, 'inertia'):  COLORS["newtonian_particles_state"],
+            ('particles', pid, 'radius'): COLORS["newtonian_particles_state"],
+            ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
+
         })
 
         for species in field_species:
