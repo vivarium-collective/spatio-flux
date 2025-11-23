@@ -11,6 +11,26 @@
                     "acetate": [
                         "fields",
                         "acetate"
+                    ],
+                    "glycolate": [
+                        "fields",
+                        "glycolate"
+                    ],
+                    "ammonium": [
+                        "fields",
+                        "ammonium"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
+                    ],
+                    "glutamate": [
+                        "fields",
+                        "glutamate"
+                    ],
+                    "serine": [
+                        "fields",
+                        "serine"
                     ]
                 },
                 "biomass": [
@@ -27,6 +47,26 @@
                     "acetate": [
                         "fields",
                         "acetate"
+                    ],
+                    "glycolate": [
+                        "fields",
+                        "glycolate"
+                    ],
+                    "ammonium": [
+                        "fields",
+                        "ammonium"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
+                    ],
+                    "glutamate": [
+                        "fields",
+                        "glutamate"
+                    ],
+                    "serine": [
+                        "fields",
+                        "serine"
                     ]
                 },
                 "biomass": [
@@ -41,8 +81,135 @@
                     "6",
                     "5"
                 ],
-                "model_file": "!nil",
-                "models": {},
+                "models": {
+                    "ecoli core": {
+                        "model_file": "textbook",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "acetate": [
+                                "0.5",
+                                "2.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {
+                            "EX_o2_e": {
+                                "lower": "-2.0",
+                                "upper": "!nil"
+                            },
+                            "ATPM": {
+                                "lower": "1.0",
+                                "upper": "1.0"
+                            }
+                        }
+                    },
+                    "ecoli": {
+                        "model_file": "iAF1260.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "formate": [
+                                "0.5",
+                                "1.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "formate": "EX_for_e"
+                        },
+                        "bounds": {}
+                    },
+                    "cdiff": {
+                        "model_file": "iCN900.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "acetate": [
+                                "0.5",
+                                "2.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {}
+                    },
+                    "pputida": {
+                        "model_file": "iJN746.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "1.0",
+                                "2.0"
+                            ],
+                            "ammonium": [
+                                "2.0",
+                                "4.0"
+                            ],
+                            "glycolate": [
+                                "0.5",
+                                "1.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "ammonium": "EX_nh4_e",
+                            "glycolate": "EX_glyclt_e"
+                        },
+                        "bounds": {}
+                    },
+                    "yeast": {
+                        "model_file": "iMM904.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "ammonium": [
+                                "0.5",
+                                "1.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "ammonium": "EX_nh4_e"
+                        },
+                        "bounds": {}
+                    },
+                    "llactis": {
+                        "model_file": "iNF517.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.25"
+                            ],
+                            "glutamate": [
+                                "0.05",
+                                "0.1"
+                            ],
+                            "serine": [
+                                "0.05",
+                                "0.1"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "glutamate": "EX_glu__L_e",
+                            "serine": "EX_ser__L_e"
+                        },
+                        "bounds": {}
+                    }
+                },
                 "model_grid": [
                     [
                         "ecoli core",
@@ -86,10 +253,7 @@
                         "llactis",
                         "llactis"
                     ]
-                ],
-                "kinetic_params": {},
-                "substrate_update_reactions": {},
-                "bounds": {}
+                ]
             },
             "shared": null
         },
@@ -214,49 +378,304 @@
                     5
                 ]
             },
+            "glycolate": {
+                "list": [
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    6,
+                    5
+                ]
+            },
+            "ammonium": {
+                "list": [
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    6,
+                    5
+                ]
+            },
+            "formate": {
+                "list": [
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    6,
+                    5
+                ]
+            },
+            "glutamate": {
+                "list": [
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ],
+                    [
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    6,
+                    5
+                ]
+            },
+            "serine": {
+                "list": [
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "data": "float",
+                "shape": [
+                    6,
+                    5
+                ]
+            },
             "dissolved biomass": {
                 "list": [
                     [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1
                     ],
                     [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1
                     ],
                     [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1
                     ],
                     [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1
                     ],
                     [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1
                     ],
                     [
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01,
-                        0.01
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1,
+                        0.1
                     ]
                 ],
                 "data": "float",
@@ -851,6 +1270,131 @@
                 "_data": "float"
             },
             "acetate": {
+                "_type": "positive_array",
+                "_default": "default_array",
+                "_check": "check_array",
+                "_slice": "slice_array",
+                "_apply": "apply_non_negative_array",
+                "_serialize": "serialize_array",
+                "_deserialize": "deserialize_array",
+                "_dataclass": "dataclass_array",
+                "_resolve": "resolve_array",
+                "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
+                "_shape": [
+                    6,
+                    5
+                ],
+                "_data": "float"
+            },
+            "glycolate": {
+                "_type": "positive_array",
+                "_default": "default_array",
+                "_check": "check_array",
+                "_slice": "slice_array",
+                "_apply": "apply_non_negative_array",
+                "_serialize": "serialize_array",
+                "_deserialize": "deserialize_array",
+                "_dataclass": "dataclass_array",
+                "_resolve": "resolve_array",
+                "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
+                "_shape": [
+                    6,
+                    5
+                ],
+                "_data": "float"
+            },
+            "ammonium": {
+                "_type": "positive_array",
+                "_default": "default_array",
+                "_check": "check_array",
+                "_slice": "slice_array",
+                "_apply": "apply_non_negative_array",
+                "_serialize": "serialize_array",
+                "_deserialize": "deserialize_array",
+                "_dataclass": "dataclass_array",
+                "_resolve": "resolve_array",
+                "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
+                "_shape": [
+                    6,
+                    5
+                ],
+                "_data": "float"
+            },
+            "formate": {
+                "_type": "positive_array",
+                "_default": "default_array",
+                "_check": "check_array",
+                "_slice": "slice_array",
+                "_apply": "apply_non_negative_array",
+                "_serialize": "serialize_array",
+                "_deserialize": "deserialize_array",
+                "_dataclass": "dataclass_array",
+                "_resolve": "resolve_array",
+                "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
+                "_shape": [
+                    6,
+                    5
+                ],
+                "_data": "float"
+            },
+            "glutamate": {
+                "_type": "positive_array",
+                "_default": "default_array",
+                "_check": "check_array",
+                "_slice": "slice_array",
+                "_apply": "apply_non_negative_array",
+                "_serialize": "serialize_array",
+                "_deserialize": "deserialize_array",
+                "_dataclass": "dataclass_array",
+                "_resolve": "resolve_array",
+                "_bind": "bind_array",
+                "_type_parameters": [
+                    "shape",
+                    "data"
+                ],
+                "_description": "an array of arbitrary dimension",
+                "_inherit": [
+                    "array"
+                ],
+                "_shape": [
+                    6,
+                    5
+                ],
+                "_data": "float"
+            },
+            "serine": {
                 "_type": "positive_array",
                 "_default": "default_array",
                 "_check": "check_array",

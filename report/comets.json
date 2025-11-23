@@ -790,8 +790,135 @@
                     "20",
                     "10"
                 ],
-                "model_file": "textbook",
-                "models": {},
+                "models": {
+                    "ecoli core": {
+                        "model_file": "textbook",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "acetate": [
+                                "0.5",
+                                "2.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {
+                            "EX_o2_e": {
+                                "lower": "-2.0",
+                                "upper": "!nil"
+                            },
+                            "ATPM": {
+                                "lower": "1.0",
+                                "upper": "1.0"
+                            }
+                        }
+                    },
+                    "ecoli": {
+                        "model_file": "iAF1260.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "formate": [
+                                "0.5",
+                                "1.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "formate": "EX_for_e"
+                        },
+                        "bounds": {}
+                    },
+                    "cdiff": {
+                        "model_file": "iCN900.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "acetate": [
+                                "0.5",
+                                "2.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {}
+                    },
+                    "pputida": {
+                        "model_file": "iJN746.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "1.0",
+                                "2.0"
+                            ],
+                            "ammonium": [
+                                "2.0",
+                                "4.0"
+                            ],
+                            "glycolate": [
+                                "0.5",
+                                "1.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "ammonium": "EX_nh4_e",
+                            "glycolate": "EX_glyclt_e"
+                        },
+                        "bounds": {}
+                    },
+                    "yeast": {
+                        "model_file": "iMM904.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.0"
+                            ],
+                            "ammonium": [
+                                "0.5",
+                                "1.0"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "ammonium": "EX_nh4_e"
+                        },
+                        "bounds": {}
+                    },
+                    "llactis": {
+                        "model_file": "iNF517.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                "0.5",
+                                "1.25"
+                            ],
+                            "glutamate": [
+                                "0.05",
+                                "0.1"
+                            ],
+                            "serine": [
+                                "0.05",
+                                "0.1"
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "glutamate": "EX_glu__L_e",
+                            "serine": "EX_ser__L_e"
+                        },
+                        "bounds": {}
+                    }
+                },
                 "model_grid": [
                     [
                         "ecoli core",
@@ -1033,31 +1160,7 @@
                         "ecoli core",
                         "ecoli core"
                     ]
-                ],
-                "kinetic_params": {
-                    "glucose": [
-                        "0.5",
-                        "1.0"
-                    ],
-                    "acetate": [
-                        "0.5",
-                        "2.0"
-                    ]
-                },
-                "substrate_update_reactions": {
-                    "glucose": "EX_glc__D_e",
-                    "acetate": "EX_ac_e"
-                },
-                "bounds": {
-                    "EX_o2_e": {
-                        "lower": "-2.0",
-                        "upper": "!nil"
-                    },
-                    "ATPM": {
-                        "lower": "1.0",
-                        "upper": "1.0"
-                    }
-                }
+                ]
             },
             "shared": null
         },
@@ -1084,7 +1187,6 @@
                     "5.0"
                 ],
                 "default_diffusion_rate": "0.1",
-                "default_diffusion_dt": "0.1",
                 "diffusion_coeffs": {
                     "glucose": "0.0",
                     "acetate": "0.1"
@@ -1098,7 +1200,10 @@
                         "0.0",
                         "0.0"
                     ]
-                }
+                },
+                "max_dt": "0.1",
+                "cfl_adv": "0.5",
+                "clip_negative": "True"
             },
             "shared": null
         },

@@ -23,10 +23,10 @@
                     "10",
                     "20"
                 ],
-                "diffusion_rate": "0.1",
+                "diffusion_rate": "0.5",
                 "advection_rate": [
                     "0.0",
-                    "-0.1"
+                    "0.2"
                 ],
                 "add_probability": "0.4",
                 "boundary_to_add": [
@@ -60,13 +60,13 @@
             }
         },
         "particles": {
-            "Luh2AXD0": {
-                "id": "Luh2AXD0",
+            "oUY_J9bP": {
+                "id": "oUY_J9bP",
                 "position": [
-                    "0.8759083867266598",
-                    "9.341156422994914"
+                    "1.7044814062620106",
+                    "8.895505647084844"
                 ],
-                "mass": "0.23242650489736066",
+                "mass": "0.546838386545406",
                 "local": {},
                 "exchange": {}
             }

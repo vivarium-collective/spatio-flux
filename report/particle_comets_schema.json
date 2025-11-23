@@ -1,17 +1,80 @@
 {
   "particles": {
-    "CViQ1QA_": {
-      "id": "CViQ1QA_",
+    "ctvQFdMA": {
+      "id": "ctvQFdMA",
       "position": [
-        "3.2388440363572606",
-        "3.4546908148127553"
+        "0.3442363458613699",
+        "6.858661871998064"
       ],
-      "mass": "4.069676922925419",
+      "mass": "4.901776725478571",
       "local": {
         "glucose": "10.0",
-        "acetate": "0",
-        "detritus": "0",
-        "dissolved biomass": "0"
+        "acetate": "0.0",
+        "detritus": "0.0",
+        "dissolved biomass": "0.0"
+      },
+      "exchange": {
+        "glucose": "0.0",
+        "acetate": "0.0",
+        "detritus": "0.0",
+        "dissolved biomass": "0.0"
+      },
+      "kinetics": {
+        "inputs": {
+          "mass": [
+            "mass"
+          ],
+          "substrates": [
+            "local"
+          ]
+        },
+        "outputs": {
+          "mass": [
+            "mass"
+          ],
+          "substrates": [
+            "exchange"
+          ]
+        },
+        "interval": 1.0,
+        "address": "local:MonodKinetics",
+        "config": {
+          "reactions": {
+            "grow": {
+              "reactant": "glucose",
+              "product": "mass"
+            },
+            "release": {
+              "reactant": "mass",
+              "product": "detritus"
+            }
+          },
+          "kinetic_params": {
+            "glucose": [
+              "0.5",
+              "0.01"
+            ],
+            "mass": [
+              "1.0",
+              "0.001"
+            ]
+          }
+        },
+        "shared": {}
+      }
+    },
+    "2W8qoRth": {
+      "id": "2W8qoRth",
+      "position": [
+        "0.34226793229942337",
+        "6.859015917262323"
+      ],
+      "mass": "4.901776725478571",
+      "local": {
+        "glucose": "10.0",
+        "acetate": "0.0",
+        "detritus": "0.0",
+        "dissolved biomass": "0.0"
       },
       "exchange": {
         "glucose": "0.0",
@@ -113,33 +176,357 @@
         "10",
         "20"
       ],
-      "model_file": "textbook",
-      "models": {},
-      "model_grid": [],
-      "kinetic_params": {
-        "glucose": [
-          "0.5",
-          "1.0"
-        ],
-        "acetate": [
-          "0.5",
-          "2.0"
-        ]
-      },
-      "substrate_update_reactions": {
-        "glucose": "EX_glc__D_e",
-        "acetate": "EX_ac_e"
-      },
-      "bounds": {
-        "EX_o2_e": {
-          "lower": "-2.0",
-          "upper": "!nil"
+      "models": {
+        "ecoli core": {
+          "model_file": "textbook",
+          "kinetic_params": {
+            "glucose": [
+              "0.5",
+              "1.0"
+            ],
+            "acetate": [
+              "0.5",
+              "2.0"
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
+          },
+          "bounds": {
+            "EX_o2_e": {
+              "lower": "-2.0",
+              "upper": "!nil"
+            },
+            "ATPM": {
+              "lower": "1.0",
+              "upper": "1.0"
+            }
+          }
         },
-        "ATPM": {
-          "lower": "1.0",
-          "upper": "1.0"
+        "ecoli": {
+          "model_file": "iAF1260.xml",
+          "kinetic_params": {
+            "glucose": [
+              "0.5",
+              "1.0"
+            ],
+            "formate": [
+              "0.5",
+              "1.0"
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "formate": "EX_for_e"
+          },
+          "bounds": {}
+        },
+        "cdiff": {
+          "model_file": "iCN900.xml",
+          "kinetic_params": {
+            "glucose": [
+              "0.5",
+              "1.0"
+            ],
+            "acetate": [
+              "0.5",
+              "2.0"
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
+          },
+          "bounds": {}
+        },
+        "pputida": {
+          "model_file": "iJN746.xml",
+          "kinetic_params": {
+            "glucose": [
+              "1.0",
+              "2.0"
+            ],
+            "ammonium": [
+              "2.0",
+              "4.0"
+            ],
+            "glycolate": [
+              "0.5",
+              "1.0"
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "ammonium": "EX_nh4_e",
+            "glycolate": "EX_glyclt_e"
+          },
+          "bounds": {}
+        },
+        "yeast": {
+          "model_file": "iMM904.xml",
+          "kinetic_params": {
+            "glucose": [
+              "0.5",
+              "1.0"
+            ],
+            "ammonium": [
+              "0.5",
+              "1.0"
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "ammonium": "EX_nh4_e"
+          },
+          "bounds": {}
+        },
+        "llactis": {
+          "model_file": "iNF517.xml",
+          "kinetic_params": {
+            "glucose": [
+              "0.5",
+              "1.25"
+            ],
+            "glutamate": [
+              "0.05",
+              "0.1"
+            ],
+            "serine": [
+              "0.05",
+              "0.1"
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "glutamate": "EX_glu__L_e",
+            "serine": "EX_ser__L_e"
+          },
+          "bounds": {}
         }
-      }
+      },
+      "model_grid": [
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ]
+      ]
     },
     "shared": null
   },
@@ -166,7 +553,6 @@
         "10.0"
       ],
       "default_diffusion_rate": "0.1",
-      "default_diffusion_dt": "0.1",
       "diffusion_coeffs": {
         "glucose": "0.1",
         "acetate": "0.1",
@@ -185,7 +571,10 @@
           "0.0",
           "0.0"
         ]
-      }
+      },
+      "max_dt": "0.1",
+      "cfl_adv": "0.5",
+      "clip_negative": "True"
     },
     "shared": null
   },
@@ -214,7 +603,7 @@
       "diffusion_rate": "0.1",
       "advection_rate": [
         "0.0",
-        "-0.1"
+        "0.2"
       ],
       "add_probability": "0.1",
       "boundary_to_add": [
@@ -284,11 +673,11 @@
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": null,
@@ -296,8 +685,8 @@
     "config": {
       "emit": {
         "global_time": "any",
-        "fields": "any",
-        "particles": "any"
+        "particles": "any",
+        "fields": "any"
       }
     }
   },
