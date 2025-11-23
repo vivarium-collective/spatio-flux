@@ -165,9 +165,11 @@ def build_model_grid(n_bins, model_positions=None):
 
 def get_spatial_dfba_process_doc(core=None, config=None):
     # make the fields
-    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    initial_min_max = {'glucose': (20, 20), 'glycolate': (10,10), 'ammonium': (10, 10),
-                       'acetate': (0, 0), 'dissolved biomass': (0.01, 0.01)}
+    mol_ids = ['glucose', 'acetate', 'glycolate', 'ammonium', 'formate', 'glutamate', 'serine',
+               'dissolved biomass']
+    initial_min_max = {'glucose': (10, 10), 'glycolate': (10, 10), 'ammonium': (10, 10), 'formate': (10, 10),
+                       'glutamate': (10, 10), 'serine': (0, 0),
+                       'acetate': (0, 0), 'dissolved biomass': (0.1, 0.1)}
     n_bins = reversed_tuple((5, 6))  # TODO automatically align with species grid
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
@@ -190,7 +192,8 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     spatial_dfba_config = {
         'n_bins': n_bins,
         'models': MODEL_REGISTRY_DFBA,
-        'model_grid': model_grid
+        'model_grid': model_grid,
+        'mol_ids': mol_ids,
     }
     doc = {
         'fields': initial_fields,
@@ -204,7 +207,9 @@ def plot_dfba_process_spatial(results, state, config=None):
     model_grid = state['spatial_dfba']['config']['model_grid']
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_model_grid(model_grid, title='model grid', show_border_coords=True, out_dir='out', filename=f'{filename}_model_grid.png')
-    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
+    plot_species_distributions_to_gif(results, out_dir='out',
+                                      species_to_show=['glucose', 'acetate', 'ammonium', 'formate', 'glutamate', 'dissolved biomass'],
+                                      filename=f'{filename}_video.gif')
 
 # --- Diffusion Advection-----------------------------------------------
 

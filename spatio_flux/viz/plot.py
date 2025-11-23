@@ -248,16 +248,30 @@ def plot_species_distributions_to_gif(
         out_dir=None,
         filename='species_distribution.gif',
         title='',
-        skip_frames=1
+        skip_frames=1,
+        species_to_show=None,
 ):
     # Sort the results as before
     sorted_results = sort_results(results)
-    species_names = [key for key in sorted_results['fields'].keys()]
+
+    # Full list of species available
+    all_species = list(sorted_results['fields'].keys())
+
+    # Determine which species to show
+    if species_to_show is None:
+        species_names = all_species
+    else:
+        # Keep only valid species
+        species_names = [s for s in species_to_show if s in all_species]
+
     n_species = len(species_names)
+    if n_species == 0:
+        raise ValueError("No valid species selected to show.")
+
     times = sorted_results['time']
     n_times = len(times)
 
-    # Compute global min and max for each species
+    # Compute global min and max for each selected species
     global_min_max = {
         species: (
             np.min(np.concatenate([
@@ -270,12 +284,13 @@ def plot_species_distributions_to_gif(
             ]))
         )
         for species in species_names
-        if species in sorted_results['fields']
     }
 
     images = []
+
     for i in range(0, n_times, skip_frames):
         fig, axs = plt.subplots(1, n_species, figsize=(5 * n_species, 4))
+
         if n_species == 1:
             axs = [axs]
 
@@ -283,11 +298,11 @@ def plot_species_distributions_to_gif(
             field_val = sorted_results['fields'][species][i]
 
             if not isinstance(field_val, np.ndarray) or field_val.ndim != 2:
-                # print(f"Skipping {species} at t={times[i]:.2f}: not a 2D array")
-                continue  # skip scalars or 1D arrays
+                continue
 
             ax = axs[j]
             vmin, vmax = global_min_max[species]
+
             img = ax.imshow(field_val, interpolation='nearest', vmin=vmin, vmax=vmax)
             ax.set_title(f'{species} at t = {times[i]:.2f}')
             plt.colorbar(img, ax=ax)
@@ -311,15 +326,15 @@ def plot_species_distributions_to_gif(
     else:
         filepath = filename
 
-    # Create and save the GIF with loop=0 for infinite loop
-    # print(f'saving {filepath}')
+    # Save GIF
     imageio.mimsave(filepath, images, duration=0.5, loop=0)
 
-    # Optionally display the GIF in a Jupyter notebook
+    # Show inline in Jupyter
     with open(filepath, 'rb') as file:
         data = file.read()
         data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
     display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
+
 
 def plot_particles_snapshot(ax, particles, mass_scaling=1.0, xmax=1.0, ymax=1.0, color='b', min_mass=0.01):
     """

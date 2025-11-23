@@ -329,67 +329,107 @@ class DynamicFBA(Process):
         )
         return update
 
+import numpy as np
+from process_bigraph import Process
+# from your_module import load_fba_model, run_fba_update  # adjust import as needed
+
 
 class SpatialDFBA(Process):
     """
     A spatial extension of DynamicFBA using one DFBA instance per bin.
+
+    Expected config structure:
+
+        config['n_bins'] = (nx, ny)
+
+        config['models'] = {
+            'ecoli core': {
+                'model_file': 'textbook',
+                'substrate_update_reactions': {'glucose': 'EX_glc__D_e', ...},
+                'kinetic_params': {'glucose': (Km, Vmax), ...},
+                'bounds': {'EX_o2_e': {'lower': -2, 'upper': {}}, ...},  # optional
+            },
+            'ecoli': {
+                'model_file': 'iAF1260.xml',
+                'substrate_update_reactions': {...},
+                'kinetic_params': {...},
+                # 'bounds': {...}  # optional
+            },
+            ...
+        }
+
+        config['model_grid'] is a list[list[str]] of shape (nx, ny),
+        containing model IDs (keys of config['models']) or '' for empty cells.
     """
 
     config_schema = {
         'n_bins': 'tuple[integer,integer]',
-        'model_file': 'maybe[string]',  # if provided, will fill unspecified model grid locations
-        'models': 'any',  #map[string,map]',        # for multiple models
-        'model_grid': 'list[list[string]]',  #'list[list[string]',  # grid of model IDs
-        'kinetic_params': 'map[tuple[float,float]]',
-        'substrate_update_reactions': 'map[string]',
-        'bounds': 'map[bounds]',
+        'models': {
+            '_type': 'map',    # keys: model IDs ('ecoli core', 'ecoli', etc.)
+            '_value': {
+                'model_file': 'maybe[string]',                 # e.g. 'iAF1260.xml' or 'textbook'
+                'kinetic_params': 'map[tuple[float,float]]',  # e.g. {'glucose': (Km, Vmax), ...}
+                'substrate_update_reactions': 'map[string]',  # e.g. {'glucose': 'EX_glc__D_e', ...}
+                'bounds': 'map[bounds]',                      # optional per-model reaction bounds
+            },
+        },
+        # grid of model IDs (strings matching keys of config['models'], or '' for no model)
+        'model_grid': 'list[list[string]]',
     }
 
+    # ------------------------------------------------------------------ #
+    # Initialization                                                     #
+    # ------------------------------------------------------------------ #
+
     def initialize(self, config):
-        self.n_bins = config['n_bins']
-        self.default_model_file = config.get("model_file")
+        self.n_bins = tuple(config['n_bins'])
 
-        # Load models
-        self.models = {}
+        # --- Load all FBA models and cache their configs ---
+        self.models = {}         # model_id -> loaded FBA model
+        self.model_configs = {}  # model_id -> per-model config
+
         model_configs = config.get('models', {})
-        for model_id, model_config in model_configs.items():
+        if not model_configs:
+            raise ValueError("SpatialDFBA requires a non-empty 'models' mapping in config.")
+
+        for model_id, model_cfg in model_configs.items():
+            if not model_cfg.get('model_file'):
+                raise ValueError(f"Model '{model_id}' must define 'model_file'.")
+
+            model_file = model_cfg['model_file']
+            bounds = model_cfg.get('bounds', {})
+
+            # load FBA model for this model_id
             self.models[model_id] = load_fba_model(
-                model_file=model_config['model_file'],
-                bounds=model_config.get('bounds', {})
+                model_file=model_file,
+                bounds=bounds,
             )
 
-        # Register default model if provided
-        if self.default_model_file and 'default' not in self.models:
-            self.models['default'] = load_fba_model(
-                model_file=self.default_model_file,
-                bounds=config.get('bounds', {})
+            # keep the raw config for this model (used later in run_fba_update)
+            self.model_configs[model_id] = dict(model_cfg)
+
+        # --- Build and validate model_grid ---
+        grid_cfg = config.get('model_grid')
+        if grid_cfg is None:
+            raise ValueError("SpatialDFBA requires 'model_grid' to be set in config.")
+
+        model_grid_array = np.array(grid_cfg, dtype='U64')
+        if model_grid_array.shape != self.n_bins:
+            raise ValueError(
+                f"model_grid shape {model_grid_array.shape} does not match n_bins {self.n_bins}"
             )
 
-        # Initialize model grid
-        if self.default_model_file:
-            # Fill with 'default' model if specified
-            model_grid_array = np.full(self.n_bins, 'default', dtype='U20')
-        else:
-            model_grid_array = np.full(self.n_bins, '', dtype='U20')
-
-        # Update from model_grid_config if provided
-        model_grid_config = config.get('model_grid')
-        if model_grid_config is not None:
-            model_grid_config = np.array(model_grid_config, dtype='U20')
-
-            # Update only where model_grid_config has non-empty strings
-            for index, value in np.ndenumerate(model_grid_config):
-                if value != '':
-                    model_grid_array[index] = value
-
-        # Validate all entries in final model_grid
+        # Validate that all referenced model IDs exist
         unique_ids = set(np.unique(model_grid_array))
-        unique_ids.discard('')
-        unknown_ids = unique_ids - set(self.models.keys())
+        unknown_ids = unique_ids - set(self.models.keys()) - {''}
         if unknown_ids:
             raise ValueError(f"Unknown model IDs in model_grid: {unknown_ids}")
 
         self.model_grid = model_grid_array
+
+    # ------------------------------------------------------------------ #
+    # Ports                                                              #
+    # ------------------------------------------------------------------ #
 
     def inputs(self):
         return {
@@ -398,14 +438,14 @@ class SpatialDFBA(Process):
                 '_value': {
                     '_type': 'positive_array',
                     '_shape': self.n_bins,
-                    '_data': 'float'
+                    '_data': 'float',
                 },
             },
             'biomass': {
                 '_type': 'array',
                 '_shape': self.n_bins,
-                '_data': 'float'
-            }
+                '_data': 'float',
+            },
         }
 
     def outputs(self):
@@ -415,63 +455,90 @@ class SpatialDFBA(Process):
                 '_value': {
                     '_type': 'array',
                     '_shape': self.n_bins,
-                    '_data': 'float'
+                    '_data': 'float',
                 },
             },
             'biomass': {
                 '_type': 'array',
                 '_shape': self.n_bins,
-                '_data': 'float'
-            }
+                '_data': 'float',
+            },
         }
 
-    def update(self, inputs, interval):
-        substrate_fields = inputs['fields']
-        biomass_field = inputs['biomass']
+    # ------------------------------------------------------------------ #
+    # Update                                                             #
+    # ------------------------------------------------------------------ #
+
+    def update(self, state, interval):
+        """
+        For each grid cell (i, j):
+
+        1. Read local substrate concentrations and biomass.
+        2. Look up the model ID from model_grid[i, j].
+        3. Run DFBA using that model and its per-model config.
+        4. Write deltas into delta_fields and delta_biomass.
+        """
+        substrate_fields = state['fields']
+        biomass_field = state['biomass']
         x_bins, y_bins = self.n_bins
 
-        # Initialize outputs with zero arrays
+        # Initialize outputs (deltas)
         delta_fields = {
-            mol_id: np.zeros(self.n_bins)
+            mol_id: np.zeros(self.n_bins, dtype=float)
             for mol_id in substrate_fields
         }
-        delta_biomass = np.zeros(self.n_bins)
+        delta_biomass = np.zeros(self.n_bins, dtype=float)
 
-        # Loop through each grid cell
         for i in range(x_bins):
             for j in range(y_bins):
-                # Extract local substrate concentrations
+                model_id = self.model_grid[i, j]
+                if model_id == '' or model_id is None:
+                    continue  # no DFBA model in this cell
+
+                model = self.models[model_id]
+                model_cfg = self.model_configs[model_id]
+
+                # Local substrate concentrations for this cell
                 local_substrates = {
                     mol_id: substrate_fields[mol_id][i, j]
                     for mol_id in substrate_fields
                 }
-
                 local_biomass = biomass_field[i, j]
 
-                # get the local model from the model gri
-                model_id = self.model_grid[i][j]
-                if model_id == '':
-                    continue  # skip empty cells
-
-                model = self.models[model_id]
+                # Build DFBA config for this specific model
+                # (run_fba_update likely expects these at top level)
+                dfba_config = {
+                    'model_file': model_cfg.get('model_file'),
+                    'kinetic_params': model_cfg.get('kinetic_params', {}),
+                    'substrate_update_reactions': model_cfg.get('substrate_update_reactions', {}),
+                    'bounds': model_cfg.get('bounds', {}),
+                    'model_id': model_id,
+                }
 
                 # Run DFBA update for this bin
+                # (assuming the original positional signature:
+                #  run_fba_update(model, config, substrates, biomass, interval))
                 update = run_fba_update(
                     model,
-                    self.config,
+                    dfba_config,
                     local_substrates,
                     local_biomass,
-                    interval
+                    interval,
                 )
 
-                # Accumulate updates into fields
+                # Accumulate substrate updates
                 for mol_id, delta in update['substrates'].items():
+                    if mol_id not in delta_fields:
+                        # if DFBA produces a new substrate not originally in fields
+                        delta_fields[mol_id] = np.zeros(self.n_bins, dtype=float)
                     delta_fields[mol_id][i, j] = delta
+
+                # Biomass update
                 delta_biomass[i, j] = update['biomass']
 
         return {
             'fields': delta_fields,
-            'biomass': delta_biomass
+            'biomass': delta_biomass,
         }
 
 
