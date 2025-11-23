@@ -30,7 +30,7 @@ from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_s
 )
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes import (
-    get_spatial_many_dfba, get_spatial_dfba_process, get_fields, get_fields_with_schema, get_field_names,
+    get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
     initialize_fields, get_kinetic_particle_composition,
     get_dfba_particle_composition, get_particles_state,
@@ -126,7 +126,7 @@ def get_spatial_many_dfba_doc(core=None, config=None):
     n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
     return {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-        'spatial_dfba': get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
+        'spatial_dFBA': get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 def plot_spatial_many_dfba(results, state, config=None):
@@ -197,14 +197,14 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     }
     doc = {
         'fields': initial_fields,
-        'spatial_dfba': get_spatial_dfba_process(config=spatial_dfba_config)
+        'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dfba_config)
     }
     return doc
 
 def plot_dfba_process_spatial(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'spatial_dfba_process')
-    model_grid = state['spatial_dfba']['config']['model_grid']
+    model_grid = state['spatial_dFBA']['config']['model_grid']
     plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_model_grid(model_grid, title='model grid', show_border_coords=True, out_dir='out', filename=f'{filename}_model_grid.png')
     plot_species_distributions_to_gif(results, out_dir='out',
@@ -261,12 +261,12 @@ def get_comets_doc(core=None, config=None):
         'mol_ids': mol_ids,
         'n_bins': n_bins,
         'models': MODEL_REGISTRY_DFBA,
-        # 'model_grid':  # this will be added by get_spatial_dfba_process
+        # 'model_grid':  # this will be added by get_spatial_dFBA_process
     }
     doc = {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        'spatial_dfba': get_spatial_dfba_process(config=config, model_id=dissolved_model_id),
-        # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+        'spatial_d': get_spatial_dFBA_process(config=config, model_id=dissolved_model_id),
+        # 'spatial_dFBA': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         'diffusion': get_diffusion_advection_process(
             bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
@@ -383,7 +383,7 @@ def get_particle_comets_doc(core=None, config=None):
     fields['dissolved biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
 
     # make the spatial dfba with different models and parameters
-    spatial_dfba_config = {
+    spatial_dFBA_config = {
         'n_bins': n_bins,
         'models': MODEL_REGISTRY_DFBA,
         'mol_ids': mol_ids,
@@ -393,7 +393,7 @@ def get_particle_comets_doc(core=None, config=None):
         'state': {
             'fields': fields,
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields, mass_range=(1E0, 1E1)),
-            'spatial_dfba': get_spatial_dfba_process(config=spatial_dfba_config, model_id=dissolved_model_id),
+            'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
             'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, add_probability=add_probability, advection_rate=particle_advection),
@@ -474,13 +474,13 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # spatial dfba config
-    spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins, 'models': MODEL_REGISTRY_DFBA}
+    spatial_dFBA_config = {'mol_ids': mol_ids, 'n_bins': n_bins, 'models': MODEL_REGISTRY_DFBA}
 
     doc = {
         'state': {
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dfba': get_spatial_dfba_process(config=spatial_dfba_config, model_id=dissolved_model_id),
+            'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
@@ -528,7 +528,7 @@ def get_metacomposite_doc(core=None, config=None):
             'fields': fields,
             'diffusion': get_diffusion_advection_process(
                 bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
@@ -652,7 +652,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
         'state': {
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            # 'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            # 'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds'],
                                                        # particle_radius_range=config['new_particle_radius_range'],
                                                        particle_mass_range=config['new_particle_mass_range'],
@@ -857,7 +857,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {}
     },

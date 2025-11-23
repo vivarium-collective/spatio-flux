@@ -101,9 +101,10 @@ def build_plot_settings(
         ("diffusion",):             COLORS["diffusion"],
 
         # dFBA
-        ("spatial_dfba",):          COLORS["dfba_light"],
-        ("spatial_dfba", "dFBA[0,0]"): COLORS["dfba_base"],
+        ("spatial_dFBA",):          COLORS["dfba_light"],
+        ("spatial_dFBA", "dFBA[0,0]"): COLORS["dfba_base"],
         ("dFBA",):                  COLORS["dfba_base"],
+        ("monod_kinetics",):            COLORS["dfba_base"],
     }
 
     # --- auto-generate field species ---
@@ -131,13 +132,29 @@ def build_plot_settings(
             ('particles', pid, 'local'):    COLORS["local"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_base"],
-            ('particles', pid, 'kinetics'):  COLORS["dfba_base"],
+            ('particles', pid, 'monod_kinetics'):  COLORS["dfba_base"],
             ('particles', pid, 'shape'):  COLORS["newtonian_particles_state"],
             ('particles', pid, 'velocity'):  COLORS["newtonian_particles_state"],
             ('particles', pid, 'inertia'):  COLORS["newtonian_particles_state"],
             ('particles', pid, 'radius'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
+        })
+        fills.update({
+            (pid,):             COLORS["particles_base"],
+            (pid, "id"):       COLORS["particles_base"],
+            (pid, "position"): COLORS["particles_base"],
+            (pid, "mass"):     COLORS["particles_base"],
+            (pid, 'local'):    COLORS["local"],
+            (pid, 'exchange'): COLORS["exchange"],
+            (pid, 'dFBA'):     COLORS["dfba_base"],
+            (pid, 'monod_kinetics'):  COLORS["dfba_base"],
+            (pid, 'shape'):  COLORS["newtonian_particles_state"],
+            (pid, 'velocity'):  COLORS["newtonian_particles_state"],
+            (pid, 'inertia'):  COLORS["newtonian_particles_state"],
+            (pid, 'radius'): COLORS["newtonian_particles_state"],
+            (pid, 'elasticity'): COLORS["newtonian_particles_state"],
+            (pid, 'friction'): COLORS["newtonian_particles_state"],
         })
 
         for species in field_species:

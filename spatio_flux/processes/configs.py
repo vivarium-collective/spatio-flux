@@ -104,7 +104,7 @@ def get_single_dfba_process(
         }
     }
 
-def get_spatial_dfba_process(
+def get_spatial_dFBA_process(
         model_id=None,  # choose default from ['ecoli core', 'ecoli', 'cdiff', 'pputida', 'yeast', 'llactis']
         config=None,
         path=None,
@@ -349,7 +349,7 @@ def get_kinetic_particle_composition(core, config=None):
             '_type': 'map',
             '_value': {
                 # '_inherit': 'particle',
-                'kinetics': {
+                'monod_kinetics': {
                     '_type': 'process',
                     'address': default('string', 'local:MonodKinetics'),
                     'config': default('quote', config),
