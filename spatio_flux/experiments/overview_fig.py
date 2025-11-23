@@ -93,9 +93,7 @@ def plot_all_processes(
             dpi="300",
             show_values=True,
             show_types=True,
-            collapse_redundant_processes={
-                "exclude": [("particle_movement",), ("particle_division",)]
-            },
+            collapse_redundant_processes=False,
             value_char_limit=20,
             type_char_limit=40,
         )
@@ -154,9 +152,7 @@ def plot_all_types(
             dpi="300",
             # show_values=True,
             show_types=True,
-            collapse_redundant_processes={
-                "exclude": [("particle_movement",), ("particle_division",)]
-            },
+            collapse_redundant_processes=False,
             value_char_limit=20,
             type_char_limit=40,
         )

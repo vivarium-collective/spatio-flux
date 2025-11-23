@@ -71,7 +71,7 @@ def get_diffusion_advection_doc(core=None, config=None):
     }
 
 
-def get_particles_doc(core=None, config=None):
+def get_brownian_particles_doc(core=None, config=None):
     return {
         'brownian_movement': {
             '_type': 'process',
@@ -84,6 +84,10 @@ def get_particles_doc(core=None, config=None):
                 'add_probability': 0.0,
             },
         },
+    }
+
+def get_particle_exchange_doc(core=None, config=None):
+    return {
         'particle_exchange': {
             '_type': 'process',
             'address': 'local:ParticleExchange',
@@ -136,7 +140,8 @@ PROCESS_DOCS = {
     'spatial_dfba': get_spatial_dfba_doc,
     'diffusion_advection': get_diffusion_advection_doc,
     'minimal_kinetic': get_minimal_kinetic_doc,
-    'particle_movement': get_particles_doc,
+    'brownian_movement': get_brownian_particles_doc,
+    'particle_exchange': get_particle_exchange_doc,
     'particle_division': get_division_doc,
     'newtonian_particles': get_newtonian_particles_doc,
 }
