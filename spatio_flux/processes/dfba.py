@@ -13,7 +13,7 @@ from pathlib import Path
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process
-from spatio_flux.library.helpers import build_path
+from spatio_flux.library.tools import build_path
 
 # Suppress benign warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")

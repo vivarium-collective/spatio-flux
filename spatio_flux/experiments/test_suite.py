@@ -22,12 +22,13 @@ from process_bigraph import register_types as register_process_types
 from vivarium.vivarium import VivariumTypes
 
 from spatio_flux import register_types
-from spatio_flux.library.helpers import run_composite_document, prepare_output_dir, generate_html_report, \
+from spatio_flux.library.tools import run_composite_document, prepare_output_dir, generate_html_report, \
     reversed_tuple, inverse_tuple
-from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
+from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
     plot_snapshots_grid, fields_and_agents_to_gif,
 )
+from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
@@ -357,7 +358,7 @@ def get_particles_with_fields_doc(core=None, config=None):
 
 # --- Particle-COMETS ----------------------------------------------------
 
-def get_particle_comets_doc(core=None, config=None):
+def get_kinetic_particle_comets_doc(core=None, config=None):
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     dissolved_model_id = 'ecoli core'
@@ -403,7 +404,7 @@ def get_particle_comets_doc(core=None, config=None):
         'composition': get_kinetic_particle_composition(core, config=particle_config)
     }
 
-def plot_particle_comets(results, state, config=None):
+def plot_kinetic_particle_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_comets')
     bounds = state['brownian_movement']['config']['bounds']
@@ -461,56 +462,6 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     config = config or {}
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
-    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
-
-    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    bounds = DEFAULT_BOUNDS
-    n_bins = DEFAULT_BINS  #DEFAULT_BINS
-    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    n_particles = 1
-    add_probability = 0.2
-    particle_advection = DEFAULT_ADVECTION
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-
-    # spatial dfba config
-    spatial_dFBA_config = {'mol_ids': mol_ids, 'n_bins': n_bins, 'models': MODEL_REGISTRY_DFBA}
-
-    doc = {
-        'state': {
-            'fields': fields,
-            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
-            'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
-            'brownian_movement': get_brownian_movement_process(
-                n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-        },
-        'composition': get_dfba_particle_composition(model_file=particle_model_id)
-    }
-    return doc
-
-def plot_particle_dfba_comets(results, state, config=None):
-    config = config or {}
-    filename = config.get('filename', 'particle_dfba_comets')
-    n_bins = state['brownian_movement']['config']['n_bins']
-    bounds = state['brownian_movement']['config']['bounds']
-    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
-                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
-    plot_species_distributions_with_particles_to_gif(
-        results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
-
-
-# --- METACOMPOSITE ---------------------------------------------------
-
-def get_metacomposite_doc(core=None, config=None):
-    config = config or {}
-    particle_model_id = config.get('particle_model_id', 'ecoli core')
-    dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     division_mass_threshold = 3 # config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
@@ -539,9 +490,9 @@ def get_metacomposite_doc(core=None, config=None):
     }
     return doc
 
-def plot_metacomposite(results, state, config=None):
+def plot_particle_dfba_comets(results, state, config=None):
     config = config or {}
-    filename = config.get('filename', 'metacomposite')
+    filename = config.get('filename', 'particle_dfba_comets')
     n_bins = state['brownian_movement']['config']['n_bins']
     bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
@@ -772,7 +723,7 @@ SIMULATIONS = {
         'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
         'doc_func': get_spatial_many_dfba_doc,
         'plot_func': plot_spatial_many_dfba,
-        'time': DEFAULT_RUNTIME_SHORT,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {'model_id': 'ecoli core'},
         'plot_config': {'filename': 'spatial_many_dfba'}
     },
@@ -789,35 +740,40 @@ SIMULATIONS = {
         'doc_func': get_diffusion_process_doc,
         'plot_func': plot_diffusion_process,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {}
+        'config': {},
+        'plot_config': {'filename': 'diffusion_process'}
     },
     'comets': {
         'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
         'doc_func': get_comets_doc,
         'plot_func': plot_comets,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {}
+        'config': {},
+        'plot_config': {'filename': 'comets'}
     },
     'particles': {
         'description': 'This simulation uses Brownian particles with mass moving randomly in space.',
         'doc_func': get_particles_alone_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'filename': 'particles'}
+        'config': {},
+        'plot_config': {'filename': 'particles'}
     },
     'particles_fields': {
         'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
         'doc_func': get_particles_with_fields_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'filename': 'particles_fields'}
+        'config': {},
+        'plot_config': {'filename': 'particles_fields'}
     },
-    'particle_comets': {
+    'kinetic_particle_comets': {
         'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
-        'doc_func': get_particle_comets_doc,
-        'plot_func': plot_particle_comets,
+        'doc_func': get_kinetic_particle_comets_doc,
+        'plot_func': plot_kinetic_particle_comets,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {}
+        'config': {},
+        'plot_config': {'filename': 'kinetic_particle_comets'}
     },
     'particle_dfba_fields': {
         'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
@@ -837,21 +793,13 @@ SIMULATIONS = {
         'config': {},
         'plot_config': {'filename': 'particle_dfba_comets'}
     },
-    'metacomposite': {
-        'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
-        'doc_func': get_metacomposite_doc,
-        'plot_func': plot_metacomposite,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {},
-        'plot_config': {'filename': 'metacomposite'}
-    },
     'newtonian_particles': {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine.',
         'doc_func': get_newtonian_particles_doc,
         'plot_func': plot_newtonian_particles,
         'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
-        'plot_config': {}
+        'plot_config': {'filename': 'newtonian_particles'}
     },
     'newtonian_particle_comets': {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
@@ -859,7 +807,7 @@ SIMULATIONS = {
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
-        'plot_config': {}
+        'plot_config': {'filename': 'newtonian_particle_comets'}
     },
 }
 
@@ -919,6 +867,14 @@ def main():
         sim_info['plot_func'](results, doc.get('state', doc), config=plot_config)
 
         print(f"✅ Completed: {name} in {sim_elapsed:.2f} seconds")
+
+
+
+    # --- Process + Type overview figures ---
+    print("\nGenerating process/type overview figures...")
+    assemble_type_figures(core, outdir=output_dir)
+    assemble_process_figures(core, outdir=output_dir)
+
 
     print(f"\nCompiling HTML report...")
     generate_html_report(

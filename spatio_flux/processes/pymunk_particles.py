@@ -10,7 +10,7 @@ import pymunk
 from process_bigraph import Composite, gather_emitter_results, Process
 from process_bigraph.emitter import emitter_from_wires
 from spatio_flux.plots.multibody_plots import pymunk_simulation_to_gif
-from spatio_flux.library.helpers import get_standard_emitter
+from spatio_flux.library.tools import get_standard_emitter
 
 
 def daughter_positions(parent_state, *, gap=1.0, daughter_length=None, daughter_radius=None):

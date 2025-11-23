@@ -9,7 +9,7 @@ from process_bigraph import ProcessTypes
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
 from spatio_flux.processes.particles import BrownianMovement
-from spatio_flux.viz.plot import plot_species_distributions_with_particles_to_gif
+from spatio_flux.plots.plot import plot_species_distributions_with_particles_to_gif
 
 
 def apply_non_negative(schema, current, update, top_schema, top_state, path, core):

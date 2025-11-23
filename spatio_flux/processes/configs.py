@@ -2,7 +2,7 @@ import numpy as np
 from bigraph_schema import deep_merge
 
 from process_bigraph import default
-from spatio_flux.library.helpers import initialize_fields, build_path
+from spatio_flux.library.tools import initialize_fields, build_path
 from spatio_flux.processes import MonodKinetics
 from spatio_flux.processes.particles import BrownianMovement
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA

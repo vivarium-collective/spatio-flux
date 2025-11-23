@@ -1,9 +1,6 @@
 # spatio_flux/experiments/overview_fig.py
 
 from typing import List, Optional, Sequence
-import math
-from PIL import Image, UnidentifiedImageError
-
 from pathlib import Path
 from typing import Optional, Sequence
 from PIL import Image, ImageDraw, ImageFont
@@ -15,7 +12,7 @@ from bigraph_viz import plot_bigraph
 
 from spatio_flux import register_types, SPATIO_FLUX_TYPES
 from spatio_flux.processes import PROCESS_DOCS
-from spatio_flux.library.colors import build_plot_settings
+from spatio_flux.plots.colors import build_plot_settings
 
 
 # ---------------------------------------------------------------------
@@ -54,7 +51,7 @@ def _force_white_background(im: Image.Image) -> Image.Image:
 
 
 def plot_all_processes(
-    output: str | Path = "out",
+    outdir: str | Path = "out",
     core: Optional[object] = None,
 ) -> List[Path]:
     """
@@ -62,7 +59,7 @@ def plot_all_processes(
 
     Parameters
     ----------
-    output : str or Path
+    outdir : str or Path
         Directory where the PNGs will be written.
     core : object or None
         Existing type core. If None, a new Vivarium core is created and the
@@ -73,7 +70,7 @@ def plot_all_processes(
     List[Path]
         List of paths to the generated PNG files.
     """
-    outdir = Path(output)
+    outdir = Path(outdir)
     _ensure_outdir(outdir)
 
     if core is None:
@@ -136,7 +133,7 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
 
 
 def plot_all_types(
-    output: str | Path = "out",
+    outdir: str | Path = "out",
     core: Optional[object] = None,
 ) -> List[Path]:
     """
@@ -144,7 +141,7 @@ def plot_all_types(
 
     Parameters
     ----------
-    output : str or Path
+    outdir : str or Path
         Directory where the PNGs will be written.
     core : object or None
         Existing type core. If None, a new Vivarium core is created and the
@@ -155,7 +152,7 @@ def plot_all_types(
     List[Path]
         List of paths to the generated PNG files.
     """
-    outdir = Path(output)
+    outdir = Path(outdir)
     _ensure_outdir(outdir)
 
     if core is None:
@@ -200,7 +197,7 @@ def plot_all_types(
 # ---------------------------------------------------------------------
 
 def assemble_image_grid(
-    output: str | Path,
+    outdir: str | Path,
     image_paths: Sequence[Path],
     *,
     title: str = "",
@@ -222,7 +219,7 @@ def assemble_image_grid(
 
     If n_cols and n_rows are both None, creates a single-row horizontal strip.
     """
-    outdir = Path(output)
+    outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
     image_paths = list(image_paths)
@@ -331,20 +328,36 @@ def assemble_image_grid(
     print(f"Saved image grid to: {out_path}")
     return out_path
 
-def assemble_process_figure(
-    output="out",
+
+# ---------------------------------------------------------------------
+# High-level helpers: generate + assemble
+# ---------------------------------------------------------------------
+
+def assemble_process_figures(
+    core,
+    outdir = "out",
     *,
-    target_height=350,
-    n_cols=None,
-    n_rows=None,
-    col_gap_px=40,
-    row_gap_px=60,
-    save_name="process_overview.png",
-):
-    image_paths = sorted(Path(output).glob("*_process.png"))
+    target_height: int = 350,
+    n_cols: Optional[int] = None,
+    n_rows: Optional[int] = 2,
+    col_gap_px: int = 40,
+    row_gap_px: int = 60,
+    save_name: str = "process_overview.png",
+) -> Path:
+    """
+    Generate all *_process.png bigraph images and assemble them
+    into a single overview figure.
+    """
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    print("Generating process figures...")
+    proc_paths = plot_all_processes(outdir, core=core)
+    print(f"Generated {len(proc_paths)} process figs in {outdir}")
+
     return assemble_image_grid(
-        output,
-        image_paths,
+        outdir,
+        proc_paths,
         # title="Processes",
         target_height=target_height,
         n_cols=n_cols,
@@ -354,20 +367,32 @@ def assemble_process_figure(
         save_name=save_name,
     )
 
-def assemble_type_figure(
-    output="out",
+
+def assemble_type_figures(
+    core,
+    outdir="out",
     *,
-    target_height=300,
-    n_cols=None,
-    n_rows=None,
-    col_gap_px=0,
-    row_gap_px=20,
-    save_name="type_overview.png",
-):
-    image_paths = sorted(Path(output).glob("*_type.png"))
+    target_height: int = 300,
+    n_cols: Optional[int] = None,
+    n_rows: Optional[int] = None,
+    col_gap_px: int = 0,
+    row_gap_px: int = 20,
+    save_name: str = "type_overview.png",
+) -> Path:
+    """
+    Generate all *_type.png bigraph images and assemble them
+    into a single overview figure.
+    """
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    print("Generating type figures...")
+    type_paths = plot_all_types(outdir, core=core)
+    print(f"Generated {len(type_paths)} type figs in {outdir}")
+
     return assemble_image_grid(
-        output,
-        image_paths,
+        outdir,
+        type_paths,
         # title="Types",
         target_height=target_height,
         n_cols=n_cols,
@@ -378,20 +403,10 @@ def assemble_type_figure(
     )
 
 
-# ---------------------------------------------------------------------
-# Optional: tiny CLI for quick manual use
-# ---------------------------------------------------------------------
-
+# Optional CLI for manual testing
 if __name__ == "__main__":
     out = Path("out")
     core = _build_core()
 
-    print("Generating process figures...")
-    proc_paths = plot_all_processes(out, core=core)
-    print(f"Generated {len(proc_paths)} process figs in {out}")
-    assemble_process_figure(out, n_rows=2)
-
-    print("Generating type figures...")
-    type_paths = plot_all_types(out, core=core)
-    print(f"Generated {len(type_paths)} type figs in {out}")
-    assemble_type_figure(out)
+    assemble_process_figures(core, outdir=out, n_rows=2)
+    assemble_type_figures(core, outdir=out)
