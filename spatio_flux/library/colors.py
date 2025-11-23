@@ -137,7 +137,7 @@ def build_plot_settings(
             ('particles', pid, 'inertia'):  COLORS["newtonian_particles_state"],
             ('particles', pid, 'radius'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
-
+            ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
         })
 
         for species in field_species:

@@ -1,11 +1,14 @@
 import os
 import io
 import base64
+import random
 import numpy as np
+import imageio.v2 as imageio
 import matplotlib.pyplot as plt
-from IPython.display import display, HTML
-from imageio import v2 as imageio
+from IPython.display import HTML, display
+from matplotlib.colors import hsv_to_rgb
 from matplotlib.gridspec import GridSpec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def _evenly_spaced_indices(n_items, n_pick):
@@ -705,4 +708,254 @@ def plot_snapshots_grid(
     fig.savefig(path, dpi=150, bbox_inches='tight')
     plt.close(fig)
     return path
+
+
+
+# --------- phylogeny coloring ---------
+def _mother_id(agent_id: str):
+    return agent_id[:-2] if len(agent_id) >= 2 and agent_id[-2] == '_' and agent_id[-1] in ('0', '1') else None
+
+def _mutate_hsv(h, s, v, rng, dh=0.05, ds=0.03, dv=0.03):
+    h = (h + rng.uniform(-dh, dh)) % 1.0
+    s = min(1.0, max(0.0, s + rng.uniform(-ds, ds)))
+    v = min(1.0, max(0.0, v + rng.uniform(-dv, dv)))
+    return h, s, v
+
+def build_phylogeny_colors(frames, agents_key='agents', seed=None, base_s=0.70, base_v=0.95, dh=0.05, ds=0.03, dv=0.03):
+    rng, hsv_map = random.Random(seed), {}
+    for step in frames:
+        for aid in (step.get(agents_key) or {}).keys():
+            if aid in hsv_map: continue
+            mom = _mother_id(aid)
+            if mom in hsv_map:
+                hsv_map[aid] = _mutate_hsv(*hsv_map[mom], rng, dh, ds, dv)
+            else:
+                hsv_map[aid] = (rng.random(), base_s, base_v)
+    return {aid: tuple(hsv_to_rgb(hsv)) for aid, hsv in hsv_map.items()}
+
+
+# --------- combined fields + agents GIF ---------
+
+def fields_and_agents_to_gif(
+    data,
+    config,
+    *,
+    agents_key='agents',
+    fields_key='fields',
+    filename='simulation_with_fields.gif',
+    out_dir='out',
+    skip_frames=1,
+    title='',
+    figure_size_inches=(6, 6),
+    dpi=90,
+    show_time_title=False,
+    # coloring:
+    color_by_phylogeny=False,
+    color_seed=None,
+    base_s=0.70, base_v=0.95,
+    mutate_dh=0.05, mutate_ds=0.03, mutate_dv=0.03,
+    default_rgb=(0.2, 0.6, 0.9),
+    uniform_color=(0.2, 0.6, 0.9),  # set None to disable uniforming
+):
+    """
+    Merge of:
+      - plot_species_distributions_with_particles_to_gif (fields done right)
+      - pymunk_simulation_to_gif       (particles/agents config & coloring)
+
+    Assumes `data` is an iterable of frames, where each `frame` is a dict like:
+        {
+            'time': <float> (optional),
+            'fields': {
+                'species_1': 2D np.array,
+                'species_2': 2D np.array,
+                ...
+            },
+            'agents': {
+                agent_id_1: {'position': (x, y), 'radius': r, ...},
+                agent_id_2: {...},
+                ...
+            }
+        }
+
+    `config` must contain:
+        config['bounds'] = (xmax, ymax)
+    """
+
+    # Make list of frames & downsample
+    if isinstance(data, (list, tuple)):
+        frames = data[::max(1, int(skip_frames))]
+    else:
+        frames = list(data)[::max(1, int(skip_frames))]
+
+    if not frames:
+        raise ValueError("No frames to render.")
+
+    xmax, ymax = config['bounds']
+    extent = [0, xmax, 0, ymax]
+
+    # --- Collect species & global min/max over all frames (for consistent colorbars) ---
+    first_fields = None
+    for step in frames:
+        if fields_key in step and step[fields_key]:
+            first_fields = step[fields_key]
+            break
+
+    if first_fields is None:
+        species_names = []
+    else:
+        species_names = list(first_fields.keys())
+
+    global_min_max = {}
+    for species in species_names:
+        vals = []
+        for step in frames:
+            fields = step.get(fields_key, {})
+            if species in fields:
+                arr = np.asarray(fields[species])
+                vals.append(arr.ravel())
+        if vals:
+            cat = np.concatenate(vals)
+            global_min_max[species] = (np.nanmin(cat), np.nanmax(cat))
+        else:
+            global_min_max[species] = (0.0, 1.0)
+
+    # --- Color policy (mirrors pymunk_simulation_to_gif idea) ---
+    if color_by_phylogeny:
+        # Assumes you have a helper similar to your existing one.
+        rgb_colors = build_phylogeny_colors(
+            frames, agents_key=agents_key, seed=color_seed,
+            base_s=base_s, base_v=base_v,
+            dh=mutate_dh, ds=mutate_ds, dv=mutate_dv,
+        )
+
+        def _color(agent_id):
+            return rgb_colors.get(agent_id, default_rgb)
+    else:
+        def _color(agent_id):
+            return uniform_color if uniform_color is not None else default_rgb
+
+    # --- Helper to draw agents/particles on an axis ---
+    def draw_agents_on_axes(ax, agents):
+        """
+        agents can be:
+            - dict: {agent_id: agent_dict}
+            - list: [agent_dict, ...]
+        agent_dict is expected to have:
+            - 'position': (x, y)
+            - 'radius': r
+            - optional 'id'
+        """
+        if isinstance(agents, dict):
+            iterable = agents.items()
+        else:
+            iterable = enumerate(agents)
+
+        for key, agent in iterable:
+            aid = agent.get('id', key)
+            x, y = agent.get('position', (None, None))
+            if x is None or y is None:
+                continue
+            r = agent.get('radius', 1.0)
+
+            rgb = _color(aid)
+            circle = plt.Circle((x, y), r, color=rgb, alpha=0.9)
+            ax.add_patch(circle)
+
+    # --- Render each frame with fields + agents ---
+    images = []
+
+    for idx, step in enumerate(frames):
+        fields = step.get(fields_key, {})
+        agents = step.get(agents_key, {})
+
+        n_species = len(species_names)
+
+        # Create subplots: 1 axis if no species; otherwise 1 per species
+        fig, axs = plt.subplots(
+            1, max(1, n_species),
+            figsize=figure_size_inches,
+            dpi=dpi,
+        )
+
+        # Normalize axs to list
+        if not isinstance(axs, np.ndarray):
+            axs = np.array([axs])
+        axs = axs.flatten()
+
+        if n_species == 0:
+            ax = axs[0]
+            ax.set_xlim(0, xmax)
+            ax.set_ylim(0, ymax)
+            ax.set_aspect('equal')
+            if show_time_title:
+                t = step.get('time', idx)
+                ax.set_title(f'Particles at t = {t:.2f}')
+            ax.set_xlabel('x')
+            ax.set_ylabel('y')
+
+            draw_agents_on_axes(ax, agents)
+
+        else:
+            for j, species in enumerate(species_names):
+                ax = axs[j]
+                ax.set_xlim(0, xmax)
+                ax.set_ylim(0, ymax)
+                ax.set_aspect('equal')
+
+                if species in fields:
+                    # Match orientation behavior from your original fields function
+                    raw_field = np.asarray(fields[species])
+                    field_img = np.fliplr(np.rot90(raw_field, k=3))
+
+                    vmin, vmax = global_min_max[species]
+                    im = ax.imshow(
+                        field_img,
+                        interpolation='nearest',
+                        cmap='viridis',
+                        vmin=vmin,
+                        vmax=vmax,
+                        extent=extent,
+                        origin='lower',
+                    )
+
+                    # --- colorbar same height as subplot ---
+                    divider = make_axes_locatable(ax)
+                    cax = divider.append_axes("right", size="5%", pad=0.05)
+                    fig.colorbar(im, cax=cax)
+
+                if show_time_title:
+                    t = step.get('time', idx)
+                    ax.set_title(f'{species} at t = {t:.2f}')
+                else:
+                    ax.set_title(species)
+
+                draw_agents_on_axes(ax, agents)
+
+        fig.suptitle(title, fontsize=16)
+        plt.subplots_adjust(wspace=0.1, hspace=0.1)
+        plt.tight_layout(pad=0.1)
+
+        # Save to buffer and append to GIF frames
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=dpi)
+        buf.seek(0)
+        images.append(imageio.imread(buf))
+        buf.close()
+        plt.close(fig)
+
+    # --- Save GIF ---
+    os.makedirs(out_dir, exist_ok=True)
+    if not filename.lower().endswith('.gif'):
+        filename = filename + '.gif'
+    filepath = os.path.join(out_dir, filename)
+
+    imageio.mimsave(filepath, images, duration=0.5, loop=0)
+
+    # Inline display for Jupyter
+    with open(filepath, 'rb') as f:
+        data_bytes = f.read()
+    data_url = 'data:image/gif;base64,' + base64.b64encode(data_bytes).decode()
+    display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
+
+    return filepath
 

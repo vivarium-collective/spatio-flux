@@ -26,7 +26,7 @@ from spatio_flux.library.helpers import run_composite_document, prepare_output_d
     reversed_tuple, inverse_tuple
 from spatio_flux.viz.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
-    plot_snapshots_grid,
+    plot_snapshots_grid, fields_and_agents_to_gif,
 )
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes import (
@@ -210,7 +210,7 @@ def plot_dfba_process_spatial(results, state, config=None):
 
 def get_diffusion_process_doc(core=None, config=None):
     mol_ids = ['glucose', 'dissolved biomass']
-    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': reversed_tuple(DEFAULT_ADVECTION)}
     diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'dissolved biomass': DEFAULT_DIFFUSION/10}
     n_bins = reversed_tuple(DEFAULT_BINS)
     bounds = reversed_tuple(DEFAULT_BOUNDS)
@@ -517,7 +517,7 @@ def get_metacomposite_doc(core=None, config=None):
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 4
     add_probability = 0.3
-    particle_advection = (0, -0.2) #DEFAULT_ADVECTION
+    particle_advection = (0, -0.2)
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     doc = {
@@ -617,11 +617,11 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     config = config or {}
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
-    division_mass_threshold = 3 # config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+    division_mass_threshold = 0.1
 
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    bounds = DEFAULT_BOUNDS
+    bounds = tuple(x * 10 for x in DEFAULT_BOUNDS)
     n_bins = DEFAULT_BINS
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 4
@@ -641,23 +641,20 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
         'add_probability': 0.3,
         # 'new_particle_radius_range': (0.05, 0.2),
         'new_particle_mass_range': (0.001, 0.01),
-        'jitter_per_second': 0.3,
-        'damping_per_second': .998,
+        'jitter_per_second': 0.1,
+        'damping_per_second': .995,
     }
 
     doc = {
         'state': {
             'fields': fields,
-            # 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             # 'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
-            # 'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds'],
                                                        # particle_radius_range=config['new_particle_radius_range'],
                                                        particle_mass_range=config['new_particle_mass_range'],
                                                        ),
             'newtonian_particles': get_newtonian_particles_process(config=config),
-            # 'brownian_movement': get_brownian_movement_process(
-            #     n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
@@ -669,15 +666,17 @@ def plot_newtonian_particle_comets(results, state, config=None):
     filename = config.get('filename', 'newtonian_particle_comets')
     pymunk_config = state['newtonian_particles']['config']
     bounds = state['newtonian_particles']['config']['bounds']
-    pymunk_simulation_to_gif(results,
-                             filename=f'{filename}_video.gif',
-                             config=pymunk_config,
-                             # color_by_phylogeny=True,
-                             agents_key='particles'
-                             )
-    plot_species_distributions_with_particles_to_gif(
-        results, bounds=bounds, out_dir='out', filename=f'{filename}_fields_video.gif')
-
+    fields_and_agents_to_gif(
+        data=results,
+        config=pymunk_config,
+        agents_key='particles',
+        fields_key='fields',
+        filename=f'{filename}_video.gif',
+        out_dir='out',
+        # skip_frames=1,
+        title='Fields + particles',
+        figure_size_inches=(10, 6),
+    )
 
 # ==================================================
 # Functions for running tests and generating reports
@@ -686,8 +685,8 @@ def plot_newtonian_particle_comets(results, state, config=None):
 DEFAULT_BOUNDS = (5.0, 10.0)
 DEFAULT_BINS = (10, 20)
 DEFAULT_BINS_SMALL = (2, 4)
-DEFAULT_ADVECTION = (0, -0.1)
-DEFAULT_DIFFUSION = 0.1
+DEFAULT_ADVECTION = (0, 0.2)
+DEFAULT_DIFFUSION = 0.5
 DEFAULT_ADD_PROBABILITY = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
@@ -848,7 +847,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONGER,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {}
     },
