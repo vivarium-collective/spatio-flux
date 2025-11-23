@@ -197,7 +197,7 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     }
     doc = {
         'fields': initial_fields,
-        'spatial_dfba': get_spatial_dfba_process(model_id=None, config=spatial_dfba_config)
+        'spatial_dfba': get_spatial_dfba_process(config=spatial_dfba_config)
     }
     return doc
 
@@ -257,20 +257,15 @@ def get_comets_doc(core=None, config=None):
     biomass_field[0:1, int(bins_x/4):int(3*bins_x/4)] = 0.1
     initial_fields = {'dissolved biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
 
-    # place models on the grid
-    model_grid = np.zeros(n_bins, dtype='U20')
-    model_grid[:] = 'ecoli core'
-    model_grid = model_grid.tolist()
-
     config = {
         'mol_ids': mol_ids,
         'n_bins': n_bins,
         'models': MODEL_REGISTRY_DFBA,
-        'model_grid': model_grid
+        # 'model_grid':  # this will be added by get_spatial_dfba_process
     }
     doc = {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=config),
+        'spatial_dfba': get_spatial_dfba_process(config=config, model_id=dissolved_model_id),
         # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         'diffusion': get_diffusion_advection_process(
             bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
@@ -387,15 +382,18 @@ def get_particle_comets_doc(core=None, config=None):
     fields['dissolved biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
     fields['dissolved biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
 
-    # spatial dfba config
-    spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
+    # make the spatial dfba with different models and parameters
+    spatial_dfba_config = {
+        'n_bins': n_bins,
+        'models': MODEL_REGISTRY_DFBA,
+        'mol_ids': mol_ids,
+    }
 
     return {
         'state': {
             'fields': fields,
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds, n_bins=n_bins, fields=fields, mass_range=(1E0, 1E1)),
-            'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
-            # 'spatial_dfba': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+            'spatial_dfba': get_spatial_dfba_process(config=spatial_dfba_config, model_id=dissolved_model_id),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
             'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, add_probability=add_probability, advection_rate=particle_advection),
@@ -476,13 +474,13 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # spatial dfba config
-    spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins}
+    spatial_dfba_config = {'mol_ids': mol_ids, 'n_bins': n_bins, 'models': MODEL_REGISTRY_DFBA}
 
     doc = {
         'state': {
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dfba': get_spatial_dfba_process(model_id=dissolved_model_id, config=spatial_dfba_config),
+            'spatial_dfba': get_spatial_dfba_process(config=spatial_dfba_config, model_id=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'brownian_movement': get_brownian_movement_process(
                 n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
@@ -671,6 +669,13 @@ def plot_newtonian_particle_comets(results, state, config=None):
     filename = config.get('filename', 'newtonian_particle_comets')
     pymunk_config = state['newtonian_particles']['config']
     bounds = state['newtonian_particles']['config']['bounds']
+    n_bins = state['diffusion']['config']['n_bins']
+
+    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
+                     coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
+                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+
     fields_and_agents_to_gif(
         data=results,
         config=pymunk_config,

@@ -109,6 +109,10 @@ def get_spatial_dfba_process(
         config=None,
         path=None,
 ):
+    """
+    optional model_id if no 'model_grid' in config
+    2D grid of DFBA processes
+    """
     assert 'n_bins' in config, "Configuration must include 'n_bins' for spatial DFBA."
 
     path = path or ['fields']
@@ -119,12 +123,8 @@ def get_spatial_dfba_process(
     if biomass_id in mol_ids:
         mol_ids.remove(biomass_id)
 
-    if model_id in MODEL_REGISTRY_DFBA:
-        dfba_config = MODEL_REGISTRY_DFBA.get(model_id, {})
-    else:
-        dfba_config = get_dfba_config(model_file=model_id)
-
-    config = deep_merge(config, dfba_config)
+    if model_id and 'model_grid' not in config:
+        config['model_grid'] = [[model_id for _ in range(config['n_bins'][1])] for _ in range(config['n_bins'][0])]
 
     return {
         "_type": "process",
