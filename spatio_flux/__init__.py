@@ -70,6 +70,9 @@ particle_type = {
     'shape': 'enum[circle,segment]',
     'velocity': 'tuple[set_float,set_float]',
     'inertia': 'set_float',
+    'friction': 'set_float',
+    'elasticity': 'set_float',
+    'radius': 'set_float',
 }
 
 boundary_side = 'enum[left,right,top,bottom]'

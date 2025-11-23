@@ -553,7 +553,7 @@ def plot_metacomposite(results, state, config=None):
 
 # ---- PYMUNK PARTICLES ------------------------------------------------
 
-def get_newtonian_particles_wiring_state(config=None):
+def get_newtonian_particles_process(config=None):
     return {
         '_type': 'process',
         'address': 'local:PymunkParticleMovement',
@@ -583,7 +583,7 @@ def get_newtonian_particles_doc(core=None, config=None):
 
 
     processes = {
-        'newtonian_particles': get_newtonian_particles_wiring_state(config=config),
+        'newtonian_particles': get_newtonian_particles_process(config=config),
     }
 
     initial_state = {'particles': get_newtonian_particles_state(
@@ -639,7 +639,8 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
         'bounds': bounds,  # (5.0, 10.0) is much smaller
         'boundary_to_remove': [],  # ['right', 'left'],
         'add_probability': 0.3,
-        'new_particle_radius_range': (0.05, 0.2),
+        # 'new_particle_radius_range': (0.05, 0.2),
+        'new_particle_mass_range': (0.001, 0.01),
         'jitter_per_second': 0.3,
         'damping_per_second': .998,
     }
@@ -647,13 +648,14 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     doc = {
         'state': {
             'fields': fields,
-            'diffusion': get_diffusion_advection_process(
-                bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            # 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
+            # 'spatial_dfba': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             # 'particles': get_particles_state(n_particles=n_particles, n_bins=n_bins, bounds=bounds, fields=fields),
             'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds'],
-                                                       particle_radius_range=config['new_particle_radius_range']),
-            'newtonian_particles': get_newtonian_particles_wiring_state(config=config),
+                                                       # particle_radius_range=config['new_particle_radius_range'],
+                                                       particle_mass_range=config['new_particle_mass_range'],
+                                                       ),
+            'newtonian_particles': get_newtonian_particles_process(config=config),
             # 'brownian_movement': get_brownian_movement_process(
             #     n_bins=n_bins, bounds=bounds, advection_rate=particle_advection, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
@@ -846,7 +848,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_SHORT,
+        'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {}
     },

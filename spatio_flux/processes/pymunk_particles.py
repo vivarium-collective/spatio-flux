@@ -595,23 +595,58 @@ def build_particle(
     velocity=None, speed_range=(0.0, 0.0),
     # geometry / mass (circle)
     radius=None, mass=None, density=0.015,
-    radius_range=(1.0, 10.0)
+    radius_range=(1.0, 10.0),
+    mass_range=None,
 ):
-    # derive geometry/mass if needed
-    if radius is None and mass is None:
-        radius = rng.uniform(*radius_range)
-    if mass is None:
-        mass = circle_mass_from_radius(radius, density)
-    if radius is None:
+    """
+    radius_range and mass_range are mutually exclusive.
+    If mass_range is provided, it takes priority.
+    """
+
+    # ---------------------------
+    # Validate mutually exclusive inputs
+    # ---------------------------
+    if mass_range is not None and radius_range is not None:
+        raise ValueError(
+            "Only one of radius_range or mass_range may be provided. "
+            "To use mass_range, set radius_range=None."
+        )
+
+    # ---------------------------
+    # Derive geometry/mass
+    # ---------------------------
+
+    # 1. mass_range has priority
+    if mass is None and mass_range is not None:
+        mass = rng.uniform(*mass_range)
         radius = circle_radius_from_mass(mass, density)
 
-    # position
+    # 2. Otherwise fall back to radius_range
+    elif radius is None and mass is None:
+        # Use normal radius_range only if mass_range was not provided
+        radius = rng.uniform(*radius_range)
+        mass = circle_mass_from_radius(radius, density)
+
+    # 3. If radius given but mass missing
+    elif radius is not None and mass is None:
+        mass = circle_mass_from_radius(radius, density)
+
+    # 4. If mass given but radius missing
+    elif mass is not None and radius is None:
+        radius = circle_radius_from_mass(mass, density)
+
+    # At this point both radius and mass must be defined
+    # ---------------------------
+    # Position sampling
+    # ---------------------------
     if x is None or y is None:
         r = radius
         x = rng.uniform(margin + r, bounds[0] - (margin + r))
         y = rng.uniform(margin + r, bounds[1] - (margin + r))
 
-    # velocity
+    # ---------------------------
+    # Velocity sampling
+    # ---------------------------
     if velocity is None:
         speed = rng.uniform(*speed_range)
         theta = rng.uniform(0, 2 * math.pi)
@@ -619,6 +654,9 @@ def build_particle(
     else:
         vx, vy = velocity
 
+    # ---------------------------
+    # Return particle
+    # ---------------------------
     return make_id(id_prefix), {
         'shape': 'circle',
         'mass': float(mass),
@@ -754,7 +792,8 @@ def get_newtonian_particles_state(
     seed=None,
     elasticity=0.0,
     # particle defaults
-    particle_radius_range=(1.0, 10.0),
+    particle_radius_range=None,
+    particle_mass_range=None,
     particle_mass_density=0.015,
     particle_speed_range=(0.0, 0.0),
     # placement
@@ -763,6 +802,11 @@ def get_newtonian_particles_state(
     min_gap=2.0,
     max_tries_per_circle=200,
 ):
+    """
+     particle_radius_range and particle_mass_range are mutually exclusive.
+     If particle_mass_range is provided, it takes priority.
+     """
+
     rng = make_rng(seed)
 
     particles = place_circles(
@@ -776,6 +820,7 @@ def get_newtonian_particles_state(
             density=particle_mass_density,
             speed_range=particle_speed_range,
             radius_range=particle_radius_range,
+            mass_range=particle_mass_range,
             # you can override radius/mass/velocity here if desired
             # radius=..., mass=..., velocity=(vx, vy), x=..., y=...
         )
