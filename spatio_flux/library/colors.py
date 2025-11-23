@@ -100,6 +100,7 @@ def build_plot_settings(
 
         # containers
         ("fields",):                COLORS["fields"],
+        ("concentration",):         COLORS["fields"],
         ("diffusion",):             COLORS["diffusion"],
 
         # dFBA

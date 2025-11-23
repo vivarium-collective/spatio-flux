@@ -84,6 +84,7 @@ kinetics_type = {
     'role': 'substrate_role'}
 reaction_type = 'map[kinetics]'
 
+# fields_type = 'map[concentration]'
 fields_type =  {
                 '_type': 'map',
                 '_value': {

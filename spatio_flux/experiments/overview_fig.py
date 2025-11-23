@@ -36,24 +36,17 @@ def _build_core():
     return core
 
 
-def _load_rgba(path: Path) -> Image.Image | None:
-    """Load an image as RGBA or return None if missing/unreadable."""
-    try:
-        with Image.open(path) as im:
-            return im.convert("RGBA")
-    except (FileNotFoundError, UnidentifiedImageError, OSError) as e:
-        print(f"⚠ Skipping missing/unreadable image: {path} ({e.__class__.__name__})")
-        return None
+def _force_white_background(im: Image.Image) -> Image.Image:
+    """
+    Convert transparent/partially transparent pixels to pure white.
+    Eliminates gray halos from alpha edges.
+    """
+    if im.mode != "RGBA":
+        im = im.convert("RGBA")
 
-
-def _grid_shape(n_items: int, max_cols: int) -> tuple[int, int]:
-    """Return (rows, cols) with cols in [1..max_cols] and rows >= 0 (may be 0 if n_items==0)."""
-    if n_items <= 0:
-        return 0, 0
-    cols = min(max_cols, n_items)
-    rows = math.ceil(n_items / cols)
-    return rows, cols
-
+    bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
+    bg.paste(im, mask=im.split()[3])  # paste using alpha channel as mask
+    return bg.convert("RGB")  # flatten to opaque RGB
 
 # ---------------------------------------------------------------------
 # Public API: generate individual figs
@@ -134,7 +127,11 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
     'fields': {
         '_type': 'fields',
         'mol_id': [[0.1, 0.2], [0.3, 0.4]],
-    }
+    },
+    'concentration': {
+        '_type': 'concentration',
+        '_value': 42.0,
+    },
 }
 
 
@@ -221,6 +218,7 @@ def assemble_image_grid(
       - Resizes to target_height
       - Supports explicit rows/columns
       - Tight pixel-level spacing (no subplot whitespace)
+      - Flattens all images onto a pure white background (no gray seams)
 
     If n_cols and n_rows are both None, creates a single-row horizontal strip.
     """
@@ -232,10 +230,23 @@ def assemble_image_grid(
         print("⚠ No images found to assemble.")
         return outdir / save_name
 
+    def _flatten_to_white(im: Image.Image) -> Image.Image:
+        """
+        Convert transparent / semi-transparent pixels to pure white.
+        Eliminates gray halos and non-white background artifacts.
+        """
+        if im.mode != "RGBA":
+            im = im.convert("RGBA")
+        bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
+        bg.paste(im, (0, 0), im)
+        return bg.convert("RGB")
+
     # ---- Load and resize images to common height ----
     images = []
     for p in image_paths:
-        im = Image.open(p).convert("RGBA")
+        im = Image.open(p)
+        im = _flatten_to_white(im)   # <-- force pure white background
+
         w, h = im.size
         if h == 0:
             continue
@@ -276,8 +287,8 @@ def assemble_image_grid(
     grid_height = n_rows * cell_h + row_gap_px * (n_rows - 1)
     total_height = margin_px * 2 + title_height + grid_height
 
-    # ---- Create the canvas ----
-    canvas = Image.new("RGBA", (total_width, total_height), (255, 255, 255, 255))
+    # ---- Create the canvas (pure white RGB) ----
+    canvas = Image.new("RGB", (total_width, total_height), (255, 255, 255))
     draw = ImageDraw.Draw(canvas)
 
     # ---- Optional title ----
@@ -294,7 +305,7 @@ def assemble_image_grid(
         title_x = (total_width - text_w) // 2
         title_y = margin_px + (title_height - text_h) // 2
 
-        draw.text((title_x, title_y), title, font=font, fill=(0, 0, 0, 255))
+        draw.text((title_x, title_y), title, font=font, fill=(0, 0, 0))
 
     # ---- Paste images in the grid ----
     start_y = margin_px + title_height
@@ -311,14 +322,14 @@ def assemble_image_grid(
             paste_x = cell_x + (cell_w - im.width) // 2
             paste_y = cell_y + (cell_h - im.height) // 2
 
-            canvas.paste(im, (paste_x, paste_y), im)
+            # No mask: images are now fully opaque with white background
+            canvas.paste(im, (paste_x, paste_y))
             idx += 1
 
     out_path = outdir / save_name
     canvas.save(out_path)
     print(f"Saved image grid to: {out_path}")
     return out_path
-
 
 def assemble_process_figure(
     output="out",
@@ -334,7 +345,7 @@ def assemble_process_figure(
     return assemble_image_grid(
         output,
         image_paths,
-        title="Processes",
+        # title="Processes",
         target_height=target_height,
         n_cols=n_cols,
         n_rows=n_rows,
@@ -357,7 +368,7 @@ def assemble_type_figure(
     return assemble_image_grid(
         output,
         image_paths,
-        title="Types",
+        # title="Types",
         target_height=target_height,
         n_cols=n_cols,
         n_rows=n_rows,
