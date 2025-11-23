@@ -44,6 +44,7 @@ def _darken(h, factor=0.78):  # ~22% darker for borders
 # ---- default species lists (can be overridden in build_plot_settings) ----
 DEFAULT_FIELD_SPECIES = [
     "glucose",
+    "oxygen",
     "acetate",
     "formate",
     "ammonium",
@@ -54,6 +55,7 @@ DEFAULT_FIELD_SPECIES = [
     "detritus",
     "biomass",
     "dissolved biomass",
+    "mol_id",
 ]
 
 DEFAULT_FIELD_BIOMASS_SPECIES = [
