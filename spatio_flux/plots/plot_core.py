@@ -1,16 +1,13 @@
 # spatio_flux/experiments/overview_fig.py
 
-from typing import List, Optional, Sequence
+from typing import List
 from pathlib import Path
 from typing import Optional, Sequence
 from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
 
-from process_bigraph import register_types as register_process_types
-from vivarium.vivarium import VivariumTypes
 from bigraph_viz import plot_bigraph
 
-from spatio_flux import register_types, SPATIO_FLUX_TYPES
+from spatio_flux import build_core
 from spatio_flux.processes import PROCESS_DOCS
 from spatio_flux.plots.colors import build_plot_settings
 
@@ -23,14 +20,6 @@ from spatio_flux.plots.colors import build_plot_settings
 def _ensure_outdir(outdir: Path) -> None:
     """Create the output directory if it does not exist."""
     outdir.mkdir(parents=True, exist_ok=True)
-
-
-def _build_core():
-    """Construct and return a Vivarium core with process + spatio-flux types registered."""
-    core = VivariumTypes()
-    core = register_process_types(core)
-    core = register_types(core)
-    return core
 
 
 def _force_white_background(im: Image.Image) -> Image.Image:
@@ -74,11 +63,11 @@ def plot_all_processes(
     _ensure_outdir(outdir)
 
     if core is None:
-        core = _build_core()
+        core = build_core()
 
     generated: List[Path] = []
 
-    plot_settings = build_plot_settings(particle_ids=['simple_particle', 'complex_particle'])
+    plot_settings = build_plot_settings(particle_ids=['particle', 'complex_particle'])
     plot_settings.update(
         dict(
             dpi="300",
@@ -123,15 +112,15 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
         '_type': 'fields',
         'substrate_id': [[0.1, 0.1, 0.1, 0.1]],
     },
-    'simple_particle': {
-        '_type': 'simple_particle',
-        'id': 'simple_particle',
+    'particle': {
+        '_type': 'particle',
+        # 'id': 'particle_0',
         'position': [1.0, 1.0],
         'mass': 1.0,
     },
     'complex_particle': {
-        '_type': 'particle',
-        'id': 'complex_particle',
+        '_type': 'complex_particle',
+        # 'id': 'complex_particle_0',
         'position': [1.0, 1.0],
         'mass': 2.0,
         'velocity': [0.5, -0.5],
@@ -163,12 +152,12 @@ def plot_all_types(
     _ensure_outdir(outdir)
 
     if core is None:
-        core = _build_core()
+        core = build_core()
 
     generated: List[Path] = []
 
     plot_settings = build_plot_settings(
-        particle_ids=['simple_particle', 'complex_particle'],
+        particle_ids=['particle', 'complex_particle'],
         conc_type_species=['conc_counts_volume', 'substrate'],
     )
     plot_settings.update(
@@ -415,10 +404,11 @@ def assemble_type_figures(
         save_name=save_name,
     )
 
+
 # Optional CLI for manual testing
 if __name__ == "__main__":
     out = Path("out")
-    core = _build_core()
+    core = build_core()
 
     assemble_process_figures(core, outdir=out, n_rows=2)
     assemble_type_figures(core, outdir=out, n_rows=1)

@@ -5,7 +5,9 @@ TODO -- make a "register_types" function that takes a core, registers all types 
 import numpy as np
 
 from bigraph_schema import default
-from process_bigraph import ProcessTypes
+from process_bigraph import ProcessTypes, register_types as register_process_types
+from vivarium.vivarium import VivariumTypes
+
 from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
 from spatio_flux.processes.particles import BrownianMovement
@@ -202,8 +204,9 @@ def register_types(core):
     return core
 
 
-def core_import(core=None, config=None):
-    if not core:
-        core = ProcessTypes()
-    register_types(core)
+def build_core():
+    """Construct and return a Vivarium core with process + spatio-flux types registered."""
+    core = VivariumTypes()
+    core = register_process_types(core)
+    core = register_types(core)
     return core

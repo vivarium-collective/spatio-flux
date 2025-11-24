@@ -28,7 +28,7 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
     plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
     plot_snapshots_grid, fields_and_agents_to_gif,
 )
-from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
+# from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,

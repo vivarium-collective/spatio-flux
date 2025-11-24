@@ -878,8 +878,8 @@ def run_pymunk_particles():
         document['state']['emitter'] = get_standard_emitter(state_keys=state_keys)
 
     # create the composite simulation
-    from spatio_flux import core_import
-    core = core_import()
+    from spatio_flux import build_core
+    core = build_core()
     sim = Composite(document, core=core)
 
     # Save composition JSON
