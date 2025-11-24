@@ -92,6 +92,8 @@ def get_kinetics_process_from_registry(
     model_config = MODEL_REGISTRY_KINETICS[model_id]()
     # mol_ids = model_config['substrate_update_reactions'].keys()
     biomass_id = biomass_id or 'biomass'
+    if mol_ids is not None:
+        mol_ids = [m for m in mol_ids if m != biomass_id]
 
     return {
         "_type": "process",

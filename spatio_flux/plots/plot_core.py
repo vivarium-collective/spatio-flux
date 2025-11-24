@@ -101,30 +101,36 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
     #     '_type': 'concentration',
     #     '_value': 42.0,
     # },
-    'substrate': {
-        '_type': 'conc_counts_volume',
-        'volume': 1,
-        'counts': 1,
-        'concentration': 1,
-        # '_apply': apply_conc_counts_volume,
-    },
     'fields': {
-        '_type': 'fields',
-        'substrate_id': [[0.1, 0.1, 0.1, 0.1]],
+        'substrate_id': {
+            '_type': 'conc_counts_volume',
+            'volume': 1,
+            'counts': 1,
+            'concentration': 1,
+            # '_apply': apply_conc_counts_volume,
+        },
     },
-    'particle': {
-        '_type': 'particle',
-        # 'id': 'particle_0',
-        'position': [1.0, 1.0],
-        'mass': 1.0,
-    },
-    'complex_particle': {
-        '_type': 'complex_particle',
-        # 'id': 'complex_particle_0',
-        'position': [1.0, 1.0],
-        'mass': 2.0,
-        'velocity': [0.5, -0.5],
-    },
+    # 'fields': {
+    #     '_type': 'fields',
+    #     'substrate_id': [[0.1, 0.1, 0.1, 0.1]],
+    # },
+    # 'particles': {
+    #     'particle': {
+    #         '_type': 'particle',
+    #         # 'id': 'particle_0',
+    #         'position': [1.0, 1.0],
+    #         'mass': 1.0,
+    #     },
+    # },
+    'particles': {
+        'particle_id': {
+            '_type': 'complex_particle',
+            # 'id': 'complex_particle_0',
+            'position': [1.0, 1.0],
+            'mass': 2.0,
+            'velocity': [0.5, -0.5],
+        },
+    }
 }
 
 
@@ -157,8 +163,8 @@ def plot_all_types(
     generated: List[Path] = []
 
     plot_settings = build_plot_settings(
-        particle_ids=['particle', 'complex_particle'],
-        conc_type_species=['conc_counts_volume', 'substrate'],
+        particle_ids=['particle_id'],
+        conc_type_species=['substrate_id'],
     )
     plot_settings.update(
         dict(
@@ -194,31 +200,38 @@ def plot_all_types(
 # ---------------------------------------------------------------------
 
 def assemble_image_grid(
-    outdir: str | Path,
-    image_paths: Sequence[Path],
-    *,
-    title: str = "",
-    target_height: int = 300,        # height of each panel
-    n_cols: Optional[int] = None,    # force N columns if set
-    n_rows: Optional[int] = None,    # force N rows if set
-    col_gap_px: int = 40,
-    row_gap_px: int = 60,
-    margin_px: int = 40,
-    save_name: str = "overview.png",
+        outdir: str | Path,
+        image_paths: Sequence[Path],
+        *,
+        title: str = "",
+        target_height: int = 300,
+        n_cols: Optional[int] = None,
+        n_rows: Optional[int] = None,
+        layout: Optional[Sequence[Sequence[Optional[int]]]] = None,
+        col_gap_px: int = 40,
+        row_gap_px: int = 60,
+        margin_px: int = 40,
+        save_name: str = "overview.png",
 ) -> Path:
     """
-    Universal image grid assembler:
-      - Preserves aspect ratios
-      - Resizes to target_height
-      - Supports explicit rows/columns
-      - Tight spacing by using per-image widths instead of fixed cell width
-      - Flattens all images onto a pure white background (no gray seams)
+    Universal image grid assembler with optional explicit placement.
+
+    Options:
+      - Provide `layout` to explicitly control which image appears in which grid cell.
+        Example:
+            layout = [
+                [0, 1, 2],
+                [3, None, 4],
+            ]
+      - If layout=None, fall back to automatic n_rows / n_cols logic.
+
     """
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
-    image_paths = list(image_paths)
-    if not image_paths:
+    # --- Load all images ---
+    flat_paths = list(image_paths)
+    if not flat_paths:
         print("⚠ No images found to assemble.")
         return outdir / save_name
 
@@ -229,101 +242,144 @@ def assemble_image_grid(
         bg.paste(im, (0, 0), im)
         return bg.convert("RGB")
 
-    # ---- Load and resize images to common height ----
-    images: list[Image.Image] = []
-    for p in image_paths:
+    # Resize all images first to uniform height
+    loaded_images = []
+    for p in flat_paths:
         im = Image.open(p)
         im = _flatten_to_white(im)
-
         w, h = im.size
-        if h == 0:
-            continue
         new_w = int(round(w * target_height / h))
-        images.append(im.resize((new_w, target_height), Image.LANCZOS))
+        loaded_images.append(im.resize((new_w, target_height), Image.LANCZOS))
 
-    if not images:
-        print("⚠ Failed to read any images.")
-        return outdir / save_name
+    # ===============================================================
+    # Manual layout if provided
+    # ===============================================================
+    if layout is not None:
+        # Validate indices
+        for row in layout:
+            for cell in row:
+                if cell is not None and not (0 <= cell < len(loaded_images)):
+                    raise ValueError(f"Invalid layout index {cell}")
 
-    n = len(images)
+        n_rows_eff = len(layout)
+        n_cols_eff = max(len(row) for row in layout)
 
-    # ---- Determine rows & columns ----
-    if n_cols is not None:
-        n_cols = max(1, min(n_cols, n))
-        n_rows_eff = (n + n_cols - 1) // n_cols
-    elif n_rows is not None:
-        n_rows_eff = max(1, min(n_rows, n))
-        n_cols = (n + n_rows_eff - 1) // n_rows_eff
+        # Compute per-row widths
+        row_widths = []
+        for row in layout:
+            row_imgs = [
+                loaded_images[idx] for idx in row if idx is not None
+            ]
+            if row_imgs:
+                w = sum(im.width for im in row_imgs)
+                if len(row_imgs) > 1:
+                    w += col_gap_px * (len(row_imgs) - 1)
+            else:
+                w = 0
+            row_widths.append(w)
+
+        max_row_width = max(row_widths)
+
     else:
-        # default: single horizontal strip
-        n_rows_eff = 1
-        n_cols = n
+        # ===========================================================
+        # Old automatic layout logic
+        # ===========================================================
+        n = len(loaded_images)
 
-    n_rows = n_rows_eff
+        if n_cols is not None:
+            n_cols_eff = max(1, min(n_cols, n))
+            n_rows_eff = (n + n_cols_eff - 1) // n_cols_eff
+        elif n_rows is not None:
+            n_rows_eff = max(1, min(n_rows, n))
+            n_cols_eff = (n + n_rows_eff - 1) // n_rows_eff
+        else:
+            n_rows_eff = 1
+            n_cols_eff = n
 
-    cell_h = target_height
+        row_widths = []
+        idx = 0
+        for r in range(n_rows_eff):
+            row_imgs = loaded_images[idx: idx + n_cols_eff]
+            if row_imgs:
+                w = sum(im.width for im in row_imgs)
+                if len(row_imgs) > 1:
+                    w += col_gap_px * (len(row_imgs) - 1)
+            else:
+                w = 0
+            row_widths.append(w)
+            idx += len(row_imgs)
 
-    # ---- First pass: compute row widths ----
-    row_widths: list[int] = []
-    idx = 0
-    for r in range(n_rows):
-        row_imgs = images[idx: idx + n_cols]
-        if not row_imgs:
-            break
-        row_width = sum(im.width for im in row_imgs)
-        if len(row_imgs) > 1:
-            row_width += col_gap_px * (len(row_imgs) - 1)
-        row_widths.append(row_width)
-        idx += len(row_imgs)
+        max_row_width = max(row_widths)
 
-    max_row_width = max(row_widths) if row_widths else 0
-
+    # ===============================================================
+    # Compute final canvas size
+    # ===============================================================
     title_height = int(target_height * 0.4) if title else 0
-    grid_height = n_rows * cell_h + row_gap_px * (n_rows - 1)
+    grid_height = n_rows_eff * target_height + row_gap_px * (n_rows_eff - 1)
     total_width = margin_px * 2 + max_row_width
     total_height = margin_px * 2 + title_height + grid_height
 
-    # ---- Create canvas ----
     canvas = Image.new("RGB", (total_width, total_height), (255, 255, 255))
     draw = ImageDraw.Draw(canvas)
 
-    # ---- Optional title ----
+    # Title (optional)
     if title:
         try:
             font = ImageFont.truetype("DejaVuSans-Bold.ttf", int(title_height * 0.6))
-        except OSError:
+        except:
             font = ImageFont.load_default()
 
         bbox = draw.textbbox((0, 0), title, font=font)
         text_w = bbox[2] - bbox[0]
         text_h = bbox[3] - bbox[1]
+        draw.text(
+            ((total_width - text_w) // 2, margin_px + (title_height - text_h) // 2),
+            title,
+            font=font,
+            fill=(0, 0, 0),
+        )
 
-        title_x = (total_width - text_w) // 2
-        title_y = margin_px + (title_height - text_h) // 2
-
-        draw.text((title_x, title_y), title, font=font, fill=(0, 0, 0))
-
-    # ---- Paste images row by row ----
+    # ===============================================================
+    # Paste images using layout or automatic grid
+    # ===============================================================
     start_y = margin_px + title_height
-    idx = 0
-    for r in range(n_rows):
-        row_imgs = images[idx: idx + n_cols]
-        if not row_imgs:
-            break
 
-        row_width = row_widths[r]
-        # Center row horizontally within max_row_width
-        row_x = margin_px + (max_row_width - row_width) // 2
+    if layout is not None:
+        for r, row in enumerate(layout):
+            y = start_y + r * (target_height + row_gap_px)
+            # compute THIS row's left offset
+            row_imgs = [idx for idx in row if idx is not None]
+            row_content_width = (
+                    sum(loaded_images[idx].width for idx in row_imgs)
+                    + col_gap_px * (len(row_imgs) - 1)
+            )
+            row_x = margin_px + (max_row_width - row_content_width) // 2
 
-        y = start_y + r * (cell_h + row_gap_px)
-        x = row_x
-        for im in row_imgs:
-            paste_x = int(x)
-            paste_y = int(y + (cell_h - im.height) // 2)
-            canvas.paste(im, (paste_x, paste_y))
-            x += im.width + col_gap_px
+            x = row_x
+            for cell in row:
+                if cell is not None:
+                    im = loaded_images[cell]
+                    canvas.paste(im, (int(x), int(y)))
+                    x += im.width + col_gap_px
+                else:
+                    # blank cell: skip width
+                    x += 0
 
-        idx += len(row_imgs)
+    else:
+        # Original automatic mode
+        idx = 0
+        for r in range(n_rows_eff):
+            y = start_y + r * (target_height + row_gap_px)
+            row_imgs = loaded_images[idx: idx + n_cols_eff]
+            row_width = row_widths[r]
+            row_x = margin_px + (max_row_width - row_width) // 2
+
+            x = row_x
+            for im in row_imgs:
+                canvas.paste(im, (int(x), int(y)))
+                x += im.width + col_gap_px
+
+            idx += len(row_imgs)
 
     out_path = outdir / save_name
     canvas.save(out_path)
@@ -392,6 +448,7 @@ def assemble_type_figures(
     type_paths = plot_all_types(outdir, core=core)
     print(f"Generated {len(type_paths)} type figs in {outdir}")
 
+    layout = [[1,0]]  # switch the order
     return assemble_image_grid(
         outdir,
         type_paths,
@@ -402,6 +459,7 @@ def assemble_type_figures(
         row_gap_px=row_gap_px,
         margin_px=0,              # really tight outer margin
         save_name=save_name,
+        layout=layout
     )
 
 

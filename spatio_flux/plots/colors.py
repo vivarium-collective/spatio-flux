@@ -19,8 +19,8 @@ COLORS = {
     "dfba_process":               "#B84C48",
 
     # LOCAL / EXCHANGE (yellow-orange → orange)
-    "local":                      "#F4C48A",
-    "exchange":                   "#E7A86A",
+    # "local":                      "#F4C48A",
+    "exchange":                   "#F4C48A",
 
     # PARTICLE ↔ FIELD BRIDGE (yellow-green midpoint)
     "particle_exchange_bridge":   "#D1DF89",
@@ -156,10 +156,10 @@ def build_plot_settings(
         fills[("fields", biomass_name)] = COLORS["fields"]
 
     for s in conc_type_species or []:
-        fills[(s,)] =                   COLORS["fields"]
-        fills[(s, "concentration",)] =  COLORS["fields"]
-        fills[(s, "counts",)] =         COLORS["fields"]
-        fills[(s, "volume",)] =         COLORS["fields"]
+        fills[("fields", s,)] =                   COLORS["fields"]
+        fills[("fields", s, "concentration",)] =  COLORS["fields"]
+        fills[("fields", s, "counts",)] =         COLORS["fields"]
+        fills[("fields", s, "volume",)] =         COLORS["fields"]
 
     # --- explicitly named biomass fields ---
     for s in field_biomass_species:
@@ -174,7 +174,7 @@ def build_plot_settings(
             ("particles", pid, "id"):       COLORS["particles_state"],
             ("particles", pid, "position"): COLORS["particles_state"],
             ("particles", pid, "mass"):     COLORS["particles_state"],
-            ('particles', pid, 'local'):    COLORS["local"],
+            ('particles', pid, 'local'):    COLORS["fields"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_process"],
             ('particles', pid, 'monod_kinetics'): COLORS["dfba_process"],
@@ -190,7 +190,7 @@ def build_plot_settings(
             (pid, "id"):        COLORS["particles_state"],
             (pid, "position"):  COLORS["particles_state"],
             (pid, "mass"):      COLORS["particles_state"],
-            (pid, 'local'):     COLORS["local"],
+            (pid, 'local'):     COLORS["fields"],
             (pid, 'exchange'):  COLORS["exchange"],
             (pid, 'dFBA'):      COLORS["dfba_process"],
             (pid, 'monod_kinetics'): COLORS["dfba_process"],
@@ -203,7 +203,7 @@ def build_plot_settings(
         })
 
         for species in field_species:
-            fills[('particles', pid, 'local', species)] =    COLORS["local"]
+            fills[('particles', pid, 'local', species)] =    COLORS["fields"]
             fills[('particles', pid, 'exchange', species)] = COLORS["exchange"]
 
     borders = {k: _darken(v) for k, v in fills.items()}

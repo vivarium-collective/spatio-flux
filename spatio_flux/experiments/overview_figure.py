@@ -1,8 +1,9 @@
 from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
+import matplotlib.font_manager as fm
 
 from bigraph_viz import plot_bigraph
 from process_bigraph import Composite
-from PIL import Image, ImageDraw, ImageFont
 
 from spatio_flux.experiments.test_suite import get_newtonian_particle_comets_doc
 from spatio_flux.plots.colors import build_plot_settings
@@ -10,12 +11,14 @@ from spatio_flux.plots.plot_core import assemble_process_figures, assemble_type_
 from spatio_flux import build_core
 
 
+
+
 def composite_figure(
         core,
         outdir="out",
         config=None
 ):
-    config = config or {'n_bins': (2, 2), 'bounds': (1.0, 1.0)}
+    config = config or {'n_bins': (10, 10), 'bounds': (1.0, 1.0)}
     document = get_newtonian_particle_comets_doc(core, config)
     sim = Composite(document, core=core)
 
@@ -35,8 +38,7 @@ def composite_figure(
         dict(
             dpi="300",
             show_values=True,
-            show_types=True,
-            # collapse_redundant_processes=False,
+            show_types=False,
             value_char_limit=20,
             type_char_limit=40,
             collapse_redundant_processes={
@@ -51,7 +53,6 @@ def composite_figure(
         core=core,
         out_dir=outdir,
         filename=f"metacomposite_bigraph",
-
         **plot_settings
     )
 
@@ -66,6 +67,8 @@ def assemble_ABC_overview(
     row_gap_px=40,
     margin_px=30,
     save_name="overview_ABC.png",
+    label_font_size=80,
+    dpi=300,
 ):
     """
     Build a 3-panel figure:
@@ -102,10 +105,13 @@ def assemble_ABC_overview(
     composite_figure(core, outdir=outdir)
     fig_C_path = outdir / "metacomposite_bigraph.png"
 
-    # --- Resize each to target width ---
+    # --- Resize each to target width (only downscale, don't upscale) ---
     def resize_to_width(path, target_w):
         im = Image.open(path)
         w, h = im.size
+        if w <= target_w:
+            # keep original resolution if already smaller
+            return im.copy()
         scale = target_w / w
         new_h = int(h * scale)
         return im.resize((target_w, new_h), Image.LANCZOS)
@@ -115,7 +121,7 @@ def assemble_ABC_overview(
     imC = resize_to_width(fig_C_path, width_C)
 
     # --- Combined canvas size ---
-    total_w = max(width_A, width_B, width_C) + 2 * margin_px
+    total_w = max(imA.width, imB.width, imC.width) + 2 * margin_px
     total_h = (
         margin_px +
         imA.height +
@@ -139,25 +145,38 @@ def assemble_ABC_overview(
 
     canvas.paste(imC, (margin_px, y))
 
-    # --- Add labels A, B, C ---
-    try:
-        font = ImageFont.truetype("DejaVuSans-Bold.ttf", 48)
-    except:
-        font = ImageFont.load_default()
+    # --- Add labels A, B, C with white backgrounds ---
+    label_font_path = fm.findfont("DejaVu Sans", fallback_to_default=True)
+    font = ImageFont.truetype(label_font_path, label_font_size)
 
-    draw.text((margin_px + 5, margin_px + 5), "A", fill=(0, 0, 0), font=font)
-    draw.text((margin_px + 5, imA.height + row_gap_px + margin_px + 5),
-              "B", fill=(0, 0, 0), font=font)
-    draw.text((margin_px + 5,
-               imA.height + imB.height + 2 * row_gap_px + margin_px + 5),
-              "C", fill=(0, 0, 0), font=font)
+    def draw_label(letter, x, y, pad=10):
+        # Compute text bounding box
+        bbox = draw.textbbox((x, y), letter, font=font)
+        x0, y0, x1, y1 = bbox
+        # Expand a bit for padding
+        x0 -= pad
+        y0 -= pad
+        x1 += pad
+        y1 += pad
+        # Draw white rectangle behind text
+        draw.rectangle([x0, y0, x1, y1], fill="white")
+        # Draw the text centered in that rectangle
+        draw.text((x, y), letter, fill=(0, 0, 0), font=font)
+
+    # Label positions (same general places, but with white backing)
+    draw_label("A", margin_px + 5, margin_px + 5)
+    draw_label("B", margin_px + 5, imA.height + row_gap_px + margin_px + 5)
+    draw_label(
+        "C",
+        margin_px + 5,
+        imA.height + imB.height + 2 * row_gap_px + margin_px + 5,
+    )
 
     outpath = outdir / save_name
-    canvas.save(outpath)
+    canvas.save(outpath, dpi=(dpi, dpi))  # embed DPI metadata
     print(f"Saved combined A+B+C figure: {outpath}")
 
     return outpath
-
 
 
 # Optional CLI for manual testing
