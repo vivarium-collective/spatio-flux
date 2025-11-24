@@ -108,10 +108,25 @@ def plot_all_processes(
 
 
 SPATIO_FLUX_TYPE_EXAMPLES = {
+    # 'substrate': {
+    #     '_type': 'concentration',
+    #     '_value': 42.0,
+    # },
+    'substrate': {
+        '_type': 'conc_counts_volume',
+        'volume': 1,
+        'counts': 1,
+        'concentration': 1,
+        # '_apply': apply_conc_counts_volume,
+    },
+    'fields': {
+        '_type': 'fields',
+        'substrate_id': [[0.1, 0.1, 0.1, 0.1]],
+    },
     'simple_particle': {
         '_type': 'simple_particle',
         'id': 'simple_particle',
-        'position': [0.0, 0.0],
+        'position': [1.0, 1.0],
         'mass': 1.0,
     },
     'complex_particle': {
@@ -120,14 +135,6 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
         'position': [1.0, 1.0],
         'mass': 2.0,
         'velocity': [0.5, -0.5],
-    },
-    'fields': {
-        '_type': 'fields',
-        'mol_id': [[0.1, 0.2], [0.3, 0.4]],
-    },
-    'concentration': {
-        '_type': 'concentration',
-        '_value': 42.0,
     },
 }
 
@@ -161,12 +168,13 @@ def plot_all_types(
     generated: List[Path] = []
 
     plot_settings = build_plot_settings(
-        particle_ids=['simple_particle', 'complex_particle']
+        particle_ids=['simple_particle', 'complex_particle'],
+        conc_type_species=['conc_counts_volume', 'substrate'],
     )
     plot_settings.update(
         dict(
             dpi="300",
-            # show_values=True,
+            show_values=True,
             show_types=True,
             collapse_redundant_processes=False,
             value_char_limit=20,
@@ -214,10 +222,8 @@ def assemble_image_grid(
       - Preserves aspect ratios
       - Resizes to target_height
       - Supports explicit rows/columns
-      - Tight pixel-level spacing (no subplot whitespace)
+      - Tight spacing by using per-image widths instead of fixed cell width
       - Flattens all images onto a pure white background (no gray seams)
-
-    If n_cols and n_rows are both None, creates a single-row horizontal strip.
     """
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -228,10 +234,6 @@ def assemble_image_grid(
         return outdir / save_name
 
     def _flatten_to_white(im: Image.Image) -> Image.Image:
-        """
-        Convert transparent / semi-transparent pixels to pure white.
-        Eliminates gray halos and non-white background artifacts.
-        """
         if im.mode != "RGBA":
             im = im.convert("RGBA")
         bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
@@ -239,10 +241,10 @@ def assemble_image_grid(
         return bg.convert("RGB")
 
     # ---- Load and resize images to common height ----
-    images = []
+    images: list[Image.Image] = []
     for p in image_paths:
         im = Image.open(p)
-        im = _flatten_to_white(im)   # <-- force pure white background
+        im = _flatten_to_white(im)
 
         w, h = im.size
         if h == 0:
@@ -270,21 +272,29 @@ def assemble_image_grid(
 
     n_rows = n_rows_eff
 
-    # ---- Cell geometry (each cell width = max image width) ----
-    cell_w = max(im.width for im in images)
     cell_h = target_height
 
-    total_width = (
-        margin_px * 2 +
-        n_cols * cell_w +
-        col_gap_px * (n_cols - 1)
-    )
+    # ---- First pass: compute row widths ----
+    row_widths: list[int] = []
+    idx = 0
+    for r in range(n_rows):
+        row_imgs = images[idx: idx + n_cols]
+        if not row_imgs:
+            break
+        row_width = sum(im.width for im in row_imgs)
+        if len(row_imgs) > 1:
+            row_width += col_gap_px * (len(row_imgs) - 1)
+        row_widths.append(row_width)
+        idx += len(row_imgs)
+
+    max_row_width = max(row_widths) if row_widths else 0
 
     title_height = int(target_height * 0.4) if title else 0
     grid_height = n_rows * cell_h + row_gap_px * (n_rows - 1)
+    total_width = margin_px * 2 + max_row_width
     total_height = margin_px * 2 + title_height + grid_height
 
-    # ---- Create the canvas (pure white RGB) ----
+    # ---- Create canvas ----
     canvas = Image.new("RGB", (total_width, total_height), (255, 255, 255))
     draw = ImageDraw.Draw(canvas)
 
@@ -304,24 +314,27 @@ def assemble_image_grid(
 
         draw.text((title_x, title_y), title, font=font, fill=(0, 0, 0))
 
-    # ---- Paste images in the grid ----
+    # ---- Paste images row by row ----
     start_y = margin_px + title_height
     idx = 0
     for r in range(n_rows):
-        for c in range(n_cols):
-            if idx >= n:
-                break
-            im = images[idx]
+        row_imgs = images[idx: idx + n_cols]
+        if not row_imgs:
+            break
 
-            cell_x = margin_px + c * (cell_w + col_gap_px)
-            cell_y = start_y + r * (cell_h + row_gap_px)
+        row_width = row_widths[r]
+        # Center row horizontally within max_row_width
+        row_x = margin_px + (max_row_width - row_width) // 2
 
-            paste_x = cell_x + (cell_w - im.width) // 2
-            paste_y = cell_y + (cell_h - im.height) // 2
-
-            # No mask: images are now fully opaque with white background
+        y = start_y + r * (cell_h + row_gap_px)
+        x = row_x
+        for im in row_imgs:
+            paste_x = int(x)
+            paste_y = int(y + (cell_h - im.height) // 2)
             canvas.paste(im, (paste_x, paste_y))
-            idx += 1
+            x += im.width + col_gap_px
+
+        idx += len(row_imgs)
 
     out_path = outdir / save_name
     canvas.save(out_path)
@@ -339,7 +352,7 @@ def assemble_process_figures(
     *,
     target_height: int = 350,
     n_cols: Optional[int] = None,
-    n_rows: Optional[int] = 2,
+    n_rows: Optional[int] = None,
     col_gap_px: int = 40,
     row_gap_px: int = 60,
     save_name: str = "process_overview.png",
@@ -372,11 +385,11 @@ def assemble_type_figures(
     core,
     outdir="out",
     *,
-    target_height: int = 300,
+    target_height: int = 1200,
     n_cols: Optional[int] = None,
     n_rows: Optional[int] = None,
-    col_gap_px: int = 0,
-    row_gap_px: int = 20,
+    col_gap_px: int = 40,
+    row_gap_px: int = 60,
     save_name: str = "type_overview.png",
 ) -> Path:
     """
@@ -393,15 +406,14 @@ def assemble_type_figures(
     return assemble_image_grid(
         outdir,
         type_paths,
-        # title="Types",
         target_height=target_height,
         n_cols=n_cols,
         n_rows=n_rows,
         col_gap_px=col_gap_px,
         row_gap_px=row_gap_px,
+        margin_px=0,              # really tight outer margin
         save_name=save_name,
     )
-
 
 # Optional CLI for manual testing
 if __name__ == "__main__":
@@ -409,4 +421,4 @@ if __name__ == "__main__":
     core = _build_core()
 
     assemble_process_figures(core, outdir=out, n_rows=2)
-    assemble_type_figures(core, outdir=out)
+    assemble_type_figures(core, outdir=out, n_rows=1)

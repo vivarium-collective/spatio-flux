@@ -285,8 +285,8 @@ class DynamicFBA(Process):
 
     Outputs:
     --------
-    - substrates (map[delta]): Changes in substrate concentrations.
-    - biomass (delta): Change in biomass.
+    - substrates (map[counts]): Changes in substrate concentrations.
+    - biomass (counts): Change in biomass.
 
     Notes:
     ------
@@ -315,8 +315,8 @@ class DynamicFBA(Process):
 
     def outputs(self):
         return {
-            "substrates": "map[delta]",   # deltas (not absolute concentrations)
-            "biomass": "delta",           # delta biomass
+            "substrates": "map[counts]",   # deltas (not absolute concentrations)
+            "biomass": "counts",           # delta biomass
         }
 
     def update(self, inputs, interval):

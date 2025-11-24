@@ -266,7 +266,7 @@ def get_comets_doc(core=None, config=None):
     }
     doc = {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        'spatial_d': get_spatial_dFBA_process(config=config, model_id=dissolved_model_id),
+        'spatial_dFBA': get_spatial_dFBA_process(config=config, model_id=dissolved_model_id),
         # 'spatial_dFBA': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
         'diffusion': get_diffusion_advection_process(
             bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
@@ -327,11 +327,11 @@ def plot_particles_sim(results, state, config=None):
 def get_particles_with_fields_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
-    initial_min_max = {'glucose': (0.5, 2.0), 'detritus': (0, 0)}
+    initial_min_max = {'glucose': (0.5, 2.0), 'acetate': (0, 0)}
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
-            'release': {'reactant': 'mass', 'product': 'detritus'}
+            'release': {'reactant': 'mass', 'product': 'acetate'}
         },
         'kinetic_params': {
             'glucose': (0.5, 0.01),
@@ -362,11 +362,11 @@ def get_kinetic_particle_comets_doc(core=None, config=None):
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
     dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'detritus', 'dissolved biomass']
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'mass'},
-            'release': {'reactant': 'mass', 'product': 'detritus'}
+            'release': {'reactant': 'mass', 'product': 'acetate'}
         },
         'kinetic_params': {
             'glucose': (0.5, 0.01),
@@ -655,7 +655,7 @@ DEFAULT_INITIAL_MIN_MAX = {
         'glucose': (10, 10),
         'acetate': (0, 0),
         'dissolved biomass': (0, 0.1),
-        'detritus': (0, 0)
+        # 'detritus': (0, 0)
     }
 
 DEFAULT_RUNTIME_SHORT = 10  # 20
@@ -870,10 +870,10 @@ def main():
 
 
 
-    # --- Process + Type overview figures ---
-    print("\nGenerating process/type overview figures...")
-    assemble_type_figures(core, outdir=output_dir)
-    assemble_process_figures(core, outdir=output_dir)
+    # # --- Process + Type overview figures ---
+    # print("\nGenerating process/type overview figures...")
+    # assemble_type_figures(core, outdir=output_dir)
+    # assemble_process_figures(core, outdir=output_dir)
 
 
     print(f"\nCompiling HTML report...")

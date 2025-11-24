@@ -200,12 +200,12 @@ class PymunkParticleMovement(Process):
 
     def inputs(self):
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[complex_particle]',
         }
 
     def outputs(self):
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[complex_particle]',
         }
 
     def _spawn_new_particle_at_boundary(self, side):

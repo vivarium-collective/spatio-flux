@@ -196,9 +196,9 @@ def generate_html_report(
     # ------------------------------------------------------------------
     html.append('<nav><h2>Contents</h2><ul>')
 
-    # Overview entries
-    html.append('<li><a href="#process_overview">Process Overview</a></li>')
-    html.append('<li><a href="#type_overview">Type Overview</a></li>')
+    # # Overview entries
+    # html.append('<li><a href="#process_overview">Process Overview</a></li>')
+    # html.append('<li><a href="#type_overview">Type Overview</a></li>')
 
     # Simulation entries
     for test in simulations:
@@ -206,23 +206,23 @@ def generate_html_report(
 
     html.append('</ul></nav>')
 
-    # ------------------------------------------------------------------
-    # Overview figures
-    # ------------------------------------------------------------------
-    process_png = output_dir / "process_overview.png"
-    type_png = output_dir / "type_overview.png"
-
-    html.append('<h2 id="process_overview">Process Overview</h2>')
-    if process_png.exists():
-        html.append(f'<img src="{process_png.name}" style="max-width:100%; height:auto;"><hr>')
-    else:
-        html.append('<p><em>No process overview image found.</em></p>')
-
-    html.append('<h2 id="type_overview">Type Overview</h2>')
-    if type_png.exists():
-        html.append(f'<img src="{type_png.name}" style="max-width:100%; height:auto;"><hr>')
-    else:
-        html.append('<p><em>No type overview image found.</em></p>')
+    # # ------------------------------------------------------------------
+    # # Overview figures
+    # # ------------------------------------------------------------------
+    # process_png = output_dir / "process_overview.png"
+    # type_png = output_dir / "type_overview.png"
+    #
+    # html.append('<h2 id="process_overview">Process Overview</h2>')
+    # if process_png.exists():
+    #     html.append(f'<img src="{process_png.name}" style="max-width:100%; height:auto;"><hr>')
+    # else:
+    #     html.append('<p><em>No process overview image found.</em></p>')
+    #
+    # html.append('<h2 id="type_overview">Type Overview</h2>')
+    # if type_png.exists():
+    #     html.append(f'<img src="{type_png.name}" style="max-width:100%; height:auto;"><hr>')
+    # else:
+    #     html.append('<p><em>No type overview image found.</em></p>')
 
     # ------------------------------------------------------------------
     # Group files by simulation

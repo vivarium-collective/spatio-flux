@@ -55,7 +55,7 @@ DEFAULT_FIELD_SPECIES = [
     "detritus",
     "biomass",
     "dissolved biomass",
-    "mol_id",
+    "substrate_id",
 ]
 
 DEFAULT_FIELD_BIOMASS_SPECIES = [
@@ -75,6 +75,7 @@ def build_plot_settings(
     n_bins=(2, 2),
     field_species=None,
     field_biomass_species=None,
+    conc_type_species=None,
 ):
     # Normalize particle_ids into a list
     if particle_ids is None:
@@ -90,40 +91,47 @@ def build_plot_settings(
 
     fills = {
         # particle family
-        ("particles",):             COLORS["particles_base"],
-        ("brownian_movement",):     COLORS["particles_process"],
-        ("particle_division",):     COLORS["particles_process"],
-        ("particle_exchange",):     COLORS["particle_exchange_bridge"],
+        ("particles",):                 COLORS["particles_base"],
+        ("brownian_movement",):         COLORS["particles_process"],
+        ("particle_division",):         COLORS["particles_process"],
+        ("particle_exchange",):         COLORS["particle_exchange_bridge"],
 
         # newtonian particle family
-        ("newtonian_particles",):           COLORS["newtonian_particles_process"],
+        ("newtonian_particles",):       COLORS["newtonian_particles_process"],
 
         # containers
-        ("fields",):                COLORS["fields"],
-        ("concentration",):         COLORS["fields"],
-        ("diffusion",):             COLORS["diffusion"],
+        ("fields",):                    COLORS["fields"],
+        ("concentration",):             COLORS["fields"],
+        ("substrate",):                 COLORS["fields"],
+        ("diffusion",):                 COLORS["diffusion"],
 
         # dFBA
-        ("spatial_dFBA",):          COLORS["dfba_light"],
-        ("spatial_dFBA", "dFBA[0,0]"): COLORS["dfba_base"],
-        ("dFBA",):                  COLORS["dfba_base"],
+        ("spatial_dFBA",):              COLORS["dfba_light"],
+        ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_base"],
+        ("dFBA",):                      COLORS["dfba_base"],
         ("monod_kinetics",):            COLORS["dfba_base"],
     }
 
     # --- auto-generate field species ---
     for s in field_species:
         # (fields, species)
-        fills[("fields", s)] = COLORS["fields"]
+        fills[("fields", s)] =          COLORS["fields"]
 
         # (fields, species biomass) – for things like "pputida", "llactis", etc.
         biomass_name = f"{s} biomass"
         fills[("fields", biomass_name)] = COLORS["fields"]
 
+    for s in conc_type_species or []:
+        fills[(s,)] =                   COLORS["fields"]
+        fills[(s, "concentration",)] =  COLORS["fields"]
+        fills[(s, "counts",)] =         COLORS["fields"]
+        fills[(s, "volume",)] =         COLORS["fields"]
+
     # --- explicitly named biomass fields ---
     for s in field_biomass_species:
-        fills[("fields", s)] = COLORS["fields"]
+        fills[("fields", s)] =          COLORS["fields"]
         fills[("fields", f'{s} biomass')] = COLORS["fields"]
-        fills[(f'{s} dFBA',)] = COLORS["dfba_base"]
+        fills[(f'{s} dFBA',)] =         COLORS["dfba_base"]
 
     # ---- particle-specific stuff unchanged, example: ----
     for pid in particle_ids:
@@ -135,33 +143,33 @@ def build_plot_settings(
             ('particles', pid, 'local'):    COLORS["local"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_base"],
-            ('particles', pid, 'monod_kinetics'):  COLORS["dfba_base"],
-            ('particles', pid, 'shape'):  COLORS["newtonian_particles_state"],
-            ('particles', pid, 'velocity'):  COLORS["newtonian_particles_state"],
+            ('particles', pid, 'monod_kinetics'): COLORS["dfba_base"],
+            ('particles', pid, 'shape'):    COLORS["newtonian_particles_state"],
+            ('particles', pid, 'velocity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'inertia'):  COLORS["newtonian_particles_state"],
-            ('particles', pid, 'radius'): COLORS["newtonian_particles_state"],
+            ('particles', pid, 'radius'):   COLORS["newtonian_particles_state"],
             ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
         })
         fills.update({
             (pid,):             COLORS["particles_base"],
-            (pid, "id"):       COLORS["particles_base"],
-            (pid, "position"): COLORS["particles_base"],
-            (pid, "mass"):     COLORS["particles_base"],
-            (pid, 'local'):    COLORS["local"],
-            (pid, 'exchange'): COLORS["exchange"],
-            (pid, 'dFBA'):     COLORS["dfba_base"],
-            (pid, 'monod_kinetics'):  COLORS["dfba_base"],
-            (pid, 'shape'):  COLORS["newtonian_particles_state"],
+            (pid, "id"):        COLORS["particles_base"],
+            (pid, "position"):  COLORS["particles_base"],
+            (pid, "mass"):      COLORS["particles_base"],
+            (pid, 'local'):     COLORS["local"],
+            (pid, 'exchange'):  COLORS["exchange"],
+            (pid, 'dFBA'):      COLORS["dfba_base"],
+            (pid, 'monod_kinetics'): COLORS["dfba_base"],
+            (pid, 'shape'):     COLORS["newtonian_particles_state"],
             (pid, 'velocity'):  COLORS["newtonian_particles_state"],
-            (pid, 'inertia'):  COLORS["newtonian_particles_state"],
-            (pid, 'radius'): COLORS["newtonian_particles_state"],
+            (pid, 'inertia'):   COLORS["newtonian_particles_state"],
+            (pid, 'radius'):    COLORS["newtonian_particles_state"],
             (pid, 'elasticity'): COLORS["newtonian_particles_state"],
-            (pid, 'friction'): COLORS["newtonian_particles_state"],
+            (pid, 'friction'):  COLORS["newtonian_particles_state"],
         })
 
         for species in field_species:
-            fills[('particles', pid, 'local', species)] = COLORS["local"]
+            fills[('particles', pid, 'local', species)] =    COLORS["local"]
             fills[('particles', pid, 'exchange', species)] = COLORS["exchange"]
 
     borders = {k: _darken(v) for k, v in fills.items()}
