@@ -36,9 +36,12 @@ def composite_figure(
             dpi="300",
             show_values=True,
             show_types=True,
-            collapse_redundant_processes=False,
+            # collapse_redundant_processes=False,
             value_char_limit=20,
             type_char_limit=40,
+            collapse_redundant_processes={
+                'exclude': [('particle_movement',), ('particle_division',)]
+            },
         )
     )
 
@@ -48,6 +51,7 @@ def composite_figure(
         core=core,
         out_dir=outdir,
         filename=f"metacomposite_bigraph",
+
         **plot_settings
     )
 
@@ -89,7 +93,7 @@ def assemble_ABC_overview(
     fig_B_path = assemble_type_figures(
         core,
         outdir=outdir,
-        n_rows=2,
+        n_rows=1,
         save_name="panel_B_types.png",
     )
 

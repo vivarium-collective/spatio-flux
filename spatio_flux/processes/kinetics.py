@@ -159,19 +159,19 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'mass': 'concentration',
+            'biomass': 'concentration',
             'substrates': 'map[concentration]'
         }
 
     def outputs(self):
         return {
-            'mass': 'counts',
+            'biomass': 'counts',
             'substrates': 'map[counts]'
         }
 
     def update(self, state, interval):
         substrates = state['substrates']
-        mass = state['mass']
+        mass = state['biomass']
 
         delta_mass = 0.0
         delta_substrates = {mol_id: 0.0 for mol_id in substrates}
@@ -202,6 +202,6 @@ class MonodKinetics(Process):
                 delta_substrates[product] = delta_substrates.get(product, 0.0) + rate
 
         return {
-            'mass': delta_mass,
+            'biomass': delta_mass,
             'substrates': delta_substrates
         }
