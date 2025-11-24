@@ -1,27 +1,58 @@
 COLORS = {
-    # --- PARTICLES (greens) ---
-    "particles_base":        "#C9DCCF",
-    "particles_process":     "#7FA889",
+    # PARTICLES (warm light green)
+    "particles_state":            "#CBE7D3",
+    "particles_process":          "#CBE7D3",
 
-    # --- NEWTONIAN PARTICLES (teal greens) ---
-    "newtonian_particles_process": "#3F716F",
-    "newtonian_particles_state":   "#8DBFBA",
+    # PARTICLE DIVISION (orthogonal rule-based particle op – teal)
+    "particle_division_process":  "#B8E2E8",  # keep this as the distinct teal
 
-    # --- FIELDS (LB media yellows) ---
-    "fields":      "#E8DFAF",
-    "diffusion":   "#C8A837",
+    # NEWTONIAN PARTICLES (richer, “energized” particle green)
+    "newtonian_particles_state":  "#93C89E",
+    "newtonian_particles_process":"#93C89E",
 
-    # --- dFBA (metabolic reds) ---
-    "dfba_base":   "#B84C48",
-    "dfba_light":  "#E6B4B0",
+    # FIELDS (yellow)
+    "fields":                     "#F2E39C",
+    "diffusion":                  "#F2E39C",
 
-    # --- LOCAL / EXCHANGE (fields ↔ dFBA bridge: yellow → orange) ---
-    "local":       "#E9C88B",
-    "exchange":    "#D9A56F",
+    # dFBA (coral/red)
+    "dfba_state":                 "#E9A89C",
+    "dfba_process":               "#B84C48",
 
-    # --- PARTICLE ↔ FIELD BRIDGE (green → yellow olive) ---
-    "particle_exchange_bridge": "#BFC78F",
+    # LOCAL / EXCHANGE (yellow-orange → orange)
+    "local":                      "#F4C48A",
+    "exchange":                   "#E7A86A",
+
+    # PARTICLE ↔ FIELD BRIDGE (yellow-green midpoint)
+    "particle_exchange_bridge":   "#D1DF89",
 }
+
+
+
+# COLORS = {
+#     # --- PARTICLES (greens) ---
+#     "particles_state":        "#C9DCCF",
+#     "particles_process":     "#7FA889",
+#     "particle_division_process": "#7FA889",
+#
+#     # --- NEWTONIAN PARTICLES (teal greens) ---
+#     "newtonian_particles_process": "#3F716F",
+#     "newtonian_particles_state":   "#8DBFBA",
+#
+#     # --- FIELDS (LB media yellows) ---
+#     "fields":      "#E8DFAF",
+#     "diffusion":   "#C8A837",
+#
+#     # --- dFBA (metabolic reds) ---
+#     "dfba_process":   "#B84C48",
+#     "dfba_state":  "#E6B4B0",
+#
+#     # --- LOCAL / EXCHANGE (fields ↔ dFBA bridge: yellow → orange) ---
+#     "local":       "#E9C88B",
+#     "exchange":    "#D9A56F",
+#
+#     # --- PARTICLE ↔ FIELD BRIDGE (green → yellow olive) ---
+#     "particle_exchange_bridge": "#BFC78F",
+# }
 
 
 
@@ -91,9 +122,9 @@ def build_plot_settings(
 
     fills = {
         # particle family
-        ("particles",):                 COLORS["particles_base"],
+        ("particles",):                 COLORS["particles_state"],
         ("brownian_movement",):         COLORS["particles_process"],
-        ("particle_division",):         COLORS["particles_process"],
+        ("particle_division",):         COLORS["particle_division_process"],
         ("particle_exchange",):         COLORS["particle_exchange_bridge"],
 
         # newtonian particle family
@@ -106,10 +137,10 @@ def build_plot_settings(
         ("diffusion",):                 COLORS["diffusion"],
 
         # dFBA
-        ("spatial_dFBA",):              COLORS["dfba_light"],
-        ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_base"],
-        ("dFBA",):                      COLORS["dfba_base"],
-        ("monod_kinetics",):            COLORS["dfba_base"],
+        ("spatial_dFBA",):              COLORS["dfba_state"],
+        ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_state"],
+        ("dFBA",):                      COLORS["dfba_process"],
+        ("monod_kinetics",):            COLORS["dfba_process"],
     }
 
     # --- auto-generate field species ---
@@ -131,19 +162,19 @@ def build_plot_settings(
     for s in field_biomass_species:
         fills[("fields", s)] =          COLORS["fields"]
         fills[("fields", f'{s} biomass')] = COLORS["fields"]
-        fills[(f'{s} dFBA',)] =         COLORS["dfba_base"]
+        fills[(f'{s} dFBA',)] =         COLORS["dfba_process"]
 
     # ---- particle-specific stuff unchanged, example: ----
     for pid in particle_ids:
         fills.update({
-            ("particles", pid):             COLORS["particles_base"],
-            ("particles", pid, "id"):       COLORS["particles_base"],
-            ("particles", pid, "position"): COLORS["particles_base"],
-            ("particles", pid, "mass"):     COLORS["particles_base"],
+            ("particles", pid):             COLORS["particles_state"],
+            ("particles", pid, "id"):       COLORS["particles_state"],
+            ("particles", pid, "position"): COLORS["particles_state"],
+            ("particles", pid, "mass"):     COLORS["particles_state"],
             ('particles', pid, 'local'):    COLORS["local"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
-            ('particles', pid, 'dFBA'):     COLORS["dfba_base"],
-            ('particles', pid, 'monod_kinetics'): COLORS["dfba_base"],
+            ('particles', pid, 'dFBA'):     COLORS["dfba_process"],
+            ('particles', pid, 'monod_kinetics'): COLORS["dfba_process"],
             ('particles', pid, 'shape'):    COLORS["newtonian_particles_state"],
             ('particles', pid, 'velocity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'inertia'):  COLORS["newtonian_particles_state"],
@@ -152,14 +183,14 @@ def build_plot_settings(
             ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
         })
         fills.update({
-            (pid,):             COLORS["particles_base"],
-            (pid, "id"):        COLORS["particles_base"],
-            (pid, "position"):  COLORS["particles_base"],
-            (pid, "mass"):      COLORS["particles_base"],
+            (pid,):             COLORS["particles_state"],
+            (pid, "id"):        COLORS["particles_state"],
+            (pid, "position"):  COLORS["particles_state"],
+            (pid, "mass"):      COLORS["particles_state"],
             (pid, 'local'):     COLORS["local"],
             (pid, 'exchange'):  COLORS["exchange"],
-            (pid, 'dFBA'):      COLORS["dfba_base"],
-            (pid, 'monod_kinetics'): COLORS["dfba_base"],
+            (pid, 'dFBA'):      COLORS["dfba_process"],
+            (pid, 'monod_kinetics'): COLORS["dfba_process"],
             (pid, 'shape'):     COLORS["newtonian_particles_state"],
             (pid, 'velocity'):  COLORS["newtonian_particles_state"],
             (pid, 'inertia'):   COLORS["newtonian_particles_state"],
