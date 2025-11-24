@@ -36,6 +36,7 @@ from spatio_flux.processes import (
     initialize_fields, get_kinetic_particle_composition,
     get_dfba_particle_composition, get_particles_state,
     MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
+    get_kinetics_process_from_registry, get_spatial_many_kinetics,
     get_particle_divide_process, DIVISION_MASS_THRESHOLD,
     get_newtonian_particles_state,
 )
@@ -575,8 +576,9 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
 
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    bounds = tuple(x * 10 for x in DEFAULT_BOUNDS)
-    n_bins = DEFAULT_BINS
+    bounds_default = tuple(x * 10 for x in DEFAULT_BOUNDS)
+    bounds = config.get('bounds', bounds_default)
+    n_bins = config.get('n_bins', DEFAULT_BINS)
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 4
     particle_advection = (0, -0.2) #DEFAULT_ADVECTION
@@ -604,6 +606,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
             'fields': fields,
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             # 'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            'spatial_kinetics': get_spatial_many_kinetics(model_id='single_substrate_assimilation', n_bins=n_bins, mol_ids=mol_ids),
             'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds'],
                                                        # particle_radius_range=config['new_particle_radius_range'],
                                                        particle_mass_range=config['new_particle_mass_range'],

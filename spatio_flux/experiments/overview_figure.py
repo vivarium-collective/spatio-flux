@@ -15,6 +15,7 @@ def composite_figure(
         outdir="out",
         config=None
 ):
+    config = config or {'n_bins': (2, 2), 'bounds': (1.0, 1.0)}
     document = get_newtonian_particle_comets_doc(core, config)
     sim = Composite(document, core=core)
 

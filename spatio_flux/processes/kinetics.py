@@ -3,13 +3,14 @@ Monod Kinetics Process
 """
 
 from process_bigraph import Process
+from spatio_flux.library.tools import build_path
 
 
 def get_single_substrate_assimilation_kinetics_config():
     return {
         'reactions': {
             'assimilate_glucose': {'reactant': 'glucose', 'product': 'mass'},
-            'maintenance_turnover': {'reactant': 'mass', 'product': 'detritus'},
+            'maintenance_turnover': {'reactant': 'mass', 'product': 'acetate'},
         },
         'kinetic_params': {
             'glucose': (0.5, 0.03),  # higher Vmax = faster growth potential
@@ -67,6 +68,42 @@ def get_autotrophic_kinetics_config():
         'kinetic_params': {
         'ammonium': (0.2, 0.01),
         'mass':     (1.0, 0.001),
+        }
+    }
+
+
+MODEL_REGISTRY_KINETICS = {
+    'single_substrate_assimilation': get_single_substrate_assimilation_kinetics_config,
+    'two_substrate_assimilation': get_two_substrate_assimilation_kinetics_config,
+    'overflow_metabolism': get_overflow_metabolism_kinetics_config,
+    'cross_feeding': get_cross_feeding_kinetics_config,
+    'autotrophic': get_autotrophic_kinetics_config,
+}
+
+
+def get_kinetics_process_from_registry(
+    model_id,
+    path,
+    mol_ids=None,
+    biomass_id=None,
+    i=None,
+    j=None,
+):
+    model_config = MODEL_REGISTRY_KINETICS[model_id]()
+    # mol_ids = model_config['substrate_update_reactions'].keys()
+    biomass_id = biomass_id or 'biomass'
+
+    return {
+        "_type": "process",
+        "address": "local:MonodKinetics",
+        "config": model_config,
+        "inputs": {
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, i, j)
+        },
+        "outputs": {
+            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, i, j)
         }
     }
 
