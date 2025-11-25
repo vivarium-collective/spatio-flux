@@ -30,10 +30,11 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 )
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
+from spatio_flux.library.tools import initialize_fields
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
-    initialize_fields, get_kinetic_particle_composition,
+    get_kinetic_particle_composition,
     get_dfba_particle_composition, get_particles_state,
     MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
     get_kinetics_process_from_registry, get_spatial_many_kinetics,

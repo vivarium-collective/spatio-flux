@@ -149,15 +149,15 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
 # --- Types ---
 
 conc_counts_type = {
-    'volume': 'float',
-    'counts': 'float',
-    'concentration': 'float',
+    'volume': default('float', 1.0),
+    'counts': default('float', 1.0),
+    'concentration': default('float', 1.0),
     '_apply': apply_conc_counts,
 }
 
 conc_counts_field_type = {
     # Could be scalar (uniform per site) or an array with a given shape
-    'volume': 'float',  # or an array spec if you prefer per-site volumes
+    'volume': default('float', 1.0),  # or an array spec if you prefer per-site volumes
 
     'counts': {
         '_type': 'array',

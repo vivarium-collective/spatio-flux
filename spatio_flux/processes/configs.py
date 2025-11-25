@@ -2,8 +2,8 @@ import numpy as np
 from bigraph_schema import deep_merge
 
 from process_bigraph import default
-from spatio_flux.library.tools import initialize_fields, build_path
-from spatio_flux.processes import MonodKinetics, get_kinetics_process_from_registry
+from spatio_flux.library.tools import build_path
+from spatio_flux.processes import MonodKinetics
 from spatio_flux.processes.particles import BrownianMovement
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
@@ -202,23 +202,6 @@ def get_spatial_many_dfba(
             dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
 
     return dfba_processes_dict
-
-
-def get_spatial_many_kinetics(
-        n_bins=(5, 5),
-        model_id="single_substrate_assimilation",
-        biomass_id="dissolved biomass",
-        mol_ids=None,
-):
-    kinetics_processes_dict = {}
-    for i in range(n_bins[0]):
-        for j in range(n_bins[1]):
-            kinetics_process = get_kinetics_process_from_registry(
-                model_id=model_id, mol_ids=mol_ids,
-                path=["..", "fields"], biomass_id=biomass_id, i=i, j=j)
-            kinetics_processes_dict[f"monod_kinetics[{i},{j}]"] = kinetics_process
-    return kinetics_processes_dict
-
 
 
 def get_spatial_many_dfba_with_fields(
