@@ -11,7 +11,7 @@ from bigraph_viz import plot_bigraph
 from process_bigraph import Composite, gather_emitter_results
 from process_bigraph.emitter import emitter_from_wires
 from vivarium.vivarium import VivariumTypes
-from spatio_flux.library.colors import build_plot_settings
+from spatio_flux.plots.colors import build_plot_settings
 
 
 def build_path(base_path, mol_id, i=None, j=None):
@@ -191,12 +191,42 @@ def generate_html_report(
         '<h1>Simulation Results</h1>'
     ]
 
-    # Table of Contents
+    # ------------------------------------------------------------------
+    # Table of Contents (now BEFORE overview figures)
+    # ------------------------------------------------------------------
     html.append('<nav><h2>Contents</h2><ul>')
+
+    # # Overview entries
+    # html.append('<li><a href="#process_overview">Process Overview</a></li>')
+    # html.append('<li><a href="#type_overview">Type Overview</a></li>')
+
+    # Simulation entries
     for test in simulations:
         html.append(f'<li><a href="#{test}">{test}</a></li>')
+
     html.append('</ul></nav>')
 
+    # # ------------------------------------------------------------------
+    # # Overview figures
+    # # ------------------------------------------------------------------
+    # process_png = output_dir / "process_overview.png"
+    # type_png = output_dir / "type_overview.png"
+    #
+    # html.append('<h2 id="process_overview">Process Overview</h2>')
+    # if process_png.exists():
+    #     html.append(f'<img src="{process_png.name}" style="max-width:100%; height:auto;"><hr>')
+    # else:
+    #     html.append('<p><em>No process overview image found.</em></p>')
+    #
+    # html.append('<h2 id="type_overview">Type Overview</h2>')
+    # if type_png.exists():
+    #     html.append(f'<img src="{type_png.name}" style="max-width:100%; height:auto;"><hr>')
+    # else:
+    #     html.append('<p><em>No type overview image found.</em></p>')
+
+    # ------------------------------------------------------------------
+    # Group files by simulation
+    # ------------------------------------------------------------------
     test_files = {test: [] for test in simulations}
     others = []
 
@@ -210,6 +240,9 @@ def generate_html_report(
         else:
             others.append(file)
 
+    # ------------------------------------------------------------------
+    # Helper to pretty-print JSON as nested <details>
+    # ------------------------------------------------------------------
     def json_to_html(obj):
         if isinstance(obj, dict):
             return ''.join(
@@ -224,6 +257,9 @@ def generate_html_report(
         else:
             return f"<code>{html_escape(json.dumps(obj))}</code>"
 
+    # ------------------------------------------------------------------
+    # Per-simulation sections
+    # ------------------------------------------------------------------
     for test, files in test_files.items():
         if not files:
             continue
@@ -271,7 +307,6 @@ def generate_html_report(
         if viz_file:
             html.append(f'<h3>{viz_file.name}</h3>')
             html.append(f'<img src="{viz_file.name}" style="max-width:100%; height:auto; max-height:600px;">')
-            # html.append(f'<img src="{viz_file.name}" style="max-width:100%"><hr>')
 
         # PNG plots
         for f in pngs:
@@ -281,12 +316,15 @@ def generate_html_report(
         for f in gifs:
             html.append(f'<h3>{f.name}</h3><img src="{f.name}" style="max-width:100%"><hr>')
 
+    # ------------------------------------------------------------------
+    # Other files & total runtime
+    # ------------------------------------------------------------------
     if others:
         html.append('<h2>Other Generated Files</h2>')
         for f in sorted(others):
             html.append(f'<p>{f.name}</p>')
 
-    if total_sim_time:
+    if total_sim_time is not None:
         html.append(f'<h2>Total Simulation Time</h2><p><strong>{total_sim_time:.2f} seconds</strong></p>')
 
     html.append('</body></html>')

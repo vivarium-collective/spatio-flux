@@ -10,7 +10,7 @@ import pymunk
 from process_bigraph import Composite, gather_emitter_results, Process
 from process_bigraph.emitter import emitter_from_wires
 from spatio_flux.plots.multibody_plots import pymunk_simulation_to_gif
-from spatio_flux.library.helpers import get_standard_emitter
+from spatio_flux.library.tools import get_standard_emitter
 
 
 def daughter_positions(parent_state, *, gap=1.0, daughter_length=None, daughter_radius=None):
@@ -200,12 +200,12 @@ class PymunkParticleMovement(Process):
 
     def inputs(self):
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[complex_particle]',
         }
 
     def outputs(self):
         return {
-            'particles': 'map[particle]',
+            'particles': 'map[complex_particle]',
         }
 
     def _spawn_new_particle_at_boundary(self, side):
@@ -878,8 +878,8 @@ def run_pymunk_particles():
         document['state']['emitter'] = get_standard_emitter(state_keys=state_keys)
 
     # create the composite simulation
-    from spatio_flux import core_import
-    core = core_import()
+    from spatio_flux import build_core
+    core = build_core()
     sim = Composite(document, core=core)
 
     # Save composition JSON

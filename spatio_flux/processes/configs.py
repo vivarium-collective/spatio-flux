@@ -2,8 +2,8 @@ import numpy as np
 from bigraph_schema import deep_merge
 
 from process_bigraph import default
-from spatio_flux.library.helpers import initialize_fields, build_path
-from spatio_flux.processes import MonodKinetics
+from spatio_flux.library.tools import initialize_fields, build_path
+from spatio_flux.processes import MonodKinetics, get_kinetics_process_from_registry
 from spatio_flux.processes.particles import BrownianMovement
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
@@ -104,7 +104,7 @@ def get_single_dfba_process(
         }
     }
 
-def get_spatial_dfba_process(
+def get_spatial_dFBA_process(
         model_id=None,  # choose default from ['ecoli core', 'ecoli', 'cdiff', 'pputida', 'yeast', 'llactis']
         config=None,
         path=None,
@@ -202,6 +202,24 @@ def get_spatial_many_dfba(
             dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
 
     return dfba_processes_dict
+
+
+def get_spatial_many_kinetics(
+        n_bins=(5, 5),
+        model_id="single_substrate_assimilation",
+        biomass_id="dissolved biomass",
+        mol_ids=None,
+):
+    kinetics_processes_dict = {}
+    for i in range(n_bins[0]):
+        for j in range(n_bins[1]):
+            kinetics_process = get_kinetics_process_from_registry(
+                model_id=model_id, mol_ids=mol_ids,
+                path=["..", "fields"], biomass_id=biomass_id, i=i, j=j)
+            kinetics_processes_dict[f"monod_kinetics[{i},{j}]"] = kinetics_process
+    return kinetics_processes_dict
+
+
 
 def get_spatial_many_dfba_with_fields(
         n_bins=(5, 5),
@@ -349,25 +367,25 @@ def get_kinetic_particle_composition(core, config=None):
             '_type': 'map',
             '_value': {
                 # '_inherit': 'particle',
-                'kinetics': {
+                'monod_kinetics': {
                     '_type': 'process',
                     'address': default('string', 'local:MonodKinetics'),
                     'config': default('quote', config),
                     '_inputs': {
-                        'mass': 'float',
+                        'biomass': 'float',
                         'substrates': 'map[concentration]'
                     },
                     '_outputs':  {
-                        'mass': 'float',
+                        'biomass': 'float',
                         'substrates': 'map[float]'
                     },
                     'inputs': default(
                         'tree[wires]', {
-                            'mass': ['mass'],
+                            'biomass': ['mass'],
                             'substrates': ['local']}),
                     'outputs': default(
                         'tree[wires]', {
-                            'mass': ['mass'],
+                            'biomass': ['mass'],
                             'substrates': ['exchange']})
                 }
             }

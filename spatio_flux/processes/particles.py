@@ -153,10 +153,10 @@ class BrownianMovement(Process):
     # ------------------------------------------------------------------
 
     def inputs(self):
-        return {'particles': 'map[simple_particle]'}
+        return {'particles': 'map[particle]'}
 
     def outputs(self):
-        return {'particles': 'map[simple_particle]'}
+        return {'particles': 'map[particle]'}
 
     def initial_state(self, config=None):
         return {}
@@ -303,7 +303,7 @@ class ParticleExchange(Step):
 
     def inputs(self):
         return {
-            'particles': 'map[simple_particle]',
+            'particles': 'map[particle]',
             'fields': {
                 '_type': 'map',
                 '_value': {
@@ -399,13 +399,13 @@ class ParticleDivision(Step):
     def inputs(self):
         # Only particles are needed
         return {
-            'particles': 'map[simple_particle]',
+            'particles': 'map[particle]',
         }
 
     def outputs(self):
         # Emit particle deltas in the same convention: _remove, _add, and/or per-id updates
         return {
-            'particles': 'map[simple_particle]',
+            'particles': 'map[particle]',
         }
 
     def initial_state(self, config=None):
