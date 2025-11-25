@@ -14,6 +14,8 @@ from spatio_flux.processes.particles import BrownianMovement
 from spatio_flux.plots.plot import plot_species_distributions_with_particles_to_gif
 
 
+# --- apply functions ---
+
 def apply_non_negative(schema, current, update, top_schema, top_state, path, core):
     new_value = current + update
     return max(0, new_value)
@@ -40,6 +42,147 @@ def apply_non_negative_array(schema, current, update, top_schema, top_state, pat
     recursive_update(result, current, update)
     return result
 
+def apply_conc_counts(schema, current, update, top_schema, top_state, path, core):
+    """
+    Generic conc-counts-volume handler that works for both scalars and fields.
+
+    Type (conceptually):
+    {
+        'volume': float or np.ndarray,        # container size per site
+        'counts': float or np.ndarray,        # total amount per site
+        'concentration': float or np.ndarray, # counts / volume per site
+    }
+
+    Semantics:
+      - Updates are treated as *deltas*:
+          update = {
+              'volume': ΔV (optional),
+              'counts': ΔN (optional),
+              'concentration': ΔC (optional),
+          }
+      - Counts are canonical.
+      - Concentration is derived: concentration = counts / volume.
+      - If volume changes (and we're allowed to), we keep counts fixed and recompute concentration.
+      - If concentration changes, we interpret ΔC as an additional amount: ΔN_conc = ΔC * V_new.
+
+    Extra schema flag:
+      - schema.get('_fixed_volume', False) -> if True, any non-zero ΔV is disallowed.
+    """
+
+    # Allow schema to control whether volume is fixed (e.g. for fields)
+    fixed_volume = bool(schema.get('_fixed_volume', False))
+
+    if current is None:
+        current = {'volume': 0.0, 'counts': 0.0, 'concentration': 0.0}
+
+    if not isinstance(update, dict):
+        raise ValueError(
+            f"Update to conc_counts at {path} must be a dict, got {type(update)}"
+        )
+
+    # --- Extract current state as arrays ---
+    volume_current = current.get('volume', 0.0)
+    counts_current = current.get('counts', 0.0)
+
+    volume_arr = np.asarray(volume_current, dtype=float)
+    counts_arr = np.asarray(counts_current, dtype=float)
+
+    # --- Handle volume update / fixed volume ---
+    if fixed_volume:
+        # Volume is not allowed to change
+        if 'volume' in update:
+            dV_arr = np.asarray(update['volume'], dtype=float)
+            if np.any(dV_arr != 0.0):
+                raise ValueError(
+                    f"Volume updates are not allowed for conc_counts at {path} "
+                    f"(schema has _fixed_volume=True)"
+                )
+        V_new_arr = volume_arr
+    else:
+        dV_arr = np.asarray(update.get('volume', 0.0), dtype=float)
+        V_new_arr = volume_arr + dV_arr
+        if np.any(V_new_arr <= 0):
+            raise ValueError(
+                f"Volume would become non-positive at {path}: {V_new_arr}"
+            )
+
+    # --- Deltas for counts and concentration ---
+    dN_arr = np.asarray(update.get('counts', 0.0), dtype=float)
+    dC_arr = np.asarray(update.get('concentration', 0.0), dtype=float)
+
+    # Broadcasting handles scalar vs array cases
+    d_amount_from_counts = dN_arr
+    d_amount_from_conc = dC_arr * V_new_arr
+
+    counts_new = counts_arr + d_amount_from_counts + d_amount_from_conc
+
+    # Enforce non-negativity elementwise
+    counts_new = np.where(counts_new < 0, 0.0, counts_new)
+
+    conc_new = counts_new / V_new_arr
+
+    # --- Helper to keep scalars as scalars, arrays as arrays ---
+    def maybe_scalar(x, prefer_scalar):
+        arr = np.asarray(x, dtype=float)
+        if prefer_scalar and arr.shape == ():
+            return float(arr)
+        return arr
+
+    # Detect whether original was scalar
+    counts_was_scalar = np.asarray(counts_current).shape == ()
+    volume_was_scalar = np.asarray(volume_current).shape == ()
+
+    # For volume:
+    V_out = maybe_scalar(V_new_arr, volume_was_scalar)
+
+    # For counts and concentration:
+    counts_out = maybe_scalar(counts_new, counts_was_scalar)
+    conc_out = maybe_scalar(conc_new, counts_was_scalar)
+
+    return {
+        'volume': V_out,
+        'counts': counts_out,
+        'concentration': conc_out,
+    }
+
+
+# --- Types ---
+
+conc_counts_type = {
+    'volume': 'float',
+    'counts': 'float',
+    'concentration': 'float',
+    '_apply': apply_conc_counts,
+}
+
+conc_counts_field_type = {
+    # Could be scalar (uniform per site) or an array with a given shape
+    'volume': 'float',  # or an array spec if you prefer per-site volumes
+
+    'counts': {
+        '_type': 'array',
+        '_data': 'float',
+        # '_shape': (nx, ny)  # whatever n_bins is
+    },
+    'concentration': {
+        '_type': 'array',
+        '_data': 'float',
+        # '_shape': (nx, ny)
+    },
+
+    # tells the unified apply to disallow Δvolume
+    '_fixed_volume': True,
+    '_apply': apply_conc_counts,
+}
+
+fields_type =  {
+    '_type': 'map',
+    '_value': {
+        '_type': 'array',
+        # '_shape': self.config['n_bins'],
+        '_data': 'concentration'
+    },
+}
 
 positive_float = {
     '_inherit': 'float',
@@ -64,7 +207,7 @@ simple_particle_type = {
     'position': 'position',
     'mass': default('concentration', 1.0),
     'local': 'map[concentration]',
-    'exchange': 'map[counts]',  # TODO is this counts?
+    'exchange': 'map[counts]',
 }
 
 particle_type = {
@@ -80,97 +223,17 @@ particle_type = {
 boundary_side = 'enum[left,right,top,bottom]'
 
 substrate_role_type = 'enum[reactant,product,enzyme]'
+
 kinetics_type = {
     'vmax': 'float',
     'kcat': 'float',
     'role': 'substrate_role'}
+
 reaction_type = 'map[kinetics]'
 
-# fields_type = 'map[concentration]'
-fields_type =  {
-    '_type': 'map',
-    '_value': {
-        '_type': 'array',
-        # '_shape': self.config['n_bins'],
-        '_data': 'concentration'
-    },
-}
 
 
-def apply_conc_counts_volume(schema, current, update, top_schema, top_state, path, core):
-    """
-    Type: {
-        'volume': float,          # container size
-        'counts': float,          # total amount
-        'concentration': float,   # counts / volume
-    }
-
-    Semantics:
-      - Updates are treated as *deltas*:
-          update = {
-              'volume': ΔV (optional),
-              'counts': ΔN (optional),
-              'concentration': ΔC (optional),
-          }
-      - Counts are the canonical amount.
-      - Concentration is derived: concentration = counts / volume.
-      - If volume changes, we keep counts (amount) fixed and recompute concentration.
-      - If concentration changes, we interpret ΔC as an additional amount: ΔN_conc = ΔC * V_new.
-    """
-    if current is None:
-        current = {'volume': 0.0, 'counts': 0.0, 'concentration': 0.0}
-
-    if not isinstance(update, dict):
-        raise ValueError(
-            f"Update to conc_counts_volume at {path} must be a dict, got {type(update)}"
-        )
-
-    # Extract current state
-    volume = float(current.get('volume', 0.0))
-    counts = float(current.get('counts', 0.0))
-
-    # Extract deltas (default to 0)
-    dV = float(update.get('volume', 0.0)) if 'volume' in update else 0.0
-    dN = float(update.get('counts', 0.0)) if 'counts' in update else 0.0
-    dC = float(update.get('concentration', 0.0)) if 'concentration' in update else 0.0
-
-    # 1. Update volume first
-    V_new = volume + dV
-    if V_new <= 0:
-        raise ValueError(
-            f"Volume would become non-positive at {path}: {V_new}"
-        )
-
-    # 2. Interpret all changes as changes in amount (counts are canonical)
-    amount = counts
-    d_amount_from_counts = dN
-    d_amount_from_conc = dC * V_new  # concentration * volume = counts (in arbitrary units)
-
-    amount_new = amount + d_amount_from_counts + d_amount_from_conc
-
-    # Enforce non-negativity on amount
-    if amount_new < 0:
-        amount_new = 0.0
-
-    counts_new = amount_new
-    concentration_new = counts_new / V_new if V_new > 0 else 0.0
-
-    return {
-        'volume': V_new,
-        'counts': counts_new,
-        'concentration': concentration_new,
-    }
-
-
-
-conc_counts_volume_type = {
-    'volume': 'float',
-    'counts': 'float',
-    'concentration': 'float',
-    # custom _apply controls how updates are combined.
-    '_apply': apply_conc_counts_volume,
-}
-
+#--- Register types ---
 
 SPATIO_FLUX_TYPES = {
     'position': 'tuple[float,float]',
@@ -181,8 +244,8 @@ SPATIO_FLUX_TYPES = {
     'complex_particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,
-    'conc_counts_volume': conc_counts_volume_type,
-    # TODO fields, concentrations, fluxes, etc.
+    'conc_counts': conc_counts_type,
+    'conc_counts_field': conc_counts_field_type,
 }
 
 TYPES_DICT = {

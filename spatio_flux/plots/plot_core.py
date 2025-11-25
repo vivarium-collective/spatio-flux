@@ -103,11 +103,10 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
     # },
     'fields': {
         'substrate_id': {
-            '_type': 'conc_counts_volume',
+            '_type': 'conc_counts',
             'volume': 1,
             'counts': 1,
             'concentration': 1,
-            # '_apply': apply_conc_counts_volume,
         },
     },
     # 'fields': {
