@@ -331,12 +331,12 @@ def get_particles_with_fields_doc(core=None, config=None):
     initial_min_max = {'glucose': (0.5, 2.0), 'acetate': (0, 0)}
     particle_config = {
         'reactions': {
-            'grow': {'reactant': 'glucose', 'product': 'mass'},
-            'release': {'reactant': 'mass', 'product': 'acetate'}
+            'grow': {'reactant': 'glucose', 'product': 'biomass'},
+            'release': {'reactant': 'biomass', 'product': 'acetate'}
         },
         'kinetic_params': {
             'glucose': (0.5, 0.01),
-            'mass': (1.0, 0.001)
+            'biomass': (1.0, 0.001)
         }
     }
     n_bins = DEFAULT_BINS

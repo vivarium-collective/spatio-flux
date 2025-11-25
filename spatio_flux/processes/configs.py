@@ -372,20 +372,20 @@ def get_kinetic_particle_composition(core, config=None):
                     'address': default('string', 'local:MonodKinetics'),
                     'config': default('quote', config),
                     '_inputs': {
-                        'mass': 'float',
+                        'biomass': 'float',
                         'substrates': 'map[concentration]'
                     },
                     '_outputs':  {
-                        'mass': 'float',
+                        'biomass': 'float',
                         'substrates': 'map[float]'
                     },
                     'inputs': default(
                         'tree[wires]', {
-                            'mass': ['mass'],
+                            'biomass': ['mass'],
                             'substrates': ['local']}),
                     'outputs': default(
                         'tree[wires]', {
-                            'mass': ['mass'],
+                            'biomass': ['mass'],
                             'substrates': ['exchange']})
                 }
             }
