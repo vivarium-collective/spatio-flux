@@ -249,19 +249,38 @@ def run_kinetics_example(core=None):
 
     sim = Composite(document, core=core)
 
-    ttotal = 10
-    sim.run(ttotal)
+    time = 10
+    sim.run(time)
 
     results = gather_emitter_results(sim)
 
     print(results)
 
+import numpy as np
+
+def get_fields(n_bins, mol_ids, initial_min_max=None, initial_fields=None):
+    initial_min_max = initial_min_max or {}
+    initial_fields = initial_fields or {}
+
+    for mol_id in mol_ids:
+        if mol_id not in initial_fields:
+            minmax = initial_min_max.get(mol_id, (0, 1))
+            initial_fields[mol_id] = np.random.uniform(
+                low=minmax[0],
+                high=minmax[1],
+                size=n_bins
+            )
+
+    return initial_fields
 
 def run_spatial_kinetics(core=None):
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    n_bins = (5, 5)
+    n_bins = (2, 2)
+    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
+
     document = {
         'state': {
+            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
             'spatial_kinetics': get_spatial_many_kinetics(
                 model_id='single_substrate_assimilation', n_bins=n_bins, mol_ids=mol_ids),
             'emitter': get_standard_emitter(state_keys=['fields'])
@@ -270,8 +289,8 @@ def run_spatial_kinetics(core=None):
 
     sim = Composite(document, core=core)
 
-    ttotal = 10
-    sim.run(ttotal)
+    time = 10
+    sim.run(time)
 
     results = gather_emitter_results(sim)
 

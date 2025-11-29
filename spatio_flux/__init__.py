@@ -46,20 +46,21 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
     """
     Generic conc-counts-volume handler that works for both scalars and fields.
 
-    Type (conceptually):
+    State (conceptually):
     {
         'volume': float or np.ndarray,        # container size per site
         'counts': float or np.ndarray,        # total amount per site
         'concentration': float or np.ndarray, # counts / volume per site
     }
 
-    Semantics:
+    Update semantics:
       - Updates are treated as *deltas*:
           update = {
               'volume': ΔV (optional),
               'counts': ΔN (optional),
               'concentration': ΔC (optional),
           }
+
       - Counts are canonical.
       - Concentration is derived: concentration = counts / volume.
       - If volume changes (and we're allowed to), we keep counts fixed and recompute concentration.
@@ -67,9 +68,12 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
 
     Extra schema flag:
       - schema.get('_fixed_volume', False) -> if True, any non-zero ΔV is disallowed.
+
+    Extra update forms supported for fields:
+      - 'counts': {'index': (i, j, ...), 'delta': dN}
+      - 'concentration': {'index': (i, j, ...), 'delta': dC}
     """
 
-    # Allow schema to control whether volume is fixed (e.g. for fields)
     fixed_volume = bool(schema.get('_fixed_volume', False))
 
     if current is None:
@@ -87,9 +91,29 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
     volume_arr = np.asarray(volume_current, dtype=float)
     counts_arr = np.asarray(counts_current, dtype=float)
 
+    # Helper: expand a delta spec into an array (for fields) or keep scalar
+    def expand_delta(delta_val, shape, field_name):
+        """
+        delta_val can be:
+          - scalar -> kept scalar
+          - array-like -> np.asarray
+          - dict: {'index': (i,...), 'delta': float} -> array with one nonzero entry
+        """
+        if isinstance(delta_val, dict):
+            if 'index' not in delta_val:
+                raise ValueError(
+                    f"Delta for {field_name} at {path} is a dict but has no 'index' key"
+                )
+            idx = tuple(delta_val['index'])
+            d = float(delta_val.get('delta', 0.0))
+            arr = np.zeros(shape, dtype=float)
+            arr[idx] += d
+            return arr
+
+        return np.asarray(delta_val, dtype=float)
+
     # --- Handle volume update / fixed volume ---
     if fixed_volume:
-        # Volume is not allowed to change
         if 'volume' in update:
             dV_arr = np.asarray(update['volume'], dtype=float)
             if np.any(dV_arr != 0.0):
@@ -107,8 +131,11 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
             )
 
     # --- Deltas for counts and concentration ---
-    dN_arr = np.asarray(update.get('counts', 0.0), dtype=float)
-    dC_arr = np.asarray(update.get('concentration', 0.0), dtype=float)
+    dN_raw = update.get('counts', 0.0)
+    dC_raw = update.get('concentration', 0.0)
+
+    dN_arr = expand_delta(dN_raw, counts_arr.shape, 'counts')
+    dC_arr = expand_delta(dC_raw, counts_arr.shape, 'concentration')
 
     # Broadcasting handles scalar vs array cases
     d_amount_from_counts = dN_arr
@@ -128,14 +155,10 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
             return float(arr)
         return arr
 
-    # Detect whether original was scalar
     counts_was_scalar = np.asarray(counts_current).shape == ()
     volume_was_scalar = np.asarray(volume_current).shape == ()
 
-    # For volume:
     V_out = maybe_scalar(V_new_arr, volume_was_scalar)
-
-    # For counts and concentration:
     counts_out = maybe_scalar(counts_new, counts_was_scalar)
     conc_out = maybe_scalar(conc_new, counts_was_scalar)
 
@@ -146,9 +169,68 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
     }
 
 
+def slice_conc_counts(schema, state, path, core):
+    """
+    Custom slicer for conc_counts_field_type.
+
+    - schema: conc_counts_field_type schema
+    - state:  {'volume', 'counts', 'concentration'}
+    - path:   sequence of indices, e.g. ['3', '5'] or [3, 5]
+
+    Behaviors:
+      * If path is empty -> return as-is.
+      * If path contains indices (0, 1, ...) -> index into counts/conc (and volume if array).
+      * When we reach a scalar site -> return conc_counts_float_type and scalar state.
+    """
+    if not path:
+        # nothing more to slice
+        return schema, state
+
+    head, *tail = path
+
+    # interpret numeric indices
+    if isinstance(head, str):
+        try:
+            idx = int(head)
+        except ValueError:
+            # If it's not an int, fall back to normal structural slicing (e.g. 'counts')
+            step = state[head]
+            subschema = schema[head]
+            return core.slice(subschema, step, tail)
+    else:
+        idx = head
+
+    # state is a conc_counts field: dict with 'volume', 'counts', 'concentration'
+    counts_arr = np.asarray(state['counts'])
+    conc_arr = np.asarray(state['concentration'])
+    vol = state['volume']
+
+    # slice first dimension with idx
+    counts_slice = counts_arr[idx]
+    conc_slice = conc_arr[idx]
+    if isinstance(vol, np.ndarray):
+        vol_slice = vol[idx]
+    else:
+        vol_slice = vol  # uniform volume
+
+    sub_state = {
+        'volume': vol_slice,
+        'counts': counts_slice,
+        'concentration': conc_slice,
+    }
+
+    if tail:
+        # still more indices to go; recurse
+        return slice_conc_counts(schema, sub_state, tail, core)
+    else:
+        # leaf: we’re at a single site (scalar or 1D leftover)
+        # treat this as a scalar conc_counts
+        return conc_counts_float_type, sub_state
+
+
 # --- Types ---
 
-conc_counts_type = {
+conc_counts_float_type = {
     'volume': default('float', 1.0),
     'counts': default('float', 1.0),
     'concentration': default('float', 1.0),
@@ -173,7 +255,14 @@ conc_counts_field_type = {
     # tells the unified apply to disallow Δvolume
     '_fixed_volume': True,
     '_apply': apply_conc_counts,
+    '_slice': slice_conc_counts,
 }
+
+
+
+
+
+
 
 fields_type =  {
     '_type': 'map',
@@ -244,7 +333,7 @@ SPATIO_FLUX_TYPES = {
     'complex_particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,
-    'conc_counts': conc_counts_type,
+    'conc_counts': conc_counts_float_type,
     'conc_counts_field': conc_counts_field_type,
 }
 
