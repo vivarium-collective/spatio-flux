@@ -33,13 +33,3 @@ dev = [
 where = ["."]
 include = ["spatio_flux*"]
 exclude = ["tests*", "docs*"]
-
-# If you want console entry points later, uncomment and edit:
-# [project.scripts]
-# spatio-flux = "spatio_flux.cli:main"
-
-# uv local editable sources
-[tool.uv.sources]
-bigraph-schema = { path = "../bigraph-schema", editable = true }
-process-bigraph = { path = "../process-bigraph", editable = true }
-bigraph-viz = { path = "../bigraph-viz", editable = true }

@@ -29,7 +29,7 @@ jobs:
 
       - name: Install Python dependencies with uv
         run: |
-          # Install all dependencies into a uv-managed virtual environment
+          # Install all dependencies into a uv-managed virtual env
           uv sync
 
       - name: Run tests and generate report
