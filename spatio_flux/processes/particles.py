@@ -352,8 +352,9 @@ class ParticleExchange(Step):
             # apply exchange to field bin
             # convention: positive value -> adds to field at this bin
             for mol_id, delta in exch.items():
-                # you can multiply by dt here if exch is a rate
-                field_updates[mol_id][col, row] += delta
+                if mol_id in field_updates:
+                    # you can multiply by dt here if exch is a rate
+                    field_updates[mol_id][col, row] += delta
 
             # update particle's exchange state
             if not exch:
