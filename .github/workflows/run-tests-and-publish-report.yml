@@ -29,10 +29,8 @@ jobs:
 
       - name: Install Python dependencies with uv
         run: |
-          # Install your package in editable mode
-          uv pip install --system -e .
-          # Extra runtime dependencies
-          uv pip install --system matplotlib imageio ipython jupyter
+          # Install all dependencies into a uv-managed virtual environment
+          uv sync
 
       - name: Run tests and generate report
         run: |
