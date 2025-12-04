@@ -8,3 +8,4 @@ out/
 profile/
 .devenv*
 devenv.lock
+uv.lock
