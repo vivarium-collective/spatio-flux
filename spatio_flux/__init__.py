@@ -118,7 +118,7 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
       - If concentration changes, we interpret ΔC as an additional amount: ΔN_conc = ΔC * V_new.
     """
     if current is None:
-        current = {'volume': 0.0, 'counts': 0.0, 'concentration': 0.0}
+        current = {'volume': 1.0, 'counts': 0.0, 'concentration': 0.0}
 
     if not isinstance(update, dict):
         raise ValueError(
@@ -126,7 +126,7 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
         )
 
     # Extract current state
-    volume = float(current.get('volume', 0.0))
+    volume = float(current.get('volume', 1.0))
     counts = float(current.get('counts', 0.0))
 
     # Extract deltas (default to 0)
@@ -164,7 +164,7 @@ def apply_conc_counts(schema, current, update, top_schema, top_state, path, core
 
 
 conc_counts_type = {
-    'volume': 'float',
+    'volume': default('float', 1.0),
     'counts': 'float',
     'concentration': 'float',
     # custom _apply controls how updates are combined.

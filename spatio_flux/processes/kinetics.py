@@ -240,11 +240,13 @@ def run_kinetics_example(core=None):
         mol_ids = mol_ids,
         path=['fields'],
         biomass_id='dissolved biomass',
-        # i=i,
-        # j=j
     )
     document = {
         'state': {
+            'fields': {'glucose': {'concentration': 10.0},
+                       'acetate': {'concentration': 0.0},
+                       'dissolved biomass': {'concentration': 0.05}
+                       },
             'kinetics': kinetics_process,
             'emitter': get_standard_emitter(state_keys=['fields'])
         }
@@ -304,5 +306,5 @@ def run_spatial_kinetics(core=None):
 if __name__ == '__main__':
     from spatio_flux import build_core
     core = build_core()
-    # run_kinetics_example(core)
-    run_spatial_kinetics(core)
+    run_kinetics_example(core)
+    # run_spatial_kinetics(core)
