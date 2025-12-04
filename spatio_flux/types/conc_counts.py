@@ -176,86 +176,193 @@ class ConcCountsCell:
         else:
             raise KeyError(f"Unknown key for ConcCountsCell: {key!r}")
 
+# ===============================================
+# Type functions
+# ===============================================
 
+def default_conc_counts_grid(schema, core=None):
 
-
-
-
-
-
-
-
-
-def apply_conc_counts(schema, current, update, top_schema, top_state, path, core):
     """
-    Type: {
-        'volume': float,          # container size
-        'counts': float,          # total amount
-        'concentration': float,   # counts / volume
-    }
-
-    Semantics:
-      - Updates are treated as *deltas*:
-          update = {
-              'volume': ΔV (optional),
-              'counts': ΔN (optional),
-              'concentration': ΔC (optional),
-          }
-      - Counts are the canonical amount.
-      - Concentration is derived: concentration = counts / volume.
-      - If volume changes, we keep counts (amount) fixed and recompute concentration.
-      - If concentration changes, we interpret ΔC as an additional amount: ΔN_conc = ΔC * V_new.
+    Create a default ConcCountsGrid given the schema.
     """
+    shape = tuple(schema.get("shape", (1, 1)))
+    default_volume = float(schema.get("default_volume", 1.0))
+
+    return ConcCountsGrid.zeros(shape, volume=default_volume)
+
+def apply_conc_counts_grid(schema, current, update, top_schema, top_state, path, core):
+    """
+    Bigraph _apply for conc_counts_grid.
+
+    current: ConcCountsGrid or None
+    update: can be
+        - ConcCountsGrid
+        - dict with optional 'counts' and 'concentration' 2D arrays (deltas)
+    """
+    # Initialize if needed
     if current is None:
-        current = {'volume': 1.0, 'counts': 0.0, 'concentration': 0.0}
+        current = default_conc_counts_grid(schema, core=core)
 
+    # Case 1: update is another ConcCountsGrid
+    if isinstance(update, ConcCountsGrid):
+        if update.shape != current.shape:
+            raise ValueError(
+                f"Shape mismatch in conc_counts_grid apply at {path}: "
+                f"{current.shape} vs {update.shape}"
+            )
+        # Example: add counts; keep volume unchanged.
+        current.add_counts(update.counts)
+        return current
+
+    # Case 2: update is dict of deltas
     if not isinstance(update, dict):
         raise ValueError(
-            f"Update to conc_counts at {path} must be a dict, got {type(update)}"
+            f"Update to conc_counts_grid at {path} must be a dict or ConcCountsGrid, "
+            f"got {type(update)}"
         )
 
-    # Extract current state
-    volume = float(current.get('volume', 1.0))
-    counts = float(current.get('counts', 0.0))
+    # counts delta
+    if "counts" in update:
+        dN = np.asarray(update["counts"], dtype=float)
+        current.add_counts(dN)
 
-    # Extract deltas (default to 0)
-    dV = float(update.get('volume', 0.0)) if 'volume' in update else 0.0
-    dN = float(update.get('counts', 0.0)) if 'counts' in update else 0.0
-    dC = float(update.get('concentration', 0.0)) if 'concentration' in update else 0.0
+    # concentration delta (ΔC -> ΔN = ΔC * V)
+    if "concentration" in update:
+        dC = np.asarray(update["concentration"], dtype=float)
+        current.add_concentration(dC)
 
-    # 1. Update volume first
-    V_new = volume + dV
-    if V_new <= 0:
+    # optional: volume delta
+    if "volume" in update:
+        dV = np.asarray(update["volume"], dtype=float)
+        if dV.shape != current.volume.shape:
+            raise ValueError(
+                f"Volume delta shape {dV.shape} does not match grid volume shape "
+                f"{current.volume.shape} at {path}"
+            )
+        current.volume += dV  # counts unchanged, concentration adjusts implicitly
+
+    return
+
+def check_conc_counts_grid(schema, value, path, core=None):
+    """
+    Ensure value looks like a ConcCountsGrid and matches schema.
+    """
+    if not isinstance(value, ConcCountsGrid):
+        raise TypeError(f"Value at {path} is not a ConcCountsGrid: {type(value)}")
+
+    shape = tuple(schema.get("shape", value.shape))
+    if value.shape != shape:
         raise ValueError(
-            f"Volume would become non-positive at {path}: {V_new}"
+            f"Shape mismatch at {path}: expected {shape}, got {value.shape}"
         )
 
-    # 2. Interpret all changes as changes in amount (counts are canonical)
-    amount = counts
-    d_amount_from_counts = dN
-    d_amount_from_conc = dC * V_new  # concentration * volume = counts (in arbitrary units)
-
-    amount_new = amount + d_amount_from_counts + d_amount_from_conc
-
-    # Enforce non-negativity on amount
-    if amount_new < 0:
-        amount_new = 0.0
-
-    counts_new = amount_new
-    concentration_new = counts_new / V_new if V_new > 0 else 0.0
+def serialize_conc_counts_grid(schema, value, path, core=None):
+    """
+    Convert a ConcCountsGrid into JSON-serializable form:
+        { 'volume': [[...], ...], 'counts': [[...], ...] }
+    """
+    if not isinstance(value, ConcCountsGrid):
+        raise TypeError(f"Cannot serialize non-ConcCountsGrid at {path}: {type(value)}")
 
     return {
-        'volume': V_new,
-        'counts': counts_new,
-        'concentration': concentration_new,
+        "volume": value.volume.tolist(),
+        "counts": value.counts.tolist(),
     }
 
 
+def deserialize_conc_counts_grid(schema, raw, path, core=None):
+    """
+    Convert raw initial state / serialized state into a ConcCountsGrid.
+
+    Supported raw forms:
+      - ConcCountsGrid: returned as-is.
+      - number: treated as uniform concentration.
+      - dict with 'volume'/'counts': build grid from those.
+      - dict with 'concentration' only: default volume, set concentration.
+      - dict with 'volume'/'counts' + 'concentration': you can decide
+        whether 'concentration' is delta or override; here we treat it
+        as override of counts from concentration.
+    """
+    # 0) Already a grid -> just return it
+    if isinstance(raw, ConcCountsGrid):
+        return raw
+
+    # Schema info
+    shape = tuple(schema.get("shape", ()))  # () for scalar, (nx, ny), etc.
+    default_volume = float(schema.get("default_volume", 1.0))
+
+    # Helper to broadcast scalars to full shape
+    def _broadcast(value, name):
+        arr = np.asarray(value, dtype=float)
+        if arr.shape == ():
+            # scalar -> broadcast
+            return np.full(shape, arr, dtype=float)
+        if arr.shape != shape:
+            raise ValueError(
+                f"{name} shape {arr.shape} does not match expected {shape} at {path}"
+            )
+        return arr
+
+    # 1) Raw is a bare number: interpret as concentration
+    if isinstance(raw, (int, float)):
+        grid = ConcCountsGrid.zeros(shape, volume=default_volume)
+        C = _broadcast(raw, "concentration")
+        grid.concentration = C
+        return grid
+
+    # 2) Raw must be a dict from here on
+    if not isinstance(raw, dict):
+        raise TypeError(
+            f"Raw value for conc_counts_grid at {path} must be "
+            f"ConcCountsGrid, number, or dict, got {type(raw)}"
+        )
+
+    has_vol = "volume" in raw
+    has_cnt = "counts" in raw
+    has_conc = "concentration" in raw
+
+    # 2a) Full spec: volume + counts (and maybe concentration)
+    if has_vol or has_cnt:
+        if has_vol:
+            V = _broadcast(raw["volume"], "volume")
+        else:
+            V = np.full(shape, default_volume, dtype=float)
+
+        if has_cnt:
+            N = _broadcast(raw["counts"], "counts")
+        else:
+            N = np.zeros(shape, dtype=float)
+
+        grid = ConcCountsGrid(V, N)
+
+        # If concentration is also provided, treat as override of counts
+        if has_conc:
+            C = _broadcast(raw["concentration"], "concentration")
+            grid.concentration = C  # this will set counts = C * V
+        return grid
+
+    # 2b) concentration-only dict
+    if has_conc:
+        grid = ConcCountsGrid.zeros(shape, volume=default_volume)
+        C = _broadcast(raw["concentration"], "concentration")
+        grid.concentration = C
+        return grid
+
+    raise TypeError(
+        f"Raw dict for conc_counts_grid at {path} must contain "
+        f"'concentration' and/or 'volume'/'counts', got keys {list(raw.keys())}"
+    )
 
 conc_counts_type = {
-    '_type': 'conc_counts',
-    '_apply': apply_conc_counts,
+    "_type": "conc_counts",
+    "_default":     default_conc_counts_grid,
+    "_apply":       apply_conc_counts_grid,
+    "_check":       check_conc_counts_grid,
+    "_serialize":   serialize_conc_counts_grid,
+    "_deserialize": deserialize_conc_counts_grid,
+    "_description": "grid of volume, counts & concentration",
 }
+
 
 
 def run_examples():
