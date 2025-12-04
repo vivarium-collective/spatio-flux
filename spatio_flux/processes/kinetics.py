@@ -86,12 +86,14 @@ def get_kinetics_process_from_registry(
     path,
     mol_ids=None,
     biomass_id=None,
+    field_type=None,
     i=None,
     j=None,
 ):
     model_config = MODEL_REGISTRY_KINETICS[model_id]()
     # mol_ids = model_config['substrate_update_reactions'].keys()
     biomass_id = biomass_id or 'biomass'
+    field_type = field_type or 'concentrations'
     if mol_ids is not None:
         mol_ids = [m for m in mol_ids if m != biomass_id]
 
@@ -100,8 +102,8 @@ def get_kinetics_process_from_registry(
         "address": "local:MonodKinetics",
         "config": model_config,
         "inputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id, i, j)
+            "substrates": {mol_id: build_path(path, mol_id, field_type, i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, field_type, i, j)
         },
         "outputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
@@ -216,6 +218,7 @@ def get_spatial_many_kinetics(
         n_bins=(5, 5),
         model_id="single_substrate_assimilation",
         biomass_id="dissolved biomass",
+        field_type="concentrations",
         mol_ids=None,
 ):
     kinetics_processes_dict = {}
@@ -223,7 +226,7 @@ def get_spatial_many_kinetics(
         for j in range(n_bins[1]):
             kinetics_process = get_kinetics_process_from_registry(
                 model_id=model_id, mol_ids=mol_ids,
-                path=["..", "fields"], biomass_id=biomass_id, i=i, j=j)
+                path=["..", "fields"], biomass_id=biomass_id, field_type=field_type, i=i, j=j)
             kinetics_processes_dict[f"monod_kinetics[{i},{j}]"] = kinetics_process
     return kinetics_processes_dict
 
