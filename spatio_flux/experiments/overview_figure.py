@@ -33,7 +33,7 @@ def composite_figure(
         particle_ids = list(plot_state['particles'].keys())
     plot_settings = build_plot_settings(
         particle_ids=particle_ids,
-        # conc_type_species=['conc_counts_volume', 'substrate'],
+        # conc_type_species=['conc_counts', 'substrate'],
     )
     plot_settings.update(
         dict(

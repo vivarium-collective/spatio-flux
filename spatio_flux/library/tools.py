@@ -14,7 +14,7 @@ from vivarium.vivarium import VivariumTypes
 from spatio_flux.plots.colors import build_plot_settings
 
 
-def build_path(base_path, mol_id, i=None, j=None):
+def build_path(base_path, mol_id, field_type=None, i=None, j=None):
     """
     Constructs a path list for a molecule, optionally appending indices.
 
@@ -28,6 +28,8 @@ def build_path(base_path, mol_id, i=None, j=None):
         list: The full path as a list of path elements.
     """
     full_path = base_path + [mol_id]
+    if field_type is not None:
+        full_path.append(field_type)
     if i is not None:
         full_path.append(i)
     if j is not None:

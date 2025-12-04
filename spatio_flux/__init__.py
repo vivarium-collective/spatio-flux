@@ -97,7 +97,7 @@ fields_type =  {
 }
 
 
-def apply_conc_counts_volume(schema, current, update, top_schema, top_state, path, core):
+def apply_conc_counts(schema, current, update, top_schema, top_state, path, core):
     """
     Type: {
         'volume': float,          # container size
@@ -122,7 +122,7 @@ def apply_conc_counts_volume(schema, current, update, top_schema, top_state, pat
 
     if not isinstance(update, dict):
         raise ValueError(
-            f"Update to conc_counts_volume at {path} must be a dict, got {type(update)}"
+            f"Update to conc_counts at {path} must be a dict, got {type(update)}"
         )
 
     # Extract current state
@@ -163,12 +163,12 @@ def apply_conc_counts_volume(schema, current, update, top_schema, top_state, pat
 
 
 
-conc_counts_volume_type = {
+conc_counts_type = {
     'volume': 'float',
     'counts': 'float',
     'concentration': 'float',
     # custom _apply controls how updates are combined.
-    '_apply': apply_conc_counts_volume,
+    '_apply': apply_conc_counts,
 }
 
 
@@ -181,7 +181,7 @@ SPATIO_FLUX_TYPES = {
     'complex_particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,
-    'conc_counts_volume': conc_counts_volume_type,
+    'conc_counts': conc_counts_type,
     # TODO fields, concentrations, fluxes, etc.
 }
 

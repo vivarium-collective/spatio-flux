@@ -2,8 +2,8 @@
 Monod Kinetics Process
 """
 
-from process_bigraph import Process
-from spatio_flux.library.tools import build_path
+from process_bigraph import Process, Composite, gather_emitter_results
+from spatio_flux.library.tools import build_path, get_standard_emitter
 
 
 def get_single_substrate_assimilation_kinetics_config():
@@ -86,12 +86,14 @@ def get_kinetics_process_from_registry(
     path,
     mol_ids=None,
     biomass_id=None,
+    field_type=None,
     i=None,
     j=None,
 ):
     model_config = MODEL_REGISTRY_KINETICS[model_id]()
     # mol_ids = model_config['substrate_update_reactions'].keys()
     biomass_id = biomass_id or 'biomass'
+    field_type = field_type or 'concentrations'
     if mol_ids is not None:
         mol_ids = [m for m in mol_ids if m != biomass_id]
 
@@ -100,12 +102,12 @@ def get_kinetics_process_from_registry(
         "address": "local:MonodKinetics",
         "config": model_config,
         "inputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id, i, j)
+            "substrates": {mol_id: build_path(path, mol_id, 'concentrations', i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, 'concentrations', i, j)
         },
         "outputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id, i, j)
+            "substrates": {mol_id: build_path(path, mol_id, 'counts', i, j) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, 'counts', i, j)
         }
     }
 
@@ -161,28 +163,31 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'biomass': 'concentration',
-            'substrates': 'map[concentration]'
+            'biomass': 'conc_counts',
+            'substrates': 'map[conc_counts]'
         }
 
     def outputs(self):
         return {
-            'biomass': 'counts',
-            'substrates': 'map[counts]'
+            'biomass': 'conc_counts',
+            'substrates': 'map[conc_counts]'
         }
 
     def update(self, state, interval):
-        substrates = state['substrates']
+        substrates = state['substrates'] #['concentration']
         mass = state['biomass']
 
-        delta_mass = 0.0
-        delta_substrates = {mol_id: 0.0 for mol_id in substrates}
+        delta_mass = {'counts': 0.0}
+        delta_substrates = {mol_id: {'counts': 0.0} for mol_id in substrates}
 
         for reaction in self.reactions.values():
             reactant = reaction['reactant']
             product = reaction['product']
 
-            conc = mass if reactant == 'mass' else substrates.get(reactant, 0.0)
+            if reactant == 'mass':
+                conc = mass['concentration']
+            else:
+                conc = substrates.get(reactant).get('concentration', 0.0)
 
             if reactant not in self.kinetic_params:
                 raise ValueError(f"Kinetic parameters not provided for reactant: {reactant}")
@@ -192,18 +197,112 @@ class MonodKinetics(Process):
 
             # update mass
             if reactant == 'mass':
-                delta_mass -= rate
+                delta_mass['counts'] -= rate
             else:
                 if reactant not in delta_substrates:
-                    delta_substrates[reactant] = 0.0
-                delta_substrates[reactant] -= rate
+                    delta_substrates[reactant] = {'counts': 0.0}
+                delta_substrates[reactant]['counts'] -= rate
 
             if product == 'mass':
-                delta_mass += rate
+                delta_mass['counts'] += rate
             else:
-                delta_substrates[product] = delta_substrates.get(product, 0.0) + rate
+                delta_substrates[product]['counts'] += rate
 
         return {
             'biomass': delta_mass,
             'substrates': delta_substrates
         }
+
+
+def get_spatial_many_kinetics(
+        n_bins=(5, 5),
+        model_id="single_substrate_assimilation",
+        biomass_id="dissolved biomass",
+        field_type="concentrations",
+        mol_ids=None,
+):
+    kinetics_processes_dict = {}
+    for i in range(n_bins[0]):
+        for j in range(n_bins[1]):
+            kinetics_process = get_kinetics_process_from_registry(
+                model_id=model_id, mol_ids=mol_ids,
+                path=["..", "fields"], biomass_id=biomass_id, field_type=field_type, i=i, j=j)
+            kinetics_processes_dict[f"monod_kinetics[{i},{j}]"] = kinetics_process
+    return kinetics_processes_dict
+
+
+
+# Example usage:
+def run_kinetics_example(core=None):
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    kinetics_process = get_kinetics_process_from_registry(
+        model_id='single_substrate_assimilation',
+        mol_ids = mol_ids,
+        path=['fields'],
+        biomass_id='dissolved biomass',
+        # i=i,
+        # j=j
+    )
+    document = {
+        'state': {
+            'kinetics': kinetics_process,
+            'emitter': get_standard_emitter(state_keys=['fields'])
+        }
+    }
+
+    sim = Composite(document, core=core)
+
+    time = 10
+    sim.run(time)
+
+    results = gather_emitter_results(sim)
+
+    print(results)
+
+import numpy as np
+
+def get_fields(n_bins, mol_ids, initial_min_max=None, initial_fields=None):
+    initial_min_max = initial_min_max or {}
+    initial_fields = initial_fields or {}
+
+    for mol_id in mol_ids:
+        if mol_id not in initial_fields:
+            minmax = initial_min_max.get(mol_id, (0, 1))
+            initial_fields[mol_id] = np.random.uniform(
+                low=minmax[0],
+                high=minmax[1],
+                size=n_bins
+            )
+
+    return initial_fields
+
+def run_spatial_kinetics(core=None):
+    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    n_bins = (2, 2)
+    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
+
+    document = {
+        'state': {
+            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+            'spatial_kinetics': get_spatial_many_kinetics(
+                model_id='single_substrate_assimilation', n_bins=n_bins, mol_ids=mol_ids),
+            'emitter': get_standard_emitter(state_keys=['fields'])
+        }
+    }
+
+    sim = Composite(document, core=core)
+
+    time = 10
+    sim.run(time)
+
+    results = gather_emitter_results(sim)
+
+    print(results)
+
+
+
+if __name__ == '__main__':
+    from spatio_flux import build_core
+    core = build_core()
+    # run_kinetics_example(core)
+    run_spatial_kinetics(core)
