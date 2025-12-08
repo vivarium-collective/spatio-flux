@@ -15,8 +15,9 @@ in
   packages = with pkgs; [
     git
     graphviz
+    expat
     (python312.withPackages (py: with py;
-      [ ipython jupyter ]
+      [ ipython jupyter expat ]
     ))
   ];
 

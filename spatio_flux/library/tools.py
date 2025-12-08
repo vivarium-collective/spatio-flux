@@ -8,9 +8,8 @@ from pathlib import Path
 
 import numpy as np
 from bigraph_viz import plot_bigraph
-from process_bigraph import Composite, gather_emitter_results
+from process_bigraph import Composite, gather_emitter_results, allocate_core
 from process_bigraph.emitter import emitter_from_wires
-from vivarium.vivarium import VivariumTypes
 from spatio_flux.plots.colors import build_plot_settings
 
 
@@ -68,10 +67,7 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     time = time or 60
     os.makedirs(outdir, exist_ok=True)
 
-    if core is None:
-        from spatio_flux import register_types
-        core = VivariumTypes()
-        core = register_types(core)
+    core = core or allocate_core()
 
     if name is None:
         date = datetime.now().strftime('%Y%m%d_%H%M%S')

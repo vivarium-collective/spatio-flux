@@ -3,12 +3,11 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
 
 from bigraph_viz import plot_bigraph
-from process_bigraph import Composite
+from process_bigraph import Composite, allocate_core
 
 from spatio_flux.experiments.test_suite import get_newtonian_particle_comets_doc
 from spatio_flux.plots.colors import build_plot_settings
 from spatio_flux.plots.plot_core import assemble_process_figures, assemble_type_figures, assemble_image_grid
-from spatio_flux import build_core
 
 
 
@@ -155,7 +154,7 @@ def assemble_AB_overview(
 # Optional CLI for manual testing
 if __name__ == "__main__":
     out = Path("out")
-    core = build_core()
+    core = allocate_core()
 
     composite_figure(core, outdir=out)
     assemble_AB_overview(core)

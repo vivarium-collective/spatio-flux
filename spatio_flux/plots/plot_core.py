@@ -6,8 +6,8 @@ from typing import Optional, Sequence
 from PIL import Image, ImageDraw, ImageFont
 
 from bigraph_viz import plot_bigraph
+from process_bigraph import allocate_core
 
-from spatio_flux import build_core
 from spatio_flux.processes import PROCESS_DOCS
 from spatio_flux.plots.colors import build_plot_settings
 
@@ -63,7 +63,7 @@ def plot_all_processes(
     _ensure_outdir(outdir)
 
     if core is None:
-        core = build_core()
+        core = allocate_core()
 
     generated: List[Path] = []
 
@@ -158,7 +158,7 @@ def plot_all_types(
     _ensure_outdir(outdir)
 
     if core is None:
-        core = build_core()
+        core = allocate_core()
 
     generated: List[Path] = []
 
@@ -466,7 +466,7 @@ def assemble_type_figures(
 # Optional CLI for manual testing
 if __name__ == "__main__":
     out = Path("out")
-    core = build_core()
+    core = allocate_core()
 
     assemble_process_figures(core, outdir=out, n_rows=2)
     assemble_type_figures(core, outdir=out, n_rows=1)

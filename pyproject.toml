@@ -13,7 +13,7 @@ dependencies = [
     "process-bigraph",
     "matplotlib",
     "bigraph-viz",
-    "vivarium-interface",
+    # "vivarium-interface",
     "scipy",
     "cobra",
     "imageio",

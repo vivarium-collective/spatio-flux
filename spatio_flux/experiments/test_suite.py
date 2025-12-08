@@ -18,10 +18,13 @@ import argparse
 import time
 import numpy as np
 
-from process_bigraph import register_types as register_process_types
-from vivarium.vivarium import VivariumTypes
+# from process_bigraph import register_types as register_process_types
+# from vivarium.vivarium import VivariumTypes
 
-from spatio_flux import register_types
+# from spatio_flux import register_types
+
+from process_bigraph import allocate_core
+
 from spatio_flux.library.tools import run_composite_document, prepare_output_dir, generate_html_report, \
     reversed_tuple, inverse_tuple
 from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
@@ -831,10 +834,11 @@ def main():
     output_dir = args.output
     prepare_output_dir(output_dir)
 
-    core = VivariumTypes()
-    core = register_process_types(core)
-    core = register_types(core)
+    # core = VivariumTypes()
+    # core = register_process_types(core)
+    # core = register_types(core)
 
+    core = allocate_core()
 
     total_sim_time = 0.0  # To track simulation time only
     runtimes = {}
