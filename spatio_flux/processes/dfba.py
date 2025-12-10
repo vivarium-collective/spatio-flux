@@ -315,8 +315,10 @@ class DynamicFBA(Process):
 
     def outputs(self):
         return {
-            "substrates": "map[count]",   # deltas (not absolute concentrations)
-            "biomass": "count",           # delta biomass
+            "substrates": "map[concentration]",   # deltas (not absolute concentrations)
+            "biomass": "concentration",           # delta biomass
+            # "substrates": "map[count]",   # deltas (not absolute concentrations)
+            # "biomass": "count",           # delta biomass
         }
 
     def update(self, inputs, interval):

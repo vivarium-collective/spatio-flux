@@ -10,7 +10,7 @@ from spatio_flux.processes import PROCESS_DICT
 from spatio_flux.processes.configs import build_path
 from spatio_flux.processes.particles import BrownianMovement
 from spatio_flux.plots.plot import plot_species_distributions_with_particles_to_gif
-from spatio_flux.types import SetFloat, PositiveFloat, PositiveArray, CountConcentrationVolume
+from spatio_flux.types import SetFloat, PositiveFloat, PositiveArray, Concentration, CountConcentrationVolume, positive_types
 
 bounds_type = {
     'lower': 'maybe[float]',
@@ -53,10 +53,8 @@ fields_type =  {
 
 
 SPATIO_FLUX_TYPES = {
+    **positive_types,
     'position': 'tuple[float,float]',
-    'count': 'float',
-    'concentration': PositiveFloat,
-    'set_float': SetFloat,
     'particle': simple_particle_type,
     'complex_particle': particle_type,
     'bounds': bounds_type,
@@ -67,8 +65,6 @@ SPATIO_FLUX_TYPES = {
 
 TYPES_DICT = {
     **SPATIO_FLUX_TYPES,
-    'positive_float': PositiveFloat,
-    'positive_array': PositiveArray,
     'boundary_side': boundary_side,
     'substrate_role': substrate_role_type,
     'kinetics': kinetics_type,

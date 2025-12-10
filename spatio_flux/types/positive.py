@@ -14,8 +14,39 @@ class PositiveFloat(Float):
 
 
 @dataclass(kw_only=True)
+class Concentration(PositiveFloat):
+    pass
+
+
+@dataclass(kw_only=True)
+class Count(PositiveFloat):
+    pass
+
+
+@dataclass(kw_only=True)
 class PositiveArray(Array):
     pass
+
+
+@apply.dispatch
+def render(schema: PositiveFloat):
+    return 'positive_float'
+
+@apply.dispatch
+def render(schema: PositiveArray):
+    return 'positive_array'
+
+@apply.dispatch
+def render(schema: Concentration):
+    return 'concentration'
+
+@apply.dispatch
+def render(schema: Count):
+    return 'count'
+
+@apply.dispatch
+def render(schema: SetFloat):
+    return 'set_float'
 
 
 @apply.dispatch
@@ -51,5 +82,15 @@ def apply(schema: PositiveArray, current, update, path):
     result = np.copy(current)
     recursive_update(result, current, update)
     return result, []
+
+
+positive_types = {
+    'positive_float': PositiveFloat,
+    'positive_array': PositiveArray,
+    'count': Count,
+    'concentration': Concentration,
+    'set_float': SetFloat}
+
+
 
 
