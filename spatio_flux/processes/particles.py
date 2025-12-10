@@ -309,7 +309,8 @@ class ParticleExchange(Step):
                 '_value': {
                     '_type': 'array',
                     '_shape': self.config['n_bins'],
-                    '_data': 'concentration'
+                    # '_data': 'concentration'
+                    '_data': 'float'
                 },
             }
         }

@@ -128,7 +128,7 @@ class MonodKinetics(Process):
     Outputs:
     --------
     - mass (delta): net change in mass
-    - substrates (map[counts]): net change in substrate concentrations
+    - substrates (map[count]): net change in substrate concentrations
 
     Notes:
     ------
@@ -167,8 +167,8 @@ class MonodKinetics(Process):
 
     def outputs(self):
         return {
-            'biomass': 'counts',
-            'substrates': 'map[counts]'
+            'biomass': 'count',
+            'substrates': 'map[count]'
         }
 
     def update(self, state, interval):

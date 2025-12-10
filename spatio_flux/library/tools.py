@@ -87,21 +87,21 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     sim.save(filename=f"{name}.json", outdir=outdir)
 
     # Save representation string (human-readable schema summary)
-    rep = core.representation(document)
-    rep_file = os.path.join(outdir, f"{name}_schema.txt")
+    representation = core.render(sim.composition)
+    rep_file = os.path.join(outdir, f"{name}_schema.json")
     with open(rep_file, "w") as f:
-        f.write(rep)
+        json.dump(representation, f, indent=2)
     print(f"💾 Saved schema representation → {rep_file}")
 
-    # Save the underlying schema as JSON (machine-readable)
-    schema_file = os.path.join(outdir, f"{name}_schema.json")
+    # Save the underlying state as JSON (machine-readable)
+    state_file = os.path.join(outdir, f"{name}_state.json")
     try:
         serialized = core.serialize(sim.composition, sim.state)
-        with open(schema_file, "w") as f:
+        with open(state_file, "w") as f:
             json.dump(serialized, f, indent=2)
-        print(f"💾 Saved schema JSON → {schema_file}")
+        print(f"💾 Saved state JSON → {state_file}")
     except Exception as e:
-        print(f"⚠ Could not save schema JSON: {e}")
+        print(f"⚠ Could not save state JSON: {e}")
 
     # Visualize initial composition
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}

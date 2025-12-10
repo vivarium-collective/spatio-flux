@@ -181,7 +181,7 @@ def get_fields_with_schema(
         "_value": {
             "_type": "array",
             "_shape": n_bins,
-            "_data": "concentration"
+            "_data": "float"
         },
         **initial_fields,
     }

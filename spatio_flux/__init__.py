@@ -19,9 +19,9 @@ bounds_type = {
 simple_particle_type = {
     'id': 'string',
     'position': 'position',
-    'mass': 'concentration{1.0}', # default('concentration', 1.0),
+    'mass': 'concentration{1.0}',
     'local': 'map[concentration]',
-    'exchange': 'map[counts]',  # TODO is this counts?
+    'exchange': 'map[count]',
 }
 
 particle_type = {
@@ -43,12 +43,10 @@ kinetics_type = {
     'role': 'substrate_role'}
 reaction_type = 'map[kinetics]'
 
-# fields_type = 'map[concentration]'
 fields_type =  {
     '_type': 'map',
     '_value': {
         '_type': 'array',
-        # '_shape': self.config['n_bins'],
         '_data': 'float64'
     },
 }
@@ -56,14 +54,14 @@ fields_type =  {
 
 SPATIO_FLUX_TYPES = {
     'position': 'tuple[float,float]',
-    'counts': 'float',
+    'count': 'float',
     'concentration': PositiveFloat,
     'set_float': SetFloat,
     'particle': simple_particle_type,
     'complex_particle': particle_type,
     'bounds': bounds_type,
     'fields': fields_type,
-    'conc_counts_volume': CountConcentrationVolume,
+    'count_concentration_volume': CountConcentrationVolume,
     # TODO fields, concentrations, fluxes, etc.
 }
 
@@ -80,4 +78,5 @@ TYPES_DICT = {
 
 def register_types(core):
     core.register_types(TYPES_DICT)
+
     return core
