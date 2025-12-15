@@ -772,3 +772,44 @@ def analyze_fba_model_minimal_media(model_key, config, model_dir, flux_epsilon=1
 if __name__ == "__main__":
     for model_key, config in MODEL_REGISTRY_DFBA.items():
         analyze_fba_model_minimal_media(model_key, config, MODEL_DIR)
+
+
+
+    
+
+    types = {
+        'species': 'count_concentration_volume',
+
+        'local': {
+            'count': 'count',
+            'concentration': 'concentration'},
+
+        'field': {
+            'volume': 'float',
+            'species': 'map[local]'},
+
+        'fields': 'array[(5|5),field]'}
+
+
+    state = {
+        'fields': {'_type': 'fields'},
+        'diffusion': {
+            '_type': 'link',
+            '_inputs': {
+                'fields': 'fields'},
+            '_outputs': {
+                'fields': 'fields'},
+            'inputs': {
+                'fields': ['fields']},
+            'outputs': {
+                'fields': ['fields']}},
+        'dfba': {
+            '_type': 'link',
+            '_inputs': {
+                'concentrations': 'map[concentration]'},
+            '_outputs': {
+                'counts': 'map[count]'},
+            'inputs': {
+                'concentrations': ['fields', 0, 0, 'species', '*', 'concentration']},
+            'outputs': {
+                'counts': ['fields', 0, 0, 'species', '*', 'count']}}}

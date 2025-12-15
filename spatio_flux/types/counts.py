@@ -5,12 +5,12 @@ from bigraph_schema.methods import apply
 
 @dataclass(kw_only=True)
 class CountConcentrationVolume(Node):
-    count: Integer = field(default_factory=Integer)
+    count: Float = field(default_factory=Float)
     concentration: Float = field(default_factory=Float)
     volume: Float = field(default_factory=Float)
 
 
-def apply_conc_count_volume(schema, current, update, path):
+def apply_count_concentration_volume(schema, current, update, path):
     """
     Type: {
         'volume': float,          # container size
@@ -74,8 +74,9 @@ def apply_conc_count_volume(schema, current, update, path):
         'concentration': concentration_new,
     }
 
+
 @apply.dispatch
 def apply(schema: CountConcentrationVolume, current, update, path):
-    return apply_conc_count_volume(schema, current, update, path)
+    return apply_conc_count_volume(schema, current, update, path), []
 
 
