@@ -1,6 +1,7 @@
-from dataclasses import dataclass, is_dataclass, field
-from bigraph_schema.schema import Float, Array
-from bigraph_schema.methods import apply
+from dataclasses import dataclass, is_dataclass, field, replace
+
+from bigraph_schema.schema import Float, Array, Number
+from bigraph_schema.methods import apply, render, resolve
 
 
 @dataclass(kw_only=True)
@@ -28,25 +29,46 @@ class PositiveArray(Array):
     pass
 
 
-@apply.dispatch
-def render(schema: PositiveFloat):
+@render.dispatch
+def render(schema: PositiveFloat, defaults=False):
     return 'positive_float'
 
-@apply.dispatch
-def render(schema: PositiveArray):
+@render.dispatch
+def render(schema: PositiveArray, defaults=False):
     return 'positive_array'
 
-@apply.dispatch
-def render(schema: Concentration):
+@render.dispatch
+def render(schema: Concentration, defaults=False):
     return 'concentration'
 
-@apply.dispatch
-def render(schema: Count):
+@render.dispatch
+def render(schema: Count, defaults=False):
     return 'count'
 
-@apply.dispatch
-def render(schema: SetFloat):
+@render.dispatch
+def render(schema: SetFloat, defaults=False):
     return 'set_float'
+
+
+@resolve.dispatch
+def resolve(current: Concentration, update: Concentration, path=()):
+    if current._default and not update._default:
+        return replace(update, **{'_default': current._default})
+    return update
+
+
+@resolve.dispatch
+def resolve(current: Number, update: Concentration, path=()):
+    if current._default and not update._default:
+        return replace(update, **{'_default': current._default})
+    return update
+
+
+@resolve.dispatch
+def resolve(current: Concentration, update: Number, path=()):
+    if update._default and not current._default:
+        return replace(current, **{'_default': update._default})
+    return current
 
 
 @apply.dispatch
