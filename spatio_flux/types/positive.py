@@ -73,11 +73,14 @@ def resolve(current: Concentration, update: Number, path=()):
 
 @apply.dispatch
 def apply(schema: SetFloat, state, update, path):
-    return update
+    return update, []
 
 
 @apply.dispatch
 def apply(schema: PositiveFloat, state, update, path):
+    if update is None:
+        return state, []
+
     new_value = state + update
     return max(0, new_value), []
     
