@@ -369,8 +369,8 @@ def get_kinetic_particle_composition(core, config=None):
                 # '_inherit': 'particle',
                 'monod_kinetics': {
                     '_type': 'process',
-                    'address': default('string', 'local:MonodKinetics'),
-                    'config': default('quote', config),
+                    'address': default('protocol', 'local:MonodKinetics'),
+                    'config': default('node', config),
                     '_inputs': {
                         'biomass': 'float',
                         'substrates': 'map[concentration]'
@@ -380,11 +380,11 @@ def get_kinetic_particle_composition(core, config=None):
                         'substrates': 'map[float]'
                     },
                     'inputs': default(
-                        'tree[wires]', {
+                        'wires', {
                             'biomass': ['mass'],
                             'substrates': ['local']}),
                     'outputs': default(
-                        'tree[wires]', {
+                        'wires', {
                             'biomass': ['mass'],
                             'substrates': ['exchange']})
                 }
@@ -427,12 +427,12 @@ def get_dfba_particle_composition(core=None, model_file=None):
                 'dFBA': {
                     '_type': 'process',
                     'address': default('string', 'local:DynamicFBA'),
-                    'config': default('quote', config),
-                    'inputs': default('tree[wires]', {
+                    'config': default('node', config),
+                    'inputs': default('wires', {
                         'substrates': ['local'],
                         'biomass': ['mass']
                     }),
-                    'outputs': default('tree[wires]', {
+                    'outputs': default('wires', {
                         'substrates': ['exchange'],
                         'biomass': ['mass']
                     })

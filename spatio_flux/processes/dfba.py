@@ -589,10 +589,12 @@ class SpatialDFBA(Process):
                 # Biomass update
                 delta_biomass[i, j] = update['biomass']
 
-        return {
+        update = {
             'fields': delta_fields,
             'biomass': delta_biomass,
         }
+
+        return update
 
 
 def get_field_names(model_registry):
