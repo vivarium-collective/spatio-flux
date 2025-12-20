@@ -322,8 +322,6 @@ class ParticleExchange(Step):
         return {}
 
     def update(self, state):
-        print(f'{len(state["particles"])} particles')
-
         particles = state['particles']
         fields = state['fields']
 

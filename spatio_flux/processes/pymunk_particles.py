@@ -312,7 +312,37 @@ class PymunkParticleMovement(Process):
                 self.apply_jitter_force(body, dt)
             self.space.step(dt)
 
+
+
+        # TODO -- pull below calculations into a boundary step.
         particles_out = {'_add': {}}
+
+        # --- boundary enforcement (active removal) ---
+        (x_min, x_max), (y_min, y_max) = self.env_size
+        to_remove = []
+
+        for _id, obj in list(self.agents.items()):
+            body = obj['body']
+            x, y = float(body.position.x), float(body.position.y)
+
+            if 'left' in self.boundary_to_remove and x < x_min:
+                to_remove.append(_id)
+            elif 'right' in self.boundary_to_remove and x > x_max:
+                to_remove.append(_id)
+            elif 'bottom' in self.boundary_to_remove and y < y_min:
+                to_remove.append(_id)
+            elif 'top' in self.boundary_to_remove and y > y_max:
+                to_remove.append(_id)
+
+        # remove from pymunk + registry
+        for _id in to_remove:
+            body = self.agents[_id]['body']
+            shape_instance = self.agents[_id]['shape_instance']
+            self.space.remove(body, shape_instance)
+            del self.agents[_id]
+
+        # and tell the state to remove them too (pick the correct op)
+        particles_out['_remove'] = to_remove
 
         # ------- births from boundaries (use self.add_probability) -------
         newborn_ids = set()
