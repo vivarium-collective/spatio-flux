@@ -15,6 +15,7 @@ from cobra.io import load_model
 from process_bigraph import Process
 from spatio_flux.library.tools import build_path
 
+
 # Suppress benign warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="cobra.util.solver")
 warnings.filterwarnings("ignore", category=FutureWarning, module="cobra.medium.boundary_types")
@@ -330,15 +331,6 @@ class DynamicFBA(Process):
             interval
         )
         return update
-
-import numpy as np
-from process_bigraph import Process
-# from your_module import load_fba_model, run_fba_update  # adjust import as needed
-
-
-import numpy as np
-from process_bigraph import Process
-# from your_module import load_fba_model, run_fba_update  # adjust import as needed
 
 
 class SpatialDFBA(Process):

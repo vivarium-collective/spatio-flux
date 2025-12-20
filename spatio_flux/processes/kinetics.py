@@ -205,6 +205,6 @@ class MonodKinetics(Process):
                 delta_substrates[product] = delta_substrates.get(product, 0.0) + rate
 
         return {
-            'biomass': np.float64(delta_mass),
-            'substrates': {k: np.float64(v) for k, v in delta_substrates.items()},
+            'biomass': delta_mass,
+            'substrates': delta_substrates,
         }

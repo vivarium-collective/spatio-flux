@@ -303,6 +303,7 @@ def plot_particles_sim(results, state, config=None):
     bounds = state['brownian_movement']['config']['bounds']
     history = [step['particles'] for step in results]
     plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename=f'{filename}_video.gif')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
 
@@ -312,7 +313,7 @@ def plot_particles_sim(results, state, config=None):
 def get_particles_with_kinetics_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
-    initial_min_max = {'glucose': (0.5, 2.0), 'acetate': (0, 0)}
+    initial_min_max = {'glucose': (0.5, 2.0), 'acetate': (0, 0), 'biomass': (0.1, 0.5), 'detritus': (0, 0)}
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'biomass'},
@@ -327,17 +328,18 @@ def get_particles_with_kinetics_doc(core=None, config=None):
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     n_particles = 1
-    diffusion_rate = DEFAULT_DIFFUSION
-    advection_rate = DEFAULT_ADVECTION
+    particle_diffusion = DEFAULT_DIFFUSION
+    particle_advection = DEFAULT_ADVECTION
     add_probability = 0.2
     return {
         'state': {
             'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
-            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=diffusion_rate, advection_rate=advection_rate),
+            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds,diffusion_rate=particle_diffusion, advection_rate=particle_advection),
             'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
+
         },
         # put kinetic metabolism in the particles
         'composition': get_kinetic_particle_composition(core=core, config=particle_config)
@@ -348,12 +350,10 @@ def get_particles_with_kinetics_doc(core=None, config=None):
 def get_particle_dfba_doc(core=None, config=None):
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
-
     mol_ids = ['glucose', 'acetate']
     initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
-    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 1
     add_probability = 0.2
     particle_diffusion = DEFAULT_DIFFUSION
@@ -361,7 +361,6 @@ def get_particle_dfba_doc(core=None, config=None):
     return {
         'state': {
             'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-            # 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=particle_diffusion, advection_rate=particle_advection),
             'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
@@ -380,8 +379,6 @@ def plot_particle_dfba(results, state, config=None):
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
-
-
 
 
 # --- Particle-COMETS ----------------------------------------------------
@@ -742,7 +739,7 @@ SIMULATIONS = {
         'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
         'doc_func': get_particles_with_kinetics_doc,
         'plot_func': plot_particles_sim,
-        'time': DEFAULT_RUNTIME_SHORT,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'brownian_particles_kinetic'}
     },
