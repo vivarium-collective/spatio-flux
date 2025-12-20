@@ -4,7 +4,7 @@ from bigraph_schema import deep_merge
 from process_bigraph import default
 from spatio_flux.library.tools import initialize_fields, build_path
 from spatio_flux.processes import MonodKinetics, get_kinetics_process_from_registry
-from spatio_flux.processes.particles import BrownianMovement
+from spatio_flux.processes.particles import generate_multiple_particles_state, INITIAL_MASS_RANGE
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
 
 default_config = {
@@ -291,10 +291,6 @@ def get_brownian_movement_process(
         bounds=(10.0, 10.0),
         diffusion_rate=1e-1,
         advection_rate=(0, 0),
-        add_probability=0.0,
-        boundary_to_add=['top'],
-        boundary_to_remove=['top', 'bottom', 'left', 'right'],
-        division_mass_threshold=0.0,
 ):
     config = locals()
     # Remove any key-value pair where the value is None
@@ -306,13 +302,54 @@ def get_brownian_movement_process(
         'config': config,
         'inputs': {
             'particles': ['particles'],
-            # 'fields': ['fields']
         },
         'outputs': {
             'particles': ['particles'],
-            # 'fields': ['fields']
         },
     }
+
+def get_boundaries_process(
+    bounds=(10.0, 10.0),
+    add_probability=0.0,
+    boundary_to_add=('top',),
+    # sides that ABSORB (remove) particles; all other sides REFLECT by default
+    boundary_to_remove=(),  # e.g. ('right',) or ('top','bottom','left','right')
+    clamp_survivors=True,
+    buffer=1e-4,
+    mass_range=INITIAL_MASS_RANGE,
+):
+    """
+    Build the ManageBoundaries step spec.
+
+    Semantics:
+      - By default, all sides are reflecting barriers (closed box).
+      - Any side listed in boundary_to_remove is absorbing (particle removed if it crosses).
+      - No "pass" behavior exists.
+    """
+    config = {
+        'bounds': bounds,
+        'add_probability': float(add_probability),
+        'boundary_to_add': list(boundary_to_add),
+        'boundary_to_remove': list(boundary_to_remove),
+        'clamp_survivors': bool(clamp_survivors),
+        'buffer': float(buffer),
+        'mass_range': mass_range,
+    }
+
+    return {
+        '_type': 'step',
+        'address': 'local:ManageBoundaries',
+        'config': config,
+        'inputs': {
+            'particles': ['particles'],
+        },
+        'outputs': {
+            'particles': ['particles'],
+        },
+    }
+
+
+
 
 def get_particle_exchange_process(
         n_bins=(20, 20),
@@ -325,7 +362,7 @@ def get_particle_exchange_process(
     config = {key: value for key, value in config.items() if value is not None}
 
     return {
-        '_type': 'process',
+        '_type': 'step',
         'address': 'local:ParticleExchange',
         'config': config,
         'inputs': {
@@ -342,7 +379,7 @@ def get_particle_divide_process(
         division_mass_threshold=0.0
 ):
     return {
-        '_type': 'process',
+        '_type': 'step',
         'address': 'local:ParticleDivision',
         'config': {
             'division_mass_threshold': division_mass_threshold
@@ -366,50 +403,43 @@ def get_kinetic_particle_composition(core, config=None):
         'particles': {
             '_type': 'map',
             '_value': {
-                # '_inherit': 'particle',
                 'monod_kinetics': {
                     '_type': 'process',
                     'address': default('protocol', 'local:MonodKinetics'),
                     'config': default('node', config),
-                    '_inputs': {
-                        'biomass': 'float',
-                        'substrates': 'map[concentration]'
-                    },
-                    '_outputs':  {
-                        'biomass': 'float',
-                        'substrates': 'map[float]'
-                    },
-                    'inputs': default(
-                        'wires', {
-                            'biomass': ['mass'],
-                            'substrates': ['local']}),
-                    'outputs': default(
-                        'wires', {
-                            'biomass': ['mass'],
-                            'substrates': ['exchange']})
-                }
+                    'inputs': default('wires', {
+                        'substrates': ['local'],
+                        'biomass': ['mass']
+                    }),
+                    'outputs': default('wires', {
+                        'substrates': ['exchange'],
+                        'biomass': ['mass']
+                    })
+                },
             }
         }
     }
 
 def get_particles_state(
-        n_bins=(10, 10),
-        bounds=(10.0, 10.0),
-        fields=None,
-        n_particles=10,
-        mass_range=None,
+    bounds=(10.0, 10.0),
+    n_particles=10,
+    mass_range=None,
 ):
-    fields = fields or {}
-    # add particles process
-    particles = BrownianMovement.generate_state(
-        config={
-            'n_particles': n_particles,
-            'bounds': bounds,
-            'fields': fields,
-            'n_bins': n_bins,
-            'mass_range': mass_range,
-        })
-    return particles['particles']
+    """
+    Convenience wrapper to generate an initial particles map.
+
+    Note:
+      - n_bins and fields are intentionally NOT used here.
+      - ParticleExchange will initialize local/exchange state later.
+    """
+    particles_state = generate_multiple_particles_state({
+        'bounds': bounds,
+        'n_particles': n_particles,
+        'mass_range': mass_range,
+    })
+
+    return particles_state['particles']
+
 
 # ==============
 # dFBA-Particles

@@ -233,7 +233,7 @@ def run_fba_update(model, config, substrates, biomass, interval):
         #     continue
 
         Km, Vmax = config["kinetic_params"][substrate]
-        substrate_concentration = substrates[substrate]
+        substrate_concentration = substrates.get(substrate, 0.0)  # TODO: handle missing substrates?
         uptake_rate = -1 * Vmax * substrate_concentration / (Km + substrate_concentration)
 
         if model.reactions.get_by_id(reaction_id).upper_bound < uptake_rate:

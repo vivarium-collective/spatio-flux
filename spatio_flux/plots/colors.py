@@ -4,7 +4,7 @@ COLORS = {
     "particles_process":          "#CBE7D3",
 
     # PARTICLE DIVISION (orthogonal rule-based particle op – teal)
-    "particle_division_process":  "#B8E2E8",  # keep this as the distinct teal
+    "particle_graph_rewrite":  "#B8E2E8",  # keep this as the distinct teal
 
     # NEWTONIAN PARTICLES (richer, “energized” particle green)
     "newtonian_particles_state":  "#93C89E",
@@ -25,37 +25,6 @@ COLORS = {
     # PARTICLE ↔ FIELD BRIDGE (yellow-green midpoint)
     "particle_exchange_bridge":   "#D1DF89",
 }
-
-
-
-# COLORS = {
-#     # --- PARTICLES (greens) ---
-#     "particles_state":        "#C9DCCF",
-#     "particles_process":     "#7FA889",
-#     "particle_division_process": "#7FA889",
-#
-#     # --- NEWTONIAN PARTICLES (teal greens) ---
-#     "newtonian_particles_process": "#3F716F",
-#     "newtonian_particles_state":   "#8DBFBA",
-#
-#     # --- FIELDS (LB media yellows) ---
-#     "fields":      "#E8DFAF",
-#     "diffusion":   "#C8A837",
-#
-#     # --- dFBA (metabolic reds) ---
-#     "dfba_process":   "#B84C48",
-#     "dfba_state":  "#E6B4B0",
-#
-#     # --- LOCAL / EXCHANGE (fields ↔ dFBA bridge: yellow → orange) ---
-#     "local":       "#E9C88B",
-#     "exchange":    "#D9A56F",
-#
-#     # --- PARTICLE ↔ FIELD BRIDGE (green → yellow olive) ---
-#     "particle_exchange_bridge": "#BFC78F",
-# }
-
-
-
 
 
 def _hex_to_rgb(h):
@@ -124,7 +93,8 @@ def build_plot_settings(
         # particle family
         ("particles",):                 COLORS["particles_state"],
         ("brownian_movement",):         COLORS["particles_process"],
-        ("particle_division",):         COLORS["particle_division_process"],
+        ("particle_division",):         COLORS["particle_graph_rewrite"],
+        ("enforce_boundaries",):         COLORS["particle_graph_rewrite"],
         ("particle_exchange",):         COLORS["particle_exchange_bridge"],
 
         # newtonian particle family

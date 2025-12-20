@@ -167,8 +167,8 @@ class MonodKinetics(Process):
 
     def outputs(self):
         return {
-            'biomass': 'count',
-            'substrates': 'map[count]'
+            'biomass': 'concentration',
+            'substrates': 'map[concentration]'
         }
 
     def update(self, state, interval):

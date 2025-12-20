@@ -136,7 +136,11 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
         show_values=True,
         show_types=True,
         collapse_redundant_processes={
-            'exclude': [('particle_movement',), ('particle_division',)]
+            'exclude': [
+                ('particle_movement',),
+                ('particle_division',),
+                ('enforce_boundaries',)
+            ]
         },
         value_char_limit=20,
         type_char_limit=40,
