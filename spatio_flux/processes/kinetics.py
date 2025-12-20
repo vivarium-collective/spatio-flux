@@ -2,6 +2,7 @@
 Monod Kinetics Process
 """
 
+import numpy as np
 from process_bigraph import Process
 from spatio_flux.library.tools import build_path
 
@@ -204,6 +205,6 @@ class MonodKinetics(Process):
                 delta_substrates[product] = delta_substrates.get(product, 0.0) + rate
 
         return {
-            'biomass': delta_mass,
-            'substrates': delta_substrates
+            'biomass': np.float64(delta_mass),
+            'substrates': {k: np.float64(v) for k, v in delta_substrates.items()},
         }

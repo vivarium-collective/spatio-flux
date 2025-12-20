@@ -323,15 +323,16 @@ def get_particles_with_kinetics_doc(core=None, config=None):
             'biomass': (1.0, 0.001)
         }
     }
+    mol_ids = list(initial_min_max.keys())
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     n_particles = 1
     diffusion_rate = DEFAULT_DIFFUSION
     advection_rate = DEFAULT_ADVECTION
-    add_probability = DEFAULT_ADD_PROBABILITY
+    add_probability = 0.2
     return {
         'state': {
-            'fields': initialize_fields(n_bins, initial_min_max),
+            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=diffusion_rate, advection_rate=advection_rate),
             'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
@@ -355,14 +356,14 @@ def get_particle_dfba_doc(core=None, config=None):
     advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
     n_particles = 1
     add_probability = 0.2
+    particle_diffusion = DEFAULT_DIFFUSION
     particle_advection = DEFAULT_ADVECTION
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
     return {
         'state': {
-            'fields': fields,
+            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
             # 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
-            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection),
+            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=particle_diffusion, advection_rate=particle_advection),
             'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),

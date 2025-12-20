@@ -349,8 +349,6 @@ def get_boundaries_process(
     }
 
 
-
-
 def get_particle_exchange_process(
         n_bins=(20, 20),
         bounds=(10.0, 10.0),
