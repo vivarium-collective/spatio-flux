@@ -116,11 +116,7 @@ def plot_multi_dfba(results, state, config=None):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     species_ids = model_ids + field_names
-    plot_time_series(
-        results, field_names=species_ids,
-        log_scale=True,
-        normalize=True,
-        out_dir='out', filename=filename)
+    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename)
 
 # --- Many DFBA Spatial ---------------------------------------------------
 
@@ -137,9 +133,8 @@ def get_spatial_many_dfba_doc(core=None, config=None):
 def plot_spatial_many_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'spatial_many_dfba')
-    plot_time_series(results, coordinates=[(0, 0), (1, 1), (2, 2)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_species_distributions_to_gif(
-        results, out_dir='out', filename=f'{filename}_video.gif')
+    plot_time_series(results, coordinates=[(0, 0), (1, 1), (1, 3)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- DFBA Spatial Process ---------------------------------------------
 
@@ -282,13 +277,8 @@ def plot_comets(results, state, config=None):
     filename = config.get('filename', 'comets')
     n_bins = state['diffusion']['config']['n_bins']
     bounds = state['diffusion']['config']['bounds']
-    plot_time_series(
-        results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
-                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
-                        suptitle='Fields snapshots')
-
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
     plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- Particles -----------------------------------------------------------
@@ -315,15 +305,9 @@ def plot_particles_sim(results, state, config=None):
     filename = config.get('filename', 'particles')
     bounds = state['brownian_movement']['config']['bounds']
     history = [step['particles'] for step in results]
-    plot_particles(
-        history=history, env_size=((0, bounds[0]), (0, bounds[1])),
-        out_dir='out', filename=f'{filename}_particles_alone_video.gif')
-    plot_species_distributions_with_particles_to_gif(
-        results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
-
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
-                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
-                        suptitle='Fields snapshots')
+    plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename=f'{filename}_particles_alone_video.gif')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
 
 
 # --- Particles with Fields -----------------------------------------------------------
@@ -414,10 +398,8 @@ def plot_kinetic_particle_comets(results, state, config=None):
     bounds = state['brownian_movement']['config']['bounds']
     n_bins = state['brownian_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
-                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
-    plot_species_distributions_with_particles_to_gif(
-        results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
 
 # --- dFBA-Particles ---------------------------------------------------
 
@@ -452,13 +434,10 @@ def plot_particle_dfba(results, state, config=None):
     filename = config.get('filename', 'particle_dfba')
     n_bins = state['brownian_movement']['config']['n_bins']
     bounds = state['brownian_movement']['config']['bounds']
-    plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
-                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
-    plot_species_distributions_with_particles_to_gif(
-        results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 
@@ -499,13 +478,10 @@ def plot_particle_dfba_comets(results, state, config=None):
     filename = config.get('filename', 'particle_dfba_comets')
     n_bins = state['brownian_movement']['config']['n_bins']
     bounds = state['brownian_movement']['config']['bounds']
-    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6,
-                        bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
-    plot_species_distributions_with_particles_to_gif(
-        results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 
 
@@ -561,12 +537,7 @@ def get_newtonian_particles_doc(core=None, config=None):
 def plot_newtonian_particles(results, state, config=None):
     filename = config.get('filename', 'newtonian_particles')
     pymunk_config = state['newtonian_particles']['config']
-    pymunk_simulation_to_gif(results,
-                             filename=f'{filename}_video.gif',
-                             config=pymunk_config,
-                             # color_by_phylogeny=True,
-                             agents_key='particles'
-                             )
+    pymunk_simulation_to_gif(results, filename=f'{filename}_video.gif', config=pymunk_config, agents_key='particles')
 
 
 # --- PYMUNK COMETS ------------------------------------------------
@@ -629,8 +600,7 @@ def plot_newtonian_particle_comets(results, state, config=None):
     n_bins = state['diffusion']['config']['n_bins']
 
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
-                     coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)],
-                     out_dir='out', filename=f'{filename}_timeseries.png')
+                     coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
 
     fields_and_agents_to_gif(
@@ -737,7 +707,7 @@ SIMULATIONS = {
         'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
         'doc_func': get_spatial_dfba_process_doc,
         'plot_func': plot_dfba_process_spatial,
-        'time': DEFAULT_RUNTIME_SHORT,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'spatial_dfba_process'}
     },

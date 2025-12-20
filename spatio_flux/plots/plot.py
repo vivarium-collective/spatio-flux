@@ -164,7 +164,7 @@ def plot_time_series(
             for coord in coordinates:
                 x, y = coord
                 try:
-                    time_series = [field_data[t][x, y] for t in range(len(times))]
+                    time_series = [field_data[t][y, x] for t in range(len(times))]
                     if normalize:
                         initial = time_series[0] if time_series[0] != 0 else 1e-12
                         time_series = [v / initial for v in time_series]
