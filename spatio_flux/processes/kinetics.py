@@ -101,12 +101,12 @@ def get_kinetics_process_from_registry(
         "address": "local:MonodKinetics",
         "config": model_config,
         "inputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id, i, j)
+            "substrates": {mol_id: build_path(path, mol_id, j, i) for mol_id in mol_ids},  # note j,i order for rows,cols
+            "biomass": build_path(path, biomass_id, j, i)
         },
         "outputs": {
-            "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id, i, j)
+            "substrates": {mol_id: build_path(path, mol_id, j, i) for mol_id in mol_ids},
+            "biomass": build_path(path, biomass_id, j, i)
         }
     }
 

@@ -124,7 +124,9 @@ def get_spatial_dFBA_process(
         mol_ids.remove(biomass_id)
 
     if model_id and 'model_grid' not in config:
-        config['model_grid'] = [[model_id for _ in range(config['n_bins'][1])] for _ in range(config['n_bins'][0])]
+        nx, ny = config['n_bins']  # (x bins, y bins)
+        # model_grid is (ny rows, nx cols): index [y][x]
+        config['model_grid'] = [[model_id for _ in range(nx)] for _ in range(ny)]
 
     return {
         "_type": "process",
@@ -144,20 +146,61 @@ def get_spatial_dFBA_process(
 # Spatial DFBA
 # ============
 
-def get_fields(n_bins, mol_ids, initial_min_max=None, initial_fields=None):
+import numpy as np
+
+def get_fields(
+    n_bins,
+    mol_ids,
+    initial_min_max=None,
+    initial_fields=None,
+    dtype=float,
+):
+    """
+    Create spatial fields consistent with the (x,y) vs (row,col) convention.
+
+    Parameters
+    ----------
+    n_bins : tuple (nx, ny)
+        Number of bins in x and y (config-space).
+    mol_ids : iterable of str
+        Molecule IDs to create fields for.
+    initial_min_max : dict, optional
+        {mol_id: (min, max)} for random initialization.
+    initial_fields : dict, optional
+        Predefined fields. Must already have shape (ny, nx).
+    dtype : numpy dtype
+        dtype for created arrays.
+
+    Returns
+    -------
+    dict : {mol_id: ndarray}
+        Each ndarray has shape (ny, nx).
+    """
     initial_min_max = initial_min_max or {}
-    initial_fields = initial_fields or {}
+    initial_fields = dict(initial_fields) if initial_fields else {}
+
+    nx, ny = n_bins
+    shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
 
     for mol_id in mol_ids:
-        if mol_id not in initial_fields:
-            minmax = initial_min_max.get(mol_id, (0, 1))
-            initial_fields[mol_id] = np.random.uniform(
-                low=minmax[0],
-                high=minmax[1],
-                size=n_bins
-            )
+        if mol_id in initial_fields:
+            arr = np.asarray(initial_fields[mol_id])
+            if arr.shape != shape:
+                raise ValueError(
+                    f"Initial field '{mol_id}' has shape {arr.shape}, "
+                    f"expected {shape} (ny, nx) from n_bins={n_bins}"
+                )
+            continue
+
+        lo, hi = initial_min_max.get(mol_id, (0.0, 1.0))
+        initial_fields[mol_id] = np.random.uniform(
+            low=lo,
+            high=hi,
+            size=shape
+        ).astype(dtype)
 
     return initial_fields
+
 
 def get_fields_with_schema(
         n_bins,
@@ -180,7 +223,7 @@ def get_fields_with_schema(
         "_type": "map",
         "_value": {
             "_type": "array",
-            "_shape": n_bins,
+            "_shape": (n_bins[1], n_bins[0]),  # (rows, cols) == (y_bins, x_bins)
             "_data": "float"
         },
         **initial_fields,
@@ -192,14 +235,15 @@ def get_spatial_many_dfba(
         mol_ids=None,
         biomass_id="dissolved biomass",
 ):
+    nx, ny = n_bins
     dfba_processes_dict = {}
-    for i in range(n_bins[0]):
-        for j in range(n_bins[1]):
+    for y in range(ny):         # rows
+        for x in range(nx):     # cols
             # get a process state for each bin
             dfba_process = get_dfba_process_from_registry(
                 model_id=model_file, path=["..", "fields"],
-                biomass_id=biomass_id, i=i, j=j)
-            dfba_processes_dict[f"dFBA[{i},{j}]"] = dfba_process
+                biomass_id=biomass_id, i=x, j=y)
+            dfba_processes_dict[f"dFBA[{x},{y}]"] = dfba_process
 
     return dfba_processes_dict
 

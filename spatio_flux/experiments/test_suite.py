@@ -19,8 +19,7 @@ import time
 import numpy as np
 from process_bigraph import allocate_core
 
-from spatio_flux.library.tools import run_composite_document, prepare_output_dir, generate_html_report, \
-    reversed_tuple, inverse_tuple
+from spatio_flux.library.tools import run_composite_document, prepare_output_dir, generate_html_report
 from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
     plot_snapshots_grid, fields_and_agents_to_gif,
@@ -118,7 +117,7 @@ def get_spatial_many_dfba_doc(core=None, config=None):
     dissolved_model_file = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    n_bins = reversed_tuple(DEFAULT_BINS_SMALL)
+    n_bins = DEFAULT_BINS_SMALL
     return {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
         'spatial_dFBA': get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
@@ -133,26 +132,32 @@ def plot_spatial_many_dfba(results, state, config=None):
 # --- DFBA Spatial Process ---------------------------------------------
 
 def build_model_grid(n_bins, model_positions=None):
-    rows, cols = n_bins
+    """
+    Build a model_grid array
+    """
+    nx, ny = n_bins  # x bins, y bins
     out_of_bounds = []
 
+    # Validate positions (x, y)
     if model_positions:
         for model_id, positions in model_positions.items():
-            for (r, c) in positions:
-                if not (0 <= r < rows and 0 <= c < cols):
-                    out_of_bounds.append((model_id, (r, c)))
+            for (x, y) in positions:
+                if not (0 <= x < nx and 0 <= y < ny):
+                    out_of_bounds.append((model_id, (x, y)))
 
     if out_of_bounds:
         raise ValueError(
-            f"The following positions are out of bounds for grid {n_bins}: {out_of_bounds}"
+            f"The following positions are out of bounds for grid n_bins={n_bins}: {out_of_bounds}"
         )
 
-    # Build grid
-    model_grid = [['' for _ in range(cols)] for _ in range(rows)]
+    # Build empty grid: rows = y, cols = x
+    model_grid = [['' for _ in range(nx)] for _ in range(ny)]
+
+    # Fill grid using model_positions (x, y → [y][x])
     if model_positions:
         for model_id, positions in model_positions.items():
-            for (r, c) in positions:
-                model_grid[r][c] = model_id
+            for (x, y) in positions:
+                model_grid[y][x] = model_id
 
     return model_grid
 
@@ -164,7 +169,7 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     initial_min_max = {'glucose': (10, 10), 'glycolate': (10, 10), 'ammonium': (10, 10), 'formate': (10, 10),
                        'glutamate': (10, 10), 'serine': (0, 0),
                        'acetate': (0, 0), 'dissolved biomass': (0.1, 0.1)}
-    n_bins = reversed_tuple((5, 6))  # TODO automatically align with species grid
+    n_bins = (6, 5)
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
@@ -209,13 +214,13 @@ def plot_dfba_process_spatial(results, state, config=None):
 
 def get_diffusion_process_doc(core=None, config=None):
     mol_ids = ['glucose', 'dissolved biomass']
-    advection_coeffs = {'dissolved biomass': reversed_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'dissolved biomass': DEFAULT_DIFFUSION/10}
-    n_bins = reversed_tuple(DEFAULT_BINS)
-    bounds = reversed_tuple(DEFAULT_BOUNDS)
+    n_bins = DEFAULT_BINS
+    bounds = DEFAULT_BOUNDS
     # initialize fields
-    glc_field = np.random.uniform(low=0.1,high=2,size=n_bins)
-    biomass_field = np.zeros(n_bins)
+    glc_field = np.random.uniform(low=0.1,high=2,size=(n_bins[1], n_bins[0]))
+    biomass_field = np.zeros((n_bins[1], n_bins[0]))
     biomass_field[4:5,:] = 10
     return {
         'fields': {'dissolved biomass': biomass_field, 'glucose': glc_field},
@@ -233,23 +238,29 @@ def plot_diffusion_process(results, state, config=None):
 def get_comets_doc(core=None, config=None):
     dissolved_model_id = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    n_bins = reversed_tuple(DEFAULT_BINS)
-    bounds = reversed_tuple(DEFAULT_BOUNDS)   # TODO -- undo reversal when fixing other code
-    diffusion_coeffs = {'glucose': 0, 'acetate': 1e-1, 'dissolved biomass': 5e-2}
-    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
-    bins_y, bins_x = n_bins
+    n_bins = DEFAULT_BINS  # (nx, ny)
+    bounds = DEFAULT_BOUNDS  # (xmax, ymax)
+    diffusion_coeffs = {'glucose': 0.0, 'acetate': 1e-1, 'dissolved biomass': 5e-2}
+    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
+    nx, ny = n_bins
+    shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
 
-    # initialize acetate concentration to zero
-    acetate_field = np.zeros(n_bins)
+    # Fields
+    acetate_field = np.zeros(shape, dtype=float)
+    # vertical gradient in y (rows): low at top row, high at bottom row
+    glc_y = np.linspace(0.01, 10.0, ny, dtype=float)[:, None]  # (ny, 1)
+    glc_field = np.repeat(glc_y, nx, axis=1)  # (ny, nx)
+    # biomass strip: top row(s), middle half of x
+    biomass_field = np.zeros(shape, dtype=float)
+    x0 = nx // 4
+    x1 = 3 * nx // 4
+    biomass_field[0:1, x0:x1] = 0.1
 
-    # a vertical glucose concentration gradient
-    vertical_gradient = np.linspace(0.01, 10, bins_y).reshape(-1, 1)  # Create the gradient for a single column.
-    glc_field = np.repeat(vertical_gradient, bins_x, axis=1)  # Replicate the gradient across all columns.
-
-    # place some biomass
-    biomass_field = np.zeros(n_bins)
-    biomass_field[0:1, int(bins_x/4):int(3*bins_x/4)] = 0.1
-    initial_fields = {'dissolved biomass': biomass_field, 'glucose': glc_field, 'acetate': acetate_field}
+    initial_fields = {
+        'dissolved biomass': biomass_field,
+        'glucose': glc_field,
+        'acetate': acetate_field,
+    }
 
     config = {
         'mol_ids': mol_ids,
@@ -313,7 +324,7 @@ def plot_particles_sim(results, state, config=None):
 def get_particles_with_kinetics_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
 
-    initial_min_max = {'glucose': (0.5, 2.0), 'acetate': (0, 0), 'biomass': (0.1, 0.5), 'detritus': (0, 0)}
+    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0), 'biomass': (0.1, 0.1), 'detritus': (0, 0)}
     particle_config = {
         'reactions': {
             'grow': {'reactant': 'glucose', 'product': 'biomass'},
@@ -451,7 +462,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
-    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     n_particles = 4
     add_probability = 0.3
     particle_advection = (0, -0.2)
@@ -553,7 +564,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     bounds_default = tuple(x * 10 for x in DEFAULT_BOUNDS)
     bounds = config.get('bounds', bounds_default)
     n_bins = config.get('n_bins', DEFAULT_BINS)
-    advection_coeffs = {'dissolved biomass': inverse_tuple(DEFAULT_ADVECTION)}
+    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     n_particles = 4
     particle_advection = (0, -0.2) #DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -735,13 +746,13 @@ SIMULATIONS = {
         'config': {},
         'plot_config': {'filename': 'brownian_particles'}
     },
-    'brownian_particles_kinetic': {
+    'kinetic_brownian_particles': {
         'description': 'This simulation uses Brownian particles with mass moving randomly in space, and with a minimal reaction process inside of each particle uptaking or secreting from the field.',
         'doc_func': get_particles_with_kinetics_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
-        'plot_config': {'filename': 'brownian_particles_kinetic'}
+        'plot_config': {'filename': 'kinetic_brownian_particles'}
     },
     'kinetic_particles_comets': {
         'description': 'This simulation extends COMETS with particles that have internal minimal reaction processes.',
@@ -751,7 +762,7 @@ SIMULATIONS = {
         'config': {},
         'plot_config': {'filename': 'kinetic_particles_comets'}
     },
-    'particles_dfba': {
+    'dfba_brownian_particles': {
         'description': 'This simulation puts dFBA inside of the particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
         'doc_func': get_particle_dfba_doc,
         'plot_func': plot_particle_dfba,
@@ -759,7 +770,7 @@ SIMULATIONS = {
         'config': {
             'particle_model_id': 'ecoli core'
         },
-        'plot_config': {'filename': 'particles_dfba'}
+        'plot_config': {'filename': 'dfba_brownian_particles'}
     },
     'particle_dfba_comets': {
         'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',

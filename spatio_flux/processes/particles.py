@@ -35,10 +35,14 @@ def get_bin_position(position, n_bins, env_size):
     return min(max(x_bin, 0), x_bins - 1), min(max(y_bin, 0), y_bins - 1)
 
 
-
-def get_local_field_values(fields, column, row, default=np.nan):
+def get_local_field_values(fields, x, y, default=np.nan):
     """
-    Safely read per-molecule field values at (column,row).
+    Safely read per-molecule field values at (x, y).
+
+    Conventions:
+      - 2D fields are stored as numpy arrays with shape (ny, nx)
+      - Index as arr[y, x]  (row=y, col=x)
+
     - Works with 1D or 2D arrays
     - Clamps indices
     - Returns `default` for empty arrays
@@ -47,33 +51,36 @@ def get_local_field_values(fields, column, row, default=np.nan):
     for mol_id, field in fields.items():
         arr = np.asarray(field)
 
-        # Empty field → return default (np.nan by default)
         if arr.size == 0:
             local_values[mol_id] = default
             continue
 
         if arr.ndim == 2:
-            # Clamp with shape-aware bounds
-            c = int(np.clip(column, 0, arr.shape[0] - 1))
-            r = int(np.clip(row,    0, arr.shape[1] - 1))
-            local_values[mol_id] = arr[c, r]
+            # arr.shape = (ny, nx)
+            xi = int(np.clip(x, 0, arr.shape[1] - 1))
+            yi = int(np.clip(y, 0, arr.shape[0] - 1))
+            local_values[mol_id] = arr[yi, xi]
+
         elif arr.ndim == 1:
-            c = int(np.clip(column, 0, arr.shape[0] - 1))
-            local_values[mol_id] = arr[c]
+            xi = int(np.clip(x, 0, arr.shape[0] - 1))
+            local_values[mol_id] = arr[xi]
+
         else:
-            # Try squeezing unusual shapes (e.g., (1, N) or (N, 1))
             arr2 = np.squeeze(arr)
-            if arr2.ndim in (1, 2) and arr2.size > 0:
-                # Recurse once with the squeezed array
-                if arr2.ndim == 2:
-                    c = int(np.clip(column, 0, arr2.shape[0] - 1))
-                    r = int(np.clip(row,    0, arr2.shape[1] - 1))
-                    local_values[mol_id] = arr2[c, r]
-                else:
-                    c = int(np.clip(column, 0, arr2.shape[0] - 1))
-                    local_values[mol_id] = arr2[c]
+            if arr2.size == 0:
+                local_values[mol_id] = default
+                continue
+
+            if arr2.ndim == 2:
+                xi = int(np.clip(x, 0, arr2.shape[1] - 1))
+                yi = int(np.clip(y, 0, arr2.shape[0] - 1))
+                local_values[mol_id] = arr2[yi, xi]
+            elif arr2.ndim == 1:
+                xi = int(np.clip(x, 0, arr2.shape[0] - 1))
+                local_values[mol_id] = arr2[xi]
             else:
                 raise ValueError(f"Unsupported field shape {arr.shape} for {mol_id}")
+
     return local_values
 
 
@@ -383,26 +390,26 @@ class ParticleExchange(Step):
 
         particle_updates = {}
 
-        # initialize zero-delta arrays for each field
+        # initialize zero-delta arrays for each field (same shape as stored arrays: (ny, nx))
         field_updates = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
 
         for pid, p in particles.items():
             x, y = p['position']
-            col, row = get_bin_position((x, y), self.config['n_bins'], self.env_size)
+
+            # get_bin_position returns (x_bin, y_bin)
+            x_bin, y_bin = get_bin_position((x, y), self.config['n_bins'], self.env_size)
 
             # ----------------------------
             # local field sampling
             # ----------------------------
-            local_after = get_local_field_values(fields, col, row)
+            local_after = get_local_field_values(fields, x=x_bin, y=y_bin)
 
             local_before = p.get('local', None)
             local_before_present = isinstance(local_before, dict) and len(local_before) > 0
 
             if not local_before_present:
-                # first time: add entire local map
                 local_update = {'_add': local_after}
             else:
-                # subsequent times: store the delta
                 local_update = {
                     m: local_after[m] - local_before.get(m, 0.0)
                     for m in local_after
@@ -415,19 +422,15 @@ class ParticleExchange(Step):
             exch_before_present = isinstance(exch_before, dict) and len(exch_before) > 0
             exch = exch_before if exch_before_present else {}
 
-            # apply exchange to field bin
-            # convention: positive value -> adds to field at this bin
+            # Apply exchange into field bin (arrays are indexed [y, x])
             for mol_id, delta in exch.items():
                 if mol_id in field_updates:
-                    # you can multiply by dt here if exch is a rate
-                    field_updates[mol_id][col, row] += delta
+                    field_updates[mol_id][y_bin, x_bin] += delta
 
             # update particle's exchange state
             if not exch_before_present:
-                # initialize exchange map if missing/empty
                 exchange_update = {'_add': {m: 0.0 for m in fields.keys()}}
             else:
-                # after applying, zero out the exchange (command consumed)
                 exchange_update = {mol_id: 0.0 for mol_id in exch.keys()}
 
             particle_updates[pid] = {

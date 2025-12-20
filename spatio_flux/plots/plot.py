@@ -47,6 +47,11 @@ def _draw_particles(ax, particles, mass_scaling, xmax, ymax, color='b', min_mass
         if 0 <= x <= xmax and 0 <= y <= ymax:
             ax.scatter(x, y, s=mass * mass_scaling, color=color)
 
+
+def field_for_imshow(field_2d):
+    """Assumes field is stored as (ny, nx) indexed [y, x]."""
+    return np.asarray(field_2d)
+
 def sort_results(results):
     if ('emitter',) in results:
         results = results[('emitter',)]
@@ -200,7 +205,7 @@ def plot_time_series(
 def plot_snapshots(
         results,
         field_names,
-        times
+        times,
 ):
     """
     Plots snapshots of specified fields at specified times from the results dictionary.
@@ -218,6 +223,9 @@ def plot_snapshots(
     num_rows = len(times)
     num_cols = len(field_names)
 
+    # xmax, ymax = bounds
+    # extent = [0, xmax, 0, ymax]
+
     # Compute global min and max for each field
     global_min_max = {}
     for field_name in field_names:
@@ -232,7 +240,8 @@ def plot_snapshots(
             if field_name in sorted_results['fields']:
                 field_data = sorted_results['fields'][field_name][time_index]
                 ax = axes[row, col] if num_rows > 1 and num_cols > 1 else (axes[row] if num_rows > 1 else axes[col])
-                im = ax.imshow(field_data, cmap='viridis', aspect='auto',
+                im = ax.imshow(field_data, cmap='viridis', aspect='auto', origin='lower',
+                               # extent=extent,
                                vmin=global_min_max[field_name][0], vmax=global_min_max[field_name][1])
                 ax.set_title(f'{field_name} at t={sorted_results["time"][time_index]}')
                 fig.colorbar(im, ax=ax)
@@ -417,7 +426,7 @@ def plot_species_distributions_with_particles_to_gif(
 
             for j, species in enumerate(species_names):
                 ax = axs[j]
-                field = np.fliplr(np.rot90(fields[species], k=3))
+                field = field_for_imshow(fields[species])
                 vmin, vmax = global_min_max[species]
 
                 im = ax.imshow(field, interpolation='nearest', cmap='viridis',
@@ -671,8 +680,7 @@ def plot_snapshots_grid(
             ax = fig.add_subplot(gs[r, c])
 
             # Consistent orientation — world space (x,y)
-            arr = np.asarray(fields[field][ti])
-            arr = np.fliplr(np.rot90(arr, k=3))
+            arr = field_for_imshow(fields[field][ti])
             im = ax.imshow(
                 arr, cmap=cmap, vmin=vmin, vmax=vmax,
                 extent=extent, origin='lower', interpolation='nearest', aspect='equal'
@@ -920,7 +928,7 @@ def fields_and_agents_to_gif(
                 if species in fields:
                     # Match orientation behavior from your original fields function
                     raw_field = np.asarray(fields[species])
-                    field_img = np.fliplr(np.rot90(raw_field, k=3))
+                    field_img = field_for_imshow(raw_field)
 
                     vmin, vmax = global_min_max[species]
                     im = ax.imshow(
