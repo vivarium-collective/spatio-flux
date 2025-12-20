@@ -811,7 +811,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONGER,
+        'time': DEFAULT_RUNTIME_LONG, #ER,
         'config': {},
         'plot_config': {'filename': 'newtonian_particle_comets'}
     },
