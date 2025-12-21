@@ -133,10 +133,10 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     )
     plot_settings.update(dict(
         dpi='300',
-        show_values=True,
-        show_types=True,
+        # show_values=True,
+        # show_types=True,
         collapse_redundant_processes={
-            'exclude': [
+            'exclude': [  # dont collapse these
                 ('particle_movement',),
                 ('particle_division',),
                 ('enforce_boundaries',)

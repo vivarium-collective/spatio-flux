@@ -52,7 +52,7 @@ STANDARD_FIELD_COLORS = {
     "ecoli_core_biomass": "#2ca02c",
 
     # Kinetic biomass (slightly different shade to distinguish)
-    "kinetic_biomass": "#98df8a",  # light green (C2 lighter)
+    "monod_biomass": "#98df8a",  # light green (C2 lighter)
 
     # Dissolved / spatial biomass (optional, but useful)
     "dissolved biomass": "#17becf",  # teal (C9)
@@ -80,20 +80,20 @@ def get_kinetics_single_doc(
                     'glucose': ['fields', 'glucose'],
                     'acetate': ['fields', 'acetate'],
                 },
-                'biomass': ['fields', 'biomass'],
+                'biomass': ['fields', 'monod_biomass'],
             },
             'outputs': {
                 'substrates': {
                     'glucose': ['fields', 'glucose'],
                     'acetate': ['fields', 'acetate'],
                 },
-                'biomass': ['fields', 'biomass'],
+                'biomass': ['fields', 'monod_biomass'],
             },
         },
         'fields': {
             'glucose': 10,
             'acetate': 0,
-            'biomass': 0.1
+            'monod_biomass': 0.1
         }
     }
     return doc
@@ -121,7 +121,7 @@ def get_dfba_single_doc(
         config=None,
 ):
     model_id = config.get('model_id', 'ecoli core')
-    biomass_id = config.get('biomass_id', f'{model_id} biomass')
+    biomass_id = config.get('biomass_id', f'{model_id}_biomass')
     dfba_process = get_dfba_process_from_registry(
         model_id=model_id,
         biomass_id=biomass_id,
@@ -423,7 +423,7 @@ def plot_comets(results, state, config=None):
     n_bins = state['diffusion']['config']['n_bins']
     bounds = state['diffusion']['config']['bounds']
     plot_time_series(results, coordinates=[(0, int(n_bins[1]/2)), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=5, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
     plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- Particles -----------------------------------------------------------
@@ -520,7 +520,7 @@ def plot_particle_dfba(results, state, config=None):
     bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=5, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 
@@ -780,7 +780,7 @@ SIMULATIONS = {
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'ecoli core', 'initial_fields': {'glucose': 10, 'acetate': 0}},
+        'config': {'model_id': 'ecoli core', 'biomass_id': 'dfba_biomass', 'initial_fields': {'glucose': 10, 'acetate': 0}},
         'plot_config': {'filename': 'ecoli_core_dfba'}
     },
     'ecoli_dfba': {
@@ -791,22 +791,6 @@ SIMULATIONS = {
         'config': {'model_id': 'ecoli', 'initial_fields': {'glucose': 10, 'formate': 5}},
         'plot_config': {'filename': 'ecoli_dfba'}
     },
-    # 'cdiff_dfba': {
-    #     'description': 'This simulation runs a dFBA model of Clostridioides difficile. iCN900',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'cdiff', 'initial_fields': {'glucose': 2, 'acetate': 10}},
-    #     'plot_config': {'filename': 'cdiff_dfba'}
-    # },
-    # 'pputida_dfba': {
-    #     'description': 'This simulation runs a dFBA model of Pseudomonas putida, iJN746',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'pputida', 'initial_fields': {'glucose': 8, 'pputida biomass': 2}},
-    #     'plot_config': {'filename': 'pputida_dfba'}
-    # },
     'yeast_dfba': {
         'description': 'This simulation runs a dFBA model of Saccharomyces cerevisiae (yeast), iMM904',
         'doc_func': get_dfba_single_doc,
@@ -815,14 +799,6 @@ SIMULATIONS = {
         'config': {'model_id': 'yeast', 'initial_fields': {'glucose': 5}},
         'plot_config': {'filename': 'yeast_dfba'}
     },
-    # 'llactis_dfba': {
-    #     'description': 'This simulation runs a dFBA model of Lactococcus lactis, iNF517',
-    #     'doc_func': get_dfba_single_doc,
-    #     'plot_func': plot_dfba_single,
-    #     'time': DEFAULT_RUNTIME_LONG,
-    #     'config': {'model_id': 'llactis', 'initial_fields': {'glucose': 100, 'llactis biomass': 2.0}},
-    #     'plot_config': {'filename': 'llactis_dfba'}
-    # },
     'community_dfba': {
         'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
         'doc_func': get_multi_dfba,

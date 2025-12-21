@@ -58,6 +58,7 @@ DEFAULT_FIELD_SPECIES = [
     "substrate_id",
     "dfba_biomass",
     "kinetic_biomass",
+    "monod_biomass",
 ]
 
 DEFAULT_FIELD_BIOMASS_SPECIES = [
