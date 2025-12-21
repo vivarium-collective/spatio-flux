@@ -56,6 +56,8 @@ DEFAULT_FIELD_SPECIES = [
     "biomass",
     "dissolved biomass",
     "substrate_id",
+    "dfba_biomass",
+    "kinetic_biomass",
 ]
 
 DEFAULT_FIELD_BIOMASS_SPECIES = [

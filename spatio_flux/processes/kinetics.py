@@ -35,7 +35,7 @@ def get_single_substrate_assimilation_kinetics_config():
                 'reactant': 'glucose',
                 'product': 'mass',
                 'km': 0.5,
-                'vmax': 0.03,  # higher vmax = faster growth potential
+                'vmax': 0.03,
                 'yield': 1.0,
             },
             'maintenance_turnover': {
@@ -77,11 +77,13 @@ def get_two_substrate_assimilation_kinetics_config():
     }
 
 
+# -------------------------
+# Overflow metabolism
+# -------------------------
+
 def get_overflow_metabolism_kinetics_config():
-    # KEEPING YOUR CURRENT PARAMETERS EXACTLY (km/vmax/yield)
     return {
         'reactions': {
-            # direct growth on glucose
             'assimilate_glucose': {
                 'reactant': 'glucose',
                 'product': 'mass',
@@ -89,33 +91,86 @@ def get_overflow_metabolism_kinetics_config():
                 'vmax': 0.4,
                 'yield': 0.2,
             },
-            # overflow channel (glucose -> acetate)
             'overflow_to_acetate': {
                 'reactant': 'glucose',
                 'product': 'acetate',
                 'km': 0.5,
-                'vmax': 0.4,
-                'yield': 1.0,
+                'vmax': 0.3,
+                'yield': 0.5,
             },
-            # growth on acetate
             'assimilate_acetate': {
                 'reactant': 'acetate',
                 'product': 'mass',
-                'km': 0.5,
-                'vmax': 0.2,
+                'km': 0.6,
+                'vmax': 0.3,
                 'yield': 0.2,
-            },
-            # maintenance
-            'maintenance_turnover': {
-                'reactant': 'mass',
-                'product': 'detritus',
-                'km': 1.0,
-                'vmax': 0.01,
-                'yield': 1.0,
             },
         }
     }
 
+
+# -------------------------
+# Glucose-only and Acetate-only
+# -------------------------
+
+def get_glucose_only_kinetics_config(*, include_maintenance=False):
+    """
+    Glucose -> mass only.
+    Uses overflow_metabolism's assimilate_glucose parameters.
+    """
+    reactions = {
+        'assimilate_glucose': {
+            'reactant': 'glucose',
+            'product': 'mass',
+            'km': 0.5,
+            'vmax': 0.4,
+            'yield': 0.2,
+        },
+    }
+
+    if include_maintenance:
+        # Choose your preferred byproduct here; detritus is a safe sink.
+        reactions['maintenance_turnover'] = {
+            'reactant': 'mass',
+            'product': 'detritus',
+            'km': 1.0,
+            'vmax': 0.001,
+            'yield': 1.0,
+        }
+
+    return {'reactions': reactions}
+
+
+def get_acetate_only_kinetics_config(*, include_maintenance=False):
+    """
+    Acetate -> mass only.
+    Uses overflow_metabolism's assimilate_acetate parameters.
+    """
+    reactions = {
+        'assimilate_acetate': {
+            'reactant': 'acetate',
+            'product': 'mass',
+            'km': 0.5,
+            'vmax': 0.4,
+            'yield': 1.0,
+        },
+    }
+
+    if include_maintenance:
+        reactions['maintenance_turnover'] = {
+            'reactant': 'mass',
+            'product': 'detritus',
+            'km': 1.0,
+            'vmax': 0.001,
+            'yield': 1.0,
+        }
+
+    return {'reactions': reactions}
+
+
+# -------------------------
+# Others
+# -------------------------
 
 def get_cross_feeding_kinetics_config():
     return {
@@ -167,12 +222,15 @@ def get_autotrophic_kinetics_config():
 
 
 MODEL_REGISTRY_KINETICS = {
+    'glucose_only': get_glucose_only_kinetics_config,
+    'acetate_only': get_acetate_only_kinetics_config,
     'single_substrate_assimilation': get_single_substrate_assimilation_kinetics_config,
     'two_substrate_assimilation': get_two_substrate_assimilation_kinetics_config,
     'overflow_metabolism': get_overflow_metabolism_kinetics_config,
     'cross_feeding': get_cross_feeding_kinetics_config,
     'autotrophic': get_autotrophic_kinetics_config,
 }
+
 
 
 def get_kinetics_process_from_registry(

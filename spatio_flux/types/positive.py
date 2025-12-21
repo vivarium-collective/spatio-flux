@@ -1,5 +1,6 @@
 from dataclasses import dataclass, is_dataclass, field, replace
 
+import numpy as np
 from bigraph_schema.schema import Float, Array, Number
 from bigraph_schema.methods import apply, render, resolve
 
@@ -74,6 +75,8 @@ def resolve(current: Concentration, update: Number, path=()):
 @apply.dispatch
 def apply(schema: SetFloat, state, update, path):
     return update, []
+
+
 
 
 @apply.dispatch

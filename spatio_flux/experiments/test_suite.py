@@ -155,6 +155,53 @@ def plot_multi_dfba(results, state, config=None):
     species_ids = model_ids + field_names
     plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename)
 
+
+# --- DFBA-Monod Community ------------------------------------------------
+
+def get_dfba_kinetics_community_doc(core=None, config=None):
+    dfba_model_id = 'ecoli core'
+    kinetic_model_id = 'acetate_only'  #'overflow_metabolism'
+    dfba_biomass_id = 'dfba_biomass'
+    kinetic_biomass_id = 'kinetic_biomass'
+
+    kinetic_model_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
+    doc = {
+        'dFBA': get_dfba_process_from_registry(model_id=dfba_model_id, biomass_id=dfba_biomass_id, path=['fields']),
+        'monod_kinetics': {
+            '_type': 'process',
+            'address': 'local:MonodKinetics',
+            'config': kinetic_model_config,
+            'inputs': {
+                'substrates': {
+                    'glucose': ['fields', 'glucose'],
+                    'acetate': ['fields', 'acetate'],
+                },
+                'biomass': ['fields', kinetic_biomass_id],
+            },
+            'outputs': {
+                'substrates': {
+                    'glucose': ['fields', 'glucose'],
+                    'acetate': ['fields', 'acetate'],
+                },
+                'biomass': ['fields', kinetic_biomass_id],
+            },
+        },
+        'fields': {
+            'glucose': 10,
+            'acetate': 0,
+            dfba_biomass_id: 0.01,
+            kinetic_biomass_id: 0.01,
+        }
+    }
+    return doc
+
+def plot_dfba_kinetics_community(results, state, config=None):
+    config = config or {}
+    filename = config.get('filename', 'dfba_kinetics_community')
+    species_ids = ['glucose', 'acetate', 'dfba_biomass', 'kinetic_biomass']
+    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename)
+
+
 # --- Many DFBA Spatial ---------------------------------------------------
 
 def get_spatial_many_dfba_doc(core=None, config=None):
@@ -585,7 +632,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     config = config or {}
 
     division_mass_threshold = 0.4
-    add_rate = 0.0  # 0.02
+    add_rate = 0.01  # 0.02
 
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
@@ -602,11 +649,11 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
 
     # run simulation
     config = {
-        'gravity': -5.0,  #-0.2, -9.81,
+        'gravity': -1.0,  #-0.2, -9.81,
         'elasticity': 0.1,
         'bounds': bounds,
-        'jitter_per_second': 1e-6,   # 0.01,
-        'damping_per_second': 1e-6,  #5,  #.995,
+        'jitter_per_second': 1e-3,   # 0.01,
+        'damping_per_second': 1e-3,  #5,  #.995,
     }
     boundary_config = {
         'add_rate': add_rate,
@@ -734,6 +781,14 @@ SIMULATIONS = {
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'community_dfba'}
+    },
+    'dfba_kinetics_community': {
+        'description': 'This simulation runs multiple processes in the same environment, some with Monod kinetics and some with dFBA metabolism.',
+        'doc_func': get_dfba_kinetics_community_doc,
+        'plot_func': plot_dfba_kinetics_community,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {},
+        'plot_config': {'filename': 'dfba_kinetics_community'}
     },
     'spatial_many_dfba': {
         'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
