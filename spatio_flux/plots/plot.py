@@ -632,8 +632,8 @@ def plot_snapshots_grid(
 
     # --- Extract fields & times ---
     times = [step['global_time'] for step in data]
-    field_keys = list(data[0].get('fields', {}).keys())
-    fields = {f: [step['fields'][f] for step in data] for f in field_keys}
+    field_keys = list((data[0].get('fields') or {}).keys())
+    fields = {f: [step.get('fields', {}).get(f) for step in data] for f in field_keys}
 
     # --- Choose fields ---
     if field_names is None:
@@ -641,11 +641,11 @@ def plot_snapshots_grid(
     else:
         field_names = [f for f in field_names if f in field_keys]
 
+    # >>> Early exit: no fields to plot
     if not field_names:
-        # raise ValueError("No valid fields to plot.")
-        n_rows = 1
-    else:
-        n_rows = len(field_names)
+        return None
+
+    n_rows = len(field_names)
 
     n_times = len(times)
     n_snapshots = min(n_snapshots, n_times)
@@ -654,17 +654,24 @@ def plot_snapshots_grid(
     n_cols = len(col_indices)
 
     # --- Compute vmin/vmax per field ---
-    vminmax = {f: (float(np.min(np.concatenate([np.ravel(x) for x in arrs]))),
-                   float(np.max(np.concatenate([np.ravel(x) for x in arrs]))))
-               for f, arrs in fields.items() if f in field_names}
+    vminmax = {}
+    for f in field_names:
+        arrs = [np.asarray(x) for x in fields[f] if x is not None]
+        if not arrs:
+            vminmax[f] = (0.0, 1.0)
+            continue
+        flat = np.concatenate([np.ravel(a) for a in arrs])
+        vminmax[f] = (float(np.min(flat)), float(np.max(flat)))
 
     # --- Setup figure ---
     fig_w = max(3.5 * n_cols, 6)
     fig_h = max(3.0 * n_rows, 3)
     fig = plt.figure(figsize=(fig_w, fig_h))
-    gs = GridSpec(n_rows, n_cols + 1, figure=fig,
-                  width_ratios=[1] * n_cols + [0.04],
-                  wspace=0.02, hspace=0.05)
+    gs = GridSpec(
+        n_rows, n_cols + 1, figure=fig,
+        width_ratios=[1] * n_cols + [0.04],
+        wspace=0.02, hspace=0.05
+    )
 
     # --- Titles across top ---
     for j, t in enumerate(col_times):
@@ -679,7 +686,6 @@ def plot_snapshots_grid(
         for c, ti in enumerate(col_indices):
             ax = fig.add_subplot(gs[r, c])
 
-            # Consistent orientation — world space (x,y)
             arr = field_for_imshow(fields[field][ti])
             im = ax.imshow(
                 arr, cmap=cmap, vmin=vmin, vmax=vmax,
@@ -696,7 +702,6 @@ def plot_snapshots_grid(
                         size = max(p.get('mass', 0.01), 0.01) * mass_scaling
                         ax.scatter(x, y, s=size, color=p.get('color', 'b'))
 
-            # Axes setup
             ax.set_xlim(0, xmax)
             ax.set_ylim(0, ymax)
             ax.set_xticks([0, xmax])
@@ -712,7 +717,7 @@ def plot_snapshots_grid(
         cb = fig.colorbar(images[-1], cax=cax)
         cb.ax.tick_params(length=2, labelsize=8)
 
-        # Row label (field name)
+        # Row label
         first_ax = fig.axes[r * (n_cols + 1)]
         pos = first_ax.get_position(fig)
         x = pos.x0 - (row_label_pad / fig.get_size_inches()[0])

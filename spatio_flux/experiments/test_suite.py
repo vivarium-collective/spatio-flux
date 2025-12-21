@@ -282,7 +282,7 @@ def plot_comets(results, state, config=None):
     filename = config.get('filename', 'comets')
     n_bins = state['diffusion']['config']['n_bins']
     bounds = state['diffusion']['config']['bounds']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_time_series(results, coordinates=[(0, int(n_bins[1]/2)), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
     plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
@@ -416,8 +416,9 @@ def get_kinetic_particle_comets_doc(core=None, config=None):
     add_probability = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
-    fields['dissolved biomass'] = np.zeros(n_bins)  # Initialize biomass field to zero
-    fields['dissolved biomass'][0, int(n_bins[0]/4):int(3*n_bins[0]/4)] = 0.1  # Add some biomass in the first row
+    n_grid = (n_bins[1], n_bins[0])  # shape (ny, nx)
+    fields['dissolved biomass'] = np.zeros(n_grid)  # Initialize biomass field to zero
+    fields['dissolved biomass'][0, int(n_grid[0]/4):int(3*n_grid[0]/4)] = 0.1  # Add some biomass in the first row
 
     # make the spatial dfba with different models and parameters
     spatial_dFBA_config = {
@@ -734,7 +735,7 @@ SIMULATIONS = {
         'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
         'doc_func': get_comets_doc,
         'plot_func': plot_comets,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {'filename': 'comets'}
     },
