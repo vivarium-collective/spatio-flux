@@ -169,21 +169,21 @@ def get_spatial_dfba_process_doc(core=None, config=None):
     initial_min_max = {'glucose': (10, 10), 'glycolate': (10, 10), 'ammonium': (10, 10), 'formate': (10, 10),
                        'glutamate': (10, 10), 'serine': (0, 0),
                        'acetate': (0, 0), 'dissolved biomass': (0.1, 0.1)}
-    n_bins = (6, 5)
+    n_bins = (5, 6)
     initial_fields = {}
     initial_fields = get_fields(n_bins, mol_ids, initial_min_max, initial_fields)
 
-    bins_y, bins_x = n_bins
-    horizontal_gradient = np.linspace(0, 20, bins_x).reshape(1, -1)  # Create the gradient for a single row.
-    initial_fields['glucose'] = np.repeat(horizontal_gradient, bins_y, axis=0)  # Replicate the gradient across all rows.
+    bins_x, bins_y = n_bins
+    horizontal_gradient = np.linspace(0, 20, bins_x).reshape(1, -1)
+    initial_fields['glucose'] = np.repeat(horizontal_gradient, bins_y, axis=0)  # (ny, nx)
 
     model_positions = {
-        'ecoli core': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
-        'ecoli': [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4)],
-        'cdiff': [(2, 0), (2, 1), (2, 2), (2, 3), (2, 4)],
-        'pputida': [(3, 0), (3, 1), (3, 2), (3, 3), (3, 4)],
-        'yeast': [(4, 0), (4, 1), (4, 2), (4, 3), (4, 4)],
-        'llactis': [(5, 0), (5, 1), (5, 2), (5, 3), (5, 4)]
+        'ecoli core': [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0)],
+        'ecoli': [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)],
+        'cdiff': [(0, 2), (1, 2), (2, 2), (3, 2), (4, 2)],
+        'pputida': [(0, 3), (1, 3), (2, 3), (3, 3), (4, 3)],
+        'yeast': [(0, 4), (1, 4), (2, 4), (3, 4), (4, 4)],
+        'llactis': [(0, 5), (1, 5), (2, 5), (3, 5), (4, 5)],
     }
     model_grid = build_model_grid(n_bins=n_bins, model_positions=model_positions)
 
