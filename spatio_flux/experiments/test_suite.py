@@ -447,6 +447,7 @@ def plot_kinetic_particle_comets(results, state, config=None):
     bounds = state['brownian_movement']['config']['bounds']
     n_bins = state['brownian_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
 
