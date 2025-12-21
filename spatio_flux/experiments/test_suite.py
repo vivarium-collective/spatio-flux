@@ -583,12 +583,14 @@ def plot_newtonian_particles(results, state, config=None):
 
 def get_newtonian_particle_comets_doc(core=None, config=None):
     config = config or {}
+
+    division_mass_threshold = 0.4
+    add_rate = 0.0  # 0.02
+
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
-    division_mass_threshold = 0.1
-
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    initial_min_max = {'glucose': (1, 5), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
+    initial_min_max = {'glucose': (0.1, 2), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds_default = tuple(x * 10 for x in DEFAULT_BOUNDS)
     bounds = config.get('bounds', bounds_default)
     n_bins = config.get('n_bins', DEFAULT_BINS)
@@ -600,14 +602,14 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
 
     # run simulation
     config = {
-        'gravity': -0.2,  # -9.81,
+        'gravity': -5.0,  #-0.2, -9.81,
         'elasticity': 0.1,
         'bounds': bounds,
-        'jitter_per_second': 0.1,
-        'damping_per_second': .995,
+        'jitter_per_second': 1e-6,   # 0.01,
+        'damping_per_second': 1e-6,  #5,  #.995,
     }
     boundary_config = {
-        'add_rate': 0.02,
+        'add_rate': add_rate,
         'boundary_to_remove': [],  # ['right', 'left'],
         'new_particle_radius_range': (0.05, 0.2),
         'new_particle_mass_range': (0.001, 0.01),
@@ -638,14 +640,8 @@ def plot_newtonian_particle_comets(results, state, config=None):
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-
-    fields_and_agents_to_gif(
-        data=results,
-        config=pymunk_config,
-        agents_key='particles',
-        fields_key='fields',
-        filename=f'{filename}_video.gif',
-        out_dir='out',
+    fields_and_agents_to_gif(data=results, config=pymunk_config, agents_key='particles', fields_key='fields',
+        filename=f'{filename}_video.gif', out_dir='out',
         # skip_frames=1,
         title='Fields + particles',
         figure_size_inches=(10, 6),
@@ -825,7 +821,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_SHORT, #LONG, #ER,
+        'time': DEFAULT_RUNTIME_LONG, #ER,
         'config': {},
         'plot_config': {'filename': 'newtonian_particle_comets'}
     },

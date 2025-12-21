@@ -582,6 +582,9 @@ class ParticleDivision(Step):
         if not updated_particles['_remove'] and not updated_particles['_add']:
             return {'particles': {}}
 
+        current_particles = state['particles']
+        print(f'current_particles: {len(current_particles)}')
+
         return {
             'particles': updated_particles
         }

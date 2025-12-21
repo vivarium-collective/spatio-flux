@@ -85,6 +85,11 @@ class PymunkParticleMovement(Process):
         'barriers':            'list[map]',
         'wall_thickness':      {'_type': 'float',   '_default': 100.0},
 
+        # for conversion from mass to geometry
+        'circle_density': {'_type': 'float', '_default': 0.015},  # 2D density: m = ρ π r^2
+        'segment_density': {'_type': 'float', '_default': 0.02},  # 2D-ish density: m = ρ * (2r) * L
+        'segment_radius': {'_type': 'float', '_default': 10.0},  # fixed half-width for all segments (unless overridden)
+
         # Newborn particle configuration
         'new_particle_radius_range': {'_type': 'tuple[float,float]', '_default': (0.5, 2.0)},
         'new_particle_mass_range': {'_type': 'tuple[float,float]', '_default': (1.0, 1.0)},
@@ -105,6 +110,11 @@ class PymunkParticleMovement(Process):
         # align with ParticleMovement knobs
         self.diffusion_rate = float(self.config.get('diffusion_rate', 1e-1))
         self.advection_rate = tuple(self.config.get('advection_rate', (0.0, 0.0)))
+
+        # geometry/mass conversions
+        self.circle_density = float(self.config.get('circle_density', 0.015))
+        self.segment_density = float(self.config.get('segment_density', 0.02))
+        self.segment_radius_default = float(self.config.get('segment_radius', 10.0))
 
         # Pymunk space
         self.space = pymunk.Space()
@@ -230,20 +240,27 @@ class PymunkParticleMovement(Process):
             else:
                 pos_value = (new_x, new_y)
 
+            shape = obj['shape_instance']
+            body = obj['body']
+
             if obj['shape'] == 'circle':
                 rec = {
-                    'shape': obj['shape'],
-                    'position': pos_value,
+                    'shape': 'circle',
+                    'position': pos_value,  # ABSOLUTE, not delta
                     'velocity': (float(body.velocity.x), float(body.velocity.y)),
                     'inertia': float(body.moment),
+                    'radius': float(shape.radius),
                 }
+
             else:  # 'segment'
                 rec = {
-                    'shape': obj['shape'],
+                    'shape': 'segment',
                     'position': pos_value,
                     'velocity': (float(body.velocity.x), float(body.velocity.y)),
                     'inertia': float(body.moment),
                     'angle': float(body.angle),
+                    'length': float(body.length),
+                    'radius': float(shape.radius),  # half-width
                 }
 
             particles_out[_id] = rec
@@ -300,66 +317,88 @@ class PymunkParticleMovement(Process):
         old_shape = agent['shape_instance']
         old_type = agent['shape']
 
-        # robust defaults
         shape_type = attrs.get('shape', old_type or 'circle')
+
+        # --- authoritative mass ---
         mass = float(attrs.get('mass', body.mass))
-        vx, vy = attrs.get('velocity', (0.0, 0.0))
         body.mass = mass
-        body.position = pymunk.Vec2d(*attrs.get('position', (body.position.x, body.position.y)))
-        body.velocity = pymunk.Vec2d(vx, vy)
+
+        # --- authoritative kinematics ---
+        vx, vy = attrs.get('velocity', (body.velocity.x, body.velocity.y))
+        body.velocity = pymunk.Vec2d(float(vx), float(vy))
+
+        # IMPORTANT: position should be absolute in your current wiring
+        if 'position' in attrs:
+            body.position = pymunk.Vec2d(*attrs['position'])
 
         needs_rebuild = False
+
         if shape_type == 'circle':
-            radius = float(attrs['radius'])
-            if not isinstance(old_shape, pymunk.Circle) or abs(old_shape.radius - radius) > 1e-9 or old_type != 'circle':
+            # derive radius from mass
+            density = float(attrs.get('density', self.circle_density))
+            radius = circle_radius_from_mass(mass, density)
+
+            # rebuild if shape changed or radius changed materially
+            if (not isinstance(old_shape, pymunk.Circle)) or old_type != 'circle' or abs(
+                    old_shape.radius - radius) > 1e-9:
                 needs_rebuild = True
-            if needs_rebuild:
                 new_shape = pymunk.Circle(body, radius)
                 body.moment = pymunk.moment_for_circle(mass, 0, radius)
 
+            # keep agent record coherent
+            angle = None
+            length = None
+
         elif shape_type == 'segment':
-            length = float(attrs['length'])
-            radius = float(attrs['radius'])
-            angle = float(attrs['angle'])
+            # fixed width (radius), length derived from mass
+            radius = float(attrs.get('radius', agent.get('radius', self.segment_radius_default)))
+            density = float(attrs.get('density', self.segment_density))
+            length = capsule_length_from_mass(mass, radius, density)
 
-            start = pymunk.Vec2d(-length / 2, 0).rotated(angle)
-            end = pymunk.Vec2d(length / 2, 0).rotated(angle)
+            # angle: if attrs provides it use it, else preserve current
+            angle = float(attrs.get('angle', body.angle))
+            body.angle = angle
 
-            if not isinstance(old_shape, pymunk.Segment) or abs(old_shape.radius - radius) > 1e-9 or old_type != 'segment':
+            start = pymunk.Vec2d(-length / 2, 0)
+            end = pymunk.Vec2d(length / 2, 0)
+
+            if (not isinstance(old_shape, pymunk.Segment)) or old_type != 'segment' or abs(
+                    old_shape.radius - radius) > 1e-9:
                 needs_rebuild = True
+            else:
+                # segment endpoints can’t be edited in place; rebuilding is easiest when length changes too
+                # If you expect mass changes often, you should rebuild when length changes:
+                # (old_shape.a / b are Vec2d, compare approx)
+                if abs((old_shape.b - old_shape.a).length - (end - start).length) > 1e-6:
+                    needs_rebuild = True
+
             if needs_rebuild:
                 new_shape = pymunk.Segment(body, start, end, radius)
                 body.moment = pymunk.moment_for_segment(mass, start, end, radius)
 
-            body.angle = angle
             body.length = length
             body.width = radius * 2
 
         else:
             raise ValueError(f"Unknown shape type: {shape_type}")
 
-        # swap shape if needed
         if needs_rebuild:
-            elasticity = attrs.get('elasticity', self.config['elasticity'])
-            friction = attrs.get('friction', self.config['friction'])
+            elasticity = float(attrs.get('elasticity', self.config['elasticity']))
+            friction = float(attrs.get('friction', self.config['friction']))
             new_shape.elasticity = elasticity
             new_shape.friction = friction
 
+            # remove old shape, add new one
             self.space.remove(old_shape)
             self.space.add(new_shape)
             agent['shape_instance'] = new_shape
 
-        # keep dict in sync
+        # sync agent dict
         agent['shape'] = shape_type
         agent['mass'] = mass
-        if shape_type == 'circle':
-            agent['radius'] = radius
-            agent['angle'] = None
-            agent['length'] = None
-        else:
-            agent['radius'] = radius
-            agent['angle'] = body.angle
-            agent['length'] = body.length
+        agent['radius'] = radius
+        agent['angle'] = angle
+        agent['length'] = length
 
     def create_new_object(self, agent_id, attrs):
         shape_type = attrs.get('shape', 'circle')
@@ -368,19 +407,23 @@ class PymunkParticleMovement(Process):
         pos = attrs.get('position', (0.0, 0.0))
 
         if shape_type == 'circle':
-            radius = float(attrs['radius'])
+            density = float(attrs.get('density', self.circle_density))
+            radius = circle_radius_from_mass(mass, density)
+
             inertia = pymunk.moment_for_circle(mass, 0, radius)
             body = pymunk.Body(mass, inertia)
             body.position = pos
             body.velocity = (vx, vy)
             shape = pymunk.Circle(body, radius)
+
             angle = None
             length = None
 
         elif shape_type == 'segment':
-            length = float(attrs['length'])
-            radius = float(attrs['radius'])
-            angle = float(attrs['angle'])
+            density = float(attrs.get('density', self.segment_density))
+            radius = float(attrs.get('radius', self.segment_radius_default))  # fixed width
+            length = capsule_length_from_mass(mass, radius, density)
+            angle = float(attrs.get('angle', 0.0))
 
             start = (-length / 2, 0)
             end = (length / 2, 0)
@@ -398,8 +441,8 @@ class PymunkParticleMovement(Process):
         else:
             raise ValueError(f"Unknown shape type: {shape_type}")
 
-        shape.elasticity = attrs.get('elasticity', self.config['elasticity'])
-        shape.friction = attrs.get('friction', self.config['friction'])
+        shape.elasticity = float(attrs.get('elasticity', self.config['elasticity']))
+        shape.friction = float(attrs.get('friction', self.config['friction']))
 
         self.space.add(body, shape)
         self.agents[agent_id] = {
