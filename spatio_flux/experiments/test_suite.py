@@ -102,7 +102,7 @@ def plot_kinetics_single(results, state, config=None, filename='kinetics_single_
     config = config or {}
     field_names = list(state['fields'].keys())
     filename = config.get('filename', 'kinetics_single_timeseries')
-    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title='Monod kinetics single',
                      figsize=(4.5, 3.5),
                      time_units="min",
                      # time_scale=1 / 60,  # if results['time'] are seconds
@@ -144,7 +144,7 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
     config = config or {}
     field_names = list(state['fields'].keys())
     filename = config.get('filename', 'dfba_single_timeseries')
-    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title='dFBA single',
                      figsize=(4.5, 3.5),
                      time_units="min",
                      y_label_base="Concentration / Biomass",
@@ -155,7 +155,7 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
 
 # --- Multiple DFBAs ---------------------------------------------------
 
-def get_multi_dfba(core=None, config=None):
+def get_community_dfba(core=None, config=None):
     mol_ids = ['glucose', 'acetate']
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     dfbas = {}
@@ -182,7 +182,7 @@ def get_multi_dfba(core=None, config=None):
     }
     return doc
 
-def plot_multi_dfba(results, state, config=None):
+def plot_community_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_multi_timeseries.png')
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
@@ -260,7 +260,7 @@ def get_spatial_many_dfba_doc(core=None, config=None):
     n_bins = DEFAULT_BINS_SMALL
     return {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-        'spatial_dFBA': get_spatial_many_dfba(model_file=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
+        'spatial_dFBA': get_spatial_many_dfba(model_id=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 def plot_spatial_many_dfba(results, state, config=None):
@@ -410,8 +410,8 @@ def get_comets_doc(core=None, config=None):
     }
     doc = {
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        'spatial_dFBA': get_spatial_dFBA_process(config=config, model_id=dissolved_model_id),
-        # 'spatial_dFBA': get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins),
+        # 'spatial_dFBA': get_spatial_dFBA_process(config=config, model_id=dissolved_model_id),
+        'spatial_dFBA': get_spatial_many_dfba(model_id=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins),
         'diffusion': get_diffusion_advection_process(
             bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
@@ -423,7 +423,14 @@ def plot_comets(results, state, config=None):
     n_bins = state['diffusion']['config']['n_bins']
     bounds = state['diffusion']['config']['bounds']
     plot_time_series(results, coordinates=[(0, int(n_bins[1]/2)), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=5, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
+                        n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
+                        time_units="min",
+                        wspace=0.001,
+                        hspace=0.1,
+                        col_width=1.8,
+                        row_height=2.0,
+                        )
     plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- Particles -----------------------------------------------------------
@@ -494,16 +501,24 @@ def get_particle_dfba_doc(core=None, config=None):
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
     mol_ids = ['glucose', 'acetate']
-    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0)}
+
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
+    nx, ny = n_bins
+    shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
+    acetate_field = np.zeros(shape, dtype=float)
+    glc_y = np.linspace(0.01, 10.0, ny, dtype=float)[:, None]  # (ny, 1)
+    glc_field = np.repeat(glc_y, nx, axis=1)  # (ny, nx)
+    initial_fields = {'glucose': glc_field, 'acetate': acetate_field}
+
     n_particles = 1
     add_rate = 0.2
     particle_diffusion = DEFAULT_DIFFUSION
     particle_advection = DEFAULT_ADVECTION
+
     return {
         'state': {
-            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
+            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=particle_diffusion, advection_rate=particle_advection),
             'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
@@ -598,7 +613,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
             'fields': fields,
             'diffusion': get_diffusion_advection_process(
                 bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
+            'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_id=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection),
             'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
@@ -762,9 +777,9 @@ DEFAULT_INITIAL_MIN_MAX = {
         # 'detritus': (0, 0)
     }
 
-DEFAULT_RUNTIME_SHORT = 10  # 20
-DEFAULT_RUNTIME_LONG = 60   # 60
-DEFAULT_RUNTIME_LONGER = 200  # 120
+DEFAULT_RUNTIME_SHORT = 10
+DEFAULT_RUNTIME_LONG = 60
+DEFAULT_RUNTIME_LONGER = 200
 
 SIMULATIONS = {
     'monod_kinetics': {
@@ -801,8 +816,8 @@ SIMULATIONS = {
     },
     'community_dfba': {
         'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
-        'doc_func': get_multi_dfba,
-        'plot_func': plot_multi_dfba,
+        'doc_func': get_community_dfba,
+        'plot_func': plot_community_dfba,
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'community_dfba'}
@@ -843,7 +858,7 @@ SIMULATIONS = {
         'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
         'doc_func': get_comets_doc,
         'plot_func': plot_comets,
-        'time': DEFAULT_RUNTIME_LONGER,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'comets'}
     },

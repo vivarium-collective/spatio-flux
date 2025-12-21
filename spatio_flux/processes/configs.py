@@ -231,7 +231,7 @@ def get_fields_with_schema(
 
 def get_spatial_many_dfba(
         n_bins=(5, 5),
-        model_file=None,
+        model_id=None,
         mol_ids=None,
         biomass_id="dissolved biomass",
 ):
@@ -241,7 +241,7 @@ def get_spatial_many_dfba(
         for x in range(nx):     # cols
             # get a process state for each bin
             dfba_process = get_dfba_process_from_registry(
-                model_id=model_file, path=["..", "fields"],
+                model_id=model_id, path=["..", "fields"],
                 biomass_id=biomass_id, i=x, j=y)
             dfba_processes_dict[f"dFBA[{x},{y}]"] = dfba_process
 
@@ -274,7 +274,7 @@ def get_spatial_many_dfba_with_fields(
 ):
     return {
         "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max, initial_fields=initial_fields),
-        "spatial_dfba": get_spatial_many_dfba(model_file=model_file, mol_ids=mol_ids, n_bins=n_bins)
+        "spatial_dfba": get_spatial_many_dfba(model_id=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
 # ===================

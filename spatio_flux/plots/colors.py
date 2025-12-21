@@ -110,8 +110,8 @@ def build_plot_settings(
         ("diffusion",):                 COLORS["diffusion"],
 
         # dFBA / kinetics family
-        ("spatial_dFBA",):              COLORS["dfba_state"],
-        ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_state"],
+        ("spatial_dFBA",):              COLORS["dfba_process"],
+        ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_process"],
         ("dFBA",):                      COLORS["dfba_process"],
 
         ("spatial_kinetics",):          COLORS["dfba_process"],

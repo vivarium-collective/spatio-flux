@@ -780,20 +780,45 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
         plt.show()
 
 
+
 def plot_snapshots_grid(
     results,
     *,
     field_names=None,
     n_snapshots=4,
     bounds=None,
-    cmap='viridis',
+    cmap="viridis",
     out_dir=None,
-    filename='snapshots.png',
+    filename="snapshots.png",
     suptitle=None,
+
+    # particle overlay
     mass_scaling=10.0,
-    row_label_pad=0.3,
+
+    # spacing / layout control
+    figsize=None,              # (w,h) inches; if provided overrides col_width/row_height sizing
+    col_width=2.4,             # inches per snapshot column (used if figsize is None)
+    row_height=2.4,            # inches per field row    (used if figsize is None)
+    cbar_width=0.06,           # relative-ish in GridSpec; keep small
+    wspace=0.02,               # tighten columns
+    hspace=0.06,               # tighten rows
+    left=0.06, right=0.98, top=0.95, bottom=0.10,  # explicit margins for publishable control
+
+    # row labels
+    row_label_pad=0.01,       # figure fraction: how far to the left of first column to place row label
+    row_label_fontsize=11,
+
+    # time labels under each column
+    show_time_labels=True,
+    time_units=None,           # e.g. "s", "min", "h"
+    time_scale=1.0,            # multiply raw global_time by this for display
+    time_label_fmt="t = {t:.0f}",  # formatting after scaling (units appended automatically)
+    time_label_fontsize=10,
+    time_label_pad=0.02,       # how far below axes (in axes fraction units)
 ):
-    """Plot spatial fields and particles (if present) consistently in world coordinates."""
+    """
+    Plot spatial field snapshots (and particles if present) in consistent world coordinates.
+    """
     if bounds is None:
         raise ValueError("bounds=(xmax, ymax) required.")
     xmax, ymax = bounds
@@ -801,22 +826,25 @@ def plot_snapshots_grid(
 
     # --- Normalize results structure ---
     if isinstance(results, dict):
-        if ('emitter',) in results:
-            data = results[('emitter',)]
-        elif 'emitter' in results:
-            data = results['emitter']
+        if ("emitter",) in results:
+            data = results[("emitter",)]
+        elif "emitter" in results:
+            data = results["emitter"]
         else:
             vals = [v for v in results.values() if isinstance(v, list)]
             data = vals[0] if vals else results
     else:
         data = results
+
     if not isinstance(data, list) or not data:
         raise ValueError("results must be a non-empty list of simulation steps")
 
     # --- Extract fields & times ---
-    times = [step['global_time'] for step in data]
-    field_keys = list((data[0].get('fields') or {}).keys())
-    fields = {f: [step.get('fields', {}).get(f) for step in data] for f in field_keys}
+    times_raw = [step.get("global_time", np.nan) for step in data]
+    n_times = len(times_raw)
+
+    field_keys = list((data[0].get("fields") or {}).keys())
+    fields = {f: [step.get("fields", {}).get(f) for step in data] for f in field_keys}
 
     # --- Choose fields ---
     if field_names is None:
@@ -824,16 +852,16 @@ def plot_snapshots_grid(
     else:
         field_names = [f for f in field_names if f in field_keys]
 
-    # >>> Early exit: no fields to plot
     if not field_names:
         return None
 
     n_rows = len(field_names)
 
-    n_times = len(times)
-    n_snapshots = min(n_snapshots, n_times)
+    # --- Snapshot indices and times ---
+    n_snapshots = min(int(n_snapshots), n_times)
     col_indices = np.linspace(0, n_times - 1, n_snapshots, dtype=int)
-    col_times = [times[i] for i in col_indices]
+    col_times = [times_raw[i] for i in col_indices]
+    col_times = [t * time_scale for t in col_times]
     n_cols = len(col_indices)
 
     # --- Compute vmin/vmax per field ---
@@ -846,79 +874,136 @@ def plot_snapshots_grid(
         flat = np.concatenate([np.ravel(a) for a in arrs])
         vminmax[f] = (float(np.min(flat)), float(np.max(flat)))
 
-    # --- Setup figure ---
-    fig_w = max(3.5 * n_cols, 6)
-    fig_h = max(3.0 * n_rows, 3)
-    fig = plt.figure(figsize=(fig_w, fig_h))
+    # --- Figure sizing ---
+    if figsize is None:
+        fig_w = max(col_width * n_cols, 4.5)
+        fig_h = max(row_height * n_rows, 3.5)
+        figsize = (fig_w, fig_h)
+
+    fig = plt.figure(figsize=figsize)
+
+    # GridSpec: (n_rows) x (n_cols + 1 colorbar column)
+    # colorbar column is narrow
     gs = GridSpec(
-        n_rows, n_cols + 1, figure=fig,
-        width_ratios=[1] * n_cols + [0.04],
-        wspace=0.02, hspace=0.05
+        nrows=n_rows,
+        ncols=n_cols + 1,
+        figure=fig,
+        width_ratios=[1.0] * n_cols + [cbar_width],
+        wspace=wspace,
+        hspace=hspace,
     )
 
-    # --- Titles across top ---
-    for j, t in enumerate(col_times):
-        ax = fig.add_subplot(gs[0, j])
-        ax.set_title(f"t = {t:.2f}", pad=6)
-        ax.remove()
+    # Explicit margins (best way to control whitespace)
+    fig.subplots_adjust(left=left, right=right, top=top, bottom=bottom)
 
     # --- Plot each field row ---
     for r, field in enumerate(field_names):
         vmin, vmax = vminmax[field]
-        images = []
+        last_im = None
+
         for c, ti in enumerate(col_indices):
             ax = fig.add_subplot(gs[r, c])
 
             arr = field_for_imshow(fields[field][ti])
-            im = ax.imshow(
-                arr, cmap=cmap, vmin=vmin, vmax=vmax,
-                extent=extent, origin='lower', interpolation='nearest', aspect='equal'
+            last_im = ax.imshow(
+                arr,
+                cmap=cmap,
+                vmin=vmin,
+                vmax=vmax,
+                extent=extent,
+                origin="lower",
+                interpolation="nearest",
+                aspect="equal",
             )
-            images.append(im)
 
-            # Overlay particles if present
+            # Overlay particles if present (supports dict-of-particles)
             step = data[ti]
-            if 'particles' in step and step['particles']:
-                for p in step['particles'].values():
-                    x, y = p['position']
-                    if 0 <= x <= xmax and 0 <= y <= ymax:
-                        size = max(p.get('mass', 0.01), 0.01) * mass_scaling
-                        ax.scatter(x, y, s=size, color=p.get('color', 'b'))
+            particles = step.get("particles") or {}
+            if particles:
+                # particles might be dict-of-dicts or list; handle dict case as in your code
+                if isinstance(particles, dict):
+                    iterable = particles.values()
+                else:
+                    iterable = particles
 
+                for p in iterable:
+                    try:
+                        x, y = p["position"]
+                    except Exception:
+                        continue
+                    if 0 <= x <= xmax and 0 <= y <= ymax:
+                        size = max(p.get("mass", 0.01), 0.01) * mass_scaling
+                        ax.scatter(x, y, s=size, color=p.get("color", "b"), linewidths=0)
+
+            # axes cosmetics (minimal for publishable grid)
             ax.set_xlim(0, xmax)
             ax.set_ylim(0, ymax)
-            ax.set_xticks([0, xmax])
-            ax.set_yticks([0, ymax])
-            ax.tick_params(axis='both', which='both', length=2, labelsize=8)
-            ax.set_xlabel('')
-            ax.set_ylabel('')
-            if r > 0:
-                ax.set_title('')
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+            # Time labels at the *bottom* of each column (only once per column: bottom row)
+            if show_time_labels and (r == n_rows - 1):
+                t = col_times[c]
+                label = time_label_fmt.format(t=t)
+                if time_units:
+                    label = f"{label} {time_units}"
+                ax.text(
+                    0.5,
+                    -time_label_pad,
+                    label,
+                    transform=ax.transAxes,
+                    ha="center",
+                    va="top",
+                    fontsize=time_label_fontsize,
+                )
 
         # Colorbar for this row
-        cax = fig.add_subplot(gs[r, -1])
-        cb = fig.colorbar(images[-1], cax=cax)
-        cb.ax.tick_params(length=2, labelsize=8)
+        if last_im is not None:
+            cax = fig.add_subplot(gs[r, -1])
+            cb = fig.colorbar(last_im, cax=cax)
+            cb.ax.tick_params(length=2, labelsize=8)
 
-        # Row label
-        first_ax = fig.axes[r * (n_cols + 1)]
-        pos = first_ax.get_position(fig)
-        x = pos.x0 - (row_label_pad / fig.get_size_inches()[0])
-        y = (pos.y0 + pos.y1) / 2
-        fig.text(x, y, field, ha='right', va='center', fontsize=11)
+        # Row label placed in figure coordinates aligned to the row's first axes
+        first_ax = fig.add_subplot(gs[r, 0])
+        # (We don't want to add a new axes; so instead, use the existing axes position)
+        # Find it reliably:
+        first_ax.remove()
+        # The real first axes is the one we plotted earlier in this row/col=0:
+        # It's at index r*(n_cols+1) in insertion order, but that can be brittle.
+        # Instead: re-access by making it again and grabbing position is risky.
+        # So we fetch it by scanning fig.axes for the one with this gridspec.
+        target_ax = None
+        for ax in fig.axes:
+            # Skip colorbar axes
+            if ax.get_subplotspec().colspan.start == 0 and ax.get_subplotspec().rowspan.start == r:
+                if ax.get_subplotspec().colspan.stop == 1:
+                    target_ax = ax
+                    break
+        if target_ax is not None:
+            pos = target_ax.get_position(fig)
+            fig.text(
+                pos.x0 - row_label_pad,
+                (pos.y0 + pos.y1) / 2,
+                field,
+                ha="right",
+                va="center",
+                fontsize=row_label_fontsize,
+            )
 
     if suptitle:
-        fig.suptitle(suptitle, fontsize=14, y=0.98)
+        fig.suptitle(suptitle, fontsize=14)
 
+    # Save
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
         path = os.path.join(out_dir, filename)
     else:
         path = filename
 
-    fig.savefig(path, dpi=150, bbox_inches='tight')
+    fig.savefig(path, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return path
+
 
 
 
