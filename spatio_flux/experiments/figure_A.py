@@ -23,7 +23,7 @@ from typing import Optional, List, Tuple
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-from test_suite import (  # type: ignore
+from spatio_flux.experiments.test_suite import (  # type: ignore
     SIMULATIONS,
     DEFAULT_RUNTIME_LONG,
     allocate_core,

@@ -19,8 +19,8 @@ class DiffusionAdvection(Process):
 
     config_schema = {
         # IMPORTANT: n_bins is (ny, nx) to match numpy array shape (rows, cols)
-        'n_bins': 'tuple[integer,integer]',
-        'bounds': 'tuple[float,float]',  # (xmax, ymax)
+        'n_bins': 'tuple[integer{1},integer{1}]',
+        'bounds': 'tuple[float{1.0},float{1.0}]',  # (xmax, ymax)
 
         'default_diffusion_rate': {'_type': 'float', '_default': 1e-1},
         'diffusion_coeffs': 'map[float]',

@@ -296,7 +296,7 @@ class DynamicFBA(Process):
     """
 
     config_schema = {
-        "model_file": "string",
+        "model_file": "string{ecoli core}",
         "kinetic_params": "map[tuple[float,float]]",
         "substrate_update_reactions": "map[string]",
         "bounds": "map[bounds]",
@@ -346,8 +346,8 @@ class SpatialDFBA(Process):
     """
 
     config_schema = {
-        'n_bins': 'tuple[integer,integer]',  # (nx, ny)
-        'model_file': 'maybe[string]',
+        'n_bins': 'tuple[integer{1},integer{1}]',  # (nx, ny)
+        'model_file': 'maybe[string{ecoli core}]',
         'models': {
             '_type': 'map',
             '_value': {
@@ -412,7 +412,7 @@ class SpatialDFBA(Process):
         # --- Build and validate model_grid -----------------------------
         grid_cfg = config.get('model_grid')
 
-        if grid_cfg is None:
+        if grid_cfg is None or grid_cfg == []:
             if self.default_model_id is not None:
                 model_grid_array = np.full(self.grid_shape, self.default_model_id, dtype='U64')
             else:

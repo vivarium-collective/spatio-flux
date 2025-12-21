@@ -271,8 +271,6 @@ def plot_time_series(
         base = fname if coord is None else f"{fname} @ {coord}"
         if unit:
             base = f"{base} ({unit})"
-        if normalize:
-            base = f"{base} [{normalized_label}]"
         return base
 
     for field_name in field_names:

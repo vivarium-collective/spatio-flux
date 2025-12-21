@@ -96,27 +96,36 @@ def build_plot_settings(
         # particle family
         ("particles",):                 COLORS["particles_state"],
         ("brownian_movement",):         COLORS["particles_process"],
+        ("BrownianMovement",):          COLORS["particles_process"],
         ("particle_division",):         COLORS["particle_graph_rewrite"],
-        ("enforce_boundaries",):         COLORS["particle_graph_rewrite"],
+        ("ParticleDivision",):          COLORS["particle_graph_rewrite"],
+        ("enforce_boundaries",):        COLORS["particle_graph_rewrite"],
+        ("ManageBoundaries",):          COLORS["particle_graph_rewrite"],
         ("particle_exchange",):         COLORS["particle_exchange_bridge"],
+        ("ParticleExchange",):          COLORS["particle_exchange_bridge"],
 
         # newtonian particle family
         ("newtonian_particles",):       COLORS["newtonian_particles_process"],
+        ("PymunkParticleMovement",):    COLORS["newtonian_particles_process"],
 
         # containers
         ("fields",):                    COLORS["fields"],
         ("concentration",):             COLORS["fields"],
         ("substrate",):                 COLORS["fields"],
         ("diffusion",):                 COLORS["diffusion"],
+        ("DiffusionAdvection",):                 COLORS["diffusion"],
 
         # dFBA / kinetics family
-        ("spatial_dFBA",):              COLORS["dfba_process"],
+        ("spatial_dFBA",):              COLORS["dfba_state"],
+        ("SpatialDFBA",):              COLORS["dfba_state"],
         ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_process"],
         ("dFBA",):                      COLORS["dfba_process"],
+        ("DynamicFBA",):                      COLORS["dfba_process"],
 
-        ("spatial_kinetics",):          COLORS["dfba_process"],
+        ("spatial_kinetics",):          COLORS["dfba_state"],
         ("spatial_kinetics", "monod_kinetics[0,0]"): COLORS["dfba_process"],
         ("monod_kinetics",):            COLORS["dfba_process"],
+        ("MonodKinetics",):            COLORS["dfba_process"],
     }
 
     # --- auto-generate field species ---

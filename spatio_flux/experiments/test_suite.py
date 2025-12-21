@@ -38,28 +38,42 @@ from spatio_flux.processes import (
     get_newtonian_particles_state,
 )
 
+# ---------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------
+
+DEFAULT_BOUNDS = (5.0, 10.0)
+DEFAULT_BINS = (10, 20)
+DEFAULT_BINS_SMALL = (2, 4)
+DEFAULT_ADVECTION = (0.0, 0.2)
+DEFAULT_DIFFUSION = 0.5
+DEFAULT_ADD_RATE = 0.4
+DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
+DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
+DEFAULT_INITIAL_MIN_MAX = {
+        'glucose': (10, 10),
+        'acetate': (0, 0),
+        'dissolved biomass': (0, 0.1),
+        # 'detritus': (0, 0)
+    }
+
+DEFAULT_RUNTIME_SHORT = 10
+DEFAULT_RUNTIME_LONG = 60
+DEFAULT_RUNTIME_LONGER = 200
+
 STANDARD_FIELD_COLORS = {
-    # Substrates
     "glucose": "#1f77b4",          # blue (matplotlib C0)
     "acetate": "#ff7f0e",          # orange (matplotlib C1)
-
-    # Generic biomass
     "biomass": "#2ca02c",          # green (C2)
-
-    # dFBA-related biomass
     "dfba_biomass": "#2ca02c",     # same green (semantic match)
     "ecoli core biomass": "#2ca02c",
     "ecoli_core_biomass": "#2ca02c",
-
-    # Kinetic biomass (slightly different shade to distinguish)
-    "monod_biomass": "#98df8a",  # light green (C2 lighter)
-
-    # Dissolved / spatial biomass (optional, but useful)
+    "monod_biomass": "#98df8a",      # light green (C2 lighter)
     "dissolved biomass": "#17becf",  # teal (C9)
 }
 
 # ====================================================================
-# Functions to get documents and make plots for different compositions
+# Doc builders
 # ====================================================================
 
 # --- DFBA Single ---------------------------------------------------
@@ -105,10 +119,8 @@ def plot_kinetics_single(results, state, config=None, filename='kinetics_single_
     plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title='Monod kinetics single',
                      figsize=(4.5, 3.5),
                      time_units="min",
-                     # time_scale=1 / 60,  # if results['time'] are seconds
-                     # normalize=True,
                      y_label_base="Concentration / Biomass",
-                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     field_units={"glucose": "mM", "acetate": "mM", "monod_biomass": "gDW"},
                      field_colors=STANDARD_FIELD_COLORS,
                      legend_kwargs={"fontsize": 8, "loc": "best"},
                      )
@@ -188,7 +200,7 @@ def plot_community_dfba(results, state, config=None):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     species_ids = model_ids + field_names
-    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename,
+    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename, title='community dFBA',
                      figsize=(4.5, 3.5),
                      time_units="min",
                      y_label_base="Concentration / Biomass",
@@ -762,25 +774,6 @@ def plot_newtonian_particle_comets(results, state, config=None):
 # Functions for running tests and generating reports
 # ==================================================
 
-DEFAULT_BOUNDS = (5.0, 10.0)
-DEFAULT_BINS = (10, 20)
-DEFAULT_BINS_SMALL = (2, 4)
-DEFAULT_ADVECTION = (0.0, 0.2)
-DEFAULT_DIFFUSION = 0.5
-DEFAULT_ADD_RATE = 0.4
-DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
-DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
-DEFAULT_INITIAL_MIN_MAX = {
-        'glucose': (10, 10),
-        'acetate': (0, 0),
-        'dissolved biomass': (0, 0.1),
-        # 'detritus': (0, 0)
-    }
-
-DEFAULT_RUNTIME_SHORT = 10
-DEFAULT_RUNTIME_LONG = 60
-DEFAULT_RUNTIME_LONGER = 200
-
 SIMULATIONS = {
     'monod_kinetics': {
         'description': 'This simulation uses particles with Monod kinetics to model microbial growth and metabolism.',
@@ -938,10 +931,6 @@ def main():
 
     output_dir = args.output
     prepare_output_dir(output_dir)
-
-    # core = VivariumTypes()
-    # core = register_process_types(core)
-    # core = register_types(core)
 
     core = allocate_core()
 
