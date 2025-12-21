@@ -9,7 +9,7 @@ from spatio_flux.processes.pymunk_particles import PymunkParticleMovement, get_n
 from spatio_flux.processes.configs import (
     default_config, get_single_dfba_process, get_fields, get_boundaries_process,
     get_spatial_many_dfba_with_fields, get_diffusion_advection_process, get_kinetic_particle_composition,
-    get_dfba_particle_composition, get_spatial_dFBA_process, get_fields_with_schema, get_spatial_many_dfba, get_particles_state,
+    get_dfba_particle_composition, get_community_dfba_particle_composition, get_spatial_dFBA_process, get_fields_with_schema, get_spatial_many_dfba, get_particles_state,
     get_brownian_movement_process, get_particle_exchange_process, initialize_fields, get_particle_divide_process, get_spatial_many_kinetics
 )
 

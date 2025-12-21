@@ -31,7 +31,7 @@ from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
     initialize_fields, get_kinetic_particle_composition,
-    get_dfba_particle_composition, get_particles_state, get_boundaries_process,
+    get_dfba_particle_composition, get_community_dfba_particle_composition, get_particles_state, get_boundaries_process,
     MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
     get_kinetics_process_from_registry, get_spatial_many_kinetics,
     get_particle_divide_process, DIVISION_MASS_THRESHOLD,
@@ -774,26 +774,15 @@ def plot_newtonian_particle_comets(results, state, config=None):
 # --- mega-composite simulation ---------------------------------------------------
 
 def get_mega_composite_doc(core=None, config=None):
-    """
-    Build a "mega" composite document that couples:
-
-      - spatial fields (concentrations on a grid)
-      - diffusion/advection over those fields
-      - spatial dFBA over those fields (dissolved compartment)
-      - Newtonian particles (pymunk-style physics)
-      - particle↔field exchange (uptake/secretion)
-      - particle division
-      - boundary enforcement (optional particle spawning)
-    """
     user_cfg = config or {}
-    division_mass_threshold = 0.4          # particle splits when mass exceeds this
-    add_rate = 0.01                        # boundary add rate for new particles
 
-    # Which FBA models to use for particle and dissolved compartments
+    # High-level knobs
+    division_mass_threshold = 0.4
+    add_rate = 0.01
+
     particle_model_id = user_cfg.get("particle_model_id", "ecoli core")
-    dissolved_model_id = user_cfg.get("dissolved_model_id", "ecoli core")
 
-    # Spatial field setup
+    # Spatial fields
     mol_ids = ["glucose", "acetate", "dissolved biomass"]
     initial_min_max = {
         "glucose": (0.1, 2.0),
@@ -801,21 +790,14 @@ def get_mega_composite_doc(core=None, config=None):
         "dissolved biomass": (0.0, 0.1),
     }
 
-    # Bounds and discretization
-    bounds_default = tuple(x * 10 for x in DEFAULT_BOUNDS)
-    bounds = user_cfg.get("bounds", bounds_default)
+    bounds = user_cfg.get("bounds", tuple(x * 10 for x in DEFAULT_BOUNDS))
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
-
-    # Optional per-molecule advection
     advection_coeffs = {"dissolved biomass": DEFAULT_ADVECTION}
 
-    # Initial fields (grid arrays)
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
-    # Particle setup (physics + initial particle population)
+    # Particles + physics
     n_particles = user_cfg.get("n_particles", 1)
-
-    # Physics engine configuration (used by get_newtonian_particles_process)
     physics_cfg = {
         "gravity": -1.0,
         "elasticity": 0.1,
@@ -823,63 +805,81 @@ def get_mega_composite_doc(core=None, config=None):
         "jitter_per_second": 1e-3,
         "damping_per_second": 1e-3,
     }
+    boundary_cfg = {"add_rate": add_rate}
 
-    # Boundary / particle spawning configuration (currently only add_rate used below)
-    boundary_cfg = {
-        "add_rate": add_rate,
-        "boundary_to_remove": [],
-        "new_particle_radius_range": (0.05, 0.2),
-        "new_particle_mass_range": (0.001, 0.01),
+    # Processes
+    diffusion = get_diffusion_advection_process(
+        bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs
+    )
+
+    spatial_kinetics = get_spatial_many_kinetics(
+        model_id="single_substrate_assimilation", n_bins=n_bins, mol_ids=mol_ids
+    )
+
+    particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
+    newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
+
+    particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
+    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
+
+    enforce_boundaries = get_boundaries_process(
+        particle_process_name="newtonian_particles",
+        bounds=bounds,
+        add_rate=boundary_cfg["add_rate"],
+    )
+
+    # composition
+    models = {
+        "ecoli core": {
+            "model_file": "textbook",
+            "substrate_update_reactions": {
+                "glucose": "EX_glc__D_e",
+                "acetate": "EX_ac_e",
+            },
+            "kinetic_params": {
+                "glucose": (0.5, 1),
+                "acetate": (0.0, 0),
+            },
+            "bounds": {
+                "EX_o2_e": {"lower": -2, "upper": None},
+                "ATPM": {"lower": 1, "upper": 1},
+            },
+        },
+        "ecoli variant": {
+            "model_file": "textbook",
+            "substrate_update_reactions": {
+                "glucose": "EX_glc__D_e",
+                "acetate": "EX_ac_e",
+            },
+            "kinetic_params": {
+                "glucose": (0.0, 0),
+                "acetate": (0.25, 2),
+            },
+            "bounds": {
+                "EX_o2_e": {"lower": -10, "upper": None},
+                "ATPM": {"lower": 1, "upper": 1},
+            },
+        },
     }
 
-    # Processes: build each process sub-document
-    diffusion_proc = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs)
+    composition = get_community_dfba_particle_composition(models=models)
 
-    # Dissolved (grid) metabolism; expects model_file / model_id
-    spatial_dfba_proc = get_spatial_many_dfba(n_bins=n_bins, model_id=dissolved_model_id)
-
-    # Physics-driven particle dynamics
-    particle_state = get_newtonian_particles_state(n_particles=n_particles, bounds=physics_cfg["bounds"],)
-    newtonian_particles_proc = get_newtonian_particles_process(config=physics_cfg)
-
-    # Coupling between particle internal state and spatial fields
-    particle_exchange_proc = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
-
-    # Particle lifecycle
-    particle_division_proc = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
-
-    # Boundary enforcement / spawning
-    enforce_boundaries_proc = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
-
-    # Composition: attach particle-level dFBA to each particle agent
-    composition = get_dfba_particle_composition(model_file=particle_model_id)
-
-    # Assemble final composite document
-    doc = {
+    return {
         "state": {
-            # Shared spatial fields
             "fields": fields,
-
-            # Processes that operate on fields / grid metabolism
-            "diffusion": diffusion_proc,
-            "spatial_dFBA": spatial_dfba_proc,
-
-            # Particles (state + physics)
-            "particles": particle_state,
-            "newtonian_particles": newtonian_particles_proc,
-
-            # Coupling + lifecycle + boundary logic
-            "particle_exchange": particle_exchange_proc,
-            "particle_division": particle_division_proc,
-            "enforce_boundaries": enforce_boundaries_proc,
-
-            # (Optional future)
-            # "spatial_kinetics": get_spatial_many_kinetics(...),
+            "diffusion": diffusion,
+            "spatial_kinetics": spatial_kinetics,
+            "particles": particles,
+            "newtonian_particles": newtonian_particles,
+            "particle_exchange": particle_exchange,
+            "particle_division": particle_division,
+            "enforce_boundaries": enforce_boundaries,
         },
         "composition": composition,
     }
 
-    return doc
+
+
 
 
 
@@ -1030,7 +1030,7 @@ SIMULATIONS = {
         'description': 'This simulation combines Pymunk physics-based particles with dFBA metabolism in both the particles and the environment.',
         'doc_func': get_mega_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONGER,
+        'time': DEFAULT_RUNTIME_LONG,
         'config': {},
         'plot_config': {'filename': 'mega_composite'}
     },

@@ -514,3 +514,89 @@ def get_dfba_particle_composition(core=None, model_file=None):
             }
         }
     }
+
+
+
+def get_community_dfba_particle_composition(core=None, models=None, default_address="local:DynamicFBA"):
+    """
+    Build a particle composition with multiple DynamicFBA processes per particle.
+
+    Only supports the dict approach:
+
+        models = {
+            "ecoli core": {
+                "model_file": "textbook",
+                "substrate_update_reactions": {...},
+                "kinetic_params": {...},
+                "bounds": {...},
+            },
+            "ecoli variant": {
+                ... variation ...
+            },
+        }
+
+    - The dict key (e.g. "ecoli core") is used as the *process name* inside each particle.
+    - Each model config is filtered to the keys DynamicFBA expects.
+    - 'bounds' is guaranteed to exist (defaults to {}).
+    """
+    if models is None or not isinstance(models, dict) or len(models) == 0:
+        raise ValueError("get_community_dfba_particle_composition requires a non-empty dict 'models'")
+
+    allowed = {"model_file", "kinetic_params", "substrate_update_reactions", "bounds"}
+
+    processes = {}
+    for model_key, model_cfg in models.items():
+        if not isinstance(model_key, str) or not model_key:
+            raise ValueError(f"Model key must be a non-empty string, got: {model_key!r}")
+        if not isinstance(model_cfg, dict):
+            raise ValueError(f"models[{model_key!r}] must be a dict")
+
+        # Resolve defaults (registry or derived from model_file)
+        model_file = model_cfg.get("model_file", model_key)
+        if model_key in MODEL_REGISTRY_DFBA:
+            base = dict(MODEL_REGISTRY_DFBA[model_key])
+        else:
+            base = get_dfba_config(model_file=model_file)
+
+        # Merge: explicit model_cfg overrides base
+        merged = {**base, **model_cfg}
+
+        # Filter to DynamicFBA.config_schema keys only
+        config = {k: merged.get(k) for k in allowed}
+
+        # Ensure required keys exist in some form
+        if not config.get("model_file"):
+            raise ValueError(f"models[{model_key!r}] must define 'model_file' (or be resolvable via defaults)")
+        config["kinetic_params"] = config.get("kinetic_params") or {}
+        config["substrate_update_reactions"] = config.get("substrate_update_reactions") or {}
+        config["bounds"] = config.get("bounds") or {}
+
+        # Use model_key directly as the process node name
+        processes[model_key] = {
+            "_type": "process",
+            "address": default("string", default_address),
+            "config": default("node", config),
+            "inputs": default(
+                "wires",
+                {
+                    "substrates": ["local"],
+                    "biomass": ["mass"],
+                },
+            ),
+            "outputs": default(
+                "wires",
+                {
+                    "substrates": ["exchange"],
+                    "biomass": ["mass"],
+                },
+            ),
+        }
+
+    return {
+        "particles": {
+            "_type": "map",
+            "_value": processes,
+        }
+    }
+
+
