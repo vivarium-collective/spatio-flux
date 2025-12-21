@@ -38,6 +38,25 @@ from spatio_flux.processes import (
     get_newtonian_particles_state,
 )
 
+STANDARD_FIELD_COLORS = {
+    # Substrates
+    "glucose": "#1f77b4",          # blue (matplotlib C0)
+    "acetate": "#ff7f0e",          # orange (matplotlib C1)
+
+    # Generic biomass
+    "biomass": "#2ca02c",          # green (C2)
+
+    # dFBA-related biomass
+    "dfba_biomass": "#2ca02c",     # same green (semantic match)
+    "ecoli core biomass": "#2ca02c",
+    "ecoli_core_biomass": "#2ca02c",
+
+    # Kinetic biomass (slightly different shade to distinguish)
+    "kinetic_biomass": "#98df8a",  # light green (C2 lighter)
+
+    # Dissolved / spatial biomass (optional, but useful)
+    "dissolved biomass": "#17becf",  # teal (C9)
+}
 
 # ====================================================================
 # Functions to get documents and make plots for different compositions
@@ -83,7 +102,16 @@ def plot_kinetics_single(results, state, config=None, filename='kinetics_single_
     config = config or {}
     field_names = list(state['fields'].keys())
     filename = config.get('filename', 'kinetics_single_timeseries')
-    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',)
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',
+                     figsize=(4.5, 3.5),
+                     time_units="min",
+                     # time_scale=1 / 60,  # if results['time'] are seconds
+                     # normalize=True,
+                     y_label_base="Concentration / Biomass",
+                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     field_colors=STANDARD_FIELD_COLORS,
+                     legend_kwargs={"fontsize": 8, "loc": "best"},
+                     )
 
 
 # --- DFBA Single ---------------------------------------------------
@@ -116,7 +144,14 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
     config = config or {}
     field_names = list(state['fields'].keys())
     filename = config.get('filename', 'dfba_single_timeseries')
-    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',)
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',
+                     figsize=(4.5, 3.5),
+                     time_units="min",
+                     y_label_base="Concentration / Biomass",
+                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     field_colors=STANDARD_FIELD_COLORS,
+                     legend_kwargs={"fontsize": 8, "loc": "best"},
+                     )
 
 # --- Multiple DFBAs ---------------------------------------------------
 
@@ -153,7 +188,14 @@ def plot_multi_dfba(results, state, config=None):
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     species_ids = model_ids + field_names
-    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename)
+    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename,
+                     figsize=(4.5, 3.5),
+                     time_units="min",
+                     y_label_base="Concentration / Biomass",
+                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     field_colors=STANDARD_FIELD_COLORS,
+                     legend_kwargs={"fontsize": 8, "loc": "best"},
+                     )
 
 
 # --- DFBA-Monod Community ------------------------------------------------
@@ -199,7 +241,14 @@ def plot_dfba_kinetics_community(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_kinetics_community')
     species_ids = ['glucose', 'acetate', 'dfba_biomass', 'kinetic_biomass']
-    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename)
+    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename,
+                     figsize=(4.5, 3.5),
+                     time_units="min",
+                     y_label_base="Concentration / Biomass",
+                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     field_colors=STANDARD_FIELD_COLORS,
+                     legend_kwargs={"fontsize": 8, "loc": "best"},
+                     )
 
 
 # --- Many DFBA Spatial ---------------------------------------------------

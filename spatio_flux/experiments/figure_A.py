@@ -38,8 +38,8 @@ DEFAULT_TESTS = [
     "ecoli_core_dfba",
     "community_dfba",
     "dfba_kinetics_community",
-    "comets",
-    "dfba_brownian_particles",
+    # "comets",
+    # "dfba_brownian_particles",
 ]
 
 # For the "one test result png" panel, we try these (in order),

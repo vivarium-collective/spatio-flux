@@ -9,6 +9,8 @@ from IPython.display import HTML, display
 from matplotlib.colors import hsv_to_rgb
 from matplotlib.gridspec import GridSpec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib import colors as mcolors
+
 
 
 def _evenly_spaced_indices(n_items, n_pick):
@@ -122,6 +124,51 @@ def plot_model_grid(model_grid, out_dir='out', filename='model_grid.png',
     plt.close(fig)
     return filepath
 
+def place_legend_outside_right(
+    ax,
+    fig,
+    *,
+    width_fraction=0.28,   # fraction of figure reserved for legend
+    loc="center left",
+    anchor=(1.02, 0.5),
+    fontsize=9,
+    frameon=False,
+    **legend_kwargs,
+):
+    """
+    Place legend to the right of the axes with guaranteed no overlap.
+
+    Parameters
+    ----------
+    ax : matplotlib Axes
+    fig : matplotlib Figure
+    width_fraction : float
+        Fraction of figure width reserved for legend (0.25–0.35 is typical).
+    loc : str
+        Legend location relative to bbox_to_anchor.
+    anchor : tuple
+        (x, y) anchor in axes coordinates.
+    """
+    # Shrink plot area to make room
+    fig.subplots_adjust(right=1.0 - width_fraction)
+
+    handles, labels = ax.get_legend_handles_labels()
+    if not handles:
+        return None
+
+    legend = ax.legend(
+        handles,
+        labels,
+        loc=loc,
+        bbox_to_anchor=anchor,
+        borderaxespad=0.0,
+        fontsize=fontsize,
+        frameon=frameon,
+        **legend_kwargs,
+    )
+    return legend
+
+
 
 def plot_time_series(
         results,
@@ -132,24 +179,101 @@ def plot_time_series(
         display=False,
         log_scale=False,
         normalize=False,
+
+        # sizing / appearance
+        figsize=(12, 6),
+        dpi=None,
+        title=None,
+        legend=True,
+        legend_kwargs=None,
+
+        # axis units and labeling
+        time_units=None,          # e.g. "s", "min", "h"
+        time_scale=1.0,           # multiply times by this (e.g. 1/60 for min if input is sec)
+        y_label_base="Value",     # e.g. "Concentration"
+        field_units=None,         # dict: field -> units string, e.g. {"glucose":"mM"}
+        normalized_label="normalized",
+
+        # per-field styling
+        field_colors=None,        # dict: field -> matplotlib color
+        field_styles=None,        # dict: field -> dict of kwargs passed to ax.plot
+        linewidth=2.0,
+
+        # color reservation / auto assignment
+        reserved_colors=None,     # iterable of colors to avoid reusing for non-semantic fields
+        auto_color_cycle=None,    # optional explicit list of colors to cycle through
+
+        # legend placement (outside right)
+        legend_outside=True,
+        legend_width_fraction=0.30,  # fraction of figure width reserved for legend
+        legend_anchor=(1.02, 0.5),   # (x,y) in axes coords
 ):
     """
-    Plots time series for specified fields and coordinates from the results dictionary.
+    Plots time series for specified fields and coordinates from the results.
 
-    :param results: Dictionary with 'time' and 'fields'.
-    :param field_names: List of field names to plot.
-    :param coordinates: List of (x, y) index tuples. If None, assume scalar values.
-    :param out_dir: Directory to save the plot.
-    :param filename: Name of the saved file.
-    :param display: If True, display the plot.
-    :param log_scale: If True, apply log scaling to the y-axis.
-    :param normalize: If True, normalize all values to their initial value at time zero.
+    Features:
+      - figsize/dpi control
+      - optional title (default None)
+      - time units + optional scaling
+      - per-field units
+      - normalization labeling
+      - per-field colors/styles
+      - reserved semantic colors won't be reused for other fields
+      - legend placed outside to the right (no overlap)
+
+    Expects `sort_results(results)` to exist and return:
+      {
+        'time': [...],
+        'fields': { field_name: [scalar_or_array_per_time, ...], ... }
+      }
     """
+    # Defaults
     field_names = field_names or ['glucose', 'acetate', 'dissolved biomass']
+    field_units = field_units or {}
+    field_colors = field_colors or {}
+    field_styles = field_styles or {}
+    legend_kwargs = legend_kwargs or {}
+
     sorted_results = sort_results(results)
     times = sorted_results['time']
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    if time_scale != 1.0:
+        times = [t * time_scale for t in times]
+
+    # ---- Build an explicit color for every field (semantic or auto-assigned),
+    #      avoiding reserved colors for non-semantic fields.
+    reserved_colors = reserved_colors or []
+    reserved_rgba = {mcolors.to_rgba(c) for c in reserved_colors}
+
+    if auto_color_cycle is None:
+        candidate_cycle = list(plt.get_cmap("tab20").colors)
+    else:
+        candidate_cycle = list(auto_color_cycle)
+
+    # Filter cycle colors that would collide with reserved colors
+    candidate_cycle = [c for c in candidate_cycle if mcolors.to_rgba(c) not in reserved_rgba]
+
+    assigned_colors = dict(field_colors)
+    cycle_idx = 0
+    for fname in field_names:
+        if fname in assigned_colors:
+            continue
+        if cycle_idx < len(candidate_cycle):
+            assigned_colors[fname] = candidate_cycle[cycle_idx]
+            cycle_idx += 1
+        # else: no color assigned; matplotlib will pick (rare). Keeping silent on purpose.
+
+    # ---- Plot
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+
+    def _series_label(fname: str, coord=None) -> str:
+        unit = field_units.get(fname)
+        base = fname if coord is None else f"{fname} @ {coord}"
+        if unit:
+            base = f"{base} ({unit})"
+        if normalize:
+            base = f"{base} [{normalized_label}]"
+        return base
 
     for field_name in field_names:
         if field_name not in sorted_results['fields']:
@@ -158,47 +282,106 @@ def plot_time_series(
 
         field_data = sorted_results['fields'][field_name]
 
+        style = dict(linewidth=linewidth)
+        if field_name in assigned_colors:
+            style["color"] = assigned_colors[field_name]
+        style.update(field_styles.get(field_name, {}))
+
+        # Strict guard (optional): prevent non-semantic fields from using reserved colors
+        if "color" in style and reserved_rgba:
+            c_rgba = mcolors.to_rgba(style["color"])
+            if (c_rgba in reserved_rgba) and (field_name not in field_colors):
+                raise ValueError(
+                    f"Field '{field_name}' is using a reserved color {style['color']} "
+                    f"but is not in field_colors. Add it to field_colors or choose another color."
+                )
+
         if coordinates is None:
-            # Assume scalar time series
             data = field_data
             if normalize:
                 initial = data[0] if data[0] != 0 else 1e-12
                 data = [v / initial for v in data]
-            ax.plot(times, data, label=field_name)
+            ax.plot(times, data, label=_series_label(field_name), **style)
         else:
             for coord in coordinates:
                 x, y = coord
                 try:
-                    time_series = [field_data[t][y, x] for t in range(len(times))]
+                    series = [field_data[t][y, x] for t in range(len(times))]
                     if normalize:
-                        initial = time_series[0] if time_series[0] != 0 else 1e-12
-                        time_series = [v / initial for v in time_series]
-                    ax.plot(times, time_series, label=f'{field_name} at {coord}')
+                        initial = series[0] if series[0] != 0 else 1e-12
+                        series = [v / initial for v in series]
+                    ax.plot(times, series, label=_series_label(field_name, coord), **style)
                 except Exception as e:
                     print(f"Error plotting {field_name} at {coord}: {e}")
 
-    # Axis configuration
+    # Axis scaling
     if log_scale:
         ax.set_yscale('log')
-        y_label = "Relative Value (log scale)" if normalize else "Value (log scale)"
-    else:
-        y_label = "Relative Value (linear scale)" if normalize else "Value (linear scale)"
 
-    ax.set_xlabel('Time')
-    ax.set_ylabel(y_label)
-    ax.set_title('Time Series Plot' + (" (Normalized)" if normalize else ""))
-    ax.legend()
+    # Labels
+    ax.set_xlabel(f"Time ({time_units})" if time_units else "Time")
+
+    unique_units = {field_units.get(f) for f in field_names if field_units.get(f)}
+    units_suffix = f" ({list(unique_units)[0]})" if len(unique_units) == 1 else ""
+    norm_suffix = f" ({normalized_label})" if normalize else ""
+    scale_suffix = " (log)" if log_scale else ""
+    ax.set_ylabel(f"{y_label_base}{units_suffix}{norm_suffix}{scale_suffix}")
+
+    # Title (default: none)
+    if title:
+        ax.set_title(title)
+
+    # Legend: outside right, fixed space so it never overlaps
+    if legend:
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            if legend_outside:
+                # Reserve space on the right for the legend
+                fig.subplots_adjust(right=1.0 - legend_width_fraction)
+
+                # Pull some common legend style defaults
+                fontsize = legend_kwargs.pop("fontsize", 9)
+                frameon = legend_kwargs.pop("frameon", False)
+
+                # Remove conflicting keys if user provided them
+                legend_kwargs = dict(legend_kwargs)  # copy defensively
+                legend_kwargs.pop("loc", None)
+                legend_kwargs.pop("bbox_to_anchor", None)
+                legend_kwargs.pop("borderaxespad", None)
+
+                leg = ax.legend(
+                    handles,
+                    labels,
+                    loc="center left",
+                    bbox_to_anchor=legend_anchor,
+                    borderaxespad=0.0,
+                    fontsize=fontsize,
+                    frameon=frameon,
+                    **legend_kwargs,
+                )
+
+                # Make text left-aligned inside the legend box (nice for long labels)
+                try:
+                    leg._legend_box.align = "left"
+                except Exception:
+                    pass
+            else:
+                ax.legend(**legend_kwargs)
 
     # Save
     if out_dir is not None:
         os.makedirs(out_dir, exist_ok=True)
         filepath = os.path.join(out_dir, filename)
-        plt.savefig(filepath)
     else:
         filepath = filename
 
+    plt.savefig(filepath, bbox_inches="tight", dpi=dpi)
     if display:
         plt.show()
+    plt.close(fig)
+    return filepath
+
+
 
 
 
