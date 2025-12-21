@@ -576,14 +576,9 @@ class ParticleDivision(Step):
                 updated_particles['_add'][c1_id] = c1
                 updated_particles['_add'][c2_id] = c2
 
-            # No else: we don't modify non-dividing particles in this process
-
         # If nothing changed, return empty delta so upstream can skip writes
         if not updated_particles['_remove'] and not updated_particles['_add']:
             return {'particles': {}}
-
-        current_particles = state['particles']
-        print(f'current_particles: {len(current_particles)}')
 
         return {
             'particles': updated_particles
