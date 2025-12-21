@@ -60,7 +60,7 @@ MODEL_REGISTRY_DFBA = {
         },
         'kinetic_params': {
             'glucose': (0.5, 1),
-            'formate': (0.5, 1),
+            'formate': (0.5, 2),
         },
     },
     'cdiff': {

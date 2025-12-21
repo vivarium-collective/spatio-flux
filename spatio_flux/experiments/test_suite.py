@@ -52,7 +52,7 @@ def get_kinetics_single_doc(
     model_id = config.get('model_id', 'overflow_metabolism')
     model_config = MODEL_REGISTRY_KINETICS[model_id]()
     doc = {
-        'monod kinetics': {
+        'monod_kinetics': {
             '_type': 'process',
             'address': 'local:MonodKinetics',
             'config': model_config,
@@ -61,20 +61,20 @@ def get_kinetics_single_doc(
                     'glucose': ['fields', 'glucose'],
                     'acetate': ['fields', 'acetate'],
                 },
-                'biomass': ['fields', 'mass'],
+                'biomass': ['fields', 'biomass'],
             },
             'outputs': {
                 'substrates': {
                     'glucose': ['fields', 'glucose'],
                     'acetate': ['fields', 'acetate'],
                 },
-                'biomass': ['fields', 'mass'],
+                'biomass': ['fields', 'biomass'],
             },
         },
         'fields': {
             'glucose': 10,
             'acetate': 0,
-            'mass': 0.1
+            'biomass': 0.1
         }
     }
     return doc
@@ -367,18 +367,11 @@ def plot_particles_sim(results, state, config=None):
 
 def get_particles_with_kinetics_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
+    initial_min_max = {'glucose': (1, 4), 'acetate': (0, 0)}
 
-    initial_min_max = {'glucose': (1, 10), 'acetate': (0, 0), 'biomass': (0.1, 0.1), 'detritus': (0, 0)}
-    particle_config = {
-        'reactions': {
-            'grow': {'reactant': 'glucose', 'product': 'biomass'},
-            'release': {'reactant': 'biomass', 'product': 'acetate'}
-        },
-        'kinetic_params': {
-            'glucose': (0.5, 0.01),
-            'biomass': (1.0, 0.001)
-        }
-    }
+    model_id = config.get('model_id', 'overflow_metabolism')
+    particle_config = MODEL_REGISTRY_KINETICS[model_id]()
+
     mol_ids = list(initial_min_max.keys())
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
@@ -394,7 +387,6 @@ def get_particles_with_kinetics_doc(core=None, config=None):
             'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-
         },
         # put kinetic metabolism in the particles
         'composition': get_kinetic_particle_composition(core=core, config=particle_config)
@@ -443,16 +435,7 @@ def get_kinetic_particle_comets_doc(core=None, config=None):
 
     dissolved_model_id = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    particle_config = {
-        'reactions': {
-            'grow': {'reactant': 'glucose', 'product': 'mass'},
-            'release': {'reactant': 'mass', 'product': 'acetate'}
-        },
-        'kinetic_params': {
-            'glucose': (0.5, 0.01),
-            'mass': (1.0, 0.001)
-        }
-    }
+    particle_config = MODEL_REGISTRY_KINETICS['overflow_metabolism']()
     n_bins = DEFAULT_BINS
     bounds = DEFAULT_BOUNDS
     particle_advection = DEFAULT_ADVECTION

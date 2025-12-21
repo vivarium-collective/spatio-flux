@@ -506,15 +506,6 @@ def generate_html_report(
     ]
 
     # ------------------------------------------------------------------
-    # Table of Contents
-    # ------------------------------------------------------------------
-    html.append("<nav><h2>Contents</h2><ul>")
-    for test in simulations:
-        sid = _safe_id(test)
-        html.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
-    html.append("</ul></nav>")
-
-    # ------------------------------------------------------------------
     # Group files by simulation
     # ------------------------------------------------------------------
     test_files: dict[str, list[Path]] = {test: [] for test in simulations}
@@ -530,14 +521,25 @@ def generate_html_report(
         else:
             others.append(file)
 
+    # Only show tests that actually have output files
+    available_tests = [test for test, files in test_files.items() if files]
+
+    # ------------------------------------------------------------------
+    # Table of Contents
+    # ------------------------------------------------------------------
+    html.append("<nav><h2>Contents</h2><ul>")
+    for test in available_tests:
+        sid = _safe_id(test)
+        html.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
+    html.append("</ul></nav>")
+
     # ------------------------------------------------------------------
     # Per-simulation sections
     # ------------------------------------------------------------------
-    for test, files in test_files.items():
-        if not files:
-            continue
-
+    for test in available_tests:
+        files = test_files[test]
         files = sorted(files, key=lambda p: p.name)
+
         sid = _safe_id(test)
         html.append(f'<h2 id="{html_escape(sid)}">{html_escape(str(test))}</h2>')
 
