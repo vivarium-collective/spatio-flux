@@ -9,6 +9,7 @@ reads local field values, and can contribute to the environment.
 import base64
 import uuid
 import numpy as np
+import math
 from bigraph_schema import default
 from process_bigraph import Process, Step, default
 
@@ -203,7 +204,8 @@ class ManageBoundaries(Step):
     config_schema = {
         'bounds': 'tuple[float,float]',
 
-        'add_probability': default('float', 0.0),
+        # a per-interval probability using process_interval.
+        'add_rate': default('float', 0.0),
         'boundary_to_add': default('list[boundary_side]', ['top']),
 
         # these are the absorbing sides; everything else reflects
@@ -236,14 +238,18 @@ class ManageBoundaries(Step):
         self.remove_top    = 'top'    in remove
         self.remove_bottom = 'bottom' in remove
 
-        self.add_prob = float(config.get('add_probability', 0.0))
+        # Treat as event rate (1/sec). Convert to per-interval prob in update().
+        self.add_rate = float(config.get('add_rate', 0.0))
         self.add_boundaries = tuple(config.get('boundary_to_add', []))
 
         self.clamp_survivors = bool(config.get('clamp_survivors', True))
         self.mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
     def inputs(self):
-        return {'particles': 'map[particle]'}
+        return {
+            'particles': 'map[particle]',
+            'process_interval': {'_type': 'float', '_default': 1.0},
+        }
 
     def outputs(self):
         return {'particles': 'map[particle]'}
@@ -283,10 +289,27 @@ class ManageBoundaries(Step):
             return True
         return False
 
+    @staticmethod
+    def _rate_to_interval_prob(rate_per_sec, dt):
+        """
+        Convert a Poisson event rate (lambda, 1/sec) into probability of >=1 event in dt seconds.
+          P = 1 - exp(-lambda * dt)
+        This behaves well for large/small dt and never exceeds 1.
+        """
+        rate = float(rate_per_sec)
+        dt = float(dt)
+        if rate <= 0.0 or dt <= 0.0:
+            return 0.0
+        return float(1.0 - math.exp(-rate * dt))
+
     # ---------- main update ----------
 
     def update(self, state):
         particles = state.get('particles', {}) or {}
+
+        # interval in seconds (or whatever your engine uses consistently)
+        dt = float(state.get('process_interval', 1.0))
+
         updated = {'_remove': [], '_add': {}}
 
         for pid, p in particles.items():
@@ -294,8 +317,6 @@ class ManageBoundaries(Step):
             ox, oy = p.get('position', (0.0, 0.0))
 
             # DELTA for this tick.
-            # If you're still using "delta in position", you should replace this with
-            # a separate movement store. For now we keep a conservative fallback:
             dx, dy = p.get('position_delta', p.get('delta', p.get('position_delta', (0.0, 0.0))))
             if (dx, dy) == (0.0, 0.0):
                 # fallback: some pipelines store delta in position updates
@@ -324,18 +345,20 @@ class ManageBoundaries(Step):
             updated[pid] = {'position': (nx - ox, ny - oy)}
 
         # births (absolute positions)
-        if self.add_prob > 0.0 and self.add_boundaries:
-            for boundary in self.add_boundaries:
-                if np.random.rand() < self.add_prob:
-                    pos = self.get_boundary_position(boundary)
-                    pid = short_id()
-                    new_p = generate_single_particle_state({
-                        'bounds': self.bounds,
-                        'mass_range': self.mass_range,
-                        'position': pos,
-                        'id': pid,
-                    })
-                    updated['_add'][pid] = new_p
+        if self.add_rate > 0.0 and self.add_boundaries:
+            p_birth = self._rate_to_interval_prob(self.add_rate, dt)
+            if p_birth > 0.0:
+                for boundary in self.add_boundaries:
+                    if np.random.rand() < p_birth:
+                        pos = self.get_boundary_position(boundary)
+                        pid = short_id()
+                        new_p = generate_single_particle_state({
+                            'bounds': self.bounds,
+                            'mass_range': self.mass_range,
+                            'position': pos,
+                            'id': pid,
+                        })
+                        updated['_add'][pid] = new_p
 
         if not updated['_remove'] and not updated['_add'] and len(updated) == 2:
             return {'particles': {}}

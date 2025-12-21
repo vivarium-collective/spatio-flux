@@ -26,6 +26,7 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 )
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
+from spatio_flux.processes.kinetics import MODEL_REGISTRY_KINETICS
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
@@ -41,6 +42,49 @@ from spatio_flux.processes import (
 # ====================================================================
 # Functions to get documents and make plots for different compositions
 # ====================================================================
+
+# --- DFBA Single ---------------------------------------------------
+
+def get_kinetics_single_doc(
+        core=None,
+        config=None,
+):
+    model_id = config.get('model_id', 'overflow_metabolism')
+    model_config = MODEL_REGISTRY_KINETICS[model_id]()
+    doc = {
+        'monod kinetics': {
+            '_type': 'process',
+            'address': 'local:MonodKinetics',
+            'config': model_config,
+            'inputs': {
+                'substrates': {
+                    'glucose': ['fields', 'glucose'],
+                    'acetate': ['fields', 'acetate'],
+                },
+                'biomass': ['fields', 'mass'],
+            },
+            'outputs': {
+                'substrates': {
+                    'glucose': ['fields', 'glucose'],
+                    'acetate': ['fields', 'acetate'],
+                },
+                'biomass': ['fields', 'mass'],
+            },
+        },
+        'fields': {
+            'glucose': 10,
+            'acetate': 0,
+            'mass': 0.1
+        }
+    }
+    return doc
+
+def plot_kinetics_single(results, state, config=None, filename='kinetics_single_timeseries'):
+    config = config or {}
+    field_names = list(state['fields'].keys())
+    filename = config.get('filename', 'kinetics_single_timeseries')
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png',)
+
 
 # --- DFBA Single ---------------------------------------------------
 
@@ -296,12 +340,12 @@ def get_particles_alone_doc(core=None, config=None):
     scaling = 0.001
     diffusion_rate = DEFAULT_DIFFUSION * scaling
     advection_rate = (d * scaling for d in DEFAULT_ADVECTION)
-    add_probability = DEFAULT_ADD_PROBABILITY
+    add_rate = DEFAULT_ADD_RATE
     doc = {
         'state': {
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=diffusion_rate, advection_rate=advection_rate),
-            'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
+            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
         },
         'composition': {}
     }
@@ -341,13 +385,13 @@ def get_particles_with_kinetics_doc(core=None, config=None):
     n_particles = 1
     particle_diffusion = DEFAULT_DIFFUSION
     particle_advection = DEFAULT_ADVECTION
-    add_probability = 0.2
+    add_rate = 0.2
     return {
         'state': {
             'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds,diffusion_rate=particle_diffusion, advection_rate=particle_advection),
-            'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
+            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
 
@@ -366,7 +410,7 @@ def get_particle_dfba_doc(core=None, config=None):
     bounds = DEFAULT_BOUNDS
     n_bins = DEFAULT_BINS
     n_particles = 1
-    add_probability = 0.2
+    add_rate = 0.2
     particle_diffusion = DEFAULT_DIFFUSION
     particle_advection = DEFAULT_ADVECTION
     return {
@@ -374,7 +418,7 @@ def get_particle_dfba_doc(core=None, config=None):
             'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=particle_diffusion, advection_rate=particle_advection),
-            'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
+            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
@@ -413,7 +457,7 @@ def get_kinetic_particle_comets_doc(core=None, config=None):
     bounds = DEFAULT_BOUNDS
     particle_advection = DEFAULT_ADVECTION
     n_particles = 1
-    add_probability = 0.1
+    add_rate = 0.1
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
     n_grid = (n_bins[1], n_bins[0])  # shape (ny, nx)
@@ -434,7 +478,7 @@ def get_kinetic_particle_comets_doc(core=None, config=None):
             'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection),
-            'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
+            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
@@ -466,7 +510,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
     n_bins = DEFAULT_BINS
     advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     n_particles = 4
-    add_probability = 0.3
+    add_rate = 0.3
     particle_advection = (0, -0.2)
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
@@ -478,7 +522,7 @@ def get_particle_dfba_comets_doc(core=None, config=None):
             'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
             'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, advection_rate=particle_advection),
-            'enforce_boundaries': get_boundaries_process(bounds=bounds, add_probability=add_probability),
+            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
@@ -515,28 +559,26 @@ def get_newtonian_particles_process(config=None):
 
 def get_newtonian_particles_doc(core=None, config=None):
     n_particles = config.get('n_particles', 1)
+    bounds = (100.0, 300.0)
+    add_rate = 0.02
 
     # run simulation
     config = {
         'gravity': -0.2,  # -9.81,
         'elasticity': 0.1,
-        'bounds': (100.0, 300.0),
-        'boundary_to_remove': [],  # ['right', 'left'],
-        'add_probability': 0.3,
-        'new_particle_radius_range': (0.5, 2.5),
+        'bounds': bounds,
         'jitter_per_second': 0.5,
         'damping_per_second': .998,
     }
 
-
     processes = {
         'newtonian_particles': get_newtonian_particles_process(config=config),
+        'enforce_boundaries': get_boundaries_process(particle_process_name='newtonian_particles', bounds=bounds, add_rate=add_rate),
     }
 
     initial_state = {'particles': get_newtonian_particles_state(
         n_particles=n_particles,
         bounds=config['bounds'],
-        particle_radius_range=config['new_particle_radius_range'],
     )}
 
     # complete document
@@ -550,6 +592,7 @@ def get_newtonian_particles_doc(core=None, config=None):
 def plot_newtonian_particles(results, state, config=None):
     filename = config.get('filename', 'newtonian_particles')
     pymunk_config = state['newtonian_particles']['config']
+    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     pymunk_simulation_to_gif(results, filename=f'{filename}_video.gif', config=pymunk_config, agents_key='particles')
 
 
@@ -567,10 +610,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     bounds = config.get('bounds', bounds_default)
     n_bins = config.get('n_bins', DEFAULT_BINS)
     advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
-    n_particles = 4
-    particle_advection = (0, -0.2) #DEFAULT_ADVECTION
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-
 
     # pymunk
     n_particles = config.get('n_particles', 1)
@@ -579,13 +619,15 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     config = {
         'gravity': -0.2,  # -9.81,
         'elasticity': 0.1,
-        'bounds': bounds,  # (5.0, 10.0) is much smaller
-        'boundary_to_remove': [],  # ['right', 'left'],
-        'add_probability': 0.3,
-        # 'new_particle_radius_range': (0.05, 0.2),
-        'new_particle_mass_range': (0.001, 0.01),
+        'bounds': bounds,
         'jitter_per_second': 0.1,
         'damping_per_second': .995,
+    }
+    boundary_config = {
+        'add_rate': 0.02,
+        'boundary_to_remove': [],  # ['right', 'left'],
+        'new_particle_radius_range': (0.05, 0.2),
+        'new_particle_mass_range': (0.001, 0.01),
     }
 
     doc = {
@@ -594,13 +636,11 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             # 'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'spatial_kinetics': get_spatial_many_kinetics(model_id='single_substrate_assimilation', n_bins=n_bins, mol_ids=mol_ids),
-            'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds'],
-                                                       # particle_radius_range=config['new_particle_radius_range'],
-                                                       particle_mass_range=config['new_particle_mass_range'],
-                                                       ),
+            'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds']),
             'newtonian_particles': get_newtonian_particles_process(config=config),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
+            'enforce_boundaries': get_boundaries_process(particle_process_name='newtonian_particles', bounds=bounds, add_rate=boundary_config['add_rate']),
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
@@ -637,7 +677,7 @@ DEFAULT_BINS = (10, 20)
 DEFAULT_BINS_SMALL = (2, 4)
 DEFAULT_ADVECTION = (0.0, 0.2)
 DEFAULT_DIFFUSION = 0.5
-DEFAULT_ADD_PROBABILITY = 0.4
+DEFAULT_ADD_RATE = 0.4
 DEFAULT_ADD_BOUNDARY = ['top', 'left', 'right']
 DEFAULT_REMOVE_BOUNDARY = ['left', 'right']
 DEFAULT_INITIAL_MIN_MAX = {
@@ -652,6 +692,14 @@ DEFAULT_RUNTIME_LONG = 60   # 60
 DEFAULT_RUNTIME_LONGER = 200  # 120
 
 SIMULATIONS = {
+    'monod_kinetics': {
+        'description': 'This simulation uses particles with Monod kinetics to model microbial growth and metabolism.',
+        'doc_func': get_kinetics_single_doc,
+        'plot_func': plot_kinetics_single,
+        'time': DEFAULT_RUNTIME_LONG,
+        'config': {},
+        'plot_config': {'filename': 'monod_kinetics'}
+    },
     'ecoli_core_dfba': {
         'description': 'This simulation runs a dFBA (dynamic Flux Balance Analysis) model of E. coli core metabolism, tracking external concentrations and biomass.',
         'doc_func': get_dfba_single_doc,
@@ -794,7 +842,7 @@ SIMULATIONS = {
         'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONG, #ER,
+        'time': DEFAULT_RUNTIME_SHORT, #LONG, #ER,
         'config': {},
         'plot_config': {'filename': 'newtonian_particle_comets'}
     },

@@ -24,7 +24,7 @@ default_config = {
     'n_particles': 10,
     'particle_diffusion_rate': 1e-1,
     'particle_advection_rate': (0, -0.1),
-    'particle_add_probability': 0.3,
+    'particle_add_rate': 0.3,
     'particle_boundary_to_add': ['top'],
     'particle_boundary_to_remove': ['top', 'bottom', 'left', 'right'],
     'particle_field_interactions': {
@@ -353,8 +353,9 @@ def get_brownian_movement_process(
     }
 
 def get_boundaries_process(
+    particle_process_name,
     bounds=(10.0, 10.0),
-    add_probability=0.0,
+    add_rate=0.0,
     boundary_to_add=('top',),
     # sides that ABSORB (remove) particles; all other sides REFLECT by default
     boundary_to_remove=(),  # e.g. ('right',) or ('top','bottom','left','right')
@@ -372,7 +373,7 @@ def get_boundaries_process(
     """
     config = {
         'bounds': bounds,
-        'add_probability': float(add_probability),
+        'add_rate': float(add_rate),
         'boundary_to_add': list(boundary_to_add),
         'boundary_to_remove': list(boundary_to_remove),
         'clamp_survivors': bool(clamp_survivors),
@@ -386,6 +387,7 @@ def get_boundaries_process(
         'config': config,
         'inputs': {
             'particles': ['particles'],
+            'process_interval': [particle_process_name, 'interval']
         },
         'outputs': {
             'particles': ['particles'],

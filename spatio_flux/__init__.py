@@ -36,12 +36,17 @@ particle_type = {
 
 boundary_side = 'enum[left,right,top,bottom]'
 
-substrate_role_type = 'enum[reactant,product,enzyme]'
-kinetics_type = {
+# substrate_role_type = 'enum[reactant,product,enzyme]'
+reaction_type = {
+    # wiring / meaning
+    'reactant': 'string',         # substrate id OR "mass"
+    'product': 'string',          # substrate id OR "mass"
+    # 'role': 'substrate_role',     # optional semantic tag
+    # Monod params (reaction-scoped)
+    'km': 'float',
     'vmax': 'float',
-    'kcat': 'float',
-    'role': 'substrate_role'}
-reaction_type = 'map[kinetics]'
+    'yield': 'float{1.0}',
+}
 
 fields_type =  {
     '_type': 'map',
@@ -66,8 +71,6 @@ SPATIO_FLUX_TYPES = {
 TYPES_DICT = {
     **SPATIO_FLUX_TYPES,
     'boundary_side': boundary_side,
-    'substrate_role': substrate_role_type,
-    'kinetics': kinetics_type,
     'reaction': reaction_type,
 }
 
