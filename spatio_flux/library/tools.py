@@ -139,7 +139,9 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
             'exclude': [  # dont collapse these
                 ('particle_movement',),
                 ('particle_division',),
-                ('enforce_boundaries',)
+                ('enforce_boundaries',),
+                ('glucose eater',),
+                ('acetate eater',),
             ]
         },
         value_char_limit=20,

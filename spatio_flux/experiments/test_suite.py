@@ -784,11 +784,7 @@ def get_mega_composite_doc(core=None, config=None):
 
     # Spatial fields
     mol_ids = ["glucose", "acetate", "dissolved biomass"]
-    initial_min_max = {
-        "glucose": (0.1, 2.0),
-        "acetate": (0.0, 0.0),
-        "dissolved biomass": (0.0, 0.1),
-    }
+    initial_min_max = {"glucose": (0.1, 2.0), "acetate": (0.0, 0.0), "dissolved biomass": (0.0, 0.1)}
 
     bounds = user_cfg.get("bounds", tuple(x * 10 for x in DEFAULT_BOUNDS))
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
@@ -830,32 +826,30 @@ def get_mega_composite_doc(core=None, config=None):
 
     # composition
     models = {
-        "ecoli core": {
+        "glucose eater": {
             "model_file": "textbook",
             "substrate_update_reactions": {
                 "glucose": "EX_glc__D_e",
-                "acetate": "EX_ac_e",
             },
             "kinetic_params": {
                 "glucose": (0.5, 1),
-                "acetate": (0.0, 0),
             },
             "bounds": {
+                "EX_ac_e": {"lower": 0, "upper": None},  # no acetate uptake
                 "EX_o2_e": {"lower": -2, "upper": None},
                 "ATPM": {"lower": 1, "upper": 1},
             },
         },
-        "ecoli variant": {
+        "acetate eater": {
             "model_file": "textbook",
             "substrate_update_reactions": {
-                "glucose": "EX_glc__D_e",
                 "acetate": "EX_ac_e",
             },
             "kinetic_params": {
-                "glucose": (0.0, 0),
                 "acetate": (0.25, 2),
             },
             "bounds": {
+                "EX_glc__D_e": {"lower": 0, "upper": 0},  # no glucose uptake
                 "EX_o2_e": {"lower": -10, "upper": None},
                 "ATPM": {"lower": 1, "upper": 1},
             },
@@ -877,9 +871,6 @@ def get_mega_composite_doc(core=None, config=None):
         },
         "composition": composition,
     }
-
-
-
 
 
 
