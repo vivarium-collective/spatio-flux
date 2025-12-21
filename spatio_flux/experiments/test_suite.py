@@ -770,6 +770,119 @@ def plot_newtonian_particle_comets(results, state, config=None):
         figure_size_inches=(10, 6),
     )
 
+
+# --- mega-composite simulation ---------------------------------------------------
+
+def get_mega_composite_doc(core=None, config=None):
+    """
+    Build a "mega" composite document that couples:
+
+      - spatial fields (concentrations on a grid)
+      - diffusion/advection over those fields
+      - spatial dFBA over those fields (dissolved compartment)
+      - Newtonian particles (pymunk-style physics)
+      - particle↔field exchange (uptake/secretion)
+      - particle division
+      - boundary enforcement (optional particle spawning)
+    """
+    user_cfg = config or {}
+    division_mass_threshold = 0.4          # particle splits when mass exceeds this
+    add_rate = 0.01                        # boundary add rate for new particles
+
+    # Which FBA models to use for particle and dissolved compartments
+    particle_model_id = user_cfg.get("particle_model_id", "ecoli core")
+    dissolved_model_id = user_cfg.get("dissolved_model_id", "ecoli core")
+
+    # Spatial field setup
+    mol_ids = ["glucose", "acetate", "dissolved biomass"]
+    initial_min_max = {
+        "glucose": (0.1, 2.0),
+        "acetate": (0.0, 0.0),
+        "dissolved biomass": (0.0, 0.1),
+    }
+
+    # Bounds and discretization
+    bounds_default = tuple(x * 10 for x in DEFAULT_BOUNDS)
+    bounds = user_cfg.get("bounds", bounds_default)
+    n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
+
+    # Optional per-molecule advection
+    advection_coeffs = {"dissolved biomass": DEFAULT_ADVECTION}
+
+    # Initial fields (grid arrays)
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+
+    # Particle setup (physics + initial particle population)
+    n_particles = user_cfg.get("n_particles", 1)
+
+    # Physics engine configuration (used by get_newtonian_particles_process)
+    physics_cfg = {
+        "gravity": -1.0,
+        "elasticity": 0.1,
+        "bounds": bounds,
+        "jitter_per_second": 1e-3,
+        "damping_per_second": 1e-3,
+    }
+
+    # Boundary / particle spawning configuration (currently only add_rate used below)
+    boundary_cfg = {
+        "add_rate": add_rate,
+        "boundary_to_remove": [],
+        "new_particle_radius_range": (0.05, 0.2),
+        "new_particle_mass_range": (0.001, 0.01),
+    }
+
+    # Processes: build each process sub-document
+    diffusion_proc = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs)
+
+    # Dissolved (grid) metabolism; expects model_file / model_id
+    spatial_dfba_proc = get_spatial_many_dfba(n_bins=n_bins, model_id=dissolved_model_id)
+
+    # Physics-driven particle dynamics
+    particle_state = get_newtonian_particles_state(n_particles=n_particles, bounds=physics_cfg["bounds"],)
+    newtonian_particles_proc = get_newtonian_particles_process(config=physics_cfg)
+
+    # Coupling between particle internal state and spatial fields
+    particle_exchange_proc = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
+
+    # Particle lifecycle
+    particle_division_proc = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
+
+    # Boundary enforcement / spawning
+    enforce_boundaries_proc = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
+
+    # Composition: attach particle-level dFBA to each particle agent
+    composition = get_dfba_particle_composition(model_file=particle_model_id)
+
+    # Assemble final composite document
+    doc = {
+        "state": {
+            # Shared spatial fields
+            "fields": fields,
+
+            # Processes that operate on fields / grid metabolism
+            "diffusion": diffusion_proc,
+            "spatial_dFBA": spatial_dfba_proc,
+
+            # Particles (state + physics)
+            "particles": particle_state,
+            "newtonian_particles": newtonian_particles_proc,
+
+            # Coupling + lifecycle + boundary logic
+            "particle_exchange": particle_exchange_proc,
+            "particle_division": particle_division_proc,
+            "enforce_boundaries": enforce_boundaries_proc,
+
+            # (Optional future)
+            # "spatial_kinetics": get_spatial_many_kinetics(...),
+        },
+        "composition": composition,
+    }
+
+    return doc
+
+
+
 # ==================================================
 # Functions for running tests and generating reports
 # ==================================================
@@ -912,6 +1025,14 @@ SIMULATIONS = {
         'time': DEFAULT_RUNTIME_LONG, #ER,
         'config': {},
         'plot_config': {'filename': 'newtonian_particle_comets'}
+    },
+    'mega_composite': {
+        'description': 'This simulation combines Pymunk physics-based particles with dFBA metabolism in both the particles and the environment.',
+        'doc_func': get_mega_composite_doc,
+        'plot_func': plot_newtonian_particle_comets,
+        'time': DEFAULT_RUNTIME_LONGER,
+        'config': {},
+        'plot_config': {'filename': 'mega_composite'}
     },
 }
 
