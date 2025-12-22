@@ -1,124 +1,170 @@
-from dataclasses import dataclass, is_dataclass, field, replace
+"""
+spatio_flux.types.positive
+
+Custom numeric types used by spatio_flux on top of bigraph-schema.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
 
 import numpy as np
-from bigraph_schema.schema import Float, Array, Number
+
+from bigraph_schema.schema import Array, Float, Number
 from bigraph_schema.methods import apply, render, resolve
 
 
+# ---------------------------------------------------------------------
+# Type definitions (thin semantic wrappers)
+# ---------------------------------------------------------------------
+
 @dataclass(kw_only=True)
 class SetFloat(Float):
-    pass
+    """A float that is replaced by its update (no accumulation)."""
 
 
 @dataclass(kw_only=True)
 class PositiveFloat(Float):
-    pass
+    """A float that accumulates updates and is clamped to be non-negative."""
 
 
 @dataclass(kw_only=True)
 class Concentration(PositiveFloat):
-    pass
+    """Non-negative accumulator representing an environmental concentration."""
 
 
 @dataclass(kw_only=True)
 class Count(PositiveFloat):
-    pass
+    """Non-negative accumulator representing a count (e.g. molecule count)."""
 
 
 @dataclass(kw_only=True)
 class PositiveArray(Array):
-    pass
+    """An array whose updates are accumulated and clamped elementwise to be non-negative."""
+
+
+# ---------------------------------------------------------------------
+# Render methods: dataclass schema -> registry name
+# ---------------------------------------------------------------------
+
+@render.dispatch
+def render(schema: PositiveFloat, defaults: bool = False):
+    return "positive_float"
 
 
 @render.dispatch
-def render(schema: PositiveFloat, defaults=False):
-    return 'positive_float'
+def render(schema: PositiveArray, defaults: bool = False):
+    return "positive_array"
+
 
 @render.dispatch
-def render(schema: PositiveArray, defaults=False):
-    return 'positive_array'
+def render(schema: Concentration, defaults: bool = False):
+    return "concentration"
+
 
 @render.dispatch
-def render(schema: Concentration, defaults=False):
-    return 'concentration'
+def render(schema: Count, defaults: bool = False):
+    return "count"
+
 
 @render.dispatch
-def render(schema: Count, defaults=False):
-    return 'count'
+def render(schema: SetFloat, defaults: bool = False):
+    return "set_float"
 
-@render.dispatch
-def render(schema: SetFloat, defaults=False):
-    return 'set_float'
 
+# ---------------------------------------------------------------------
+# Resolve methods: merge across numeric schema updates
+# ---------------------------------------------------------------------
 
 @resolve.dispatch
 def resolve(current: Concentration, update: Concentration, path=()):
+    # If current has a default and update doesn't, preserve current's default.
     if current._default and not update._default:
-        return replace(update, **{'_default': current._default})
+        return replace(update, _default=current._default)
     return update
 
 
 @resolve.dispatch
 def resolve(current: Number, update: Concentration, path=()):
+    # Concentration can replace a generic Number schema; preserve defaults.
     if current._default and not update._default:
-        return replace(update, **{'_default': current._default})
+        return replace(update, _default=current._default)
     return update
 
 
 @resolve.dispatch
 def resolve(current: Concentration, update: Number, path=()):
+    # If update is generic numeric but provides a default, keep it.
     if update._default and not current._default:
-        return replace(current, **{'_default': update._default})
+        return replace(current, _default=update._default)
     return current
 
 
+# ---------------------------------------------------------------------
+# Apply methods: state update semantics
+# ---------------------------------------------------------------------
+
 @apply.dispatch
 def apply(schema: SetFloat, state, update, path):
+    # Replacement semantics.
     return update, []
-
-
 
 
 @apply.dispatch
 def apply(schema: PositiveFloat, state, update, path):
+    # Accumulate with non-negativity clamp.
     if update is None:
         return state, []
+    return max(0, state + update), []
 
-    new_value = state + update
-    return max(0, new_value), []
-    
 
 @apply.dispatch
 def apply(schema: PositiveArray, current, update, path):
-    def recursive_update(result_array, current_array, update_dict, index_path=()):
-        if isinstance(update_dict, dict):
-            for key, val in update_dict.items():
-                recursive_update(result_array, current_array, val, index_path + (key,))
-        else:
-            if isinstance(current_array, np.ndarray):
-                current_value = current_array[index_path]
-                result_array[index_path] = np.maximum(0, current_value + update_dict)
-            else:
-                # Scalar fallback
-                return np.maximum(0, current_array + update_dict), []
+    """
+    Apply an update to a PositiveArray.
 
+    Supported update formats:
+    - dense: update is array-like; applied elementwise and clamped at zero
+    - sparse: update is a nested dict of indices -> delta values
+        Example (2D): {i: {j: delta}}  => current[i, j] += delta, clamped at 0
+
+    Returns:
+        (new_array, [])
+    """
+
+    # Scalar fallback (rare): treat as PositiveFloat semantics
     if not isinstance(current, np.ndarray):
         if isinstance(update, dict):
-            raise ValueError("Cannot apply dict update to scalar current")
+            raise ValueError("Cannot apply dict update to scalar current value.")
         return np.maximum(0, current + update), []
 
-    result = np.copy(current)
-    recursive_update(result, current, update)
+    # Dense update
+    if isinstance(update, np.ndarray):
+        return np.maximum(0, current + update), []
+
+    # Sparse update (nested dict)
+    result = np.array(current, copy=True)
+
+    def _apply_sparse(delta, idx=()):
+        if isinstance(delta, dict):
+            for k, v in delta.items():
+                _apply_sparse(v, idx + (k,))
+            return
+
+        result[idx] = np.maximum(0, result[idx] + delta)
+
+    _apply_sparse(update)
     return result, []
 
 
+# ---------------------------------------------------------------------
+# Convenience: registry name -> schema class mapping
+# ---------------------------------------------------------------------
+
 positive_types = {
-    'positive_float': PositiveFloat,
-    'positive_array': PositiveArray,
-    'count': Count,
-    'concentration': Concentration,
-    'set_float': SetFloat}
-
-
-
-
+    "positive_float": PositiveFloat,
+    "positive_array": PositiveArray,
+    "count": Count,
+    "concentration": Concentration,
+    "set_float": SetFloat,
+}

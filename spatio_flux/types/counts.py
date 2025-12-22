@@ -77,6 +77,5 @@ def apply_count_concentration_volume(schema, current, update, path):
 
 @apply.dispatch
 def apply(schema: CountConcentrationVolume, current, update, path):
-    return apply_conc_count_volume(schema, current, update, path), []
-
+    return apply_count_concentration_volume(schema, current, update, path), []
 
