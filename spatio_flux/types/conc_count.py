@@ -16,6 +16,7 @@ class ConcentrationCountVolume(Node):
 
 
 def apply_concentration_count_volume(schema, current, update, path):
+    # TODO -- this needs to be initialized properly so that if conc is given, count and volume are set accordingly
     if current is None:
         current = {'volume': 0.0, 'count': 0.0, 'concentration': 0.0}
 
