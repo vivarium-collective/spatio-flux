@@ -26,7 +26,7 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 )
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
-from spatio_flux.processes.kinetics import MODEL_REGISTRY_KINETICS
+from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,

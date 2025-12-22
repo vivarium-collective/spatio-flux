@@ -2,7 +2,7 @@ from spatio_flux.processes.dfba import (
     DynamicFBA, SpatialDFBA, MODEL_REGISTRY_DFBA, get_dfba_process_from_registry, get_field_names)
 from spatio_flux.processes.diffusion_advection import DiffusionAdvection
 from spatio_flux.processes.particles import BrownianMovement, DIVISION_MASS_THRESHOLD, ParticleDivision, ParticleExchange, ManageBoundaries
-from spatio_flux.processes.kinetics import MonodKinetics, get_kinetics_process_from_registry
+from spatio_flux.processes.monod_kinetics import MonodKinetics, get_kinetics_process_from_registry
 from spatio_flux.processes.pymunk_particles import PymunkParticleMovement, get_newtonian_particles_state
 
 # configs
