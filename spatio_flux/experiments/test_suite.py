@@ -35,7 +35,7 @@ from spatio_flux.processes import (
     MODEL_REGISTRY_DFBA, get_dfba_process_from_registry,
     get_kinetics_process_from_registry, get_spatial_many_kinetics,
     get_particle_divide_process, DIVISION_MASS_THRESHOLD,
-    get_newtonian_particles_state,
+    get_newtonian_particles_state, get_mass_total_step,
 )
 
 # ---------------------------------------------------------------------
@@ -463,7 +463,7 @@ def plot_particles_sim(results, state, config=None):
 
 # --- Particles with Monod Kinetics -----------------------------------------------------------
 
-def get_br_particles_with_kinetics_doc(core=None, config=None):
+def get_br_particles_kinetics_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
     initial_min_max = {'glucose': (1, 4), 'acetate': (0, 0)}
 
@@ -492,7 +492,7 @@ def get_br_particles_with_kinetics_doc(core=None, config=None):
 
 # --- dFBA-Particles ---------------------------------------------------
 
-def get_br_particles_with_dfba_doc(core=None, config=None):
+def get_br_particles_dfba_doc(core=None, config=None):
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
     mol_ids = ['glucose', 'acetate']
@@ -771,16 +771,26 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
 
 def plot_newtonian_particle_comets(results, state, config=None):
     filename = config.get('filename', 'newtonian_particle_comets')
-    pymunk_config = state['newtonian_particles']['config']
-    bounds = state['newtonian_particles']['config']['bounds']
+    pymunk_config = state.get('newtonian_particles', {}).get('config')
+    bounds = state['diffusion']['config']['bounds'] #pymunk_config.get('bounds')
     n_bins = state['diffusion']['config']['n_bins']
+    particles_row = config.get("particles_row", "overlay")
 
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
-    fields_and_agents_to_gif(data=results, config=pymunk_config, agents_key='particles', fields_key='fields',
-        filename=f'{filename}_video.gif', out_dir='out', figure_size_inches=(10, 6))
+    if pymunk_config:
+        fields_and_agents_to_gif(data=results, config=pymunk_config, agents_key='particles', fields_key='fields',
+            filename=f'{filename}_video.gif', out_dir='out', figure_size_inches=(10, 6))
+    plot_snapshots_grid(results,  bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
+                        field_names=['glucose', 'acetate', 'dissolved biomass'],
+                        n_snapshots=8, particles_row=particles_row,
+                        time_units="min",
+                        wspace=0.1,
+                        hspace=0.1,
+                        col_width=1.8,
+                        row_height=2.0,
+                        )
 
 
 # --- mega-composite simulation ---------------------------------------------------
@@ -790,69 +800,60 @@ def get_mega_composite_doc(core=None, config=None):
 
     # High-level knobs
     division_mass_threshold = 0.4
-    add_rate = 0.01
+    add_rate = 0.0
 
     # Spatial fields
-    mol_ids = ["glucose", "acetate", "dissolved biomass"]
-    initial_min_max = {"glucose": (0.1, 2.0), "acetate": (0.0, 0.0), "dissolved biomass": (0.0, 0.1)}
+    biomass_id = "dissolved biomass"
+    mol_ids = ["glucose", "acetate", biomass_id]
+    initial_min_max = {"glucose": (0.2, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.01, 0.1)}
+    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
 
-    bounds = user_cfg.get("bounds", tuple(x * 10 for x in DEFAULT_BOUNDS))
+    bounds = user_cfg.get("bounds", [b * 2 for b in DEFAULT_BOUNDS])
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # Particles + physics
     n_particles = user_cfg.get("n_particles", 1)
-    physics_cfg = {
-        "gravity": -1.0,
-        "elasticity": 0.1,
-        "bounds": bounds,
-        "jitter_per_second": 1e-3,
-        "damping_per_second": 1e-3,
-    }
+    physics_cfg = {"gravity": -1.0, "elasticity": 0.1, "bounds": bounds, "jitter_per_second": 1e-3, "damping_per_second": 1e-3}
     boundary_cfg = {"add_rate": add_rate}
 
+    # Models
+    initial_mass = {'ecoli_1': 0.1, 'ecoli_2': 0.1}
+    models = {
+        "ecoli_1": {
+            "model_file": "textbook",
+            "substrate_update_reactions": {"glucose": "EX_glc__D_e"},
+            "kinetic_params": {"glucose": (0.5, 1)},
+            "bounds": {
+                "EX_ac_e": {"lower": 0, "upper": None},  # no acetate uptake
+                "EX_o2_e": {"lower": -2, "upper": None},
+                "ATPM": {"lower": 1, "upper": 1}}},
+        "ecoli_2": {
+            "model_file": "textbook",
+            "substrate_update_reactions": {"acetate": "EX_ac_e"},
+            "kinetic_params": {"acetate": (0.25, 2)},
+            "bounds": {
+                "EX_glc__D_e": {"lower": 0, "upper": 0},  # no glucose uptake
+                "EX_o2_e": {"lower": -10, "upper": None},
+                "ATPM": {"lower": 1, "upper": 1}}}}
+    mass_sources = list(models.keys())
+
     # Processes
-    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids)
-    spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
+    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs)
+    spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
+    mass_step = get_mass_total_step(mass_sources=mass_sources)
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
-    # composition
-    models = {
-        "glucose eater": {
-            "model_file": "textbook",
-            "substrate_update_reactions": {
-                "glucose": "EX_glc__D_e",
-            },
-            "kinetic_params": {
-                "glucose": (0.5, 1),
-            },
-            "bounds": {
-                "EX_ac_e": {"lower": 0, "upper": None},  # no acetate uptake
-                "EX_o2_e": {"lower": -2, "upper": None},
-                "ATPM": {"lower": 1, "upper": 1},
-            },
-        },
-        "acetate eater": {
-            "model_file": "textbook",
-            "substrate_update_reactions": {
-                "acetate": "EX_ac_e",
-            },
-            "kinetic_params": {
-                "acetate": (0.25, 2),
-            },
-            "bounds": {
-                "EX_glc__D_e": {"lower": 0, "upper": 0},  # no glucose uptake
-                "EX_o2_e": {"lower": -10, "upper": None},
-                "ATPM": {"lower": 1, "upper": 1},
-            },
-        },
-    }
+   # # put mass metabolism inside the particles
+   #  for pid, internal in particles.items():
+   #      internal.update(initial_mass.copy())
 
+    # composition
     composition = get_community_dfba_particle_composition(models=models)
 
     return {
@@ -861,10 +862,11 @@ def get_mega_composite_doc(core=None, config=None):
             "fields": fields,
             "diffusion": diffusion,
             "particles": particles,
-            "newtonian_particles": newtonian_particles,
+            "mass_step": mass_step,
             "particle_exchange": particle_exchange,
             "particle_division": particle_division,
-            "enforce_boundaries": enforce_boundaries,
+            # "enforce_boundaries": enforce_boundaries,
+            # "newtonian_particles": newtonian_particles,
         },
         "composition": composition,
     }
@@ -965,7 +967,7 @@ SIMULATIONS = {
     # ---- Brownian Particle composite models --------------------------------
     'br_particles_kinetics': {
         'description': 'This simulation uses Brownian particles with mass moving randomly, and with a kinetic reaction process inside of each particle uptaking or secreting from the field.',
-        'doc_func': get_br_particles_with_kinetics_doc,
+        'doc_func': get_br_particles_kinetics_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
@@ -973,13 +975,13 @@ SIMULATIONS = {
     },
     'br_particles_dfba': {
         'description': 'This simulation puts dFBA inside of the Brownian particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
-        'doc_func': get_br_particles_with_dfba_doc,
+        'doc_func': get_br_particles_dfba_doc,
         'plot_func': plot_particle_dfba,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_SHORT,
         'config': {
             'particle_model_id': 'ecoli core'
         },
-        'plot_config': {'filename': 'br_particles_dfba'}
+        'plot_config': {'filename': 'br_particles_dfba', "particles_row": "separate"}
     },
 
     # ---- COMETS-like composite models --------------------------------------
@@ -1033,7 +1035,7 @@ SIMULATIONS = {
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
-        'plot_config': {'filename': 'mega_composite'}
+        'plot_config': {'filename': 'mega_composite', "particles_row": "separate"}
     },
 }
 

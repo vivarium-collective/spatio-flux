@@ -583,3 +583,66 @@ class ParticleDivision(Step):
         return {
             'particles': updated_particles
         }
+
+
+
+class ParticleTotalMass(Step):
+    """
+    Sum a set of per-particle scalar keys into a single `mass`.
+
+    Example particle:
+      {
+        "position": (x, y),
+        "ecoli1_mass": 0.12,
+        "ecoli2_mass": 0.05,
+      }
+
+    With config:
+      mass_sources = ["ecoli1_mass", "ecoli2_mass"]
+
+    Produces:
+      particle["mass"] = 0.17
+    """
+
+    config_schema = {
+        # keys on each particle that contain scalar mass contributions
+        "mass_sources": {"_type": "list", "_default": []},
+
+        # output key to write total mass into
+        "mass_key": {"_type": "string", "_default": "mass"},
+    }
+
+    def inputs(self):
+        return {"particles": "map[particle]"}
+
+    def outputs(self):
+        return self.inputs()
+
+    def initial_state(self, config=None):
+        return {}
+
+    def update(self, state):
+        particles = state["particles"]
+        sources = self.config["mass_sources"]
+        out_key = self.config["mass_key"]
+
+        if not sources:
+            return {}  # nothing to do
+
+        particle_updates = {}
+
+        for pid, p in particles.items():
+            total = 0.0
+            for k in sources:
+                v = p.get(k, 0.0)
+                try:
+                    total += float(v)
+                except Exception:
+                    # ignore non-numeric values
+                    continue
+
+            particle_updates[pid] = {out_key: total}
+
+        return {"particles": particle_updates}
+
+

@@ -752,8 +752,6 @@ def get_newtonian_particles_state(
             speed_range=particle_speed_range,
             radius_range=particle_radius_range,
             mass_range=particle_mass_range,
-            # you can override radius/mass/velocity here if desired
-            # radius=..., mass=..., velocity=(vx, vy), x=..., y=...
         )
     )
 

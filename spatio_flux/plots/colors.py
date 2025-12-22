@@ -72,8 +72,8 @@ DEFAULT_FIELD_BIOMASS_SPECIES = [
     "cdiff",
     "biomass",
     "dissolved biomass",
-    "glucose eater",
-    "acetate eater",
+    "ecoli_1",
+    "ecoli_2",
     "monod biomass",
 ]
 
@@ -173,8 +173,8 @@ def build_plot_settings(
             ('particles', pid, 'radius'):   COLORS["newtonian_particles_state"],
             ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
-            ('particles', pid, 'glucose eater'): COLORS["dfba_process"],
-            ('particles', pid, 'acetate eater'): COLORS["dfba_process"],
+            ('particles', pid, 'ecoli_1'): COLORS["dfba_process"],
+            ('particles', pid, 'ecoli_2'): COLORS["dfba_process"],
         })
         fills.update({
             (pid,):             COLORS["particles_state"],

@@ -443,6 +443,25 @@ def get_particle_divide_process(
     }
 
 
+def get_mass_total_step(
+        mass_sources=None,
+        mass_key="mass",
+):
+    return {
+        '_type': 'step',
+        'address': 'local:ParticleTotalMass',
+        'config': {
+            'mass_sources': mass_sources or [],
+            'mass_key': mass_key
+        },
+        'inputs': {
+            'particles': ['particles']
+        },
+        'outputs': {
+            'particles': ['particles']
+        }
+    }
+
 # ===============
 # Particle-COMETS
 # ===============
@@ -526,9 +545,7 @@ def get_dfba_particle_composition(core=None, model_file=None):
 def get_community_dfba_particle_composition(core=None, models=None, default_address="local:DynamicFBA"):
     """
     Build a particle composition with multiple DynamicFBA processes per particle.
-
     Only supports the dict approach:
-
         models = {
             "ecoli core": {
                 "model_file": "textbook",
@@ -540,14 +557,9 @@ def get_community_dfba_particle_composition(core=None, models=None, default_addr
                 ... variation ...
             },
         }
-
-    - The dict key (e.g. "ecoli core") is used as the *process name* inside each particle.
-    - Each model config is filtered to the keys DynamicFBA expects.
-    - 'bounds' is guaranteed to exist (defaults to {}).
     """
     if models is None or not isinstance(models, dict) or len(models) == 0:
         raise ValueError("get_community_dfba_particle_composition requires a non-empty dict 'models'")
-
     allowed = {"model_file", "kinetic_params", "substrate_update_reactions", "bounds"}
 
     processes = {}
@@ -586,14 +598,14 @@ def get_community_dfba_particle_composition(core=None, models=None, default_addr
                 "wires",
                 {
                     "substrates": ["local"],
-                    "biomass": ["mass"],
+                    "biomass": [f"{model_key} mass"],
                 },
             ),
             "outputs": default(
                 "wires",
                 {
                     "substrates": ["exchange"],
-                    "biomass": ["mass"],
+                    "biomass": [f"{model_key} mass"],
                 },
             ),
         }
