@@ -15,7 +15,7 @@ This module defines those types in one place and exposes a single entry point:
 
 from bigraph_schema import default
 
-from spatio_flux.types import CountConcentrationVolume, positive_types
+from spatio_flux.types import ConcentrationCountVolume, positive_types
 
 
 # -----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ SPATIO_FLUX_TYPES = {
     "complex_particle": COMPLEX_PARTICLE_TYPE,
     "bounds": BOUNDS_TYPE,
     "fields": FIELDS_TYPE,
-    "count_concentration_volume": CountConcentrationVolume,
+    "conc_count": ConcentrationCountVolume,
 }
 
 TYPES_DICT = {

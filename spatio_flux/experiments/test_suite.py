@@ -105,9 +105,9 @@ def get_kinetics_single_doc(
             },
         },
         'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            'monod_biomass': 0.1
+            'glucose': {'concentration': 10},
+            'acetate': {'concentration': 0},
+            'monod_biomass': {'concentration': 0.1}
         }
     }
     return doc

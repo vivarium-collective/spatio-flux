@@ -6,7 +6,7 @@ Custom numeric types used by spatio_flux on top of bigraph-schema.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, replace, is_dataclass, field
 
 import numpy as np
 
@@ -30,13 +30,20 @@ class PositiveFloat(Float):
 
 @dataclass(kw_only=True)
 class Concentration(PositiveFloat):
-    """Non-negative accumulator representing an environmental concentration."""
+    """Non-negative accumulator representing a concentration."""
+    _default: float = field(default=1.0)
 
 
 @dataclass(kw_only=True)
 class Count(PositiveFloat):
-    """Non-negative accumulator representing a count (e.g. molecule count)."""
+    """Non-negative accumulator representing a count."""
+    _default: float = field(default=1.0)
 
+
+@dataclass(kw_only=True)
+class Volume(PositiveFloat):
+    """Non-negative accumulator representing a volume."""
+    _default: float = field(default=1.0)
 
 @dataclass(kw_only=True)
 class PositiveArray(Array):

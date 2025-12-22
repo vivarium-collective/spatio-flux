@@ -1,35 +1,21 @@
+"""
+
+TODO -- this needs to be called before running processes so that the new count/conc/volume type is known
+"""
 from dataclasses import dataclass, is_dataclass, field
 from bigraph_schema.schema import Node, Integer, Float
 from bigraph_schema.methods import apply
+from spatio_flux.types.positive import Count, Concentration, Volume
 
 
 @dataclass(kw_only=True)
-class CountConcentrationVolume(Node):
-    count: Float = field(default_factory=Float)
-    concentration: Float = field(default_factory=Float)
-    volume: Float = field(default_factory=Float)
+class ConcentrationCountVolume(Node):
+    concentration: Concentration = field(default_factory=Concentration)
+    count: Count = field(default_factory=Count)
+    volume: Volume = field(default_factory=Volume)
 
 
-def apply_count_concentration_volume(schema, current, update, path):
-    """
-    Type: {
-        'volume': float,          # container size
-        'count': float,          # total amount
-        'concentration': float,   # count / volume
-    }
-
-    Semantics:
-      - Updates are treated as *deltas*:
-          update = {
-              'volume': ΔV (optional),
-              'count': ΔN (optional),
-              'concentration': ΔC (optional),
-          }
-      - Count are the canonical amount.
-      - Concentration is derived: concentration = count / volume.
-      - If volume changes, we keep count (amount) fixed and recompute concentration.
-      - If concentration changes, we interpret ΔC as an additional amount: ΔN_conc = ΔC * V_new.
-    """
+def apply_concentration_count_volume(schema, current, update, path):
     if current is None:
         current = {'volume': 0.0, 'count': 0.0, 'concentration': 0.0}
 
@@ -69,13 +55,13 @@ def apply_count_concentration_volume(schema, current, update, path):
     concentration_new = count_new / V_new if V_new > 0 else 0.0
 
     return {
-        'volume': V_new,
-        'count': count_new,
         'concentration': concentration_new,
+        'count': count_new,
+        'volume': V_new,
     }
 
 
 @apply.dispatch
-def apply(schema: CountConcentrationVolume, current, update, path):
-    return apply_count_concentration_volume(schema, current, update, path), []
+def apply(schema: ConcentrationCountVolume, current, update, path):
+    return apply_concentration_count_volume(schema, current, update, path), []
 

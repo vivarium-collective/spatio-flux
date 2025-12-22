@@ -18,7 +18,7 @@ from spatio_flux.plots.colors import build_plot_settings
 SPATIO_FLUX_TYPE_EXAMPLES = {
     "fields": {
         "substrate_id": {
-            # "_type": "count_concentration_volume",
+            # "_type": "conc_count",
             "volume": 1,
             "count": 1,
             "concentration": 1,

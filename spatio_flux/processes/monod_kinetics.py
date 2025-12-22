@@ -313,14 +313,14 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'biomass': 'concentration',
-            'substrates': 'map[concentration]',
+            'biomass': 'conc_count',
+            'substrates': 'map[conc_count]',
         }
 
     def outputs(self):
         return {
-            'biomass': 'concentration',
-            'substrates': 'map[concentration]',
+            'biomass': 'conc_count',
+            'substrates': 'map[conc_count]',
         }
 
     @staticmethod
@@ -332,8 +332,9 @@ class MonodKinetics(Process):
         return (vmax * conc / denom) if denom > 0.0 else 0.0
 
     def update(self, state, interval):
-        substrates = state.get('substrates', {}) or {}
-        biomass = float(state.get('biomass', 0.0))
+        substrates_dict = state.get('substrates', {}) or {}
+        substrates = {sid: float(s.get('concentration', 0.0)) for sid, s in substrates_dict.items()}
+        biomass = float(state.get('biomass', {}).get('concentration', 0.0))
         dt = float(interval)
 
         delta_biomass = 0.0
@@ -380,6 +381,49 @@ class MonodKinetics(Process):
                 delta_substrates[product] = delta_substrates.get(product, 0.0) + prod_flux
 
         return {
-            'biomass': delta_biomass,
-            'substrates': delta_substrates,
+            'biomass': {'count': delta_biomass},
+            'substrates': {sid: {'count': v} for sid, v in delta_substrates.items()},
         }
+
+
+def get_kinetics_single_doc(
+        core=None,
+        config=None,
+):
+    config = config or {}
+    model_id = config.get('model_id', 'overflow_metabolism')
+    model_config = MODEL_REGISTRY_KINETICS[model_id]()
+    doc = {
+        'monod_kinetics': {
+            '_type': 'process',
+            'address': 'local:MonodKinetics',
+            'config': model_config,
+            'inputs': {
+                'substrates': {
+                    'glucose': ['fields', 'glucose'],
+                    'acetate': ['fields', 'acetate'],
+                },
+                'biomass': ['fields', 'monod_biomass'],
+            },
+            'outputs': {
+                'substrates': {
+                    'glucose': ['fields', 'glucose'],
+                    'acetate': ['fields', 'acetate'],
+                },
+                'biomass': ['fields', 'monod_biomass'],
+            },
+        },
+        'fields': {
+            'glucose': {'concentration': 10},
+            'acetate': {'concentration': 0},
+            'monod_biomass': {'concentration': 0.1}
+        }
+    }
+    return {'state': doc}
+
+if __name__ == '__main__':
+    from process_bigraph import allocate_core, Composite
+    core = allocate_core()
+    doc = get_kinetics_single_doc()
+    sim = Composite(doc, core=core)
+    sim.run(interval=10)
