@@ -39,7 +39,7 @@ from spatio_flux.experiments.overview_fig import assemble_process_figures
 # Config
 # -------------------------
 OUT_DIR = Path("out")
-OUT_FIGURE = OUT_DIR / "multicomponent_with_process_overview.png"
+OUT_FIGURE = OUT_DIR / "multicomponent_spatioflux.png"
 
 PROCESS_OVERVIEW_PNG = OUT_DIR / "process_overview.png"
 
