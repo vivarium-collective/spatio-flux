@@ -23,7 +23,7 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-from spatio_flux.experiments.test_suite import (  # type: ignore
+from spatio_flux.experiments.test_suite import (
     SIMULATIONS,
     DEFAULT_RUNTIME_LONG,
     allocate_core,
@@ -31,8 +31,8 @@ from spatio_flux.experiments.test_suite import (  # type: ignore
     run_composite_document,
 )
 
-# Optional: generate the process overview panel
-from spatio_flux.experiments.overview_fig import assemble_process_figures  # type: ignore
+# generate the process overview panel
+from spatio_flux.experiments.overview_fig import assemble_process_figures
 
 
 # -------------------------
@@ -48,7 +48,7 @@ TESTS_TO_RUN = [
     "ecoli_core_dfba",
     "community_dfba",
     "comets",
-    "kinetic_brownian_particles",
+    "comets_br_particles_dfba",
 ]
 
 RESULT_PNG_BY_TEST = {
@@ -56,7 +56,7 @@ RESULT_PNG_BY_TEST = {
     "ecoli_core_dfba": None,
     "community_dfba": None,
     "comets": None,
-    "kinetic_brownian_particles": None,
+    "comets_br_particles_dfba": None,
 }
 
 RESULT_PNG_SUFFIX_PREFERENCE = [
@@ -84,13 +84,13 @@ LAYOUT_ROWS = [
     # Row 3: comets composite
     [
         ("e", "viz",    "comets", 0, 2),
-        ("f", "result", "comets", 2, 4),
+        ("f", "result", "comets", 3, 3),
     ],
 
     # Row 4: particles composite
     [
-        ("g", "viz",    "kinetic_brownian_particles", 0, 3),
-        ("h", "result", "kinetic_brownian_particles", 3, 3),
+        ("g", "viz",    "comets_br_particles_dfba", 0, 3),
+        ("h", "result", "comets_br_particles_dfba", 3, 3),
     ],
 ]
 
@@ -130,9 +130,6 @@ def _panel_png_path(kind: str, test_name: str) -> Optional[str]:
     if kind == "process_overview":
         p = PROCESS_OVERVIEW_PNG
         return p if os.path.exists(p) else None
-
-    raise ValueError(f"Unknown panel kind: {kind}")
-
 
     raise ValueError(f"Unknown panel kind: {kind}")
 
@@ -290,5 +287,5 @@ def assemble_multicomponent_figure(layout_rows) -> None:
 
 if __name__ == "__main__":
     run_tests()
-    ensure_process_overview()
+    # ensure_process_overview()
     assemble_multicomponent_figure(LAYOUT_ROWS)
