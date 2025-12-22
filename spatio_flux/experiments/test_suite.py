@@ -26,7 +26,7 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 )
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
-from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS
+from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_monod_kinetics_process_from_config
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
@@ -76,7 +76,7 @@ STANDARD_FIELD_COLORS = {
 # Doc builders
 # ====================================================================
 
-# --- DFBA Single ---------------------------------------------------
+# --- Kinetics Single ---------------------------------------------------
 
 def get_kinetics_single_doc(
         core=None,
@@ -85,29 +85,11 @@ def get_kinetics_single_doc(
     model_id = config.get('model_id', 'overflow_metabolism')
     model_config = MODEL_REGISTRY_KINETICS[model_id]()
     doc = {
-        'monod_kinetics': {
-            '_type': 'process',
-            'address': 'local:MonodKinetics',
-            'config': model_config,
-            'inputs': {
-                'substrates': {
-                    'glucose': ['fields', 'glucose'],
-                    'acetate': ['fields', 'acetate'],
-                },
-                'biomass': ['fields', 'monod_biomass'],
-            },
-            'outputs': {
-                'substrates': {
-                    'glucose': ['fields', 'glucose'],
-                    'acetate': ['fields', 'acetate'],
-                },
-                'biomass': ['fields', 'monod_biomass'],
-            },
-        },
+        'monod_kinetics': get_monod_kinetics_process_from_config(model_config=model_config),
         'fields': {
             'glucose': 10,
             'acetate': 0,
-            'monod_biomass': 0.1
+            'biomass': 0.1
         }
     }
     return doc
@@ -116,11 +98,11 @@ def plot_kinetics_single(results, state, config=None, filename='kinetics_single_
     config = config or {}
     field_names = list(state['fields'].keys())
     filename = config.get('filename', 'kinetics_single_timeseries')
-    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title='Monod kinetics single',
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title='Monod kinetics',
                      figsize=(4.5, 3.5),
                      time_units="min",
                      y_label_base="Concentration / Biomass",
-                     field_units={"glucose": "mM", "acetate": "mM", "monod_biomass": "gDW"},
+                     field_units={"glucose": "mM", "acetate": "mM", "biomass": "gDW"},
                      field_colors=STANDARD_FIELD_COLORS,
                      legend_kwargs={"fontsize": 8, "loc": "best"},
                      )
@@ -133,7 +115,7 @@ def get_dfba_single_doc(
         config=None,
 ):
     model_id = config.get('model_id', 'ecoli core')
-    biomass_id = config.get('biomass_id', f'{model_id}_biomass')
+    biomass_id = 'biomass'
     dfba_process = get_dfba_process_from_registry(
         model_id=model_id,
         biomass_id=biomass_id,
@@ -156,11 +138,11 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
     config = config or {}
     field_names = list(state['fields'].keys())
     filename = config.get('filename', 'dfba_single_timeseries')
-    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title='dFBA single',
+    plot_time_series(results, field_names=field_names, out_dir='out', filename=f'{filename}.png', title=f'dFBA',
                      figsize=(4.5, 3.5),
                      time_units="min",
                      y_label_base="Concentration / Biomass",
-                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     field_units={"glucose": "mM", "acetate": "mM", "biomass": "gDW"},
                      field_colors=STANDARD_FIELD_COLORS,
                      legend_kwargs={"fontsize": 8, "loc": "best"},
                      )
@@ -168,7 +150,8 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
 # --- Multiple DFBAs ---------------------------------------------------
 
 def get_community_dfba(core=None, config=None):
-    mol_ids = ['glucose', 'acetate']
+
+    # set up the dfba processes
     model_ids = list(MODEL_REGISTRY_DFBA.keys())
     dfbas = {}
     for model_id, spec in MODEL_REGISTRY_DFBA.items():
@@ -181,10 +164,20 @@ def get_community_dfba(core=None, config=None):
         dfbas[process_id] = dfba_process
 
     initial_biomass = {organism: 0.1 for organism in model_ids}
+
+    # set up the kinetic process
+    kinetic_model_id = 'acetate_only'  #'overflow_metabolism'
+    kinetic_biomass_id = 'monod biomass'
+    kinetic_model_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
+    initial_biomass[kinetic_biomass_id] = 0.1
+
+    # fields
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     more_fields = {mol_id: 0.1 for mol_id in field_names if mol_id not in ['glucose', 'acetate']}
+
     doc = {
         **dfbas,
+        'monod_kinetics': get_monod_kinetics_process_from_config(model_config=kinetic_model_config, biomass_id=kinetic_biomass_id),
         'fields': {
             'glucose': 10,
             'acetate': 0,
@@ -197,21 +190,19 @@ def get_community_dfba(core=None, config=None):
 def plot_community_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_multi_timeseries.png')
-    model_ids = list(MODEL_REGISTRY_DFBA.keys())
-    field_names = get_field_names(MODEL_REGISTRY_DFBA)
-    species_ids = model_ids + field_names
-    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename, title='community dFBA',
+    species_ids = [state[s]['inputs']['biomass'][-1] for s in state.keys() if s not in ['fields', 'emitter', 'global_time']]
+    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename,
+                     title='hybrid community',
                      figsize=(4.5, 3.5),
                      time_units="min",
                      y_label_base="Concentration / Biomass",
-                     field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
+                     # field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"},
                      field_colors=STANDARD_FIELD_COLORS,
                      legend_kwargs={"fontsize": 8, "loc": "best"},
                      )
 
 
 # --- DFBA-Monod Community ------------------------------------------------
-
 def get_dfba_kinetics_community_doc(core=None, config=None):
     dfba_model_id = 'ecoli core'
     kinetic_model_id = 'acetate_only'  #'overflow_metabolism'
@@ -221,25 +212,7 @@ def get_dfba_kinetics_community_doc(core=None, config=None):
     kinetic_model_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
     doc = {
         'dFBA': get_dfba_process_from_registry(model_id=dfba_model_id, biomass_id=dfba_biomass_id, path=['fields']),
-        'monod_kinetics': {
-            '_type': 'process',
-            'address': 'local:MonodKinetics',
-            'config': kinetic_model_config,
-            'inputs': {
-                'substrates': {
-                    'glucose': ['fields', 'glucose'],
-                    'acetate': ['fields', 'acetate'],
-                },
-                'biomass': ['fields', kinetic_biomass_id],
-            },
-            'outputs': {
-                'substrates': {
-                    'glucose': ['fields', 'glucose'],
-                    'acetate': ['fields', 'acetate'],
-                },
-                'biomass': ['fields', kinetic_biomass_id],
-            },
-        },
+        'monod_kinetics': get_monod_kinetics_process_from_config(model_config=kinetic_model_config, biomass_id=kinetic_biomass_id),
         'fields': {
             'glucose': 10,
             'acetate': 0,
@@ -253,7 +226,10 @@ def plot_dfba_kinetics_community(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_kinetics_community')
     species_ids = ['glucose', 'acetate', 'dfba_biomass', 'kinetic_biomass']
-    plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename,
+    plot_time_series(results, field_names=species_ids,
+                     # log_scale=True,
+                     # normalize=True,
+                     out_dir='out', filename=filename,
                      figsize=(4.5, 3.5),
                      time_units="min",
                      y_label_base="Concentration / Biomass",
@@ -414,16 +390,10 @@ def get_comets_doc(core=None, config=None):
         'acetate': acetate_field,
     }
 
-    config = {
-        'mol_ids': mol_ids,
-        'n_bins': n_bins,
-        'models': MODEL_REGISTRY_DFBA,
-        # 'model_grid':  # this will be added by get_spatial_dFBA_process
-    }
+    spatial_dfba = get_spatial_many_dfba(model_id=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins, path=['fields'])
     doc = {
+        **spatial_dfba,
         'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        # 'spatial_dFBA': get_spatial_dFBA_process(config=config, model_id=dissolved_model_id),
-        'spatial_dFBA': get_spatial_many_dfba(model_id=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins),
         'diffusion': get_diffusion_advection_process(
             bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
     }
@@ -475,7 +445,8 @@ def plot_particles_sim(results, state, config=None):
     plot_particles(history=history, env_size=((0, bounds[0]), (0, bounds[1])), out_dir='out', filename=f'{filename}_video.gif')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png', suptitle='Fields snapshots')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=4, bounds=bounds,
+                        out_dir='out', filename=f'{filename}_snapshots.png')
 
 
 # --- Particles with Monod Kinetics -----------------------------------------------------------
@@ -799,7 +770,7 @@ def get_mega_composite_doc(core=None, config=None):
 
     # Processes
     diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids)
-    spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", n_bins=n_bins, mol_ids=mol_ids)
+    spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
@@ -842,9 +813,9 @@ def get_mega_composite_doc(core=None, config=None):
 
     return {
         "state": {
+            **spatial_kinetics,  # put them at the top level
             "fields": fields,
             "diffusion": diffusion,
-            "spatial_kinetics": spatial_kinetics,
             "particles": particles,
             "newtonian_particles": newtonian_particles,
             "particle_exchange": particle_exchange,
@@ -874,7 +845,7 @@ SIMULATIONS = {
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'ecoli core', 'biomass_id': 'dfba_biomass', 'initial_fields': {'glucose': 10, 'acetate': 0}},
+        'config': {'model_id': 'ecoli core', 'initial_fields': {'glucose': 10, 'acetate': 0}},
         'plot_config': {'filename': 'ecoli_core_dfba'}
     },
     'ecoli_dfba': {

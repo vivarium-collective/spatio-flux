@@ -48,7 +48,7 @@ TESTS_TO_RUN = [
     "ecoli_core_dfba",
     "community_dfba",
     "comets",
-    "dfba_brownian_particles",
+    "kinetic_brownian_particles",
 ]
 
 RESULT_PNG_BY_TEST = {
@@ -56,7 +56,7 @@ RESULT_PNG_BY_TEST = {
     "ecoli_core_dfba": None,
     "community_dfba": None,
     "comets": None,
-    "dfba_brownian_particles": None,
+    "kinetic_brownian_particles": None,
 }
 
 RESULT_PNG_SUFFIX_PREFERENCE = [
@@ -69,33 +69,28 @@ RESULT_PNG_SUFFIX_PREFERENCE = [
 N_COLS = 6  # unchanged
 
 LAYOUT_ROWS = [
-    # Row 1: a. process overview across full width
+    # Row 1: b. community dFBA bigraph across full width
     [
-        ("a", "process_overview", "process_overview", 0, 6),
+        ("a", "viz", "community_dfba", 0, 6),
     ],
 
-    # Row 2: b. community dFBA bigraph across full width
+    # Row 2: c/d/e three outputs
     [
-        ("b", "viz", "community_dfba", 0, 6),
+        ("b", "result", "monod_kinetics",  0, 2),
+        ("c", "result", "ecoli_core_dfba", 2, 2),
+        ("d", "result", "community_dfba",  4, 2),
     ],
 
-    # Row 3: c/d/e three outputs
+    # Row 3: comets composite
     [
-        ("c", "result", "monod_kinetics",  0, 2),
-        ("d", "result", "ecoli_core_dfba", 2, 2),
-        ("e", "result", "community_dfba",  4, 2),
+        ("e", "viz",    "comets", 0, 2),
+        ("f", "result", "comets", 2, 4),
     ],
 
-    # Row 4: comets composite
+    # Row 4: particles composite
     [
-        ("f", "viz",    "comets", 0, 2),
-        ("g", "result", "comets", 2, 4),
-    ],
-
-    # Row 5: particles composite
-    [
-        ("h", "viz",    "dfba_brownian_particles", 0, 3),
-        ("i", "result", "dfba_brownian_particles", 3, 3),
+        ("g", "viz",    "kinetic_brownian_particles", 0, 3),
+        ("h", "result", "kinetic_brownian_particles", 3, 3),
     ],
 ]
 
