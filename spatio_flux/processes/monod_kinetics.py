@@ -483,3 +483,5 @@ if __name__ == '__main__':
     doc = get_kinetics_single_doc()
     sim = Composite(doc, core=core)
     sim.run(interval=10)
+
+    import ipdb; ipdb.set_trace()

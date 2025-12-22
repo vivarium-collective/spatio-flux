@@ -85,4 +85,4 @@ def deserialize(core, schema: ConcentrationCountVolume, encode, path=()):
         final['concentration'] = 0.0
         final['count'] = 0.0
 
-    return final
+    return schema, final, []
