@@ -2,11 +2,18 @@
 
 TODO -- this needs to be called before running processes so that the new count/conc/volume type is known
 """
+import numpy as np
 from dataclasses import dataclass, is_dataclass, field
-from bigraph_schema.schema import Node, Integer, Float
+from bigraph_schema.schema import Node, Integer, Float, Map, Array
 from bigraph_schema.methods import apply, deserialize
 from spatio_flux.types.positive import Count, Concentration, Volume
 
+
+@dataclass(kw_only=True)
+class ConcentrationCount(Node):
+    concentration: Concentration = field(default_factory=Concentration)
+    count: Count = field(default_factory=Count)
+    
 
 @dataclass(kw_only=True)
 class ConcentrationCountVolume(Node):
@@ -15,8 +22,28 @@ class ConcentrationCountVolume(Node):
     volume: Volume = field(default_factory=Volume)
 
 
+@dataclass(kw_only=True)
+class SubstratesVolume(Node):
+    substrates: Map = field(default_factory=lambda: Map(_value=ConcentrationCount()))
+    volume: Volume = field(default_factory=Volume)
+
+
+@dataclass(kw_only=True)
+class ConcentrationsCountsField(Node):
+    concentrations: Array = field(default_factory=lambda: Array(_data=np.dtype('float')))
+    counts: Array = field(default_factory=lambda: Array(_data=np.dtype('float')))
+    
+
+@dataclass(kw_only=True)
+class SubstratesFields(Node):
+    substrates: Map = field(default_factory=lambda: Map(_value=ConcentrationsCountsField()))
+    volume: Volume = field(default_factory=Volume)
+    
+
 def apply_concentration_count_volume(schema, current, update, path):
     # TODO -- this needs to be initialized properly so that if conc is given, count and volume are set accordingly
+    import ipdb; ipdb.set_trace()
+
     if current is None:
         current = {'volume': 0.0, 'count': 0.0, 'concentration': 0.0}
 
@@ -69,6 +96,8 @@ def apply(schema: ConcentrationCountVolume, current, update, path):
 
 @deserialize.dispatch
 def deserialize(core, schema: ConcentrationCountVolume, encode, path=()):
+    import ipdb; ipdb.set_trace()
+
     final = {}
     if 'volume' not in encode:
         final['volume'] = 1.0

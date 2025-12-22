@@ -369,14 +369,14 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'biomass': 'conc_count',
-            'substrates': 'map[conc_count]',
+            'biomass': 'concentration',
+            'substrates': 'map[concentration]',
         }
 
     def outputs(self):
         return {
-            'biomass': 'conc_count',
-            'substrates': 'map[conc_count]',
+            'biomass': 'count',
+            'substrates': 'map[count]',
         }
 
     @staticmethod
@@ -388,9 +388,11 @@ class MonodKinetics(Process):
         return (vmax * conc / denom) if denom > 0.0 else 0.0
 
     def update(self, state, interval):
-        substrates_dict = state.get('substrates', {}) or {}
-        substrates = {sid: float(s.get('concentration', 0.0)) for sid, s in substrates_dict.items()}
-        biomass = float(state.get('biomass', {}).get('concentration', 0.0))
+        substrates = state.get('substrates', {})
+        biomass = float(state.get('biomass', 0.0))
+        # substrates_dict = state.get('substrates', {}) or {}
+        # substrates = {sid: float(s.get('concentration', 0.0)) for sid, s in substrates_dict.items()}
+        # biomass = float(state.get('biomass', {}).get('concentration', 0.0))
         dt = float(interval)
 
         delta_biomass = 0.0
@@ -437,9 +439,13 @@ class MonodKinetics(Process):
                 delta_substrates[product] = delta_substrates.get(product, 0.0) + prod_flux
 
         return {
-            'biomass': {'count': delta_biomass},
-            'substrates': {sid: {'count': v} for sid, v in delta_substrates.items()},
+            'biomass': delta_biomass,
+            'substrates': delta_substrates,
         }
+        # return {
+        #     'biomass': {'count': delta_biomass},
+        #     'substrates': {sid: {'count': v} for sid, v in delta_substrates.items()},
+        # }
 
 
 def get_kinetics_single_doc(
@@ -456,20 +462,21 @@ def get_kinetics_single_doc(
             'config': model_config,
             'inputs': {
                 'substrates': {
-                    'glucose': ['fields', 'glucose'],
-                    'acetate': ['fields', 'acetate'],
+                    'glucose': ['fields', 'glucose', 'concentration'],
+                    'acetate': ['fields', 'acetate', 'concentration'],
                 },
-                'biomass': ['fields', 'monod_biomass'],
+                'biomass': ['fields', 'monod_biomass', 'concentration'],
             },
             'outputs': {
                 'substrates': {
-                    'glucose': ['fields', 'glucose'],
-                    'acetate': ['fields', 'acetate'],
+                    'glucose': ['fields', 'glucose', 'count'],
+                    'acetate': ['fields', 'acetate', 'count'],
                 },
-                'biomass': ['fields', 'monod_biomass'],
+                'biomass': ['fields', 'monod_biomass', 'count'],
             },
         },
         'fields': {
+            '_type': 'map[conc_count]',
             'glucose': {'concentration': 10},
             'acetate': {'concentration': 0},
             'monod_biomass': {'concentration': 0.1}
