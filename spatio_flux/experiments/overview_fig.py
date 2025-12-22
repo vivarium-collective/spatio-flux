@@ -18,7 +18,7 @@ from spatio_flux.plots.colors import build_plot_settings
 SPATIO_FLUX_TYPE_EXAMPLES = {
     "fields": {
         "substrate_id": {
-            "_type": "count_concentration_volume",
+            # "_type": "count_concentration_volume",
             "volume": 1,
             "count": 1,
             "concentration": 1,
@@ -26,7 +26,7 @@ SPATIO_FLUX_TYPE_EXAMPLES = {
     },
     "particles": {
         "particle_id": {
-            "_type": "complex_particle",
+            # "_type": "complex_particle",
             "position": [1.0, 1.0],
             "mass": 2.0,
             "velocity": [0.5, -0.5],

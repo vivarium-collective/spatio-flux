@@ -59,6 +59,8 @@ DEFAULT_FIELD_SPECIES = [
     "dfba_biomass",
     "kinetic_biomass",
     "monod_biomass",
+    "ecoli_biomass",
+    "yeast_biomass",
 ]
 
 DEFAULT_FIELD_BIOMASS_SPECIES = [
@@ -115,19 +117,19 @@ def build_plot_settings(
         ("concentration",):             COLORS["fields"],
         ("substrate",):                 COLORS["fields"],
         ("diffusion",):                 COLORS["diffusion"],
-        ("DiffusionAdvection",):                 COLORS["diffusion"],
+        ("DiffusionAdvection",):        COLORS["diffusion"],
 
         # dFBA / kinetics family
         ("spatial_dFBA",):              COLORS["dfba_state"],
-        ("SpatialDFBA",):              COLORS["dfba_state"],
+        ("SpatialDFBA",):               COLORS["dfba_state"],
         ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_process"],
         ("dFBA",):                      COLORS["dfba_process"],
-        ("DynamicFBA",):                      COLORS["dfba_process"],
+        ("DynamicFBA",):                COLORS["dfba_process"],
 
         ("spatial_kinetics",):          COLORS["dfba_state"],
         ("spatial_kinetics", "monod_kinetics[0,0]"): COLORS["dfba_process"],
         ("monod_kinetics",):            COLORS["dfba_process"],
-        ("MonodKinetics",):            COLORS["dfba_process"],
+        ("MonodKinetics",):             COLORS["dfba_process"],
     }
 
     # --- auto-generate field species ---
@@ -142,14 +144,14 @@ def build_plot_settings(
     for s in conc_type_species or []:
         fills[("fields", s,)] =                   COLORS["fields"]
         fills[("fields", s, "concentration",)] =  COLORS["fields"]
-        fills[("fields", s, "counts",)] =         COLORS["fields"]
+        fills[("fields", s, "count",)] =          COLORS["fields"]
         fills[("fields", s, "volume",)] =         COLORS["fields"]
 
     # --- explicitly named biomass fields ---
     for s in field_biomass_species:
-        fills[("fields", s)] =          COLORS["fields"]
+        fills[("fields", s)] =              COLORS["fields"]
         fills[("fields", f'{s} biomass')] = COLORS["fields"]
-        fills[(f'{s} dFBA',)] =         COLORS["dfba_process"]
+        fills[(f'{s} dFBA',)] =             COLORS["dfba_process"]
 
     # ---- particle-specific stuff unchanged, example: ----
     for pid in particle_ids:

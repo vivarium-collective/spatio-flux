@@ -763,12 +763,9 @@ def plot_newtonian_particle_comets(results, state, config=None):
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=6, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
     fields_and_agents_to_gif(data=results, config=pymunk_config, agents_key='particles', fields_key='fields',
-        filename=f'{filename}_video.gif', out_dir='out',
-        # skip_frames=1,
-        title='Fields + particles',
-        figure_size_inches=(10, 6),
-    )
+        filename=f'{filename}_video.gif', out_dir='out', figure_size_inches=(10, 6))
 
 
 # --- mega-composite simulation ---------------------------------------------------
@@ -780,15 +777,12 @@ def get_mega_composite_doc(core=None, config=None):
     division_mass_threshold = 0.4
     add_rate = 0.01
 
-    particle_model_id = user_cfg.get("particle_model_id", "ecoli core")
-
     # Spatial fields
     mol_ids = ["glucose", "acetate", "dissolved biomass"]
     initial_min_max = {"glucose": (0.1, 2.0), "acetate": (0.0, 0.0), "dissolved biomass": (0.0, 0.1)}
 
     bounds = user_cfg.get("bounds", tuple(x * 10 for x in DEFAULT_BOUNDS))
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
-    advection_coeffs = {"dissolved biomass": DEFAULT_ADVECTION}
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
@@ -804,25 +798,13 @@ def get_mega_composite_doc(core=None, config=None):
     boundary_cfg = {"add_rate": add_rate}
 
     # Processes
-    diffusion = get_diffusion_advection_process(
-        bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs
-    )
-
-    spatial_kinetics = get_spatial_many_kinetics(
-        model_id="single_substrate_assimilation", n_bins=n_bins, mol_ids=mol_ids
-    )
-
+    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids)
+    spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", n_bins=n_bins, mol_ids=mol_ids)
     particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
-
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
-
-    enforce_boundaries = get_boundaries_process(
-        particle_process_name="newtonian_particles",
-        bounds=bounds,
-        add_rate=boundary_cfg["add_rate"],
-    )
+    enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
     # composition
     models = {

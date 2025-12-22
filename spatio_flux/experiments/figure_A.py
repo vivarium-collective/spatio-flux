@@ -1,24 +1,24 @@
 """
-Run selected test_suite tests and assemble a multi-component figure with a custom layout.
+Run selected test_suite tests and assemble a multi-component figure with a custom layout,
+with an extra TOP ROW:
 
-Layout:
-Row 1: (a) monod_kinetics bigraph | (b) monod_kinetics output | (c) ecoli_core_dfba output
-Row 2: (d) community_dfba bigraph | (e) community_dfba output
-Row 3: (f) comets bigraph         | (g) comets output
-Row 4: (h) dfba_brownian_particles bigraph | (i) dfba_brownian_particles output
+Row 0: (a) process_overview.png (from overview_fig.assemble_process_figures)
+Row 1+: previous panels shift to (b), (c), ...
 
 Notes:
-- No per-panel titles like "X -- bigraph" / "X -- results"
+- No per-panel titles
 - No overall suptitle
-- Panels are lettered (a.), (b.), ... in the corner
-- Uses test_suite to run tests and uses the generated PNGs in out/
+- Panels are lettered (a.), (b.), ...
 """
 
 from __future__ import annotations
 
 import os
 import time
-from typing import Optional, List, Tuple
+import string
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -31,13 +31,18 @@ from spatio_flux.experiments.test_suite import (  # type: ignore
     run_composite_document,
 )
 
+# Optional: generate the process overview panel
+from spatio_flux.experiments.overview_fig import assemble_process_figures  # type: ignore
+
+
 # -------------------------
 # Config
 # -------------------------
-OUT_DIR = "out"
-OUT_FIGURE = os.path.join(OUT_DIR, "multicomponent.png")
+OUT_DIR = Path("out")
+OUT_FIGURE = OUT_DIR / "multicomponent_with_process_overview.png"
 
-# Tests we actually need to run to generate the required PNGs
+PROCESS_OVERVIEW_PNG = OUT_DIR / "process_overview.png"
+
 TESTS_TO_RUN = [
     "monod_kinetics",
     "ecoli_core_dfba",
@@ -46,8 +51,6 @@ TESTS_TO_RUN = [
     "dfba_brownian_particles",
 ]
 
-# Which output png to pick per test (explicit mapping gives you maximum control)
-# Set to None to auto-pick using RESULT_PNG_SUFFIX_PREFERENCE.
 RESULT_PNG_BY_TEST = {
     "monod_kinetics": None,
     "ecoli_core_dfba": None,
@@ -56,7 +59,6 @@ RESULT_PNG_BY_TEST = {
     "dfba_brownian_particles": None,
 }
 
-# Auto-pick order (if RESULT_PNG_BY_TEST[test] is None)
 RESULT_PNG_SUFFIX_PREFERENCE = [
     "_snapshots.png",
     "_timeseries.png",
@@ -64,33 +66,33 @@ RESULT_PNG_SUFFIX_PREFERENCE = [
     ".png",
 ]
 
-N_COLS = 6   # virtual columns
+N_COLS = 6  # unchanged
 
-# Custom layout specification:
-# Each entry: (panel_letter, kind, test_name)
-# kind in {"viz", "result"}
-# Each entry: (letter, kind, test, col_start, col_span)
 LAYOUT_ROWS = [
-    # Row 1: Monod + DFBA (normal)
+    # Row 1: a. process overview across full width
     [
-        ("a", "viz",    "monod_kinetics",    0, 2),
-        ("b", "result", "monod_kinetics",    2, 2),
-        ("c", "result", "ecoli_core_dfba",   4, 2),
+        ("a", "process_overview", "process_overview", 0, 6),
     ],
 
-    # Row 2: community_dfba (wide bigraph)
+    # Row 2: b. community dFBA bigraph across full width
     [
-        ("d", "viz",    "community_dfba",    0, 4),  # wider
-        ("e", "result", "community_dfba",    4, 2),
+        ("b", "viz", "community_dfba", 0, 6),
     ],
 
-    # Row 3: comets (normal)
+    # Row 3: c/d/e three outputs
     [
-        ("f", "viz",    "comets",             0, 2),
-        ("g", "result", "comets",             2, 4),
+        ("c", "result", "monod_kinetics",  0, 2),
+        ("d", "result", "ecoli_core_dfba", 2, 2),
+        ("e", "result", "community_dfba",  4, 2),
     ],
 
-    # Row 4: dfba brownian particles
+    # Row 4: comets composite
+    [
+        ("f", "viz",    "comets", 0, 2),
+        ("g", "result", "comets", 2, 4),
+    ],
+
+    # Row 5: particles composite
     [
         ("h", "viz",    "dfba_brownian_particles", 0, 3),
         ("i", "result", "dfba_brownian_particles", 3, 3),
@@ -98,67 +100,87 @@ LAYOUT_ROWS = [
 ]
 
 
-# Figure sizing control:
-# - panel_size controls each panel width/height in inches
-# - you can tweak wspace/hspace as needed
-PANEL_SIZE = (4.2, 3.2)  # (width, height) per panel
+PANEL_SIZE = (4.2, 3.2)  # inches, used for sizing
 WSPACE = 0.04
 HSPACE = 0.10
 DPI = 300
 
-# Panel letter label styling
-LABEL_KWARGS = dict(
-    fontsize=14,
-    fontweight="bold",
-    ha="left",
-    va="top",
-    color="black",
+LABEL_BBOX = dict(
+    boxstyle="round,pad=0.15",
+    facecolor="white",
+    edgecolor="none",
+    alpha=0.9,
 )
-LABEL_PAD = (0.02, 0.98)  # (x,y) in axes fraction
 
 
 # -------------------------
-# Helpers
+# Helpers: PNG resolution
 # -------------------------
-def _load_img(path: str):
-    return mpimg.imread(path)
+def _load_img(path: Path):
+    return mpimg.imread(str(path))
 
 
-def _pick_result_png(test_name: str) -> Optional[str]:
-    # explicit override path?
-    explicit = RESULT_PNG_BY_TEST.get(test_name)
-    if explicit:
-        return explicit if os.path.exists(explicit) else None
-
-    sim_info = SIMULATIONS[test_name]
-    base = (sim_info.get("plot_config", {}) or {}).get("filename", test_name)
-
-    for suffix in RESULT_PNG_SUFFIX_PREFERENCE:
-        candidate = os.path.join(OUT_DIR, f"{base}{suffix}")
-        if os.path.exists(candidate):
-            return candidate
-
-    return None
-
-
-def _viz_png_path(test_name: str) -> str:
-    return os.path.join(OUT_DIR, f"{test_name}_viz.png")
+def _viz_png_path(test_name: str) -> Path:
+    return OUT_DIR / f"{test_name}_viz.png"
 
 
 def _panel_png_path(kind: str, test_name: str) -> Optional[str]:
     if kind == "viz":
         p = _viz_png_path(test_name)
         return p if os.path.exists(p) else None
+
     if kind == "result":
         return _pick_result_png(test_name)
+
+    if kind == "process_overview":
+        p = PROCESS_OVERVIEW_PNG
+        return p if os.path.exists(p) else None
+
+    raise ValueError(f"Unknown panel kind: {kind}")
+
+
+    raise ValueError(f"Unknown panel kind: {kind}")
+
+
+def _pick_result_png(test_name: str) -> Optional[Path]:
+    explicit = RESULT_PNG_BY_TEST.get(test_name)
+    if explicit:
+        p = Path(explicit)
+        return p if p.exists() else None
+
+    sim_info = SIMULATIONS[test_name]
+    base = (sim_info.get("plot_config", {}) or {}).get("filename", test_name)
+
+    for suffix in RESULT_PNG_SUFFIX_PREFERENCE:
+        candidate = OUT_DIR / f"{base}{suffix}"
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _static_png_path(name: str) -> Optional[Path]:
+    if name == "process_overview":
+        return PROCESS_OVERVIEW_PNG if PROCESS_OVERVIEW_PNG.exists() else None
+    # extend here if you add more static panels
+    return None
+
+
+def resolve_panel_png(kind: str, name: str) -> Optional[Path]:
+    if kind == "viz":
+        p = _viz_png_path(name)
+        return p if p.exists() else None
+    if kind == "result":
+        return _pick_result_png(name)
+    if kind == "static":
+        return _static_png_path(name)
     raise ValueError(f"Unknown kind: {kind}")
 
 
 # -------------------------
-# Main pipeline
+# Pipeline: run tests
 # -------------------------
 def run_tests() -> None:
-    prepare_output_dir(OUT_DIR)
+    prepare_output_dir(str(OUT_DIR))
     core = allocate_core()
 
     for name in TESTS_TO_RUN:
@@ -174,7 +196,9 @@ def run_tests() -> None:
 
         runtime = sim_info.get("time", DEFAULT_RUNTIME_LONG)
         t0 = time.time()
-        results = run_composite_document(doc, core=core, name=name, time=runtime, outdir=OUT_DIR)
+        results = run_composite_document(
+            doc, core=core, name=name, time=runtime, outdir=str(OUT_DIR)
+        )
         dt = time.time() - t0
         print(f"✅ Completed sim: {name} in {dt:.2f}s")
 
@@ -183,12 +207,26 @@ def run_tests() -> None:
         print("✅ Plots done.")
 
 
+def ensure_process_overview(core=None) -> None:
+    """
+    Generate process_overview.png if missing.
+    Keeps this script robust even if the overview hasn't been generated yet.
+    """
+    if PROCESS_OVERVIEW_PNG.exists():
+        return
+    core = core or allocate_core()
+    print("\n🧩 Generating process overview panel...")
+    assemble_process_figures(core, outdir=OUT_DIR, n_rows=2, save_name=PROCESS_OVERVIEW_PNG.name)
 
-def assemble_multicomponent_figure() -> None:
-    n_rows = len(LAYOUT_ROWS)
+
+# -------------------------
+# Figure assembler
+# -------------------------
+def assemble_multicomponent_figure(layout_rows) -> None:
+    n_rows = len(layout_rows)
     n_cols = N_COLS
 
-    fig_w = PANEL_SIZE[0] * (n_cols / 2)   # scale width sensibly
+    fig_w = PANEL_SIZE[0] * (n_cols / 2)
     fig_h = PANEL_SIZE[1] * n_rows
     fig = plt.figure(figsize=(fig_w, fig_h), dpi=DPI)
 
@@ -201,13 +239,13 @@ def assemble_multicomponent_figure() -> None:
 
     axes_by_letter = {}
 
-    for r, row in enumerate(LAYOUT_ROWS):
-        # Turn entire row off first
+    for r, row in enumerate(layout_rows):
+        # turn entire row off
         for c in range(n_cols):
             ax = fig.add_subplot(gs[r, c])
             ax.axis("off")
 
-        # Populate requested panels
+        # populate requested panels
         for (letter, kind, test_name, c0, span) in row:
             ax = fig.add_subplot(gs[r, c0:c0 + span])
             ax.axis("off")
@@ -225,7 +263,7 @@ def assemble_multicomponent_figure() -> None:
 
             axes_by_letter[letter] = ax
 
-    # ---- Panel labels (figure coords, consistent)
+    # panel labels (same as you already have, using axes_by_letter)
     x_pad = 0.006
     y_pad = 0.010
     label_bbox = dict(
@@ -255,7 +293,7 @@ def assemble_multicomponent_figure() -> None:
     print(f"\n🖼️ Saved: {OUT_FIGURE}")
 
 
-
 if __name__ == "__main__":
     run_tests()
-    assemble_multicomponent_figure()
+    ensure_process_overview()
+    assemble_multicomponent_figure(LAYOUT_ROWS)
