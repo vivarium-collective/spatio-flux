@@ -4,7 +4,7 @@ TODO -- this needs to be called before running processes so that the new count/c
 """
 from dataclasses import dataclass, is_dataclass, field
 from bigraph_schema.schema import Node, Integer, Float
-from bigraph_schema.methods import apply
+from bigraph_schema.methods import apply, deserialize
 from spatio_flux.types.positive import Count, Concentration, Volume
 
 
@@ -66,3 +66,23 @@ def apply_concentration_count_volume(schema, current, update, path):
 def apply(schema: ConcentrationCountVolume, current, update, path):
     return apply_concentration_count_volume(schema, current, update, path), []
 
+
+@deserialize.dispatch
+def deserialize(core, schema: ConcentrationCountVolume, encode, path=()):
+    final = {}
+    if 'volume' not in encode:
+        final['volume'] = 1.0
+    else:
+        final['volume'] = encode['volume']
+
+    if 'concentration' in encode:
+        final['concentration'] = encode['concentration']
+        final['count'] = final['concentration'] * final['volume']
+    elif 'count' in encode:
+        final['count'] = encode['count']
+        final['concentration'] = final['count'] / final['volume']
+    else:
+        final['concentration'] = 0.0
+        final['count'] = 0.0
+
+    return final

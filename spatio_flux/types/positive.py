@@ -45,6 +45,7 @@ class Volume(PositiveFloat):
     """Non-negative accumulator representing a volume."""
     _default: float = field(default=1.0)
 
+
 @dataclass(kw_only=True)
 class PositiveArray(Array):
     """An array whose updates are accumulated and clamped elementwise to be non-negative."""
