@@ -2,21 +2,17 @@
 Figure B: run mega_composite and assemble a multicomponent figure.
 
 Layout:
-  Row 1–2: (a) mega_composite _viz.png (spans both rows, full width)
-  Row 3:   (b) _mass.png | (c) _timeseries.png
-  Row 4:   (d) _snapshots.png (full width)
-
-Notes:
-- Uses SIMULATIONS['mega_composite'] from spatio_flux.experiments.test_suite
-- Runs the sim + its plot_func to generate PNGs in out/
-- Assembles a single figure_B.png
+  Rows 0–1: (a) {TEST_NAME}_viz.png (full width; spans 2 rows)
+  Row 2:    (b) *_snapshots.png (full width)
+  Row 3:    (c) *_mass.png | (d) *_timeseries.png
 """
 
 from __future__ import annotations
 
 import time
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, List
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -37,6 +33,7 @@ OUT_DIR = Path("out")
 OUT_FIGURE = OUT_DIR / "mega-composite.png"
 
 DPI = 300
+FIGSIZE = (10, 12)
 WSPACE = 0.06
 HSPACE = 0.10
 
@@ -47,43 +44,14 @@ LABEL_BBOX = dict(
     alpha=0.9,
 )
 
-# -------------------------
-# Helpers
-# -------------------------
-def _load_img(path: Path):
-    return mpimg.imread(str(path))
-
-
-def _find_first_by_suffix(out_dir: Path, suffix: str) -> Optional[Path]:
-    """Return the first png matching *suffix, or None."""
-    matches = sorted(out_dir.glob(f"*{suffix}"))
-    return matches[0] if matches else None
-
-
-def _panel_png_path(out_dir: Path, test_name: str, kind: str) -> Optional[Path]:
-    """
-    Resolve panel file paths.
-
-    kind:
-      - "viz"         -> {test_name}_viz.png
-      - "mass"        -> first * _mass.png
-      - "timeseries"  -> first * _timeseries.png
-      - "snapshots"   -> first * _snapshots.png
-    """
-    if kind == "viz":
-        p = out_dir / f"{test_name}_viz.png"
-        return p if p.exists() else None
-    if kind == "mass":
-        return _find_first_by_suffix(out_dir, "_mass.png")
-    if kind == "timeseries":
-        return _find_first_by_suffix(out_dir, "_timeseries.png")
-    if kind == "snapshots":
-        return _find_first_by_suffix(out_dir, "_snapshots.png")
-    raise ValueError(f"Unknown kind: {kind}")
+# Grid configuration
+NROWS = 4
+NCOLS = 2
+ROW_HEIGHTS = [1.0, 1.0, 1.0, 1.0]  # tweak if you want
 
 
 # -------------------------
-# Main pipeline
+# Run simulation + generate panels
 # -------------------------
 def run_mega_composite_and_plots() -> None:
     prepare_output_dir(str(OUT_DIR))
@@ -115,82 +83,110 @@ def run_mega_composite_and_plots() -> None:
     print("✅ Plots done.")
 
 
-def assemble_figure_B(out_dir: Path, test_name: str, out_path: Path) -> None:
-    """
-    Assemble Figure B with the layout:
+# -------------------------
+# File resolution helpers
+# -------------------------
+def _load_img(path: Path):
+    return mpimg.imread(str(path))
 
-      Row 1–2: (a) viz (full width)
-      Row 3:   (b) mass | (c) timeseries
-      Row 4:   (d) snapshots (full width)
-    """
-    viz_png = _panel_png_path(out_dir, test_name, "viz")
-    mass_png = _panel_png_path(out_dir, test_name, "mass")
-    timeseries_png = _panel_png_path(out_dir, test_name, "timeseries")
-    snapshots_png = _panel_png_path(out_dir, test_name, "snapshots")
 
-    fig = plt.figure(figsize=(10, 12), dpi=DPI)
-    gs = fig.add_gridspec(
-        nrows=4,
-        ncols=2,
-        height_ratios=[1.2, 1.2, 1.0, 1.2],
-        hspace=HSPACE,
-        wspace=WSPACE,
+def _find_first_by_suffix(out_dir: Path, suffix: str) -> Optional[Path]:
+    matches = sorted(out_dir.glob(f"*{suffix}"))
+    return matches[0] if matches else None
+
+
+def _panel_png_path(out_dir: Path, test_name: str, kind: str) -> Optional[Path]:
+    """
+    kind:
+      - "viz"         -> {test_name}_viz.png
+      - "snapshots"   -> first * _snapshots.png
+      - "mass"        -> first * _mass.png
+      - "timeseries"  -> first * _timeseries.png
+    """
+    if kind == "viz":
+        p = out_dir / f"{test_name}_viz.png"
+        return p if p.exists() else None
+    if kind == "snapshots":
+        return _find_first_by_suffix(out_dir, "_snapshots.png")
+    if kind == "mass":
+        return _find_first_by_suffix(out_dir, "_mass.png")
+    if kind == "timeseries":
+        return _find_first_by_suffix(out_dir, "_timeseries.png")
+    raise ValueError(f"Unknown kind: {kind}")
+
+
+def _draw_panel(ax, png: Optional[Path], missing_text: str) -> None:
+    ax.axis("off")
+    if png and png.exists():
+        ax.imshow(_load_img(png), interpolation="nearest")
+    else:
+        ax.text(0.5, 0.5, missing_text, ha="center", va="center", fontsize=11)
+
+
+def _label_panel(ax, letter: str) -> None:
+    ax.text(
+        0.01,
+        0.99,
+        f"{letter}.",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=14,
+        fontweight="bold",
+        bbox=LABEL_BBOX,
     )
 
-    axes = {}
 
-    # a: viz (rows 0–1, full width)
-    ax_a = fig.add_subplot(gs[0:2, :])
-    ax_a.axis("off")
-    if viz_png and viz_png.exists():
-        ax_a.imshow(_load_img(viz_png), interpolation="nearest")
-    else:
-        ax_a.text(0.5, 0.5, "Missing viz panel", ha="center", va="center", fontsize=11)
-    axes["a"] = ax_a
+# -------------------------
+# Placement-based assembler (fixes duplicate viz)
+# -------------------------
+@dataclass(frozen=True)
+class Placement:
+    key: str          # 'a', 'b', 'c', 'd'
+    kind: str         # 'viz', 'snapshots', 'mass', 'timeseries'
+    row: int
+    col: int
+    row_span: int = 1
+    col_span: int = 1
 
-    # b: mass
-    ax_b = fig.add_subplot(gs[2, 0])
-    ax_b.axis("off")
-    if mass_png and mass_png.exists():
-        ax_b.imshow(_load_img(mass_png), interpolation="nearest")
-    else:
-        ax_b.text(0.5, 0.5, "Missing mass plot", ha="center", va="center", fontsize=11)
-    axes["b"] = ax_b
 
-    # c: timeseries
-    ax_c = fig.add_subplot(gs[2, 1])
-    ax_c.axis("off")
-    if timeseries_png and timeseries_png.exists():
-        ax_c.imshow(_load_img(timeseries_png), interpolation="nearest")
-    else:
-        ax_c.text(0.5, 0.5, "Missing timeseries plot", ha="center", va="center", fontsize=11)
-    axes["c"] = ax_c
+PLACEMENTS: List[Placement] = [
+    # (a) viz spans top 2 rows, full width
+    Placement("a", "viz", row=0, col=0, row_span=2, col_span=2),
+    # (b) snapshots full width
+    Placement("b", "snapshots", row=2, col=0, row_span=1, col_span=2),
+    # (c) mass left, (d) timeseries right
+    Placement("c", "mass", row=3, col=0, row_span=1, col_span=1),
+    Placement("d", "timeseries", row=3, col=1, row_span=1, col_span=1),
+]
 
-    # d: snapshots (full width)
-    ax_d = fig.add_subplot(gs[3, :])
-    ax_d.axis("off")
-    if snapshots_png and snapshots_png.exists():
-        ax_d.imshow(_load_img(snapshots_png), interpolation="nearest")
-    else:
-        ax_d.text(0.5, 0.5, "Missing snapshots", ha="center", va="center", fontsize=11)
-    axes["d"] = ax_d
 
-    # Panel labels (consistent in figure coords)
-    x_pad = 0.006
-    y_pad = 0.010
-    for letter, ax in axes.items():
-        bbox = ax.get_position()
-        fig.text(
-            bbox.x0 - x_pad,
-            bbox.y1 + y_pad,
-            f"{letter}.",
-            transform=fig.transFigure,
-            fontsize=14,
-            fontweight="bold",
-            ha="left",
-            va="bottom",
-            bbox=LABEL_BBOX,
-        )
+def assemble_figure_B(
+    out_dir: Path,
+    test_name: str,
+    out_path: Path,
+) -> None:
+    # Resolve panel PNGs once
+    pngs: Dict[str, Optional[Path]] = {
+        "viz": _panel_png_path(out_dir, test_name, "viz"),
+        "snapshots": _panel_png_path(out_dir, test_name, "snapshots"),
+        "mass": _panel_png_path(out_dir, test_name, "mass"),
+        "timeseries": _panel_png_path(out_dir, test_name, "timeseries"),
+    }
+
+    fig = plt.figure(figsize=FIGSIZE, dpi=DPI)
+    gs = fig.add_gridspec(
+        nrows=NROWS,
+        ncols=NCOLS,
+        height_ratios=ROW_HEIGHTS,
+        wspace=WSPACE,
+        hspace=HSPACE,
+    )
+
+    for p in PLACEMENTS:
+        ax = fig.add_subplot(gs[p.row : p.row + p.row_span, p.col : p.col + p.col_span])
+        _draw_panel(ax, pngs.get(p.kind), missing_text=f"Missing {p.kind} panel")
+        _label_panel(ax, p.key)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, bbox_inches="tight", dpi=DPI)

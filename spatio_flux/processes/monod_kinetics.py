@@ -24,6 +24,62 @@ from process_bigraph import Process
 from spatio_flux.library.tools import build_path
 
 
+def get_monod_kinetics_process_from_config(
+    *,
+    model_config,
+    fields_key='fields',
+    biomass_id='biomass',
+):
+    """
+    Build a MonodKinetics process spec by inspecting the kinetic model config.
+    """
+    substrates, has_biomass = extract_kinetic_fields(model_config)
+
+    substrate_wires = {
+        s: [fields_key, s]
+        for s in sorted(substrates)
+    }
+
+    inputs = {'substrates': substrate_wires}
+    outputs = {'substrates': substrate_wires}
+
+    if has_biomass:
+        inputs['biomass'] = [fields_key, biomass_id]
+        outputs['biomass'] = [fields_key, biomass_id]
+
+    return {
+        '_type': 'process',
+        'address': 'local:MonodKinetics',
+        'config': model_config,
+        'inputs': inputs,
+        'outputs': outputs,
+    }
+
+
+def extract_kinetic_fields(kinetic_model_config):
+    """
+    Extract substrate and biomass field names from a kinetic model config.
+    """
+    reactions = kinetic_model_config.get('reactions', {})
+
+    substrates = set()
+    has_biomass = False
+
+    for rxn in reactions.values():
+        reactant = rxn.get('reactant')
+        product = rxn.get('product')
+
+        for species in (reactant, product):
+            if species is None:
+                continue
+            if species == 'mass':
+                has_biomass = True
+            else:
+                substrates.add(species)
+
+    return substrates, has_biomass
+
+
 # ---------------------------------------------------------------------
 # Model configs (registry)
 # ---------------------------------------------------------------------

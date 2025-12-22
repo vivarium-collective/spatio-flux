@@ -23,7 +23,7 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-from spatio_flux.experiments.test_suite import (  # type: ignore
+from spatio_flux.experiments.test_suite import (
     SIMULATIONS,
     DEFAULT_RUNTIME_LONG,
     allocate_core,
@@ -31,15 +31,15 @@ from spatio_flux.experiments.test_suite import (  # type: ignore
     run_composite_document,
 )
 
-# Optional: generate the process overview panel
-from spatio_flux.experiments.overview_fig import assemble_process_figures  # type: ignore
+# generate the process overview panel
+from spatio_flux.experiments.overview_fig import assemble_process_figures
 
 
 # -------------------------
 # Config
 # -------------------------
 OUT_DIR = Path("out")
-OUT_FIGURE = OUT_DIR / "multicomponent_with_process_overview.png"
+OUT_FIGURE = OUT_DIR / "multicomponent_spatioflux.png"
 
 PROCESS_OVERVIEW_PNG = OUT_DIR / "process_overview.png"
 
@@ -48,7 +48,7 @@ TESTS_TO_RUN = [
     "ecoli_core_dfba",
     "community_dfba",
     "comets",
-    "dfba_brownian_particles",
+    "comets_br_particles_dfba",
 ]
 
 RESULT_PNG_BY_TEST = {
@@ -56,7 +56,7 @@ RESULT_PNG_BY_TEST = {
     "ecoli_core_dfba": None,
     "community_dfba": None,
     "comets": None,
-    "dfba_brownian_particles": None,
+    "comets_br_particles_dfba": None,
 }
 
 RESULT_PNG_SUFFIX_PREFERENCE = [
@@ -69,33 +69,28 @@ RESULT_PNG_SUFFIX_PREFERENCE = [
 N_COLS = 6  # unchanged
 
 LAYOUT_ROWS = [
-    # Row 1: a. process overview across full width
+    # Row 1: b. community dFBA bigraph across full width
     [
-        ("a", "process_overview", "process_overview", 0, 6),
+        ("a", "viz", "community_dfba", 0, 6),
     ],
 
-    # Row 2: b. community dFBA bigraph across full width
+    # Row 2: c/d/e three outputs
     [
-        ("b", "viz", "community_dfba", 0, 6),
+        ("b", "result", "monod_kinetics",  0, 2),
+        ("c", "result", "ecoli_core_dfba", 2, 2),
+        ("d", "result", "community_dfba",  4, 2),
     ],
 
-    # Row 3: c/d/e three outputs
+    # Row 3: comets composite
     [
-        ("c", "result", "monod_kinetics",  0, 2),
-        ("d", "result", "ecoli_core_dfba", 2, 2),
-        ("e", "result", "community_dfba",  4, 2),
+        ("e", "viz",    "comets", 0, 2),
+        ("f", "result", "comets", 3, 3),
     ],
 
-    # Row 4: comets composite
+    # Row 4: particles composite
     [
-        ("f", "viz",    "comets", 0, 2),
-        ("g", "result", "comets", 2, 4),
-    ],
-
-    # Row 5: particles composite
-    [
-        ("h", "viz",    "dfba_brownian_particles", 0, 3),
-        ("i", "result", "dfba_brownian_particles", 3, 3),
+        ("g", "viz",    "comets_br_particles_dfba", 0, 3),
+        ("h", "result", "comets_br_particles_dfba", 3, 3),
     ],
 ]
 
@@ -135,9 +130,6 @@ def _panel_png_path(kind: str, test_name: str) -> Optional[str]:
     if kind == "process_overview":
         p = PROCESS_OVERVIEW_PNG
         return p if os.path.exists(p) else None
-
-    raise ValueError(f"Unknown panel kind: {kind}")
-
 
     raise ValueError(f"Unknown panel kind: {kind}")
 
@@ -295,5 +287,5 @@ def assemble_multicomponent_figure(layout_rows) -> None:
 
 if __name__ == "__main__":
     run_tests()
-    ensure_process_overview()
+    # ensure_process_overview()
     assemble_multicomponent_figure(LAYOUT_ROWS)

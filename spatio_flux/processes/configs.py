@@ -234,14 +234,17 @@ def get_spatial_many_dfba(
         model_id=None,
         mol_ids=None,
         biomass_id="dissolved biomass",
+        path=None,
 ):
+    if path is None:
+        path = ["..", "fields"]
     nx, ny = n_bins
     dfba_processes_dict = {}
     for y in range(ny):         # rows
         for x in range(nx):     # cols
             # get a process state for each bin
             dfba_process = get_dfba_process_from_registry(
-                model_id=model_id, path=["..", "fields"],
+                model_id=model_id, path=path,
                 biomass_id=biomass_id, i=x, j=y)
             dfba_processes_dict[f"dFBA[{x},{y}]"] = dfba_process
 
@@ -253,13 +256,16 @@ def get_spatial_many_kinetics(
         model_id="single_substrate_assimilation",
         biomass_id="dissolved biomass",
         mol_ids=None,
+        path=None,
 ):
+    if path is None:
+        path = ["..", "fields"]
     kinetics_processes_dict = {}
     for i in range(n_bins[0]):
         for j in range(n_bins[1]):
             kinetics_process = get_kinetics_process_from_registry(
                 model_id=model_id, mol_ids=mol_ids,
-                path=["..", "fields"], biomass_id=biomass_id, i=i, j=j)
+                path=path, biomass_id=biomass_id, i=i, j=j)
             kinetics_processes_dict[f"monod_kinetics[{i},{j}]"] = kinetics_process
     return kinetics_processes_dict
 

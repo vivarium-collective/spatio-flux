@@ -15,7 +15,7 @@ COLORS = {
     "diffusion":                  "#F2E39C",
 
     # dFBA (coral/red)
-    "dfba_state":                 "#E9A89C",
+    "kinetic_process":                 "#E9A89C",
     "dfba_process":               "#B84C48",
 
     # LOCAL / EXCHANGE (yellow-orange → orange)
@@ -74,6 +74,7 @@ DEFAULT_FIELD_BIOMASS_SPECIES = [
     "dissolved biomass",
     "glucose eater",
     "acetate eater",
+    "monod biomass",
 ]
 
 
@@ -120,16 +121,18 @@ def build_plot_settings(
         ("DiffusionAdvection",):        COLORS["diffusion"],
 
         # dFBA / kinetics family
-        ("spatial_dFBA",):              COLORS["dfba_state"],
-        ("SpatialDFBA",):               COLORS["dfba_state"],
+        ("spatial_dFBA",):              COLORS["dfba_process"],
+        ("SpatialDFBA",):               COLORS["dfba_process"],
         ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_process"],
         ("dFBA",):                      COLORS["dfba_process"],
+        ("dFBA[0,0]",):                 COLORS["dfba_process"],
         ("DynamicFBA",):                COLORS["dfba_process"],
 
-        ("spatial_kinetics",):          COLORS["dfba_state"],
-        ("spatial_kinetics", "monod_kinetics[0,0]"): COLORS["dfba_process"],
-        ("monod_kinetics",):            COLORS["dfba_process"],
-        ("MonodKinetics",):             COLORS["dfba_process"],
+        ("spatial_kinetics",):          COLORS["kinetic_process"],
+        ("spatial_kinetics", "monod_kinetics[0,0]"): COLORS["kinetic_process"],
+        ("monod_kinetics",):            COLORS["kinetic_process"],
+        ("monod_kinetics[0,0]",):       COLORS["kinetic_process"],
+        ("MonodKinetics",):             COLORS["kinetic_process"],
     }
 
     # --- auto-generate field species ---
@@ -163,7 +166,7 @@ def build_plot_settings(
             ('particles', pid, 'local'):    COLORS["fields"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_process"],
-            ('particles', pid, 'monod_kinetics'): COLORS["dfba_process"],
+            ('particles', pid, 'monod_kinetics'): COLORS["kinetic_process"],
             ('particles', pid, 'shape'):    COLORS["newtonian_particles_state"],
             ('particles', pid, 'velocity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'inertia'):  COLORS["newtonian_particles_state"],
@@ -181,7 +184,7 @@ def build_plot_settings(
             (pid, 'local'):     COLORS["fields"],
             (pid, 'exchange'):  COLORS["exchange"],
             (pid, 'dFBA'):      COLORS["dfba_process"],
-            (pid, 'monod_kinetics'): COLORS["dfba_process"],
+            (pid, 'monod_kinetics'): COLORS["kinetic_process"],
             (pid, 'shape'):     COLORS["newtonian_particles_state"],
             (pid, 'velocity'):  COLORS["newtonian_particles_state"],
             (pid, 'inertia'):   COLORS["newtonian_particles_state"],
