@@ -34,8 +34,13 @@ class Concentration(PositiveFloat):
 
 
 @dataclass(kw_only=True)
-class Count(PositiveFloat):
-    """Non-negative accumulator representing a count (e.g. molecule count)."""
+class Mass(PositiveFloat):
+    """Non-negative accumulator representing the mass of a species."""
+
+
+@dataclass(kw_only=True)
+class Count(Float):
+    """accumulator representing a count"""
 
 
 @dataclass(kw_only=True)
@@ -168,6 +173,7 @@ positive_types = {
     "positive_float": PositiveFloat,
     "positive_array": PositiveArray,
     "count": Count,
+    "mass": Mass,
     "concentration": Concentration,
     "set_float": SetFloat,
     "delta_conc": Delta,

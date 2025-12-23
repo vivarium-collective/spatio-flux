@@ -468,7 +468,6 @@ class ParticleExchange(Step):
         }
 
 
-
 class ParticleDivision(Step):
     """
     Stand-alone division process:
@@ -481,9 +480,10 @@ class ParticleDivision(Step):
     config_schema = {
         # If <= 0, division is disabled
         'division_mass_threshold': default('float', 0.0),
+
         # Fraction of a reference length used as jitter radius for child placement.
-        # Reference length is inferred from current particle cloud extent (max range of x or y);
-        # if not inferable, falls back to 1.0.
+        # Reference length is inferred from current particle cloud extent
+        # (max range of x or y); if not inferable, falls back to 1.0.
         'division_jitter': default('float', 1e-3),
     }
 
@@ -498,7 +498,8 @@ class ParticleDivision(Step):
         }
 
     def outputs(self):
-        # Emit particle deltas in the same convention: _remove, _add, and/or per-id updates
+        # Emit particle deltas in the same convention: _remove, _add,
+        # and/or per-id updates
         return {
             'particles': 'map[particle]',
         }
@@ -508,32 +509,40 @@ class ParticleDivision(Step):
         return {}
 
     def _infer_ref_length(self, particles):
-        """Infer a reference length from particle positions for jitter scaling."""
+        """
+        Infer a reference length from particle positions for jitter scaling.
+        """
         xs, ys = [], []
         for p in particles.values():
             pos = p.get('position')
             if isinstance(pos, (list, tuple)) and len(pos) == 2:
                 xs.append(float(pos[0]))
                 ys.append(float(pos[1]))
+
         if len(xs) >= 2 and len(ys) >= 2:
-            xrange_ = (max(xs) - min(xs))
-            yrange_ = (max(ys) - min(ys))
+            xrange_ = max(xs) - min(xs)
+            yrange_ = max(ys) - min(ys)
             ref = max(xrange_, yrange_)
             return ref if ref > 0 else 1.0
+
         return 1.0
 
     def _make_child(self, parent, new_pos):
-        """Create a child particle from parent with half mass and reset exchanges."""
+        """
+        Create a child particle from parent with half mass and reset exchanges.
+        """
         cid = short_id()
         child = dict(parent)  # shallow copy; particle is assumed flat
         child['id'] = cid
         child['mass'] = max(parent.get('mass', 0.0), 0.0) / 2.0
         child['position'] = (float(new_pos[0]), float(new_pos[1]))
+
         # carry local as-is if present (no environment management here)
         # reset exchanges if present
         exch = parent.get('exchange', {})
         if isinstance(exch, dict):
             child['exchange'] = {k: 0.0 for k in exch.keys()}
+
         return cid, child
 
     def update(self, state):
@@ -541,6 +550,7 @@ class ParticleDivision(Step):
 
         updated_particles = {'_remove': [], '_add': {}}
         thr = float(self.config['division_mass_threshold'])
+
         if thr <= 0.0 or not particles:
             # Division disabled or nothing to do: no changes
             return {'particles': {}}
@@ -585,6 +595,243 @@ class ParticleDivision(Step):
             'particles': updated_particles
         }
 
+# class ParticleDivision(Step):
+#     """
+#     Stand-alone division process:
+#       - Tracks particle 'mass' only (but will also handle 'sub_masses' if present).
+#       - If mass >= division_mass_threshold, parent is removed and two children
+#         are created and placed near the parent's position.
+#
+#     Submass behavior:
+#       - If parent has sub_masses (dict[label -> mass]):
+#           * Split each label between daughters (equal or random)
+#           * Set daughter.mass = sum(daughter.sub_masses.values())
+#       - If parent has no sub_masses:
+#           * Split parent.mass directly into halves
+#     """
+#
+#     config_schema = {
+#         # If <= 0, division is disabled
+#         'division_mass_threshold': default('float', 0.0),
+#
+#         # Fraction of a reference length used as jitter radius for child placement.
+#         # Reference length is inferred from current particle cloud extent (max range of x or y);
+#         # if not inferable, falls back to 1.0.
+#         'division_jitter': default('float', 1e-3),
+#
+#         # --- submass controls ---
+#         'submasses_key': default('string', 'sub_masses'),
+#
+#         # "equal" or "random"
+#         'submass_split_mode': default('string', 'equal'),
+#
+#         # Used only when mode == "random"
+#         'random_min': default('float', 0.35),
+#         'random_max': default('float', 0.65),
+#
+#         # Hygiene
+#         'clamp_nonnegative': default('boolean', True),
+#         'drop_below': default('float', 0.0),  # e.g. 1e-12 to drop tiny submasses
+#     }
+#
+#     def initialize(self, config):
+#         # No environment to set up
+#         pass
+#
+#     def inputs(self):
+#         # Only particles are needed
+#         return {
+#             'particles': 'map[particle]',
+#         }
+#
+#     def outputs(self):
+#         # Emit particle deltas in the same convention: _remove, _add, and/or per-id updates
+#         return {
+#             'particles': 'map[particle]',
+#         }
+#
+#     def initial_state(self, config=None):
+#         # No default state; upstream composition provides particles
+#         return {}
+#
+#     def _infer_ref_length(self, particles):
+#         """Infer a reference length from particle positions for jitter scaling."""
+#         xs, ys = [], []
+#         for p in particles.values():
+#             pos = p.get('position')
+#             if isinstance(pos, (list, tuple)) and len(pos) == 2:
+#                 xs.append(float(pos[0]))
+#                 ys.append(float(pos[1]))
+#         if len(xs) >= 2 and len(ys) >= 2:
+#             xrange_ = (max(xs) - min(xs))
+#             yrange_ = (max(ys) - min(ys))
+#             ref = max(xrange_, yrange_)
+#             return ref if ref > 0 else 1.0
+#         return 1.0
+#
+#     def _fraction_to_d1(self):
+#         """
+#         Return the fraction of a given label's mass to allocate to daughter 1.
+#         Only supports "equal" or "random".
+#         """
+#         mode = str(self.config.get('submass_split_mode', 'equal')).lower()
+#         if mode == 'equal':
+#             return 0.5
+#         if mode == 'random':
+#             lo = float(self.config.get('random_min', 0.35))
+#             hi = float(self.config.get('random_max', 0.65))
+#             if hi < lo:
+#                 lo, hi = hi, lo
+#             return float(np.random.uniform(lo, hi))
+#         return 0.5
+#
+#     def _split_submasses(self, submasses):
+#         """
+#         Split a dict[label -> mass] into (d1, d2) dicts.
+#         """
+#         clamp = bool(self.config.get('clamp_nonnegative', True))
+#         drop_below = float(self.config.get('drop_below', 0.0))
+#
+#         d1 = {}
+#         d2 = {}
+#
+#         for label, val in (submasses or {}).items():
+#             try:
+#                 m = float(val)
+#             except Exception:
+#                 continue
+#
+#             if clamp:
+#                 m = max(m, 0.0)
+#             if m == 0.0:
+#                 continue
+#
+#             f = self._fraction_to_d1()
+#             f = max(0.0, min(1.0, f))
+#
+#             m1 = f * m
+#             m2 = (1.0 - f) * m
+#
+#             if clamp:
+#                 m1 = max(m1, 0.0)
+#                 m2 = max(m2, 0.0)
+#
+#             label = str(label)
+#
+#             if drop_below > 0.0:
+#                 if m1 >= drop_below:
+#                     d1[label] = m1
+#                 if m2 >= drop_below:
+#                     d2[label] = m2
+#             else:
+#                 d1[label] = m1
+#                 d2[label] = m2
+#
+#         return d1, d2
+#
+#     @staticmethod
+#     def _sum_submasses(submasses):
+#         s = 0.0
+#         for v in (submasses or {}).values():
+#             try:
+#                 s += float(v)
+#             except Exception:
+#                 continue
+#         return s
+#
+#     def _make_child(self, parent, new_pos, *, child_mass, child_submasses=None):
+#         """
+#         Create a child particle from parent with given mass, set position, reset exchanges,
+#         and optionally attach child_submasses.
+#         """
+#         cid = short_id()
+#         child = dict(parent)  # shallow copy; particle assumed flat
+#         child['id'] = cid
+#         child['mass'] = float(max(float(child_mass), 0.0))
+#         child['position'] = (float(new_pos[0]), float(new_pos[1]))
+#
+#         # If submasses were split, set them explicitly (avoid sharing dict refs)
+#         subkey = str(self.config.get('submasses_key', 'sub_masses'))
+#         if child_submasses is not None:
+#             child[subkey] = dict(child_submasses)
+#
+#         # reset exchanges if present
+#         exch = parent.get('exchange', {})
+#         if isinstance(exch, dict):
+#             child['exchange'] = {k: 0.0 for k in exch.keys()}
+#
+#         return cid, child
+#
+#     def update(self, state):
+#         particles = state['particles']
+#
+#         updated_particles = {'_remove': [], '_add': {}}
+#         thr = float(self.config['division_mass_threshold'])
+#
+#         if thr <= 0.0 or not particles:
+#             # Division disabled or nothing to do: no changes
+#             return {'particles': {}}
+#
+#         # Pre-compute reference length for jitter radius
+#         ref_len = self._infer_ref_length(particles)
+#         r = float(self.config['division_jitter']) * ref_len
+#
+#         subkey = str(self.config.get('submasses_key', 'sub_masses'))
+#
+#         for pid, particle in particles.items():
+#             mass = float(particle.get('mass', 0.0))
+#             if mass >= thr:
+#                 # Remove parent
+#                 updated_particles['_remove'].append(pid)
+#
+#                 # Parent position (fallback to (0,0) if missing)
+#                 px, py = (0.0, 0.0)
+#                 pos = particle.get('position')
+#                 if isinstance(pos, (list, tuple)) and len(pos) == 2:
+#                     px, py = float(pos[0]), float(pos[1])
+#
+#                 # Symmetric jitter around parent
+#                 if r > 0.0:
+#                     angle = float(np.random.uniform(0.0, 2.0 * np.pi))
+#                     ox, oy = r * np.cos(angle), r * np.sin(angle)
+#                 else:
+#                     ox, oy = 0.0, 0.0
+#
+#                 c1_pos = (px + ox, py + oy)
+#                 c2_pos = (px - ox, py - oy)
+#
+#                 # --- NEW: submass-aware division ---
+#                 parent_sub = particle.get(subkey, None)
+#
+#                 if isinstance(parent_sub, dict) and len(parent_sub) > 0:
+#                     d1_sub, d2_sub = self._split_submasses(parent_sub)
+#                     m1 = self._sum_submasses(d1_sub)
+#                     m2 = self._sum_submasses(d2_sub)
+#
+#                     c1_id, c1 = self._make_child(
+#                         particle, c1_pos, child_mass=m1, child_submasses=d1_sub
+#                     )
+#                     c2_id, c2 = self._make_child(
+#                         particle, c2_pos, child_mass=m2, child_submasses=d2_sub
+#                     )
+#                 else:
+#                     # No submasses: split total mass directly (original behavior)
+#                     half = max(mass, 0.0) / 2.0
+#                     c1_id, c1 = self._make_child(particle, c1_pos, child_mass=half, child_submasses=None)
+#                     c2_id, c2 = self._make_child(particle, c2_pos, child_mass=half, child_submasses=None)
+#
+#                 updated_particles['_add'][c1_id] = c1
+#                 updated_particles['_add'][c2_id] = c2
+#
+#         # If nothing changed, return empty delta so upstream can skip writes
+#         if not updated_particles['_remove'] and not updated_particles['_add']:
+#             return {'particles': {}}
+#
+#         return {
+#             'particles': updated_particles
+#         }
+
+
 
 
 class ParticleTotalMass(Step):
@@ -597,10 +844,10 @@ class ParticleTotalMass(Step):
     config_schema = {}
 
     def inputs(self):
-        return {"sub_masses": "map[float]"}
+        return {"sub_masses": "map[mass]"}
 
     def outputs(self):
-        return {"total_mass": "float"}
+        return {"total_mass": "mass"}
 
     def initial_state(self, config=None):
         return {}

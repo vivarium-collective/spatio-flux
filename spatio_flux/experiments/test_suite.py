@@ -835,7 +835,7 @@ def get_mega_composite_doc(core=None, config=None):
     mol_ids = ["glucose", "acetate", biomass_id]
     initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.001, 0.02)}
     diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
-    advection_coeffs = {biomass_id: (0.0, 0.5)}  # dissolved biomass floats to the top?
+    advection_coeffs = {biomass_id: (0.0, 0.5), 'acetate': (0.0, -0.2)}  # dissolved biomass floats to the top, while acetates sinks
 
     bounds = user_cfg.get("bounds", [b * 10 for b in DEFAULT_BOUNDS])
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
@@ -883,7 +883,7 @@ def get_mega_composite_doc(core=None, config=None):
     # mass_step = get_mass_total_step(mass_sources=mass_sources)
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
-    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
+    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
    # put mass metabolism inside the particles

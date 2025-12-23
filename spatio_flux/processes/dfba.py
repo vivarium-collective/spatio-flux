@@ -311,13 +311,13 @@ class DynamicFBA(Process):
     def inputs(self):
         return {
             "substrates": "map[concentration]",  # external concentrations
-            "biomass": "concentration",
+            "biomass": "mass",
         }
 
     def outputs(self):
         return {
-            "substrates": "map[float]",   # deltas (not absolute concentrations)
-            "biomass": "float",           # delta biomass
+            "substrates": "map[count]",   # deltas (not absolute concentrations)
+            "biomass": "mass",           # delta biomass
             # "substrates": "map[count]",   # deltas (not absolute concentrations)
             # "biomass": "count",           # delta biomass
         }

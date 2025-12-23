@@ -32,9 +32,10 @@ BOUNDS_TYPE = {
 SIMPLE_PARTICLE_TYPE = {
     "id": "string",
     "position": "position",
-    "mass": "concentration{1.0}",
+    "mass": "mass{1.0}",
     "local": "map[concentration]",
     "exchange": "map[count]",
+    "sub_masses": "map[mass{0.0}]",
 }
 
 # Extended particle: physics-focused attributes

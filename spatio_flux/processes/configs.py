@@ -1,3 +1,8 @@
+
+"""
+TODO -- all the get_ functions here should be derived from their processes' config schemas!
+"""
+
 import numpy as np
 from bigraph_schema import deep_merge
 
@@ -426,13 +431,15 @@ def get_particle_exchange_process(
     }
 
 def get_particle_divide_process(
-        division_mass_threshold=0.0
+        division_mass_threshold=0.0,
+        submass_split_mode='equal',  # 'equal' or 'random'
 ):
     return {
         '_type': 'step',
         'address': 'local:ParticleDivision',
         'config': {
-            'division_mass_threshold': division_mass_threshold
+            'division_mass_threshold': division_mass_threshold,
+            'submass_split_mode': submass_split_mode,
         },
         'inputs': {
             'particles': ['particles']
@@ -595,7 +602,7 @@ def get_community_dfba_particle_composition(
         config["bounds"] = config.get("bounds") or {}
 
         # Use model_key directly as the process node name
-        processes[f'{model_key} dFBA'] = {
+        processes[f'dFBA_{model_key}'] = {
             "_type": "process",
             "address": default("string", default_address),
             "config": default("node", config),
@@ -610,7 +617,7 @@ def get_community_dfba_particle_composition(
                 "wires",
                 {
                     "substrates": ["exchange"],
-                    "biomass": [particle_mass_id],
+                    "biomass": ["sub_masses", model_key],
                 },
             ),
         }
@@ -622,15 +629,16 @@ def get_community_dfba_particle_composition(
         'inputs': default("wires", {'sub_masses': ['sub_masses']}),
         'outputs': default("wires", {'total_mass': [particle_mass_id]})
     }
+
+    # TODO -- this is making the type display wrong
     processes["sub_masses"] = {
         '_type': 'map',
         '_value': {
-            mass_name: {
-                '_type': 'float'
-            }
-            for mass_name in models.keys()
-        }
-    }
+            mass_name: {'_type': 'mass'} for mass_name in models.keys()}}
+    # processes["sub_masses"] = 'map[mass]'
+    # processes["sub_masses"] = {
+    #     mass_name: 'mass' for mass_name in models.keys()
+    # }
 
     return {
         "particles": {
