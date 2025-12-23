@@ -109,7 +109,7 @@ def _panel_png_path(out_dir: Path, test_name: str, kind: str) -> Optional[Path]:
     if kind == "snapshots":
         return _find_first_by_suffix(out_dir, "_snapshots.png")
     if kind == "mass":
-        return _find_first_by_suffix(out_dir, "_mass.png")
+        return _find_first_by_suffix(out_dir, "_submasses.png")
     if kind == "timeseries":
         return _find_first_by_suffix(out_dir, "_timeseries.png")
     raise ValueError(f"Unknown kind: {kind}")

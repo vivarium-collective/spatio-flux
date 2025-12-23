@@ -22,7 +22,7 @@ from process_bigraph import allocate_core
 from spatio_flux.library.tools import run_composite_document, prepare_output_dir, generate_html_report
 from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot_species_distributions_to_gif,
     plot_species_distributions_with_particles_to_gif, plot_particles, plot_model_grid,
-    plot_snapshots_grid, fields_and_agents_to_gif,
+    plot_snapshots_grid, fields_and_agents_to_gif, plot_particles_mass_with_submasses
 )
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
@@ -779,6 +779,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
 def plot_newtonian_particle_comets(results, state, config=None):
     filename = config.get('filename', 'newtonian_particle_comets')
     pymunk_config = state.get('newtonian_particles', {}).get('config', {})
+    n_snapshots = config.get('n_snapshots', 5)
     if 'diffusion' in state:
         bounds = state['diffusion']['config']['bounds']
         n_bins = state['diffusion']['config']['n_bins']
@@ -792,6 +793,7 @@ def plot_newtonian_particle_comets(results, state, config=None):
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+    plot_particles_mass_with_submasses(results, out_dir='out', filename=f'{filename}_mass_submasses.png')
 
     submass_colors = {
         "ecoli_1": "#1f77b4",  # blue
@@ -807,7 +809,7 @@ def plot_newtonian_particle_comets(results, state, config=None):
                                  )
     plot_snapshots_grid(results,  bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
                         field_names=['glucose', 'acetate', 'dissolved biomass'],
-                        n_snapshots=8, particles_row=particles_row,
+                        n_snapshots=n_snapshots, particles_row=particles_row,
                         time_units="min",
                         wspace=0.1,
                         hspace=0.1,
@@ -851,7 +853,10 @@ def get_mega_composite_doc(core=None, config=None):
     boundary_cfg = {"add_rate": add_rate}
 
     # Models
-    initial_mass = {'ecoli_1': 0.1, 'ecoli_2': 0.1}
+    initial_submasses = {
+        'ecoli_1': 0.15,
+        'ecoli_2': 0.05
+    }
     models = {
         "ecoli_1": {
             "model_file": "textbook",
@@ -883,7 +888,7 @@ def get_mega_composite_doc(core=None, config=None):
 
    # put mass metabolism inside the particles
     for pid, internal in particles.items():
-        internal['sub_masses'] = initial_mass.copy()
+        internal['sub_masses'] = initial_submasses.copy()
 
     # composition
     composition = get_community_dfba_particle_composition(models=models)
@@ -1067,7 +1072,7 @@ SIMULATIONS = {
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONG, #ER,
         'config': {},
-        'plot_config': {'filename': 'mega_composite', "particles_row": "separate"}
+        'plot_config': {'filename': 'mega_composite', "particles_row": "separate", "n_snapshots": 5}
     },
 }
 

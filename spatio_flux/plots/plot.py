@@ -781,6 +781,163 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
     if display:
         plt.show()
 
+def plot_particles_mass_with_submasses(
+    results,
+    *,
+    out_dir=None,
+    filename='particles_mass_with_submasses.png',
+    display=False,
+    max_particle_legend=10,
+    particles_key='particles',
+    time_key='global_time',
+    mass_key='mass',
+    submasses_key='sub_masses',
+
+    # NEW: total-mass coloring
+    color_total_by_particle: bool = True,
+    particle_cmap: str = "tab20",
+    total_mass_color='black',   # used only if color_total_by_particle=False
+    total_mass_lw=2.5,
+
+    # submass styling
+    submass_color_map=None,
+    submass_cmap='tab20',
+    submass_lw=1.2,
+    submass_alpha=0.85,
+):
+    import os
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+    import matplotlib.patches as mpatches
+
+    # --- aggregate ---
+    particle_traces = {}
+    particle_subtraces = {}
+    times_seen = set()
+    all_submass_labels = set()
+
+    for entry in results:
+        t = entry.get(time_key)
+        if t is None:
+            continue
+        times_seen.add(t)
+        particles = entry.get(particles_key, {}) or {}
+
+        for pid, pdata in particles.items():
+            particle_traces.setdefault(pid, {})
+            particle_subtraces.setdefault(pid, {})
+
+            if mass_key in pdata:
+                particle_traces[pid][t] = float(pdata[mass_key])
+
+            sm = pdata.get(submasses_key, {})
+            if isinstance(sm, dict):
+                for label, val in sm.items():
+                    label = str(label)
+                    all_submass_labels.add(label)
+                    particle_subtraces[pid].setdefault(label, {})
+                    particle_subtraces[pid][label][t] = float(val)
+
+    if not particle_traces:
+        raise ValueError("No particle mass data found.")
+
+    times = sorted(times_seen)
+    pids = sorted(particle_traces.keys())
+
+    # --- submass colors (consistent by label) ---
+    if submass_color_map is None:
+        submass_color_map = {}
+    else:
+        submass_color_map = dict(submass_color_map)
+
+    if all_submass_labels:
+        sm_cmap = cm.get_cmap(submass_cmap, max(len(all_submass_labels), 1))
+        for i, label in enumerate(sorted(all_submass_labels)):
+            if label not in submass_color_map:
+                submass_color_map[label] = sm_cmap(i)
+
+    # --- particle colors (for total mass) ---
+    if color_total_by_particle:
+        p_cmap = cm.get_cmap(particle_cmap, max(len(pids), 1))
+        particle_color_map = {pid: p_cmap(i) for i, pid in enumerate(pids)}
+    else:
+        particle_color_map = {pid: total_mass_color for pid in pids}
+
+    # --- plot ---
+    plt.figure(figsize=(10, 6))
+    ax = plt.gca()
+
+    for idx, pid in enumerate(pids):
+        total_series = [particle_traces[pid].get(t, np.nan) for t in times]
+        label = pid if idx < max_particle_legend else None
+
+        ax.plot(
+            times,
+            total_series,
+            color=particle_color_map[pid],
+            linewidth=total_mass_lw,
+            alpha=0.9,
+            label=label,
+        )
+
+        for label_sm, series_dict in particle_subtraces.get(pid, {}).items():
+            sm_series = [series_dict.get(t, 0.0) for t in times]
+            ax.plot(
+                times,
+                sm_series,
+                color=submass_color_map.get(label_sm, "gray"),
+                linewidth=submass_lw,
+                alpha=submass_alpha,
+            )
+
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Mass")
+    ax.set_title("Particle Total Mass (by particle) and Submasses (by label)")
+
+    # --- legends (robust two-legend pattern) ---
+    particle_leg = None
+    if pids and max_particle_legend > 0:
+        particle_leg = ax.legend(
+            bbox_to_anchor=(1.02, 1),
+            loc='upper left',
+            fontsize='small',
+            title=("Particles (total mass)" if len(pids) <= max_particle_legend
+                   else f"Particles (first {max_particle_legend})"),
+            frameon=False,
+        )
+        ax.add_artist(particle_leg)
+
+    if all_submass_labels:
+        submass_handles = [
+            mpatches.Patch(color=submass_color_map[lbl], label=lbl)
+            for lbl in sorted(all_submass_labels)
+        ]
+        ax.legend(
+            handles=submass_handles,
+            title="Submasses",
+            bbox_to_anchor=(1.02, 0.0),
+            loc='lower left',
+            fontsize='small',
+            frameon=False,
+        )
+
+    plt.tight_layout()
+
+    # --- save/display ---
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+        plt.savefig(filepath, dpi=200, bbox_inches="tight", pad_inches=0.5)
+    else:
+        filepath = None
+
+    if display:
+        plt.show()
+    else:
+        plt.close()
+
+    return filepath
 
 
 def plot_snapshots_grid(
