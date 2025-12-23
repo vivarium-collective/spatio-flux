@@ -1,3 +1,9 @@
+"""
+Color palette and rules for assigning colors to plot nodes based on their paths.
+
+TODO -- simplify and integrate with bigraph-viz
+"""
+
 COLORS = {
     # PARTICLES (warm light green)
     "particles_state":            "#CBE7D3",
@@ -22,8 +28,8 @@ COLORS = {
     # "local":                      "#F4C48A",
     "exchange":                   "#F4C48A",
 
-    # PARTICLE ↔ FIELD BRIDGE (yellow-green midpoint)
-    "particle_exchange_bridge":   "#D1DF89",
+    # PARTICLE ↔ FIELD ADAPTER (yellow-green midpoint)
+    "exchange_adapter":   "#D1DF89",
 }
 
 
@@ -106,8 +112,8 @@ def build_plot_settings(
         ("ParticleDivision",):          COLORS["particle_graph_rewrite"],
         ("enforce_boundaries",):        COLORS["particle_graph_rewrite"],
         ("ManageBoundaries",):          COLORS["particle_graph_rewrite"],
-        ("particle_exchange",):         COLORS["particle_exchange_bridge"],
-        ("ParticleExchange",):          COLORS["particle_exchange_bridge"],
+        ("particle_exchange",):         COLORS["exchange_adapter"],
+        ("ParticleExchange",):          COLORS["exchange_adapter"],
 
         # newtonian particle family
         ("newtonian_particles",):       COLORS["newtonian_particles_process"],
@@ -173,8 +179,9 @@ def build_plot_settings(
             ('particles', pid, 'radius'):   COLORS["newtonian_particles_state"],
             ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
-            ('particles', pid, 'ecoli_1'): COLORS["dfba_process"],
-            ('particles', pid, 'ecoli_2'): COLORS["dfba_process"],
+            ('particles', pid, 'ecoli_1 dFBA'): COLORS["dfba_process"],
+            ('particles', pid, 'ecoli_2 dFBA'): COLORS["dfba_process"],
+            ('particles', pid, 'aggregate_mass'): COLORS["exchange_adapter"],
         })
         fills.update({
             (pid,):             COLORS["particles_state"],

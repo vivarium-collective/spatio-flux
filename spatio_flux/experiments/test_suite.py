@@ -820,7 +820,7 @@ def get_mega_composite_doc(core=None, config=None):
     initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.01, 0.01)}
     diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
 
-    bounds = user_cfg.get("bounds", [b * 2 for b in DEFAULT_BOUNDS])
+    bounds = user_cfg.get("bounds", [b * 5 for b in DEFAULT_BOUNDS])
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -870,7 +870,7 @@ def get_mega_composite_doc(core=None, config=None):
 
     doc = {
         "state": {
-            # **spatial_kinetics,  # put them at the top level
+            **spatial_kinetics,  # put them at the top level
             "fields": fields,
             # "diffusion": diffusion,
             "particles": particles,

@@ -1,6 +1,3 @@
-"""
-TODO: use an actual grow/divide process for demo
-"""
 import random
 import math
 import uuid
@@ -487,26 +484,90 @@ def make_id(prefix='id', nhex=6):
 def make_rng(seed=None):
     return random.Random(seed)
 
-# -------------------------
-# Mass/geometry conversions
-# -------------------------
-
 def circle_mass_from_radius(radius, density):
+    """
+    Compute microbial mass from a circular (2D) geometry.
+
+    Parameters
+    ----------
+    radius : float
+        Cell radius (µm).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell mass (pg).
+    """
     # m = ρ π r^2
     return float(density) * math.pi * (float(radius) ** 2)
 
+
 def circle_radius_from_mass(mass, density):
+    """
+    Compute circle radius from microbial mass.
+
+    Parameters
+    ----------
+    mass : float
+        Cell mass (pg).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell radius (µm).
+    """
     # r = sqrt(m / (ρ π))
     return math.sqrt(float(mass) / (float(density) * math.pi))
 
+
 def capsule_mass_from_length_radius(length, radius, density):
-    # Approximate capsule as rectangle length L and diameter 2r:
-    # m = ρ * (2r) * L  (ignoring hemispherical ends for simplicity; good for L >> r)
+    """
+    Compute microbial mass for a rod-shaped (capsule) geometry.
+
+    Parameters
+    ----------
+    length : float
+        Cell length excluding endcaps (µm).
+    radius : float
+        Cell radius (µm).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell mass (pg).
+    """
+    # m = ρ * (2r) * L
+    # Endcaps ignored; valid when L >> r
     return float(density) * (2.0 * float(radius)) * float(length)
 
+
 def capsule_length_from_mass(mass, radius, density):
+    """
+    Compute rod length from microbial mass, assuming fixed radius.
+
+    Parameters
+    ----------
+    mass : float
+        Cell mass (pg).
+    radius : float
+        Cell radius (µm).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell length (µm).
+    """
     # L = m / (ρ * 2r)
     return float(mass) / (float(density) * (2.0 * float(radius)))
+
 
 # -------------------------
 # Primitive builders (single objects)
