@@ -5,31 +5,32 @@ TODO -- simplify and integrate with bigraph-viz
 """
 
 COLORS = {
-    # PARTICLES (warm light green)
-    "particles_state":            "#CBE7D3",
-    "particles_process":          "#CBE7D3",
+    # PARTICLES (soft, readable green)
+    "particles_state":             "#C6E3D0",
+    "particles_process":           "#C6E3D0",
 
-    # PARTICLE DIVISION (orthogonal rule-based particle op – teal)
-    "particle_graph_rewrite":  "#B8E2E8",  # keep this as the distinct teal
+    # PARTICLE DIVISION (clean teal, distinct rule-op)
+    "particle_graph_rewrite":      "#A9DDE3",
 
-    # NEWTONIAN PARTICLES (richer, “energized” particle green)
-    "newtonian_particles_state":  "#93C89E",
-    "newtonian_particles_process":"#93C89E",
+    # NEWTONIAN PARTICLES (slightly deeper, more physical)
+    "newtonian_particles_state":   "#8EC09A",
+    "newtonian_particles_process": "#8EC09A",
 
-    # FIELDS (yellow)
-    "fields":                     "#F2E39C",
-    "diffusion":                  "#F2E39C",
+    # FIELDS (lighter, more neutral yellow)
+    "fields":                      "#F3E8B3",
 
-    # dFBA (coral/red)
-    "kinetic_process":                 "#E9A89C",
-    "dfba_process":               "#B84C48",
+    # DIFFUSION (field-adjacent, darker, clearly active)
+    "diffusion":                   "#D6C35F",
 
-    # LOCAL / EXCHANGE (yellow-orange → orange)
-    # "local":                      "#F4C48A",
-    "exchange":                   "#F4C48A",
+    # dFBA / kinetics (warm coral → deeper red)
+    "kinetic_process":             "#E3A295",
+    "dfba_process":                "#B34A44",
 
-    # PARTICLE ↔ FIELD ADAPTER (yellow-green midpoint)
-    "exchange_adapter":   "#D1DF89",
+    # EXCHANGE (warm amber, not too orange)
+    "exchange":                    "#F1C27A",
+
+    # PARTICLE ↔ FIELD ADAPTER (yellow-green bridge)
+    "exchange_adapter":            "#CBDD8A",
 }
 
 
