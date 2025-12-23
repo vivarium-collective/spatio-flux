@@ -10,8 +10,8 @@ import base64
 import uuid
 import numpy as np
 import math
-from bigraph_schema import default
-from process_bigraph import Process, Step, default
+from bigraph_schema import make_default
+from process_bigraph import Process, Step
 
 
 # Constants
@@ -144,8 +144,8 @@ class BrownianMovement(Process):
     config_schema = {
         'bounds': 'tuple[float,float]',
         'n_bins': 'tuple[integer,integer]',
-        'diffusion_rate': default('float', 1e-1),
-        'advection_rate': default('tuple[float,float]', (0.0, 0.0)),
+        'diffusion_rate': make_default('float', 1e-1),
+        'advection_rate': make_default('tuple[float,float]', (0.0, 0.0)),
     }
 
     def initialize(self, config):
@@ -205,15 +205,15 @@ class ManageBoundaries(Step):
         'bounds': 'tuple[float,float]',
 
         # a per-interval probability using process_interval.
-        'add_rate': default('float', 0.0),
-        'boundary_to_add': default('list[boundary_side]', ['top']),
+        'add_rate': make_default('float', 0.0),
+        'boundary_to_add': make_default('list[boundary_side]', ['top']),
 
         # these are the absorbing sides; everything else reflects
-        'boundary_to_remove': default('list[boundary_side]', []),
+        'boundary_to_remove': make_default('list[boundary_side]', []),
 
-        'clamp_survivors': default('boolean', True),
-        'buffer': default('float', 1e-4),
-        'mass_range': default('tuple[float,float]', INITIAL_MASS_RANGE),
+        'clamp_survivors': make_default('boolean', True),
+        'buffer': make_default('float', 1e-4),
+        'mass_range': make_default('tuple[float,float]', INITIAL_MASS_RANGE),
     }
 
     def initialize(self, config):
@@ -479,11 +479,11 @@ class ParticleDivision(Step):
     # Same division-related knobs as in Particles, nothing else.
     config_schema = {
         # If <= 0, division is disabled
-        'division_mass_threshold': default('float', 0.0),
+        'division_mass_threshold': make_default('float', 0.0),
         # Fraction of a reference length used as jitter radius for child placement.
         # Reference length is inferred from current particle cloud extent (max range of x or y);
         # if not inferable, falls back to 1.0.
-        'division_jitter': default('float', 1e-3),
+        'division_jitter': make_default('float', 1e-3),
     }
 
     def initialize(self, config):

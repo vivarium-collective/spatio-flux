@@ -85,7 +85,7 @@ def resolve(current: Concentration, update: Concentration, path=()):
 
 
 @resolve.dispatch
-def resolve(current: Number, update: Concentration, path=()):
+def resolve(current: Float, update: Concentration, path=()):
     # Concentration can replace a generic Number schema; preserve defaults.
     if current._default and not update._default:
         return replace(update, _default=current._default)
@@ -93,7 +93,7 @@ def resolve(current: Number, update: Concentration, path=()):
 
 
 @resolve.dispatch
-def resolve(current: Concentration, update: Number, path=()):
+def resolve(current: Concentration, update: Float, path=()):
     # If update is generic numeric but provides a default, keep it.
     if update._default and not current._default:
         return replace(current, _default=update._default)
