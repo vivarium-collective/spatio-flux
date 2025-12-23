@@ -48,7 +48,7 @@ TESTS_TO_RUN = [
     "ecoli_core_dfba",
     "community_dfba",
     "comets",
-    "comets_br_particles_dfba",
+    "br_particles_kinetics",
 ]
 
 RESULT_PNG_BY_TEST = {
@@ -56,7 +56,7 @@ RESULT_PNG_BY_TEST = {
     "ecoli_core_dfba": None,
     "community_dfba": None,
     "comets": None,
-    "comets_br_particles_dfba": None,
+    "br_particles_kinetics": None,
 }
 
 RESULT_PNG_SUFFIX_PREFERENCE = [
@@ -83,14 +83,14 @@ LAYOUT_ROWS = [
 
     # Row 3: comets composite
     [
-        ("e", "viz",    "comets", 0, 2),
-        ("f", "result", "comets", 3, 3),
+        ("e", "viz",    "comets", 0, 3),
+        ("f", "result", "comets", 3, 6),
     ],
 
     # Row 4: particles composite
     [
-        ("g", "viz",    "comets_br_particles_dfba", 0, 3),
-        ("h", "result", "comets_br_particles_dfba", 3, 3),
+        ("g", "viz",    "br_particles_kinetics", 0, 3),
+        ("h", "result", "br_particles_kinetics", 3, 6),
     ],
 ]
 

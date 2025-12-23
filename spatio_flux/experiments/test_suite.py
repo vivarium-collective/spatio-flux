@@ -379,7 +379,7 @@ def get_comets_doc(core=None, config=None):
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     n_bins = SQUARE_BINS    # (nx, ny)
     bounds = SQUARE_BOUNDS  # (xmax, ymax)
-    diffusion_coeffs = {'glucose': 0.0, 'acetate': 1e-1, 'dissolved biomass': 5e-2}
+    diffusion_coeffs = {'glucose': 0.0, 'acetate': 1e-1, 'dissolved biomass': 1e-2}
     advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     nx, ny = n_bins
     shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
@@ -391,9 +391,8 @@ def get_comets_doc(core=None, config=None):
     glc_field = np.repeat(glc_y, nx, axis=1)  # (ny, nx)
     # biomass strip: top row(s), middle half of x
     biomass_field = np.zeros(shape, dtype=float)
-    x0 = nx // 4
-    x1 = 3 * nx // 4
-    biomass_field[0:1, x0:x1] = 0.1
+    x0 = nx // 2
+    biomass_field[0:1, x0] = 0.1
 
     initial_fields = {
         'dissolved biomass': biomass_field,
@@ -458,7 +457,14 @@ def plot_particles_sim(results, state, config=None):
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=4, bounds=bounds,
-                        out_dir='out', filename=f'{filename}_snapshots.png')
+                        out_dir='out', filename=f'{filename}_snapshots.png',
+                        time_units="min",
+                        wspace=0.1,
+                        hspace=0.1,
+                        col_width=1.8,
+                        row_height=2.0,
+                        particles_row='separate'
+                        )
 
 
 # --- Particles with Monod Kinetics -----------------------------------------------------------
@@ -471,12 +477,12 @@ def get_br_particles_kinetics_doc(core=None, config=None):
     particle_config = MODEL_REGISTRY_KINETICS[model_id]()
 
     mol_ids = list(initial_min_max.keys())
-    n_bins = DEFAULT_BINS
-    bounds = DEFAULT_BOUNDS
+    n_bins = SQUARE_BINS
+    bounds = SQUARE_BOUNDS
     n_particles = 1
     particle_diffusion = DEFAULT_DIFFUSION
     particle_advection = DEFAULT_ADVECTION
-    add_rate = 0.2
+    add_rate = 0.0
     return {
         'state': {
             'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
@@ -970,7 +976,7 @@ SIMULATIONS = {
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONG,
         'config': {},
-        'plot_config': {'filename': 'br_particles_kinetics'}
+        'plot_config': {'filename': 'br_particles_kinetics', 'n_snapshots': 6}
     },
     'br_particles_dfba': {
         'description': 'This simulation puts dFBA inside of the Brownian particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
@@ -988,9 +994,9 @@ SIMULATIONS = {
         'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
         'doc_func': get_comets_doc,
         'plot_func': plot_comets,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': 150,
         'config': {},
-        'plot_config': {'filename': 'comets', 'n_snapshots': 5}
+        'plot_config': {'filename': 'comets', 'n_snapshots': 6}
     },
     'comets_br_particles_kinetics': {
         'description': 'This simulation extends COMETS with Brownian particles that have internal kinetic reaction processes.',
