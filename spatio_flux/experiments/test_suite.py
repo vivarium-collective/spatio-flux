@@ -775,6 +775,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     }
     return doc
 
+
 def plot_newtonian_particle_comets(results, state, config=None):
     filename = config.get('filename', 'newtonian_particle_comets')
     pymunk_config = state.get('newtonian_particles', {}).get('config', {})
@@ -791,9 +792,19 @@ def plot_newtonian_particle_comets(results, state, config=None):
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+
+    submass_colors = {
+        "ecoli_1": "#1f77b4",  # blue
+        "ecoli_2": "#d62728",  # red
+    }
     if pymunk_config:
         fields_and_agents_to_gif(data=results, config=pymunk_config, agents_key='particles', fields_key='fields',
-            filename=f'{filename}_video.gif', out_dir='out', figure_size_inches=(10, 6))
+            filename=f'{filename}_video.gif', out_dir='out', figure_size_inches=(10, 6),
+                                 show_agent_submasses=True,
+                                 submass_color_map=submass_colors,
+                                 draw_submass_outline=True,
+                                 draw_submass_legend=False,
+                                 )
     plot_snapshots_grid(results,  bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
                         field_names=['glucose', 'acetate', 'dissolved biomass'],
                         n_snapshots=8, particles_row=particles_row,
@@ -802,6 +813,9 @@ def plot_newtonian_particle_comets(results, state, config=None):
                         hspace=0.1,
                         col_width=1.8,
                         row_height=2.0,
+                        show_particle_submasses=True,
+                        submass_draw_legend=True,
+                        submass_color_map=submass_colors,
                         )
 
 
@@ -817,17 +831,23 @@ def get_mega_composite_doc(core=None, config=None):
     # Spatial fields
     biomass_id = "dissolved biomass"
     mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.01, 0.01)}
+    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.001, 0.02)}
     diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
+    advection_coeffs = {biomass_id: (0.0, 0.5)}  # dissolved biomass floats to the top?
 
-    bounds = user_cfg.get("bounds", [b * 5 for b in DEFAULT_BOUNDS])
+    bounds = user_cfg.get("bounds", [b * 10 for b in DEFAULT_BOUNDS])
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # Particles + physics
     n_particles = user_cfg.get("n_particles", 1)
-    physics_cfg = {"gravity": -1.0, "elasticity": 0.1, "bounds": bounds, "jitter_per_second": 1e-3, "damping_per_second": 1e-3}
+    physics_cfg = {"gravity": -3.0,
+                   "elasticity": 0.1,
+                   "bounds": bounds,
+                   "jitter_per_second": 1e-5,
+                   "damping_per_second": 0.9
+                   }
     boundary_cfg = {"add_rate": add_rate}
 
     # Models
@@ -852,7 +872,7 @@ def get_mega_composite_doc(core=None, config=None):
 
 
     # Processes
-    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs)
+    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs)
     spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
     # mass_step = get_mass_total_step(mass_sources=mass_sources)
@@ -872,7 +892,7 @@ def get_mega_composite_doc(core=None, config=None):
         "state": {
             **spatial_kinetics,  # put them at the top level
             "fields": fields,
-            # "diffusion": diffusion,
+            "diffusion": diffusion,
             "particles": particles,
             "particle_exchange": particle_exchange,
             "particle_division": particle_division,
@@ -1045,7 +1065,7 @@ SIMULATIONS = {
         'description': 'This simulation combines Pymunk physics-based particles with dFBA metabolism in both the particles and the environment.',
         'doc_func': get_mega_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_LONG, #ER,
         'config': {},
         'plot_config': {'filename': 'mega_composite', "particles_row": "separate"}
     },

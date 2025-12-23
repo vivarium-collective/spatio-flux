@@ -13,7 +13,8 @@ from matplotlib.colors import hsv_to_rgb
 from matplotlib.gridspec import GridSpec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import colors as mcolors
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, Wedge
+import matplotlib.cm as cm
 
 
 def _evenly_spaced_indices(n_items, n_pick):
@@ -781,6 +782,7 @@ def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png
         plt.show()
 
 
+
 def plot_snapshots_grid(
     results,
     *,
@@ -803,6 +805,15 @@ def plot_snapshots_grid(
     particle_alpha: float = 0.9,
     particle_edgecolor=None,
     particle_linewidth: float = 0.0,
+
+    # sub-mass pie rendering
+    show_particle_submasses: bool = False,
+    submasses_key: str = "sub_masses",
+    submass_color_map=None,              # dict[label] -> color; if None, auto-assign from submass_cmap
+    submass_cmap: str = "tab20",
+    submass_min_fraction: float = 0.0,   # drop tiny slices (e.g. 0.01)
+    submass_draw_legend: bool = False,
+    submass_legend_fontsize: int = 8,
 
     # spacing / layout control
     figsize=None,
@@ -832,7 +843,23 @@ def plot_snapshots_grid(
       - particles_row="overlay": particles drawn on top of each field panel
       - particles_row="separate": add an extra last row with particles only
       - particles_row="none": do not draw particles
+
+    If show_particle_submasses=True, particles with a dict at p[submasses_key]
+    are drawn as pie charts whose wedges correspond to per-label masses.
+
+    Legend placement:
+      - If particles_row=="separate": legend is placed in the empty last-column cell
+        of the particles row (aligned with that row).
+      - If particles_row=="overlay": legend is placed OUTSIDE the grid to the right,
+        so it cannot overlap field colorbars.
     """
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.gridspec import GridSpec
+    from matplotlib.patches import Circle, Wedge
+    from matplotlib import cm
+    from pathlib import Path
+
     if bounds is None:
         raise ValueError("bounds=(xmax, ymax) required.")
     xmax, ymax = bounds
@@ -881,7 +908,7 @@ def plot_snapshots_grid(
     n_cols = len(col_indices)
 
     # -------------------------
-    # vmin/vmax per field (consistent scaling per field)
+    # vmin/vmax per field
     # -------------------------
     vminmax = {}
     for f in field_names:
@@ -893,7 +920,7 @@ def plot_snapshots_grid(
         vminmax[f] = (float(np.nanmin(flat)), float(np.nanmax(flat)))
 
     # -------------------------
-    # Layout: rows = field rows (+ optional particles-only row)
+    # Layout: rows
     # -------------------------
     field_rows = len(field_names)
     add_particles_row = (particles_row == "separate")
@@ -916,11 +943,9 @@ def plot_snapshots_grid(
     fig.subplots_adjust(left=left, right=right, top=top, bottom=bottom)
 
     # -------------------------
-    # Helpers: orientation + particles
+    # Helpers
     # -------------------------
     def field_for_imshow(a):
-        # Keep your existing behavior if you already have this function elsewhere.
-        # This is a safe default: treat input as already in imshow orientation.
         return np.asarray(a)
 
     def iter_particles(step):
@@ -932,7 +957,6 @@ def plot_snapshots_grid(
         return []
 
     def particle_radius(p):
-        # Prefer radius in world units (matches GIF)
         r = p.get(particle_radius_key, None)
         if r is not None:
             try:
@@ -940,7 +964,6 @@ def plot_snapshots_grid(
             except Exception:
                 pass
 
-        # Optional fallback: derive radius from mass
         if radius_fallback_from_mass:
             m = p.get(particle_mass_key, None)
             if m is None:
@@ -949,10 +972,98 @@ def plot_snapshots_grid(
                 m = max(float(m), 0.0)
             except Exception:
                 return None
-            # heuristic: radius ~ sqrt(mass)
             return (m ** 0.5) * float(mass_to_radius_scale)
-
         return None
+
+    # -------------------------
+    # Build consistent submass label -> color mapping
+    # -------------------------
+    def collect_submass_labels():
+        if not show_particle_submasses:
+            return []
+        labels = set()
+        for ti in col_indices:
+            step = data[ti]
+            for p in iter_particles(step):
+                sm = p.get(submasses_key, None)
+                if isinstance(sm, dict):
+                    labels.update(str(k) for k in sm.keys())
+        return sorted(labels)
+
+    submass_labels = collect_submass_labels()
+
+    if submass_color_map is None:
+        submass_color_map = {}
+    else:
+        submass_color_map = dict(submass_color_map)
+
+    if show_particle_submasses and submass_labels:
+        cmap_obj = cm.get_cmap(submass_cmap, max(len(submass_labels), 1))
+        for i, lab in enumerate(submass_labels):
+            if lab not in submass_color_map:
+                submass_color_map[lab] = cmap_obj(i)
+
+    legend_handles = []
+    if show_particle_submasses and submass_draw_legend and submass_labels:
+        import matplotlib.patches as mpatches
+        for lab in submass_labels:
+            legend_handles.append(mpatches.Patch(color=submass_color_map[lab], label=lab))
+
+    def draw_particle_pie(ax, x, y, r, sub_masses: dict) -> bool:
+        items = []
+        total = 0.0
+        for k, v in sub_masses.items():
+            try:
+                val = float(v)
+            except Exception:
+                continue
+            if val <= 0:
+                continue
+            items.append((str(k), val))
+            total += val
+
+        if total <= 0 or not items:
+            return False
+
+        if submass_min_fraction > 0:
+            items = [(k, v) for (k, v) in items if (v / total) >= submass_min_fraction]
+            total = sum(v for _, v in items)
+            if total <= 0:
+                return False
+
+        items.sort(key=lambda kv: kv[0])
+
+        start_angle = 0.0
+        for label, val in items:
+            frac = val / total
+            sweep = 360.0 * frac
+            color = submass_color_map.get(label, "gray")
+            ax.add_patch(
+                Wedge(
+                    (x, y),
+                    r,
+                    start_angle,
+                    start_angle + sweep,
+                    facecolor=color,
+                    edgecolor=particle_edgecolor,
+                    linewidth=particle_linewidth,
+                    alpha=particle_alpha,
+                )
+            )
+            start_angle += sweep
+
+        if particle_edgecolor is not None and particle_linewidth > 0:
+            ax.add_patch(
+                Circle(
+                    (x, y),
+                    r,
+                    fill=False,
+                    edgecolor=particle_edgecolor,
+                    linewidth=particle_linewidth,
+                    alpha=particle_alpha,
+                )
+            )
+        return True
 
     def draw_particles(ax, step):
         for p in iter_particles(step):
@@ -968,6 +1079,12 @@ def plot_snapshots_grid(
             r = particle_radius(p)
             if r is None or r <= 0:
                 continue
+
+            if show_particle_submasses:
+                sm = p.get(submasses_key, None)
+                if isinstance(sm, dict) and sm:
+                    if draw_particle_pie(ax, x, y, r, sm):
+                        continue
 
             color = p.get("color", "b")
             ax.add_patch(
@@ -1040,7 +1157,6 @@ def plot_snapshots_grid(
                 aspect="equal",
             )
 
-            # particles overlay (fixed sizing)
             if particles_row == "overlay" and overlay_particles:
                 draw_particles(ax, data[ti])
 
@@ -1049,7 +1165,6 @@ def plot_snapshots_grid(
             if show_time_labels and (r == n_rows - 1) and not add_particles_row:
                 add_time_label(ax, col_times[c])
 
-        # Colorbar (field rows only)
         if last_im is not None:
             cax = fig.add_subplot(gs[r, -1])
             cb = fig.colorbar(last_im, cax=cax)
@@ -1059,8 +1174,9 @@ def plot_snapshots_grid(
             add_row_label(first_ax_in_row, field)
 
     # -------------------------
-    # Optional particles-only row (no fields behind)
+    # Optional particles-only row
     # -------------------------
+    legend_ax = None  # we'll store the rightmost cell for legend if separate
     if add_particles_row:
         pr = n_rows - 1
         first_ax = None
@@ -1076,15 +1192,42 @@ def plot_snapshots_grid(
             if show_time_labels:
                 add_time_label(ax, col_times[c])
 
-        # Hide the colorbar cell in the particles-only row
-        ax_empty = fig.add_subplot(gs[pr, -1])
-        ax_empty.axis("off")
+        legend_ax = fig.add_subplot(gs[pr, -1])
+        legend_ax.axis("off")
 
         if first_ax is not None:
             add_row_label(first_ax, "particles")
 
     if suptitle:
         fig.suptitle(suptitle, fontsize=14)
+
+    # -------------------------
+    # Legend placement rules
+    # -------------------------
+    if show_particle_submasses and submass_draw_legend and legend_handles:
+        if add_particles_row and legend_ax is not None:
+            # Aligned with particles row: use that empty cell
+            legend_ax.legend(
+                handles=legend_handles,
+                loc="center left",
+                frameon=False,
+                fontsize=submass_legend_fontsize,
+                borderaxespad=0.0,
+                handlelength=1.2,
+                labelspacing=0.3,
+            )
+        else:
+            # Overlay mode: put legend to the RIGHT of the colorbar column (outside the grid)
+            fig.legend(
+                handles=legend_handles,
+                loc="center left",
+                bbox_to_anchor=(1.02, 0.5),   # outside; won't overlap field colorbars
+                frameon=False,
+                fontsize=submass_legend_fontsize,
+                borderaxespad=0.0,
+                handlelength=1.2,
+                labelspacing=0.3,
+            )
 
     # -------------------------
     # Save
@@ -1094,7 +1237,6 @@ def plot_snapshots_grid(
     fig.savefig(out_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return str(out_path)
-
 
 
 
@@ -1138,37 +1280,67 @@ def fields_and_agents_to_gif(
     figure_size_inches=(6, 6),
     dpi=90,
     show_time_title=False,
-    # coloring:
+
+    # coloring (agent base color)
     color_by_phylogeny=False,
     color_seed=None,
     base_s=0.70, base_v=0.95,
     mutate_dh=0.05, mutate_ds=0.03, mutate_dv=0.03,
     default_rgb=(0.2, 0.6, 0.9),
     uniform_color=(0.2, 0.6, 0.9),  # set None to disable uniforming
+
+    # NEW: submass pies
+    show_agent_submasses: bool = False,
+    submasses_key: str = "sub_masses",
+    submass_color_map=None,          # dict[label] -> matplotlib color
+    submass_cmap: str = "tab20",     # used to auto-assign missing labels
+    submass_min_fraction: float = 0.0,  # drop tiny wedges
+    submass_alpha: float = 0.95,
+    submass_edgecolor=None,
+    submass_linewidth: float = 0.0,
+    draw_submass_outline: bool = False,  # draw circle outline around pie
+    submass_outline_color="k",
+    submass_outline_lw: float = 0.4,
+
+    # optional legend (rendered into each frame, so off by default)
+    draw_submass_legend: bool = False,
+    submass_legend_loc: str = "upper right",
+    submass_legend_fontsize: int = 8,
 ):
     """
-    Merge of:
-      - plot_species_distributions_with_particles_to_gif (fields done right)
-      - pymunk_simulation_to_gif       (particles/agents config & coloring)
+    Render fields + agents to an animated GIF, with optional sub-mass pie rendering.
 
-    Assumes `data` is an iterable of frames, where each `frame` is a dict like:
+    Frame format:
         {
             'time': <float> (optional),
-            'fields': {
-                'species_1': 2D np.array,
-                'species_2': 2D np.array,
-                ...
-            },
-            'agents': {
-                agent_id_1: {'position': (x, y), 'radius': r, ...},
-                agent_id_2: {...},
-                ...
-            }
+            'fields': { name: 2D array, ... },
+            'agents': { agent_id: {'position': (x,y), 'radius': r, 'sub_masses': {...}, ...}, ... }
         }
 
-    `config` must contain:
+    config must contain:
         config['bounds'] = (xmax, ymax)
+
+    Submass pies:
+      - If show_agent_submasses=True and agent[submasses_key] is a dict,
+        the agent is drawn as a pie chart (Wedges) within its radius.
+      - Colors for submass labels are consistent across frames (within this GIF),
+        or can be enforced by passing submass_color_map.
     """
+    import os
+    import io
+    import base64
+    import numpy as np
+    import imageio
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Wedge, Circle
+    from matplotlib import cm
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    from IPython.display import display, HTML
+
+    # ---------- your existing helper expected ----------
+    # field_for_imshow should exist in your module; keep behavior consistent.
+    # If not, uncomment a simple default:
+    # def field_for_imshow(a): return np.asarray(a)
 
     # Make list of frames & downsample
     if isinstance(data, (list, tuple)):
@@ -1182,7 +1354,7 @@ def fields_and_agents_to_gif(
     xmax, ymax = config['bounds']
     extent = [0, xmax, 0, ymax]
 
-    # --- Collect species & global min/max over all frames (for consistent colorbars) ---
+    # --- Collect species & global min/max over all frames (consistent colorbars) ---
     first_fields = None
     for step in frames:
         if fields_key in step and step[fields_key]:
@@ -1204,13 +1376,12 @@ def fields_and_agents_to_gif(
                 vals.append(arr.ravel())
         if vals:
             cat = np.concatenate(vals)
-            global_min_max[species] = (np.nanmin(cat), np.nanmax(cat))
+            global_min_max[species] = (float(np.nanmin(cat)), float(np.nanmax(cat)))
         else:
             global_min_max[species] = (0.0, 1.0)
 
     # --- Color policy (mirrors pymunk_simulation_to_gif idea) ---
     if color_by_phylogeny:
-        # Assumes you have a helper similar to your existing one.
         rgb_colors = build_phylogeny_colors(
             frames, agents_key=agents_key, seed=color_seed,
             base_s=base_s, base_v=base_v,
@@ -1223,29 +1394,126 @@ def fields_and_agents_to_gif(
         def _color(agent_id):
             return uniform_color if uniform_color is not None else default_rgb
 
+    # -------------------------
+    # NEW: build consistent submass label -> color mapping across ALL frames used
+    # -------------------------
+    def iter_agents(frame_agents):
+        if isinstance(frame_agents, dict):
+            return frame_agents.items()
+        return enumerate(frame_agents)
+
+    def collect_submass_labels():
+        if not show_agent_submasses:
+            return []
+        labels = set()
+        for step in frames:
+            agents = step.get(agents_key, {})
+            for key, agent in iter_agents(agents):
+                sm = agent.get(submasses_key, None)
+                if isinstance(sm, dict):
+                    labels.update(str(k) for k in sm.keys())
+        return sorted(labels)
+
+    submass_labels = collect_submass_labels()
+
+    if submass_color_map is None:
+        submass_color_map = {}
+    else:
+        submass_color_map = dict(submass_color_map)
+
+    if show_agent_submasses and submass_labels:
+        cmap_obj = cm.get_cmap(submass_cmap, max(len(submass_labels), 1))
+        for i, lab in enumerate(submass_labels):
+            if lab not in submass_color_map:
+                submass_color_map[lab] = cmap_obj(i)
+
+    legend_handles = []
+    if show_agent_submasses and draw_submass_legend and submass_labels:
+        import matplotlib.patches as mpatches
+        for lab in submass_labels:
+            legend_handles.append(mpatches.Patch(color=submass_color_map[lab], label=lab))
+
+    def draw_agent_pie(ax, x, y, r, sub_masses: dict) -> bool:
+        items = []
+        total = 0.0
+        for k, v in sub_masses.items():
+            try:
+                val = float(v)
+            except Exception:
+                continue
+            if val <= 0:
+                continue
+            items.append((str(k), val))
+            total += val
+
+        if total <= 0 or not items:
+            return False
+
+        if submass_min_fraction > 0:
+            items = [(k, v) for (k, v) in items if (v / total) >= submass_min_fraction]
+            total = sum(v for _, v in items)
+            if total <= 0:
+                return False
+
+        items.sort(key=lambda kv: kv[0])  # stable ordering for consistent wedge arrangement
+
+        start = 0.0
+        for label, val in items:
+            frac = val / total
+            sweep = 360.0 * frac
+            color = submass_color_map.get(label, "gray")
+            ax.add_patch(
+                Wedge(
+                    (x, y),
+                    r,
+                    start,
+                    start + sweep,
+                    facecolor=color,
+                    edgecolor=submass_edgecolor,
+                    linewidth=submass_linewidth,
+                    alpha=submass_alpha,
+                )
+            )
+            start += sweep
+
+        if draw_submass_outline:
+            ax.add_patch(
+                Circle(
+                    (x, y),
+                    r,
+                    fill=False,
+                    edgecolor=submass_outline_color,
+                    linewidth=submass_outline_lw,
+                    alpha=min(1.0, submass_alpha + 0.05),
+                )
+            )
+
+        return True
+
     # --- Helper to draw agents/particles on an axis ---
     def draw_agents_on_axes(ax, agents):
         """
-        agents can be:
-            - dict: {agent_id: agent_dict}
-            - list: [agent_dict, ...]
-        agent_dict is expected to have:
-            - 'position': (x, y)
-            - 'radius': r
-            - optional 'id'
+        agents can be dict: {agent_id: agent_dict} or list: [agent_dict, ...]
+        agent_dict expected:
+            'position': (x, y)
+            'radius': r
+            optional 'id'
+            optional submasses dict at submasses_key
         """
-        if isinstance(agents, dict):
-            iterable = agents.items()
-        else:
-            iterable = enumerate(agents)
-
-        for key, agent in iterable:
+        for key, agent in iter_agents(agents):
             aid = agent.get('id', key)
             x, y = agent.get('position', (None, None))
             if x is None or y is None:
                 continue
-            r = agent.get('radius', 1.0)
+            r = float(agent.get('radius', 1.0))
 
+            if show_agent_submasses:
+                sm = agent.get(submasses_key, None)
+                if isinstance(sm, dict) and sm:
+                    if draw_agent_pie(ax, x, y, r, sm):
+                        continue  # done
+
+            # fallback: solid circle using base agent color
             rgb = _color(aid)
             circle = plt.Circle((x, y), r, color=rgb, alpha=0.9)
             ax.add_patch(circle)
@@ -1259,14 +1527,12 @@ def fields_and_agents_to_gif(
 
         n_species = len(species_names)
 
-        # Create subplots: 1 axis if no species; otherwise 1 per species
         fig, axs = plt.subplots(
             1, max(1, n_species),
             figsize=figure_size_inches,
             dpi=dpi,
         )
 
-        # Normalize axs to list
         if not isinstance(axs, np.ndarray):
             axs = np.array([axs])
         axs = axs.flatten()
@@ -1276,13 +1542,19 @@ def fields_and_agents_to_gif(
             ax.set_xlim(0, xmax)
             ax.set_ylim(0, ymax)
             ax.set_aspect('equal')
+            ax.set_xticks([])
+            ax.set_yticks([])
+
             if show_time_title:
                 t = step.get('time', idx)
                 ax.set_title(f'Particles at t = {t:.2f}')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
 
             draw_agents_on_axes(ax, agents)
+
+            # legend (per-frame; can be costly/visually busy)
+            if show_agent_submasses and draw_submass_legend and legend_handles:
+                ax.legend(handles=legend_handles, loc=submass_legend_loc,
+                          fontsize=submass_legend_fontsize, frameon=False)
 
         else:
             for j, species in enumerate(species_names):
@@ -1290,9 +1562,10 @@ def fields_and_agents_to_gif(
                 ax.set_xlim(0, xmax)
                 ax.set_ylim(0, ymax)
                 ax.set_aspect('equal')
+                ax.set_xticks([])
+                ax.set_yticks([])
 
                 if species in fields:
-                    # Match orientation behavior from your original fields function
                     raw_field = np.asarray(fields[species])
                     field_img = field_for_imshow(raw_field)
 
@@ -1307,7 +1580,6 @@ def fields_and_agents_to_gif(
                         origin='lower',
                     )
 
-                    # --- colorbar same height as subplot ---
                     divider = make_axes_locatable(ax)
                     cax = divider.append_axes("right", size="5%", pad=0.05)
                     fig.colorbar(im, cax=cax)
@@ -1320,11 +1592,15 @@ def fields_and_agents_to_gif(
 
                 draw_agents_on_axes(ax, agents)
 
+                # If you want ONE legend per frame, put it only on first axis:
+                if show_agent_submasses and draw_submass_legend and legend_handles and j == 0:
+                    ax.legend(handles=legend_handles, loc=submass_legend_loc,
+                              fontsize=submass_legend_fontsize, frameon=False)
+
         fig.suptitle(title, fontsize=16)
         plt.subplots_adjust(wspace=0.1, hspace=0.1)
         plt.tight_layout(pad=0.1)
 
-        # Save to buffer and append to GIF frames
         buf = io.BytesIO()
         plt.savefig(buf, format='png', dpi=dpi)
         buf.seek(0)
@@ -1347,4 +1623,3 @@ def fields_and_agents_to_gif(
     display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
 
     return filepath
-
