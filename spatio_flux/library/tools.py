@@ -134,7 +134,7 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     plot_settings.update(dict(
         dpi='300',
         # show_values=True,
-        # show_types=True,
+        show_types=True,
         collapse_redundant_processes={
             'exclude': [  # dont collapse these
                 ('particle_movement',),
@@ -142,6 +142,8 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
                 ('enforce_boundaries',),
                 ('glucose eater',),
                 ('acetate eater',),
+                ('newtonian_particles',),
+                ('particle_division',),
             ]
         },
         value_char_limit=20,

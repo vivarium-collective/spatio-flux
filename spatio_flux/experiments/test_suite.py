@@ -837,13 +837,13 @@ def get_mega_composite_doc(core=None, config=None):
                 "EX_glc__D_e": {"lower": 0, "upper": 0},  # no glucose uptake
                 "EX_o2_e": {"lower": -10, "upper": None},
                 "ATPM": {"lower": 1, "upper": 1}}}}
-    mass_sources = list(models.keys())
+
 
     # Processes
     diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs)
     spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
-    mass_step = get_mass_total_step(mass_sources=mass_sources)
+    # mass_step = get_mass_total_step(mass_sources=mass_sources)
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
@@ -862,11 +862,10 @@ def get_mega_composite_doc(core=None, config=None):
             "fields": fields,
             "diffusion": diffusion,
             "particles": particles,
-            "mass_step": mass_step,
             "particle_exchange": particle_exchange,
             "particle_division": particle_division,
-            # "enforce_boundaries": enforce_boundaries,
-            # "newtonian_particles": newtonian_particles,
+            "enforce_boundaries": enforce_boundaries,
+            "newtonian_particles": newtonian_particles,
         },
         "composition": composition,
     }
