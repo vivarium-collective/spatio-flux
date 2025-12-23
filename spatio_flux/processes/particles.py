@@ -588,45 +588,31 @@ class ParticleDivision(Step):
 
 class ParticleTotalMass(Step):
     """
-    Sum per-particle scalar keys into a single `mass` for ONE particle.
+    Sum per-particle scalar submasses into a single `mass` for ONE particle.
 
-    Intended to be placed *inside* each particle's subtree, where the local
-    store is `particle`.
+    Intended to be placed inside each particle's subtree, where `submasses`
+    is a map of float-valued contributions.
     """
-
-    config_schema = {
-        "mass_sources": {"_type": "list", "_default": []},
-        "mass_key": {"_type": "string", "_default": "mass"},
-    }
+    config_schema = {}
 
     def inputs(self):
-        # local particle store
-        return {"particle": "particle"}
+        return {"sub_masses": "map[float]"}
 
     def outputs(self):
-        # write back into the same local store
-        return {"particle": "particle"}
+        return {"total_mass": "float"}
 
     def initial_state(self, config=None):
         return {}
 
     def update(self, state):
-        p = state.get("particle", {}) or {}
-        sources = self.config.get("mass_sources", [])
-        out_key = self.config.get("mass_key", "mass")
-
-        if not sources:
-            return {}
+        submasses = state.get("sub_masses", {}) or {}
 
         total = 0.0
-        for k in sources:
-            v = p.get(k, 0.0)
+        for v in submasses.values():
             try:
                 total += float(v)
             except Exception:
+                # ignore non-numeric values defensively
                 continue
 
-        # update only this particle
-        return {"particle": {out_key: total}}
-
-
+        return {"total_mass": total}

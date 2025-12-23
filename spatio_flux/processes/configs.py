@@ -542,7 +542,12 @@ def get_dfba_particle_composition(core=None, model_file=None):
 
 
 
-def get_community_dfba_particle_composition(core=None, models=None, default_address="local:DynamicFBA"):
+def get_community_dfba_particle_composition(
+        core=None,
+        models=None,
+        default_address="local:DynamicFBA",
+        particle_mass_id="mass",
+):
     """
     Build a particle composition with multiple DynamicFBA processes per particle.
     Only supports the dict approach:
@@ -562,7 +567,7 @@ def get_community_dfba_particle_composition(core=None, models=None, default_addr
         raise ValueError("get_community_dfba_particle_composition requires a non-empty dict 'models'")
     allowed = {"model_file", "kinetic_params", "substrate_update_reactions", "bounds"}
 
-    mass_names = {k: f"{k} mass" for k in models.keys()}
+    mass_names = {k: f"{k}" for k in models.keys()}
     processes = {}
     for model_key, model_cfg in models.items():
         if not isinstance(model_key, str) or not model_key:
@@ -599,28 +604,33 @@ def get_community_dfba_particle_composition(core=None, models=None, default_addr
                 "wires",
                 {
                     "substrates": ["local"],
-                    "biomass": [mass_names[model_key]],
+                    "biomass": ["sub_masses", mass_names[model_key]],
                 },
             ),
             "outputs": default(
                 "wires",
                 {
                     "substrates": ["exchange"],
-                    "biomass": [mass_names[model_key]],
+                    "biomass": [particle_mass_id],
                 },
             ),
         }
 
     # add a mass step
     processes['particle_mass'] = {
-        '_type': 'step',
-        'address': 'local:ParticleTotalMass',
-        'config': {
-            'mass_sources': list(mass_names.values()),
-            'mass_key': 'mass'
-        },
-        'inputs': {'particle': ['..', '*']},
-        'outputs': {'particle': ['..', '*']}
+        '_type': 'process',
+        'address': default("string", "local:ParticleTotalMass"),
+        'inputs': default("wires", {'sub_masses': ['sub_masses']}),
+        'outputs': default("wires", {'total_mass': [particle_mass_id]})
+    }
+    processes["sub_masses"] = {
+        '_type': 'map',
+        '_value': {
+            mass_name: {
+                '_type': 'float'
+            }
+            for mass_name in mass_names.values()
+        }
     }
 
 

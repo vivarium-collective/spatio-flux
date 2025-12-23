@@ -855,9 +855,9 @@ def get_mega_composite_doc(core=None, config=None):
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold)
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
-   # # put mass metabolism inside the particles
-   #  for pid, internal in particles.items():
-   #      internal.update(initial_mass.copy())
+   # put mass metabolism inside the particles
+    for pid, internal in particles.items():
+        internal['sub_masses'] = initial_mass.copy()
 
     # composition
     composition = get_community_dfba_particle_composition(models=models)
