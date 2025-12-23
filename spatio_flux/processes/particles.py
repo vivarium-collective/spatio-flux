@@ -7,6 +7,7 @@ and probabilistic birth/death at the boundaries. Each particle moves,
 reads local field values, and can contribute to the environment.
 """
 import base64
+import pprint
 import uuid
 import numpy as np
 import math

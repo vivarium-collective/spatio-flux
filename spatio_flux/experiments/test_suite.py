@@ -777,11 +777,17 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
 
 def plot_newtonian_particle_comets(results, state, config=None):
     filename = config.get('filename', 'newtonian_particle_comets')
-    pymunk_config = state.get('newtonian_particles', {}).get('config')
-    bounds = state['diffusion']['config']['bounds'] #pymunk_config.get('bounds')
-    n_bins = state['diffusion']['config']['n_bins']
-    particles_row = config.get("particles_row", "overlay")
+    pymunk_config = state.get('newtonian_particles', {}).get('config', {})
+    if 'diffusion' in state:
+        bounds = state['diffusion']['config']['bounds']
+        n_bins = state['diffusion']['config']['n_bins']
+    elif 'particle_exchange' in state:
+        bounds = state['particle_exchange']['config']['bounds']
+        n_bins = state['particle_exchange']['config']['n_bins']
+    else:
+        raise ValueError
 
+    particles_row = config.get("particles_row", "overlay")
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
@@ -811,7 +817,7 @@ def get_mega_composite_doc(core=None, config=None):
     # Spatial fields
     biomass_id = "dissolved biomass"
     mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (0.2, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.01, 0.1)}
+    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.01, 0.01)}
     diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
 
     bounds = user_cfg.get("bounds", [b * 2 for b in DEFAULT_BOUNDS])
@@ -862,11 +868,11 @@ def get_mega_composite_doc(core=None, config=None):
     # composition
     composition = get_community_dfba_particle_composition(models=models)
 
-    return {
+    doc = {
         "state": {
-            **spatial_kinetics,  # put them at the top level
+            # **spatial_kinetics,  # put them at the top level
             "fields": fields,
-            "diffusion": diffusion,
+            # "diffusion": diffusion,
             "particles": particles,
             "particle_exchange": particle_exchange,
             "particle_division": particle_division,
@@ -875,6 +881,7 @@ def get_mega_composite_doc(core=None, config=None):
         },
         "composition": composition,
     }
+    return doc
 
 
 

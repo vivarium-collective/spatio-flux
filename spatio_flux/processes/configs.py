@@ -567,7 +567,6 @@ def get_community_dfba_particle_composition(
         raise ValueError("get_community_dfba_particle_composition requires a non-empty dict 'models'")
     allowed = {"model_file", "kinetic_params", "substrate_update_reactions", "bounds"}
 
-    mass_names = {k: f"{k}" for k in models.keys()}
     processes = {}
     for model_key, model_cfg in models.items():
         if not isinstance(model_key, str) or not model_key:
@@ -596,7 +595,7 @@ def get_community_dfba_particle_composition(
         config["bounds"] = config.get("bounds") or {}
 
         # Use model_key directly as the process node name
-        processes[model_key] = {
+        processes[f'{model_key} dFBA'] = {
             "_type": "process",
             "address": default("string", default_address),
             "config": default("node", config),
@@ -604,7 +603,7 @@ def get_community_dfba_particle_composition(
                 "wires",
                 {
                     "substrates": ["local"],
-                    "biomass": ["sub_masses", mass_names[model_key]],
+                    "biomass": ["sub_masses", model_key],
                 },
             ),
             "outputs": default(
@@ -617,7 +616,7 @@ def get_community_dfba_particle_composition(
         }
 
     # add a mass step
-    processes['particle_mass'] = {
+    processes['aggregate_mass'] = {
         '_type': 'process',
         'address': default("string", "local:ParticleTotalMass"),
         'inputs': default("wires", {'sub_masses': ['sub_masses']}),
@@ -629,10 +628,9 @@ def get_community_dfba_particle_composition(
             mass_name: {
                 '_type': 'float'
             }
-            for mass_name in mass_names.values()
+            for mass_name in models.keys()
         }
     }
-
 
     return {
         "particles": {

@@ -42,6 +42,9 @@ class Count(PositiveFloat):
 class PositiveArray(Array):
     """An array whose updates are accumulated and clamped elementwise to be non-negative."""
 
+@dataclass(kw_only=True)
+class Delta(Float):
+    pass
 
 # ---------------------------------------------------------------------
 # Render methods: dataclass schema -> registry name
@@ -167,4 +170,5 @@ positive_types = {
     "count": Count,
     "concentration": Concentration,
     "set_float": SetFloat,
+    "delta_conc": Delta,
 }
