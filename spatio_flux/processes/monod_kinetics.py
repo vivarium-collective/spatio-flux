@@ -375,8 +375,8 @@ class MonodKinetics(Process):
 
     def outputs(self):
         return {
-            'biomass': 'concentration',
-            'substrates': 'map[concentration]',
+            'biomass': 'float',
+            'substrates': 'map[float]',
         }
 
     @staticmethod

@@ -42,10 +42,10 @@ from spatio_flux.processes import (
 # Constants
 # ---------------------------------------------------------------------
 
-SQUARE_BOUNDS = (5.0, 5.0)
+SQUARE_BOUNDS = (50.0, 50.0)  # this is in um
 SQUARE_BINS = (10, 10)
 
-DEFAULT_BOUNDS = (5.0, 10.0)
+DEFAULT_BOUNDS = (50.0, 100.0)
 DEFAULT_BINS = (10, 20)
 DEFAULT_BINS_SMALL = (2, 4)
 DEFAULT_ADVECTION = (0.0, 0.2)
@@ -415,7 +415,13 @@ def plot_comets(results, state, config=None):
     n_snapshots = config.get('n_snapshots', 5)
     n_bins = state['diffusion']['config']['n_bins']
     bounds = state['diffusion']['config']['bounds']
-    plot_time_series(results, coordinates=[(0, int(n_bins[1]/2)), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+
+    # get coordinates for time series
+    nx, ny = n_bins
+    x0 = nx // 2
+    coord = [(0, x0), (x0, x0), (nx-1, x0)]
+
+    plot_time_series(results, out_dir='out', filename=f'{filename}_timeseries.png', coordinates=coord, )
     plot_snapshots_grid(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                         n_snapshots=n_snapshots, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
                         time_units="min",
@@ -433,14 +439,14 @@ def get_brownian_particles_alone_doc(core=None, config=None):
     bounds = DEFAULT_BOUNDS
     n_particles = 1
 
-    scaling = 0.001
+    scaling = 0.1
     diffusion_rate = DEFAULT_DIFFUSION * scaling
-    advection_rate = (d * scaling for d in DEFAULT_ADVECTION)
+    # advection_rate = (d * scaling for d in DEFAULT_ADVECTION)
     add_rate = DEFAULT_ADD_RATE
     doc = {
         'state': {
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
-            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=diffusion_rate, advection_rate=advection_rate),
+            'brownian_movement': get_brownian_movement_process(n_bins=n_bins, bounds=bounds, diffusion_rate=diffusion_rate),
             'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
         },
         'composition': {}
@@ -471,7 +477,8 @@ def plot_particles_sim(results, state, config=None):
 
 def get_br_particles_kinetics_doc(core=None, config=None):
     division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
-    initial_min_max = {'glucose': (1, 4), 'acetate': (0, 0)}
+    initial_min_max = {'glucose': (5.0, 10.0), 'acetate': (0, 0)}
+    initial_min_max = {'glucose': (5.0, 10.0), 'acetate': (0, 0)}
 
     model_id = config.get('model_id', 'overflow_metabolism')
     particle_config = MODEL_REGISTRY_KINETICS[model_id]()
@@ -480,8 +487,8 @@ def get_br_particles_kinetics_doc(core=None, config=None):
     n_bins = SQUARE_BINS
     bounds = SQUARE_BOUNDS
     n_particles = 1
-    particle_diffusion = DEFAULT_DIFFUSION
-    particle_advection = DEFAULT_ADVECTION
+    particle_diffusion = DEFAULT_DIFFUSION/2
+    particle_advection = (0,0) #DEFAULT_ADVECTION
     add_rate = 0.0
     return {
         'state': {
@@ -536,7 +543,9 @@ def plot_particle_dfba(results, state, config=None):
     bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=5, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'],
+                        n_snapshots=5, bounds=bounds, particles_row='separate',
+                        out_dir='out', filename=f'{filename}_snapshots.png')
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 
@@ -588,7 +597,9 @@ def plot_kinetic_particle_comets(results, state, config=None):
     n_bins = state['brownian_movement']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=n_snapshots, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'],
+                        n_snapshots=n_snapshots, bounds=bounds, particles_row='separate',
+                        out_dir='out', filename=f'{filename}_snapshots.png')
     plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
 
 
@@ -665,7 +676,9 @@ def plot_particle_dfba_comets(results, state, config=None):
     bounds = state['brownian_movement']['config']['bounds']
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'], coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
-    plot_snapshots_grid(results, field_names=['glucose', 'acetate'], n_snapshots=n_snapshots, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png')
+    plot_snapshots_grid(results, field_names=['glucose', 'acetate'],
+                        n_snapshots=n_snapshots, bounds=bounds, particles_row='separate',
+                        out_dir='out', filename=f'{filename}_snapshots.png')
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 
@@ -735,9 +748,8 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
     initial_min_max = {'glucose': (0.1, 2), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    bounds_default = tuple(x * 10 for x in DEFAULT_BOUNDS)
-    bounds = config.get('bounds', bounds_default)
-    n_bins = config.get('n_bins', DEFAULT_BINS)
+    bounds = config.get('bounds', SQUARE_BOUNDS)
+    n_bins = config.get('n_bins', SQUARE_BINS)
     advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
@@ -837,7 +849,7 @@ def get_mega_composite_doc(core=None, config=None):
     diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
     advection_coeffs = {biomass_id: (0.0, 0.5), 'acetate': (0.0, -0.2)}  # dissolved biomass floats to the top, while acetates sinks
 
-    bounds = user_cfg.get("bounds", [b * 10 for b in DEFAULT_BOUNDS])
+    bounds = user_cfg.get("bounds", DEFAULT_BOUNDS)  #[b * 10 for b in DEFAULT_BOUNDS])
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -983,7 +995,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'spatial_dfba_process'}
     },
 
-    # ---- Spatial  models ---------------------------------------------------
+    # ---- Spatial models ---------------------------------------------------
     'diffusion_process': {
         'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
         'doc_func': get_diffusion_process_doc,
@@ -992,6 +1004,8 @@ SIMULATIONS = {
         'config': {},
         'plot_config': {'filename': 'diffusion_process'}
     },
+
+    # ---- Brownian Particle composite models --------------------------------
     'brownian_particles': {
         'description': 'This simulation uses Brownian particles with mass moving randomly in space.',
         'doc_func': get_brownian_particles_alone_doc,
@@ -1000,13 +1014,11 @@ SIMULATIONS = {
         'config': {},
         'plot_config': {'filename': 'brownian_particles'}
     },
-
-    # ---- Brownian Particle composite models --------------------------------
     'br_particles_kinetics': {
         'description': 'This simulation uses Brownian particles with mass moving randomly, and with a kinetic reaction process inside of each particle uptaking or secreting from the field.',
         'doc_func': get_br_particles_kinetics_doc,
         'plot_func': plot_particles_sim,
-        'time': DEFAULT_RUNTIME_LONG,
+        'time': DEFAULT_RUNTIME_LONG*2,
         'config': {},
         'plot_config': {'filename': 'br_particles_kinetics', 'n_snapshots': 6}
     },
@@ -1022,13 +1034,13 @@ SIMULATIONS = {
     },
 
     # ---- COMETS-like composite models --------------------------------------
-    'comets': {
+    'comets_diffusion': {
         'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
         'doc_func': get_comets_doc,
         'plot_func': plot_comets,
         'time': 150,
         'config': {},
-        'plot_config': {'filename': 'comets', 'n_snapshots': 6}
+        'plot_config': {'filename': 'comets_diffusion', 'n_snapshots': 6}
     },
     'comets_br_particles_kinetics': {
         'description': 'This simulation extends COMETS with Brownian particles that have internal kinetic reaction processes.',
@@ -1070,7 +1082,7 @@ SIMULATIONS = {
         'description': 'This simulation combines Pymunk physics-based particles with dFBA metabolism in both the particles and the environment.',
         'doc_func': get_mega_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONG, #ER,
+        'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
         'plot_config': {'filename': 'mega_composite', "particles_row": "separate", "n_snapshots": 5}
     },

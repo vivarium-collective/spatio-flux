@@ -154,10 +154,10 @@ PLACEMENTS: List[Placement] = [
     # (a) viz spans top 2 rows, full width
     Placement("a", "viz", row=0, col=0, row_span=2, col_span=2),
     # (b) snapshots full width
-    Placement("b", "snapshots", row=2, col=0, row_span=1, col_span=2),
-    # (c) mass left, (d) timeseries right
-    Placement("c", "mass", row=3, col=0, row_span=1, col_span=1),
-    Placement("d", "timeseries", row=3, col=1, row_span=1, col_span=1),
+    Placement("b", "snapshots", row=2, col=0, row_span=2, col_span=2),
+    # # (c) mass left, (d) timeseries right
+    # Placement("c", "mass", row=3, col=0, row_span=1, col_span=1),
+    # Placement("d", "timeseries", row=3, col=1, row_span=1, col_span=1),
 ]
 
 

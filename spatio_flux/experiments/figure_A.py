@@ -47,7 +47,7 @@ TESTS_TO_RUN = [
     "monod_kinetics",
     "ecoli_core_dfba",
     "community_dfba",
-    "comets",
+    "comets_diffusion",
     "br_particles_kinetics",
 ]
 
@@ -55,7 +55,7 @@ RESULT_PNG_BY_TEST = {
     "monod_kinetics": None,
     "ecoli_core_dfba": None,
     "community_dfba": None,
-    "comets": None,
+    "comets_diffusion": None,
     "br_particles_kinetics": None,
 }
 
@@ -83,8 +83,8 @@ LAYOUT_ROWS = [
 
     # Row 3: comets composite
     [
-        ("e", "viz",    "comets", 0, 3),
-        ("f", "result", "comets", 3, 6),
+        ("e", "viz",    "comets_diffusion", 0, 3),
+        ("f", "result", "comets_diffusion", 3, 6),
     ],
 
     # Row 4: particles composite

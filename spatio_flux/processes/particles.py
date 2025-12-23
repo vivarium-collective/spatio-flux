@@ -391,15 +391,16 @@ class ParticleExchange(Step):
     def inputs(self):
         return {
             'particles': 'map[particle]',
-            'fields': {
-                '_type': 'map',
-                '_value': {
-                    '_type': 'array',
-                    '_shape': self.config['n_bins'],
-                    # '_data': 'concentration'
-                    '_data': 'float'
-                },
-            }
+            'fields': 'map[positive_array]',
+            # 'fields': {
+            #     '_type': 'map',
+            #     '_value': {
+            #         '_type': 'array',
+            #         '_shape': self.config['n_bins'],
+            #         # '_data': 'concentration'
+            #         # '_data': 'float'
+            #     },
+            # }
         }
 
     def outputs(self):

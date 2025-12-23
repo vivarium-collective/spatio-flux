@@ -18,6 +18,7 @@ COLORS = {
 
     # FIELDS (lighter, more neutral yellow)
     "fields":                      "#F3E8B3",
+    "mass":                        "#E1D07F",
 
     # DIFFUSION (field-adjacent, darker, clearly active)
     "diffusion":                   "#D6C35F",
@@ -31,6 +32,8 @@ COLORS = {
 
     # PARTICLE ↔ FIELD ADAPTER (yellow-green bridge)
     "exchange_adapter":            "#CBDD8A",
+
+    "orchestration": "#C9CED6"
 }
 
 
@@ -116,6 +119,10 @@ def build_plot_settings(
         ("particle_exchange",):         COLORS["exchange_adapter"],
         ("ParticleExchange",):          COLORS["exchange_adapter"],
 
+        # interval
+        ("brownian_movement", "interval"):   COLORS["orchestration"],
+        ("newtonian_particles", "interval"): COLORS["orchestration"],
+
         # newtonian particle family
         ("newtonian_particles",):       COLORS["newtonian_particles_process"],
         ("PymunkParticleMovement",):    COLORS["newtonian_particles_process"],
@@ -170,6 +177,7 @@ def build_plot_settings(
             ("particles", pid, "id"):       COLORS["particles_state"],
             ("particles", pid, "position"): COLORS["particles_state"],
             ("particles", pid, "mass"):     COLORS["particles_state"],
+            ("particles", pid, "sub_masses"): COLORS["particles_state"],
             ('particles', pid, 'local'):    COLORS["fields"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_process"],

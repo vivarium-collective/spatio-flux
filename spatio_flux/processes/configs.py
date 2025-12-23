@@ -602,7 +602,7 @@ def get_community_dfba_particle_composition(
         config["bounds"] = config.get("bounds") or {}
 
         # Use model_key directly as the process node name
-        processes[f'dFBA_{model_key}'] = {
+        processes[f'{model_key} dFBA'] = {
             "_type": "process",
             "address": default("string", default_address),
             "config": default("node", config),

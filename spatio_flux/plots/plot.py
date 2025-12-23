@@ -543,115 +543,90 @@ def plot_particles_snapshot(ax, particles, mass_scaling=1.0, xmax=1.0, ymax=1.0,
 
 
 def plot_species_distributions_with_particles_to_gif(
-        results,
-        out_dir=None,
-        filename='species_distribution_with_particles.gif',
-        title='',
-        skip_frames=1,
-        bounds=(1.0, 1.0),
-        mass_scaling=10.0
+    results,
+    out_dir=None,
+    filename='species_distribution_with_particles.gif',
+    title='',
+    skip_frames=1,
+    bounds=(1.0, 1.0),
+    mass_scaling=1.0,  # scaling factor for particle radius
+    min_mass=0.01,
 ):
-    """Create a GIF showing spatial fields and particles over time."""
+    """
+    Compatibility wrapper around fields_and_agents_to_gif.
 
-    # Sort and extract data
+    Converts:
+      - results / results[('emitter',)] -> list of frames
+      - particles -> agents with radius derived from mass
+    """
+
+    # Sort (keeps old behavior)
     sorted_results = sort_results(results)
-    species_names = list(sorted_results['fields'].keys())
-    n_species = len(species_names)
-    times = sorted_results['time']
-    n_times = len(times)
-    xmax, ymax = bounds
-    extent = [0, xmax, 0, ymax]
+    times = sorted_results.get('time', None)
 
-    # Compute global min/max per species for consistent color scaling
-    global_min_max = {
-        species: (
-            np.min(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)])),
-            np.max(np.concatenate([sorted_results['fields'][species][i].flatten() for i in range(n_times)]))
-        )
-        for species in species_names
-    }
-
-    # Handle emitter results if nested
+    # Handle nested emitter results (old behavior)
     if ('emitter',) in results:
-        results = results[('emitter',)]
-
-    images = []
-
-    for i in range(0, n_times, skip_frames):
-        fields = results[i].get('fields', {})
-        particles = results[i]['particles']
-
-        fig, axs = plt.subplots(
-            1, max(1, n_species),
-            figsize=(5 * max(1, n_species), 5)
-        )
-
-        if n_species == 0:
-            # Ensure axs is always iterable
-            if not isinstance(axs, np.ndarray):
-                axs = [axs]
-
-            ax = axs[0]
-            ax.set_xlim(0, xmax)
-            ax.set_ylim(0, ymax)
-            ax.set_aspect('equal')
-            ax.set_title(f'Particles at t = {times[i]:.2f}')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
-
-            plot_particles_snapshot(ax,
-                           particles,
-                           mass_scaling=mass_scaling,
-                           xmax=xmax, ymax=ymax,
-                           color='b', min_mass=0.01)
-        else:
-            # Ensure axs is a list of axes
-            if n_species == 1:
-                axs = [axs]
-
-            for j, species in enumerate(species_names):
-                ax = axs[j]
-                field = field_for_imshow(fields[species])
-                vmin, vmax = global_min_max[species]
-
-                im = ax.imshow(field, interpolation='nearest', cmap='viridis',
-                               vmin=vmin, vmax=vmax, extent=extent, origin='lower')
-                ax.set_title(f'{species} at t = {times[i]:.2f}')
-                plt.colorbar(im, ax=ax)
-
-                plot_particles_snapshot(ax,
-                               particles,
-                               mass_scaling=mass_scaling,
-                               xmax=xmax, ymax=ymax,
-                               color='b', min_mass=0.01)
-
-        fig.suptitle(title, fontsize=16)
-        plt.subplots_adjust(wspace=0.1, hspace=0.1)
-        plt.tight_layout(pad=0.1)
-
-        # Save to buffer and append to GIF frames
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=120)
-        buf.seek(0)
-        images.append(imageio.imread(buf))
-        buf.close()
-        plt.close(fig)
-
-    # Output filepath
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-        filepath = os.path.join(out_dir, filename)
+        steps = results[('emitter',)]
     else:
-        filepath = filename
+        steps = results
 
-    # print(f'Saving GIF to {filepath}')
-    imageio.mimsave(filepath, images, duration=0.5, loop=0)
+    # Convert each step into the frame format expected by fields_and_agents_to_gif
+    frames = []
+    for i, step in enumerate(steps):
+        fields = step.get('fields', {})
+        particles = step.get('particles', {})
 
-    # Inline display for Jupyter
-    with open(filepath, 'rb') as file:
-        data = file.read()
-        data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
-    display(HTML(f'<img src="{data_url}" alt="{title}" style="max-width:100%;"/>'))
+        # Convert particles -> agents (radius derived from mass)
+        agents = {}
+        for p_idx, p in particles.items():
+            pos = p.get('position', None)
+            if pos is None:
+                continue
+
+            mass = float(p.get('mass', 1.0))
+            if mass < min_mass:
+                continue
+
+            # # radius rule: sqrt scaling is usually perceptually nicer than linear
+            # r = float(np.sqrt(mass * mass_scaling))
+            # radius rule: area ∝ mass (correct 2D geometry)
+            r = float(np.sqrt((mass * mass_scaling) / np.pi))
+
+            aid = p.get('id', f"p{p_idx}")
+            agents[aid] = {
+                "id": aid,
+                "position": tuple(pos),
+                "radius": r,
+                # keep original mass if you want it later
+                "mass": mass,
+            }
+
+        t = None
+        if times is not None and i < len(times):
+            t = float(times[i])
+
+        frames.append({
+            "time": t if t is not None else float(i),
+            "fields": fields,
+            "agents": agents,
+        })
+
+    config = {"bounds": bounds}
+
+    return fields_and_agents_to_gif(
+        frames,
+        config,
+        agents_key="agents",
+        fields_key="fields",
+        filename=filename,
+        out_dir=out_dir or "out",
+        skip_frames=skip_frames,
+        title=title,
+        figure_size_inches=(5 * max(1, len(sorted_results.get("fields", {}))), 5),
+        dpi=120,                 # matches your old-ish output sharpness
+        show_time_title=True,    # closer to old labeling
+        uniform_color=(0.2, 0.6, 0.9),  # your default
+    )
 
 
 def plot_particles(
