@@ -98,7 +98,7 @@ def get_single_substrate_assimilation_kinetics_config():
                 'reactant': 'mass',
                 'product': 'acetate',
                 'km': 1.0,
-                'vmax': 0.001,
+                'vmax': 0.01,
                 'yield': 1.0,
             },
         }

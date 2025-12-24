@@ -839,17 +839,17 @@ def get_mega_composite_doc(core=None, config=None):
     user_cfg = config or {}
 
     # High-level knobs
-    division_mass_threshold = 0.4
+    division_mass_threshold = 0.5
     add_rate = 0.0
 
     # Spatial fields
     biomass_id = "dissolved biomass"
     mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.001, 0.02)}
-    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 0.0}
-    advection_coeffs = {biomass_id: (0.0, 0.5), 'acetate': (0.0, -0.2)}  # dissolved biomass floats to the top, while acetates sinks
+    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
+    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
+    advection_coeffs = {biomass_id: (0.0, -0.5), 'acetate': (0.0, 0.5)}  # dissolved biomass floats to the top, while acetates sinks
 
-    bounds = user_cfg.get("bounds", DEFAULT_BOUNDS)  #[b * 10 for b in DEFAULT_BOUNDS])
+    bounds = user_cfg.get("bounds", DEFAULT_BOUNDS)
     n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
 
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
@@ -866,26 +866,29 @@ def get_mega_composite_doc(core=None, config=None):
 
     # Models
     initial_submasses = {
-        'ecoli_1': 0.15,
-        'ecoli_2': 0.05
+        'ecoli_1': 0.1,
+        'ecoli_2': 0.1
     }
     models = {
         "ecoli_1": {
-            "model_file": "textbook",
-            "substrate_update_reactions": {"glucose": "EX_glc__D_e"},
-            "kinetic_params": {"glucose": (0.5, 1)},
-            "bounds": {
-                "EX_ac_e": {"lower": 0, "upper": None},  # no acetate uptake
-                "EX_o2_e": {"lower": -2, "upper": None},
-                "ATPM": {"lower": 1, "upper": 1}}},
+            'model_file': 'textbook',
+            'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
+            'kinetic_params': {'glucose': (0.5, 1), 'acetate': (0.5, 0.1)},
+            'bounds': {
+                'EX_o2_e': {'lower': -2, 'upper': None},
+                'ATPM': {'lower': 1, 'upper': 1}
+            },
+        },
         "ecoli_2": {
-            "model_file": "textbook",
-            "substrate_update_reactions": {"acetate": "EX_ac_e"},
-            "kinetic_params": {"acetate": (0.25, 2)},
-            "bounds": {
-                "EX_glc__D_e": {"lower": 0, "upper": 0},  # no glucose uptake
-                "EX_o2_e": {"lower": -10, "upper": None},
-                "ATPM": {"lower": 1, "upper": 1}}}}
+            'model_file': 'textbook',
+            'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
+            'kinetic_params': {'glucose': (0.5, 0.1), 'acetate': (0.1, 2)},
+            'bounds': {
+                'EX_o2_e': {'lower': -2, 'upper': None},
+                'ATPM': {'lower': 1, 'upper': 1}
+            }
+        }
+    }
 
 
     # Processes
@@ -1084,7 +1087,7 @@ SIMULATIONS = {
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONGER,
         'config': {},
-        'plot_config': {'filename': 'mega_composite', "particles_row": "separate", "n_snapshots": 5}
+        'plot_config': {'filename': 'integrated_composite_demo', "particles_row": "separate", "n_snapshots": 5}
     },
 }
 

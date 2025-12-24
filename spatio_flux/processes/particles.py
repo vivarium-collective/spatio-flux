@@ -501,44 +501,31 @@ class ParticleDivision(Step):
       - Tracks particle 'mass' only.
       - If mass >= division_mass_threshold, parent is removed and two children
         are created with half mass each, placed near the parent's position.
+      - Additionally splits particle['sub_mass']['sub_masses'] between daughters
+        either equally or randomly (conserving totals).
     """
 
-    # Same division-related knobs as in Particles, nothing else.
     config_schema = {
-        # If <= 0, division is disabled
         'division_mass_threshold': make_default('float', 0.0),
-
-        # Fraction of a reference length used as jitter radius for child placement.
-        # Reference length is inferred from current particle cloud extent
-        # (max range of x or y); if not inferable, falls back to 1.0.
         'division_jitter': make_default('float', 1e-3),
+
+        # How to split sub_mass['sub_masses'] across daughters: "equal" or "random"
+        'sub_mass_split': make_default('string', 'equal'),
     }
 
     def initialize(self, config):
-        # No environment to set up
         pass
 
     def inputs(self):
-        # Only particles are needed
-        return {
-            'particles': 'map[particle]',
-        }
+        return {'particles': 'map[particle]'}
 
     def outputs(self):
-        # Emit particle deltas in the same convention: _remove, _add,
-        # and/or per-id updates
-        return {
-            'particles': 'map[particle]',
-        }
+        return {'particles': 'map[particle]'}
 
     def initial_state(self, config=None):
-        # No default state; upstream composition provides particles
         return {}
 
     def _infer_ref_length(self, particles):
-        """
-        Infer a reference length from particle positions for jitter scaling.
-        """
         xs, ys = [], []
         for p in particles.values():
             pos = p.get('position')
@@ -554,21 +541,53 @@ class ParticleDivision(Step):
 
         return 1.0
 
-    def _make_child(self, parent, new_pos):
+    def _split_sub_masses(self, parent_sub_masses, mode):
         """
-        Create a child particle from parent with half mass and reset exchanges.
+        Split a dict of sub-masses into two dicts, conserving totals.
+        parent_sub_masses: dict[str, number]
+        mode: "equal" or "random"
         """
+        if not isinstance(parent_sub_masses, dict) or not parent_sub_masses:
+            return {}, {}
+
+        mode = (mode or "equal").lower().strip()
+        c1, c2 = {}, {}
+
+        for k, v in parent_sub_masses.items():
+            try:
+                m = float(v)
+            except (TypeError, ValueError):
+                # If it's not numeric, skip or set to 0.0 (choose conservative)
+                m = 0.0
+
+            m = max(m, 0.0)
+
+            if mode == "random":
+                u = float(np.random.uniform(0.0, 1.0))
+                c1[k] = m * u
+                c2[k] = m * (1.0 - u)
+            else:
+                # default: equal
+                half = m / 2.0
+                c1[k] = half
+                c2[k] = half
+
+        return c1, c2
+
+    def _make_child(self, parent, new_pos, child_mass, child_sub_masses):
         cid = short_id()
-
-        # shallow copy first
         child = dict(parent)
-
-        # remove any sub-dicts that contain 'instance'
         child = prune_instance_containers(child)
 
         child['id'] = cid
-        child['mass'] = max(parent.get('mass', 0.0), 0.0) / 2.0
+        child['mass'] = max(float(child_mass), 0.0)
         child['position'] = (float(new_pos[0]), float(new_pos[1]))
+
+        # IMPORTANT: do not inherit parent's sub_masses
+        child.pop('sub_masses', None)
+
+        # Always write the split values here (top-level)
+        child['sub_masses'] = dict(child_sub_masses) if isinstance(child_sub_masses, dict) else {}
 
         # reset exchanges if present
         exch = parent.get('exchange', {})
@@ -580,64 +599,58 @@ class ParticleDivision(Step):
     def update(self, state):
         particles = state['particles']
 
-
-        particle_internals = {}
-        for pid, p in particles.items():
-            if 'aggregate_mass' in p and 'instance' in p['aggregate_mass']:
-                inst = p['aggregate_mass']['instance']
-                particle_internals[pid] = f"mass = {p['mass']} : {p['sub_masses']} | {inst}"
-        print(f'ParticleDivision: {particle_internals}')
-
-
         updated_particles = {'_remove': [], '_add': {}}
         thr = float(self.config['division_mass_threshold'])
 
         if thr <= 0.0 or not particles:
-            # Division disabled or nothing to do: no changes
             return {'particles': {}}
 
-        # Pre-compute reference length for jitter radius
         ref_len = self._infer_ref_length(particles)
         r = float(self.config['division_jitter']) * ref_len
 
+        split_mode = str(self.config.get('sub_mass_split', 'equal')).lower().strip()
+
         for pid, particle in particles.items():
             mass = float(particle.get('mass', 0.0))
-            if mass >= thr:
-                # Remove parent
-                updated_particles['_remove'].append(pid)
+            if mass < thr:
+                continue
 
-                # Parent position (fallback to (0,0) if missing)
-                px, py = (0.0, 0.0)
-                pos = particle.get('position')
-                if isinstance(pos, (list, tuple)) and len(pos) == 2:
-                    px, py = float(pos[0]), float(pos[1])
+            # Remove parent
+            updated_particles['_remove'].append(pid)
 
-                # Symmetric jitter around parent
-                if r > 0.0:
-                    angle = float(np.random.uniform(0.0, 2.0 * np.pi))
-                    ox, oy = r * np.cos(angle), r * np.sin(angle)
-                else:
-                    ox, oy = 0.0, 0.0
+            # Parent position (fallback to (0,0) if missing)
+            px, py = (0.0, 0.0)
+            pos = particle.get('position')
+            if isinstance(pos, (list, tuple)) and len(pos) == 2:
+                px, py = float(pos[0]), float(pos[1])
 
-                c1_pos = (px + ox, py + oy)
-                c2_pos = (px - ox, py - oy)
+            # Symmetric jitter around parent
+            if r > 0.0:
+                angle = float(np.random.uniform(0.0, 2.0 * np.pi))
+                ox, oy = r * np.cos(angle), r * np.sin(angle)
+            else:
+                ox, oy = 0.0, 0.0
 
-                c1_id, c1 = self._make_child(particle, c1_pos)
-                c2_id, c2 = self._make_child(particle, c2_pos)
+            c1_pos = (px + ox, py + oy)
+            c2_pos = (px - ox, py - oy)
 
-                updated_particles['_add'][c1_id] = c1
-                updated_particles['_add'][c2_id] = c2
+            # Split parent mass equally (as before)
+            child_mass = max(mass, 0.0) / 2.0
 
-        # If nothing changed, return empty delta so upstream can skip writes
+            # Split sub_masses under sub_mass key
+            parent_sub_masses = particle.get('sub_masses', {})
+            c1_sub, c2_sub = self._split_sub_masses(parent_sub_masses, split_mode)
+
+            c1_id, c1 = self._make_child(particle, c1_pos, child_mass=child_mass, child_sub_masses=c1_sub)
+            c2_id, c2 = self._make_child(particle, c2_pos, child_mass=child_mass, child_sub_masses=c2_sub)
+
+            updated_particles['_add'][c1_id] = c1
+            updated_particles['_add'][c2_id] = c2
+
         if not updated_particles['_remove'] and not updated_particles['_add']:
             return {'particles': {}}
 
-        new_particles = {k: v['sub_masses'] for k, v in updated_particles['_add'].items()}
-        print(f'ParticleDivision: new particles={new_particles}')
-
-        return {
-            'particles': updated_particles
-        }
+        return {'particles': updated_particles}
 
 
 class ParticleTotalMass(Step):
@@ -650,14 +663,13 @@ class ParticleTotalMass(Step):
     config_schema = {}
 
     def initialize(self, config):
-        print('ParticleTotalMass initialize')
         pass
 
     def inputs(self):
         return {"sub_masses": "map[mass]"}
 
     def outputs(self):
-        return {"total_mass": "mass"}
+        return {"total_mass": "overwrite[mass]"}  #"set_float"}  #"set_float"}  #{"_type": "overwrite[mass]", "_apply": "set"}}
 
     def initial_state(self, config=None):
         return {}
@@ -673,5 +685,4 @@ class ParticleTotalMass(Step):
                 # ignore non-numeric values defensively
                 continue
 
-        print(f"ParticleTotalMass: submasses={submasses}, total={total}")
         return {"total_mass": total}

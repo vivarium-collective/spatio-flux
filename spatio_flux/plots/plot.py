@@ -14,7 +14,8 @@ from matplotlib.gridspec import GridSpec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import colors as mcolors
 from matplotlib.patches import Circle, Wedge
-import matplotlib.cm as cm
+import matplotlib.patches as mpatches
+from matplotlib import cm
 
 
 def _evenly_spaced_indices(n_items, n_pick):
@@ -768,7 +769,7 @@ def plot_particles_mass_with_submasses(
     mass_key='mass',
     submasses_key='sub_masses',
 
-    # NEW: total-mass coloring
+    # total-mass coloring
     color_total_by_particle: bool = True,
     particle_cmap: str = "tab20",
     total_mass_color='black',   # used only if color_total_by_particle=False
@@ -776,15 +777,10 @@ def plot_particles_mass_with_submasses(
 
     # submass styling
     submass_color_map=None,
-    submass_cmap='tab20',
+    submass_cmap='hsv',
     submass_lw=1.2,
     submass_alpha=0.85,
 ):
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from matplotlib import cm
-    import matplotlib.patches as mpatches
 
     # --- aggregate ---
     particle_traces = {}
@@ -820,24 +816,63 @@ def plot_particles_mass_with_submasses(
     times = sorted(times_seen)
     pids = sorted(particle_traces.keys())
 
-    # --- submass colors (consistent by label) ---
+    # --- particle colors (for total mass) ---
+    if color_total_by_particle:
+        # IMPORTANT: tab20 here is fine because we use a *discrete* version
+        p_cmap = cm.get_cmap(particle_cmap, max(len(pids), 1))
+        particle_color_map = {pid: p_cmap(i) for i, pid in enumerate(pids)}
+    else:
+        particle_color_map = {pid: total_mass_color for pid in pids}
+
+    # --- submass colors (consistent by label) and DISTINCT from particle colors ---
     if submass_color_map is None:
         submass_color_map = {}
     else:
         submass_color_map = dict(submass_color_map)
 
-    if all_submass_labels:
-        sm_cmap = cm.get_cmap(submass_cmap, max(len(all_submass_labels), 1))
-        for i, label in enumerate(sorted(all_submass_labels)):
-            if label not in submass_color_map:
-                submass_color_map[label] = sm_cmap(i)
+    def _rgb_key(c, nd=6):
+        return (round(float(c[0]), nd), round(float(c[1]), nd), round(float(c[2]), nd))
 
-    # --- particle colors (for total mass) ---
-    if color_total_by_particle:
-        p_cmap = cm.get_cmap(particle_cmap, max(len(pids), 1))
-        particle_color_map = {pid: p_cmap(i) for i, pid in enumerate(pids)}
-    else:
-        particle_color_map = {pid: total_mass_color for pid in pids}
+    reserved_rgb = {_rgb_key(c) for c in particle_color_map.values()}
+    reserved_rgb |= {_rgb_key(c) for c in submass_color_map.values()}
+
+    if all_submass_labels:
+        labels_sorted = sorted(all_submass_labels)
+        need = [lbl for lbl in labels_sorted if lbl not in submass_color_map]
+
+        if len(need) == 2:
+            # Two maximally separated hues from HSV (0 and 0.5)
+            cmap = cm.get_cmap(submass_cmap)  # continuous cmap
+            candidates = [cmap(0.0), cmap(0.5), cmap(0.25), cmap(0.75)]
+
+            chosen = []
+            for c in candidates:
+                if _rgb_key(c) not in reserved_rgb:
+                    chosen.append(c)
+                if len(chosen) == 2:
+                    break
+
+            # last resort fallback
+            if len(chosen) < 2:
+                set1 = cm.get_cmap("Set1")
+                chosen = [set1(0.0), set1(1.0)]
+
+            for lbl, c in zip(need, chosen):
+                submass_color_map[lbl] = c
+                reserved_rgb.add(_rgb_key(c))
+
+        elif len(need) > 0:
+            # General case: evenly sample floats in [0,1) (CRITICAL for continuous cmaps)
+            cmap = cm.get_cmap(submass_cmap)
+            xs = np.linspace(0.0, 1.0, num=len(need), endpoint=False)
+
+            for lbl, x in zip(need, xs):
+                c = cmap(float(x))
+                # avoid exact collisions with reserved colors
+                if _rgb_key(c) in reserved_rgb:
+                    c = cmap(float((x + 0.137) % 1.0))
+                submass_color_map[lbl] = c
+                reserved_rgb.add(_rgb_key(c))
 
     # --- plot ---
     plt.figure(figsize=(10, 6))
@@ -845,7 +880,7 @@ def plot_particles_mass_with_submasses(
 
     for idx, pid in enumerate(pids):
         total_series = [particle_traces[pid].get(t, np.nan) for t in times]
-        label = pid if idx < max_particle_legend else None
+        leg_label = pid if idx < max_particle_legend else None
 
         ax.plot(
             times,
@@ -853,7 +888,7 @@ def plot_particles_mass_with_submasses(
             color=particle_color_map[pid],
             linewidth=total_mass_lw,
             alpha=0.9,
-            label=label,
+            label=leg_label,
         )
 
         for label_sm, series_dict in particle_subtraces.get(pid, {}).items():
@@ -870,8 +905,7 @@ def plot_particles_mass_with_submasses(
     ax.set_ylabel("Mass")
     ax.set_title("Particle Total Mass (by particle) and Submasses (by label)")
 
-    # --- legends (robust two-legend pattern) ---
-    particle_leg = None
+    # --- legends (two-legend pattern) ---
     if pids and max_particle_legend > 0:
         particle_leg = ax.legend(
             bbox_to_anchor=(1.02, 1),
@@ -985,12 +1019,6 @@ def plot_snapshots_grid(
       - If particles_row=="overlay": legend is placed OUTSIDE the grid to the right,
         so it cannot overlap field colorbars.
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from matplotlib.gridspec import GridSpec
-    from matplotlib.patches import Circle, Wedge
-    from matplotlib import cm
-    from pathlib import Path
 
     if bounds is None:
         raise ValueError("bounds=(xmax, ymax) required.")
@@ -1458,16 +1486,6 @@ def fields_and_agents_to_gif(
       - Colors for submass labels are consistent across frames (within this GIF),
         or can be enforced by passing submass_color_map.
     """
-    import os
-    import io
-    import base64
-    import numpy as np
-    import imageio
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Wedge, Circle
-    from matplotlib import cm
-    from mpl_toolkits.axes_grid1 import make_axes_locatable
-    from IPython.display import display, HTML
 
     # ---------- your existing helper expected ----------
     # field_for_imshow should exist in your module; keep behavior consistent.
