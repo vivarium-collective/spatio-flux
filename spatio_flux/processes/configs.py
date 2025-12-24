@@ -635,7 +635,7 @@ def get_community_dfba_particle_composition(
     processes["sub_masses"] = {
         '_type': 'map',
         '_value': {
-            mass_name: {'_type': 'mass'} for mass_name in models.keys()}}
+            mass_name: 'mass' for mass_name in models.keys()}}
     # processes["sub_masses"] = 'map[mass]'
     # processes["sub_masses"] = {
     #     mass_name: 'mass' for mass_name in models.keys()
