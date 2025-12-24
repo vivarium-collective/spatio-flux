@@ -13,7 +13,7 @@ This module defines those types in one place and exposes a single entry point:
     register_types(core) -> core
 """
 
-from bigraph_schema import default
+from bigraph_schema import make_default
 
 from spatio_flux.types import CountConcentrationVolume, positive_types
 

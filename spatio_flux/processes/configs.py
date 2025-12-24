@@ -6,7 +6,7 @@ TODO -- all the get_ functions here should be derived from their processes' conf
 import numpy as np
 from bigraph_schema import deep_merge
 
-from process_bigraph import default
+from bigraph_schema import make_default
 from spatio_flux.library.tools import initialize_fields, build_path
 from spatio_flux.processes import MonodKinetics, get_kinetics_process_from_registry
 from spatio_flux.processes.particles import generate_multiple_particles_state, INITIAL_MASS_RANGE
@@ -481,13 +481,13 @@ def get_kinetic_particle_composition(core, config=None):
             '_value': {
                 'monod_kinetics': {
                     '_type': 'process',
-                    'address': default('protocol', 'local:MonodKinetics'),
-                    'config': default('node', config),
-                    'inputs': default('wires', {
+                    'address': make_default('protocol', 'local:MonodKinetics'),
+                    'config': make_default('node', config),
+                    'inputs': make_default('wires', {
                         'substrates': ['local'],
                         'biomass': ['mass']
                     }),
-                    'outputs': default('wires', {
+                    'outputs': make_default('wires', {
                         'substrates': ['exchange'],
                         'biomass': ['mass']
                     })
@@ -532,13 +532,13 @@ def get_dfba_particle_composition(core=None, model_file=None):
             '_value': {
                 'dFBA': {
                     '_type': 'process',
-                    'address': default('string', 'local:DynamicFBA'),
-                    'config': default('node', config),
-                    'inputs': default('wires', {
+                    'address': make_default('string', 'local:DynamicFBA'),
+                    'config': make_default('node', config),
+                    'inputs': make_default('wires', {
                         'substrates': ['local'],
                         'biomass': ['mass']
                     }),
-                    'outputs': default('wires', {
+                    'outputs': make_default('wires', {
                         'substrates': ['exchange'],
                         'biomass': ['mass']
                     })
@@ -604,16 +604,16 @@ def get_community_dfba_particle_composition(
         # Use model_key directly as the process node name
         processes[f'{model_key} dFBA'] = {
             "_type": "process",
-            "address": default("string", default_address),
-            "config": default("node", config),
-            "inputs": default(
+            "address": make_default("string", default_address),
+            "config": make_default("node", config),
+            "inputs": make_default(
                 "wires",
                 {
                     "substrates": ["local"],
                     "biomass": ["sub_masses", model_key],
                 },
             ),
-            "outputs": default(
+            "outputs": make_default(
                 "wires",
                 {
                     "substrates": ["exchange"],
@@ -625,10 +625,10 @@ def get_community_dfba_particle_composition(
     # add a mass step
     processes['aggregate_mass'] = {
         '_type': 'step',
-        'address': default("string", "local:ParticleTotalMass"),
-        'config': default("node", {}),
-        'inputs': default("wires", {'sub_masses': ['sub_masses']}),
-        'outputs': default("wires", {'total_mass': [particle_mass_id]})
+        'address': make_default("string", "local:ParticleTotalMass"),
+        'config': make_default("node", {}),
+        'inputs': make_default("wires", {'sub_masses': ['sub_masses']}),
+        'outputs': make_default("wires", {'total_mass': [particle_mass_id]})
     }
 
     # TODO -- this is making the type display wrong
