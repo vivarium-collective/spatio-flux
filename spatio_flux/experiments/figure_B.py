@@ -28,7 +28,7 @@ from spatio_flux.experiments.test_suite import (  # type: ignore
 # -------------------------
 # Config
 # -------------------------
-TEST_NAME = "mega_composite"
+TEST_NAME = "integrated_composite_demo"
 OUT_DIR = Path("out")
 OUT_FIGURE = OUT_DIR / "mega-composite.png"
 

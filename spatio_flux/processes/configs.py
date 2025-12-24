@@ -624,8 +624,9 @@ def get_community_dfba_particle_composition(
 
     # add a mass step
     processes['aggregate_mass'] = {
-        '_type': 'process',
+        '_type': 'step',
         'address': default("string", "local:ParticleTotalMass"),
+        'config': default("node", {}),
         'inputs': default("wires", {'sub_masses': ['sub_masses']}),
         'outputs': default("wires", {'total_mass': [particle_mass_id]})
     }

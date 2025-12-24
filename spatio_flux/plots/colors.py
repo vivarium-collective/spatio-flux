@@ -188,8 +188,8 @@ def build_plot_settings(
             ('particles', pid, 'radius'):   COLORS["newtonian_particles_state"],
             ('particles', pid, 'elasticity'): COLORS["newtonian_particles_state"],
             ('particles', pid, 'friction'): COLORS["newtonian_particles_state"],
-            ('particles', pid, 'dFBA_ecoli_1'): COLORS["dfba_process"],
-            ('particles', pid, 'dFBA_ecoli_2'): COLORS["dfba_process"],
+            ('particles', pid, 'ecoli_1 dFBA'): COLORS["dfba_process"],
+            ('particles', pid, 'ecoli_2 dFBA'): COLORS["dfba_process"],
             ('particles', pid, 'aggregate_mass'): COLORS["exchange_adapter"],
         })
         fills.update({

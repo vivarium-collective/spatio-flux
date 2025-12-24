@@ -61,6 +61,11 @@ def render(schema: PositiveFloat, defaults: bool = False):
 
 
 @render.dispatch
+def render(schema: Mass, defaults: bool = False):
+    return "mass"
+
+
+@render.dispatch
 def render(schema: PositiveArray, defaults: bool = False):
     return "positive_array"
 

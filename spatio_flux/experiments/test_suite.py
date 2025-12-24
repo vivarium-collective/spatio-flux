@@ -1077,8 +1077,8 @@ SIMULATIONS = {
         'plot_config': {'filename': 'comets_nt_particles_dfba'}
     },
 
-    # ---- Mega-composite models ---------------------------------------------
-    'mega_composite': {
+    # ---- Integrated-Composite Demo  ---------------------------------------------
+    'integrated_composite_demo': {
         'description': 'This simulation combines Pymunk physics-based particles with dFBA metabolism in both the particles and the environment.',
         'doc_func': get_mega_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
