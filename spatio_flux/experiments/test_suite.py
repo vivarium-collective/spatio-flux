@@ -747,28 +747,28 @@ def plot_newtonian_particles(results, state, config=None):
 def get_newtonian_particle_comets_doc(core=None, config=None):
     config = config or {}
 
-    division_mass_threshold = 0.4
+    division_mass_threshold = 0.5
     add_rate = 0.01  # 0.02
 
     particle_model_id = config.get('particle_model_id', 'ecoli core')
     dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    initial_min_max = {'glucose': (0.1, 2), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
+    initial_min_max = {'glucose': (0.5, 2), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
     bounds = config.get('bounds', SQUARE_BOUNDS)
-    n_bins = config.get('n_bins', SQUARE_BINS)
+    n_bins = config.get('n_bins', tuple(n * 2 for n in SQUARE_BINS))
     advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
     fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
 
     # pymunk
-    n_particles = config.get('n_particles', 1)
+    n_particles = config.get('n_particles', 2)
 
     # run simulation
-    config = {
+    particle_config = {
         'gravity': -1.0,  #-0.2, -9.81,
         'elasticity': 0.1,
         'bounds': bounds,
-        'jitter_per_second': 1e-3,   # 0.01,
-        'damping_per_second': 1e-3,  #5,  #.995,
+        'jitter_per_second': 1e-1,   # 0.01,
+        'damping_per_second': 1e-1,  #5,  #.995,
     }
     boundary_config = {
         'add_rate': add_rate,
@@ -783,11 +783,16 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
             # 'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
             'spatial_kinetics': get_spatial_many_kinetics(model_id='single_substrate_assimilation', n_bins=n_bins, mol_ids=mol_ids),
-            'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=config['bounds']),
-            'newtonian_particles': get_newtonian_particles_process(config=config),
+            'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=bounds),
+            'newtonian_particles': get_newtonian_particles_process(config=particle_config),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='newtonian_particles', bounds=bounds, add_rate=boundary_config['add_rate']),
+            'enforce_boundaries': get_boundaries_process(
+                particle_process_name='newtonian_particles', bounds=bounds,
+                boundary_to_add=('top',),
+                add_rate=boundary_config['add_rate'],
+                mass_range=(1e-3, 1e-2)
+            ),
         },
         'composition': get_dfba_particle_composition(model_file=particle_model_id)
     }
