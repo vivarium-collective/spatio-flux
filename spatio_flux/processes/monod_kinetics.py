@@ -372,7 +372,7 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'biomass': 'concentration',
+            'biomass': 'mass',
             'substrates': 'map[concentration]',
         }
 
