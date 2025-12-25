@@ -10,13 +10,14 @@ from dataclasses import dataclass, replace, field
 
 import numpy as np
 
-from bigraph_schema.schema import Array, Float, Number, Tuple
+from bigraph_schema.schema import Array, Float, Number, Tuple, Map, String, Node
 from bigraph_schema.methods import apply, render, resolve
 
 
 # ---------------------------------------------------------------------
 # Type definitions
 # ---------------------------------------------------------------------
+
 
 @dataclass(kw_only=True)
 class Position(Tuple):
@@ -60,6 +61,29 @@ class PositiveArray(Array):
 @dataclass(kw_only=True)
 class Delta(Float):
     pass
+
+
+@dataclass(kw_only=True)
+class Substrates(Map):
+    _key: Node = field(default_factory=String)
+    _value: Node = field(default_factory=PositiveArray)
+
+@dataclass(kw_only=True)
+class Fields(Map):
+    bin_volume: PositiveFloat = field(default_factory=PositiveFloat)
+    substrates: Substrates = field(default_factory=Substrates)
+
+# @dataclass(kw_only=True)
+# class Fields(Map):
+    # volume: PositiveFloat = field(default_factory=PositiveFloat)
+    # # map from string ids -> array-valued fields
+    # fields: Map = field(
+    #     default_factory=lambda: Map(
+    #         _key=String(),
+    #         _value=PositiveArray(),
+    #     )
+    # )
+
 
 # ---------------------------------------------------------------------
 # Render methods: dataclass schema -> registry name
@@ -147,6 +171,12 @@ def resolve(current: Concentration, update: Float, path=()):
 
 
 @apply.dispatch
+def apply(schema: Fields, state, update, path):
+    # Replacement semantics.
+    return update, []
+
+
+@apply.dispatch
 def apply(schema: SetFloat, state, update, path):
     # Replacement semantics.
     return update, []
@@ -211,4 +241,6 @@ positive_types = {
     "concentration": Concentration,
     "set_float": SetFloat,
     "delta_conc": Delta,
+    "fields": Fields,
+    "substrates": Substrates,
 }

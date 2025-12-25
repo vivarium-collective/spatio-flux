@@ -112,7 +112,7 @@ def get_single_dfba_process(
 def get_spatial_dFBA_process(
         model_id=None,  # choose default from ['ecoli core', 'ecoli', 'cdiff', 'pputida', 'yeast', 'llactis']
         config=None,
-        path=None,
+        fields_path=None,
 ):
     """
     optional model_id if no 'model_grid' in config
@@ -120,7 +120,7 @@ def get_spatial_dFBA_process(
     """
     assert 'n_bins' in config, "Configuration must include 'n_bins' for spatial DFBA."
 
-    path = path or ['fields']
+    fields_path = fields_path or ['fields']
     mol_ids = config.get("mol_ids") or ["glucose", "acetate"]
     biomass_id = config.get("biomass_id") or "dissolved biomass"
 
@@ -138,12 +138,12 @@ def get_spatial_dFBA_process(
         "address": "local:SpatialDFBA",
         "config": config,
         "inputs": {
-            "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id)
+            "fields": {mol_id: build_path(fields_path, mol_id) for mol_id in mol_ids},
+            "biomass": build_path(fields_path, biomass_id)
         },
         "outputs": {
-            "fields": {mol_id: build_path(path, mol_id) for mol_id in mol_ids},
-            "biomass": build_path(path, biomass_id)
+            "fields": {mol_id: build_path(fields_path, mol_id) for mol_id in mol_ids},
+            "biomass": build_path(fields_path, biomass_id)
         }
     }
 
@@ -156,6 +156,8 @@ import numpy as np
 def get_fields(
     n_bins,
     mol_ids,
+    bounds,
+    depth=1.0,
     initial_min_max=None,
     initial_fields=None,
     dtype=float,
@@ -169,6 +171,10 @@ def get_fields(
         Number of bins in x and y (config-space).
     mol_ids : iterable of str
         Molecule IDs to create fields for.
+    bounds : tuple (x_max, y_max)
+        Physical extent of the domain (assumes x,y start at 0).
+    depth : float
+        Depth of the domain (for volume). Use 1.0 for effectively-2D area-as-volume.
     initial_min_max : dict, optional
         {mol_id: (min, max)} for random initialization.
     initial_fields : dict, optional
@@ -178,13 +184,30 @@ def get_fields(
 
     Returns
     -------
-    dict : {mol_id: ndarray}
-        Each ndarray has shape (ny, nx).
+    dict
+        {
+          'substrates': {mol_id: ndarray(shape=(ny,nx))},
+          'bin_volume': float
+        }
     """
     initial_min_max = initial_min_max or {}
     initial_fields = dict(initial_fields) if initial_fields else {}
 
     nx, ny = n_bins
+    x_max, y_max = float(bounds[0]), float(bounds[1])
+    depth = float(depth)
+
+    if nx <= 0 or ny <= 0:
+        raise ValueError(f"n_bins must be positive, got {n_bins}")
+    if x_max <= 0 or y_max <= 0:
+        raise ValueError(f"bounds must be positive, got {bounds}")
+    if depth <= 0:
+        raise ValueError(f"depth must be positive, got {depth}")
+
+    dx = x_max / nx
+    dy = y_max / ny
+    bin_volume = dx * dy * depth  # volume per bin
+
     shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
 
     for mol_id in mol_ids:
@@ -204,7 +227,10 @@ def get_fields(
             size=shape
         ).astype(dtype)
 
-    return initial_fields
+    return {
+        'substrates': initial_fields,
+        'bin_volume': float(bin_volume),
+    }
 
 
 def get_fields_with_schema(
@@ -300,6 +326,7 @@ def get_diffusion_advection_process(
         default_advection_rate=(0, 0),
         diffusion_coeffs=None,
         advection_coeffs=None,
+        fields_path=None,
 ):
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'dissolved biomass']
@@ -307,6 +334,7 @@ def get_diffusion_advection_process(
         diffusion_coeffs = {}
     if advection_coeffs is None:
         advection_coeffs = {}
+    fields_path = fields_path or ['fields']
 
     # fill in the missing diffusion and advection rates
     diffusion_coeffs_all = {
@@ -330,10 +358,10 @@ def get_diffusion_advection_process(
                 'advection_coeffs': advection_coeffs_all,
             },
             'inputs': {
-                'fields': ['fields']
+                'fields': fields_path
             },
             'outputs': {
-                'fields': ['fields']
+                'fields': fields_path
             }
         }
 
@@ -412,10 +440,12 @@ def get_particle_exchange_process(
         bounds=(10.0, 10.0),
         rates_are_per_time=True,
         apply_mass_balance=False,
+        fields_path=None,
 ):
     config = locals()
     # Remove any key-value pair where the value is None
     config = {key: value for key, value in config.items() if value is not None}
+    fields_path = fields_path or ['fields']
 
     return {
         '_type': 'step',
@@ -423,11 +453,11 @@ def get_particle_exchange_process(
         'config': config,
         'inputs': {
             'particles': ['particles'],
-            'fields': ['fields'],
+            'fields': fields_path,
         },
         'outputs': {
             'particles': ['particles'],
-            'fields': ['fields'],
+            'fields': fields_path,
         },
     }
 

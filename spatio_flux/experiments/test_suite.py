@@ -565,10 +565,10 @@ def get_comets_br_particles_kinetics_doc(core=None, config=None):
     n_particles = 1
     add_rate = 0.1
 
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
+    fields = get_fields(n_bins=n_bins, bounds=bounds, depth=1.0, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
     n_grid = (n_bins[1], n_bins[0])  # shape (ny, nx)
-    fields['dissolved biomass'] = np.zeros(n_grid)  # Initialize biomass field to zero
-    fields['dissolved biomass'][0, int(n_grid[0]/4):int(3*n_grid[0]/4)] = 0.1  # Add some biomass in the first row
+    fields['substrates']['dissolved biomass'] = np.zeros(n_grid)  # Initialize biomass field to zero
+    fields['substrates']['dissolved biomass'][0, int(n_grid[0]/4):int(3*n_grid[0]/4)] = 0.1  # Add some biomass in the first row
 
     # make the spatial dfba with different models and parameters
     spatial_dFBA_config = {
@@ -579,13 +579,17 @@ def get_comets_br_particles_kinetics_doc(core=None, config=None):
 
     return {
         'state': {
-            'fields': fields,
+            'fields': {
+                **fields,
+                'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id, fields_path=['substrates']),
+                'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, fields_path=['substrates']),
+            },
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds, mass_range=(1E0, 1E1)),
-            'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
-            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
+            # # 'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
+            # # 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
             'brownian_movement': get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
             'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds, fields_path=['fields', 'substrates']),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
         'composition': get_kinetic_particle_composition(core, config=particle_config)
@@ -595,15 +599,19 @@ def plot_kinetic_particle_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_comets')
     n_snapshots = config.get('n_snapshots', 5)
-    bounds = state['brownian_movement']['config']['bounds']
-    n_bins = state['particle_exchange']['config']['n_bins']
-    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
+    bounds = state['fields']['diffusion']['config']['bounds']
+    n_bins = state['fields']['diffusion']['config']['n_bins']
+    # bounds = state['brownian_movement']['config']['bounds']
+    # n_bins = state['particle_exchange']['config']['n_bins']
+    plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png', fields_path=['fields', 'substrates'])
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
     plot_snapshots_grid(results, field_names=['glucose', 'acetate'],
                         n_snapshots=n_snapshots, bounds=bounds, particles_row='separate',
                         out_dir='out', filename=f'{filename}_snapshots.png')
-    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds)
-
+    plot_species_distributions_with_particles_to_gif(results, out_dir='out', filename=f'{filename}_video.gif', bounds=bounds, fields_path=['fields', 'substrates'])
+    history = [step['particles'] for step in results]
+    plot_particle_traces(history=history, bounds=bounds, out_dir="out", filename=f'{filename}_particles_traces.png',
+                         radius_scaling=0.1, min_brightness=0.1,)
 
 # --- dFBA-Particles-COMETS ---------------------------------------------------
 

@@ -79,27 +79,11 @@ class DiffusionAdvection(Process):
 
     def inputs(self):
         return {
-            'fields': {
-                '_type': 'map',
-                '_value': {
-                    '_type': 'array',
-                    '_shape': self.config['n_bins'],  # (ny, nx)
-                    '_data': 'float',
-                },
-            }
+            'fields': 'substrates',
         }
 
     def outputs(self):
-        return {
-            'fields': {
-                '_type': 'map',
-                '_value': {
-                    '_type': 'array',
-                    '_shape': self.config['n_bins'],  # (ny, nx)
-                    '_data': 'float',
-                },
-            }
-        }
+        return self.inputs()
 
     def update(self, state, interval):
         fields_in = state['fields']

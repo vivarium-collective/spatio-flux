@@ -186,6 +186,10 @@ def plot_time_series(
         log_scale=False,
         normalize=False,
 
+        # fields selection
+        fields_key='fields',
+        fields_path=None,          # list/tuple of keys; takes precedence over fields_key
+
         # sizing / appearance
         figsize=(12, 6),
         dpi=None,
@@ -217,22 +221,74 @@ def plot_time_series(
     """
     Plots time series for specified fields and coordinates from the results.
 
-    Features:
-      - figsize/dpi control
-      - optional title (default None)
-      - time units + optional scaling
-      - per-field units
-      - normalization labeling
-      - per-field colors/styles
-      - reserved semantic colors won't be reused for other fields
-      - legend placed outside to the right (no overlap)
+    Supports:
+      - flat fields: results['fields'][field]
+      - nested fields via fields_path, e.g. ['fields','substrates']
 
-    Expects `sort_results(results)` to exist and return:
-      {
-        'time': [...],
-        'fields': { field_name: [scalar_or_array_per_time, ...], ... }
-      }
+    If fields_path is provided, it takes precedence over fields_key.
     """
+
+    # -------------------------
+    # Helpers
+    # -------------------------
+    def _get_in(d, path, default=None):
+        cur = d
+        for k in path:
+            if not isinstance(cur, dict) or k not in cur:
+                return default
+            cur = cur[k]
+        return cur
+
+    def _get_fields_raw(sorted_results):
+        # returns whatever is at fields_path (preferred) or fields_key
+        if fields_path is not None:
+            path = fields_path if isinstance(fields_path, (list, tuple)) else [fields_path]
+            return _get_in(sorted_results, path, default={})  # could be dict or list
+        return sorted_results.get(fields_key, {})
+
+    def _fields_list_to_series(fields_list, times_len):
+        """
+        Convert list[dict(field->value)] into dict[field] = [value_t0, value_t1, ...]
+        Missing fields become None at those timesteps.
+        """
+        if not isinstance(fields_list, (list, tuple)):
+            raise TypeError("fields_list_to_series expects a list/tuple")
+
+        # gather all field names seen
+        names = set()
+        for step_fields in fields_list:
+            if isinstance(step_fields, dict):
+                names.update(step_fields.keys())
+
+        series = {name: [None] * times_len for name in names}
+        for t in range(min(times_len, len(fields_list))):
+            step_fields = fields_list[t]
+            if not isinstance(step_fields, dict):
+                continue
+            for name, val in step_fields.items():
+                series[name][t] = val
+        return series
+
+    def _get_fields_series(sorted_results, times_len):
+        raw = _get_fields_raw(sorted_results)
+
+        # Case 1: already dict-of-series
+        # Heuristic: dict and first value looks like list/tuple of length times
+        if isinstance(raw, dict) and raw:
+            v0 = next(iter(raw.values()))
+            if isinstance(v0, (list, tuple)) and len(v0) == times_len:
+                return raw  # {field: [..per time..]}
+            # Case 2: dict-of-scalars/arrays (single time) -> wrap
+            if not isinstance(v0, (list, tuple)):
+                return {k: [v] * times_len for k, v in raw.items()}
+
+        # Case 3: list of dicts, one per timestep
+        if isinstance(raw, (list, tuple)):
+            return _fields_list_to_series(raw, times_len)
+
+        # Fallback
+        return {}
+
     # Defaults
     field_names = field_names or ['glucose', 'acetate', 'dissolved biomass']
     field_units = field_units or {}
@@ -246,8 +302,9 @@ def plot_time_series(
     if time_scale != 1.0:
         times = [t * time_scale for t in times]
 
-    # ---- Build an explicit color for every field (semantic or auto-assigned),
-    #      avoiding reserved colors for non-semantic fields.
+    fields_dict = _get_fields_series(sorted_results, times_len=len(times))
+
+    # ---- Build explicit colors, respecting reserved colors
     reserved_colors = reserved_colors or []
     reserved_rgba = {mcolors.to_rgba(c) for c in reserved_colors}
 
@@ -256,7 +313,6 @@ def plot_time_series(
     else:
         candidate_cycle = list(auto_color_cycle)
 
-    # Filter cycle colors that would collide with reserved colors
     candidate_cycle = [c for c in candidate_cycle if mcolors.to_rgba(c) not in reserved_rgba]
 
     assigned_colors = dict(field_colors)
@@ -267,7 +323,6 @@ def plot_time_series(
         if cycle_idx < len(candidate_cycle):
             assigned_colors[fname] = candidate_cycle[cycle_idx]
             cycle_idx += 1
-        # else: no color assigned; matplotlib will pick (rare). Keeping silent on purpose.
 
     # ---- Plot
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
@@ -280,24 +335,23 @@ def plot_time_series(
         return base
 
     for field_name in field_names:
-        if field_name not in sorted_results['fields']:
-            print(f"Field '{field_name}' not found in results['fields']")
+        if field_name not in fields_dict:
+            print(f"Field '{field_name}' not found in fields")
             continue
 
-        field_data = sorted_results['fields'][field_name]
+        field_data = fields_dict[field_name]
 
         style = dict(linewidth=linewidth)
         if field_name in assigned_colors:
             style["color"] = assigned_colors[field_name]
         style.update(field_styles.get(field_name, {}))
 
-        # Strict guard (optional): prevent non-semantic fields from using reserved colors
         if "color" in style and reserved_rgba:
             c_rgba = mcolors.to_rgba(style["color"])
             if (c_rgba in reserved_rgba) and (field_name not in field_colors):
                 raise ValueError(
                     f"Field '{field_name}' is using a reserved color {style['color']} "
-                    f"but is not in field_colors. Add it to field_colors or choose another color."
+                    f"but is not in field_colors."
                 )
 
         if coordinates is None:
@@ -331,24 +385,19 @@ def plot_time_series(
     scale_suffix = " (log)" if log_scale else ""
     ax.set_ylabel(f"{y_label_base}{units_suffix}{norm_suffix}{scale_suffix}")
 
-    # Title (default: none)
     if title:
         ax.set_title(title)
 
-    # Legend: outside right, fixed space so it never overlaps
+    # Legend
     if legend:
         handles, labels = ax.get_legend_handles_labels()
         if handles:
             if legend_outside:
-                # Reserve space on the right for the legend
                 fig.subplots_adjust(right=1.0 - legend_width_fraction)
-
-                # Pull some common legend style defaults
                 fontsize = legend_kwargs.pop("fontsize", 9)
                 frameon = legend_kwargs.pop("frameon", False)
 
-                # Remove conflicting keys if user provided them
-                legend_kwargs = dict(legend_kwargs)  # copy defensively
+                legend_kwargs = dict(legend_kwargs)
                 legend_kwargs.pop("loc", None)
                 legend_kwargs.pop("bbox_to_anchor", None)
                 legend_kwargs.pop("borderaxespad", None)
@@ -363,8 +412,6 @@ def plot_time_series(
                     frameon=frameon,
                     **legend_kwargs,
                 )
-
-                # Make text left-aligned inside the legend box (nice for long labels)
                 try:
                     leg._legend_box.align = "left"
                 except Exception:
@@ -384,7 +431,6 @@ def plot_time_series(
         plt.show()
     plt.close(fig)
     return filepath
-
 
 
 
@@ -553,6 +599,7 @@ def plot_species_distributions_with_particles_to_gif(
     bounds=(1.0, 1.0),
     mass_scaling=1.0,  # scaling factor for particle radius
     min_mass=0.01,
+    fields_path=None,
 ):
     """
     Compatibility wrapper around fields_and_agents_to_gif.
@@ -628,6 +675,7 @@ def plot_species_distributions_with_particles_to_gif(
         dpi=120,                 # matches your old-ish output sharpness
         show_time_title=True,    # closer to old labeling
         uniform_color=(0.2, 0.6, 0.9),  # your default
+        fields_path=fields_path,
     )
 
 
@@ -1625,7 +1673,12 @@ def fields_and_agents_to_gif(
     config,
     *,
     agents_key='agents',
+
+    # Either provide fields_key (single key) OR fields_path (nested keys).
+    # If both are provided, fields_path wins.
     fields_key='fields',
+    fields_path=None,
+
     filename='simulation_with_fields.gif',
     out_dir='out',
     skip_frames=1,
@@ -1642,7 +1695,7 @@ def fields_and_agents_to_gif(
     default_rgb=(0.2, 0.6, 0.9),
     uniform_color=(0.2, 0.6, 0.9),  # set None to disable uniforming
 
-    # NEW: submass pies
+    # submass pies
     show_agent_submasses: bool = False,
     submasses_key: str = "sub_masses",
     submass_color_map=None,          # dict[label] -> matplotlib color
@@ -1663,27 +1716,45 @@ def fields_and_agents_to_gif(
     """
     Render fields + agents to an animated GIF, with optional sub-mass pie rendering.
 
-    Frame format:
-        {
-            'time': <float> (optional),
-            'fields': { name: 2D array, ... },
-            'agents': { agent_id: {'position': (x,y), 'radius': r, 'sub_masses': {...}, ...}, ... }
-        }
+    Frame format (examples):
+        Flat fields:
+            {
+                'time': <float> (optional),
+                'fields': { name: 2D array, ... },
+                'agents': { agent_id: {...}, ... }
+            }
+
+        Nested fields (with fields_path=['fields','substrates']):
+            {
+                'time': <float> (optional),
+                'fields': { 'substrates': { name: 2D array, ... }, ... },
+                'agents': { agent_id: {...}, ... }
+            }
 
     config must contain:
         config['bounds'] = (xmax, ymax)
 
-    Submass pies:
-      - If show_agent_submasses=True and agent[submasses_key] is a dict,
-        the agent is drawn as a pie chart (Wedges) within its radius.
-      - Colors for submass labels are consistent across frames (within this GIF),
-        or can be enforced by passing submass_color_map.
+    Notes on fields selection:
+      - If fields_path is provided (e.g. ['fields','substrates']), it is used.
+      - Otherwise fields_key is used (default 'fields').
     """
 
-    # ---------- your existing helper expected ----------
-    # field_for_imshow should exist in your module; keep behavior consistent.
-    # If not, uncomment a simple default:
-    # def field_for_imshow(a): return np.asarray(a)
+    # -------------------------
+    # Helpers
+    # -------------------------
+    def _get_in(d, path, default=None):
+        cur = d
+        for k in path:
+            if not isinstance(cur, dict) or k not in cur:
+                return default
+            cur = cur[k]
+        return cur
+
+    def _get_fields(step):
+        if fields_path is not None:
+            path = list(fields_path) if not isinstance(fields_path, (list, tuple)) else fields_path
+            return _get_in(step, path, default={}) or {}
+        return step.get(fields_key, {}) or {}
 
     # Make list of frames & downsample
     if isinstance(data, (list, tuple)):
@@ -1697,11 +1768,17 @@ def fields_and_agents_to_gif(
     xmax, ymax = config['bounds']
     extent = [0, xmax, 0, ymax]
 
+    # ---------- your existing helper expected ----------
+    # field_for_imshow should exist in your module; keep behavior consistent.
+    # If not, uncomment a simple default:
+    # def field_for_imshow(a): return np.asarray(a)
+
     # --- Collect species & global min/max over all frames (consistent colorbars) ---
     first_fields = None
     for step in frames:
-        if fields_key in step and step[fields_key]:
-            first_fields = step[fields_key]
+        f = _get_fields(step)
+        if isinstance(f, dict) and f:
+            first_fields = f
             break
 
     if first_fields is None:
@@ -1713,7 +1790,7 @@ def fields_and_agents_to_gif(
     for species in species_names:
         vals = []
         for step in frames:
-            fields = step.get(fields_key, {})
+            fields = _get_fields(step)
             if species in fields:
                 arr = np.asarray(fields[species])
                 vals.append(arr.ravel())
@@ -1738,7 +1815,7 @@ def fields_and_agents_to_gif(
             return uniform_color if uniform_color is not None else default_rgb
 
     # -------------------------
-    # NEW: build consistent submass label -> color mapping across ALL frames used
+    # Build consistent submass label -> color mapping across ALL frames used
     # -------------------------
     def iter_agents(frame_agents):
         if isinstance(frame_agents, dict):
@@ -1865,7 +1942,7 @@ def fields_and_agents_to_gif(
     images = []
 
     for idx, step in enumerate(frames):
-        fields = step.get(fields_key, {})
+        fields = _get_fields(step)
         agents = step.get(agents_key, {})
 
         n_species = len(species_names)
@@ -1894,7 +1971,6 @@ def fields_and_agents_to_gif(
 
             draw_agents_on_axes(ax, agents)
 
-            # legend (per-frame; can be costly/visually busy)
             if show_agent_submasses and draw_submass_legend and legend_handles:
                 ax.legend(handles=legend_handles, loc=submass_legend_loc,
                           fontsize=submass_legend_fontsize, frameon=False)
@@ -1935,7 +2011,6 @@ def fields_and_agents_to_gif(
 
                 draw_agents_on_axes(ax, agents)
 
-                # If you want ONE legend per frame, put it only on first axis:
                 if show_agent_submasses and draw_submass_legend and legend_handles and j == 0:
                     ax.legend(handles=legend_handles, loc=submass_legend_loc,
                               fontsize=submass_legend_fontsize, frameon=False)
