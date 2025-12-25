@@ -20,6 +20,7 @@ Notes on yield:
 """
 
 import numpy as np
+from pandas._libs import interval
 from process_bigraph import Process
 from spatio_flux.library.tools import build_path
 
@@ -29,6 +30,7 @@ def get_monod_kinetics_process_from_config(
     model_config,
     fields_key='fields',
     biomass_id='biomass',
+    interval=1.0,
 ):
     """
     Build a MonodKinetics process spec by inspecting the kinetic model config.
@@ -53,6 +55,7 @@ def get_monod_kinetics_process_from_config(
         'config': model_config,
         'inputs': inputs,
         'outputs': outputs,
+        'interval': interval,
     }
 
 
@@ -97,7 +100,7 @@ def get_single_substrate_assimilation_kinetics_config():
             'maintenance_turnover': {
                 'reactant': 'mass',
                 'product': 'acetate',
-                'km': 1.0,
+                'km': 0.5,
                 'vmax': 0.01,
                 'yield': 1.0,
             },

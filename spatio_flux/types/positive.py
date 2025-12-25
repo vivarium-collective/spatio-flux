@@ -6,17 +6,27 @@ Custom numeric types used by spatio_flux on top of bigraph-schema.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, replace, field
 
 import numpy as np
 
-from bigraph_schema.schema import Array, Float, Number
+from bigraph_schema.schema import Array, Float, Number, Tuple
 from bigraph_schema.methods import apply, render, resolve
 
 
 # ---------------------------------------------------------------------
-# Type definitions (thin semantic wrappers)
+# Type definitions
 # ---------------------------------------------------------------------
+
+@dataclass(kw_only=True)
+class Position(Tuple):
+    """Track a particle's position (x, y)."""
+    _values: list = field(
+        default_factory=lambda: [
+            SetFloat(),  # x
+            SetFloat(),  # y
+        ]
+    )
 
 @dataclass(kw_only=True)
 class SetFloat(Float):
@@ -57,7 +67,7 @@ class Delta(Float):
 
 @render.dispatch
 def render(schema: PositiveFloat, defaults: bool = False):
-    return "positive_float"
+    return "float"
 
 
 @render.dispatch
@@ -116,6 +126,25 @@ def resolve(current: Concentration, update: Float, path=()):
 # ---------------------------------------------------------------------
 # Apply methods: state update semantics
 # ---------------------------------------------------------------------
+
+# @apply.dispatch
+# def apply(schema: Position, state, update, path):
+#     if state is None:
+#         state = (0.0, 0.0)
+#
+#     dx, dy = update
+#     x, y = state
+#     x = float(x) + float(dx)
+#     y = float(y) + float(dy)
+#
+#     # If schema has bounds like schema.bounds = (xmax, ymax)
+#     if getattr(schema, "bounds", None) is not None:
+#         xmax, ymax = schema.bounds
+#         x = min(max(x, 0.0), float(xmax))
+#         y = min(max(y, 0.0), float(ymax))
+#
+#     return (x, y), []
+
 
 @apply.dispatch
 def apply(schema: SetFloat, state, update, path):

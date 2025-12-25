@@ -120,6 +120,7 @@ def get_dfba_process_from_registry(
     biomass_id=None,
     i=None,
     j=None,
+    interval=1.0,
 ):
     model_config = MODEL_REGISTRY_DFBA[model_id]
     mol_ids = model_config['substrate_update_reactions'].keys()
@@ -136,7 +137,8 @@ def get_dfba_process_from_registry(
         "outputs": {
             "substrates": {mol_id: build_path(path, mol_id, j, i) for mol_id in mol_ids},
             "biomass": build_path(path, biomass_id, j, i)
-        }
+        },
+        'interval': interval
     }
 
 def validate_model_registry_substrates(model_registry):

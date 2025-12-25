@@ -95,6 +95,7 @@ def generate_single_particle_state(config=None):
         mass_range = INITIAL_MASS_RANGE
     position = config.get('position',  tuple(np.random.uniform(low=[0, 0], high=bounds)))
     mass = config.get('mass', float(np.random.uniform(*mass_range)))
+
     return {
         'id': config.get('id', None),
         'position': position,
@@ -174,46 +175,55 @@ class BrownianMovement(Process):
         pos = np.array([p['position'] for _, p in items], dtype=float)  # (N,2)
 
         N = pos.shape[0]
+
+        # Brownian + advection steps
         steps = np.random.normal(loc=0.0, scale=sigma, size=(N, 2))
         steps[:, 0] += self.vx * dt
         steps[:, 1] += self.vy * dt
 
-        # Emit displacement only (dx,dy)
+        # Compute absolute new positions
+        new_pos = pos + steps
+
+        # Enforce bounds (clamp)
+        (xmin, xmax), (ymin, ymax) = self.env_size
+        new_pos[:, 0] = np.clip(new_pos[:, 0], xmin, xmax)
+        new_pos[:, 1] = np.clip(new_pos[:, 1], ymin, ymax)
+
+        # Emit absolute positions
         updates = {}
-        for pid, (dx, dy) in zip(pids, steps):
-            updates[pid] = {'position': (float(dx), float(dy))}
+        for pid, (x, y) in zip(pids, new_pos):
+            updates[pid] = {'position': (float(x), float(y))}
 
         return {'particles': updates}
 
 
 class ManageBoundaries(Step):
     """
-    Per-side boundary policy.
+    Boundary policies on ABSOLUTE positions.
 
-    Default behavior:
-      - All sides reflect (hard walls).
-      - Any side listed in boundary_to_remove becomes absorbing (particle removed if it crosses).
+    Assumptions:
+      - Incoming particle state stores ABSOLUTE position: p['position'] = (x, y)
+      - This step outputs ABSOLUTE position updates: {'position': (new_x, new_y)}
 
-    Notes:
-      - This step assumes particle state stores ABSOLUTE position in p['position'] = (x, y).
-      - It expects incoming motion to be provided as a delta (dx, dy). In the code below, we
-        read delta from p.get('position_delta', ...) or fall back to p.get('position') if you
-        are still using the "delta in position" convention.
-      - If you have a separate movement store, wire that in and replace delta lookup accordingly.
+    Policies:
+      - Sides in boundary_to_remove are absorbing (remove particle if it crosses).
+      - All other sides reflect.
     """
 
     config_schema = {
         'bounds': 'tuple[float,float]',
 
-        # a per-interval probability using process_interval.
-        'add_rate': make_default('float', 0.0),
+        # births
+        'add_rate': make_default('float', 0.0),  # event rate (1/sec)
         'boundary_to_add': make_default('list[boundary_side]', ['top']),
 
-        # these are the absorbing sides; everything else reflects
+        # absorbing
         'boundary_to_remove': make_default('list[boundary_side]', []),
 
-        'clamp_survivors': make_default('boolean', True),
-        'buffer': make_default('float', 1e-4),
+        # numerical buffer for reflecting safely inside the domain
+        'buffer': make_default('float', 1e-6),
+
+        # newborn particle config
         'mass_range': make_default('tuple[float,float]', INITIAL_MASS_RANGE),
     }
 
@@ -223,13 +233,13 @@ class ManageBoundaries(Step):
         self.env_size = ((0.0, x_max), (0.0, y_max))
 
         (x_min, x_max), (y_min, y_max) = self.env_size
-        buf = float(config.get('buffer', 1e-4))
+        buf = float(config.get('buffer', 1e-6))
 
         # hard bounds
         self.x_min, self.x_max = x_min, x_max
         self.y_min, self.y_max = y_min, y_max
 
-        # "safe" interior bounds for clamping/reflecting
+        # interior bounds for reflection (avoid sticking due to floating precision)
         self.x_lo, self.x_hi = x_min + buf, x_max - buf
         self.y_lo, self.y_hi = y_min + buf, y_max - buf
 
@@ -239,11 +249,8 @@ class ManageBoundaries(Step):
         self.remove_top    = 'top'    in remove
         self.remove_bottom = 'bottom' in remove
 
-        # Treat as event rate (1/sec). Convert to per-interval prob in update().
         self.add_rate = float(config.get('add_rate', 0.0))
         self.add_boundaries = tuple(config.get('boundary_to_add', []))
-
-        self.clamp_survivors = bool(config.get('clamp_survivors', True))
         self.mass_range = config.get('mass_range', INITIAL_MASS_RANGE)
 
     def inputs(self):
@@ -255,31 +262,12 @@ class ManageBoundaries(Step):
     def outputs(self):
         return {'particles': 'map[particle]'}
 
-    # ---------- reflection helpers ----------
-
-    @staticmethod
-    def _reflect_1d(x, lo, hi):
-        """
-        Reflect x into [lo, hi] by mirroring across boundaries.
-        Handles arbitrarily large overshoot via modulo arithmetic.
-        """
-        if hi <= lo:
-            return lo
-        w = hi - lo
-        y = (x - lo) % (2.0 * w)
-        return (lo + y) if y <= w else (hi - (y - w))
-
-    def _apply_reflect(self, x, y):
-        return (
-            float(self._reflect_1d(x, self.x_lo, self.x_hi)),
-            float(self._reflect_1d(y, self.y_lo, self.y_hi)),
-        )
+    # -----------------------
+    # helpers
+    # -----------------------
 
     def _should_remove(self, x, y):
-        """
-        Check if (x,y) crosses an absorbing side.
-        Uses the *hard* bounds (x_min/x_max etc.).
-        """
+        # absorbing uses hard bounds
         if self.remove_left and x < self.x_min:
             return True
         if self.remove_right and x > self.x_max:
@@ -291,80 +279,29 @@ class ManageBoundaries(Step):
         return False
 
     @staticmethod
+    def _reflect_1d(x, lo, hi):
+        """
+        Reflect x into [lo, hi], robust to overshoot.
+        """
+        if hi <= lo:
+            return lo
+        w = hi - lo
+        y = (x - lo) % (2.0 * w)
+        return (lo + y) if y <= w else (hi - (y - w))
+
+    def _reflect_xy(self, x, y):
+        return (
+            float(self._reflect_1d(x, self.x_lo, self.x_hi)),
+            float(self._reflect_1d(y, self.y_lo, self.y_hi)),
+        )
+
+    @staticmethod
     def _rate_to_interval_prob(rate_per_sec, dt):
-        """
-        Convert a Poisson event rate (lambda, 1/sec) into probability of >=1 event in dt seconds.
-          P = 1 - exp(-lambda * dt)
-        This behaves well for large/small dt and never exceeds 1.
-        """
         rate = float(rate_per_sec)
         dt = float(dt)
         if rate <= 0.0 or dt <= 0.0:
             return 0.0
         return float(1.0 - math.exp(-rate * dt))
-
-    # ---------- main update ----------
-
-    def update(self, state):
-        particles = state.get('particles', {}) or {}
-
-        # interval in seconds (or whatever your engine uses consistently)
-        dt = float(state.get('process_interval', 1.0))
-
-        updated = {'_remove': [], '_add': {}}
-
-        for pid, p in particles.items():
-            # ABS position in state (required)
-            ox, oy = p.get('position', (0.0, 0.0))
-
-            # DELTA for this tick.
-            dx, dy = p.get('position_delta', p.get('delta', p.get('position_delta', (0.0, 0.0))))
-            if (dx, dy) == (0.0, 0.0):
-                # fallback: some pipelines store delta in position updates
-                maybe_dx, maybe_dy = p.get('position', (0.0, 0.0))
-                # only use this fallback if it looks like a delta (small-ish)
-                if abs(maybe_dx) <= (self.x_max - self.x_min) and abs(maybe_dy) <= (self.y_max - self.y_min):
-                    dx, dy = maybe_dx, maybe_dy
-
-            nx = float(ox + dx)
-            ny = float(oy + dy)
-
-            # absorbing has priority
-            if self._should_remove(nx, ny):
-                updated['_remove'].append(pid)
-                continue
-
-            # otherwise reflect on any side crossed
-            nx, ny = self._apply_reflect(nx, ny)
-
-            # optional numeric clamp (usually redundant with reflect, but safe)
-            if self.clamp_survivors:
-                nx = float(np.clip(nx, self.x_lo, self.x_hi))
-                ny = float(np.clip(ny, self.y_lo, self.y_hi))
-
-            # emit delta update (engine applies to absolute position)
-            updated[pid] = {'position': (nx - ox, ny - oy)}
-
-        # births (absolute positions)
-        if self.add_rate > 0.0 and self.add_boundaries:
-            p_birth = self._rate_to_interval_prob(self.add_rate, dt)
-            if p_birth > 0.0:
-                for boundary in self.add_boundaries:
-                    if np.random.rand() < p_birth:
-                        pos = self.get_boundary_position(boundary)
-                        pid = short_id()
-                        new_p = generate_single_particle_state({
-                            'bounds': self.bounds,
-                            'mass_range': self.mass_range,
-                            'position': pos,
-                            'id': pid,
-                        })
-                        updated['_add'][pid] = new_p
-
-        if not updated['_remove'] and not updated['_add'] and len(updated) == 2:
-            return {'particles': {}}
-
-        return {'particles': updated}
 
     def get_boundary_position(self, boundary):
         (x_min, x_max), (y_min, y_max) = self.env_size
@@ -377,6 +314,56 @@ class ManageBoundaries(Step):
         if boundary == 'bottom':
             return (float(np.random.uniform(x_min, x_max)), y_min)
         return (0.5 * (x_min + x_max), 0.5 * (y_min + y_max))
+
+    # -----------------------
+    # update
+    # -----------------------
+
+    def update(self, state):
+        particles = state.get('particles', {}) or {}
+        dt = float(state.get('process_interval', 1.0))
+
+        out = {}
+
+        # preserve your engine's special keys
+        out['_remove'] = []
+        out['_add'] = {}
+
+        for pid, p in particles.items():
+            ox, oy = p.get('position', (0.0, 0.0))
+            x, y = float(ox), float(oy)
+
+            # removal check first (if already out of bounds)
+            if self._should_remove(x, y):
+                out['_remove'].append(pid)
+                continue
+
+            # reflect any out-of-range coordinate
+            x, y = self._reflect_xy(x, y)
+
+            # ABSOLUTE position update
+            out[pid] = {'position': (x, y)}
+
+        # births (ABSOLUTE)
+        if self.add_rate > 0.0 and self.add_boundaries:
+            p_birth = self._rate_to_interval_prob(self.add_rate, dt)
+            for boundary in self.add_boundaries:
+                if np.random.rand() < p_birth:
+                    pos = self.get_boundary_position(boundary)
+                    pid = short_id()
+                    new_p = generate_single_particle_state({
+                        'bounds': self.bounds,
+                        'mass_range': self.mass_range,
+                        'position': pos,
+                        'id': pid,
+                    })
+                    out['_add'][pid] = new_p
+
+        # if nothing happened, emit empty update
+        if not out['_remove'] and not out['_add'] and len(out) == 2:
+            return {'particles': {}}
+
+        return {'particles': out}
 
 
 class ParticleExchange(Step):

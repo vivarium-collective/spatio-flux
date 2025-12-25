@@ -114,6 +114,13 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
     plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
 
+    # only include one particle for visualization purposes
+    if 'particles' in plot_state and plot_state['particles']:
+        first_particle_key = next(iter(plot_state['particles']))
+        plot_state['particles'] = {
+            first_particle_key: plot_state['particles'][first_particle_key]
+        }
+
     # get particles for coloring
     particle_ids = []
     if 'particles' in plot_state and plot_state['particles']:

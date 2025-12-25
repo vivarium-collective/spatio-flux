@@ -135,7 +135,7 @@ class PymunkParticleMovement(Process):
 
     def _build_walls(self):
         (x_min, x_max), (y_min, y_max) = self.env_size
-        t = self.wall_thickness
+        t = float(self.wall_thickness)  # segment radius (half-thickness)
         body = self.space.static_body
 
         def add_segment(a, b):
@@ -144,14 +144,17 @@ class PymunkParticleMovement(Process):
             seg.friction = self.friction
             self.space.add(seg)
 
-        # Bottom
-        add_segment((x_min - t, y_min - t), (x_max + t, y_min - t))
-        # Right
-        add_segment((x_max + t, y_min - t), (x_max + t, y_max + t))
-        # Top
-        add_segment((x_max + t, y_max + t), (x_min - t, y_max + t))
-        # Left
-        add_segment((x_min - t, y_max + t), (x_min - t, y_min - t))
+        # Bottom wall: centerline at y = y_min - t, inside face at y = y_min
+        add_segment((x_min, y_min - t), (x_max, y_min - t))
+
+        # Top wall: centerline at y = y_max + t, inside face at y = y_max
+        add_segment((x_min, y_max + t), (x_max, y_max + t))
+
+        # Left wall: centerline at x = x_min - t, inside face at x = x_min
+        add_segment((x_min - t, y_min), (x_min - t, y_max))
+
+        # Right wall: centerline at x = x_max + t, inside face at x = x_max
+        add_segment((x_max + t, y_min), (x_max + t, y_max))
 
     def add_barrier(self, barrier):
         start_x, start_y = barrier['start']
@@ -216,7 +219,7 @@ class PymunkParticleMovement(Process):
                 self.apply_jitter_force(body, dt)
             self.space.step(dt)
 
-        # ------- emit deltas -------
+        # ------- emit absolute positions -------
         particles_out = {}
 
         for _id, obj in self.agents.items():
@@ -226,38 +229,25 @@ class PymunkParticleMovement(Process):
             body = obj['body']
             new_x, new_y = float(body.position.x), float(body.position.y)
 
-            old_state = particles_in.get(_id, {})
-            old_pos = old_state.get('position')
-
-            if old_pos is not None:
-                old_x, old_y = old_pos
-                dx = float(new_x - old_x)
-                dy = float(new_y - old_y)
-                pos_value = (dx, dy)
-            else:
-                pos_value = (new_x, new_y)
-
             shape = obj['shape_instance']
-            body = obj['body']
 
             if obj['shape'] == 'circle':
                 rec = {
                     'shape': 'circle',
-                    'position': pos_value,  # ABSOLUTE, not delta
+                    'position': (new_x, new_y),  # ABSOLUTE
                     'velocity': (float(body.velocity.x), float(body.velocity.y)),
                     'inertia': float(body.moment),
                     'radius': float(shape.radius),
                 }
-
-            else:  # 'segment'
+            else:
                 rec = {
                     'shape': 'segment',
-                    'position': pos_value,
+                    'position': (new_x, new_y),  # ABSOLUTE
                     'velocity': (float(body.velocity.x), float(body.velocity.y)),
                     'inertia': float(body.moment),
                     'angle': float(body.angle),
                     'length': float(body.length),
-                    'radius': float(shape.radius),  # half-width
+                    'radius': float(shape.radius),
                 }
 
             particles_out[_id] = rec

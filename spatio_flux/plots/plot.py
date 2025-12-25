@@ -16,6 +16,7 @@ from matplotlib import colors as mcolors
 from matplotlib.patches import Circle, Wedge
 import matplotlib.patches as mpatches
 from matplotlib import cm
+from matplotlib.lines import Line2D
 
 
 def _evenly_spaced_indices(n_items, n_pick):
@@ -698,6 +699,198 @@ def plot_particles(
         data = file.read()
         data_url = 'data:image/gif;base64,' + base64.b64encode(data).decode()
     display(HTML(f'<img src="{data_url}" alt="Particle Diffusion" style="max-width:100%;"/>'))
+
+
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+import colorsys
+
+def _color_by_id(particle_id):
+    """
+    Deterministic unique base color (RGB) for a particle id.
+    """
+    h = (hash(str(particle_id)) % 10_000_000) / 10_000_000.0
+    r, g, b = colorsys.hsv_to_rgb(h, 0.85, 1.0)
+    return np.array([r, g, b], dtype=float)
+
+def _apply_brightness(rgb, brightness):
+    brightness = float(np.clip(brightness, 0.0, 1.0))
+    return rgb * brightness
+
+def _particle_radius(particle, radius_scaling=1.0, mass_to_radius=True):
+    """
+    Return radius in data units.
+    """
+    if "radius" in particle and particle["radius"] is not None:
+        return float(particle["radius"]) * radius_scaling
+
+    if mass_to_radius and "mass" in particle:
+        # area ~ mass → r = sqrt(m / pi)
+        return np.sqrt(float(particle["mass"]) / np.pi) * radius_scaling
+
+    # fallback: very small visible disk
+    return 0.5 * radius_scaling
+
+
+
+def plot_particle_traces(
+        history,
+        bounds,
+        out_dir=None,
+        filename="particle_traces.png",
+        radius_scaling=1.0,
+        alpha=0.6,
+        min_brightness=0.15,
+        max_brightness=1.0,
+        draw_final_positions=True,
+        final_edgecolor="black",
+        final_linewidth=0.6,
+        dpi=200,
+        show=False,
+        legend=True,
+        legend_n=10,
+        legend_fontsize=8,
+        trace_linewidth=1.0,
+        trace_alpha=0.22,
+):
+    """
+    Single static figure:
+    - Disks show particle size (radius or mass-derived)
+    - Unique color per particle
+    - Brightness encodes time (bright early → dark late)
+    - Adds a legend on the right with the first `legend_n` particle ids and their color
+    - Connects time points for each particle with a light line of the same base color
+    """
+    env_size = ((0, bounds[0]), (0, bounds[1]))
+    n_frames = len(history)
+    if n_frames == 0:
+        raise ValueError("history is empty")
+
+    fig, ax = plt.subplots()
+    ax.set_xlim(*env_size[0])
+    ax.set_ylim(*env_size[1])
+    ax.set_aspect("equal")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    # ax.set_title("Particle trajectories (disk size + time brightness)")
+
+    # Only show min/max ticks to declutter
+    x_min, x_max = env_size[0]
+    y_min, y_max = env_size[1]
+    ax.set_xticks([x_min, x_max])
+    ax.set_yticks([y_min, y_max])
+
+    # Collect all particle IDs (stable ordering)
+    all_ids = set()
+    for frame in history:
+        all_ids.update(frame.keys())
+    all_ids = sorted(all_ids, key=lambda x: str(x))
+
+    base_color = {pid: _color_by_id(pid) for pid in all_ids}
+
+    # ------------------------------------------------------------
+    # Build per-particle trajectories to draw connecting trace lines
+    # ------------------------------------------------------------
+    # store positions in time order; skip missing frames
+    traj = {pid: [] for pid in all_ids}
+    for frame in history:
+        for pid, p in frame.items():
+            traj[pid].append(p["position"])
+
+    # Draw light traces (same base color, no brightness encoding on line)
+    for pid in all_ids:
+        pts = traj.get(pid, [])
+        if len(pts) < 2:
+            continue
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        rgb = base_color[pid]
+        ax.plot(xs, ys, linewidth=trace_linewidth, alpha=trace_alpha, color=rgb)
+
+    # --------------------
+    # Draw disks per frame
+    # --------------------
+    for t, frame in enumerate(history):
+        if n_frames == 1:
+            brightness = max_brightness
+        else:
+            frac = t / (n_frames - 1)  # 0 early, 1 late
+            brightness = max_brightness + (min_brightness - max_brightness) * frac
+
+        for pid, p in frame.items():
+            x, y = p["position"]
+            r = _particle_radius(p, radius_scaling=radius_scaling)
+
+            color = _apply_brightness(base_color[pid], brightness)
+
+            circ = Circle(
+                (x, y),
+                r,
+                facecolor=color,
+                edgecolor="none",
+                alpha=alpha,
+            )
+            ax.add_patch(circ)
+
+    # Emphasize final positions
+    if draw_final_positions:
+        last = history[-1]
+        for pid, p in last.items():
+            x, y = p["position"]
+            r = _particle_radius(p, radius_scaling=radius_scaling)
+
+            circ = Circle(
+                (x, y),
+                r,
+                facecolor=_apply_brightness(base_color[pid], min_brightness),
+                edgecolor=final_edgecolor,
+                linewidth=final_linewidth,
+                alpha=min(1.0, alpha + 0.25),
+            )
+            ax.add_patch(circ)
+
+    # --------------------
+    # Legend (first N ids)
+    # --------------------
+    if legend:
+        legend_ids = all_ids[: min(legend_n, len(all_ids))]
+        handles = [
+            Line2D([0], [0], marker='o', linestyle='None',
+                   markersize=6, markerfacecolor=base_color[pid],
+                   markeredgecolor='none', label=str(pid))
+            for pid in legend_ids
+        ]
+
+        # Make room for legend on the right
+        fig.subplots_adjust(right=0.78)
+        ax.legend(
+            handles=handles,
+            title=f"Particles (first {len(legend_ids)})",
+            loc="center left",
+            bbox_to_anchor=(1.01, 0.5),
+            frameon=True,
+            fontsize=legend_fontsize,
+            title_fontsize=legend_fontsize,
+            borderaxespad=0.0,
+        )
+
+    # Save
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+    else:
+        filepath = filename
+
+    fig.savefig(filepath, bbox_inches="tight", dpi=dpi)
+    if show:
+        plt.show()
+    plt.close(fig)
+
+    print(f"🖼️ Saved: {filepath}")
+
+
 
 
 def plot_particles_mass(results, out_dir=None, filename='particles_mass_plot.png', display=False, max_legend=10):

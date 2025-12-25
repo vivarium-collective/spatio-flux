@@ -48,51 +48,43 @@ TESTS_TO_RUN = [
     "ecoli_core_dfba",
     "community_dfba",
     "comets_diffusion",
-    "br_particles_kinetics",
+    "brownian_particles",
 ]
 
 RESULT_PNG_BY_TEST = {
-    "monod_kinetics": None,
-    "ecoli_core_dfba": None,
-    "community_dfba": None,
-    "comets_diffusion": None,
-    "br_particles_kinetics": None,
+    "monod_kinetics": OUT_DIR / "monod_kinetics.png",
+    "ecoli_core_dfba": OUT_DIR / "ecoli_core_dfba.png",
+    "community_dfba": OUT_DIR / "community_dfba.png",
+    "comets_diffusion": OUT_DIR / "comets_diffusion_snapshots.png",
+    "brownian_particles": OUT_DIR / "brownian_particles_particles_traces.png",
 }
 
 RESULT_PNG_SUFFIX_PREFERENCE = [
+    "_particles_traces.png"  # top one is preferred if exists
     "_snapshots.png",
     "_timeseries.png",
     "_mass.png",
     ".png",
 ]
 
-N_COLS = 6  # unchanged
+N_COLS = 6
 
-LAYOUT_ROWS = [
-    # Row 1: b. community dFBA bigraph across full width
-    [
-        ("a", "viz", "community_dfba", 0, 6),
-    ],
+LAYOUT_PANELS = [
+    # letter, kind, name, r0, rowspan, c0, colspan
+    # ("a", "process_overview", "process_overview",   0, 1, 0, 6),
+    ("a", "viz",    "community_dfba",               0, 1, 0, 6),
 
-    # Row 2: c/d/e three outputs
-    [
-        ("b", "result", "monod_kinetics",  0, 2),
-        ("c", "result", "ecoli_core_dfba", 2, 2),
-        ("d", "result", "community_dfba",  4, 2),
-    ],
+    ("b", "result", "monod_kinetics",               1, 1, 0, 2),
+    ("c", "result", "ecoli_core_dfba",              1, 1, 2, 2),
+    ("d", "result", "community_dfba",               1, 1, 4, 2),
 
-    # Row 3: comets composite
-    [
-        ("e", "viz",    "comets_diffusion", 0, 3),
-        ("f", "result", "comets_diffusion", 3, 6),
-    ],
+    ("e", "viz",    "comets_diffusion",             2, 1, 0, 2),
+    ("f", "result", "comets_diffusion",             2, 1, 2, 4),
 
-    # Row 4: particles composite
-    [
-        ("g", "viz",    "br_particles_kinetics", 0, 3),
-        ("h", "result", "br_particles_kinetics", 3, 6),
-    ],
+    ("g", "viz",    "brownian_particles",           3, 2, 0, 3),  # spans 2 rows (taller)
+    ("h", "result", "brownian_particles",           3, 2, 3, 3),
 ]
+
 
 
 PANEL_SIZE = (4.2, 3.2)  # inches, used for sizing
@@ -214,8 +206,9 @@ def ensure_process_overview(core=None) -> None:
 # -------------------------
 # Figure assembler
 # -------------------------
-def assemble_multicomponent_figure(layout_rows) -> None:
-    n_rows = len(layout_rows)
+def assemble_multicomponent_figure(layout_panels) -> None:
+    # total rows needed = max(r0 + rowspan)
+    n_rows = max(r0 + rs for (_, _, _, r0, rs, _, _) in layout_panels)
     n_cols = N_COLS
 
     fig_w = PANEL_SIZE[0] * (n_cols / 2)
@@ -229,42 +222,34 @@ def assemble_multicomponent_figure(layout_rows) -> None:
         hspace=HSPACE,
     )
 
-    axes_by_letter = {}
-
-    for r, row in enumerate(layout_rows):
-        # turn entire row off
+    # Optional: pre-turn everything off once (not strictly required)
+    for r in range(n_rows):
         for c in range(n_cols):
             ax = fig.add_subplot(gs[r, c])
             ax.axis("off")
 
-        # populate requested panels
-        for (letter, kind, test_name, c0, span) in row:
-            ax = fig.add_subplot(gs[r, c0:c0 + span])
-            ax.axis("off")
+    axes_by_letter = {}
 
-            png_path = _panel_png_path(kind, test_name)
-            if png_path and os.path.exists(png_path):
-                ax.imshow(_load_img(png_path), interpolation="nearest")
-            else:
-                ax.text(
-                    0.5, 0.5,
-                    f"Missing panel\n{test_name}",
-                    ha="center", va="center",
-                    fontsize=11,
-                )
+    for (letter, kind, name, r0, rowspan, c0, colspan) in layout_panels:
+        ax = fig.add_subplot(gs[r0:r0 + rowspan, c0:c0 + colspan])
+        ax.axis("off")
 
-            axes_by_letter[letter] = ax
+        png_path = _panel_png_path(kind, name)
+        if png_path and os.path.exists(png_path):
+            ax.imshow(_load_img(png_path), interpolation="nearest")
+        else:
+            ax.text(
+                0.5, 0.5,
+                f"Missing panel\n{name}",
+                ha="center", va="center",
+                fontsize=11,
+            )
 
-    # panel labels (same as you already have, using axes_by_letter)
+        axes_by_letter[letter] = ax
+
+    # labels (unchanged)
     x_pad = 0.006
     y_pad = 0.010
-    label_bbox = dict(
-        boxstyle="round,pad=0.15",
-        facecolor="white",
-        edgecolor="none",
-        alpha=0.9,
-    )
-
     for letter, ax in axes_by_letter.items():
         bbox = ax.get_position()
         fig.text(
@@ -276,7 +261,7 @@ def assemble_multicomponent_figure(layout_rows) -> None:
             fontweight="bold",
             ha="left",
             va="bottom",
-            bbox=label_bbox,
+            bbox=LABEL_BBOX,
         )
 
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -288,4 +273,4 @@ def assemble_multicomponent_figure(layout_rows) -> None:
 if __name__ == "__main__":
     run_tests()
     # ensure_process_overview()
-    assemble_multicomponent_figure(LAYOUT_ROWS)
+    assemble_multicomponent_figure(LAYOUT_PANELS)

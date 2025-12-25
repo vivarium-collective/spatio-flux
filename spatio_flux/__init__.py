@@ -15,7 +15,7 @@ This module defines those types in one place and exposes a single entry point:
 
 from bigraph_schema import make_default
 
-from spatio_flux.types import CountConcentrationVolume, positive_types
+from spatio_flux.types import CountConcentrationVolume, positive_types, Position
 
 
 # -----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ FIELDS_TYPE = {
     "_type": "map",
     "_value": {
         "_type": "array",
-        "_data": "float64",
+        "_data": "float",
     },
 }
 
@@ -77,7 +77,7 @@ FIELDS_TYPE = {
 
 SPATIO_FLUX_TYPES = {
     **positive_types,
-    "position": "tuple[float,float]",
+    "position": Position, #"tuple[float,float]",
     "particle": SIMPLE_PARTICLE_TYPE,
     "complex_particle": COMPLEX_PARTICLE_TYPE,
     "bounds": BOUNDS_TYPE,

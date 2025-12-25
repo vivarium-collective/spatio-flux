@@ -342,10 +342,10 @@ def get_diffusion_advection_process(
 # =================
 
 def get_brownian_movement_process(
-        n_bins=(20, 20),
         bounds=(10.0, 10.0),
         diffusion_rate=1e-1,
         advection_rate=(0, 0),
+        interval=1.0,
 ):
     config = locals()
     # Remove any key-value pair where the value is None
@@ -361,13 +361,14 @@ def get_brownian_movement_process(
         'outputs': {
             'particles': ['particles'],
         },
+        'interval': interval,
     }
 
 def get_boundaries_process(
     particle_process_name,
     bounds=(10.0, 10.0),
     add_rate=0.0,
-    boundary_to_add=('top',),
+    boundary_to_add=('top','bottom','left','right'),
     # sides that ABSORB (remove) particles; all other sides REFLECT by default
     boundary_to_remove=(),  # e.g. ('right',) or ('top','bottom','left','right')
     clamp_survivors=True,
