@@ -57,7 +57,8 @@ def get_standard_emitter(state_keys):
     return emitter_from_wires(emitter_spec)
 
 
-def run_composite_document(document, core=None, name=None, time=None, outdir="out"):
+def run_composite_document(
+        document, core=None, name=None, time=None, outdir="out", show_types=False, show_values=False):
     """
     Instantiates and runs a Composite simulation.
 
@@ -140,8 +141,8 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     )
     plot_settings.update(dict(
         dpi='300',
-        # show_values=True,
-        show_types=True,
+        show_values=show_values,
+        show_types=show_types,
         collapse_redundant_processes={
             'exclude': [  # dont collapse these
                 ('particle_movement',),

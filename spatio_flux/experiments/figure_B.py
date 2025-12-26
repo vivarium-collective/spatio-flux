@@ -76,6 +76,8 @@ def run_reference_composite_and_plots() -> None:
         name=TEST_NAME,
         time=runtime,
         outdir=str(OUT_DIR),
+        show_types=False,
+        show_values=False,
     )
     dt = time.time() - t0
     print(f"✅ Completed sim: {TEST_NAME} in {dt:.2f}s")

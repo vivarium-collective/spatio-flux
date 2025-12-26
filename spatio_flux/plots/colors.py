@@ -180,6 +180,8 @@ def build_plot_settings(
             ("particles", pid, "position"): COLORS["particles_state"],
             ("particles", pid, "mass"):     COLORS["particles_state"],
             ("particles", pid, "sub_masses"): COLORS["particles_state"],
+            ("particles", pid, "sub_masses", "ecoli_1"): COLORS["particles_state"],
+            ("particles", pid, "sub_masses", "ecoli_2"): COLORS["particles_state"],
             ('particles', pid, 'local'):    COLORS["fields"],
             ('particles', pid, 'exchange'): COLORS["exchange"],
             ('particles', pid, 'dFBA'):     COLORS["dfba_process"],

@@ -1160,7 +1160,8 @@ def main():
         print("Sending document...")
         runtime = sim_info.get('time', DEFAULT_RUNTIME_LONG)
         sim_start = time.time()
-        results = run_composite_document(doc, core=core, name=name, time=runtime)
+        results = run_composite_document(doc, core=core, name=name, time=runtime,
+                                         show_types=True, show_values=True)
         sim_end = time.time()
 
         sim_elapsed = sim_end - sim_start
