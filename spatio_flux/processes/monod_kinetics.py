@@ -167,25 +167,34 @@ def get_overflow_metabolism_kinetics_config():
         }
     }
 
-def get_glucose_overflow_only_kinetics_config():
+def get_low_yield_glucose_overflow_config():
+    """
+    Slow-growth overflow metabolism:
+      - very slow glucose consumption
+      - most consumed glucose is secreted as acetate
+      - small fraction becomes biomass
+    """
     return {
         "reactions": {
+            # small biomass yield from glucose
             "assimilate_glucose": {
                 "reactant": "glucose",
                 "product": "mass",
-                "km": 0.5,
-                "vmax": 0.4,
-                "yield": 0.2,
+                "km": 1.0,        # less affinity (needs more glucose to run)
+                "vmax": 0.02,     # slow uptake to biomass
+                "yield": 0.15,    # only 15% to biomass
             },
+            # dominant overflow to acetate
             "overflow_to_acetate": {
                 "reactant": "glucose",
                 "product": "acetate",
-                "km": 0.5,
-                "vmax": 0.3,
-                "yield": 0.5,
+                "km": 1.0,        # match affinity so split is mostly vmax/yield-driven
+                "vmax": 0.2,      # still slow overall, but larger than biomass route
+                "yield": 0.85,    # most carbon ends up as acetate
             },
         }
     }
+
 
 
 
@@ -307,7 +316,7 @@ MODEL_REGISTRY_KINETICS = {
     'single_substrate_assimilation': get_single_substrate_assimilation_kinetics_config,
     'two_substrate_assimilation': get_two_substrate_assimilation_kinetics_config,
     'overflow_metabolism': get_overflow_metabolism_kinetics_config,
-    'glucose_overflow_only': get_glucose_overflow_only_kinetics_config,
+    'low_yield_glucose_overflow': get_low_yield_glucose_overflow_config,
     'cross_feeding': get_cross_feeding_kinetics_config,
     'autotrophic': get_autotrophic_kinetics_config,
 }
