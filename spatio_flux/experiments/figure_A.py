@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import os
 import time
+import argparse
 import string
 from dataclasses import dataclass
 from pathlib import Path
@@ -85,7 +86,13 @@ LAYOUT_PANELS = [
     ("h", "result", "brownian_particles",           3, 2, 3, 3),
 ]
 
-
+ROW_HEIGHT_RATIOS = [
+    1.2,  # row 0 (a)
+    0.9,  # row 1 (b,c,d)
+    1.2,  # row 2 (e,f)
+    0.7,  # row 3 (g,h)  ← shrink
+    0.7,  # row 4 (g,h)  ← shrink
+]
 
 PANEL_SIZE = (4.2, 3.2)  # inches, used for sizing
 WSPACE = 0.04
@@ -159,17 +166,29 @@ def resolve_panel_png(kind: str, name: str) -> Optional[Path]:
         return _static_png_path(name)
     raise ValueError(f"Unknown kind: {kind}")
 
+def have_outputs_for_test(name: str) -> bool:
+    """
+    True if the expected panels for this test already exist on disk.
+    (viz + result if those are used in your layout)
+    """
+    viz_ok = _viz_png_path(name).exists()
+    result_ok = _pick_result_png(name) is not None
+    return viz_ok and result_ok
 
 # -------------------------
 # Pipeline: run tests
 # -------------------------
-def run_tests() -> None:
+def run_tests(*, skip_existing: bool = False) -> None:
     prepare_output_dir(str(OUT_DIR))
     core = allocate_core()
 
     for name in TESTS_TO_RUN:
         if name not in SIMULATIONS:
             print(f"⚠️  Unknown test '{name}' (skipping)")
+            continue
+
+        if skip_existing and have_outputs_for_test(name):
+            print(f"⏭️  Skipping '{name}' (outputs already exist)")
             continue
 
         sim_info = SIMULATIONS[name]
@@ -189,6 +208,7 @@ def run_tests() -> None:
         plot_config = sim_info.get("plot_config", {}) or {}
         sim_info["plot_func"](results, doc.get("state", doc), config=plot_config)
         print("✅ Plots done.")
+
 
 
 def ensure_process_overview(core=None) -> None:
@@ -218,6 +238,7 @@ def assemble_multicomponent_figure(layout_panels) -> None:
     gs = fig.add_gridspec(
         nrows=n_rows,
         ncols=n_cols,
+        height_ratios=ROW_HEIGHT_RATIOS,
         wspace=WSPACE,
         hspace=HSPACE,
     )
@@ -247,21 +268,18 @@ def assemble_multicomponent_figure(layout_panels) -> None:
 
         axes_by_letter[letter] = ax
 
-    # labels (unchanged)
-    x_pad = 0.006
-    y_pad = 0.010
+    # labels
     for letter, ax in axes_by_letter.items():
-        bbox = ax.get_position()
-        fig.text(
-            bbox.x0 - x_pad,
-            bbox.y1 + y_pad,
+        ax.text(
+            -0.06, 1.02,  # a bit left + above the axes
             f"{letter}.",
-            transform=fig.transFigure,
-            fontsize=14,
-            fontweight="bold",
+            transform=ax.transAxes,
             ha="left",
             va="bottom",
+            fontsize=14,
+            fontweight="bold",
             bbox=LABEL_BBOX,
+            clip_on=False,  # allow drawing outside the axes box
         )
 
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -270,7 +288,35 @@ def assemble_multicomponent_figure(layout_panels) -> None:
     print(f"\n🖼️ Saved: {OUT_FIGURE}")
 
 
+def parse_args():
+    p = argparse.ArgumentParser(description="Run spatio_flux tests and/or assemble a multi-panel figure.")
+    p.add_argument(
+        "--mode",
+        choices=["all", "run", "assemble"],
+        default="all",
+        help="all = run tests then assemble; run = run tests only; assemble = assemble only (no sims).",
+    )
+    p.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="When running tests, skip any test whose expected PNG outputs already exist.",
+    )
+    p.add_argument(
+        "--ensure-overview",
+        action="store_true",
+        help="Generate process_overview.png if missing before assembly.",
+    )
+    return p.parse_args()
+
+
 if __name__ == "__main__":
-    run_tests()
-    # ensure_process_overview()
-    assemble_multicomponent_figure(LAYOUT_PANELS)
+    args = parse_args()
+
+    if args.mode in ("all", "run"):
+        run_tests(skip_existing=args.skip_existing)
+
+    if args.mode in ("all", "assemble"):
+        if args.ensure_overview:
+            ensure_process_overview()
+        assemble_multicomponent_figure(LAYOUT_PANELS)
+

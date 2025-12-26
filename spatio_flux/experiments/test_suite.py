@@ -424,7 +424,8 @@ def plot_comets(results, state, config=None):
     x0 = nx // 2
     coord = [(0, x0), (x0, x0), (nx-1, x0)]
 
-    plot_time_series(results, out_dir='out', filename=f'{filename}_timeseries.png', coordinates=coord, )
+    plot_time_series(results, out_dir='out', filename=f'{filename}_timeseries.png', coordinates=coord,
+                     label_fontsize=20)
     plot_snapshots_grid(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                         n_snapshots=n_snapshots, bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
                         time_units="min",
@@ -472,7 +473,7 @@ def plot_particles_sim(results, state, config=None):
                         particles_row='separate'
                         )
     plot_particle_traces(history=history, bounds=bounds, out_dir="out", filename=f'{filename}_particles_traces.png',
-                         radius_scaling=0.1, min_brightness=0.1, legend=False)
+                         radius_scaling=0.1, min_brightness=0.1, legend=False, units="µm")
 
 # --- Particles with Monod Kinetics -----------------------------------------------------------
 

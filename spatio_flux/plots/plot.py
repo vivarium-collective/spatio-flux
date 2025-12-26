@@ -213,6 +213,12 @@ def plot_time_series(
         legend_outside=True,
         legend_width_fraction=0.30,  # fraction of figure width reserved for legend
         legend_anchor=(1.02, 0.5),   # (x,y) in axes coords
+
+        # typography
+        label_fontsize=12,
+        tick_fontsize=None,
+        title_fontsize=None,
+        legend_fontsize=None,
 ):
     """
     Plots time series for specified fields and coordinates from the results.
@@ -239,6 +245,14 @@ def plot_time_series(
     field_colors = field_colors or {}
     field_styles = field_styles or {}
     legend_kwargs = legend_kwargs or {}
+
+    # Typography scaling
+    if tick_fontsize is None:
+        tick_fontsize = int(round(label_fontsize * 0.85))
+    if legend_fontsize is None:
+        legend_fontsize = int(round(label_fontsize * 0.85))
+    if title_fontsize is None:
+        title_fontsize = int(round(label_fontsize * 1.15))
 
     sorted_results = sort_results(results)
     times = sorted_results['time']
@@ -323,17 +337,19 @@ def plot_time_series(
         ax.set_yscale('log')
 
     # Labels
-    ax.set_xlabel(f"Time ({time_units})" if time_units else "Time")
-
     unique_units = {field_units.get(f) for f in field_names if field_units.get(f)}
     units_suffix = f" ({list(unique_units)[0]})" if len(unique_units) == 1 else ""
     norm_suffix = f" ({normalized_label})" if normalize else ""
     scale_suffix = " (log)" if log_scale else ""
-    ax.set_ylabel(f"{y_label_base}{units_suffix}{norm_suffix}{scale_suffix}")
+    ax.set_xlabel(f"Time ({time_units})" if time_units else "Time", fontsize=label_fontsize,)
+    ax.set_ylabel(f"{y_label_base}{units_suffix}{norm_suffix}{scale_suffix}", fontsize=label_fontsize,)
+    # ticks
+    ax.tick_params(axis="both", which="major", labelsize=tick_fontsize)
+    ax.tick_params(axis="both", which="minor", labelsize=tick_fontsize * 0.9)
 
     # Title (default: none)
     if title:
-        ax.set_title(title)
+        ax.set_title(title, fontsize=title_fontsize)
 
     # Legend: outside right, fixed space so it never overlaps
     if legend:
@@ -344,7 +360,7 @@ def plot_time_series(
                 fig.subplots_adjust(right=1.0 - legend_width_fraction)
 
                 # Pull some common legend style defaults
-                fontsize = legend_kwargs.pop("fontsize", 9)
+                fontsize = legend_kwargs.pop("fontsize", legend_fontsize)
                 frameon = legend_kwargs.pop("frameon", False)
 
                 # Remove conflicting keys if user provided them
@@ -754,6 +770,9 @@ def plot_particle_traces(
         legend_fontsize=8,
         trace_linewidth=1.0,
         trace_alpha=0.22,
+        *,
+        units: str | None = None,      # e.g. "µm"
+        unit_scale: float = 1.0,        # e.g. 1e-3 if your sim is nm and you want µm
 ):
     """
     Single static figure:
@@ -769,18 +788,27 @@ def plot_particle_traces(
         raise ValueError("history is empty")
 
     fig, ax = plt.subplots()
-    ax.set_xlim(*env_size[0])
-    ax.set_ylim(*env_size[1])
+    ax.set_xlim(0, bounds[0])
+    ax.set_ylim(0, bounds[1])
     ax.set_aspect("equal")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    # ax.set_title("Particle trajectories (disk size + time brightness)")
 
-    # Only show min/max ticks to declutter
-    x_min, x_max = env_size[0]
-    y_min, y_max = env_size[1]
+    # Axis labels with optional units
+    if units:
+        ax.set_xlabel(f"x ({units})")
+        ax.set_ylabel(f"y ({units})")
+    else:
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+
+    # Only show min/max ticks; scale tick labels if requested
+    x_min, x_max = 0.0, float(bounds[0])
+    y_min, y_max = 0.0, float(bounds[1])
     ax.set_xticks([x_min, x_max])
     ax.set_yticks([y_min, y_max])
+
+    if unit_scale != 1.0:
+        ax.set_xticklabels([f"{x_min*unit_scale:g}", f"{x_max*unit_scale:g}"])
+        ax.set_yticklabels([f"{y_min*unit_scale:g}", f"{y_max*unit_scale:g}"])
 
     # Collect all particle IDs (stable ordering)
     all_ids = set()
