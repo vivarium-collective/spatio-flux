@@ -358,10 +358,10 @@ def get_diffusion_advection_process(
                 'advection_coeffs': advection_coeffs_all,
             },
             'inputs': {
-                'fields': fields_path
+                'substrate_fields': fields_path
             },
             'outputs': {
-                'fields': fields_path
+                'substrate_fields': fields_path
             }
         }
 
@@ -457,7 +457,7 @@ def get_particle_exchange_process(
         },
         'outputs': {
             'particles': ['particles'],
-            'fields': fields_path,
+            # 'fields': fields_path,
         },
     }
 

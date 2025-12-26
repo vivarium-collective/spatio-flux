@@ -378,15 +378,16 @@ class ParticleExchange(Step):
     def inputs(self):
         return {
             'particles': 'map[particle]',
-            'fields': 'map[positive_array]',
+            'fields': 'lattice_environment',
+            # 'fields': 'node',
             # 'fields': {
-            #     '_type': 'map',
-            #     '_value': {
-            #         '_type': 'array',
-            #         '_shape': self.config['n_bins'],
-            #         # '_data': 'concentration'
-            #         # '_data': 'float'
-            #     },
+            #     '_type': 'lattice',
+            #     'substrates': {
+            #         '_type': 'substrates',
+            #         '_value': {
+            #             '_shape': self.config['n_bins'],
+            #         }
+            #     }
             # }
         }
 
@@ -398,12 +399,12 @@ class ParticleExchange(Step):
 
     def update(self, state):
         particles = state['particles']
-        fields = state['fields']
+        substrate = state.get('fields', {}).get('substrates')
 
         particle_updates = {}
 
         # initialize zero-delta arrays for each field (same shape as stored arrays: (ny, nx))
-        field_updates = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
+        field_updates = {mol_id: np.zeros_like(array) for mol_id, array in substrate.items()}
 
         for pid, p in particles.items():
             x, y = p['position']
@@ -414,7 +415,7 @@ class ParticleExchange(Step):
             # ----------------------------
             # local field sampling
             # ----------------------------
-            local_after = get_local_field_values(fields, x=x_bin, y=y_bin)
+            local_after = get_local_field_values(substrate, x=x_bin, y=y_bin)
 
             local_before = p.get('local', None)
             local_before_present = isinstance(local_before, dict) and len(local_before) > 0
@@ -441,7 +442,7 @@ class ParticleExchange(Step):
 
             # update particle's exchange state
             if not exch_before_present:
-                exchange_update = {'_add': {m: 0.0 for m in fields.keys()}}
+                exchange_update = {'_add': {m: 0.0 for m in substrate.keys()}}
             else:
                 exchange_update = {mol_id: 0.0 for mol_id in exch.keys()}
 
@@ -452,7 +453,9 @@ class ParticleExchange(Step):
 
         return {
             'particles': particle_updates,
-            'fields': field_updates,
+            'fields': {
+                'substrates': field_updates
+            },
         }
 
 def prune_instance_containers(obj):

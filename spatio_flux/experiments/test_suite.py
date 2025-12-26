@@ -577,23 +577,22 @@ def get_comets_br_particles_kinetics_doc(core=None, config=None):
         'mol_ids': mol_ids,
     }
 
-    return {
+    doc = {
         'state': {
             'fields': {
                 **fields,
-                'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id, fields_path=['substrates']),
+                # 'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id, fields_path=['substrates']),
                 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, fields_path=['substrates']),
             },
-            'particles': get_particles_state(n_particles=n_particles, bounds=bounds, mass_range=(1E0, 1E1)),
-            # # 'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
-            # # 'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            'brownian_movement': get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds, fields_path=['fields', 'substrates']),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
+            # 'particles': get_particles_state(n_particles=n_particles, bounds=bounds, mass_range=(1E0, 1E1)),
+            # 'brownian_movement': get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
+            # 'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
+            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
+            # 'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_kinetic_particle_composition(core, config=particle_config)
+        # 'composition': get_kinetic_particle_composition(core, config=particle_config)
     }
+    return doc
 
 def plot_kinetic_particle_comets(results, state, config=None):
     config = config or {}

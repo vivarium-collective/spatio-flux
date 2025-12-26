@@ -66,21 +66,16 @@ class Delta(Float):
 @dataclass(kw_only=True)
 class Substrates(Map):
     _key: Node = field(default_factory=String)
-    _value: Node = field(default_factory=PositiveArray)
+    _value: PositiveArray = field(default_factory=PositiveArray)
 
 @dataclass(kw_only=True)
 class Fields(Map):
     bin_volume: PositiveFloat = field(default_factory=PositiveFloat)
     substrates: Substrates = field(default_factory=Substrates)
-
-# @dataclass(kw_only=True)
-# class Fields(Map):
-    # volume: PositiveFloat = field(default_factory=PositiveFloat)
-    # # map from string ids -> array-valued fields
-    # fields: Map = field(
+    # substrates: Map = field(
     #     default_factory=lambda: Map(
     #         _key=String(),
-    #         _value=PositiveArray(),
+    #         _value=Node()
     #     )
     # )
 
@@ -173,7 +168,10 @@ def resolve(current: Concentration, update: Float, path=()):
 @apply.dispatch
 def apply(schema: Fields, state, update, path):
     # Replacement semantics.
-    return update, []
+    # print(f'Applying Fields update: {update} at path {path}')
+    for k, v in update['substrates'].items():
+        state['substrates'][k] += v
+    return state, []
 
 
 @apply.dispatch
@@ -241,6 +239,6 @@ positive_types = {
     "concentration": Concentration,
     "set_float": SetFloat,
     "delta_conc": Delta,
-    "fields": Fields,
-    "substrates": Substrates,
+    "lattice_environment": Fields,
+    "substrate_fields": Substrates,
 }

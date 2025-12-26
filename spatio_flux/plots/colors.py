@@ -132,9 +132,11 @@ def build_plot_settings(
         ("concentration",):             COLORS["fields"],
         ("substrate",):                 COLORS["fields"],
         ("diffusion",):                 COLORS["diffusion"],
+        ("fields", "diffusion",):       COLORS["diffusion"],
         ("DiffusionAdvection",):        COLORS["diffusion"],
 
         # dFBA / kinetics family
+        ("fields", "spatial_dFBA",):    COLORS["dfba_process"],
         ("spatial_dFBA",):              COLORS["dfba_process"],
         ("SpatialDFBA",):               COLORS["dfba_process"],
         ("spatial_dFBA", "dFBA[0,0]"):  COLORS["dfba_process"],
@@ -157,6 +159,11 @@ def build_plot_settings(
         # (fields, species biomass) – for things like "pputida", "llactis", etc.
         biomass_name = f"{s} biomass"
         fills[("fields", biomass_name)] = COLORS["fields"]
+
+        #substrates
+        fills[("fields", "bin_volume",)] =                      COLORS["fields"]
+        fills[("fields", "substrates",)] =                      COLORS["fields"]
+        fills[("fields", "substrates", s,)] =                   COLORS["fields"]
 
     for s in conc_type_species or []:
         fills[("fields", s,)] =                   COLORS["fields"]

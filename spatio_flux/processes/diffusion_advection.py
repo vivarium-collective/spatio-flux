@@ -79,14 +79,14 @@ class DiffusionAdvection(Process):
 
     def inputs(self):
         return {
-            'fields': 'substrates',
+            'substrate_fields': 'substrate_fields',
         }
 
     def outputs(self):
         return self.inputs()
 
     def update(self, state, interval):
-        fields_in = state['fields']
+        fields_in = state['substrate_fields']
         updated = {}
 
         dt_stable = self._compute_stable_dt(fields_in)
@@ -105,7 +105,7 @@ class DiffusionAdvection(Process):
 
             updated[species] = cur - field  # delta
 
-        return {'fields': updated}
+        return {'substrate_fields': updated}
 
     def _compute_stable_dt(self, fields):
         D_values = [float(self.D_species.get(s, self.D_default)) for s in fields.keys()]
