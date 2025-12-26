@@ -860,7 +860,7 @@ def get_reference_composite_doc(core=None, config=None):
     n_bins = user_cfg.get("n_bins", SQUARE_BINS)
 
     # High-level knobs
-    division_mass_threshold = 0.5
+    division_mass_threshold = 0.4
     add_rate = 0.0
     initial_submasses = {
         'ecoli_1': 0.1,
@@ -868,31 +868,30 @@ def get_reference_composite_doc(core=None, config=None):
     }
 
     # Spatial fields state
+    glucose_level = 4.0
     biomass_id = "dissolved biomass"
     mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
+    initial_min_max = {"glucose": (glucose_level, glucose_level), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
 
     # diffusion process config
     diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
     advection_coeffs = {
-        # biomass_id: (0.0, -0.5), # dissolved biomass floats to the top
-        'acetate': (0.0, 0.5)}     # acetates sinks
-    diffusion_boundary_config = {
-        "default": {
-          "x": {"type": "periodic"},
-          # "y": {"type": "periodic"},
-        },
-        "glucose": {"top": {"type": "dirichlet", "value": 10.0}},
-        "acetate": {"bottom": {"type": "dirichlet", "value": 0.5}},
+        biomass_id: (0.0, -0.5), # dissolved biomass floats to the top
+        # biomass_id: (0.0, 0.5),
+        # 'acetate': (0.0, 0.5) # acetates sinks
     }
+    diffusion_boundary_config = {
+        "default": {"x": {"type": "periodic"}, "y": {"type": "neumann"}},
+        "glucose": {"top": {"type": "dirichlet", "value": glucose_level}},
+        "acetate": {"bottom": {"type": "dirichlet", "value": 2.0}}}
 
     # Particles + physics config
     n_particles = user_cfg.get("n_particles", 1)
     physics_cfg = {"gravity": -2.0,
                    "elasticity": 0.1,
                    "bounds": bounds,
-                   "jitter_per_second": 1e-10,
-                   "damping_per_second": 0.9,
+                   "jitter_per_second": 1e-3,
+                   "damping_per_second": 0.98,   # viscous
                    "friction": 0.9}
     boundary_cfg = {"add_rate": add_rate}
 
@@ -901,7 +900,7 @@ def get_reference_composite_doc(core=None, config=None):
         "ecoli_1": {
             'model_file': 'textbook',
             'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
-            'kinetic_params': {'glucose': (0.5, 1), 'acetate': (0.5, 0.1)},
+            'kinetic_params': {'glucose': (0.1, 1), 'acetate': (0.5, 0.1)},
             'bounds': {
                 'EX_o2_e': {'lower': -2, 'upper': None},
                 'ATPM': {'lower': 1, 'upper': 1}
@@ -910,7 +909,7 @@ def get_reference_composite_doc(core=None, config=None):
         "ecoli_2": {
             'model_file': 'textbook',
             'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
-            'kinetic_params': {'glucose': (0.5, 0.1), 'acetate': (0.5, 1)},
+            'kinetic_params': {'glucose': (0.5, 0.1), 'acetate': (0.1, 1)},
             'bounds': {
                 'EX_o2_e': {'lower': -2, 'upper': None},
                 'ATPM': {'lower': 1, 'upper': 1}
@@ -928,7 +927,7 @@ def get_reference_composite_doc(core=None, config=None):
 
     # Processes
     diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs, boundary_conditions=diffusion_boundary_config)
-    spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
+    spatial_kinetics = get_spatial_many_kinetics(model_id="glucose_overflow_only", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
@@ -1111,7 +1110,7 @@ SIMULATIONS = {
 
     # ---- Integrated-Composite Demo  ---------------------------------------------
     'spatioflux_reference_demo': {
-        'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division. End-to-end integration test.',
+        'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONGER*2,

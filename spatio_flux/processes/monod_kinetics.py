@@ -99,9 +99,9 @@ def get_single_substrate_assimilation_kinetics_config():
             },
             'maintenance_turnover': {
                 'reactant': 'mass',
-                'product': 'acetate',
-                'km': 0.5,
-                'vmax': 0.01,
+                'product': 'detritus',
+                'km': 1.0,
+                'vmax': 0.001,
                 'yield': 1.0,
             },
         }
@@ -167,6 +167,27 @@ def get_overflow_metabolism_kinetics_config():
         }
     }
 
+def get_glucose_overflow_only_kinetics_config():
+    return {
+        "reactions": {
+            "assimilate_glucose": {
+                "reactant": "glucose",
+                "product": "mass",
+                "km": 0.5,
+                "vmax": 0.4,
+                "yield": 0.2,
+            },
+            "overflow_to_acetate": {
+                "reactant": "glucose",
+                "product": "acetate",
+                "km": 0.5,
+                "vmax": 0.3,
+                "yield": 0.5,
+            },
+        }
+    }
+
+
 
 # -------------------------
 # Glucose-only and Acetate-only
@@ -209,12 +230,11 @@ def get_acetate_only_kinetics_config(*, include_maintenance=False):
         'assimilate_acetate': {
             'reactant': 'acetate',
             'product': 'mass',
-            'km': 0.5,
-            'vmax': 0.4,
-            'yield': 1.0,
+            'km': 0.6,
+            'vmax': 0.3,
+            'yield': 0.2,
         },
     }
-
     if include_maintenance:
         reactions['maintenance_turnover'] = {
             'reactant': 'mass',
@@ -280,12 +300,14 @@ def get_autotrophic_kinetics_config():
     }
 
 
+
 MODEL_REGISTRY_KINETICS = {
     'glucose_only': get_glucose_only_kinetics_config,
     'acetate_only': get_acetate_only_kinetics_config,
     'single_substrate_assimilation': get_single_substrate_assimilation_kinetics_config,
     'two_substrate_assimilation': get_two_substrate_assimilation_kinetics_config,
     'overflow_metabolism': get_overflow_metabolism_kinetics_config,
+    'glucose_overflow_only': get_glucose_overflow_only_kinetics_config,
     'cross_feeding': get_cross_feeding_kinetics_config,
     'autotrophic': get_autotrophic_kinetics_config,
 }
