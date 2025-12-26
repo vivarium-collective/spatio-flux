@@ -10,7 +10,7 @@ from dataclasses import dataclass, replace, field
 
 import numpy as np
 
-from bigraph_schema.schema import Array, Float, Number, Tuple
+from bigraph_schema.schema import Array, Float, Number, Tuple, Map, String
 from bigraph_schema.methods import apply, render, resolve
 
 
@@ -60,6 +60,18 @@ class PositiveArray(Array):
 @dataclass(kw_only=True)
 class Delta(Float):
     pass
+
+
+@dataclass(kw_only=True)
+class LatticeEnv(Map):
+    # bin_volume: Float = field(default_factory=Float)
+    substrates: Map = field(
+        default_factory=lambda: Map(
+            _key=String(),
+            _value=PositiveArray(),
+        )
+    )
+
 
 # ---------------------------------------------------------------------
 # Render methods: dataclass schema -> registry name
@@ -211,4 +223,5 @@ positive_types = {
     "concentration": Concentration,
     "set_float": SetFloat,
     "delta_conc": Delta,
+    "lattice_env": LatticeEnv,
 }

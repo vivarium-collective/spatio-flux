@@ -378,7 +378,8 @@ class ParticleExchange(Step):
     def inputs(self):
         return {
             'particles': 'map[particle]',
-            'fields': 'map[positive_array]',
+            'fields': 'lattice_env'
+            # 'fields': 'map[positive_array]',
             # 'fields': {
             #     '_type': 'map',
             #     '_value': {
@@ -398,7 +399,7 @@ class ParticleExchange(Step):
 
     def update(self, state):
         particles = state['particles']
-        fields = state['fields']
+        fields = state['fields']['substrates']
 
         particle_updates = {}
 
@@ -452,7 +453,7 @@ class ParticleExchange(Step):
 
         return {
             'particles': particle_updates,
-            'fields': field_updates,
+            'fields': {'substrates': field_updates},
         }
 
 def prune_instance_containers(obj):

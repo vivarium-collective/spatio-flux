@@ -579,23 +579,23 @@ def get_comets_br_particles_kinetics_doc(core=None, config=None):
 
     return {
         'state': {
-            'fields': fields,
+            'fields': {'substrates': fields},
             'particles': get_particles_state(n_particles=n_particles, bounds=bounds, mass_range=(1E0, 1E1)),
-            'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
+            # 'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
             'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            'brownian_movement': get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
+            # 'brownian_movement': get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
+            # 'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
+            # 'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_kinetic_particle_composition(core, config=particle_config)
+        # 'composition': get_kinetic_particle_composition(core, config=particle_config)
     }
 
 def plot_kinetic_particle_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_comets')
     n_snapshots = config.get('n_snapshots', 5)
-    bounds = state['brownian_movement']['config']['bounds']
+    bounds = state['particle_exchange']['config']['bounds']
     n_bins = state['particle_exchange']['config']['n_bins']
     plot_time_series(results, coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
