@@ -844,9 +844,9 @@ def plot_newtonian_particle_comets(results, state, config=None):
                         )
 
 
-# --- mega-composite simulation ---------------------------------------------------
+# --- spatio-flux reference composite simulation ---------------------------------------------------
 
-def get_mega_composite_doc(core=None, config=None):
+def get_reference_composite_doc(core=None, config=None):
     user_cfg = config or {}
 
     # High-level knobs
@@ -943,7 +943,7 @@ def get_mega_composite_doc(core=None, config=None):
 SIMULATIONS = {
     # ---- Metabolism-only models -------------------------------------------
     'monod_kinetics': {
-        'description': 'This simulation uses particles with Monod kinetics to model microbial growth and metabolism.',
+        'description': 'Field-only baseline: Monod uptake/growth on a well-mixed substrate pool (no spatial lattice, no particles). Use to sanity-check kinetics + mass balance.',
         'doc_func': get_kinetics_single_doc,
         'plot_func': plot_kinetics_single,
         'time': DEFAULT_RUNTIME_LONG,
@@ -951,7 +951,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'monod_kinetics'}
     },
     'ecoli_core_dfba': {
-        'description': 'This simulation runs a dFBA (dynamic Flux Balance Analysis) model of E. coli core metabolism, tracking external concentrations and biomass.',
+        'description': 'Single-cell metabolism baseline: dynamic FBA for E. coli core with external glucose/acetate and biomass over time (no space, no particles).',
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
@@ -959,7 +959,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'ecoli_core_dfba'}
     },
     'ecoli_dfba': {
-        'description': 'This simulation runs a dFBA of the large E. coli metabolic model, iAF1260',
+        'description': 'Single-cell metabolism (large model): dynamic FBA using iAF1260 with tracked extracellular fields (e.g., glucose/formate) and biomass. Stress-tests solver + exchange wiring.',
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
@@ -967,7 +967,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'ecoli_dfba'}
     },
     'yeast_dfba': {
-        'description': 'This simulation runs a dFBA model of Saccharomyces cerevisiae (yeast), iMM904',
+        'description': 'Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular glucose and biomass. Cross-model check of the dFBA pipeline.',
         'doc_func': get_dfba_single_doc,
         'plot_func': plot_dfba_single,
         'time': DEFAULT_RUNTIME_LONG,
@@ -977,7 +977,7 @@ SIMULATIONS = {
 
     # ---- Multi-metabolism models ------------------------------------------
     'community_dfba': {
-        'description': 'This simulation runs multiple dFBA processes in the same environment, each with its own model and parameters.',
+        'description': 'Multi-agent well-mixed community: several independent dFBA instances share the same extracellular pools, creating competition/cross-feeding dynamics without space.',
         'doc_func': get_community_dfba_doc,
         'plot_func': plot_community_dfba,
         'time': DEFAULT_RUNTIME_LONG,
@@ -985,7 +985,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'community_dfba'}
     },
     'dfba_kinetics_community': {
-        'description': 'This simulation runs multiple processes in the same environment, some with Monod kinetics and some with dFBA metabolism.',
+        'description': 'Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents in a shared environment. Demonstrates heterogeneous process composition under one schema.',
         'doc_func': get_dfba_kinetics_community_doc,
         'plot_func': plot_dfba_kinetics_community,
         'time': DEFAULT_RUNTIME_LONG,
@@ -993,7 +993,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'dfba_kinetics_community'}
     },
     'spatial_many_dfba': {
-        'description': 'This simulation introduces a spatial lattice, with a single dFBA process in each lattice site.',
+        'description': 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.',
         'doc_func': get_spatial_many_dfba_doc,
         'plot_func': plot_spatial_many_dfba,
         'time': DEFAULT_RUNTIME_LONG,
@@ -1001,7 +1001,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'spatial_many_dfba'}
     },
     'spatial_dfba_process': {
-        'description': 'This simulation introduces a spatial lattice, with a spatial dFBA process that runs all the lattice sites',
+        'description': 'Spatial microenvironment (vectorized dFBA): one spatial dFBA process updates all lattice sites as a single structured state. Demonstrates batched execution + field coupling.',
         'doc_func': get_spatial_dfba_process_doc,
         'plot_func': plot_dfba_process_spatial,
         'time': DEFAULT_RUNTIME_LONG,
@@ -1011,7 +1011,7 @@ SIMULATIONS = {
 
     # ---- Spatial models ---------------------------------------------------
     'diffusion_process': {
-        'description': 'This simulation includes finite volume method for diffusion and advection on a lattice.',
+        'description': 'Field transport primitive: finite-volume diffusion/advection on a 2D lattice. Use to validate boundary conditions, stability, and transport timescales.',
         'doc_func': get_diffusion_process_doc,
         'plot_func': plot_diffusion_process,
         'time': DEFAULT_RUNTIME_LONG,
@@ -1021,7 +1021,7 @@ SIMULATIONS = {
 
     # ---- Brownian Particle composite models --------------------------------
     'brownian_particles': {
-        'description': 'This simulation uses Brownian particles with mass moving randomly in space.',
+        'description': 'Particle-only baseline: Brownian motion of agents with mass in continuous space (no fields, no metabolism). Checks integrator + particle state schema.',
         'doc_func': get_brownian_particles_alone_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONGER,
@@ -1029,7 +1029,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'brownian_particles'}
     },
     'br_particles_kinetics': {
-        'description': 'This simulation uses Brownian particles with mass moving randomly, and with a kinetic reaction process inside of each particle uptaking or secreting from the field.',
+        'description': 'Particle–field coupling (kinetics): Brownian agents sample local lattice concentrations and apply Monod-style exchange, modifying both particle mass and fields.',
         'doc_func': get_br_particles_kinetics_doc,
         'plot_func': plot_particles_sim,
         'time': DEFAULT_RUNTIME_LONGER,
@@ -1037,7 +1037,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'br_particles_kinetics', 'n_snapshots': 6}
     },
     'br_particles_dfba': {
-        'description': 'This simulation puts dFBA inside of the Brownian particles, interacting with external fields and adding biomass into the particle mass, reflected by the particle size.',
+        'description': 'Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion couples to fields and biomass accumulates into particle mass/size.',
         'doc_func': get_br_particles_dfba_doc,
         'plot_func': plot_particle_dfba,
         'time': DEFAULT_RUNTIME_LONG,
@@ -1049,7 +1049,7 @@ SIMULATIONS = {
 
     # ---- COMETS-like composite models --------------------------------------
     'comets_diffusion': {
-        'description': 'This simulation combines dFBA at each lattice site with diffusion/advection to make a spatio-temporal FBA.',
+        'description': 'COMETS-style spatial dFBA: per-site dFBA coupled to diffusion/advection, yielding spatiotemporal nutrient gradients and growth fronts on the lattice.',
         'doc_func': get_comets_doc,
         'plot_func': plot_comets,
         'time': DEFAULT_RUNTIME_LONGER,
@@ -1057,7 +1057,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'comets_diffusion', 'n_snapshots': 5}
     },
     'comets_br_particles_kinetics': {
-        'description': 'This simulation extends COMETS with Brownian particles that have internal kinetic reaction processes.',
+        'description': 'COMETS + motile kinetic agents: adds Brownian particles with internal kinetics that exchange with COMETS fields. Demonstrates moving agents on a diffusing chemical landscape.',
         'doc_func': get_comets_br_particles_kinetics_doc,
         'plot_func': plot_kinetic_particle_comets,
         'time': DEFAULT_RUNTIME_LONG,
@@ -1065,7 +1065,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'comets_br_particles_kinetics', 'n_snapshots': 5}
     },
     'comets_br_particles_dfba': {
-        'description': 'This simulation combines dFBA inside of the particles with COMETS, allowing particles to uptake and secrete from the external fields.',
+        'description': 'COMETS + motile metabolic agents: Brownian particles carry dFBA and exchange with diffusing fields. Look for gradient-following effects and spatially structured growth.',
         'doc_func': get_comets_br_particles_dfba_doc,
         'plot_func': plot_particle_dfba_comets,
         'time': DEFAULT_RUNTIME_LONG,
@@ -1075,7 +1075,7 @@ SIMULATIONS = {
 
     # ---- Pymunk Newtonian Particle composite models ------------------------
     'newtonian_particles': {
-        'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine.',
+        'description': 'Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding in continuous space. Use to validate contact dynamics + boundary enforcement.',
         'doc_func': get_newtonian_particles_doc,
         'plot_func': plot_newtonian_particles,
         'time': DEFAULT_RUNTIME_LONGER,
@@ -1083,7 +1083,7 @@ SIMULATIONS = {
         'plot_config': {'filename': 'newtonian_particles'}
     },
     'comets_nt_particles_dfba': {
-        'description': 'This simulation uses particles moving in space according to physics-based interactions using the Pymunk physics engine, combined with COMETS dFBA in the environment.',
+        'description': 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.',
         'doc_func': get_newtonian_particle_comets_doc,
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONG, #ER,
@@ -1092,9 +1092,9 @@ SIMULATIONS = {
     },
 
     # ---- Integrated-Composite Demo  ---------------------------------------------
-    'integrated_composite_demo': {
-        'description': 'This simulation combines Pymunk physics-based particles with dFBA metabolism in both the particles and the environment.',
-        'doc_func': get_mega_composite_doc,
+    'spatioflux_reference_demo': {
+        'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division. End-to-end integration test.',
+        'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
         'time': DEFAULT_RUNTIME_LONGER*1.5,
         'config': {},

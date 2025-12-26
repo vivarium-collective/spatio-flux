@@ -13,7 +13,6 @@ dependencies = [
     "process-bigraph",
     "matplotlib",
     "bigraph-viz",
-    # "vivarium-interface",
     "scipy",
     "cobra",
     "imageio",
@@ -36,6 +35,6 @@ exclude = ["tests*", "docs*"]
 
 
 [tool.uv.sources]
-# bigraph-schema = { path = "../bigraph-schema", editable = true }
-# process-bigraph = { path = "../process-bigraph", editable = true }
-# bigraph-viz = { path = "../bigraph-viz", editable = true }
+ bigraph-schema = { path = "../bigraph-schema", editable = true }
+ process-bigraph = { path = "../process-bigraph", editable = true }
+ bigraph-viz = { path = "../bigraph-viz", editable = true }

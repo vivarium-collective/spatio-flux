@@ -1,5 +1,5 @@
 """
-Figure B: run mega_composite and assemble a multicomponent figure.
+Figure B: run the spatioflux reference composite and assemble a multicomponent figure.
 
 Layout:
   Rows 0–1: (a) {TEST_NAME}_viz.png (full width; spans 2 rows)
@@ -28,7 +28,7 @@ from spatio_flux.experiments.test_suite import (  # type: ignore
 # -------------------------
 # Config
 # -------------------------
-TEST_NAME = "integrated_composite_demo"
+TEST_NAME = "spatioflux_reference_demo"
 OUT_DIR = Path("out")
 OUT_FIGURE = OUT_DIR / "mega-composite.png"
 
@@ -53,7 +53,7 @@ ROW_HEIGHTS = [1.0, 1.0, 1.0, 1.0]  # tweak if you want
 # -------------------------
 # Run simulation + generate panels
 # -------------------------
-def run_mega_composite_and_plots() -> None:
+def run_reference_composite_and_plots() -> None:
     prepare_output_dir(str(OUT_DIR))
     core = allocate_core()
 
@@ -195,7 +195,7 @@ def assemble_figure_B(
 
 
 def main() -> None:
-    run_mega_composite_and_plots()
+    run_reference_composite_and_plots()
     assemble_figure_B(out_dir=OUT_DIR, test_name=TEST_NAME, out_path=OUT_FIGURE)
 
 

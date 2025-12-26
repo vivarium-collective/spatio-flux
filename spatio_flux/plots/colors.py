@@ -71,6 +71,8 @@ DEFAULT_FIELD_SPECIES = [
     "monod_biomass",
     "ecoli_biomass",
     "yeast_biomass",
+    "dfba biomass",
+    "kinetic biomass",
 ]
 
 DEFAULT_FIELD_BIOMASS_SPECIES = [
