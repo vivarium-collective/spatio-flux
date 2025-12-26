@@ -501,7 +501,7 @@ def get_br_particles_kinetics_doc(core=None, config=None):
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
         # put kinetic metabolism in the particles
-        'composition': get_kinetic_particle_composition(core=core, config=particle_config)
+        'schema': get_kinetic_particle_composition(core=core, config=particle_config)
     }
 
 # --- dFBA-Particles ---------------------------------------------------
@@ -534,7 +534,7 @@ def get_br_particles_dfba_doc(core=None, config=None):
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_dfba_particle_composition(model_file=particle_model_id)
+        'schema': get_dfba_particle_composition(model_file=particle_model_id)
     }
 
 def plot_particle_dfba(results, state, config=None):
@@ -588,7 +588,7 @@ def get_comets_br_particles_kinetics_doc(core=None, config=None):
             'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
             'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
         },
-        'composition': get_kinetic_particle_composition(core, config=particle_config)
+        'schema': get_kinetic_particle_composition(core, config=particle_config)
     }
 
 def plot_kinetic_particle_comets(results, state, config=None):
@@ -666,7 +666,7 @@ def get_comets_br_particles_dfba_doc(core=None, config=None):
     # Document
     doc = {
         "state": state,
-        "composition": get_dfba_particle_composition(model_file=particle_model_id),
+        "schema": get_dfba_particle_composition(model_file=particle_model_id),
     }
     return doc
 
@@ -794,7 +794,7 @@ def get_newtonian_particle_comets_doc(core=None, config=None):
                 mass_range=(1e-3, 1e-2)
             ),
         },
-        'composition': get_dfba_particle_composition(model_file=particle_model_id)
+        'schema': get_dfba_particle_composition(model_file=particle_model_id)
     }
     return doc
 
@@ -917,7 +917,7 @@ def get_mega_composite_doc(core=None, config=None):
         internal['sub_masses'] = initial_submasses.copy()
 
     # composition
-    composition = get_community_dfba_particle_composition(models=models)
+    schema = get_community_dfba_particle_composition(models=models)
 
     doc = {
         "state": {
@@ -930,7 +930,7 @@ def get_mega_composite_doc(core=None, config=None):
             "enforce_boundaries": enforce_boundaries,
             "newtonian_particles": newtonian_particles,
         },
-        "composition": composition,
+        "schema": schema,
     }
     return doc
 

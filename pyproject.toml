@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "spatio-flux"
-version = "0.0.1"
+version = "1.0.0"
 description = "A demonstration of process composition rebuilding and extending COMETS by composing functional components"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
@@ -36,6 +36,6 @@ exclude = ["tests*", "docs*"]
 
 
 [tool.uv.sources]
-bigraph-schema = { path = "../bigraph-schema", editable = true }
-process-bigraph = { path = "../process-bigraph", editable = true }
-bigraph-viz = { path = "../bigraph-viz", editable = true }
+# bigraph-schema = { path = "../bigraph-schema", editable = true }
+# process-bigraph = { path = "../process-bigraph", editable = true }
+# bigraph-viz = { path = "../bigraph-viz", editable = true }

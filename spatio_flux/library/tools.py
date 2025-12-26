@@ -94,7 +94,7 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     sim.save(filename=f"{name}.json", outdir=outdir)
 
     # Save representation string (human-readable schema summary)
-    representation = core.render(sim.composition)
+    representation = core.render(sim.schema)
     rep_file = os.path.join(outdir, f"{name}_schema.json")
     with open(rep_file, "w") as f:
         json.dump(representation, f, indent=2)
@@ -103,7 +103,7 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
     # Save the underlying state as JSON (machine-readable)
     state_file = os.path.join(outdir, f"{name}_state.json")
     try:
-        serialized = core.serialize(sim.composition, sim.state)
+        serialized = core.serialize(sim.schema, sim.state)
         with open(state_file, "w") as f:
             json.dump(serialized, f, indent=2)
         print(f"💾 Saved state JSON → {state_file}")
@@ -112,7 +112,7 @@ def run_composite_document(document, core=None, name=None, time=None, outdir="ou
 
     # Visualize initial composition
     plot_state = {k: v for k, v in sim.state.items() if k not in ['global_time', 'emitter']}
-    plot_schema = {k: v for k, v in sim.composition.items() if k not in ['global_time', 'emitter']}
+    plot_schema = {k: v for k, v in sim.schema.items() if k not in ['global_time', 'emitter']}
 
     # only include one particle for visualization purposes
     if 'particles' in plot_state and plot_state['particles']:
