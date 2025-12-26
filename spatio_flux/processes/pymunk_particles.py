@@ -215,7 +215,10 @@ class PymunkParticleMovement(Process):
 
         for _ in range(n_steps):
             self.space.damping = d_step
+            # Only apply noise to dynamic bodies (skip static walls/kinematics)
             for body in self.space.bodies:
+                if body.body_type != pymunk.Body.DYNAMIC:
+                    continue
                 self.apply_jitter_force(body, dt)
             self.space.step(dt)
 
@@ -259,25 +262,25 @@ class PymunkParticleMovement(Process):
     # ------------------------------------------------------------------
 
     def apply_jitter_force(self, body, dt):
-        shape = next(iter(body.shapes)) if body.shapes else None
-        if not shape:
+        shape = next(iter(body.shapes), None)
+        if shape is None:
             return
 
-        # simple "random point on circle" jitter
-        if isinstance(shape, pymunk.Circle):
-            r = shape.radius
-            theta = random.uniform(0, 2 * math.pi)
-            local_point = (r * math.cos(theta), r * math.sin(theta))
-        else:
-            local_point = (0.0, 0.0)
+        # Apply impulse at a random boundary point (gives torque for segments)
+        local_point = local_impulse_point_for_shape(shape)
 
-        # scale jitter with diffusion_rate
-        base_sigma = self.jitter_per_second * math.sqrt(max(dt, 1e-12))
-        sigma = base_sigma * math.sqrt(max(self.diffusion_rate, 1e-12))
+        # Interpret jitter_per_second as (velocity std) / sqrt(second)
+        # => dv_std = jitter_per_second * sqrt(dt)
+        dv_std = self.jitter_per_second * math.sqrt(max(dt, 1e-12))
 
-        fx = random.normalvariate(0.0, sigma)
-        fy = random.normalvariate(0.0, sigma)
-        body.apply_impulse_at_local_point((fx, fy), local_point)
+        # Optionally scale by diffusion_rate (keep if you want diffusion_rate to amplify jitter)
+        dv_std *= math.sqrt(max(self.diffusion_rate, 1e-12))
+
+        # Convert velocity kick to impulse: J = m * dv
+        Jx = body.mass * random.gauss(0.0, dv_std)
+        Jy = body.mass * random.gauss(0.0, dv_std)
+
+        body.apply_impulse_at_local_point((Jx, Jy), local_point)
 
     def update_bodies(self, agents):
         existing_ids = set(self.agents.keys())
@@ -314,7 +317,7 @@ class PymunkParticleMovement(Process):
         vx, vy = attrs.get('velocity', (body.velocity.x, body.velocity.y))
         body.velocity = pymunk.Vec2d(float(vx), float(vy))
 
-        # IMPORTANT: position should be absolute in your current wiring
+        # position should be absolute in your current wiring
         if 'position' in attrs:
             body.position = pymunk.Vec2d(*attrs['position'])
 

@@ -830,14 +830,22 @@ def plot_newtonian_particle_comets(results, state, config=None):
                                  draw_submass_outline=True,
                                  draw_submass_legend=False,
                                  )
-    plot_snapshots_grid(results,  bounds=bounds, out_dir='out', filename=f'{filename}_snapshots.png',
+    # snapshot plot
+    xmax, ymax = bounds
+    world_aspect = ymax / xmax  # e.g. 3.0 for (100,300)
+    plot_snapshots_grid(results,
+                        bounds=bounds,
+                        out_dir='out',
+                        filename=f'{filename}_snapshots.png',
                         field_names=['glucose', 'acetate', 'dissolved biomass'],
-                        n_snapshots=n_snapshots, particles_row=particles_row,
+                        n_snapshots=n_snapshots,
+                        particles_row=particles_row,
                         time_units="min",
-                        wspace=0.1,
-                        hspace=0.1,
-                        col_width=1.8,
+                        wspace=0.02,
+                        hspace=0.08,
                         row_height=2.0,
+                        col_width=2.0 / world_aspect,
+                        cbar_width=0.04,  # slimmer colorbars
                         show_particle_submasses=True,
                         submass_draw_legend=True,
                         submass_color_map=submass_colors,
@@ -848,38 +856,47 @@ def plot_newtonian_particle_comets(results, state, config=None):
 
 def get_reference_composite_doc(core=None, config=None):
     user_cfg = config or {}
+    bounds = user_cfg.get("bounds", SQUARE_BOUNDS)
+    n_bins = user_cfg.get("n_bins", SQUARE_BINS)
 
     # High-level knobs
     division_mass_threshold = 0.5
     add_rate = 0.0
-
-    # Spatial fields
-    biomass_id = "dissolved biomass"
-    mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
-    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
-    advection_coeffs = {biomass_id: (0.0, -0.8), 'acetate': (0.0, 0.5)}  # dissolved biomass floats to the top, while acetates sinks
-
-    bounds = user_cfg.get("bounds", DEFAULT_BOUNDS)
-    n_bins = user_cfg.get("n_bins", DEFAULT_BINS)
-
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-
-    # Particles + physics
-    n_particles = user_cfg.get("n_particles", 1)
-    physics_cfg = {"gravity": -3.0,
-                   "elasticity": 0.1,
-                   "bounds": bounds,
-                   "jitter_per_second": 1e-12,
-                   "damping_per_second": 0.9
-                   }
-    boundary_cfg = {"add_rate": add_rate}
-
-    # Models
     initial_submasses = {
         'ecoli_1': 0.1,
         'ecoli_2': 0.1
     }
+
+    # Spatial fields state
+    biomass_id = "dissolved biomass"
+    mol_ids = ["glucose", "acetate", biomass_id]
+    initial_min_max = {"glucose": (2.0, 2.0), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
+
+    # diffusion process config
+    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
+    advection_coeffs = {
+        # biomass_id: (0.0, -0.5), # dissolved biomass floats to the top
+        'acetate': (0.0, 0.5)}     # acetates sinks
+    diffusion_boundary_config = {
+        "default": {
+          "x": {"type": "periodic"},
+          # "y": {"type": "periodic"},
+        },
+        "glucose": {"top": {"type": "dirichlet", "value": 10.0}},
+        "acetate": {"bottom": {"type": "dirichlet", "value": 0.5}},
+    }
+
+    # Particles + physics config
+    n_particles = user_cfg.get("n_particles", 1)
+    physics_cfg = {"gravity": -2.0,
+                   "elasticity": 0.1,
+                   "bounds": bounds,
+                   "jitter_per_second": 1e-10,
+                   "damping_per_second": 0.9,
+                   "friction": 0.9}
+    boundary_cfg = {"add_rate": add_rate}
+
+    # dFBA Models for community simulation within particles
     models = {
         "ecoli_1": {
             'model_file': 'textbook',
@@ -893,7 +910,7 @@ def get_reference_composite_doc(core=None, config=None):
         "ecoli_2": {
             'model_file': 'textbook',
             'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
-            'kinetic_params': {'glucose': (0.5, 0.1), 'acetate': (0.1, 2)},
+            'kinetic_params': {'glucose': (0.5, 0.1), 'acetate': (0.5, 1)},
             'bounds': {
                 'EX_o2_e': {'lower': -2, 'upper': None},
                 'ATPM': {'lower': 1, 'upper': 1}
@@ -901,22 +918,23 @@ def get_reference_composite_doc(core=None, config=None):
         }
     }
 
+    # State
+    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
+    particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
+
+    # put mass metabolism inside the particles
+    for pid, internal in particles.items():
+        internal['sub_masses'] = initial_submasses.copy()
 
     # Processes
-    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs)
+    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs, boundary_conditions=diffusion_boundary_config)
     spatial_kinetics = get_spatial_many_kinetics(model_id="single_substrate_assimilation", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
-    particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
-    # mass_step = get_mass_total_step(mass_sources=mass_sources)
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
     particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
-   # put mass metabolism inside the particles
-    for pid, internal in particles.items():
-        internal['sub_masses'] = initial_submasses.copy()
-
-    # composition
+    # composite schema
     schema = get_community_dfba_particle_composition(models=models)
 
     doc = {
@@ -1096,9 +1114,9 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division. End-to-end integration test.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONGER*1.5,
+        'time': DEFAULT_RUNTIME_LONGER*2,
         'config': {},
-        'plot_config': {'filename': 'integrated_composite_demo', "particles_row": "separate", "n_snapshots": 5}
+        'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 6}
     },
 }
 

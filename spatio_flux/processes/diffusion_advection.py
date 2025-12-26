@@ -15,6 +15,9 @@ class DiffusionAdvection(Process):
       - state has shape (ny, nx) == (rows, cols)
       - x corresponds to columns (axis=1)
       - y corresponds to rows    (axis=0)
+
+    Boundary conditions are implemented via 1-cell ghost layers,
+    so diffusion and advection both respect them.
     """
 
     config_schema = {
@@ -26,19 +29,39 @@ class DiffusionAdvection(Process):
         'diffusion_coeffs': 'map[float]',
         'advection_coeffs': 'map[tuple[float,float]]',  # (vx, vy)
 
+        # --- boundary conditions ---
+        # You can set global defaults and override per species.
+        #
+        # Format:
+        # boundary_conditions = {
+        #   "default": {
+        #      "x": {"type": "periodic"},                  # shorthand for left/right periodic
+        #      "y": {"type": "neumann"},                   # shorthand for bottom/top neumann
+        #      # OR explicitly:
+        #      "left":   {"type": "dirichlet", "value": 1.0},
+        #      "right":  {"type": "neumann"},
+        #      "bottom": {"type": "dirichlet", "value": 0.0},
+        #      "top":    {"type": "outflow"},
+        #   },
+        #   "glucose": {"left": {"type":"dirichlet","value":2.0}, "right":{"type":"neumann"}, ...},
+        # }
+        #
+        'boundary_conditions': {'_type': 'map', '_default': {}},
+
         'max_dt': {'_type': 'float', '_default': 1e-1},
         'cfl_adv': {'_type': 'float', '_default': 0.5},
         'clip_negative': {'_type': 'boolean', '_default': True},
     }
 
+    # -------------------------
+    # Initialization
+    # -------------------------
     def initialize(self, config):
         # grid geometry (config is (nx, ny))
         nx, ny = self.config['n_bins']
         xmax, ymax = self.config['bounds']
-
         self.nx = int(nx)  # columns (x)
         self.ny = int(ny)  # rows    (y)
-
         xmax = float(xmax)
         ymax = float(ymax)
 
@@ -51,11 +74,9 @@ class DiffusionAdvection(Process):
         self.dx = xmax / self.nx
         self.dy = ymax / self.ny
 
-        # diffusion coefficients
+        # diffusion/advection coefficients
         self.D_default = float(self.config['default_diffusion_rate'])
         self.D_species = dict(self.config.get('diffusion_coeffs', {}))
-
-        # advection coefficients
         self.v_species = dict(self.config.get('advection_coeffs', {}))
 
         # stability / stepping
@@ -63,19 +84,25 @@ class DiffusionAdvection(Process):
         self.cfl_adv = float(self.config['cfl_adv'])
         self.clip_negative = bool(self.config['clip_negative'])
 
-        # laplacian scaling (your stencil assumes square cells)
+        # laplacian scaling (stencil assumes square cells)
         if not np.isclose(self.dx, self.dy):
             raise ValueError(
                 "Current DiffusionAdvection assumes square cells (dx == dy). "
-                f"Got dx = {self.dx:.6g}, dy = {self.dy:.6g}. "
-                "If you want rectangular cells, we need a dx/dy-aware Laplacian stencil."
+                f"Got dx = {self.dx:.6g}, dy = {self.dy:.6g}."
             )
 
         self.dx2 = self.dx * self.dx
-        self.laplacian_kernel = LAPLACIAN_2D / self.dx2
+        self.field_shape = (self.ny, self.nx)
 
-        # handy: expected numpy array shape for fields
-        self.field_shape = (self.ny, self.nx)  # (rows, cols) == (y_bins, x_bins)
+        # --- boundary condition specs ---
+        bc_all = dict(self.config.get('boundary_conditions', {}) or {})
+        self.bc_default = self._normalize_bc_spec(bc_all.get('default', {}))
+        self.bc_species = {k: self._normalize_bc_spec(v) for k, v in bc_all.items() if k != 'default'}
+
+        # sanity: periodic must be paired per axis
+        self._validate_periodic_pairing(self.bc_default)
+        for sp, spec in self.bc_species.items():
+            self._validate_periodic_pairing(spec)
 
     def inputs(self):
         return {
@@ -83,7 +110,7 @@ class DiffusionAdvection(Process):
                 '_type': 'map',
                 '_value': {
                     '_type': 'array',
-                    '_shape': self.config['n_bins'],  # (ny, nx)
+                    '_shape': self.config['n_bins'],
                     '_data': 'float',
                 },
             }
@@ -95,12 +122,15 @@ class DiffusionAdvection(Process):
                 '_type': 'map',
                 '_value': {
                     '_type': 'array',
-                    '_shape': self.config['n_bins'],  # (ny, nx)
+                    '_shape': self.config['n_bins'],
                     '_data': 'float',
                 },
             }
         }
 
+    # -------------------------
+    # Main update
+    # -------------------------
     def update(self, state, interval):
         fields_in = state['fields']
         updated = {}
@@ -115,20 +145,26 @@ class DiffusionAdvection(Process):
             vx = float(vx)
             vy = float(vy)
 
-            cur = field.astype(float, copy=True)
+            bc = self._bc_for_species(species)
+
+            cur = np.asarray(field, dtype=float).copy()
             for _ in range(n_steps):
-                cur = self._step_diffuse_advect(cur, dt, D, vx, vy)
+                cur = self._step_diffuse_advect(cur, dt, D, vx, vy, bc)
 
             updated[species] = cur - field  # delta
 
         return {'fields': updated}
 
+    # -------------------------
+    # Stability dt
+    # -------------------------
     def _compute_stable_dt(self, fields):
         D_values = [float(self.D_species.get(s, self.D_default)) for s in fields.keys()]
         D_max = max(D_values) if D_values else self.D_default
 
         if D_max > 0.0:
-            dt_diff = 1.0 / (4.0 * D_max * (1.0 / self.dx2 + 1.0 / (self.dy * self.dy)))
+            # for square grid: dt <= dx^2/(4D) (2D explicit diffusion)
+            dt_diff = (self.dx2) / (4.0 * D_max)
         else:
             dt_diff = np.inf
 
@@ -145,55 +181,186 @@ class DiffusionAdvection(Process):
         dt_stable = min(dt_diff, dt_vx, dt_vy, self.max_dt)
         if not np.isfinite(dt_stable) or dt_stable <= 0.0:
             dt_stable = self.max_dt
-
         return float(dt_stable)
 
-    def _step_diffuse_advect(self, state, dt, D, vx, vy):
+    # -------------------------
+    # Single substep
+    # -------------------------
+    def _step_diffuse_advect(self, C, dt, D, vx, vy, bc):
+        # apply BC via ghost layer
+        G = self._pad_with_bc(C, bc)
+
+        # center and neighbors from ghost-padded array
+        Cc  = G[1:-1, 1:-1]
+        Cxm = G[1:-1, 0:-2]
+        Cxp = G[1:-1, 2:  ]
+        Cym = G[0:-2, 1:-1]
+        Cyp = G[2:  , 1:-1]
+
+        diff_term = 0.0
         if D != 0.0:
-            lap = convolve(state, self.laplacian_kernel, mode='reflect')
+            lap = (Cxp + Cxm + Cyp + Cym - 4.0 * Cc) / self.dx2
             diff_term = D * lap
-        else:
-            diff_term = 0.0
 
         adv_term = 0.0
         if vx != 0.0 or vy != 0.0:
-            adv_term = self._upwind_advection(state, vx, vy)
+            adv_term = self._upwind_advection_from_neighbors(Cc, Cxm, Cxp, Cym, Cyp, vx, vy)
 
-        new_state = state + dt * (diff_term - adv_term)
+        newC = C + dt * (diff_term - adv_term)
 
         if self.clip_negative:
-            np.maximum(new_state, 0.0, out=new_state)
+            np.maximum(newC, 0.0, out=newC)
 
-        return new_state
+        return newC
 
-    def _upwind_advection(self, state, vx, vy):
-        """
-        v · ∇C with:
-          - x along axis=1 (columns)
-          - y along axis=0 (rows)
-        """
-        # x-neighbors (columns)
-        roll_xp = np.roll(state, -1, axis=1)  # x+1
-        roll_xm = np.roll(state,  1, axis=1)  # x-1
-
-        # y-neighbors (rows)
-        roll_yp = np.roll(state, -1, axis=0)  # y+1
-        roll_ym = np.roll(state,  1, axis=0)  # y-1
-
-        # dC/dx (upwind)
+    # -------------------------
+    # Upwind advection using neighbors already BC-consistent
+    # -------------------------
+    def _upwind_advection_from_neighbors(self, Cc, Cxm, Cxp, Cym, Cyp, vx, vy):
         if vx > 0:
-            dCdx = (state - roll_xm) / self.dx
+            dCdx = (Cc - Cxm) / self.dx
         elif vx < 0:
-            dCdx = (roll_xp - state) / self.dx
+            dCdx = (Cxp - Cc) / self.dx
         else:
             dCdx = 0.0
 
-        # dC/dy (upwind)
         if vy > 0:
-            dCdy = (state - roll_ym) / self.dy
+            dCdy = (Cc - Cym) / self.dy
         elif vy < 0:
-            dCdy = (roll_yp - state) / self.dy
+            dCdy = (Cyp - Cc) / self.dy
         else:
             dCdy = 0.0
 
         return vx * dCdx + vy * dCdy
+
+    # -------------------------
+    # Boundary conditions (ghost cells)
+    # -------------------------
+    def _bc_for_species(self, species):
+        spec = self.bc_species.get(species, {})
+        # merge: species overrides default per key
+        bc = dict(self.bc_default)
+        bc.update(spec)
+        return bc
+
+    def _normalize_bc_spec(self, spec):
+        """
+        Normalize shorthand:
+          - allow "x": {...} meaning left/right
+          - allow "y": {...} meaning bottom/top
+        Ensure keys exist for left/right/bottom/top.
+        """
+        spec = dict(spec or {})
+
+        if 'x' in spec:
+            spec.setdefault('left', spec['x'])
+            spec.setdefault('right', spec['x'])
+        if 'y' in spec:
+            spec.setdefault('bottom', spec['y'])
+            spec.setdefault('top', spec['y'])
+
+        # default if missing: neumann (zero-gradient)
+        for side in ('left', 'right', 'bottom', 'top'):
+            spec.setdefault(side, {'type': 'neumann'})
+
+        # ensure dict + type exists
+        out = {}
+        for side in ('left', 'right', 'bottom', 'top'):
+            bc = spec[side]
+            if isinstance(bc, str):
+                bc = {'type': bc}
+            bc = dict(bc)
+            bc.setdefault('type', 'neumann')
+            out[side] = bc
+        return out
+
+    def _validate_periodic_pairing(self, bc):
+        # If either side is periodic, require both sides periodic for that axis.
+        lx = bc['left'].get('type', '').lower()
+        rx = bc['right'].get('type', '').lower()
+        by = bc['bottom'].get('type', '').lower()
+        ty = bc['top'].get('type', '').lower()
+
+        if (lx == 'periodic') ^ (rx == 'periodic'):
+            raise ValueError("Periodic BC in x must be set on BOTH left and right.")
+        if (by == 'periodic') ^ (ty == 'periodic'):
+            raise ValueError("Periodic BC in y must be set on BOTH bottom and top.")
+
+    def _pad_with_bc(self, C, bc):
+        """
+        Create ghost-padded array G with shape (ny+2, nx+2).
+        Fill ghosts according to BCs.
+        """
+        C = np.asarray(C, dtype=float)
+        ny, nx = C.shape
+        if (ny, nx) != (self.ny, self.nx):
+            raise ValueError(f"Field has shape {C.shape}, expected {(self.ny, self.nx)}")
+
+        G = np.empty((ny + 2, nx + 2), dtype=float)
+        G[1:-1, 1:-1] = C
+
+        # corners will be filled after sides; initialize corners from interior for safety
+        G[0, 0] = C[0, 0]
+        G[0, -1] = C[0, -1]
+        G[-1, 0] = C[-1, 0]
+        G[-1, -1] = C[-1, -1]
+
+        # ----- X direction (left/right) -----
+        left_type = bc['left']['type'].lower()
+        right_type = bc['right']['type'].lower()
+
+        if left_type == 'periodic' and right_type == 'periodic':
+            G[1:-1, 0]  = C[:, -1]   # left ghost from right interior
+            G[1:-1, -1] = C[:, 0]    # right ghost from left interior
+        else:
+            # left ghost
+            if left_type in ('neumann', 'outflow'):
+                G[1:-1, 0] = C[:, 0]
+            elif left_type == 'dirichlet':
+                val = float(bc['left'].get('value', 0.0))
+                # ghost chosen so that boundary cell center is pinned well; we also pin explicitly later
+                G[1:-1, 0] = 2.0 * val - C[:, 0]
+            else:
+                raise ValueError(f"Unknown left BC type: {left_type}")
+
+            # right ghost
+            if right_type in ('neumann', 'outflow'):
+                G[1:-1, -1] = C[:, -1]
+            elif right_type == 'dirichlet':
+                val = float(bc['right'].get('value', 0.0))
+                G[1:-1, -1] = 2.0 * val - C[:, -1]
+            else:
+                raise ValueError(f"Unknown right BC type: {right_type}")
+
+        # ----- Y direction (bottom/top) -----
+        bottom_type = bc['bottom']['type'].lower()
+        top_type = bc['top']['type'].lower()
+
+        if bottom_type == 'periodic' and top_type == 'periodic':
+            G[0, 1:-1]  = C[-1, :]   # bottom ghost from top interior
+            G[-1, 1:-1] = C[0, :]    # top ghost from bottom interior
+        else:
+            if bottom_type in ('neumann', 'outflow'):
+                G[0, 1:-1] = C[0, :]
+            elif bottom_type == 'dirichlet':
+                val = float(bc['bottom'].get('value', 0.0))
+                G[0, 1:-1] = 2.0 * val - C[0, :]
+            else:
+                raise ValueError(f"Unknown bottom BC type: {bottom_type}")
+
+            if top_type in ('neumann', 'outflow'):
+                G[-1, 1:-1] = C[-1, :]
+            elif top_type == 'dirichlet':
+                val = float(bc['top'].get('value', 0.0))
+                G[-1, 1:-1] = 2.0 * val - C[-1, :]
+            else:
+                raise ValueError(f"Unknown top BC type: {top_type}")
+
+        # fill corners consistently (simple average of adjacent ghosts)
+        G[0, 0]     = 0.5 * (G[0, 1] + G[1, 0])
+        G[0, -1]    = 0.5 * (G[0, -2] + G[1, -1])
+        G[-1, 0]    = 0.5 * (G[-2, 0] + G[-1, 1])
+        G[-1, -1]   = 0.5 * (G[-2, -1] + G[-1, -2])
+
+        return G
+

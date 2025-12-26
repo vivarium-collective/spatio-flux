@@ -300,6 +300,7 @@ def get_diffusion_advection_process(
         default_advection_rate=(0, 0),
         diffusion_coeffs=None,
         advection_coeffs=None,
+        boundary_conditions=None,
 ):
     if mol_ids is None:
         mol_ids = ['glucose', 'acetate', 'dissolved biomass']
@@ -328,6 +329,7 @@ def get_diffusion_advection_process(
                 'default_diffusion_dt': 1e-1,
                 'diffusion_coeffs': diffusion_coeffs_all,
                 'advection_coeffs': advection_coeffs_all,
+                'boundary_conditions': boundary_conditions,
             },
             'inputs': {
                 'fields': ['fields']
