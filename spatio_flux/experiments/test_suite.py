@@ -28,6 +28,7 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_monod_kinetics_process_from_config
+from spatio_flux.processes.adapters import get_conc_count_adapter
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
@@ -929,18 +930,27 @@ def get_reference_composite_doc(core=None, config=None):
     diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs, boundary_conditions=diffusion_boundary_config)
     spatial_kinetics = get_spatial_many_kinetics(model_id="low_yield_glucose_overflow", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
-    particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds)
+    particle_exchange = get_particle_exchange_process(
+        n_bins=n_bins, bounds=bounds, concentration_fields_path=['lattice', 'fields'], exchange_fields_path=['lattice', 'exchanges'])
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
+
+    # adapters
+    conc_count_adapter = get_conc_count_adapter(conc_path=['fields'])
 
     # composite schema
     schema = get_community_dfba_particle_composition(models=models)
 
     doc = {
         "state": {
-            **spatial_kinetics,  # put them at the top level
-            "fields": fields,
-            "diffusion": diffusion,
+            "lattice": {
+                "bin_volume": 1.0,
+                "fields": fields,
+                "exchanges": {mol_id: np.zeros_like(f) for mol_id, f in fields.items()},
+                **spatial_kinetics,  # put them at the top level
+                "diffusion": diffusion,
+                "conc_count_adapter": conc_count_adapter,
+            },
             "particles": particles,
             "particle_exchange": particle_exchange,
             "particle_division": particle_division,
@@ -1113,7 +1123,7 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  300, #DEFAULT_RUNTIME_LONGER*3,  #DEFAULT_RUNTIME_SHORT, #
+        'time':  30,  #300, #DEFAULT_RUNTIME_LONGER*3,  #DEFAULT_RUNTIME_SHORT, #
         'config': {},
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },

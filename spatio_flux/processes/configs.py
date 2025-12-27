@@ -3,48 +3,13 @@
 TODO -- all the get_ functions here should be derived from their processes' config schemas!
 """
 
-import numpy as np
 from bigraph_schema import deep_merge
 
 from bigraph_schema import make_default
-from spatio_flux.library.tools import initialize_fields, build_path
+from spatio_flux.library.tools import build_path
 from spatio_flux.processes import MonodKinetics, get_kinetics_process_from_registry
 from spatio_flux.processes.particles import generate_multiple_particles_state, INITIAL_MASS_RANGE
 from spatio_flux.processes.dfba import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA
-
-default_config = {
-    'total_time': 100.0,
-    'bounds': (10.0, 20.0),
-    'n_bins': (8, 16),
-    'mol_ids': ['glucose', 'acetate', 'dissolved biomass', 'detritus'],
-    'field_diffusion_rate': 1e-1,
-    'field_advection_rate': (0, 0),
-    'initial_min_max': {
-        'glucose': (10, 10),
-        'acetate': (0, 0),
-        'dissolved biomass': (0, 0.1),
-        'detritus': (0, 0)
-    },
-    # set particles
-    'n_particles': 10,
-    'particle_diffusion_rate': 1e-1,
-    'particle_advection_rate': (0, -0.1),
-    'particle_add_rate': 0.3,
-    'particle_boundary_to_add': ['top'],
-    'particle_boundary_to_remove': ['top', 'bottom', 'left', 'right'],
-    'particle_field_interactions': {
-        'glucose': {
-            'vmax': 0.1,
-            'Km': 1.0,
-            'interaction_type': 'uptake'
-        },
-        'detritus': {
-            'vmax': -0.1,
-            'Km': 1.0,
-            'interaction_type': 'secretion'
-        },
-    },
-}
 
 
 # ===========
@@ -288,57 +253,6 @@ def get_spatial_many_dfba_with_fields(
         "spatial_dfba": get_spatial_many_dfba(model_id=model_file, mol_ids=mol_ids, n_bins=n_bins)
     }
 
-# ===================
-# Diffusion-Advection
-# ===================
-
-def get_diffusion_advection_process(
-        bounds=(10.0, 10.0),
-        n_bins=(5, 5),
-        mol_ids=None,
-        default_diffusion_rate=1e-1,
-        default_advection_rate=(0, 0),
-        diffusion_coeffs=None,
-        advection_coeffs=None,
-        boundary_conditions=None,
-):
-    if mol_ids is None:
-        mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    if diffusion_coeffs is None:
-        diffusion_coeffs = {}
-    if advection_coeffs is None:
-        advection_coeffs = {}
-
-    # fill in the missing diffusion and advection rates
-    diffusion_coeffs_all = {
-        mol_id: diffusion_coeffs.get(mol_id, default_diffusion_rate)
-        for mol_id in mol_ids
-    }
-    advection_coeffs_all = {
-        mol_id: advection_coeffs.get(mol_id, default_advection_rate)
-        for mol_id in mol_ids
-    }
-
-    return {
-            '_type': 'process',
-            'address': 'local:DiffusionAdvection',
-            'config': {
-                'n_bins': n_bins,
-                'bounds': bounds,
-                'default_diffusion_rate': 1e-1,
-                'default_diffusion_dt': 1e-1,
-                'diffusion_coeffs': diffusion_coeffs_all,
-                'advection_coeffs': advection_coeffs_all,
-                'boundary_conditions': boundary_conditions,
-            },
-            'inputs': {
-                'fields': ['fields']
-            },
-            'outputs': {
-                'fields': ['fields']
-            }
-        }
-
 # =================
 # Particle Movement
 # =================
@@ -414,7 +328,12 @@ def get_particle_exchange_process(
         bounds=(10.0, 10.0),
         rates_are_per_time=True,
         apply_mass_balance=False,
+        concentration_fields_path=None,
+        exchange_fields_path=None,
 ):
+    concentration_fields_path = concentration_fields_path or ['fields']
+    exchange_fields_path = exchange_fields_path or ['fields']
+
     config = locals()
     # Remove any key-value pair where the value is None
     config = {key: value for key, value in config.items() if value is not None}
@@ -425,11 +344,11 @@ def get_particle_exchange_process(
         'config': config,
         'inputs': {
             'particles': ['particles'],
-            'fields': ['fields'],
+            'fields': concentration_fields_path,
         },
         'outputs': {
             'particles': ['particles'],
-            'fields': ['fields'],
+            'fields': exchange_fields_path,
         },
     }
 

@@ -364,3 +364,50 @@ class DiffusionAdvection(Process):
 
         return G
 
+
+def get_diffusion_advection_process(
+        bounds=(10.0, 10.0),
+        n_bins=(5, 5),
+        mol_ids=None,
+        default_diffusion_rate=1e-1,
+        default_advection_rate=(0, 0),
+        diffusion_coeffs=None,
+        advection_coeffs=None,
+        boundary_conditions=None,
+):
+    if mol_ids is None:
+        mol_ids = ['glucose', 'acetate', 'dissolved biomass']
+    if diffusion_coeffs is None:
+        diffusion_coeffs = {}
+    if advection_coeffs is None:
+        advection_coeffs = {}
+
+    # fill in the missing diffusion and advection rates
+    diffusion_coeffs_all = {
+        mol_id: diffusion_coeffs.get(mol_id, default_diffusion_rate)
+        for mol_id in mol_ids
+    }
+    advection_coeffs_all = {
+        mol_id: advection_coeffs.get(mol_id, default_advection_rate)
+        for mol_id in mol_ids
+    }
+
+    return {
+            '_type': 'process',
+            'address': 'local:DiffusionAdvection',
+            'config': {
+                'n_bins': n_bins,
+                'bounds': bounds,
+                'default_diffusion_rate': 1e-1,
+                'default_diffusion_dt': 1e-1,
+                'diffusion_coeffs': diffusion_coeffs_all,
+                'advection_coeffs': advection_coeffs_all,
+                'boundary_conditions': boundary_conditions,
+            },
+            'inputs': {
+                'fields': ['fields']
+            },
+            'outputs': {
+                'fields': ['fields']
+            }
+        }

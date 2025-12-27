@@ -135,10 +135,7 @@ def run_composite_document(
                     n_bins =  value.shape  # (n, m)
 
     # spatio-flux-specific plot settings
-    plot_settings = build_plot_settings(
-        particle_ids=particle_ids,
-        n_bins=n_bins
-    )
+    plot_settings = build_plot_settings(particle_ids=particle_ids)
     plot_settings.update(dict(
         dpi='300',
         show_values=show_values,
