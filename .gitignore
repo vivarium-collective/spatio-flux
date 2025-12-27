@@ -9,3 +9,5 @@ profile/
 .devenv*
 devenv.lock
 uv.lock
+originalout/
+updateout/

@@ -1,6 +1,3 @@
-"""
-TODO: use an actual grow/divide process for demo
-"""
 import random
 import math
 import uuid
@@ -72,48 +69,32 @@ def local_impulse_point_for_shape(shape):
 
 class PymunkParticleMovement(Process):
     config_schema = {
-        # Align with ParticleMovement
-        'bounds':        {'_type': 'tuple[float,float]',   '_default': (500.0, 500.0)},
-        'n_bins':        {'_type': 'tuple[integer,integer]', '_default': (1, 1)},
-        'diffusion_rate':   {'_type': 'float', '_default': 1e-1},
-        'advection_rate':   {'_type': 'tuple[float,float]', '_default': (0.0, 0.0)},
-        'add_probability':  {'_type': 'float', '_default': 0.0},
-        'boundary_to_add':  {'_type': 'list[boundary_side]', '_default': ['top']},
-        'boundary_to_remove': {
-            '_type': 'list[boundary_side]',
-            '_default': ['left', 'right', 'top', 'bottom'],
-        },
-        # Newborn particle configuration
-        'new_particle_radius_range': {
-            '_type': 'tuple[float,float]',
-            '_default': (1.0, 10.0),
-        },
-        'new_particle_mass_range': {
-            '_type': 'tuple[float,float]',
-            '_default': (0.0, 0.0),
-        },
-        'new_particle_density': {
-            '_type': 'float',
-            '_default': 0.015,
-        },
-        'new_particle_speed_range': {
-            '_type': 'tuple[float,float]',
-            '_default': (0.0, 0.0),  # start at rest by default
-        },
+        'bounds':         {'_type': 'tuple[float,float]',       '_default': (500.0, 500.0)},
+        'n_bins':         {'_type': 'tuple[integer,integer]',   '_default': (1, 1)},
+        'diffusion_rate': {'_type': 'float',                    '_default': 1e-1},
+        'advection_rate': {'_type': 'tuple[float,float]',       '_default': (0.0, 0.0)},
+        'substeps':            {'_type': 'integer', '_default': 100},
+        'damping_per_second':  {'_type': 'float',   '_default': 0.98},
+        'gravity':             {'_type': 'float',   '_default': -9.81},
+        'friction':            {'_type': 'float',   '_default': 0.8},
+        'elasticity':          {'_type': 'float',   '_default': 0.0},
+        'jitter_per_second':   {'_type': 'float',   '_default': 1e-2},  # base impulse std
+        'barriers':            'list[map]',
+        'wall_thickness':      {'_type': 'float',   '_default': 100.0},
 
-        # Existing Pymunk controls
-        'substeps':          {'_type': 'integer', '_default': 100},
-        'damping_per_second': {'_type': 'float', '_default': 0.98},
-        'gravity':           {'_type': 'float', '_default': -9.81},
-        'friction':          {'_type': 'float', '_default': 0.8},
-        'elasticity':        {'_type': 'float', '_default': 0.0},
-        'jitter_per_second': {'_type': 'float', '_default': 1e-2},  # base impulse std
-        'barriers':          'list[map]',
-        'wall_thickness':    {'_type': 'float', '_default': 100.0},
+        # for conversion from mass to geometry
+        'circle_density': {'_type': 'float', '_default': 0.015},  # 2D density: m = ρ π r^2
+        'segment_density': {'_type': 'float', '_default': 0.02},  # 2D-ish density: m = ρ * (2r) * L
+        'segment_radius': {'_type': 'float', '_default': 10.0},  # fixed half-width for all segments (unless overridden)
+
+        # Newborn particle configuration
+        'new_particle_radius_range': {'_type': 'tuple[float,float]', '_default': (0.5, 2.0)},
+        'new_particle_mass_range': {'_type': 'tuple[float,float]', '_default': (1.0, 1.0)},
+        'new_particle_density': {'_type': 'float', '_default': 0.015},
+        'new_particle_speed_range': {'_type': 'tuple[float,float]', '_default': (0.0, 0.0)},
     }
 
     def initialize(self, config=None):
-
         # convenience
         self.bounds = self.config['bounds']  # (x_max, y_max)
         x_max, y_max = float(self.bounds[0]), float(self.bounds[1])
@@ -126,23 +107,12 @@ class PymunkParticleMovement(Process):
         # align with ParticleMovement knobs
         self.diffusion_rate = float(self.config.get('diffusion_rate', 1e-1))
         self.advection_rate = tuple(self.config.get('advection_rate', (0.0, 0.0)))
-        self.add_probability = float(self.config.get('add_probability', 0.0))
-        self.boundary_to_add = list(self.config.get('boundary_to_add', ['top']))
-        self.boundary_to_remove = set(
-            self.config.get('boundary_to_remove', ['left', 'right', 'top', 'bottom'])
-        )
 
-        # newborn particle config
-        self.new_radius_range = tuple(
-            self.config.get('new_particle_radius_range', (1.0, 10.0))
-        )
-        self.new_mass_range = tuple(
-            self.config.get('new_particle_mass_range', (0.0, 0.0))
-        )
-        self.new_density = float(self.config.get('new_particle_density', 0.015))
-        self.new_speed_range = tuple(
-            self.config.get('new_particle_speed_range', (0.0, 0.0))
-        )
+        # geometry/mass conversions
+        self.circle_density = float(self.config.get('circle_density', 0.015))
+        self.segment_density = float(self.config.get('segment_density', 0.02))
+        self.segment_radius_default = float(self.config.get('segment_radius', 10.0))
+
         # Pymunk space
         self.space = pymunk.Space()
         self.space.gravity = (0.0, float(self.config['gravity']))
@@ -154,7 +124,7 @@ class PymunkParticleMovement(Process):
         # internal registry
         self.agents = {}
 
-        # add walls only on sides that are NOT removal boundaries
+        # build all walls
         self._build_walls()
 
         # add custom barriers
@@ -165,7 +135,7 @@ class PymunkParticleMovement(Process):
 
     def _build_walls(self):
         (x_min, x_max), (y_min, y_max) = self.env_size
-        t = self.wall_thickness
+        t = float(self.wall_thickness)  # segment radius (half-thickness)
         body = self.space.static_body
 
         def add_segment(a, b):
@@ -174,18 +144,17 @@ class PymunkParticleMovement(Process):
             seg.friction = self.friction
             self.space.add(seg)
 
-        # Bottom
-        if 'bottom' not in self.boundary_to_remove:
-            add_segment((x_min - t, y_min - t), (x_max + t, y_min - t))
-        # Right
-        if 'right' not in self.boundary_to_remove:
-            add_segment((x_max + t, y_min - t), (x_max + t, y_max + t))
-        # Top
-        if 'top' not in self.boundary_to_remove:
-            add_segment((x_max + t, y_max + t), (x_min - t, y_max + t))
-        # Left
-        if 'left' not in self.boundary_to_remove:
-            add_segment((x_min - t, y_max + t), (x_min - t, y_min - t))
+        # Bottom wall: centerline at y = y_min - t, inside face at y = y_min
+        add_segment((x_min, y_min - t), (x_max, y_min - t))
+
+        # Top wall: centerline at y = y_max + t, inside face at y = y_max
+        add_segment((x_min, y_max + t), (x_max, y_max + t))
+
+        # Left wall: centerline at x = x_min - t, inside face at x = x_min
+        add_segment((x_min - t, y_min), (x_min - t, y_max))
+
+        # Right wall: centerline at x = x_max + t, inside face at x = x_max
+        add_segment((x_max + t, y_min), (x_max + t, y_max))
 
     def add_barrier(self, barrier):
         start_x, start_y = barrier['start']
@@ -208,89 +177,27 @@ class PymunkParticleMovement(Process):
             'particles': 'map[complex_particle]',
         }
 
-    def _spawn_new_particle_at_boundary(self, side):
-        """
-        Spawn a new circle near a boundary using configured radius/mass ranges,
-        via the shared `build_particle` helper.
-        """
-        (x_min, x_max), (y_min, y_max) = self.env_size
-        margin = 2.0
-
-        # Decide radius / mass
-        rng = random  # module has .uniform etc., works fine
-
-        mass_min, mass_max = self.new_mass_range
-        use_mass_range = mass_max > mass_min and mass_min > 0.0
-
-        if use_mass_range:
-            # Sample mass, derive radius from density
-            mass = rng.uniform(mass_min, mass_max)
-            radius = circle_radius_from_mass(mass, self.new_density)
-        else:
-            # Sample radius, derive mass from density
-            r_min, r_max = self.new_radius_range
-            radius = rng.uniform(r_min, r_max)
-            mass = circle_mass_from_radius(radius, self.new_density)
-
-        # Place along the requested boundary, respecting radius
-        if side == 'left':
-            x = x_min + margin + radius
-            y = rng.uniform(y_min + margin + radius, y_max - (margin + radius))
-        elif side == 'right':
-            x = x_max - margin - radius
-            y = rng.uniform(y_min + margin + radius, y_max - (margin + radius))
-        elif side == 'bottom':
-            x = rng.uniform(x_min + margin + radius, x_max - (margin + radius))
-            y = y_min + margin + radius
-        elif side == 'top':
-            x = rng.uniform(x_min + margin + radius, x_max - (margin + radius))
-            y = y_max - margin - radius
-        else:
-            return None, None
-
-        # Use the shared helper to build a proper particle record
-        pid, pstate = build_particle(
-            rng,
-            self.bounds,  # (x_max, y_max)
-            elasticity=self.elasticity,
-            id_prefix='p',
-            x=float(x),
-            y=float(y),
-            velocity=(0.0, 0.0),  # or use self.new_speed_range if you want motion
-            radius=float(radius),
-            mass=float(mass),
-            density=self.new_density,
-            radius_range=self.new_radius_range,
-        )
-
-        # Ensure friction is included (build_particle doesn’t add it)
-        pstate['friction'] = self.friction
-
-        return pid, pstate
-
     # ------------------------------------------------------------------
-    # Core update: same style, but uses advection/diffusion config
+    # Core update
     # ------------------------------------------------------------------
 
     def update(self, inputs, interval):
         """
-        Efficiently sync particles without allocating a combined dict,
-        step the physics, then emit per-particle *deltas* in position.
+        Sync particles, step the physics, then emit per-particle *deltas* in position.
 
-        Existing particles:
-            position = (dx, dy)  # delta from previous position
-
-        New particles (spawned internally via add_probability):
-            position = (x, y)    # absolute position (full state)
+        If the particle had a previous position in inputs:
+            position = (dx, dy)
+        Otherwise:
+            position = (x, y)  # absolute
         """
         particles_in = inputs.get('particles', {}) or {}
         particle_ids = set(particles_in)
 
-        # ------- sync bodies (no combined dict) -------
+        # ------- sync bodies -------
         existing_ids = set(self.agents)
         new_ids = particle_ids
 
-        # remove stale
+        # remove stale (removed by upstream state, not by boundaries)
         for dead_id in existing_ids - new_ids:
             body = self.agents[dead_id]['body']
             shape_instance = self.agents[dead_id]['shape_instance']
@@ -308,63 +215,45 @@ class PymunkParticleMovement(Process):
 
         for _ in range(n_steps):
             self.space.damping = d_step
+            # Only apply noise to dynamic bodies (skip static walls/kinematics)
             for body in self.space.bodies:
+                if body.body_type != pymunk.Body.DYNAMIC:
+                    continue
                 self.apply_jitter_force(body, dt)
             self.space.step(dt)
 
-        particles_out = {'_add': {}}
+        # ------- emit absolute positions -------
+        particles_out = {}
 
-        # ------- births from boundaries (use self.add_probability) -------
-        newborn_ids = set()
-        if self.add_probability > 0.0:
-            for side in self.boundary_to_add:
-                if random.random() < self.add_probability:
-                    pid, pstate = self._spawn_new_particle_at_boundary(side)
-                    if pid is not None:
-                        # create body in pymunk
-                        self.manage_object(pid, pstate)
-                        newborn_ids.add(pid)
-                        # also treat as "in" for emission
-                        particles_out['_add'][pid] = pstate
-
-        # ------- emit in one pass (no full_state build) -------
         for _id, obj in self.agents.items():
-            # only report objects that were present on this tick's inputs
-            # (including newborns we just injected into particles_in)
-            if _id in particles_in:
-                body = obj['body']
-                new_x, new_y = body.position.x, body.position.y
-                old_state = particles_in.get(_id, {})
-                old_pos = old_state.get('position')
+            if _id not in particles_in:
+                continue
 
-                # Existing particles: emit delta
-                if _id not in newborn_ids and old_pos is not None:
-                    old_x, old_y = old_pos
-                    dx = float(new_x - old_x)
-                    dy = float(new_y - old_y)
-                    pos_value = (dx, dy)
-                else:
-                    # Newborns (or particles without previous position):
-                    # emit absolute position as full state
-                    pos_value = (float(new_x), float(new_y))
+            body = obj['body']
+            new_x, new_y = float(body.position.x), float(body.position.y)
 
-                if obj['shape'] == 'circle':
-                    rec = {
-                        'shape': obj['shape'],
-                        'position': pos_value,
-                        'velocity': (body.velocity.x, body.velocity.y),
-                        'inertia': body.moment,
-                    }
-                else:  # 'segment'
-                    rec = {
-                        'shape': obj['shape'],
-                        'position': pos_value,
-                        'velocity': (body.velocity.x, body.velocity.y),
-                        'inertia': body.moment,
-                        'angle': body.angle,
-                    }
+            shape = obj['shape_instance']
 
-                particles_out[_id] = rec
+            if obj['shape'] == 'circle':
+                rec = {
+                    'shape': 'circle',
+                    'position': (new_x, new_y),  # ABSOLUTE
+                    'velocity': (float(body.velocity.x), float(body.velocity.y)),
+                    'inertia': float(body.moment),
+                    'radius': float(shape.radius),
+                }
+            else:
+                rec = {
+                    'shape': 'segment',
+                    'position': (new_x, new_y),  # ABSOLUTE
+                    'velocity': (float(body.velocity.x), float(body.velocity.y)),
+                    'inertia': float(body.moment),
+                    'angle': float(body.angle),
+                    'length': float(body.length),
+                    'radius': float(shape.radius),
+                }
+
+            particles_out[_id] = rec
 
         return {'particles': particles_out}
 
@@ -373,25 +262,25 @@ class PymunkParticleMovement(Process):
     # ------------------------------------------------------------------
 
     def apply_jitter_force(self, body, dt):
-        shape = next(iter(body.shapes)) if body.shapes else None
-        if not shape:
+        shape = next(iter(body.shapes), None)
+        if shape is None:
             return
 
-        # simple "random point on circle" jitter
-        if isinstance(shape, pymunk.Circle):
-            r = shape.radius
-            theta = random.uniform(0, 2 * math.pi)
-            local_point = (r * math.cos(theta), r * math.sin(theta))
-        else:
-            local_point = (0.0, 0.0)
+        # Apply impulse at a random boundary point (gives torque for segments)
+        local_point = local_impulse_point_for_shape(shape)
 
-        # scale jitter with diffusion_rate
-        base_sigma = self.jitter_per_second * math.sqrt(max(dt, 1e-12))
-        sigma = base_sigma * math.sqrt(max(self.diffusion_rate, 1e-12))
+        # Interpret jitter_per_second as (velocity std) / sqrt(second)
+        # => dv_std = jitter_per_second * sqrt(dt)
+        dv_std = self.jitter_per_second * math.sqrt(max(dt, 1e-12))
 
-        fx = random.normalvariate(0.0, sigma)
-        fy = random.normalvariate(0.0, sigma)
-        body.apply_impulse_at_local_point((fx, fy), local_point)
+        # Optionally scale by diffusion_rate (keep if you want diffusion_rate to amplify jitter)
+        dv_std *= math.sqrt(max(self.diffusion_rate, 1e-12))
+
+        # Convert velocity kick to impulse: J = m * dv
+        Jx = body.mass * random.gauss(0.0, dv_std)
+        Jy = body.mass * random.gauss(0.0, dv_std)
+
+        body.apply_impulse_at_local_point((Jx, Jy), local_point)
 
     def update_bodies(self, agents):
         existing_ids = set(self.agents.keys())
@@ -418,65 +307,88 @@ class PymunkParticleMovement(Process):
         old_shape = agent['shape_instance']
         old_type = agent['shape']
 
-        # robust defaults
         shape_type = attrs.get('shape', old_type or 'circle')
+
+        # --- authoritative mass ---
         mass = float(attrs.get('mass', body.mass))
-        vx, vy = attrs.get('velocity', (0.0, 0.0))
         body.mass = mass
-        body.position = pymunk.Vec2d(*attrs.get('position', (body.position.x, body.position.y)))
-        body.velocity = pymunk.Vec2d(vx, vy)
+
+        # --- authoritative kinematics ---
+        vx, vy = attrs.get('velocity', (body.velocity.x, body.velocity.y))
+        body.velocity = pymunk.Vec2d(float(vx), float(vy))
+
+        # position should be absolute in your current wiring
+        if 'position' in attrs:
+            body.position = pymunk.Vec2d(*attrs['position'])
 
         needs_rebuild = False
+
         if shape_type == 'circle':
-            radius = float(attrs['radius'])
-            if not isinstance(old_shape, pymunk.Circle) or abs(
-                    old_shape.radius - radius) > 1e-9 or old_type != 'circle':
+            # derive radius from mass
+            density = float(attrs.get('density', self.circle_density))
+            radius = circle_radius_from_mass(mass, density)
+
+            # rebuild if shape changed or radius changed materially
+            if (not isinstance(old_shape, pymunk.Circle)) or old_type != 'circle' or abs(
+                    old_shape.radius - radius) > 1e-9:
                 needs_rebuild = True
-            if needs_rebuild:
                 new_shape = pymunk.Circle(body, radius)
                 body.moment = pymunk.moment_for_circle(mass, 0, radius)
+
+            # keep agent record coherent
+            angle = None
+            length = None
+
         elif shape_type == 'segment':
-            length = float(attrs['length'])
-            radius = float(attrs['radius'])
-            angle = float(attrs['angle'])
-            # local endpoints
-            start = pymunk.Vec2d(-length / 2, 0).rotated(angle)
-            end = pymunk.Vec2d(length / 2, 0).rotated(angle)
-            if not isinstance(old_shape, pymunk.Segment) or abs(
-                    old_shape.radius - radius) > 1e-9 or old_type != 'segment':
+            # fixed width (radius), length derived from mass
+            radius = float(attrs.get('radius', agent.get('radius', self.segment_radius_default)))
+            density = float(attrs.get('density', self.segment_density))
+            length = capsule_length_from_mass(mass, radius, density)
+
+            # angle: if attrs provides it use it, else preserve current
+            angle = float(attrs.get('angle', body.angle))
+            body.angle = angle
+
+            start = pymunk.Vec2d(-length / 2, 0)
+            end = pymunk.Vec2d(length / 2, 0)
+
+            if (not isinstance(old_shape, pymunk.Segment)) or old_type != 'segment' or abs(
+                    old_shape.radius - radius) > 1e-9:
                 needs_rebuild = True
+            else:
+                # segment endpoints can’t be edited in place; rebuilding is easiest when length changes too
+                # If you expect mass changes often, you should rebuild when length changes:
+                # (old_shape.a / b are Vec2d, compare approx)
+                if abs((old_shape.b - old_shape.a).length - (end - start).length) > 1e-6:
+                    needs_rebuild = True
+
             if needs_rebuild:
                 new_shape = pymunk.Segment(body, start, end, radius)
                 body.moment = pymunk.moment_for_segment(mass, start, end, radius)
-            body.angle = angle
+
             body.length = length
             body.width = radius * 2
+
         else:
             raise ValueError(f"Unknown shape type: {shape_type}")
 
-        # swap shape if needed
         if needs_rebuild:
-            # preserve material params
-            elasticity = attrs.get('elasticity', self.config['elasticity'])
-            friction = attrs.get('friction', self.config['friction'])
+            elasticity = float(attrs.get('elasticity', self.config['elasticity']))
+            friction = float(attrs.get('friction', self.config['friction']))
             new_shape.elasticity = elasticity
             new_shape.friction = friction
 
+            # remove old shape, add new one
             self.space.remove(old_shape)
             self.space.add(new_shape)
             agent['shape_instance'] = new_shape
 
-        # keep dict in sync
+        # sync agent dict
         agent['shape'] = shape_type
         agent['mass'] = mass
-        if shape_type == 'circle':
-            agent['radius'] = radius
-            agent['angle'] = None
-            agent['length'] = None
-        else:
-            agent['radius'] = radius
-            agent['angle'] = body.angle
-            agent['length'] = body.length
+        agent['radius'] = radius
+        agent['angle'] = angle
+        agent['length'] = length
 
     def create_new_object(self, agent_id, attrs):
         shape_type = attrs.get('shape', 'circle')
@@ -485,33 +397,42 @@ class PymunkParticleMovement(Process):
         pos = attrs.get('position', (0.0, 0.0))
 
         if shape_type == 'circle':
-            radius = float(attrs['radius'])
+            density = float(attrs.get('density', self.circle_density))
+            radius = circle_radius_from_mass(mass, density)
+
             inertia = pymunk.moment_for_circle(mass, 0, radius)
             body = pymunk.Body(mass, inertia)
             body.position = pos
             body.velocity = (vx, vy)
             shape = pymunk.Circle(body, radius)
+
             angle = None
             length = None
+
         elif shape_type == 'segment':
-            length = float(attrs['length'])
-            radius = float(attrs['radius'])
-            angle = float(attrs['angle'])
+            density = float(attrs.get('density', self.segment_density))
+            radius = float(attrs.get('radius', self.segment_radius_default))  # fixed width
+            length = capsule_length_from_mass(mass, radius, density)
+            angle = float(attrs.get('angle', 0.0))
+
             start = (-length / 2, 0)
             end = (length / 2, 0)
             inertia = pymunk.moment_for_segment(mass, start, end, radius)
+
             body = pymunk.Body(mass, inertia)
             body.position = pos
             body.velocity = (vx, vy)
             body.angle = angle
             body.length = length
             body.width = radius * 2
+
             shape = pymunk.Segment(body, start, end, radius)
+
         else:
             raise ValueError(f"Unknown shape type: {shape_type}")
 
-        shape.elasticity = attrs.get('elasticity', self.config['elasticity'])
-        shape.friction = attrs.get('friction', self.config['friction'])
+        shape.elasticity = float(attrs.get('elasticity', self.config['elasticity']))
+        shape.friction = float(attrs.get('friction', self.config['friction']))
 
         self.space.add(body, shape)
         self.agents[agent_id] = {
@@ -528,7 +449,6 @@ class PymunkParticleMovement(Process):
         state = {}
         for agent_id, obj in self.agents.items():
             if obj['shape'] == 'circle':
-
                 state[agent_id] = {
                     'shape': obj['shape'],
                     'position': (obj['body'].position.x, obj['body'].position.y),
@@ -541,9 +461,10 @@ class PymunkParticleMovement(Process):
                     'position': (obj['body'].position.x, obj['body'].position.y),
                     'velocity': (obj['body'].velocity.x, obj['body'].velocity.y),
                     'inertia': obj['body'].moment,
-                    'angle': obj['body'].angle
+                    'angle': obj['body'].angle,
                 }
         return state
+
 
 
 # -------------------------
@@ -556,26 +477,90 @@ def make_id(prefix='id', nhex=6):
 def make_rng(seed=None):
     return random.Random(seed)
 
-# -------------------------
-# Mass/geometry conversions
-# -------------------------
-
 def circle_mass_from_radius(radius, density):
+    """
+    Compute microbial mass from a circular (2D) geometry.
+
+    Parameters
+    ----------
+    radius : float
+        Cell radius (µm).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell mass (pg).
+    """
     # m = ρ π r^2
     return float(density) * math.pi * (float(radius) ** 2)
 
+
 def circle_radius_from_mass(mass, density):
+    """
+    Compute circle radius from microbial mass.
+
+    Parameters
+    ----------
+    mass : float
+        Cell mass (pg).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell radius (µm).
+    """
     # r = sqrt(m / (ρ π))
     return math.sqrt(float(mass) / (float(density) * math.pi))
 
+
 def capsule_mass_from_length_radius(length, radius, density):
-    # Approximate capsule as rectangle length L and diameter 2r:
-    # m = ρ * (2r) * L  (ignoring hemispherical ends for simplicity; good for L >> r)
+    """
+    Compute microbial mass for a rod-shaped (capsule) geometry.
+
+    Parameters
+    ----------
+    length : float
+        Cell length excluding endcaps (µm).
+    radius : float
+        Cell radius (µm).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell mass (pg).
+    """
+    # m = ρ * (2r) * L
+    # Endcaps ignored; valid when L >> r
     return float(density) * (2.0 * float(radius)) * float(length)
 
+
 def capsule_length_from_mass(mass, radius, density):
+    """
+    Compute rod length from microbial mass, assuming fixed radius.
+
+    Parameters
+    ----------
+    mass : float
+        Cell mass (pg).
+    radius : float
+        Cell radius (µm).
+    density : float
+        Effective 2D mass density (pg / µm²).
+
+    Returns
+    -------
+    float
+        Cell length (µm).
+    """
     # L = m / (ρ * 2r)
     return float(mass) / (float(density) * (2.0 * float(radius)))
+
 
 # -------------------------
 # Primitive builders (single objects)
@@ -792,7 +777,7 @@ def get_newtonian_particles_state(
     seed=None,
     elasticity=0.0,
     # particle defaults
-    particle_radius_range=None,
+    particle_radius_range=(0.5, 2.0),
     particle_mass_range=None,
     particle_mass_density=0.015,
     particle_speed_range=(0.0, 0.0),
@@ -821,8 +806,6 @@ def get_newtonian_particles_state(
             speed_range=particle_speed_range,
             radius_range=particle_radius_range,
             mass_range=particle_mass_range,
-            # you can override radius/mass/velocity here if desired
-            # radius=..., mass=..., velocity=(vx, vy), x=..., y=...
         )
     )
 
