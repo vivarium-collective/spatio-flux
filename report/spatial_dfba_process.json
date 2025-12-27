@@ -1,215 +1,366 @@
 {
     "state": {
-        "global_time": "0.0",
-        "spatial_dfba": {
-            "inputs": {
-                "fields": {
-                    "glucose": [
-                        "fields",
-                        "glucose"
-                    ],
-                    "acetate": [
-                        "fields",
-                        "acetate"
-                    ],
-                    "glycolate": [
-                        "fields",
-                        "glycolate"
-                    ],
-                    "ammonium": [
-                        "fields",
-                        "ammonium"
-                    ],
-                    "formate": [
-                        "fields",
-                        "formate"
-                    ],
-                    "glutamate": [
-                        "fields",
-                        "glutamate"
-                    ],
-                    "serine": [
-                        "fields",
-                        "serine"
-                    ]
-                },
-                "biomass": [
-                    "fields",
-                    "dissolved biomass"
-                ]
-            },
-            "outputs": {
-                "fields": {
-                    "glucose": [
-                        "fields",
-                        "glucose"
-                    ],
-                    "acetate": [
-                        "fields",
-                        "acetate"
-                    ],
-                    "glycolate": [
-                        "fields",
-                        "glycolate"
-                    ],
-                    "ammonium": [
-                        "fields",
-                        "ammonium"
-                    ],
-                    "formate": [
-                        "fields",
-                        "formate"
-                    ],
-                    "glutamate": [
-                        "fields",
-                        "glutamate"
-                    ],
-                    "serine": [
-                        "fields",
-                        "serine"
-                    ]
-                },
-                "biomass": [
-                    "fields",
-                    "dissolved biomass"
-                ]
-            },
-            "interval": 1.0,
-            "address": "local:SpatialDFBA",
-            "config": {
-                "n_bins": [
-                    "6",
-                    "5"
+        "global_time": 0.0,
+        "fields": {
+            "glucose": [
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    15.0,
+                    20.0
                 ],
-                "models": {
-                    "ecoli core": {
-                        "model_file": "textbook",
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "1.0"
-                            ],
-                            "acetate": [
-                                "0.5",
-                                "2.0"
-                            ]
-                        },
-                        "substrate_update_reactions": {
-                            "glucose": "EX_glc__D_e",
-                            "acetate": "EX_ac_e"
-                        },
-                        "bounds": {
-                            "EX_o2_e": {
-                                "lower": "-2.0",
-                                "upper": "!nil"
-                            },
-                            "ATPM": {
-                                "lower": "1.0",
-                                "upper": "1.0"
-                            }
-                        }
-                    },
-                    "ecoli": {
-                        "model_file": "iAF1260.xml",
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "1.0"
-                            ],
-                            "formate": [
-                                "0.5",
-                                "1.0"
-                            ]
-                        },
-                        "substrate_update_reactions": {
-                            "glucose": "EX_glc__D_e",
-                            "formate": "EX_for_e"
-                        },
-                        "bounds": {}
-                    },
-                    "cdiff": {
-                        "model_file": "iCN900.xml",
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "1.0"
-                            ],
-                            "acetate": [
-                                "0.5",
-                                "2.0"
-                            ]
-                        },
-                        "substrate_update_reactions": {
-                            "glucose": "EX_glc__D_e",
-                            "acetate": "EX_ac_e"
-                        },
-                        "bounds": {}
-                    },
-                    "pputida": {
-                        "model_file": "iJN746.xml",
-                        "kinetic_params": {
-                            "glucose": [
-                                "1.0",
-                                "2.0"
-                            ],
-                            "ammonium": [
-                                "2.0",
-                                "4.0"
-                            ],
-                            "glycolate": [
-                                "0.5",
-                                "1.0"
-                            ]
-                        },
-                        "substrate_update_reactions": {
-                            "glucose": "EX_glc__D_e",
-                            "ammonium": "EX_nh4_e",
-                            "glycolate": "EX_glyclt_e"
-                        },
-                        "bounds": {}
-                    },
-                    "yeast": {
-                        "model_file": "iMM904.xml",
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "1.0"
-                            ],
-                            "ammonium": [
-                                "0.5",
-                                "1.0"
-                            ]
-                        },
-                        "substrate_update_reactions": {
-                            "glucose": "EX_glc__D_e",
-                            "ammonium": "EX_nh4_e"
-                        },
-                        "bounds": {}
-                    },
-                    "llactis": {
-                        "model_file": "iNF517.xml",
-                        "kinetic_params": {
-                            "glucose": [
-                                "0.5",
-                                "1.25"
-                            ],
-                            "glutamate": [
-                                "0.05",
-                                "0.1"
-                            ],
-                            "serine": [
-                                "0.05",
-                                "0.1"
-                            ]
-                        },
-                        "substrate_update_reactions": {
-                            "glucose": "EX_glc__D_e",
-                            "glutamate": "EX_glu__L_e",
-                            "serine": "EX_ser__L_e"
-                        },
-                        "bounds": {}
-                    }
-                },
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    15.0,
+                    20.0
+                ],
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    15.0,
+                    20.0
+                ],
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    15.0,
+                    20.0
+                ],
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    15.0,
+                    20.0
+                ],
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    15.0,
+                    20.0
+                ]
+            ],
+            "acetate": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ],
+            "glycolate": [
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            ],
+            "ammonium": [
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            ],
+            "formate": [
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            ],
+            "glutamate": [
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            ],
+            "serine": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ],
+            "dissolved biomass": [
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ],
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ],
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ],
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ],
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ],
+                [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                ]
+            ]
+        },
+        "spatial_dFBA": {
+            "address": {
+                "protocol": "local",
+                "data": "SpatialDFBA"
+            },
+            "config": {
                 "model_grid": [
                     [
                         "ecoli core",
@@ -253,11 +404,245 @@
                         "llactis",
                         "llactis"
                     ]
+                ],
+                "models": {
+                    "pputida": {
+                        "model_file": "iJN746.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                1.0,
+                                2.0
+                            ],
+                            "ammonium": [
+                                2.0,
+                                4.0
+                            ],
+                            "glycolate": [
+                                0.5,
+                                1.0
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "ammonium": "EX_nh4_e",
+                            "glycolate": "EX_glyclt_e"
+                        },
+                        "bounds": {}
+                    },
+                    "llactis": {
+                        "model_file": "iNF517.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                0.5,
+                                1.25
+                            ],
+                            "glutamate": [
+                                0.05,
+                                0.1
+                            ],
+                            "serine": [
+                                0.05,
+                                0.1
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "glutamate": "EX_glu__L_e",
+                            "serine": "EX_ser__L_e"
+                        },
+                        "bounds": {}
+                    },
+                    "ecoli core": {
+                        "model_file": "textbook",
+                        "kinetic_params": {
+                            "glucose": [
+                                0.5,
+                                1.0
+                            ],
+                            "acetate": [
+                                0.5,
+                                2.0
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {
+                            "EX_o2_e": {
+                                "lower": -2.0
+                            },
+                            "ATPM": {
+                                "lower": 1.0,
+                                "upper": 1.0
+                            }
+                        }
+                    },
+                    "cdiff": {
+                        "model_file": "iCN900.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                0.5,
+                                1.0
+                            ],
+                            "acetate": [
+                                0.5,
+                                2.0
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "acetate": "EX_ac_e"
+                        },
+                        "bounds": {}
+                    },
+                    "ecoli": {
+                        "model_file": "iAF1260.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                0.5,
+                                1.0
+                            ],
+                            "formate": [
+                                0.5,
+                                2.0
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "formate": "EX_for_e"
+                        },
+                        "bounds": {}
+                    },
+                    "yeast": {
+                        "model_file": "iMM904.xml",
+                        "kinetic_params": {
+                            "glucose": [
+                                0.5,
+                                1.0
+                            ],
+                            "ammonium": [
+                                0.5,
+                                1.0
+                            ]
+                        },
+                        "substrate_update_reactions": {
+                            "glucose": "EX_glc__D_e",
+                            "ammonium": "EX_nh4_e"
+                        },
+                        "bounds": {}
+                    }
+                },
+                "model_file": "ecoli core",
+                "n_bins": [
+                    5,
+                    6
+                ],
+                "mol_ids": [
+                    "glucose",
+                    "acetate",
+                    "glycolate",
+                    "ammonium",
+                    "formate",
+                    "glutamate",
+                    "serine"
                 ]
             },
-            "shared": null
+            "_inputs": "fields:map[positive_array]|biomass:array[6|5,float]",
+            "_outputs": "fields:map[array[6|5,float]]|biomass:array[6|5,float]",
+            "inputs": {
+                "fields": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ],
+                    "glycolate": [
+                        "fields",
+                        "glycolate"
+                    ],
+                    "ammonium": [
+                        "fields",
+                        "ammonium"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
+                    ],
+                    "glutamate": [
+                        "fields",
+                        "glutamate"
+                    ],
+                    "serine": [
+                        "fields",
+                        "serine"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "dissolved biomass"
+                ]
+            },
+            "outputs": {
+                "fields": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ],
+                    "glycolate": [
+                        "fields",
+                        "glycolate"
+                    ],
+                    "ammonium": [
+                        "fields",
+                        "ammonium"
+                    ],
+                    "formate": [
+                        "fields",
+                        "formate"
+                    ],
+                    "glutamate": [
+                        "fields",
+                        "glutamate"
+                    ],
+                    "serine": [
+                        "fields",
+                        "serine"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "dissolved biomass"
+                ]
+            }
         },
         "emitter": {
+            "address": {
+                "protocol": "local",
+                "data": "RAMEmitter"
+            },
+            "config": {
+                "emit": {
+                    "global_time": "node",
+                    "fields": "node"
+                }
+            },
+            "_inputs": {
+                "global_time": {
+                    "_default": null
+                },
+                "fields": {
+                    "_default": null
+                }
+            },
+            "_outputs": "",
             "inputs": {
                 "global_time": [
                     "global_time"
@@ -265,1182 +650,26 @@
                 "fields": [
                     "fields"
                 ]
-            },
-            "outputs": null,
-            "address": "local:ram-emitter",
-            "config": {
-                "emit": {
-                    "global_time": "any",
-                    "fields": "any"
-                }
-            }
-        },
-        "fields": {
-            "glucose": {
-                "list": [
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ],
-                    [
-                        0.0,
-                        5.0,
-                        10.0,
-                        15.0,
-                        20.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "acetate": {
-                "list": [
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "glycolate": {
-                "list": [
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "ammonium": {
-                "list": [
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "formate": {
-                "list": [
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "glutamate": {
-                "list": [
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ],
-                    [
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "serine": {
-                "list": [
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
-            },
-            "dissolved biomass": {
-                "list": [
-                    [
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1
-                    ],
-                    [
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1
-                    ],
-                    [
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1
-                    ],
-                    [
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1
-                    ],
-                    [
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1
-                    ],
-                    [
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1,
-                        0.1
-                    ]
-                ],
-                "data": "float",
-                "shape": [
-                    6,
-                    5
-                ]
             }
         }
     },
-    "composition": {
-        "global_time": {
-            "_type": "float",
-            "_check": "check_float",
-            "_apply": "accumulate",
-            "_serialize": "to_string",
-            "_description": "64-bit floating point precision number",
-            "_default": 0.0,
-            "_deserialize": "deserialize_float",
-            "_divide": "divide_float",
-            "_dataclass": "dataclass_float",
-            "_inherit": [
-                "number"
-            ]
-        },
-        "spatial_dfba": {
-            "_type": "process",
-            "_default": "default_edge",
-            "_generate": "generate_edge",
-            "_apply": "apply_process",
-            "_serialize": "serialize_process",
-            "_deserialize": "deserialize_process",
-            "_dataclass": "dataclass_edge",
-            "_check": "check_process",
-            "_slice": "slice_edge",
-            "_inputs": {
-                "fields": {
-                    "_type": "map",
-                    "_value": {
-                        "_type": "positive_array",
-                        "_shape": [
-                            6,
-                            5
-                        ],
-                        "_data": "float"
-                    }
-                },
-                "biomass": {
-                    "_type": "array",
-                    "_shape": [
-                        6,
-                        5
-                    ],
-                    "_data": "float"
-                }
-            },
-            "_outputs": {
-                "fields": {
-                    "_type": "map",
-                    "_value": {
-                        "_type": "array",
-                        "_shape": [
-                            6,
-                            5
-                        ],
-                        "_data": "float"
-                    }
-                },
-                "biomass": {
-                    "_type": "array",
-                    "_shape": [
-                        6,
-                        5
-                    ],
-                    "_data": "float"
-                }
-            },
-            "_description": "",
-            "inputs": {
-                "_type": "wires",
-                "_default": "default_tree",
-                "_generate": "generate_tree",
-                "_check": "check_tree",
-                "_slice": "slice_tree",
-                "_apply": "apply_tree",
-                "_serialize": "serialize_tree",
-                "_deserialize": "deserialize_tree",
-                "_dataclass": "dataclass_tree",
-                "_fold": "fold_tree",
-                "_divide": "divide_tree",
-                "_resolve": "resolve_tree",
-                "_type_parameters": [
-                    "leaf"
-                ],
-                "_description": "mapping from str to some type in a potentially nested form",
-                "_leaf": {
-                    "_type": "path",
-                    "_default": [],
-                    "_check": "check_list",
-                    "_slice": "slice_list",
-                    "_apply": "apply_path",
-                    "_serialize": "serialize_list",
-                    "_deserialize": "deserialize_list",
-                    "_dataclass": "dataclass_list",
-                    "_fold": "fold_list",
-                    "_divide": "divide_list",
-                    "_type_parameters": [
-                        "element"
-                    ],
-                    "_description": "general list type (or sublists)",
-                    "_element": {
-                        "_type": "mark",
-                        "_apply": "apply_mark",
-                        "_check": "check_mark",
-                        "_deserialize": "deserialize_mark",
-                        "_resolve": "resolve_mark"
-                    },
-                    "_inherit": [
-                        "list[mark]"
-                    ]
-                },
-                "_inherit": [
-                    "tree[path]"
-                ]
-            },
-            "outputs": {
-                "_type": "wires",
-                "_default": "default_tree",
-                "_generate": "generate_tree",
-                "_check": "check_tree",
-                "_slice": "slice_tree",
-                "_apply": "apply_tree",
-                "_serialize": "serialize_tree",
-                "_deserialize": "deserialize_tree",
-                "_dataclass": "dataclass_tree",
-                "_fold": "fold_tree",
-                "_divide": "divide_tree",
-                "_resolve": "resolve_tree",
-                "_type_parameters": [
-                    "leaf"
-                ],
-                "_description": "mapping from str to some type in a potentially nested form",
-                "_leaf": {
-                    "_type": "path",
-                    "_default": [],
-                    "_check": "check_list",
-                    "_slice": "slice_list",
-                    "_apply": "apply_path",
-                    "_serialize": "serialize_list",
-                    "_deserialize": "deserialize_list",
-                    "_dataclass": "dataclass_list",
-                    "_fold": "fold_list",
-                    "_divide": "divide_list",
-                    "_type_parameters": [
-                        "element"
-                    ],
-                    "_description": "general list type (or sublists)",
-                    "_element": {
-                        "_type": "mark",
-                        "_apply": "apply_mark",
-                        "_check": "check_mark",
-                        "_deserialize": "deserialize_mark",
-                        "_resolve": "resolve_mark"
-                    },
-                    "_inherit": [
-                        "list[mark]"
-                    ]
-                },
-                "_inherit": [
-                    "tree[path]"
-                ]
-            },
-            "_graphviz": "graphviz_edge",
-            "_inherit": [
-                "edge"
-            ],
-            "_fold": "fold_visit",
-            "_divide": "divide_process",
-            "interval": {
-                "_type": "interval",
-                "_check": "check_float",
-                "_apply": "set",
-                "_serialize": "to_string",
-                "_description": "64-bit floating point precision number",
-                "_default": "1.0",
-                "_deserialize": "deserialize_float",
-                "_divide": "divide_float",
-                "_dataclass": "dataclass_float",
-                "_inherit": [
-                    "float"
-                ]
-            },
-            "address": {
-                "_type": "protocol",
-                "_default": "default_any",
-                "_slice": "slice_any",
-                "_apply": "apply_any",
-                "_check": "check_any",
-                "_sort": "sort_any",
-                "_generate": "generate_any",
-                "_serialize": "serialize_any",
-                "_deserialize": "deserialize_any",
-                "_dataclass": "dataclass_any",
-                "_resolve": "resolve_any",
-                "_fold": "fold_any",
-                "_bind": "bind_any",
-                "_divide": "divide_any",
-                "_graphviz": "graphviz_any",
-                "_inherit": [
-                    "any"
-                ]
-            },
-            "config": {
-                "_type": "quote",
-                "_deserialize": "deserialize_quote",
-                "_default": "default_quote",
-                "_generate": "generate_quote",
-                "_sort": "sort_quote",
-                "_description": "protect a schema from generation, ie in the config for a nested composite which has type information we only want to evaluate inside of the composite",
-                "_graphviz": "graphviz_none"
-            },
-            "shared": {
-                "_type": "map",
-                "_default": {},
-                "_generate": "generate_map",
-                "_apply": "apply_map",
-                "_serialize": "serialize_map",
-                "_deserialize": "deserialize_map",
-                "_resolve": "resolve_map",
-                "_dataclass": "dataclass_map",
-                "_check": "check_map",
-                "_slice": "slice_map",
-                "_fold": "fold_map",
-                "_divide": "divide_map",
-                "_sort": "sort_map",
-                "_type_parameters": [
-                    "value"
-                ],
-                "_description": "flat mapping from keys of strings to values of any type",
-                "_graphviz": "graphviz_map",
-                "_value": {
-                    "_type": "step",
-                    "_default": "default_edge",
-                    "_generate": "generate_edge",
-                    "_apply": "apply_process",
-                    "_serialize": "serialize_process",
-                    "_deserialize": "deserialize_step",
-                    "_dataclass": "dataclass_edge",
-                    "_check": "check_process",
-                    "_slice": "slice_edge",
-                    "_type_parameters": [
-                        "inputs",
-                        "outputs"
-                    ],
-                    "_description": "",
-                    "inputs": {
-                        "_type": "wires",
-                        "_default": "default_tree",
-                        "_generate": "generate_tree",
-                        "_check": "check_tree",
-                        "_slice": "slice_tree",
-                        "_apply": "apply_tree",
-                        "_serialize": "serialize_tree",
-                        "_deserialize": "deserialize_tree",
-                        "_dataclass": "dataclass_tree",
-                        "_fold": "fold_tree",
-                        "_divide": "divide_tree",
-                        "_resolve": "resolve_tree",
-                        "_type_parameters": [
-                            "leaf"
-                        ],
-                        "_description": "mapping from str to some type in a potentially nested form",
-                        "_leaf": {
-                            "_type": "path",
-                            "_default": [],
-                            "_check": "check_list",
-                            "_slice": "slice_list",
-                            "_apply": "apply_path",
-                            "_serialize": "serialize_list",
-                            "_deserialize": "deserialize_list",
-                            "_dataclass": "dataclass_list",
-                            "_fold": "fold_list",
-                            "_divide": "divide_list",
-                            "_type_parameters": [
-                                "element"
-                            ],
-                            "_description": "general list type (or sublists)",
-                            "_element": {
-                                "_type": "mark",
-                                "_apply": "apply_mark",
-                                "_check": "check_mark",
-                                "_deserialize": "deserialize_mark",
-                                "_resolve": "resolve_mark"
-                            },
-                            "_inherit": [
-                                "list[mark]"
-                            ]
-                        },
-                        "_inherit": [
-                            "tree[path]"
-                        ]
-                    },
-                    "outputs": {
-                        "_type": "wires",
-                        "_default": "default_tree",
-                        "_generate": "generate_tree",
-                        "_check": "check_tree",
-                        "_slice": "slice_tree",
-                        "_apply": "apply_tree",
-                        "_serialize": "serialize_tree",
-                        "_deserialize": "deserialize_tree",
-                        "_dataclass": "dataclass_tree",
-                        "_fold": "fold_tree",
-                        "_divide": "divide_tree",
-                        "_resolve": "resolve_tree",
-                        "_type_parameters": [
-                            "leaf"
-                        ],
-                        "_description": "mapping from str to some type in a potentially nested form",
-                        "_leaf": {
-                            "_type": "path",
-                            "_default": [],
-                            "_check": "check_list",
-                            "_slice": "slice_list",
-                            "_apply": "apply_path",
-                            "_serialize": "serialize_list",
-                            "_deserialize": "deserialize_list",
-                            "_dataclass": "dataclass_list",
-                            "_fold": "fold_list",
-                            "_divide": "divide_list",
-                            "_type_parameters": [
-                                "element"
-                            ],
-                            "_description": "general list type (or sublists)",
-                            "_element": {
-                                "_type": "mark",
-                                "_apply": "apply_mark",
-                                "_check": "check_mark",
-                                "_deserialize": "deserialize_mark",
-                                "_resolve": "resolve_mark"
-                            },
-                            "_inherit": [
-                                "list[mark]"
-                            ]
-                        },
-                        "_inherit": [
-                            "tree[path]"
-                        ]
-                    },
-                    "_graphviz": "graphviz_edge",
-                    "_inherit": [
-                        "edge"
-                    ],
-                    "_fold": "fold_visit",
-                    "_divide": "divide_process",
-                    "address": {
-                        "_type": "protocol",
-                        "_default": "default_any",
-                        "_slice": "slice_any",
-                        "_apply": "apply_any",
-                        "_check": "check_any",
-                        "_sort": "sort_any",
-                        "_generate": "generate_any",
-                        "_serialize": "serialize_any",
-                        "_deserialize": "deserialize_any",
-                        "_dataclass": "dataclass_any",
-                        "_resolve": "resolve_any",
-                        "_fold": "fold_any",
-                        "_bind": "bind_any",
-                        "_divide": "divide_any",
-                        "_graphviz": "graphviz_any",
-                        "_inherit": [
-                            "any"
-                        ]
-                    },
-                    "config": {
-                        "_type": "quote",
-                        "_deserialize": "deserialize_quote",
-                        "_default": "default_quote",
-                        "_generate": "generate_quote",
-                        "_sort": "sort_quote",
-                        "_description": "protect a schema from generation, ie in the config for a nested composite which has type information we only want to evaluate inside of the composite",
-                        "_graphviz": "graphviz_none"
-                    }
-                }
-            },
-            "instance": {
-                "_type": "any",
-                "_default": "default_any",
-                "_slice": "slice_any",
-                "_apply": "apply_any",
-                "_check": "check_any",
-                "_sort": "sort_any",
-                "_generate": "generate_any",
-                "_serialize": "serialize_any",
-                "_deserialize": "deserialize_any",
-                "_dataclass": "dataclass_any",
-                "_resolve": "resolve_any",
-                "_fold": "fold_any",
-                "_bind": "bind_any",
-                "_divide": "divide_any",
-                "_graphviz": "graphviz_any"
-            }
-        },
+    "schema": {
+        "global_time": "float",
+        "fields": "glucose:array[6|5,float]|acetate:array[6|5,float]|glycolate:array[6|5,float]|ammonium:array[6|5,float]|formate:array[6|5,float]|glutamate:array[6|5,float]|serine:array[6|5,float]|dissolved biomass:array[6|5,float]",
+        "spatial_dFBA": "link[fields:map[positive_array]|biomass:array[6|5,float],fields:map[array[6|5,float]]|biomass:array[6|5,float]]",
         "emitter": {
-            "_type": "step",
-            "_default": "default_edge",
-            "_generate": "generate_edge",
-            "_apply": "apply_process",
-            "_serialize": "serialize_process",
-            "_deserialize": "deserialize_step",
-            "_dataclass": "dataclass_edge",
-            "_check": "check_process",
-            "_slice": "slice_edge",
+            "_type": "link",
             "_inputs": {
-                "global_time": "any",
-                "fields": "any"
-            },
-            "_outputs": null,
-            "_description": "",
-            "inputs": {
-                "_type": "wires",
-                "_default": "default_tree",
-                "_generate": "generate_tree",
-                "_check": "check_tree",
-                "_slice": "slice_tree",
-                "_apply": "apply_tree",
-                "_serialize": "serialize_tree",
-                "_deserialize": "deserialize_tree",
-                "_dataclass": "dataclass_tree",
-                "_fold": "fold_tree",
-                "_divide": "divide_tree",
-                "_resolve": "resolve_tree",
-                "_type_parameters": [
-                    "leaf"
-                ],
-                "_description": "mapping from str to some type in a potentially nested form",
-                "_leaf": {
-                    "_type": "path",
-                    "_default": [],
-                    "_check": "check_list",
-                    "_slice": "slice_list",
-                    "_apply": "apply_path",
-                    "_serialize": "serialize_list",
-                    "_deserialize": "deserialize_list",
-                    "_dataclass": "dataclass_list",
-                    "_fold": "fold_list",
-                    "_divide": "divide_list",
-                    "_type_parameters": [
-                        "element"
-                    ],
-                    "_description": "general list type (or sublists)",
-                    "_element": {
-                        "_type": "mark",
-                        "_apply": "apply_mark",
-                        "_check": "check_mark",
-                        "_deserialize": "deserialize_mark",
-                        "_resolve": "resolve_mark"
-                    },
-                    "_inherit": [
-                        "list[mark]"
-                    ]
+                "global_time": {
+                    "_default": null
                 },
-                "_inherit": [
-                    "tree[path]"
-                ]
+                "fields": {
+                    "_default": null
+                }
             },
-            "outputs": {
-                "_type": "wires",
-                "_default": "default_tree",
-                "_generate": "generate_tree",
-                "_check": "check_tree",
-                "_slice": "slice_tree",
-                "_apply": "apply_tree",
-                "_serialize": "serialize_tree",
-                "_deserialize": "deserialize_tree",
-                "_dataclass": "dataclass_tree",
-                "_fold": "fold_tree",
-                "_divide": "divide_tree",
-                "_resolve": "resolve_tree",
-                "_type_parameters": [
-                    "leaf"
-                ],
-                "_description": "mapping from str to some type in a potentially nested form",
-                "_leaf": {
-                    "_type": "path",
-                    "_default": [],
-                    "_check": "check_list",
-                    "_slice": "slice_list",
-                    "_apply": "apply_path",
-                    "_serialize": "serialize_list",
-                    "_deserialize": "deserialize_list",
-                    "_dataclass": "dataclass_list",
-                    "_fold": "fold_list",
-                    "_divide": "divide_list",
-                    "_type_parameters": [
-                        "element"
-                    ],
-                    "_description": "general list type (or sublists)",
-                    "_element": {
-                        "_type": "mark",
-                        "_apply": "apply_mark",
-                        "_check": "check_mark",
-                        "_deserialize": "deserialize_mark",
-                        "_resolve": "resolve_mark"
-                    },
-                    "_inherit": [
-                        "list[mark]"
-                    ]
-                },
-                "_inherit": [
-                    "tree[path]"
-                ]
-            },
-            "_graphviz": "graphviz_edge",
-            "_inherit": [
-                "edge"
-            ],
-            "_fold": "fold_visit",
-            "_divide": "divide_process",
-            "address": {
-                "_type": "protocol",
-                "_default": "default_any",
-                "_slice": "slice_any",
-                "_apply": "apply_any",
-                "_check": "check_any",
-                "_sort": "sort_any",
-                "_generate": "generate_any",
-                "_serialize": "serialize_any",
-                "_deserialize": "deserialize_any",
-                "_dataclass": "dataclass_any",
-                "_resolve": "resolve_any",
-                "_fold": "fold_any",
-                "_bind": "bind_any",
-                "_divide": "divide_any",
-                "_graphviz": "graphviz_any",
-                "_inherit": [
-                    "any"
-                ]
-            },
-            "config": {
-                "_type": "quote",
-                "_deserialize": "deserialize_quote",
-                "_default": "default_quote",
-                "_generate": "generate_quote",
-                "_sort": "sort_quote",
-                "_description": "protect a schema from generation, ie in the config for a nested composite which has type information we only want to evaluate inside of the composite",
-                "_graphviz": "graphviz_none"
-            },
-            "instance": {
-                "_type": "any",
-                "_default": "default_any",
-                "_slice": "slice_any",
-                "_apply": "apply_any",
-                "_check": "check_any",
-                "_sort": "sort_any",
-                "_generate": "generate_any",
-                "_serialize": "serialize_any",
-                "_deserialize": "deserialize_any",
-                "_dataclass": "dataclass_any",
-                "_resolve": "resolve_any",
-                "_fold": "fold_any",
-                "_bind": "bind_any",
-                "_divide": "divide_any",
-                "_graphviz": "graphviz_any"
-            }
-        },
-        "fields": {
-            "glucose": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "acetate": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "glycolate": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "ammonium": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "formate": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "glutamate": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "serine": {
-                "_type": "positive_array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_non_negative_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_inherit": [
-                    "array"
-                ],
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            },
-            "dissolved biomass": {
-                "_type": "array",
-                "_default": "default_array",
-                "_check": "check_array",
-                "_slice": "slice_array",
-                "_apply": "apply_array",
-                "_serialize": "serialize_array",
-                "_deserialize": "deserialize_array",
-                "_dataclass": "dataclass_array",
-                "_resolve": "resolve_array",
-                "_bind": "bind_array",
-                "_type_parameters": [
-                    "shape",
-                    "data"
-                ],
-                "_description": "an array of arbitrary dimension",
-                "_shape": [
-                    6,
-                    5
-                ],
-                "_data": "float"
-            }
+            "_outputs": "",
+            "inputs": "wires",
+            "outputs": "wires"
         }
     }
 }

@@ -1,0 +1,67 @@
+digraph bigraph {
+	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'dfba biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dfba biomass</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'kinetic biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>kinetic biomass</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>fields</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 10</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: concentration</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'dfba biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dfba biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.01</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'kinetic biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>kinetic biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.01</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
+	"('dFBA',)" [label=dFBA]
+	"('monod_kinetics',)" [label=monod_kinetics]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'dfba biomass')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'kinetic biomass')" [arrowhead=none constraint=true penwidth=2]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA',)" {
+		"('fields', 'acetate')" -> "('dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA',)" {
+		"('fields', 'glucose')" -> "('dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA',)" {
+		"('fields', 'dfba biomass')" -> "('dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics',)" {
+		"('fields', 'acetate')" -> "('monod_kinetics',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics',)" {
+		"('fields', 'kinetic biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	"('fields',)" [color="#bdb48b"]
+	"('dFBA',)" [color="#8b3935"]
+	"('monod_kinetics',)" [color="#b17e74"]
+	"('fields', 'glucose')" [color="#bdb48b"]
+	"('fields', 'acetate')" [color="#bdb48b"]
+	"('fields', 'dfba biomass')" [color="#bdb48b"]
+	"('fields', 'kinetic biomass')" [color="#bdb48b"]
+	"('fields',)" [color="#F3E8B3" style=filled]
+	"('dFBA',)" [color="#B34A44" style=filled]
+	"('monod_kinetics',)" [color="#E3A295" style=filled]
+	"('fields', 'glucose')" [color="#F3E8B3" style=filled]
+	"('fields', 'acetate')" [color="#F3E8B3" style=filled]
+	"('fields', 'dfba biomass')" [color="#F3E8B3" style=filled]
+	"('fields', 'kinetic biomass')" [color="#F3E8B3" style=filled]
+}

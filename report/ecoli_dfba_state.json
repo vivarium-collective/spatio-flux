@@ -1,0 +1,95 @@
+{
+  "global_time": 0.0,
+  "ecoli dFBA": {
+    "address": {
+      "protocol": "local",
+      "data": "DynamicFBA"
+    },
+    "config": {
+      "substrate_update_reactions": {
+        "formate": "EX_for_e",
+        "glucose": "EX_glc__D_e"
+      },
+      "bounds": {},
+      "kinetic_params": {
+        "formate": [
+          0.5,
+          2.0
+        ],
+        "glucose": [
+          0.5,
+          1.0
+        ]
+      },
+      "model_file": "iAF1260.xml"
+    },
+    "_inputs": "substrates:map[concentration]|biomass:mass",
+    "_outputs": "substrates:map[count]|biomass:mass",
+    "inputs": {
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    }
+  },
+  "fields": {
+    "glucose": 10.0,
+    "formate": 5.0,
+    "biomass": 0.1
+  },
+  "emitter": {
+    "address": {
+      "protocol": "local",
+      "data": "RAMEmitter"
+    },
+    "config": {
+      "emit": {
+        "global_time": "node",
+        "fields": "node"
+      }
+    },
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "fields": [
+        "fields"
+      ]
+    }
+  }
+}

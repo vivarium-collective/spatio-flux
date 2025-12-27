@@ -1,0 +1,519 @@
+{
+    "state": {
+        "particles": {
+            "BVACjluC": {
+                "dFBA": {
+                    "address": {
+                        "protocol": "local",
+                        "data": "DynamicFBA"
+                    },
+                    "config": {
+                        "substrate_update_reactions": {
+                            "acetate": "EX_ac_e",
+                            "glucose": "EX_glc__D_e"
+                        },
+                        "bounds": {
+                            "ATPM": {
+                                "lower": 1.0,
+                                "upper": 1.0
+                            },
+                            "EX_o2_e": {
+                                "lower": -2.0
+                            }
+                        },
+                        "kinetic_params": {
+                            "acetate": [
+                                0.5,
+                                2.0
+                            ],
+                            "glucose": [
+                                0.5,
+                                1.0
+                            ]
+                        },
+                        "model_file": "textbook"
+                    },
+                    "_inputs": "substrates:map[concentration]|biomass:mass",
+                    "_outputs": "substrates:map[count]|biomass:mass",
+                    "inputs": {
+                        "substrates": [
+                            "local"
+                        ],
+                        "biomass": [
+                            "mass"
+                        ]
+                    },
+                    "outputs": {
+                        "substrates": [
+                            "exchange"
+                        ],
+                        "biomass": [
+                            "mass"
+                        ]
+                    }
+                },
+                "id": null,
+                "position": [
+                    4.996039381569551,
+                    35.0698859548109
+                ],
+                "mass": 0.6140713009242025,
+                "local": {
+                    "acetate": 0.0,
+                    "glucose": 7.78
+                },
+                "exchange": {
+                    "acetate": 0.0,
+                    "glucose": 0.0
+                },
+                "sub_masses": {}
+            }
+        },
+        "global_time": 0.0,
+        "fields": {
+            "acetate": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ],
+            "glucose": [
+                [
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01,
+                    0.01
+                ],
+                [
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12,
+                    1.12
+                ],
+                [
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23,
+                    2.23
+                ],
+                [
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34,
+                    3.34
+                ],
+                [
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45,
+                    4.45
+                ],
+                [
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005,
+                    5.5600000000000005
+                ],
+                [
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67,
+                    6.67
+                ],
+                [
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78,
+                    7.78
+                ],
+                [
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89,
+                    8.89
+                ],
+                [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            ]
+        },
+        "brownian_movement": {
+            "address": {
+                "protocol": "local",
+                "data": "BrownianMovement"
+            },
+            "config": {
+                "n_bins": [
+                    0,
+                    0
+                ],
+                "advection_rate": [
+                    0.0,
+                    0.2
+                ],
+                "bounds": [
+                    50.0,
+                    50.0
+                ],
+                "diffusion_rate": 0.5,
+                "interval": 1.0
+            },
+            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+            "inputs": {
+                "particles": [
+                    "particles"
+                ]
+            },
+            "outputs": {
+                "particles": [
+                    "particles"
+                ]
+            }
+        },
+        "enforce_boundaries": {
+            "address": {
+                "protocol": "local",
+                "data": "ManageBoundaries"
+            },
+            "config": {
+                "mass_range": [
+                    0.001,
+                    1.0
+                ],
+                "add_rate": 0.1,
+                "boundary_to_remove": [],
+                "buffer": 0.0001,
+                "clamp_survivors": true,
+                "bounds": [
+                    50.0,
+                    50.0
+                ],
+                "boundary_to_add": [
+                    "top",
+                    "top",
+                    "bottom",
+                    "left",
+                    "right"
+                ]
+            },
+            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
+            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+            "inputs": {
+                "particles": [
+                    "particles"
+                ],
+                "process_interval": [
+                    "brownian_movement",
+                    "interval"
+                ]
+            },
+            "outputs": {
+                "particles": [
+                    "particles"
+                ]
+            }
+        },
+        "particle_exchange": {
+            "address": {
+                "protocol": "local",
+                "data": "ParticleExchange"
+            },
+            "config": {
+                "n_bins": [
+                    10,
+                    10
+                ],
+                "bounds": [
+                    50.0,
+                    50.0
+                ],
+                "apply_mass_balance": false,
+                "rates_are_per_time": true
+            },
+            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
+            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
+            "inputs": {
+                "particles": [
+                    "particles"
+                ],
+                "fields": [
+                    "fields"
+                ]
+            },
+            "outputs": {
+                "particles": [
+                    "particles"
+                ],
+                "fields": [
+                    "fields"
+                ]
+            }
+        },
+        "particle_division": {
+            "address": {
+                "protocol": "local",
+                "data": "ParticleDivision"
+            },
+            "config": {
+                "division_mass_threshold": 5.0,
+                "division_jitter": 0.001,
+                "sub_mass_split": "equal",
+                "submass_split_mode": "equal"
+            },
+            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+            "inputs": {
+                "particles": [
+                    "particles"
+                ]
+            },
+            "outputs": {
+                "particles": [
+                    "particles"
+                ]
+            }
+        },
+        "emitter": {
+            "address": {
+                "protocol": "local",
+                "data": "RAMEmitter"
+            },
+            "config": {
+                "emit": {
+                    "global_time": "node",
+                    "particles": "node",
+                    "fields": "node"
+                }
+            },
+            "_inputs": {
+                "global_time": {
+                    "_default": null
+                },
+                "particles": {
+                    "_default": null
+                },
+                "fields": {
+                    "_default": null
+                }
+            },
+            "_outputs": "",
+            "inputs": {
+                "global_time": [
+                    "global_time"
+                ],
+                "particles": [
+                    "particles"
+                ],
+                "fields": [
+                    "fields"
+                ]
+            }
+        }
+    },
+    "schema": {
+        "particles": "map[dFBA:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+        "global_time": "float",
+        "fields": "map[positive_array]",
+        "brownian_movement": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
+        "enforce_boundaries": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float,particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
+        "particle_exchange": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]]",
+        "particle_division": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
+        "emitter": {
+            "_type": "link",
+            "_inputs": {
+                "global_time": {
+                    "_default": null
+                },
+                "particles": {
+                    "_default": null
+                },
+                "fields": {
+                    "_default": null
+                }
+            },
+            "_outputs": "",
+            "inputs": "wires",
+            "outputs": "wires"
+        }
+    }
+}

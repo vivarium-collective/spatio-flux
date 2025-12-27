@@ -1,0 +1,122 @@
+{
+  "global_time": 0.0,
+  "particles": {
+    "gUXODFSB": {
+      "id": null,
+      "position": [
+        23.238731626007187,
+        2.480856931461095
+      ],
+      "mass": 0.40000613867381385,
+      "local": {},
+      "exchange": {},
+      "sub_masses": {}
+    }
+  },
+  "brownian_movement": {
+    "address": {
+      "protocol": "local",
+      "data": "BrownianMovement"
+    },
+    "config": {
+      "n_bins": [
+        0,
+        0
+      ],
+      "advection_rate": [
+        0.0,
+        0.0
+      ],
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "diffusion_rate": 0.5,
+      "interval": 0.1
+    },
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "inputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    }
+  },
+  "enforce_boundaries": {
+    "address": {
+      "protocol": "local",
+      "data": "ManageBoundaries"
+    },
+    "config": {
+      "mass_range": [
+        0.001,
+        1.0
+      ],
+      "add_rate": 0.01,
+      "boundary_to_remove": [],
+      "buffer": 0.0001,
+      "clamp_survivors": true,
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "boundary_to_add": [
+        "top",
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ]
+    },
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "inputs": {
+      "particles": [
+        "particles"
+      ],
+      "process_interval": [
+        "brownian_movement",
+        "interval"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    }
+  },
+  "emitter": {
+    "address": {
+      "protocol": "local",
+      "data": "RAMEmitter"
+    },
+    "config": {
+      "emit": {
+        "global_time": "node",
+        "particles": "node"
+      }
+    },
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "particles": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "particles": [
+        "particles"
+      ]
+    }
+  }
+}

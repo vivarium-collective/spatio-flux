@@ -1,1 +1,0 @@
-(state:(yeast dFBA:process|fields:(glucose:5|yeast biomass:0.1|ammonium:10.0)|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)

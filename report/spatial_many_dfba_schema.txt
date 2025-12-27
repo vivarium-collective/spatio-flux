@@ -1,1 +1,0 @@
-(state:(fields:map|spatial_dfba:(dFBA[0,0]:process|dFBA[0,1]:process|dFBA[1,0]:process|dFBA[1,1]:process|dFBA[2,0]:process|dFBA[2,1]:process|dFBA[3,0]:process|dFBA[3,1]:process)|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)

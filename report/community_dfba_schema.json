@@ -1,0 +1,25 @@
+{
+  "global_time": "float",
+  "ecoli core dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "ecoli dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "cdiff dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "pputida dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "yeast dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "llactis dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "monod_kinetics": "link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]",
+  "fields": "glucose:concentration|acetate:concentration|ecoli core:mass|ecoli:mass|cdiff:mass|pputida:mass|yeast:mass|llactis:mass|monod biomass:mass|formate:concentration|ammonium:concentration|glycolate:concentration|glutamate:concentration|serine:concentration",
+  "emitter": {
+    "_type": "link",
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": "wires",
+    "outputs": "wires"
+  }
+}

@@ -1,1 +1,0 @@
-(state:(particles:(oUY_J9bP:(id:oUY_J9bP|position:(1.7044814062620106|8.895505647084844)|local:()|mass:0.546838386545406|exchange:()))|brownian_movement:process|emitter:step|global_time:0.0)|composition:(global_time:float)|interface:(inputs:()|outputs:())|bridge:(inputs:()|outputs:())|global_time_precision:None)

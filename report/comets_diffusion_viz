@@ -1,0 +1,55 @@
+digraph bigraph {
+	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>fields</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0. 0. 0. 0. 0. 0. …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[10|10,float]</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.  0.  0.  0.  0.…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[10|10,float]</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.01  0.01  0.01 …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[10|10,float]</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
+	"('dFBA[0,0]',)" [label="dFBA[*] (x100)"]
+	"('diffusion',)" [label=diffusion]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('diffusion',)" {
+		"('fields',)" -> "('diffusion',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+	}
+	"('fields',)" [color="#bdb48b"]
+	"('diffusion',)" [color="#a6984a"]
+	"('dFBA[0,0]',)" [color="#8b3935"]
+	"('fields', 'glucose')" [color="#bdb48b"]
+	"('fields', 'acetate')" [color="#bdb48b"]
+	"('fields', 'dissolved biomass')" [color="#bdb48b"]
+	"('fields',)" [color="#F3E8B3" style=filled]
+	"('diffusion',)" [color="#D6C35F" style=filled]
+	"('dFBA[0,0]',)" [color="#B34A44" style=filled]
+	"('fields', 'glucose')" [color="#F3E8B3" style=filled]
+	"('fields', 'acetate')" [color="#F3E8B3" style=filled]
+	"('fields', 'dissolved biomass')" [color="#F3E8B3" style=filled]
+}

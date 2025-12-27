@@ -1,98 +1,20 @@
 {
-  "global_time": "0.0",
-  "newtonian_particles": {
-    "inputs": {
-      "particles": [
-        "particles"
-      ]
-    },
-    "outputs": {
-      "particles": [
-        "particles"
-      ]
-    },
-    "interval": 1.0,
-    "address": "local:PymunkParticleMovement",
-    "config": {
-      "bounds": [
-        "100.0",
-        "300.0"
-      ],
-      "n_bins": [
-        "1",
-        "1"
-      ],
-      "diffusion_rate": "0.1",
-      "advection_rate": [
-        "0.0",
-        "0.0"
-      ],
-      "add_probability": "0.3",
-      "boundary_to_add": [
-        "top"
-      ],
-      "boundary_to_remove": [],
-      "new_particle_radius_range": [
-        "0.5",
-        "2.5"
-      ],
-      "new_particle_mass_range": [
-        "0.0",
-        "0.0"
-      ],
-      "new_particle_density": "0.015",
-      "new_particle_speed_range": [
-        "0.0",
-        "0.0"
-      ],
-      "substeps": "100",
-      "damping_per_second": "0.998",
-      "gravity": "-0.2",
-      "friction": "0.8",
-      "elasticity": "0.1",
-      "jitter_per_second": "0.5",
-      "barriers": [],
-      "wall_thickness": "100.0"
-    },
-    "shared": null
-  },
+  "global_time": "float",
+  "particles": "map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:string|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+  "newtonian_particles": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]]",
+  "enforce_boundaries": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float,particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
   "emitter": {
-    "inputs": {
-      "global_time": [
-        "global_time"
-      ],
-      "particles": [
-        "particles"
-      ]
-    },
-    "outputs": null,
-    "address": "local:ram-emitter",
-    "config": {
-      "emit": {
-        "global_time": "any",
-        "particles": "any"
+    "_type": "link",
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "particles": {
+        "_default": null
       }
-    }
-  },
-  "particles": {
-    "p_e7ae96": {
-      "id": "",
-      "position": [
-        "22.06169819875136",
-        "201.06819569622135"
-      ],
-      "mass": "0.18733263052221524",
-      "local": {},
-      "exchange": {},
-      "shape": "circle",
-      "velocity": [
-        "-0.0",
-        "-0.0"
-      ],
-      "inertia": "0.0",
-      "friction": "0.0",
-      "elasticity": "0.0",
-      "radius": "1.9938209264297275"
-    }
+    },
+    "_outputs": "",
+    "inputs": "wires",
+    "outputs": "wires"
   }
 }

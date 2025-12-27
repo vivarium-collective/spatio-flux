@@ -1,0 +1,103 @@
+{
+  "global_time": 0.0,
+  "ecoli core dFBA": {
+    "address": {
+      "protocol": "local",
+      "data": "DynamicFBA"
+    },
+    "config": {
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
+      },
+      "bounds": {
+        "ATPM": {
+          "lower": 1.0,
+          "upper": 1.0
+        },
+        "EX_o2_e": {
+          "lower": -2.0
+        }
+      },
+      "kinetic_params": {
+        "acetate": [
+          0.5,
+          2.0
+        ],
+        "glucose": [
+          0.5,
+          1.0
+        ]
+      },
+      "model_file": "textbook"
+    },
+    "_inputs": "substrates:map[concentration]|biomass:mass",
+    "_outputs": "substrates:map[count]|biomass:mass",
+    "inputs": {
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    }
+  },
+  "fields": {
+    "glucose": 10.0,
+    "acetate": 0.0,
+    "biomass": 0.1
+  },
+  "emitter": {
+    "address": {
+      "protocol": "local",
+      "data": "RAMEmitter"
+    },
+    "config": {
+      "emit": {
+        "global_time": "node",
+        "fields": "node"
+      }
+    },
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "fields": [
+        "fields"
+      ]
+    }
+  }
+}

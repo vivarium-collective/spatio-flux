@@ -1,0 +1,654 @@
+{
+  "global_time": 0.0,
+  "fields": {
+    "glucose": [
+      [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0
+      ],
+      [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0
+      ],
+      [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0
+      ],
+      [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0
+      ],
+      [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0
+      ],
+      [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0
+      ]
+    ],
+    "acetate": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "glycolate": [
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    ],
+    "ammonium": [
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    ],
+    "formate": [
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    ],
+    "glutamate": [
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    ],
+    "serine": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "dissolved biomass": [
+      [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ]
+    ]
+  },
+  "spatial_dFBA": {
+    "address": {
+      "protocol": "local",
+      "data": "SpatialDFBA"
+    },
+    "config": {
+      "model_grid": [
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli",
+          "ecoli",
+          "ecoli",
+          "ecoli",
+          "ecoli"
+        ],
+        [
+          "cdiff",
+          "cdiff",
+          "cdiff",
+          "cdiff",
+          "cdiff"
+        ],
+        [
+          "pputida",
+          "pputida",
+          "pputida",
+          "pputida",
+          "pputida"
+        ],
+        [
+          "yeast",
+          "yeast",
+          "yeast",
+          "yeast",
+          "yeast"
+        ],
+        [
+          "llactis",
+          "llactis",
+          "llactis",
+          "llactis",
+          "llactis"
+        ]
+      ],
+      "models": {
+        "pputida": {
+          "model_file": "iJN746.xml",
+          "kinetic_params": {
+            "glucose": [
+              1.0,
+              2.0
+            ],
+            "ammonium": [
+              2.0,
+              4.0
+            ],
+            "glycolate": [
+              0.5,
+              1.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "ammonium": "EX_nh4_e",
+            "glycolate": "EX_glyclt_e"
+          },
+          "bounds": {}
+        },
+        "llactis": {
+          "model_file": "iNF517.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.25
+            ],
+            "glutamate": [
+              0.05,
+              0.1
+            ],
+            "serine": [
+              0.05,
+              0.1
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "glutamate": "EX_glu__L_e",
+            "serine": "EX_ser__L_e"
+          },
+          "bounds": {}
+        },
+        "ecoli core": {
+          "model_file": "textbook",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "acetate": [
+              0.5,
+              2.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
+          },
+          "bounds": {
+            "EX_o2_e": {
+              "lower": -2.0
+            },
+            "ATPM": {
+              "lower": 1.0,
+              "upper": 1.0
+            }
+          }
+        },
+        "cdiff": {
+          "model_file": "iCN900.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "acetate": [
+              0.5,
+              2.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
+          },
+          "bounds": {}
+        },
+        "ecoli": {
+          "model_file": "iAF1260.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "formate": [
+              0.5,
+              2.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "formate": "EX_for_e"
+          },
+          "bounds": {}
+        },
+        "yeast": {
+          "model_file": "iMM904.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "ammonium": [
+              0.5,
+              1.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "ammonium": "EX_nh4_e"
+          },
+          "bounds": {}
+        }
+      },
+      "model_file": "ecoli core",
+      "n_bins": [
+        5,
+        6
+      ],
+      "mol_ids": [
+        "glucose",
+        "acetate",
+        "glycolate",
+        "ammonium",
+        "formate",
+        "glutamate",
+        "serine"
+      ]
+    },
+    "_inputs": "fields:map[positive_array]|biomass:array[6|5,float]",
+    "_outputs": "fields:map[array[6|5,float]]|biomass:array[6|5,float]",
+    "inputs": {
+      "fields": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glycolate": [
+          "fields",
+          "glycolate"
+        ],
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glutamate": [
+          "fields",
+          "glutamate"
+        ],
+        "serine": [
+          "fields",
+          "serine"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "fields": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glycolate": [
+          "fields",
+          "glycolate"
+        ],
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glutamate": [
+          "fields",
+          "glutamate"
+        ],
+        "serine": [
+          "fields",
+          "serine"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    }
+  },
+  "emitter": {
+    "address": {
+      "protocol": "local",
+      "data": "RAMEmitter"
+    },
+    "config": {
+      "emit": {
+        "global_time": "node",
+        "fields": "node"
+      }
+    },
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "fields": [
+        "fields"
+      ]
+    }
+  }
+}

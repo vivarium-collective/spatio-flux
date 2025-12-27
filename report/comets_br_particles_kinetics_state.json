@@ -1,0 +1,962 @@
+{
+  "particles": {
+    "QvSKZ3XL": {
+      "monod_kinetics": {
+        "address": {
+          "protocol": "local",
+          "data": "MonodKinetics"
+        },
+        "config": {
+          "reactions": {
+            "overflow_to_acetate": {
+              "reactant": "glucose",
+              "product": "acetate",
+              "km": 0.5,
+              "vmax": 0.3,
+              "yield": 0.5
+            },
+            "assimilate_glucose": {
+              "vmax": 0.4,
+              "yield": 0.2,
+              "km": 0.5,
+              "reactant": "glucose",
+              "product": "mass"
+            },
+            "maintenance_turnover": {
+              "reactant": "mass",
+              "product": "detritus",
+              "km": 1.0,
+              "vmax": 0.001,
+              "yield": 1.0
+            },
+            "assimilate_acetate": {
+              "reactant": "acetate",
+              "product": "mass",
+              "km": 0.6,
+              "vmax": 0.3,
+              "yield": 0.2
+            }
+          }
+        },
+        "_inputs": "biomass:mass|substrates:map[concentration]",
+        "_outputs": "biomass:float|substrates:map[float]",
+        "inputs": {
+          "substrates": [
+            "local"
+          ],
+          "biomass": [
+            "mass"
+          ]
+        },
+        "outputs": {
+          "substrates": [
+            "exchange"
+          ],
+          "biomass": [
+            "mass"
+          ]
+        }
+      },
+      "id": "QvSKZ3XL",
+      "position": [
+        19.39699377138457,
+        45.51269029827872
+      ],
+      "mass": 3.6874742383198105,
+      "local": {},
+      "exchange": {},
+      "sub_masses": {}
+    }
+  },
+  "global_time": 0.0,
+  "fields": {
+    "acetate": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "dissolved biomass": [
+      [
+        0.0,
+        0.0,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "glucose": [
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    ]
+  },
+  "spatial_dFBA": {
+    "address": {
+      "protocol": "local",
+      "data": "SpatialDFBA"
+    },
+    "config": {
+      "model_grid": [
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ]
+      ],
+      "models": {
+        "pputida": {
+          "model_file": "iJN746.xml",
+          "kinetic_params": {
+            "glucose": [
+              1.0,
+              2.0
+            ],
+            "ammonium": [
+              2.0,
+              4.0
+            ],
+            "glycolate": [
+              0.5,
+              1.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "ammonium": "EX_nh4_e",
+            "glycolate": "EX_glyclt_e"
+          },
+          "bounds": {}
+        },
+        "llactis": {
+          "model_file": "iNF517.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.25
+            ],
+            "glutamate": [
+              0.05,
+              0.1
+            ],
+            "serine": [
+              0.05,
+              0.1
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "glutamate": "EX_glu__L_e",
+            "serine": "EX_ser__L_e"
+          },
+          "bounds": {}
+        },
+        "ecoli core": {
+          "model_file": "textbook",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "acetate": [
+              0.5,
+              2.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
+          },
+          "bounds": {
+            "EX_o2_e": {
+              "lower": -2.0
+            },
+            "ATPM": {
+              "lower": 1.0,
+              "upper": 1.0
+            }
+          }
+        },
+        "cdiff": {
+          "model_file": "iCN900.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "acetate": [
+              0.5,
+              2.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
+          },
+          "bounds": {}
+        },
+        "ecoli": {
+          "model_file": "iAF1260.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "formate": [
+              0.5,
+              2.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "formate": "EX_for_e"
+          },
+          "bounds": {}
+        },
+        "yeast": {
+          "model_file": "iMM904.xml",
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.0
+            ],
+            "ammonium": [
+              0.5,
+              1.0
+            ]
+          },
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "ammonium": "EX_nh4_e"
+          },
+          "bounds": {}
+        }
+      },
+      "model_file": "ecoli core",
+      "n_bins": [
+        10,
+        10
+      ],
+      "mol_ids": [
+        "glucose",
+        "acetate"
+      ]
+    },
+    "_inputs": "fields:map[positive_array]|biomass:array[10|10,float]",
+    "_outputs": "fields:map[array[10|10,float]]|biomass:array[10|10,float]",
+    "inputs": {
+      "fields": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "fields": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    }
+  },
+  "diffusion": {
+    "address": {
+      "protocol": "local",
+      "data": "DiffusionAdvection"
+    },
+    "config": {
+      "diffusion_coeffs": {
+        "acetate": 0.1,
+        "glucose": 0.1
+      },
+      "clip_negative": true,
+      "boundary_conditions": {},
+      "n_bins": [
+        10,
+        10
+      ],
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "advection_coeffs": {
+        "acetate": [
+          0.0,
+          0.0
+        ],
+        "glucose": [
+          0.0,
+          0.0
+        ]
+      },
+      "cfl_adv": 0.5,
+      "default_diffusion_rate": 0.1,
+      "default_diffusion_dt": 0.1,
+      "max_dt": 0.1
+    },
+    "_inputs": "fields:map[array[10|10,float]]",
+    "_outputs": "fields:map[array[10|10,float]]",
+    "inputs": {
+      "fields": [
+        "fields"
+      ]
+    },
+    "outputs": {
+      "fields": [
+        "fields"
+      ]
+    }
+  },
+  "brownian_movement": {
+    "address": {
+      "protocol": "local",
+      "data": "BrownianMovement"
+    },
+    "config": {
+      "n_bins": [
+        0,
+        0
+      ],
+      "advection_rate": [
+        0.0,
+        0.2
+      ],
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "diffusion_rate": 0.5,
+      "interval": 1.0
+    },
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "inputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    }
+  },
+  "enforce_boundaries": {
+    "address": {
+      "protocol": "local",
+      "data": "ManageBoundaries"
+    },
+    "config": {
+      "mass_range": [
+        0.001,
+        1.0
+      ],
+      "add_rate": 0.1,
+      "boundary_to_remove": [],
+      "buffer": 0.0001,
+      "clamp_survivors": true,
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "boundary_to_add": [
+        "top",
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ]
+    },
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "inputs": {
+      "particles": [
+        "particles"
+      ],
+      "process_interval": [
+        "brownian_movement",
+        "interval"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    }
+  },
+  "particle_exchange": {
+    "address": {
+      "protocol": "local",
+      "data": "ParticleExchange"
+    },
+    "config": {
+      "n_bins": [
+        10,
+        10
+      ],
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "apply_mass_balance": false,
+      "rates_are_per_time": true
+    },
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
+    "inputs": {
+      "particles": [
+        "particles"
+      ],
+      "fields": [
+        "fields"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ],
+      "fields": [
+        "fields"
+      ]
+    }
+  },
+  "particle_division": {
+    "address": {
+      "protocol": "local",
+      "data": "ParticleDivision"
+    },
+    "config": {
+      "division_mass_threshold": 5.0,
+      "division_jitter": 0.001,
+      "sub_mass_split": "equal",
+      "submass_split_mode": "equal"
+    },
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "inputs": {
+      "particles": [
+        "particles"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles"
+      ]
+    }
+  },
+  "emitter": {
+    "address": {
+      "protocol": "local",
+      "data": "RAMEmitter"
+    },
+    "config": {
+      "emit": {
+        "global_time": "node",
+        "particles": "node",
+        "fields": "node"
+      }
+    },
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "particles": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "particles": [
+        "particles"
+      ],
+      "fields": [
+        "fields"
+      ]
+    }
+  }
+}

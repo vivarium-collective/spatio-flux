@@ -1,0 +1,183 @@
+{
+    "state": {
+        "global_time": 0.0,
+        "dFBA": {
+            "address": {
+                "protocol": "local",
+                "data": "DynamicFBA"
+            },
+            "config": {
+                "substrate_update_reactions": {
+                    "acetate": "EX_ac_e",
+                    "glucose": "EX_glc__D_e"
+                },
+                "bounds": {
+                    "ATPM": {
+                        "lower": 1.0,
+                        "upper": 1.0
+                    },
+                    "EX_o2_e": {
+                        "lower": -2.0
+                    }
+                },
+                "kinetic_params": {
+                    "acetate": [
+                        0.5,
+                        2.0
+                    ],
+                    "glucose": [
+                        0.5,
+                        1.0
+                    ]
+                },
+                "model_file": "textbook"
+            },
+            "_inputs": "substrates:map[concentration]|biomass:mass",
+            "_outputs": "substrates:map[count]|biomass:mass",
+            "inputs": {
+                "substrates": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "dfba biomass"
+                ]
+            },
+            "outputs": {
+                "substrates": {
+                    "glucose": [
+                        "fields",
+                        "glucose"
+                    ],
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "dfba biomass"
+                ]
+            }
+        },
+        "monod_kinetics": {
+            "address": {
+                "protocol": "local",
+                "data": "MonodKinetics"
+            },
+            "config": {
+                "reactions": {
+                    "assimilate_glucose": {
+                        "reactant": "glucose",
+                        "product": "mass",
+                        "km": 0.5,
+                        "vmax": 0.01,
+                        "yield": 1.0
+                    },
+                    "maintenance_turnover": {
+                        "reactant": "mass",
+                        "product": "detritus",
+                        "km": 1.0,
+                        "vmax": 0.001,
+                        "yield": 1.0
+                    },
+                    "assimilate_acetate": {
+                        "reactant": "acetate",
+                        "product": "mass",
+                        "km": 0.6,
+                        "vmax": 0.3,
+                        "yield": 0.2
+                    }
+                }
+            },
+            "_inputs": "biomass:mass|substrates:map[concentration]",
+            "_outputs": "biomass:float|substrates:map[float]",
+            "inputs": {
+                "substrates": {
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "kinetic biomass"
+                ]
+            },
+            "outputs": {
+                "substrates": {
+                    "acetate": [
+                        "fields",
+                        "acetate"
+                    ]
+                },
+                "biomass": [
+                    "fields",
+                    "kinetic biomass"
+                ]
+            }
+        },
+        "fields": {
+            "glucose": 10.0,
+            "acetate": 0.0,
+            "dfba biomass": 0.01,
+            "kinetic biomass": 0.01
+        },
+        "emitter": {
+            "address": {
+                "protocol": "local",
+                "data": "RAMEmitter"
+            },
+            "config": {
+                "emit": {
+                    "global_time": "node",
+                    "fields": "node"
+                }
+            },
+            "_inputs": {
+                "global_time": {
+                    "_default": null
+                },
+                "fields": {
+                    "_default": null
+                }
+            },
+            "_outputs": "",
+            "inputs": {
+                "global_time": [
+                    "global_time"
+                ],
+                "fields": [
+                    "fields"
+                ]
+            }
+        }
+    },
+    "schema": {
+        "global_time": "float",
+        "dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+        "monod_kinetics": "link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]",
+        "fields": "glucose:concentration|acetate:concentration|dfba biomass:mass|kinetic biomass:mass",
+        "emitter": {
+            "_type": "link",
+            "_inputs": {
+                "global_time": {
+                    "_default": null
+                },
+                "fields": {
+                    "_default": null
+                }
+            },
+            "_outputs": "",
+            "inputs": "wires",
+            "outputs": "wires"
+        }
+    }
+}

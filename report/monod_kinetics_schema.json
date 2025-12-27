@@ -1,0 +1,19 @@
+{
+  "global_time": "float",
+  "monod_kinetics": "link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]",
+  "fields": "glucose:concentration|acetate:concentration|biomass:mass",
+  "emitter": {
+    "_type": "link",
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": "wires",
+    "outputs": "wires"
+  }
+}

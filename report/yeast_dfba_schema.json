@@ -1,81 +1,19 @@
 {
-  "global_time": "0.0",
-  "yeast dFBA": {
-    "inputs": {
-      "substrates": {
-        "glucose": [
-          "fields",
-          "glucose"
-        ],
-        "ammonium": [
-          "fields",
-          "ammonium"
-        ]
-      },
-      "biomass": [
-        "fields",
-        "yeast biomass"
-      ]
-    },
-    "outputs": {
-      "substrates": {
-        "glucose": [
-          "fields",
-          "glucose"
-        ],
-        "ammonium": [
-          "fields",
-          "ammonium"
-        ]
-      },
-      "biomass": [
-        "fields",
-        "yeast biomass"
-      ]
-    },
-    "interval": 1.0,
-    "address": "local:DynamicFBA",
-    "config": {
-      "model_file": "iMM904.xml",
-      "kinetic_params": {
-        "glucose": [
-          "0.5",
-          "1.0"
-        ],
-        "ammonium": [
-          "0.5",
-          "1.0"
-        ]
-      },
-      "substrate_update_reactions": {
-        "glucose": "EX_glc__D_e",
-        "ammonium": "EX_nh4_e"
-      },
-      "bounds": {}
-    },
-    "shared": null
-  },
+  "global_time": "float",
+  "yeast dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
+  "fields": "glucose:concentration|biomass:mass|ammonium:concentration",
   "emitter": {
-    "inputs": {
-      "global_time": [
-        "global_time"
-      ],
-      "fields": [
-        "fields"
-      ]
-    },
-    "outputs": null,
-    "address": "local:ram-emitter",
-    "config": {
-      "emit": {
-        "global_time": "any",
-        "fields": "any"
+    "_type": "link",
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
       }
-    }
-  },
-  "fields": {
-    "glucose": "5.0",
-    "ammonium": "10.0",
-    "yeast biomass": "0.1"
+    },
+    "_outputs": "",
+    "inputs": "wires",
+    "outputs": "wires"
   }
 }

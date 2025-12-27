@@ -1,0 +1,109 @@
+{
+  "global_time": 0.0,
+  "monod_kinetics": {
+    "address": {
+      "protocol": "local",
+      "data": "MonodKinetics"
+    },
+    "config": {
+      "reactions": {
+        "overflow_to_acetate": {
+          "reactant": "glucose",
+          "product": "acetate",
+          "km": 0.5,
+          "vmax": 0.3,
+          "yield": 0.5
+        },
+        "assimilate_glucose": {
+          "vmax": 0.4,
+          "yield": 0.2,
+          "km": 0.5,
+          "reactant": "glucose",
+          "product": "mass"
+        },
+        "maintenance_turnover": {
+          "reactant": "mass",
+          "product": "detritus",
+          "km": 1.0,
+          "vmax": 0.001,
+          "yield": 1.0
+        },
+        "assimilate_acetate": {
+          "reactant": "acetate",
+          "product": "mass",
+          "km": 0.6,
+          "vmax": 0.3,
+          "yield": 0.2
+        }
+      }
+    },
+    "_inputs": "biomass:mass|substrates:map[concentration]",
+    "_outputs": "biomass:float|substrates:map[float]",
+    "inputs": {
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    }
+  },
+  "fields": {
+    "glucose": 10.0,
+    "acetate": 0.0,
+    "biomass": 0.1
+  },
+  "emitter": {
+    "address": {
+      "protocol": "local",
+      "data": "RAMEmitter"
+    },
+    "config": {
+      "emit": {
+        "global_time": "node",
+        "fields": "node"
+      }
+    },
+    "_inputs": {
+      "global_time": {
+        "_default": null
+      },
+      "fields": {
+        "_default": null
+      }
+    },
+    "_outputs": "",
+    "inputs": {
+      "global_time": [
+        "global_time"
+      ],
+      "fields": [
+        "fields"
+      ]
+    }
+  }
+}
