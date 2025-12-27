@@ -55,10 +55,10 @@ Spatio-Flux includes an automated test suite covering:
 
 ## Ecosystem
 
-Spatio-Flux is part of the **Vivarium-Collective**:
-- `bigraph-schema` — typed hierarchical state
-- `process-bigraph` — composition and orchestration
-- `bigraph-viz` — structural visualization
+Spatio-Flux is part of **Vivarium 2.0**:
+- `bigraph-schema` — compositional type schemas
+- `process-bigraph` — process and composite simulation interfaces
+- `bigraph-viz` — visualization tool for bigraph schema
 - `spatio-flux` — reference multiscale application
 
 All components are open-source:  
