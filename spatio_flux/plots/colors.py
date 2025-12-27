@@ -109,6 +109,7 @@ def build_plot_settings(
     field_species = field_species or list(DEFAULT_FIELD_SPECIES)
     field_biomass_species = field_biomass_species or list(DEFAULT_FIELD_BIOMASS_SPECIES)
 
+    remove_paths = []
     fills = {
         # particle family
         ("particles",):                 COLORS["particles_state"],
@@ -174,6 +175,7 @@ def build_plot_settings(
 
     # ---- particle-specific stuff unchanged, example: ----
     for pid in particle_ids:
+        remove_paths.append(("particles", pid, "id"))
         fills.update({
             ("particles", pid):             COLORS["particles_state"],
             ("particles", pid, "id"):       COLORS["particles_state"],
@@ -222,4 +224,5 @@ def build_plot_settings(
     return {
         "node_fill_colors": fills,
         "node_border_colors": borders,
+        "remove_paths": remove_paths
     }

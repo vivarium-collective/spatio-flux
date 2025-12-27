@@ -380,7 +380,7 @@ def plot_diffusion_process(results, state, config=None):
 def get_comets_doc(core=None, config=None):
     dissolved_model_id = 'ecoli core'
     mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    n_bins = SQUARE_BINS    # (nx, ny)
+    n_bins = SQUARE_BINS  #[b*2 for b in SQUARE_BINS]    # (nx, ny)
     bounds = SQUARE_BOUNDS  # (xmax, ymax)
     diffusion_coeffs = {'glucose': 0.0, 'acetate': 1e-1, 'dissolved biomass': 1e-2}
     advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
@@ -1113,7 +1113,7 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  300, #DEFAULT_RUNTIME_LONGER*3,  #DEFAULT_RUNTIME_SHORT, #
+        'time':  400, #DEFAULT_RUNTIME_LONGER*3,
         'config': {},
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },
