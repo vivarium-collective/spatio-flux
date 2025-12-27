@@ -62,7 +62,7 @@ def get_single_dfba_process(
 
     return {
         "_type": "process",
-        "address": "local:DynamicFBA",
+        "address": "local:spatio_flux.processes.dfba.DynamicFBA",
         "config": config,
         "inputs": {
             "substrates": {mol_id: build_path(path, mol_id, i, j) for mol_id in mol_ids},
@@ -342,6 +342,7 @@ def get_particle_exchange_process(
         '_type': 'step',
         'address': 'local:ParticleExchange',
         'config': config,
+        'priority': 2.0,
         'inputs': {
             'particles': ['particles'],
             'fields': concentration_fields_path,
@@ -454,7 +455,7 @@ def get_dfba_particle_composition(core=None, model_file=None):
             '_value': {
                 'dFBA': {
                     '_type': 'process',
-                    'address': make_default('string', 'local:DynamicFBA'),
+                    'address': make_default('string', 'local:spatio_flux.processes.dfba.DynamicFBA'),
                     'config': make_default('node', config),
                     'inputs': make_default('wires', {
                         'substrates': ['local'],
@@ -474,7 +475,7 @@ def get_dfba_particle_composition(core=None, model_file=None):
 def get_community_dfba_particle_composition(
         core=None,
         models=None,
-        default_address="local:DynamicFBA",
+        default_address="local:spatio_flux.processes.dfba.DynamicFBA",
         particle_mass_id="mass",
 ):
     """

@@ -332,6 +332,7 @@ class DynamicFBA(Process):
             inputs["biomass"],
             interval
         )
+
         return update
 
 
