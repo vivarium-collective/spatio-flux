@@ -33,7 +33,7 @@ where = ["."]
 include = ["spatio_flux*"]
 exclude = ["tests*", "docs*"]
 
-
+# Uncomment for local packages
 #[tool.uv.sources]
 # bigraph-schema = { path = "../bigraph-schema", editable = true }
 # process-bigraph = { path = "../process-bigraph", editable = true }
