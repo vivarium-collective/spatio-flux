@@ -814,6 +814,16 @@ def plot_newtonian_particle_comets(results, state, config=None):
     else:
         raise ValueError
 
+    # TODO -- replace this hack with proper path management
+    for result in results:
+        if 'lattice' in result:
+            lattice = result.get('lattice')
+            if lattice is None:
+                continue
+            fields = lattice.get('fields')
+            if fields is not None:
+                result['fields'] = fields
+
     particles_row = config.get("particles_row", "overlay")
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
                      coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
@@ -1123,7 +1133,7 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  30,  #300, #DEFAULT_RUNTIME_LONGER*3,  #DEFAULT_RUNTIME_SHORT, #
+        'time':  30,  #300, #DEFAULT_RUNTIME_LONGER*3,
         'config': {},
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },

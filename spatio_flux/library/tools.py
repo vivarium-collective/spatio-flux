@@ -50,7 +50,7 @@ def initialize_fields(n_bins, initial_min_max=None):
 
 
 def get_standard_emitter(state_keys):
-    OPTIONAL_KEYS = {'fields', 'particles'}
+    OPTIONAL_KEYS = {'fields', 'particles', 'lattice'}
     # Always include 'global_time', include optional keys if present
     included_keys = ['global_time'] + [key for key in OPTIONAL_KEYS if key in state_keys]
     emitter_spec = {key: [key] for key in included_keys}

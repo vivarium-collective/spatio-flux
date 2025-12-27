@@ -132,7 +132,7 @@ def build_plot_settings(
     field_biomass_species = (
         list(field_biomass_species) if field_biomass_species is not None else list(DEFAULT_FIELD_BIOMASS_SPECIES)
     )
-
+    remove_paths = []
     fills = {}
 
     # ---- fixed (non-generated) rules ----
@@ -217,6 +217,9 @@ def build_plot_settings(
     submass_children = ("ecoli_1", "ecoli_2")
 
     for pid in particle_ids:
+        particle_id = ["particles", pid, "id"]
+        remove_paths.append(particle_id)
+
         # ('particles', pid, ...)
         fills[("particles", pid)] = COLORS["particles_state"]
         for k in particle_scalar_keys:
@@ -261,4 +264,5 @@ def build_plot_settings(
     return {
         "node_fill_colors": fills,
         "node_border_colors": borders,
+        "remove_paths": remove_paths
     }
