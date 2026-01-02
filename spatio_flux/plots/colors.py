@@ -132,6 +132,7 @@ def build_plot_settings(
 
         # containers
         ("fields",):                    COLORS["fields"],
+        ("lattice",):                   COLORS["fields"],
         ("concentration",):             COLORS["fields"],
         ("substrate",):                 COLORS["fields"],
         ("diffusion",):                 COLORS["diffusion"],
@@ -150,6 +151,15 @@ def build_plot_settings(
         ("monod_kinetics",):            COLORS["kinetic_process"],
         ("monod_kinetics[0,0]",):       COLORS["kinetic_process"],
         ("MonodKinetics",):             COLORS["kinetic_process"],
+
+
+        #lattice embedding # TODO -- add these in with a loop
+        ("lattice", "fields",): COLORS["fields"],
+        ("lattice", "exchanges",): COLORS["exchange"],
+        ("lattice", "bin_volume",): COLORS["exchange"],
+        ("lattice", "diffusion",): COLORS["diffusion"],
+        ("lattice", "monod_kinetics[0,0]",): COLORS["kinetic_process"],
+        ("lattice", "conc_count_adapter",): COLORS["exchange_adapter"],
     }
 
     # --- auto-generate field species ---
@@ -160,6 +170,12 @@ def build_plot_settings(
         # (fields, species biomass) – for things like "pputida", "llactis", etc.
         biomass_name = f"{s} biomass"
         fills[("fields", biomass_name)] = COLORS["fields"]
+
+        # lattice embedding for conc-volume conversion
+        fills[("lattice", "fields", s)] =               COLORS["fields"]
+        fills[("lattice", "fields", biomass_name)] =    COLORS["fields"]
+        fills[("lattice", "exchanges", s)] =            COLORS["exchange"]
+        fills[("lattice", "exchanges", biomass_name)] = COLORS["exchange"]
 
     for s in conc_type_species or []:
         fills[("fields", s,)] =                   COLORS["fields"]
