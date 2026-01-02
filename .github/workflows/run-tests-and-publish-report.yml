@@ -7,6 +7,7 @@ on:
     paths:
       - 'spatio_flux/experiments/test_suite.py'
       - '.github/workflows/run-tests-and-publish-report.yml'
+      - 'pyproject.toml'
 
 jobs:
   run-tests:
