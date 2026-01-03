@@ -870,7 +870,7 @@ def get_reference_composite_doc(core=None, config=None):
     user_cfg = config or {}
     bounds = user_cfg.get("bounds", SQUARE_BOUNDS)
     n_bins = user_cfg.get("n_bins", SQUARE_BINS)
-    depth = user_cfg.get("depth", 1.0)
+    depth = user_cfg.get("depth", 1/25)
 
     # High-level knobs
     division_mass_threshold = 0.4
@@ -887,7 +887,7 @@ def get_reference_composite_doc(core=None, config=None):
     initial_min_max = {"glucose": (glucose_level, glucose_level), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
 
     # diffusion process config
-    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
+    diffusion_coeffs = {'glucose': 1e0, 'acetate': 1e0, biomass_id: 1e0}
     advection_coeffs = {
         # biomass_id: (0.0, 0.2), # dissolved biomass floats to the top
         # 'acetate': (0.0, -0.5)  # acetates sinks
@@ -1134,7 +1134,7 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  40,  #300, #DEFAULT_RUNTIME_LONGER*3,
+        'time':  120,  #300, #DEFAULT_RUNTIME_LONGER*3,
         'config': {},
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },
@@ -1143,7 +1143,7 @@ SIMULATIONS = {
         'description': 'Different resolution for the spatio-flux reference demo',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': 40,
+        'time': 120,
         'config': {'n_bins': [n*2 for n in SQUARE_BINS]},
         'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8}
     },

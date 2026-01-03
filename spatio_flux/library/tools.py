@@ -914,17 +914,25 @@ def generate_html_report(
     html.append("</ul></nav>")
 
     # ------------------------------------------------------------------
-    # Intro (overview + table + ecosystem + refs)
+    # About / Overview (collapsible like How-to)
     # ------------------------------------------------------------------
-    html.append(
-        _spatio_flux_intro_html(
-            total_sim_time=total_sim_time,
-            outdir=str(output_dir)
-        )
+    intro_html = _spatio_flux_intro_html(
+        total_sim_time=total_sim_time,
+        outdir=str(output_dir)
     )
+    # Ensure anchor exists for TOC
+    if 'id="about"' not in intro_html:
+        intro_html = f'<div id="about"></div>\n{intro_html}'
+
+    html.append(f"""
+<details class="note" open>
+  <summary>About / Overview</summary>
+  {intro_html}
+</details>
+""".strip())
 
     # ------------------------------------------------------------------
-    # How-to-read block (now after overview; still above simulations)
+    # How-to-read block (after overview; still above simulations)
     # ------------------------------------------------------------------
     how_block = _how_to_read_bigraph_html()
     # Ensure it has an anchor even if the helper doesn't provide one
