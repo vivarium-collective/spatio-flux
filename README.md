@@ -1,65 +1,72 @@
-# Spatio-Flux: Compositional Multiscale Simulation with Process Bigraphs
+# Spatio-Flux: A Reference Application for Compositional Multiscale Simulation
 
 **Spatio-Flux** is a reference application for **compositional multiscale biological modeling** built using the **Process-Bigraph** framework. It demonstrates how independently developed models—metabolism, spatial transport, particle dynamics, and population restructuring—can be composed into a single executable simulation through **typed interfaces and shared orchestration**, rather than tightly coupled solvers.
 
 Spatio-Flux serves as the primary worked example in  
-*Process Bigraphs and the Architecture of Compositional Systems Biology* (Agmon & Spangler).
+*Process Bigraphs and the Architecture of Compositional Systems Biology* by Agmon & Spangler ([arXiv:2512.23754](https://arxiv.org/abs/2512.23754)).
 
 ---
 
-## What it demonstrates
+## What Spatio-Flux is
 
-Spatio-Flux shows how to:
+Spatio-Flux is designed as a **testbed and reference implementation**, not as an optimized domain-specific simulator. Its purpose is to make **model composition explicit and inspectable**.
+
+In particular, Spatio-Flux demonstrates how to:
 - compose heterogeneous modeling paradigms (ODEs, dFBA, spatial fields, particles),
-- couple processes through shared, typed state instead of direct calls,
+- couple mechanisms through shared, typed state rather than direct process calls,
 - coordinate multi-timescale execution using reusable orchestration patterns,
-- swap or recombine mechanisms without modifying surrounding models.
-
-It is designed as a **testbed and reference implementation**, not as an optimized domain-specific simulator.
+- swap or recombine processes without modifying surrounding models.
 
 ---
 
-## Reference composite
+## Automated test suite
 
-The figure below shows a representative “mega-composite” simulation integrating:
-metabolic processes, spatial diffusion, particle motion, particle–field exchange, and
-event-driven population restructuring into a single process bigraph.
+The heart of Spatio-Flux is its **automated test suite**, which exercises a wide range of
+composition patterns using reusable process families.
 
-![Spatio-Flux reference composite](doc/spatioflux_reference_demo_viz.png)
-
----
-
-## Example simulation (animated)
-
-The animation below shows a reference simulation where motile particles carrying internal
-metabolic models interact with evolving spatial nutrient fields.
-
-![Spatio-Flux reference demo](doc/spatioflux_reference_demo_video.gif)
-
----
-
-## Automated examples
-
-Spatio-Flux includes an automated test suite covering:
+Covered examples include:
 - Monod and dynamic FBA metabolism
 - Hybrid microbial communities
 - COMETS-style spatial dFBA
 - Brownian and Newtonian particle systems
-- Particle–field coupling
+- Particle–field exchange adapters
 - Event-driven division and boundary handling
+
+Each test produces:
+- a **process-bigraph visualization** of model structure,
+- serialized schemas and state for inspection,
+- and domain-specific plots or animations.
 
 **Live test report:**  
 👉 https://vivarium-collective.github.io/spatio-flux/report/index.html
 
 ---
 
+## Reference composite
+
+The figure below shows a representative “mega-composite” integrating metabolic,
+spatial, mechanical, and structural processes into a single process bigraph.
+
+![Spatio-Flux reference composite](doc/spatioflux_reference_demo_viz.png)
+
+---
+
+## Example simulation
+
+Motile particles carrying internal metabolic models interact with evolving spatial nutrient fields.
+
+![Spatio-Flux reference demo](doc/spatioflux_reference_demo_video.gif)
+
+---
+
 ## Ecosystem
 
-Spatio-Flux is part of **Vivarium 2.0**:
-- `bigraph-schema` — compositional type schemas
-- `process-bigraph` — process and composite simulation interfaces
-- `bigraph-viz` — visualization tool for bigraph schema
-- `spatio-flux` — reference multiscale application
+Spatio-Flux is part of **Vivarium 2.0**, an open-source ecosystem for compositional modeling:
 
-All components are open-source:  
+- `bigraph-schema` — typed hierarchical schemas
+- `process-bigraph` — process and composite simulation interfaces
+- `bigraph-viz` — visualization of bigraph structure and data flow
+- `spatio-flux` — reference multiscale application and test suite
+
+All components are open source:  
 https://github.com/vivarium-collective
