@@ -870,6 +870,7 @@ def get_reference_composite_doc(core=None, config=None):
     user_cfg = config or {}
     bounds = user_cfg.get("bounds", SQUARE_BOUNDS)
     n_bins = user_cfg.get("n_bins", SQUARE_BINS)
+    depth = user_cfg.get("depth", 1.0)
 
     # High-level knobs
     division_mass_threshold = 0.4
@@ -946,7 +947,7 @@ def get_reference_composite_doc(core=None, config=None):
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
     # adapters
-    conc_count_adapter = get_conc_count_adapter(conc_path=['fields'])
+    conc_count_adapter = get_conc_count_adapter(conc_path=['fields'], n_bins=n_bins, bounds=bounds, depth=depth)
 
     # composite schema
     schema = get_community_dfba_particle_composition(models=models)
@@ -954,7 +955,7 @@ def get_reference_composite_doc(core=None, config=None):
     doc = {
         "state": {
             "lattice": {
-                "bin_volume": 1.0,
+                # "bin_volume": 1.0,
                 "fields": fields,
                 "exchanges": {mol_id: np.zeros_like(f) for mol_id, f in fields.items()},
                 **spatial_kinetics,  # put them at the top level
@@ -1133,7 +1134,7 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  60,  #300, #DEFAULT_RUNTIME_LONGER*3,
+        'time':  40,  #300, #DEFAULT_RUNTIME_LONGER*3,
         'config': {},
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },
@@ -1142,7 +1143,7 @@ SIMULATIONS = {
         'description': 'Different resolution for the spatio-flux reference demo',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': 60,
+        'time': 40,
         'config': {'n_bins': [n*2 for n in SQUARE_BINS]},
         'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8}
     },
