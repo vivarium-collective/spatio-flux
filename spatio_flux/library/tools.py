@@ -264,227 +264,6 @@ def _json_viewer_css_lines() -> list[str]:
     ]
 
 
-def _json_viewer_js() -> str:
-    # Plain JS: no dependencies; works in a local report.html.
-    return r"""
-<script>
-(function(){
-  function isPlainObject(x){ return x && typeof x === "object" && !Array.isArray(x); }
-
-  function walk(obj, fn, path){
-    path = path || [];
-    fn(obj, path);
-    if (Array.isArray(obj)){
-      for (let i=0;i<obj.length;i++) walk(obj[i], fn, path.concat([String(i)]));
-    } else if (isPlainObject(obj)){
-      for (const k of Object.keys(obj)) walk(obj[k], fn, path.concat([k]));
-    }
-  }
-
-  function getAtPath(root, path){
-    let cur = root;
-    for (const p of path){
-      if (cur == null) return undefined;
-      if (Array.isArray(cur)) cur = cur[Number(p)];
-      else cur = cur[p];
-    }
-    return cur;
-  }
-
-  function prettyScalar(v){
-    return JSON.stringify(v);
-  }
-
-  function renderValue(container, value){
-    container.innerHTML = "";
-
-    // Scalars
-    if (value === null || typeof value !== "object"){
-      const pre = document.createElement("pre");
-      pre.textContent = JSON.stringify(value, null, 2);
-      container.appendChild(pre);
-      return;
-    }
-
-    // Arrays
-    if (Array.isArray(value)){
-      const n = value.length;
-      const header = document.createElement("div");
-      header.innerHTML = `<span class="json-pill">array</span><span class="json-pill">len=${n}</span>`;
-      container.appendChild(header);
-
-      // 1D scalar array: show compact if long
-      const allScalar = value.every(v => v === null || typeof v !== "object");
-      if (allScalar){
-        const maxInline = 200;
-        const pre = document.createElement("pre");
-        if (value.length <= maxInline){
-          pre.textContent = JSON.stringify(value, null, 2);
-        } else {
-          const head = value.slice(0, 50);
-          const tail = value.slice(-10);
-          pre.textContent =
-            JSON.stringify(head, null, 2) +
-            `\n... (${value.length - 60} omitted) ...\n` +
-            JSON.stringify(tail, null, 2);
-        }
-        container.appendChild(pre);
-        return;
-      }
-
-      // 2D grid of scalars -> render as table (cropped)
-      const is2D = value.length > 0 && value.every(row => Array.isArray(row));
-      if (is2D){
-        const widths = value.map(r => r.length);
-        const sameWidth = widths.every(w => w === widths[0]);
-        const scalarCells = value.flat().every(v => v === null || typeof v !== "object");
-        if (sameWidth && scalarCells){
-          const maxRows = 60, maxCols = 80;
-          const rows = Math.min(value.length, maxRows);
-          const cols = Math.min(widths[0], maxCols);
-
-          const table = document.createElement("table");
-          table.className = "json-table";
-          const tbody = document.createElement("tbody");
-
-          for (let i=0;i<rows;i++){
-            const tr = document.createElement("tr");
-            for (let j=0;j<cols;j++){
-              const td = document.createElement("td");
-              td.textContent = String(value[i][j]);
-              tr.appendChild(td);
-            }
-            tbody.appendChild(tr);
-          }
-          table.appendChild(tbody);
-          container.appendChild(table);
-
-          if (value.length > maxRows || widths[0] > maxCols){
-            const note = document.createElement("div");
-            note.className = "json-note";
-            note.textContent = `Showing ${rows}x${cols} (cropped). Full size: ${value.length}x${widths[0]}.`;
-            container.appendChild(note);
-          }
-          return;
-        }
-      }
-
-      // Fallback: pretty JSON
-      const pre = document.createElement("pre");
-      pre.textContent = JSON.stringify(value, null, 2);
-      container.appendChild(pre);
-      return;
-    }
-
-    // Objects
-    const keys = Object.keys(value);
-    const header = document.createElement("div");
-    header.innerHTML = `<span class="json-pill">object</span><span class="json-pill">keys=${keys.length}</span>`;
-    container.appendChild(header);
-
-    // For moderate objects, show a compact key list up front
-    if (keys.length <= 60){
-      const pre = document.createElement("pre");
-      pre.textContent = JSON.stringify(value, null, 2);
-      container.appendChild(pre);
-    } else {
-      const pre = document.createElement("pre");
-      // compact: show key preview
-      const preview = {};
-      for (let i=0;i<Math.min(keys.length, 50);i++){
-        const k = keys[i];
-        const v = value[k];
-        preview[k] = (v === null || typeof v !== "object") ? v : (Array.isArray(v) ? `[array len=${v.length}]` : "[object]");
-      }
-      pre.textContent = JSON.stringify(preview, null, 2) + `\n... (${keys.length - 50} more keys) ...`;
-      container.appendChild(pre);
-    }
-  }
-
-  function buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl){
-    function renderList(paths){
-      navEl.innerHTML = "";
-      paths.forEach((p, idx) => {
-        const item = document.createElement("div");
-        item.className = "json-item";
-        item.textContent = p.join(".");
-        item.onclick = () => {
-          navEl.querySelectorAll(".json-item").forEach(x => x.classList.remove("active"));
-          item.classList.add("active");
-          mainPathEl.textContent = p.join(".");
-          const v = getAtPath(root, p);
-          renderValue(mainValueEl, v);
-        };
-        navEl.appendChild(item);
-        if (idx === 0) item.click();
-      });
-      statusEl.textContent = `${paths.length} paths`;
-    }
-
-    const top = Object.keys(root || {}).map(k => [k]);
-    renderList(top);
-
-    searchEl.addEventListener("input", () => {
-      const q = (searchEl.value || "").trim().toLowerCase();
-      if (!q){
-        renderList(top);
-        return;
-      }
-      const hits = [];
-      walk(root, (node, path) => {
-        const s = path.join(".").toLowerCase();
-        if (s.includes(q)) hits.push(path);
-      });
-
-      // de-dupe & cap
-      const seen = new Set();
-      const uniq = [];
-      for (const p of hits){
-        const key = p.join(".");
-        if (!seen.has(key)){
-          seen.add(key);
-          uniq.push(p);
-        }
-        if (uniq.length >= 600) break;
-      }
-      renderList(uniq.length ? uniq : top);
-    });
-  }
-
-  document.querySelectorAll(".json-viewer").forEach(viewer => {
-    const test = viewer.dataset.test;
-    const dataEl = document.getElementById("json-data-" + test);
-    if (!dataEl) return;
-
-    let root = null;
-    try {
-      root = JSON.parse(dataEl.textContent);
-    } catch (e) {
-      const mainValueEl = viewer.querySelector(".json-value");
-      mainValueEl.innerHTML = "<pre>Could not parse embedded JSON.</pre>";
-      return;
-    }
-
-    const navEl = viewer.querySelector(".json-nav");
-    const mainPathEl = viewer.querySelector(".json-path");
-    const mainValueEl = viewer.querySelector(".json-value");
-    const searchEl = viewer.querySelector(".json-search");
-    const statusEl = viewer.querySelector(".json-status");
-    const resetBtn = viewer.querySelector(".json-reset");
-
-    buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl);
-
-    resetBtn.addEventListener("click", () => {
-      searchEl.value = "";
-      // rebuild nav to top-level
-      buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl);
-    });
-  });
-})();
-</script>
-""".strip()
-
-
 def _html_link(url: str, label: str | None = None) -> str:
     """Safe HTML <a> link for external references."""
     label = label or url
@@ -791,6 +570,240 @@ def _spatio_flux_intro_html(total_sim_time=None, outdir: str | None = None) -> s
     return "\n".join(parts)
 
 
+def _json_viewer_js() -> str:
+    # Plain JS: no dependencies; works in a local report.html.
+    # Includes:
+    #   - JSON viewer behavior (existing)
+    #   - floating "Back to Contents" button behavior (new; no-op if button missing)
+    return r"""
+<script>
+(function(){
+  function isPlainObject(x){ return x && typeof x === "object" && !Array.isArray(x); }
+
+  function walk(obj, fn, path){
+    path = path || [];
+    fn(obj, path);
+    if (Array.isArray(obj)){
+      for (let i=0;i<obj.length;i++) walk(obj[i], fn, path.concat([String(i)]));
+    } else if (isPlainObject(obj)){
+      for (const k of Object.keys(obj)) walk(obj[k], fn, path.concat([k]));
+    }
+  }
+
+  function getAtPath(root, path){
+    let cur = root;
+    for (const p of path){
+      if (cur == null) return undefined;
+      if (Array.isArray(cur)) cur = cur[Number(p)];
+      else cur = cur[p];
+    }
+    return cur;
+  }
+
+  function renderValue(container, value){
+    container.innerHTML = "";
+
+    // Scalars
+    if (value === null || typeof value !== "object"){
+      const pre = document.createElement("pre");
+      pre.textContent = JSON.stringify(value, null, 2);
+      container.appendChild(pre);
+      return;
+    }
+
+    // Arrays
+    if (Array.isArray(value)){
+      const n = value.length;
+      const header = document.createElement("div");
+      header.innerHTML = `<span class="json-pill">array</span><span class="json-pill">len=${n}</span>`;
+      container.appendChild(header);
+
+      // 1D scalar array: show compact if long
+      const allScalar = value.every(v => v === null || typeof v !== "object");
+      if (allScalar){
+        const maxInline = 200;
+        const pre = document.createElement("pre");
+        if (value.length <= maxInline){
+          pre.textContent = JSON.stringify(value, null, 2);
+        } else {
+          const head = value.slice(0, 50);
+          const tail = value.slice(-10);
+          pre.textContent =
+            JSON.stringify(head, null, 2) +
+            `\n... (${value.length - 60} omitted) ...\n` +
+            JSON.stringify(tail, null, 2);
+        }
+        container.appendChild(pre);
+        return;
+      }
+
+      // 2D grid of scalars -> render as table (cropped)
+      const is2D = value.length > 0 && value.every(row => Array.isArray(row));
+      if (is2D){
+        const widths = value.map(r => r.length);
+        const sameWidth = widths.every(w => w === widths[0]);
+        const scalarCells = value.flat().every(v => v === null || typeof v !== "object");
+        if (sameWidth && scalarCells){
+          const maxRows = 60, maxCols = 80;
+          const rows = Math.min(value.length, maxRows);
+          const cols = Math.min(widths[0], maxCols);
+
+          const table = document.createElement("table");
+          table.className = "json-table";
+          const tbody = document.createElement("tbody");
+
+          for (let i=0;i<rows;i++){
+            const tr = document.createElement("tr");
+            for (let j=0;j<cols;j++){
+              const td = document.createElement("td");
+              td.textContent = String(value[i][j]);
+              tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+          }
+          table.appendChild(tbody);
+          container.appendChild(table);
+
+          if (value.length > maxRows || widths[0] > maxCols){
+            const note = document.createElement("div");
+            note.className = "json-note";
+            note.textContent = `Showing ${rows}x${cols} (cropped). Full size: ${value.length}x${widths[0]}.`;
+            container.appendChild(note);
+          }
+          return;
+        }
+      }
+
+      // Fallback: pretty JSON
+      const pre = document.createElement("pre");
+      pre.textContent = JSON.stringify(value, null, 2);
+      container.appendChild(pre);
+      return;
+    }
+
+    // Objects
+    const keys = Object.keys(value);
+    const header = document.createElement("div");
+    header.innerHTML = `<span class="json-pill">object</span><span class="json-pill">keys=${keys.length}</span>`;
+    container.appendChild(header);
+
+    // For moderate objects, show a compact key list up front
+    if (keys.length <= 60){
+      const pre = document.createElement("pre");
+      pre.textContent = JSON.stringify(value, null, 2);
+      container.appendChild(pre);
+    } else {
+      const pre = document.createElement("pre");
+      // compact: show key preview
+      const preview = {};
+      for (let i=0;i<Math.min(keys.length, 50);i++){
+        const k = keys[i];
+        const v = value[k];
+        preview[k] = (v === null || typeof v !== "object") ? v : (Array.isArray(v) ? `[array len=${v.length}]` : "[object]");
+      }
+      pre.textContent = JSON.stringify(preview, null, 2) + `\n... (${keys.length - 50} more keys) ...`;
+      container.appendChild(pre);
+    }
+  }
+
+  function buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl){
+    function renderList(paths){
+      navEl.innerHTML = "";
+      paths.forEach((p, idx) => {
+        const item = document.createElement("div");
+        item.className = "json-item";
+        item.textContent = p.join(".");
+        item.onclick = () => {
+          navEl.querySelectorAll(".json-item").forEach(x => x.classList.remove("active"));
+          item.classList.add("active");
+          mainPathEl.textContent = p.join(".");
+          const v = getAtPath(root, p);
+          renderValue(mainValueEl, v);
+        };
+        navEl.appendChild(item);
+        if (idx === 0) item.click();
+      });
+      statusEl.textContent = `${paths.length} paths`;
+    }
+
+    const top = Object.keys(root || {}).map(k => [k]);
+    renderList(top);
+
+    searchEl.addEventListener("input", () => {
+      const q = (searchEl.value || "").trim().toLowerCase();
+      if (!q){
+        renderList(top);
+        return;
+      }
+      const hits = [];
+      walk(root, (node, path) => {
+        const s = path.join(".").toLowerCase();
+        if (s.includes(q)) hits.push(path);
+      });
+
+      // de-dupe & cap
+      const seen = new Set();
+      const uniq = [];
+      for (const p of hits){
+        const key = p.join(".");
+        if (!seen.has(key)){
+          seen.add(key);
+          uniq.push(p);
+        }
+        if (uniq.length >= 600) break;
+      }
+      renderList(uniq.length ? uniq : top);
+    });
+  }
+
+  // --------------------------
+  // JSON viewers
+  // --------------------------
+  document.querySelectorAll(".json-viewer").forEach(viewer => {
+    const test = viewer.dataset.test;
+    const dataEl = document.getElementById("json-data-" + test);
+    if (!dataEl) return;
+
+    let root = null;
+    try {
+      root = JSON.parse(dataEl.textContent);
+    } catch (e) {
+      const mainValueEl = viewer.querySelector(".json-value");
+      mainValueEl.innerHTML = "<pre>Could not parse embedded JSON.</pre>";
+      return;
+    }
+
+    const navEl = viewer.querySelector(".json-nav");
+    const mainPathEl = viewer.querySelector(".json-path");
+    const mainValueEl = viewer.querySelector(".json-value");
+    const searchEl = viewer.querySelector(".json-search");
+    const statusEl = viewer.querySelector(".json-status");
+    const resetBtn = viewer.querySelector(".json-reset");
+
+    buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl);
+
+    resetBtn.addEventListener("click", () => {
+      searchEl.value = "";
+      buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl);
+    });
+  });
+
+  // --------------------------
+  // Floating "Back to Contents" button
+  // --------------------------
+  const backBtn = document.querySelector(".back-to-toc");
+  if (backBtn){
+    function onScroll(){
+      backBtn.classList.toggle("show", window.scrollY > 600);
+    }
+    window.addEventListener("scroll", onScroll, {passive:true});
+    onScroll();
+  }
+})();
+</script>
+""".strip()
+
+
 def generate_html_report(
     output_dir,
     simulations,
@@ -807,6 +820,8 @@ def generate_html_report(
         "<meta charset='utf-8'>",
         "<meta name='viewport' content='width=device-width, initial-scale=1'>",
         "<style>",
+        # Base page
+        "html { scroll-behavior: smooth; }",
         "body { font-family: sans-serif; padding: 20px; background: #fcfcfc; color: #222; }",
         "h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 4px; }",
         "h3 { margin-top: 1.2em; }",
@@ -816,8 +831,26 @@ def generate_html_report(
         "code { background: #f1f1f1; padding: 2px 4px; border-radius: 4px; }",
         "nav ul { list-style: none; padding-left: 0; }",
         "nav ul li { margin: 5px 0; }",
-        "nav { margin: 18px 0; }",
+        "nav { margin: 0; }",
         'a.download-btn { display: inline-block; margin: 8px 0; padding: 4px 8px; background: #eee; border: 1px solid #ccc; text-decoration: none; font-size: 0.9em; border-radius: 4px; }',
+
+        # Better anchor positioning when jumping
+        ":target { scroll-margin-top: 16px; }",
+
+        # Layout: sticky sidebar TOC
+        ".layout { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }",
+        ".sidebar { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; padding-right: 10px; }",
+        ".content { min-width: 0; }",
+        ".sidebar-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 12px; }",
+        ".sidebar-card h2 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 6px; }",
+        ".sidebar-card a { text-decoration: none; color: #222; }",
+        ".sidebar-card a:hover { text-decoration: underline; }",
+        "@media (max-width: 980px){ .layout { grid-template-columns: 1fr; } .sidebar { position: static; max-height: none; padding-right: 0; } }",
+
+        # Floating back-to-contents button (shows after scroll)
+        ".back-to-toc { position: fixed; right: 18px; bottom: 18px; padding: 10px 12px; border-radius: 999px; border: 1px solid #ddd; background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.08); text-decoration: none; font-size: 13px; color: #222; display: none; z-index: 9999; }",
+        ".back-to-toc:hover { background: #f7f7f7; }",
+        ".back-to-toc.show { display: inline-block; }",
 
         # Intro styling
         ".intro-card { background: #ffffff; border-left: 4px solid #e0e0e0; padding: 12px 16px; margin: 12px 0 18px 0; border-radius: 10px; }",
@@ -827,7 +860,7 @@ def generate_html_report(
         ".meta-pill { display:inline-block; padding: 3px 10px; border: 1px solid #e2e2e2; border-radius: 999px; background: #fafafa; font-size: 12px; color: #333; }",
         ".hint { margin-top: 10px; color: #333; font-size: 13px; }",
 
-        # Callout grid (engagement)
+        # Callout grid
         ".callout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0 18px 0; }",
         ".callout { background: #ffffff; border: 1px solid #eee; border-radius: 10px; padding: 10px 12px; }",
         ".callout h4 { margin: 0 0 6px 0; }",
@@ -836,7 +869,7 @@ def generate_html_report(
         # Notes
         ".note { color: #444; background: #fff; border-left: 4px solid #ddd; padding: 10px 12px; border-radius: 10px; }",
 
-        # Table styling (base)
+        # Table styling
         ".sf-table-wrap { margin-top: 12px; }",
         ".sf-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; overflow: hidden; }",
         ".sf-table th, .sf-table td { border-bottom: 1px solid #eee; padding: 10px 12px; vertical-align: top; }",
@@ -864,17 +897,19 @@ def generate_html_report(
         ".sf-how-card p { margin: 0; font-size: 13px; line-height: 1.35; color:#333; }",
         ".sf-how-tip { margin-top: 8px; font-size: 13px; color:#333; }",
 
-        # Slightly more engaging top header
-        ".hero { margin: 0 0 10px 0; }",
+        # Header
+        ".hero { margin: 0 0 12px 0; }",
         ".hero h1 { margin: 0; }",
         ".hero p { margin: 6px 0 0 0; color: #333; }",
 
         *_json_viewer_css_lines(),
         "</style>",
         "</head><body>",
+        # Top anchor for "back to contents"
+        '<a id="top"></a>',
     ]
 
-    # Engaging page title (instead of "Simulation Results")
+    # Title
     html.append("""
 <div class="hero">
   <h1>Spatio–Flux Test Suite Report</h1>
@@ -903,24 +938,35 @@ def generate_html_report(
     available_tests = [test for test, files in test_files.items() if files]
 
     # ------------------------------------------------------------------
-    # Contents FIRST (moved above About / Overview)
+    # Build TOC HTML once (we'll put it in the sticky sidebar)
     # ------------------------------------------------------------------
-    html.append("<nav><h2>Contents</h2><ul>")
-    html.append('<li><a href="#about">About / Overview</a></li>')
-    html.append('<li><a href="#how-to">How to read the bigraph visualization</a></li>')
+    toc_bits = []
+    toc_bits.append('<nav id="toc" class="sidebar-card">')
+    toc_bits.append("<h2>Contents</h2><ul>")
+    toc_bits.append('<li><a href="#about">About / Overview</a></li>')
+    toc_bits.append('<li><a href="#how-to">How to read the bigraph visualization</a></li>')
     for test in available_tests:
         sid = _safe_id(test)
-        html.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
-    html.append("</ul></nav>")
+        toc_bits.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
+    toc_bits.append("</ul></nav>")
+    toc_html = "\n".join(toc_bits)
 
     # ------------------------------------------------------------------
-    # About / Overview (collapsible like How-to)
+    # Layout wrapper (sidebar + main content)
+    # ------------------------------------------------------------------
+    html.append('<div class="layout">')
+    html.append('<aside class="sidebar">')
+    html.append(toc_html)
+    html.append("</aside>")
+    html.append('<main class="content">')
+
+    # ------------------------------------------------------------------
+    # About / Overview (collapsible)
     # ------------------------------------------------------------------
     intro_html = _spatio_flux_intro_html(
         total_sim_time=total_sim_time,
         outdir=str(output_dir)
     )
-    # Ensure anchor exists for TOC
     if 'id="about"' not in intro_html:
         intro_html = f'<div id="about"></div>\n{intro_html}'
 
@@ -932,10 +978,9 @@ def generate_html_report(
 """.strip())
 
     # ------------------------------------------------------------------
-    # How-to-read block (after overview; still above simulations)
+    # How-to-read block
     # ------------------------------------------------------------------
     how_block = _how_to_read_bigraph_html()
-    # Ensure it has an anchor even if the helper doesn't provide one
     if 'id="how-to"' not in how_block:
         how_block = f'<div id="how-to"></div>\n{how_block}'
     html.append(how_block)
@@ -1017,6 +1062,13 @@ def generate_html_report(
             f"<h2>Total Simulation Time</h2><p><strong>{total_sim_time:.2f} seconds</strong></p>"
         )
 
+    # Close layout wrapper
+    html.append("</main></div>")
+
+    # Floating back-to-contents button
+    html.append('<a class="back-to-toc" href="#toc" title="Back to contents">↑ Contents</a>')
+
+    # JS (viewer + back-to-toc)
     html.append(_json_viewer_js())
     html.append("</body></html>")
 

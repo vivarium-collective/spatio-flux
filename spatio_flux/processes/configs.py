@@ -410,8 +410,9 @@ def get_boundaries_process(
 
 
 def get_particle_exchange_process(
-        n_bins=(20, 20),
-        bounds=(10.0, 10.0),
+        n_bins,
+        bounds,
+        depth=1.0,
         rates_are_per_time=True,
         apply_mass_balance=False,
 ):
