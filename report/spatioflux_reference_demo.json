@@ -1,17 +1,13 @@
 {
     "state": {
         "particles": {
-            "p_f1dc6d": {
+            "p_edfda1": {
                 "ecoli_1 dFBA": {
                     "address": {
                         "protocol": "local",
                         "data": "DynamicFBA"
                     },
                     "config": {
-                        "substrate_update_reactions": {
-                            "acetate": "EX_ac_e",
-                            "glucose": "EX_glc__D_e"
-                        },
                         "bounds": {
                             "ATPM": {
                                 "lower": 1.0,
@@ -30,6 +26,10 @@
                                 0.1,
                                 2.0
                             ]
+                        },
+                        "substrate_update_reactions": {
+                            "acetate": "EX_ac_e",
+                            "glucose": "EX_glc__D_e"
                         },
                         "model_file": "textbook"
                     },
@@ -60,10 +60,6 @@
                         "data": "DynamicFBA"
                     },
                     "config": {
-                        "substrate_update_reactions": {
-                            "acetate": "EX_ac_e",
-                            "glucose": "EX_glc__D_e"
-                        },
                         "bounds": {
                             "ATPM": {
                                 "lower": 1.0,
@@ -82,6 +78,10 @@
                                 1.0,
                                 0.1
                             ]
+                        },
+                        "substrate_update_reactions": {
+                            "acetate": "EX_ac_e",
+                            "glucose": "EX_glc__D_e"
                         },
                         "model_file": "textbook"
                     },
@@ -126,15 +126,15 @@
                     }
                 },
                 "sub_masses": {
-                    "ecoli_2": {},
-                    "ecoli_1": {}
+                    "ecoli_1": {},
+                    "ecoli_2": {}
                 },
                 "shape": "circle",
                 "mass": 0.2,
-                "radius": 1.1743900958273819,
+                "radius": 1.7530741905234906,
                 "position": [
-                    9.132908741648734,
-                    34.8160615821246
+                    31.950854669361505,
+                    13.761462931928879
                 ],
                 "velocity": [
                     0.0,
@@ -144,7 +144,7 @@
                 "id": null,
                 "local": {
                     "acetate": 0.0,
-                    "dissolved biomass": 0.1413179220273495,
+                    "dissolved biomass": 0.17091190599618816,
                     "glucose": 5.0
                 },
                 "exchange": {
@@ -164,19 +164,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -184,6 +177,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -241,19 +241,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -261,6 +254,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -318,19 +318,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -338,6 +331,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -395,19 +395,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -415,6 +408,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -472,19 +472,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -492,6 +485,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -549,19 +549,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -569,6 +562,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -626,19 +626,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -646,6 +639,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -703,19 +703,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -723,6 +716,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -780,19 +780,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -800,6 +793,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -857,19 +857,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -877,6 +870,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -934,19 +934,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -954,6 +947,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1011,19 +1011,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1031,6 +1024,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1088,19 +1088,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1108,6 +1101,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1165,19 +1165,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1185,6 +1178,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1242,19 +1242,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1262,6 +1255,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1319,19 +1319,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1339,6 +1332,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1396,19 +1396,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1416,6 +1409,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1473,19 +1473,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1493,6 +1486,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1550,19 +1550,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1570,6 +1563,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1627,19 +1627,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1647,6 +1640,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1704,19 +1704,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1724,6 +1717,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1781,19 +1781,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1801,6 +1794,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1858,19 +1858,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1878,6 +1871,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -1935,19 +1935,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -1955,6 +1948,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2012,19 +2012,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2032,6 +2025,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2089,19 +2089,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2109,6 +2102,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2166,19 +2166,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2186,6 +2179,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2243,19 +2243,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2263,6 +2256,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2320,19 +2320,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2340,6 +2333,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2397,19 +2397,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2417,6 +2410,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2474,19 +2474,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2494,6 +2487,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2551,19 +2551,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2571,6 +2564,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2628,19 +2628,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2648,6 +2641,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2705,19 +2705,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2725,6 +2718,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2782,19 +2782,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2802,6 +2795,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2859,19 +2859,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2879,6 +2872,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -2936,19 +2936,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -2956,6 +2949,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3013,19 +3013,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3033,6 +3026,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3090,19 +3090,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3110,6 +3103,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3167,19 +3167,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3187,6 +3180,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3244,19 +3244,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3264,6 +3257,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3321,19 +3321,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3341,6 +3334,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3398,19 +3398,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3418,6 +3411,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3475,19 +3475,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3495,6 +3488,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3552,19 +3552,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3572,6 +3565,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3629,19 +3629,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3649,6 +3642,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3706,19 +3706,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3726,6 +3719,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3783,19 +3783,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3803,6 +3796,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3860,19 +3860,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3880,6 +3873,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -3937,19 +3937,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -3957,6 +3950,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4014,19 +4014,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4034,6 +4027,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4091,19 +4091,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4111,6 +4104,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4168,19 +4168,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4188,6 +4181,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4245,19 +4245,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4265,6 +4258,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4322,19 +4322,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4342,6 +4335,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4399,19 +4399,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4419,6 +4412,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4476,19 +4476,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4496,6 +4489,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4553,19 +4553,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4573,6 +4566,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4630,19 +4630,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4650,6 +4643,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4707,19 +4707,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4727,6 +4720,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4784,19 +4784,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4804,6 +4797,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4861,19 +4861,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4881,6 +4874,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -4938,19 +4938,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -4958,6 +4951,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5015,19 +5015,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5035,6 +5028,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5092,19 +5092,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5112,6 +5105,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5169,19 +5169,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5189,6 +5182,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5246,19 +5246,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5266,6 +5259,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5323,19 +5323,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5343,6 +5336,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5400,19 +5400,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5420,6 +5413,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5477,19 +5477,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5497,6 +5490,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5554,19 +5554,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5574,6 +5567,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5631,19 +5631,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5651,6 +5644,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5708,19 +5708,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5728,6 +5721,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5785,19 +5785,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5805,6 +5798,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5862,19 +5862,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5882,6 +5875,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -5939,19 +5939,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -5959,6 +5952,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6016,19 +6016,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6036,6 +6029,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6093,19 +6093,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6113,6 +6106,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6170,19 +6170,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6190,6 +6183,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6247,19 +6247,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6267,6 +6260,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6324,19 +6324,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6344,6 +6337,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6401,19 +6401,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6421,6 +6414,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6478,19 +6478,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6498,6 +6491,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6555,19 +6555,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6575,6 +6568,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6632,19 +6632,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6652,6 +6645,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6709,19 +6709,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6729,6 +6722,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6786,19 +6786,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6806,6 +6799,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6863,19 +6863,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6883,6 +6876,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -6940,19 +6940,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -6960,6 +6953,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7017,19 +7017,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7037,6 +7030,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7094,19 +7094,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7114,6 +7107,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7171,19 +7171,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7191,6 +7184,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7248,19 +7248,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7268,6 +7261,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7325,19 +7325,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7345,6 +7338,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7402,19 +7402,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7422,6 +7415,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7479,19 +7479,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7499,6 +7492,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7556,19 +7556,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7576,6 +7569,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7633,19 +7633,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7653,6 +7646,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7710,19 +7710,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7730,6 +7723,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7787,19 +7787,12 @@
             },
             "config": {
                 "reactions": {
-                    "overflow_to_acetate": {
-                        "reactant": "glucose",
-                        "product": "acetate",
-                        "km": 1.0,
-                        "vmax": 0.2,
-                        "yield": 0.85
-                    },
                     "assimilate_glucose": {
+                        "product": "mass",
                         "vmax": 0.02,
-                        "yield": 0.15,
                         "km": 1.0,
-                        "reactant": "glucose",
-                        "product": "mass"
+                        "yield": 0.15,
+                        "reactant": "glucose"
                     },
                     "maintenance_turnover": {
                         "reactant": "mass",
@@ -7807,6 +7800,13 @@
                         "km": 1.0,
                         "vmax": 0.001,
                         "yield": 1.0
+                    },
+                    "overflow_to_acetate": {
+                        "reactant": "glucose",
+                        "product": "acetate",
+                        "km": 1.0,
+                        "vmax": 0.2,
+                        "yield": 0.85
                     }
                 }
             },
@@ -7982,124 +7982,124 @@
             ],
             "dissolved biomass": [
                 [
-                    0.12135550715460972,
-                    0.17372331174773747,
-                    0.12295437322538878,
-                    0.10245466904483279,
-                    0.1946081216537039,
-                    0.160714245487165,
-                    0.13801663425894228,
-                    0.1446729942494855,
-                    0.1376229937357664,
-                    0.19523314189945468
+                    0.14631415354321597,
+                    0.17153640598880543,
+                    0.16148165103382411,
+                    0.12602124597010322,
+                    0.1910315792682788,
+                    0.19481209224874554,
+                    0.11199936351412178,
+                    0.11660686161863958,
+                    0.16404468857306342,
+                    0.15964047863915554
                 ],
                 [
-                    0.13030262400664766,
-                    0.1660780350146358,
-                    0.10183766669396166,
-                    0.1570065544581682,
-                    0.12075009284715836,
-                    0.18567259797913815,
-                    0.18595775624974248,
-                    0.12547485377013576,
-                    0.1641413790961722,
-                    0.14353052866244045
+                    0.1718024824596574,
+                    0.18336265514374908,
+                    0.13214376373884357,
+                    0.14427161214234516,
+                    0.11587964149976546,
+                    0.16590707318073894,
+                    0.14006856308750934,
+                    0.14710123026272132,
+                    0.1497914012596674,
+                    0.1530595412788242
                 ],
                 [
-                    0.16205512806774486,
-                    0.15564865980656373,
-                    0.14802625469540856,
-                    0.14090670188391602,
-                    0.13078582592491503,
-                    0.12921456475944734,
-                    0.16842422490817743,
-                    0.11134177858665824,
-                    0.18182058110632682,
-                    0.14872691498703294
+                    0.1729520567535688,
+                    0.1519222400074654,
+                    0.17298528213248945,
+                    0.1934855422326483,
+                    0.18108794129166897,
+                    0.12372712927508846,
+                    0.17091190599618816,
+                    0.13710672032746837,
+                    0.11140189252718999,
+                    0.19871983390196893
                 ],
                 [
-                    0.16526625760868885,
-                    0.12967129141918038,
-                    0.1475190839158561,
-                    0.12899868572725653,
-                    0.16499478192594355,
-                    0.12055198054155364,
-                    0.10086481103227353,
-                    0.18588565975105378,
-                    0.1360668854521443,
-                    0.1379951914008646
+                    0.15092109107483975,
+                    0.1816401179774843,
+                    0.12187855412021538,
+                    0.16989516531226917,
+                    0.1488437743735039,
+                    0.11025110344623937,
+                    0.1885627873833687,
+                    0.14258414866225666,
+                    0.13580087731820245,
+                    0.17818391762864966
                 ],
                 [
-                    0.11231127297318566,
-                    0.1551602511669124,
-                    0.10891839843772727,
-                    0.12793891299601456,
-                    0.1220759045619459,
-                    0.1505572127387853,
-                    0.18504172334295188,
-                    0.1552381383225687,
-                    0.14113509811285235,
-                    0.10686440021906214
+                    0.1714416651152083,
+                    0.1337361647970935,
+                    0.15889164392390706,
+                    0.1365037337915302,
+                    0.1320139541860146,
+                    0.1288401982214957,
+                    0.11307404781340621,
+                    0.14914323130578877,
+                    0.19775059634962233,
+                    0.16616333317374804
                 ],
                 [
-                    0.13588309241434463,
-                    0.16101898664118014,
-                    0.16001883808740652,
-                    0.11654731716139978,
-                    0.16080574315927715,
-                    0.1619842398390806,
-                    0.10727551923275809,
-                    0.16229758605857572,
-                    0.15647941983201644,
-                    0.1952031472061821
+                    0.17169716498887885,
+                    0.12828521336203882,
+                    0.12463084690086064,
+                    0.12497149963958964,
+                    0.1835996681456027,
+                    0.15590320074588096,
+                    0.10990298298732909,
+                    0.10300286008276671,
+                    0.13752818710455536,
+                    0.13096200679488668
                 ],
                 [
-                    0.12810960005149621,
-                    0.1413179220273495,
-                    0.10161316305221181,
-                    0.16837934711666253,
-                    0.1667257961784681,
-                    0.12253618434821355,
-                    0.1646657645634133,
-                    0.17394152529997992,
-                    0.10541647810104655,
-                    0.1541790046305445
+                    0.1393117900791041,
+                    0.18307424588302357,
+                    0.1082212688230062,
+                    0.15815820621294047,
+                    0.11183487381260394,
+                    0.18139925936921358,
+                    0.16213228726502427,
+                    0.13463003784523433,
+                    0.15259857743969857,
+                    0.16886687185740004
                 ],
                 [
-                    0.1767624449879942,
-                    0.1274699368920986,
-                    0.10417737450556461,
-                    0.19274095792163798,
-                    0.10223866745337329,
-                    0.1872615148905802,
-                    0.11810415249077616,
-                    0.12581204857448158,
-                    0.10714510902269447,
-                    0.17202767219292597
+                    0.14515585790444926,
+                    0.17054941714586913,
+                    0.14030785726437875,
+                    0.19402303919090164,
+                    0.13544473428688109,
+                    0.18669176402533372,
+                    0.15197873494647715,
+                    0.1152879997009746,
+                    0.14037271974181656,
+                    0.14170916613711848
                 ],
                 [
-                    0.11466279587413815,
-                    0.10850631349024574,
-                    0.1884324564327547,
-                    0.19682858141524462,
-                    0.15883396617894047,
-                    0.12789161781046693,
-                    0.12562772069394001,
-                    0.10190987045960062,
-                    0.1631331583968048,
-                    0.1375039915049305
+                    0.13165884675591194,
+                    0.11723921619083187,
+                    0.17609611030123765,
+                    0.19203904550066678,
+                    0.16164061423349999,
+                    0.1347868683727221,
+                    0.1905666230073048,
+                    0.10444287450041297,
+                    0.18707594977934452,
+                    0.18652873617864055
                 ],
                 [
-                    0.13870971663157078,
-                    0.15133969969344518,
-                    0.13477240239051663,
-                    0.1547828134451829,
-                    0.11809419268012952,
-                    0.1040753828797816,
-                    0.11655634357898181,
-                    0.19784884955012705,
-                    0.15825577148515269,
-                    0.1828498366610038
+                    0.18199595440909813,
+                    0.1749681061440292,
+                    0.17685608599572464,
+                    0.15630811219175,
+                    0.1354730025543419,
+                    0.188913550746655,
+                    0.13749965094324487,
+                    0.10809056496877201,
+                    0.13184461946128506,
+                    0.12171012718936346
                 ]
             ],
             "glucose": [
@@ -8231,25 +8231,22 @@
                 "data": "DiffusionAdvection"
             },
             "config": {
-                "diffusion_coeffs": {
-                    "acetate": 0.1,
-                    "dissolved biomass": 0.1,
-                    "glucose": 0.1
-                },
+                "cfl_adv": 0.5,
                 "clip_negative": true,
+                "default_diffusion_dt": 0.1,
                 "boundary_conditions": {
+                    "acetate": {
+                        "bottom": {
+                            "type": "dirichlet",
+                            "value": 5.0
+                        }
+                    },
                     "default": {
                         "x": {
                             "type": "periodic"
                         },
                         "y": {
                             "type": "neumann"
-                        }
-                    },
-                    "acetate": {
-                        "bottom": {
-                            "type": "dirichlet",
-                            "value": 5.0
                         }
                     },
                     "glucose": {
@@ -8259,14 +8256,21 @@
                         }
                     }
                 },
-                "n_bins": [
-                    10,
-                    10
-                ],
                 "bounds": [
                     50.0,
                     50.0
                 ],
+                "n_bins": [
+                    10,
+                    10
+                ],
+                "diffusion_coeffs": {
+                    "acetate": 0.1,
+                    "dissolved biomass": 0.1,
+                    "glucose": 0.1
+                },
+                "default_diffusion_rate": 0.1,
+                "max_dt": 0.1,
                 "advection_coeffs": {
                     "acetate": [
                         0.0,
@@ -8280,11 +8284,7 @@
                         0.0,
                         0.0
                     ]
-                },
-                "cfl_adv": 0.5,
-                "default_diffusion_rate": 0.1,
-                "default_diffusion_dt": 0.1,
-                "max_dt": 0.1
+                }
             },
             "_inputs": "fields:map[array[10|10,float]]",
             "_outputs": "fields:map[array[10|10,float]]",
@@ -8305,19 +8305,20 @@
                 "data": "ParticleExchange"
             },
             "config": {
-                "n_bins": [
-                    10,
-                    10
-                ],
+                "rates_are_per_time": true,
+                "apply_mass_balance": false,
                 "bounds": [
                     50.0,
                     50.0
                 ],
-                "apply_mass_balance": false,
-                "rates_are_per_time": true
+                "depth": 0.04,
+                "n_bins": [
+                    10,
+                    10
+                ]
             },
-            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
-            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
+            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]",
+            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]",
             "inputs": {
                 "particles": [
                     "particles"
@@ -8341,10 +8342,10 @@
                 "data": "ParticleDivision"
             },
             "config": {
-                "division_mass_threshold": 0.4,
-                "division_jitter": 0.001,
                 "sub_mass_split": "equal",
-                "submass_split_mode": "random"
+                "submass_split_mode": "random",
+                "division_mass_threshold": 0.4,
+                "division_jitter": 0.001
             },
             "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
             "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
@@ -8365,25 +8366,25 @@
                 "data": "ManageBoundaries"
             },
             "config": {
-                "mass_range": [
-                    0.001,
-                    1.0
-                ],
-                "add_rate": 0.0,
-                "boundary_to_remove": [],
                 "buffer": 0.0001,
-                "clamp_survivors": true,
                 "bounds": [
                     50.0,
                     50.0
                 ],
+                "add_rate": 0.0,
                 "boundary_to_add": [
                     "top",
                     "top",
                     "bottom",
                     "left",
                     "right"
-                ]
+                ],
+                "clamp_survivors": true,
+                "mass_range": [
+                    0.001,
+                    1.0
+                ],
+                "boundary_to_remove": []
             },
             "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
             "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
@@ -8408,43 +8409,43 @@
                 "data": "PymunkParticleMovement"
             },
             "config": {
-                "gravity": -1.0,
-                "new_particle_density": 0.015,
-                "segment_radius": 10.0,
-                "new_particle_speed_range": [
-                    0.0,
-                    0.0
-                ],
-                "n_bins": [
-                    1,
-                    1
-                ],
-                "bounds": [
-                    50.0,
-                    50.0
-                ],
-                "jitter_per_second": 0.01,
-                "diffusion_rate": 0.1,
-                "new_particle_mass_range": [
-                    1.0,
-                    1.0
-                ],
-                "barriers": [],
-                "circle_density": 0.015,
                 "substeps": 100,
-                "advection_rate": [
-                    0.0,
-                    0.0
-                ],
-                "damping_per_second": 0.95,
-                "friction": 0.9,
-                "wall_thickness": 100.0,
+                "elasticity": 0.1,
                 "new_particle_radius_range": [
                     0.5,
                     2.0
                 ],
-                "elasticity": 0.1,
-                "segment_density": 0.02
+                "barriers": [],
+                "new_particle_mass_range": [
+                    1.0,
+                    1.0
+                ],
+                "jitter_per_second": 0.01,
+                "bounds": [
+                    50.0,
+                    50.0
+                ],
+                "circle_density": 0.015,
+                "n_bins": [
+                    1,
+                    1
+                ],
+                "friction": 0.9,
+                "wall_thickness": 100.0,
+                "segment_radius": 10.0,
+                "advection_rate": [
+                    0.0,
+                    0.0
+                ],
+                "new_particle_speed_range": [
+                    0.0,
+                    0.0
+                ],
+                "gravity": -1.0,
+                "segment_density": 0.02,
+                "diffusion_rate": 0.1,
+                "damping_per_second": 0.95,
+                "new_particle_density": 0.015
             },
             "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
             "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
@@ -8601,7 +8602,7 @@
         "monod_kinetics[9,9]": "link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]",
         "fields": "map[array[10|10,float]]",
         "diffusion": "link[fields:map[array[10|10,float]],fields:map[array[10|10,float]]]",
-        "particle_exchange": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]]",
+        "particle_exchange": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]]",
         "particle_division": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
         "enforce_boundaries": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float,particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
         "newtonian_particles": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]]",

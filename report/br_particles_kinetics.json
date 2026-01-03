@@ -1,7 +1,7 @@
 {
     "state": {
         "particles": {
-            "X1EXVA9u": {
+            "Vj2FtpZF": {
                 "monod_kinetics": {
                     "address": {
                         "protocol": "local",
@@ -9,19 +9,12 @@
                     },
                     "config": {
                         "reactions": {
-                            "overflow_to_acetate": {
-                                "reactant": "glucose",
-                                "product": "acetate",
-                                "km": 0.5,
-                                "vmax": 0.3,
-                                "yield": 0.5
-                            },
                             "assimilate_glucose": {
+                                "product": "mass",
                                 "vmax": 0.4,
-                                "yield": 0.2,
                                 "km": 0.5,
-                                "reactant": "glucose",
-                                "product": "mass"
+                                "yield": 0.2,
+                                "reactant": "glucose"
                             },
                             "maintenance_turnover": {
                                 "reactant": "mass",
@@ -29,6 +22,13 @@
                                 "km": 1.0,
                                 "vmax": 0.001,
                                 "yield": 1.0
+                            },
+                            "overflow_to_acetate": {
+                                "reactant": "glucose",
+                                "product": "acetate",
+                                "km": 0.5,
+                                "vmax": 0.3,
+                                "yield": 0.5
                             },
                             "assimilate_acetate": {
                                 "reactant": "acetate",
@@ -60,13 +60,13 @@
                 },
                 "id": null,
                 "position": [
-                    36.36745522376552,
-                    13.493447840642059
+                    21.527257632647647,
+                    28.137254456256194
                 ],
-                "mass": 0.6678328864975659,
+                "mass": 0.14268403018653178,
                 "local": {
                     "acetate": 0.0,
-                    "glucose": 7.690803455610773
+                    "glucose": 9.801855629483532
                 },
                 "exchange": {
                     "acetate": 0.0,
@@ -201,124 +201,124 @@
             ],
             "glucose": [
                 [
-                    5.8899463667568615,
-                    8.620056155751033,
-                    7.816221866415383,
-                    8.322954663279232,
-                    9.515062972195484,
-                    7.003757647632497,
-                    9.729749705231667,
-                    7.079786224340317,
-                    7.3971010164777535,
-                    7.176234978918357
+                    7.4358524503122405,
+                    7.575437918683361,
+                    5.498562095573016,
+                    6.782839103229871,
+                    7.302928638034655,
+                    8.259931554171372,
+                    6.7368895549726915,
+                    8.595030812079264,
+                    9.997252104342532,
+                    6.542512311341071
                 ],
                 [
-                    7.172426832136237,
-                    8.941412683997262,
-                    7.341145576973423,
-                    5.1988377568769835,
-                    8.490058016367804,
-                    6.634028814744301,
-                    9.694849960067913,
-                    7.762956428661685,
-                    8.868180677452642,
-                    5.787947849617421
+                    8.471880674889459,
+                    6.8924651589248915,
+                    7.047410691765,
+                    8.402540485823906,
+                    6.248537149704858,
+                    8.073491904237688,
+                    5.341237260773682,
+                    9.78561627668089,
+                    9.460814581121763,
+                    6.593182921907372
                 ],
                 [
-                    8.493982327932727,
-                    6.799517823995245,
-                    6.635243593182617,
-                    9.67376500690391,
-                    8.562469321041164,
-                    9.697761549012583,
-                    8.167525287861707,
-                    7.690803455610773,
-                    7.4779600908500665,
-                    8.41930341083582
+                    8.535650418850048,
+                    6.25646493296864,
+                    6.474101993207976,
+                    5.906272380264934,
+                    7.7681679567849145,
+                    8.812762297853443,
+                    5.270756557619779,
+                    8.357510224201274,
+                    6.877705030450888,
+                    6.127619988173507
                 ],
                 [
-                    9.81010831417494,
-                    5.450469300093678,
-                    9.579184087456825,
-                    9.347845315708287,
-                    9.757825997285867,
-                    7.649926437452136,
-                    8.356461405418443,
-                    7.706877249429698,
-                    8.612797614284476,
-                    6.0338749357290755
+                    5.115531314124829,
+                    5.229191197574009,
+                    9.04812965206794,
+                    9.99450134503116,
+                    7.669278510463743,
+                    5.314408299569331,
+                    6.855326771233344,
+                    7.927006774784402,
+                    7.406418379268649,
+                    6.457627504333167
                 ],
                 [
-                    6.7803785892662045,
-                    8.816636306650825,
-                    7.267359614792936,
-                    8.246484361106369,
-                    7.404286606028595,
-                    9.8412286592996,
-                    6.453507192468521,
-                    8.723220097338665,
-                    6.5268301651064515,
-                    9.250789139917341
+                    9.9712739906685,
+                    7.846463233867567,
+                    6.034901793083772,
+                    8.88911601096895,
+                    6.3031138222170435,
+                    7.573996385911969,
+                    9.986324622137982,
+                    9.958375950253195,
+                    8.487770133110057,
+                    6.758793792370849
                 ],
                 [
-                    6.463011774818084,
-                    6.292037384604674,
-                    9.5215624733071,
-                    6.19628245664618,
-                    9.463189508832443,
-                    7.306734608433413,
-                    6.0627231893328375,
-                    8.711069570217253,
-                    8.031348897142399,
-                    6.354007194964387
+                    9.678865224187453,
+                    5.049913673509254,
+                    6.736872556725521,
+                    5.82897486509771,
+                    9.801855629483532,
+                    9.188976560434643,
+                    8.647357096929657,
+                    7.884120443541333,
+                    8.429390408308869,
+                    9.4344202268094
                 ],
                 [
-                    7.177715661014343,
-                    6.877433400367876,
-                    6.5548836119058835,
-                    6.7974817666834575,
-                    7.600512327812505,
-                    9.595159480721179,
-                    6.794566278055061,
-                    5.94062889870168,
-                    8.21671312979965,
-                    6.645839935568123
+                    8.520858215889193,
+                    5.527695637931191,
+                    8.995261206599691,
+                    5.01593429755914,
+                    8.72297276795522,
+                    9.782932360306928,
+                    6.3052174359180935,
+                    8.725250390818417,
+                    5.765337293034313,
+                    7.1578772004813
                 ],
                 [
-                    8.426959654838269,
-                    5.572545224849029,
-                    9.226318698828495,
-                    9.01637694574882,
-                    7.9133091979346055,
-                    9.353074733133127,
-                    7.843860257507304,
-                    5.7351057087509805,
-                    9.748129685309728,
-                    6.981852339517861
+                    9.03446410876061,
+                    6.5272290356744875,
+                    6.757661344639494,
+                    5.8055184290008635,
+                    9.771722882970469,
+                    7.166642886419956,
+                    7.179122880060714,
+                    8.936029227456155,
+                    6.187505981831574,
+                    6.014899559432417
                 ],
                 [
-                    9.15776373226238,
-                    7.612709936708548,
-                    6.480653775933956,
-                    8.174634647039628,
-                    6.302844061232379,
-                    5.976934883059835,
-                    5.733459409981789,
-                    9.509614969114264,
-                    7.05616711022527,
-                    7.030066664214377
+                    6.312520802950991,
+                    9.420798698429122,
+                    9.279818217562104,
+                    5.559713388112914,
+                    9.34574161792341,
+                    9.070400236718802,
+                    6.639558507566164,
+                    8.969744899704903,
+                    6.190480970602113,
+                    7.149690728258858
                 ],
                 [
-                    7.148534053541752,
-                    8.927328520097259,
-                    7.435809580368865,
-                    5.068843077399431,
-                    9.47734154763355,
-                    5.45480939407814,
-                    8.549339111597119,
-                    9.72724388126316,
-                    6.738443258815351,
-                    6.389009055829019
+                    8.868061039417807,
+                    9.309378530944889,
+                    8.464931103809384,
+                    6.56280128310314,
+                    5.251574032360241,
+                    7.848680810651691,
+                    7.258840786527536,
+                    8.468012431817202,
+                    8.357271397562052,
+                    9.718358117136225
                 ]
             ]
         },
@@ -328,6 +328,12 @@
                 "data": "BrownianMovement"
             },
             "config": {
+                "interval": 1.0,
+                "bounds": [
+                    50.0,
+                    50.0
+                ],
+                "diffusion_rate": 0.25,
                 "n_bins": [
                     0,
                     0
@@ -335,13 +341,7 @@
                 "advection_rate": [
                     0.0,
                     0.0
-                ],
-                "bounds": [
-                    50.0,
-                    50.0
-                ],
-                "diffusion_rate": 0.25,
-                "interval": 1.0
+                ]
             },
             "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
             "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
@@ -362,25 +362,25 @@
                 "data": "ManageBoundaries"
             },
             "config": {
-                "mass_range": [
-                    0.001,
-                    1.0
-                ],
-                "add_rate": 0.0,
-                "boundary_to_remove": [],
                 "buffer": 0.0001,
-                "clamp_survivors": true,
                 "bounds": [
                     50.0,
                     50.0
                 ],
+                "add_rate": 0.0,
                 "boundary_to_add": [
                     "top",
                     "top",
                     "bottom",
                     "left",
                     "right"
-                ]
+                ],
+                "clamp_survivors": true,
+                "mass_range": [
+                    0.001,
+                    1.0
+                ],
+                "boundary_to_remove": []
             },
             "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
             "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
@@ -405,19 +405,20 @@
                 "data": "ParticleExchange"
             },
             "config": {
-                "n_bins": [
-                    10,
-                    10
-                ],
+                "rates_are_per_time": true,
+                "apply_mass_balance": false,
                 "bounds": [
                     50.0,
                     50.0
                 ],
-                "apply_mass_balance": false,
-                "rates_are_per_time": true
+                "depth": 1.0,
+                "n_bins": [
+                    10,
+                    10
+                ]
             },
-            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
-            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]",
+            "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]",
+            "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]",
             "inputs": {
                 "particles": [
                     "particles"
@@ -441,10 +442,10 @@
                 "data": "ParticleDivision"
             },
             "config": {
-                "division_mass_threshold": 5.0,
-                "division_jitter": 0.001,
                 "sub_mass_split": "equal",
-                "submass_split_mode": "equal"
+                "submass_split_mode": "equal",
+                "division_mass_threshold": 5.0,
+                "division_jitter": 0.001
             },
             "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
             "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
@@ -499,10 +500,10 @@
     "schema": {
         "particles": "map[monod_kinetics:link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]|id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
         "global_time": "float",
-        "fields": "map[positive_array]",
+        "fields": "map[array[10|10,float]]",
         "brownian_movement": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
         "enforce_boundaries": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float,particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
-        "particle_exchange": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[positive_array]]",
+        "particle_exchange": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]]",
         "particle_division": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
         "emitter": {
             "_type": "link",

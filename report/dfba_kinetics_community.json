@@ -7,10 +7,6 @@
                 "data": "DynamicFBA"
             },
             "config": {
-                "substrate_update_reactions": {
-                    "acetate": "EX_ac_e",
-                    "glucose": "EX_glc__D_e"
-                },
                 "bounds": {
                     "ATPM": {
                         "lower": 1.0,
@@ -29,6 +25,10 @@
                         0.5,
                         1.0
                     ]
+                },
+                "substrate_update_reactions": {
+                    "acetate": "EX_ac_e",
+                    "glucose": "EX_glc__D_e"
                 },
                 "model_file": "textbook"
             },

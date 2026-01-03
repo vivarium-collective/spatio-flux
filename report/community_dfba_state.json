@@ -6,10 +6,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -28,6 +24,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -72,10 +72,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "formate": "EX_for_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {},
       "kinetic_params": {
         "formate": [
@@ -86,6 +82,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "formate": "EX_for_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "iAF1260.xml"
     },
@@ -130,10 +130,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {},
       "kinetic_params": {
         "acetate": [
@@ -144,6 +140,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "iCN900.xml"
     },
@@ -188,13 +188,12 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "glycolate": "EX_glyclt_e",
-        "glucose": "EX_glc__D_e",
-        "ammonium": "EX_nh4_e"
-      },
       "bounds": {},
       "kinetic_params": {
+        "ammonium": [
+          2.0,
+          4.0
+        ],
         "glycolate": [
           0.5,
           1.0
@@ -202,11 +201,12 @@
         "glucose": [
           1.0,
           2.0
-        ],
-        "ammonium": [
-          2.0,
-          4.0
         ]
+      },
+      "substrate_update_reactions": {
+        "ammonium": "EX_nh4_e",
+        "glycolate": "EX_glyclt_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "iJN746.xml"
     },
@@ -259,20 +259,20 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "glucose": "EX_glc__D_e",
-        "ammonium": "EX_nh4_e"
-      },
       "bounds": {},
       "kinetic_params": {
-        "glucose": [
-          0.5,
-          1.0
-        ],
         "ammonium": [
           0.5,
           1.0
+        ],
+        "glucose": [
+          0.5,
+          1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "ammonium": "EX_nh4_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "iMM904.xml"
     },
@@ -317,13 +317,12 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "serine": "EX_ser__L_e",
-        "glucose": "EX_glc__D_e",
-        "glutamate": "EX_glu__L_e"
-      },
       "bounds": {},
       "kinetic_params": {
+        "glutamate": [
+          0.05,
+          0.1
+        ],
         "serine": [
           0.05,
           0.1
@@ -331,11 +330,12 @@
         "glucose": [
           0.5,
           1.25
-        ],
-        "glutamate": [
-          0.05,
-          0.1
         ]
+      },
+      "substrate_update_reactions": {
+        "glutamate": "EX_glu__L_e",
+        "serine": "EX_ser__L_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "iNF517.xml"
     },

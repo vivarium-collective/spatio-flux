@@ -6,20 +6,20 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "glucose": "EX_glc__D_e",
-        "ammonium": "EX_nh4_e"
-      },
       "bounds": {},
       "kinetic_params": {
-        "glucose": [
-          0.5,
-          1.0
-        ],
         "ammonium": [
           0.5,
           1.0
+        ],
+        "glucose": [
+          0.5,
+          1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "ammonium": "EX_nh4_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "iMM904.xml"
     },

@@ -45,19 +45,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'glycolate')" -> "('spatial_dFBA',)" [label=<fields/glycolate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
-		"('fields', 'formate')" -> "('spatial_dFBA',)" [label=<fields/formate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
 		"('fields', 'serine')" -> "('spatial_dFBA',)" [label=<fields/serine> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'glucose')" -> "('spatial_dFBA',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'ammonium')" -> "('spatial_dFBA',)" [label=<fields/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
@@ -65,11 +57,19 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
+		"('fields', 'glycolate')" -> "('spatial_dFBA',)" [label=<fields/glycolate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
+		"('fields', 'glucose')" -> "('spatial_dFBA',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
 		"('fields', 'acetate')" -> "('spatial_dFBA',)" [label=<fields/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'ammonium')" -> "('spatial_dFBA',)" [label=<fields/ammonium> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'formate')" -> "('spatial_dFBA',)" [label=<fields/formate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('spatial_dFBA',)" [color="#8b3935"]

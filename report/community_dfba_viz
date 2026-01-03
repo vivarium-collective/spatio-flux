@@ -2,31 +2,31 @@ digraph bigraph {
 	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'ecoli core')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ecoli core</TD></TR></TABLE>>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'ecoli')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ecoli</TD></TR></TABLE>>]
+	"('fields', 'ecoli core')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ecoli core</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'formate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>formate</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'cdiff')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>cdiff</TD></TR></TABLE>>]
+	"('fields', 'ecoli')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ecoli</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'pputida')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>pputida</TD></TR></TABLE>>]
+	"('fields', 'cdiff')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>cdiff</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'ammonium')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ammonium</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'glycolate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glycolate</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'yeast')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>yeast</TD></TR></TABLE>>]
+	"('fields', 'pputida')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>pputida</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'llactis')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>llactis</TD></TR></TABLE>>]
+	"('fields', 'yeast')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>yeast</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'glutamate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glutamate</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'serine')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>serine</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'llactis')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>llactis</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'monod biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>monod biomass</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -68,37 +68,33 @@ digraph bigraph {
 	"('llactis dFBA',)" [label="llactis dFBA"]
 	"('monod_kinetics',)" [label=monod_kinetics]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'ecoli core')" [arrowhead=none constraint=true penwidth=2]
-	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'ecoli')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'ecoli core')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'formate')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'cdiff')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'ecoli')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'pputida')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'cdiff')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'ammonium')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glycolate')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'yeast')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'pputida')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'llactis')" [arrowhead=none constraint=true penwidth=2]
+	"('fields',)" -> "('fields', 'yeast')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glutamate')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'serine')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
+	"('fields',)" -> "('fields', 'llactis')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
 	"('fields',)" -> "('fields', 'monod biomass')" [arrowhead=none constraint=true penwidth=2]
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('ecoli core dFBA',)" {
-		"('fields', 'acetate')" -> "('ecoli core dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
 		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
@@ -106,6 +102,10 @@ digraph bigraph {
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
 		"('fields', 'ecoli core')" -> "('ecoli core dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('ecoli core dFBA',)" {
+		"('fields', 'acetate')" -> "('ecoli core dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli dFBA',)" {
@@ -121,6 +121,10 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('cdiff dFBA',)" {
+		"('fields', 'glucose')" -> "('cdiff dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('cdiff dFBA',)" {
 		"('fields', 'cdiff')" -> "('cdiff dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
@@ -128,8 +132,8 @@ digraph bigraph {
 		"('fields', 'acetate')" -> "('cdiff dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('cdiff dFBA',)" {
-		"('fields', 'glucose')" -> "('cdiff dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('pputida dFBA',)" {
+		"('fields', 'pputida')" -> "('pputida dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('pputida dFBA',)" {
@@ -141,15 +145,7 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('pputida dFBA',)" {
-		"('fields', 'pputida')" -> "('pputida dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('pputida dFBA',)" {
 		"('fields', 'glucose')" -> "('pputida dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('yeast dFBA',)" {
-		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('yeast dFBA',)" {
@@ -157,15 +153,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('yeast dFBA',)" {
+		"('fields', 'ammonium')" -> "('yeast dFBA',)" [label=<substrates/ammonium> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('yeast dFBA',)" {
 		"('fields', 'yeast')" -> "('yeast dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('llactis dFBA',)" {
-		"('fields', 'llactis')" -> "('llactis dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('llactis dFBA',)" {
-		"('fields', 'glutamate')" -> "('llactis dFBA',)" [label=<substrates/glutamate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('llactis dFBA',)" {
@@ -173,7 +165,15 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('llactis dFBA',)" {
+		"('fields', 'llactis')" -> "('llactis dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('llactis dFBA',)" {
 		"('fields', 'glucose')" -> "('llactis dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('llactis dFBA',)" {
+		"('fields', 'glutamate')" -> "('llactis dFBA',)" [label=<substrates/glutamate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {

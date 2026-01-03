@@ -8,9 +8,9 @@ digraph bigraph {
  [0. 0.]
  […</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[4|2,float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.06980176 0.02936…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[4|2,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.09695994 0.08901…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[4|2,float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10.38151617 10.794…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[4|2,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[12.08543867  8.161…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[4|2,float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('spatial_dFBA',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>spatial_dFBA</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
@@ -29,11 +29,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA', 'dFBA[0,0]')" {
-		"('fields', 'dissolved biomass')" -> "('spatial_dFBA', 'dFBA[0,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('spatial_dFBA', 'dFBA[0,0]')" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA', 'dFBA[0,0]')" {
-		"('fields', 'glucose')" -> "('spatial_dFBA', 'dFBA[0,0]')" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'dissolved biomass')" -> "('spatial_dFBA', 'dFBA[0,0]')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('spatial_dFBA',)" [color="#8b3935"]

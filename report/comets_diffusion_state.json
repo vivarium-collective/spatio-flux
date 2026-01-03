@@ -6,10 +6,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -28,6 +24,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -84,10 +84,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -106,6 +102,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -162,10 +162,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -184,6 +180,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -240,10 +240,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -262,6 +258,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -318,10 +318,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -340,6 +336,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -396,10 +396,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -418,6 +414,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -474,10 +474,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -496,6 +492,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -552,10 +552,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -574,6 +570,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -630,10 +630,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -652,6 +648,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -708,10 +708,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -730,6 +726,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -786,10 +786,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -808,6 +804,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -864,10 +864,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -886,6 +882,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -942,10 +942,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -964,6 +960,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1020,10 +1020,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1042,6 +1038,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1098,10 +1098,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1120,6 +1116,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1176,10 +1176,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1198,6 +1194,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1254,10 +1254,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1276,6 +1272,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1332,10 +1332,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1354,6 +1350,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1410,10 +1410,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1432,6 +1428,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1488,10 +1488,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1510,6 +1506,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1566,10 +1566,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1588,6 +1584,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1644,10 +1644,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1666,6 +1662,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1722,10 +1722,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1744,6 +1740,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1800,10 +1800,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1822,6 +1818,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1878,10 +1878,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1900,6 +1896,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -1956,10 +1956,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -1978,6 +1974,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2034,10 +2034,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2056,6 +2052,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2112,10 +2112,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2134,6 +2130,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2190,10 +2190,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2212,6 +2208,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2268,10 +2268,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2290,6 +2286,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2346,10 +2346,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2368,6 +2364,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2424,10 +2424,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2446,6 +2442,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2502,10 +2502,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2524,6 +2520,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2580,10 +2580,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2602,6 +2598,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2658,10 +2658,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2680,6 +2676,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2736,10 +2736,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2758,6 +2754,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2814,10 +2814,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2836,6 +2832,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2892,10 +2892,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2914,6 +2910,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -2970,10 +2970,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -2992,6 +2988,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3048,10 +3048,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3070,6 +3066,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3126,10 +3126,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3148,6 +3144,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3204,10 +3204,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3226,6 +3222,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3282,10 +3282,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3304,6 +3300,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3360,10 +3360,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3382,6 +3378,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3438,10 +3438,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3460,6 +3456,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3516,10 +3516,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3538,6 +3534,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3594,10 +3594,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3616,6 +3612,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3672,10 +3672,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3694,6 +3690,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3750,10 +3750,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3772,6 +3768,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3828,10 +3828,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3850,6 +3846,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3906,10 +3906,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -3928,6 +3924,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -3984,10 +3984,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4006,6 +4002,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4062,10 +4062,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4084,6 +4080,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4140,10 +4140,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4162,6 +4158,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4218,10 +4218,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4240,6 +4236,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4296,10 +4296,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4318,6 +4314,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4374,10 +4374,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4396,6 +4392,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4452,10 +4452,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4474,6 +4470,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4530,10 +4530,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4552,6 +4548,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4608,10 +4608,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4630,6 +4626,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4686,10 +4686,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4708,6 +4704,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4764,10 +4764,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4786,6 +4782,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4842,10 +4842,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4864,6 +4860,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4920,10 +4920,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -4942,6 +4938,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -4998,10 +4998,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5020,6 +5016,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5076,10 +5076,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5098,6 +5094,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5154,10 +5154,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5176,6 +5172,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5232,10 +5232,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5254,6 +5250,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5310,10 +5310,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5332,6 +5328,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5388,10 +5388,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5410,6 +5406,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5466,10 +5466,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5488,6 +5484,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5544,10 +5544,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5566,6 +5562,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5622,10 +5622,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5644,6 +5640,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5700,10 +5700,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5722,6 +5718,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5778,10 +5778,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5800,6 +5796,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5856,10 +5856,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5878,6 +5874,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -5934,10 +5934,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -5956,6 +5952,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6012,10 +6012,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6034,6 +6030,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6090,10 +6090,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6112,6 +6108,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6168,10 +6168,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6190,6 +6186,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6246,10 +6246,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6268,6 +6264,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6324,10 +6324,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6346,6 +6342,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6402,10 +6402,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6424,6 +6420,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6480,10 +6480,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6502,6 +6498,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6558,10 +6558,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6580,6 +6576,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6636,10 +6636,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6658,6 +6654,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6714,10 +6714,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6736,6 +6732,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6792,10 +6792,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6814,6 +6810,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6870,10 +6870,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6892,6 +6888,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -6948,10 +6948,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -6970,6 +6966,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7026,10 +7026,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7048,6 +7044,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7104,10 +7104,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7126,6 +7122,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7182,10 +7182,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7204,6 +7200,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7260,10 +7260,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7282,6 +7278,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7338,10 +7338,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7360,6 +7356,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7416,10 +7416,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7438,6 +7434,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7494,10 +7494,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7516,6 +7512,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7572,10 +7572,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7594,6 +7590,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7650,10 +7650,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7672,6 +7668,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -7728,10 +7728,6 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
-      },
       "bounds": {
         "ATPM": {
           "lower": 1.0,
@@ -7750,6 +7746,10 @@
           0.5,
           1.0
         ]
+      },
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
       },
       "model_file": "textbook"
     },
@@ -8174,21 +8174,25 @@
       "data": "DiffusionAdvection"
     },
     "config": {
+      "cfl_adv": 0.5,
+      "clip_negative": true,
+      "default_diffusion_dt": 0.1,
+      "boundary_conditions": {},
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "n_bins": [
+        10,
+        10
+      ],
       "diffusion_coeffs": {
         "acetate": 0.1,
         "dissolved biomass": 0.01,
         "glucose": 0.0
       },
-      "clip_negative": true,
-      "boundary_conditions": {},
-      "n_bins": [
-        10,
-        10
-      ],
-      "bounds": [
-        50.0,
-        50.0
-      ],
+      "default_diffusion_rate": 0.1,
+      "max_dt": 0.1,
       "advection_coeffs": {
         "acetate": [
           0.0,
@@ -8202,11 +8206,7 @@
           0.0,
           0.0
         ]
-      },
-      "cfl_adv": 0.5,
-      "default_diffusion_rate": 0.1,
-      "default_diffusion_dt": 0.1,
-      "max_dt": 0.1
+      }
     },
     "_inputs": "fields:map[array[10|10,float]]",
     "_outputs": "fields:map[array[10|10,float]]",

@@ -2,11 +2,11 @@ digraph bigraph {
 	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>biomass</TD></TR></TABLE>>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>biomass</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>fields</TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -18,14 +18,14 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
 	"('ecoli core dFBA',)" [label="ecoli core dFBA"]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'biomass')" [arrowhead=none constraint=true penwidth=2]
-	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
-		"('fields', 'acetate')" -> "('ecoli core dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
@@ -33,7 +33,7 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
-		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'acetate')" -> "('ecoli core dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('fields', 'glucose')" [color="#bdb48b"]

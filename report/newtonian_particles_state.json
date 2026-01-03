@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_f2ad11": {
-      "id": "8EkE7GrQ",
+    "p_b4437a": {
+      "id": "Gn3AfJxL",
       "position": [
-        14.163161545143629,
-        38.57773233976517
+        22.519137925812558,
+        36.39649354507496
       ],
-      "mass": 0.04507538195033376,
+      "mass": 0.13194082529792667,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
-        -0.0,
+        0.0,
         0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 0.9780231659935816
+      "radius": 1.673281587850223
     }
   },
   "newtonian_particles": {
@@ -28,43 +28,43 @@
       "data": "PymunkParticleMovement"
     },
     "config": {
-      "gravity": -0.2,
-      "new_particle_density": 0.015,
-      "segment_radius": 10.0,
-      "new_particle_speed_range": [
-        0.0,
-        0.0
-      ],
-      "n_bins": [
-        1,
-        1
-      ],
-      "bounds": [
-        50.0,
-        50.0
-      ],
-      "jitter_per_second": 0.5,
-      "diffusion_rate": 0.1,
-      "new_particle_mass_range": [
-        1.0,
-        1.0
-      ],
-      "barriers": [],
-      "circle_density": 0.015,
       "substeps": 100,
-      "advection_rate": [
-        0.0,
-        0.0
-      ],
-      "damping_per_second": 0.998,
-      "friction": 0.8,
-      "wall_thickness": 100.0,
+      "elasticity": 0.1,
       "new_particle_radius_range": [
         0.5,
         2.0
       ],
-      "elasticity": 0.1,
-      "segment_density": 0.02
+      "barriers": [],
+      "new_particle_mass_range": [
+        1.0,
+        1.0
+      ],
+      "jitter_per_second": 0.5,
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "circle_density": 0.015,
+      "n_bins": [
+        1,
+        1
+      ],
+      "friction": 0.8,
+      "wall_thickness": 100.0,
+      "segment_radius": 10.0,
+      "advection_rate": [
+        0.0,
+        0.0
+      ],
+      "new_particle_speed_range": [
+        0.0,
+        0.0
+      ],
+      "gravity": -0.2,
+      "segment_density": 0.02,
+      "diffusion_rate": 0.1,
+      "damping_per_second": 0.998,
+      "new_particle_density": 0.015
     },
     "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
@@ -85,25 +85,25 @@
       "data": "ManageBoundaries"
     },
     "config": {
-      "mass_range": [
-        0.001,
-        1.0
-      ],
-      "add_rate": 0.02,
-      "boundary_to_remove": [],
       "buffer": 0.0001,
-      "clamp_survivors": true,
       "bounds": [
         50.0,
         50.0
       ],
+      "add_rate": 0.02,
       "boundary_to_add": [
         "top",
         "top",
         "bottom",
         "left",
         "right"
-      ]
+      ],
+      "clamp_survivors": true,
+      "mass_range": [
+        0.001,
+        1.0
+      ],
+      "boundary_to_remove": []
     },
     "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
     "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",

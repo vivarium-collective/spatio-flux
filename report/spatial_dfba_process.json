@@ -405,27 +405,36 @@
                         "llactis"
                     ]
                 ],
+                "mol_ids": [
+                    "glucose",
+                    "acetate",
+                    "glycolate",
+                    "ammonium",
+                    "formate",
+                    "glutamate",
+                    "serine"
+                ],
+                "n_bins": [
+                    5,
+                    6
+                ],
+                "model_file": "ecoli core",
                 "models": {
-                    "pputida": {
-                        "model_file": "iJN746.xml",
+                    "yeast": {
+                        "model_file": "iMM904.xml",
                         "kinetic_params": {
                             "glucose": [
-                                1.0,
-                                2.0
+                                0.5,
+                                1.0
                             ],
                             "ammonium": [
-                                2.0,
-                                4.0
-                            ],
-                            "glycolate": [
                                 0.5,
                                 1.0
                             ]
                         },
                         "substrate_update_reactions": {
                             "glucose": "EX_glc__D_e",
-                            "ammonium": "EX_nh4_e",
-                            "glycolate": "EX_glyclt_e"
+                            "ammonium": "EX_nh4_e"
                         },
                         "bounds": {}
                     },
@@ -514,39 +523,30 @@
                         },
                         "bounds": {}
                     },
-                    "yeast": {
-                        "model_file": "iMM904.xml",
+                    "pputida": {
+                        "model_file": "iJN746.xml",
                         "kinetic_params": {
                             "glucose": [
-                                0.5,
-                                1.0
+                                1.0,
+                                2.0
                             ],
                             "ammonium": [
+                                2.0,
+                                4.0
+                            ],
+                            "glycolate": [
                                 0.5,
                                 1.0
                             ]
                         },
                         "substrate_update_reactions": {
                             "glucose": "EX_glc__D_e",
-                            "ammonium": "EX_nh4_e"
+                            "ammonium": "EX_nh4_e",
+                            "glycolate": "EX_glyclt_e"
                         },
                         "bounds": {}
                     }
-                },
-                "model_file": "ecoli core",
-                "n_bins": [
-                    5,
-                    6
-                ],
-                "mol_ids": [
-                    "glucose",
-                    "acetate",
-                    "glycolate",
-                    "ammonium",
-                    "formate",
-                    "glutamate",
-                    "serine"
-                ]
+                }
             },
             "_inputs": "fields:map[positive_array]|biomass:array[6|5,float]",
             "_outputs": "fields:map[array[6|5,float]]|biomass:array[6|5,float]",

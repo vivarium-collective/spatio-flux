@@ -1,13 +1,13 @@
 {
   "global_time": 0.0,
   "particles": {
-    "gUXODFSB": {
+    "3xGAb5-A": {
       "id": null,
       "position": [
-        23.238731626007187,
-        2.480856931461095
+        44.47040681330097,
+        45.57597524508382
       ],
-      "mass": 0.40000613867381385,
+      "mass": 0.16228605960381068,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -19,6 +19,12 @@
       "data": "BrownianMovement"
     },
     "config": {
+      "interval": 0.1,
+      "bounds": [
+        50.0,
+        50.0
+      ],
+      "diffusion_rate": 0.5,
       "n_bins": [
         0,
         0
@@ -26,13 +32,7 @@
       "advection_rate": [
         0.0,
         0.0
-      ],
-      "bounds": [
-        50.0,
-        50.0
-      ],
-      "diffusion_rate": 0.5,
-      "interval": 0.1
+      ]
     },
     "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
     "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
@@ -53,25 +53,25 @@
       "data": "ManageBoundaries"
     },
     "config": {
-      "mass_range": [
-        0.001,
-        1.0
-      ],
-      "add_rate": 0.01,
-      "boundary_to_remove": [],
       "buffer": 0.0001,
-      "clamp_survivors": true,
       "bounds": [
         50.0,
         50.0
       ],
+      "add_rate": 0.01,
       "boundary_to_add": [
         "top",
         "top",
         "bottom",
         "left",
         "right"
-      ]
+      ],
+      "clamp_survivors": true,
+      "mass_range": [
+        0.001,
+        1.0
+      ],
+      "boundary_to_remove": []
     },
     "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
     "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
