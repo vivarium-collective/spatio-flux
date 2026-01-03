@@ -50,7 +50,7 @@ def initialize_fields(n_bins, initial_min_max=None):
 
 
 def get_standard_emitter(state_keys):
-    OPTIONAL_KEYS = {'fields', 'particles'}
+    OPTIONAL_KEYS = {'fields', 'particles', 'lattice'}
     # Always include 'global_time', include optional keys if present
     included_keys = ['global_time'] + [key for key in OPTIONAL_KEYS if key in state_keys]
     emitter_spec = {key: [key] for key in included_keys}
@@ -135,10 +135,7 @@ def run_composite_document(
                     n_bins =  value.shape  # (n, m)
 
     # spatio-flux-specific plot settings
-    plot_settings = build_plot_settings(
-        particle_ids=particle_ids,
-        n_bins=n_bins
-    )
+    plot_settings = build_plot_settings(particle_ids=particle_ids)
     plot_settings.update(dict(
         dpi='300',
         show_values=show_values,
@@ -267,8 +264,317 @@ def _json_viewer_css_lines() -> list[str]:
     ]
 
 
+def _html_link(url: str, label: str | None = None) -> str:
+    """Safe HTML <a> link for external references."""
+    label = label or url
+    # escape label; url is used as an attribute so escape too
+    return f'<a href="{html_escape(url)}" target="_blank" rel="noopener noreferrer">{html_escape(label)}</a>'
+
+
+def _spatio_flux_process_families_table_html() -> str:
+    """HTML rendering of the Spatio–Flux process family table (with color column)."""
+
+    COLORS = {
+        "metabolic": "#B34A44",          # dfba_process
+        "transport": "#D6C35F",          # diffusion
+        "movement": "#8EC09A",           # newtonian_particles_process (movement family)
+        "coupling": "#CBDD8A",           # exchange_adapter
+        "structural": "#A9DDE3",         # particle_graph_rewrite
+    }
+
+    def swatch(hex_color: str, label: str) -> str:
+        return (
+            f'<span class="sf-swatch" style="background:{html_escape(hex_color)}" '
+            f'title="{html_escape(label)}"></span>'
+            f'<span class="sf-swatch-label">{html_escape(label)}</span>'
+        )
+
+    def pills(items: list[str]) -> str:
+        return " ".join(f'<code class="sf-pill">{html_escape(x)}</code>' for x in items)
+
+    rows = [
+        {
+            "family": "Metabolic processes",
+            "color": swatch(COLORS["metabolic"], "Metabolism"),
+            "processes": pills(["DynamicFBA", "MonodKinetics", "SpatialDFBA"]),
+            "role": (
+                "<strong>Turns nutrients into growth.</strong> Computes uptake, secretion, and biomass production "
+                "either at individual sites or across spatial grids by operating on substrate fields and biomass variables."
+            ),
+        },
+        {
+            "family": "Field transport",
+            "color": swatch(COLORS["transport"], "Transport"),
+            "processes": pills(["DiffusionAdvection"]),
+            "role": (
+                "<strong>Makes space matter.</strong> Updates dissolved species fields via diffusion and advection, "
+                "so local metabolic activity can influence distant regions over time."
+            ),
+        },
+        {
+            "family": "Particle movement",
+            "color": swatch(COLORS["movement"], "Movement"),
+            "processes": pills(["BrownianMovement", "PymunkParticleMovement"]),
+            "role": (
+                "<strong>Moves agents through continuous space.</strong> Brownian motion provides stochastic movement; "
+                "Newtonian motion adds mass, velocity, inertia, friction, and elastic interactions."
+            ),
+        },
+        {
+            "family": "Particle–field coupling",
+            "color": swatch(COLORS["coupling"], "Coupling"),
+            "processes": pills(["ParticleExchange"]),
+            "role": (
+                "<strong>Bridges discrete and continuous.</strong> Mediates bidirectional exchange between particle-local "
+                "state and spatial fields, syncing internal particle chemistry with nearby lattice values."
+            ),
+        },
+        {
+            "family": "Structural and boundary processes",
+            "color": swatch(COLORS["structural"], "Rewrite"),
+            "processes": pills(["ParticleDivision", "ManageBoundaries"]),
+            "role": (
+                "<strong>Changes the population.</strong> Rewrites the particle store by creating, removing, or relocating "
+                "particles in response to conditions like growth thresholds or boundary crossings."
+            ),
+        },
+    ]
+
+    body_rows = []
+    for r in rows:
+        body_rows.append(f"""
+<tr>
+  <td class="sf-family">
+    <div class="sf-family-title">{r['family']}</div>
+  </td>
+  <td class="sf-color">{r['color']}</td>
+  <td class="sf-procs">{r['processes']}</td>
+  <td class="sf-role">{r['role']}</td>
+</tr>
+""".strip())
+
+    return f"""
+<section class="sf-table-wrap">
+  <h3>Spatio–Flux process families</h3>
+
+  <p class="sf-lede">
+    Think of these as <strong>lego bricks for multiscale simulation</strong>.
+    Each family does one thing well—metabolism, transport, motion, coupling, or structural change—
+    and complex behaviors emerge by composing families rather than extending any single process.
+  </p>
+
+  <table class="sf-table sf-table-blog">
+    <thead>
+      <tr>
+        <th>Family</th>
+        <th>Color</th>
+        <th>Processes</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {"".join(body_rows)}
+    </tbody>
+  </table>
+</section>
+""".strip()
+
+
+def _how_to_read_bigraph_html() -> str:
+    """A basics-only, blog-like guide to reading the bigraph image (no table repetition)."""
+    return r"""
+<details class="note">
+  <summary>How to read the bigraph visualization</summary>
+
+  <p>
+    Each diagram is a <strong>map of a composite simulation</strong>: what state exists, what processes run,
+    and how data flows between them.
+  </p>
+
+  <div class="sf-how-grid">
+    <div class="sf-how-card">
+      <h4>1) Nodes</h4>
+      <p>
+        <strong>Circles</strong> are <em>state</em> (variables or structured stores).
+        <strong>Boxes</strong> are <em>processes</em> (update rules that run on a schedule).
+      </p>
+    </div>
+
+    <div class="sf-how-card">
+      <h4>2) Edges</h4>
+      <p>
+        Edges show <strong>read/write dependency</strong>: a process reads state to compute updates,
+        and writes deltas back into state.
+      </p>
+    </div>
+
+    <div class="sf-how-card">
+      <h4>3) Hierarchy</h4>
+      <p>
+        Big nodes often contain nested nodes. That nesting reflects the <strong>hierarchical state tree</strong>
+        (e.g., collections, sub-stores, or typed substructures).
+      </p>
+    </div>
+
+    <div class="sf-how-card">
+      <h4>4) A quick way to scan</h4>
+      <p>
+        Start by locating the <strong>main stores</strong> (large circles), then follow edges into the
+        <strong>processes</strong> that touch them. The “story” is the loop: state → process → state.
+      </p>
+    </div>
+  </div>
+
+  <p class="sf-how-tip">
+    <strong>Tip:</strong> If a diagram feels busy, focus on one store (fields or particles), then trace only the
+    processes connected to it. The report sections below let you compare structure (bigraph),
+    serialized state (JSON viewer), and behavior (plots/GIFs) side-by-side.
+  </p>
+</details>
+""".strip()
+
+
+def _vivarium2_ecosystem_html() -> str:
+    items = [
+        {
+            "name": "bigraph-schema",
+            "url": "https://github.com/vivarium-collective/bigraph-schema",
+            "desc": (
+                "Defines a compositional type system and hierarchical data structures using JSON-based schemas. "
+                "Provides the type engine, schema compilation, state validation, and type-specific update operators "
+                "used in process–bigraph delta semantics."
+            ),
+        },
+        {
+            "name": "process-bigraph",
+            "url": "https://github.com/vivarium-collective/process-bigraph",
+            "desc": (
+                "The dynamic core. Defines typed Process and Composite abstractions, event scheduling, global time "
+                "management, and orchestration logic for executing process–bigraph documents."
+            ),
+        },
+        {
+            "name": "bigraph-viz",
+            "url": "https://github.com/vivarium-collective/bigraph-viz",
+            "desc": (
+                "Parses process–bigraph documents and renders their structure as inspectable graphs."
+            ),
+        },
+        {
+            "name": "spatio-flux",
+            "url": "https://github.com/vivarium-collective/spatio-flux",
+            "desc": (
+                "A domain-specific application repository implementing concrete process families for metabolism, "
+                "spatial fields, particle dynamics, and particle–field coupling, with an extended test suite of "
+                "executable compositions."
+            ),
+        },
+    ]
+
+    lis = []
+    for it in items:
+        name_link = _html_link(it["url"], it["name"])
+        lis.append(
+            f"<li><strong><code>{name_link}</code></strong> — {html_escape(it['desc'])}</li>"
+        )
+
+    return f"""
+<section class="sf-ecosystem">
+  <h3>Vivarium 2.0 ecosystem</h3>
+
+  <p>
+    Spatio–Flux is a reference application in the <strong>Vivarium 2.0</strong> software suite:
+    an open-source ecosystem for building, executing, and visualizing Process–Bigraph compositions.
+  </p>
+
+  <ul>
+    {"".join(lis)}
+  </ul>
+</section>
+""".strip()
+
+
+def _spatio_flux_intro_html(total_sim_time=None, outdir: str | None = None) -> str:
+    """
+    Engaging intro for the report: invites exploration, explains what clicking reveals,
+    includes process families table + Vivarium 2.0 ecosystem + references.
+    """
+    github_url = "https://github.com/vivarium-collective/spatio-flux"
+    paper_url = "https://arxiv.org/abs/2512.23754"
+
+    parts = []
+    parts.append('<section class="intro-card" id="about">')
+
+    parts.append("<h2>Explore the Spatio–Flux test suite</h2>")
+    parts.append(
+        "<p>"
+        "This page is a catalog of executable compositions built with the "
+        "Process Bigraph protocol. Each entry below is a self-contained simulation that "
+        "demonstrates how distinct modeling concerns—metabolism, spatial transport, particle dynamics, and "
+        "structural change—can be composed through explicit interfaces and shared state."
+        "</p>"
+    )
+    parts.append(
+        "<p>"
+        "Rather than presenting biological conclusions, the goal of this test suite is to make "
+        "model structure visible and inspectable. Clicking into a simulation lets you see "
+        "<em>how</em> it is built: which processes are present, how they are wired to state, and how "
+        "different process families combine to form more complex behaviors."
+        "</p>"
+    )
+
+    parts.append("""
+<div class="callout-grid">
+  <div class="callout">
+    <h4>Bigraph structure</h4>
+    <p>Inspect a rendered process–bigraph showing state variables, processes, and their read/write dependencies.</p>
+  </div>
+  <div class="callout">
+    <h4>Interactive state</h4>
+    <p>Browse serialized state trees to explore spatial fields, particles, and intermediate variables.</p>
+  </div>
+  <div class="callout">
+    <h4>Dynamics & behavior</h4>
+    <p>View plots and animations illustrating spatial gradients, particle motion, growth, and division.</p>
+  </div>
+  <div class="callout">
+    <h4>Composition documents</h4>
+    <p>Download the machine-readable process–bigraph documents that define each simulation.</p>
+  </div>
+</div>
+""".strip())
+
+    parts.append('<p class="hint">Scroll down to explore individual compositions, or use the Contents section to jump to a simulation.</p>')
+
+    parts.append(_spatio_flux_process_families_table_html())
+    parts.append(_vivarium2_ecosystem_html())
+
+    parts.append("<h3>References</h3>")
+    parts.append("<ul>")
+    parts.append(f"<li>{_html_link(github_url, 'Spatio–Flux GitHub repository')}</li>")
+    parts.append(f"<li>{_html_link(paper_url, 'Process Bigraphs paper (arXiv:2512.23754)')}</li>")
+    parts.append("</ul>")
+
+    meta_bits = []
+    if total_sim_time is not None:
+        meta_bits.append(
+            f"<span class='meta-pill'><strong>Total sim time:</strong> {total_sim_time:.2f}s</span>"
+        )
+    meta_bits.append(
+        f"<span class='meta-pill'><strong>Generated:</strong> "
+        f"{html_escape(datetime.now().isoformat(timespec='seconds'))}</span>"
+    )
+    parts.append("<div class='meta-row'>" + " ".join(meta_bits) + "</div>")
+
+    parts.append("</section>")
+    return "\n".join(parts)
+
+
 def _json_viewer_js() -> str:
     # Plain JS: no dependencies; works in a local report.html.
+    # Includes:
+    #   - JSON viewer behavior (existing)
+    #   - floating "Back to Contents" button behavior (new; no-op if button missing)
     return r"""
 <script>
 (function(){
@@ -292,10 +598,6 @@ def _json_viewer_js() -> str:
       else cur = cur[p];
     }
     return cur;
-  }
-
-  function prettyScalar(v){
-    return JSON.stringify(v);
   }
 
   function renderValue(container, value){
@@ -454,6 +756,9 @@ def _json_viewer_js() -> str:
     });
   }
 
+  // --------------------------
+  // JSON viewers
+  // --------------------------
   document.querySelectorAll(".json-viewer").forEach(viewer => {
     const test = viewer.dataset.test;
     const dataEl = document.getElementById("json-data-" + test);
@@ -479,10 +784,21 @@ def _json_viewer_js() -> str:
 
     resetBtn.addEventListener("click", () => {
       searchEl.value = "";
-      // rebuild nav to top-level
       buildNav(root, navEl, mainPathEl, mainValueEl, searchEl, statusEl);
     });
   });
+
+  // --------------------------
+  // Floating "Back to Contents" button
+  // --------------------------
+  const backBtn = document.querySelector(".back-to-toc");
+  if (backBtn){
+    function onScroll(){
+      backBtn.classList.toggle("show", window.scrollY > 600);
+    }
+    window.addEventListener("scroll", onScroll, {passive:true});
+    onScroll();
+  }
 })();
 </script>
 """.strip()
@@ -500,25 +816,111 @@ def generate_html_report(
     all_files = list(output_dir.glob("*"))
 
     html = [
-        "<html><head><title>Simulation Results</title>",
+        "<html><head><title>Spatio–Flux Test Suite Report</title>",
+        "<meta charset='utf-8'>",
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>",
         "<style>",
+        # Base page
+        "html { scroll-behavior: smooth; }",
         "body { font-family: sans-serif; padding: 20px; background: #fcfcfc; color: #222; }",
         "h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 4px; }",
+        "h3 { margin-top: 1.2em; }",
         "pre { background-color: #f8f8f8; padding: 8px; border: 1px solid #ddd; overflow-x: auto; }",
-        "details { margin: 6px 0; padding-left: 1em; }",
+        "details { margin: 8px 0; }",
         "summary { font-weight: 600; cursor: pointer; }",
         "code { background: #f1f1f1; padding: 2px 4px; border-radius: 4px; }",
         "nav ul { list-style: none; padding-left: 0; }",
         "nav ul li { margin: 5px 0; }",
+        "nav { margin: 0; }",
         'a.download-btn { display: inline-block; margin: 8px 0; padding: 4px 8px; background: #eee; border: 1px solid #ccc; text-decoration: none; font-size: 0.9em; border-radius: 4px; }',
+
+        # Better anchor positioning when jumping
+        ":target { scroll-margin-top: 16px; }",
+
+        # Layout: sticky sidebar TOC
+        ".layout { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }",
+        ".sidebar { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; padding-right: 10px; }",
+        ".content { min-width: 0; }",
+        ".sidebar-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 12px; }",
+        ".sidebar-card h2 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 6px; }",
+        ".sidebar-card a { text-decoration: none; color: #222; }",
+        ".sidebar-card a:hover { text-decoration: underline; }",
+        "@media (max-width: 980px){ .layout { grid-template-columns: 1fr; } .sidebar { position: static; max-height: none; padding-right: 0; } }",
+
+        # Floating back-to-contents button (shows after scroll)
+        ".back-to-toc { position: fixed; right: 18px; bottom: 18px; padding: 10px 12px; border-radius: 999px; border: 1px solid #ddd; background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.08); text-decoration: none; font-size: 13px; color: #222; display: none; z-index: 9999; }",
+        ".back-to-toc:hover { background: #f7f7f7; }",
+        ".back-to-toc.show { display: inline-block; }",
+
+        # Intro styling
+        ".intro-card { background: #ffffff; border-left: 4px solid #e0e0e0; padding: 12px 16px; margin: 12px 0 18px 0; border-radius: 10px; }",
+        ".intro-card h2 { margin-top: 0; }",
+        ".intro-card ul { margin: 8px 0 0 18px; }",
+        ".meta-row { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }",
+        ".meta-pill { display:inline-block; padding: 3px 10px; border: 1px solid #e2e2e2; border-radius: 999px; background: #fafafa; font-size: 12px; color: #333; }",
+        ".hint { margin-top: 10px; color: #333; font-size: 13px; }",
+
+        # Callout grid
+        ".callout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0 18px 0; }",
+        ".callout { background: #ffffff; border: 1px solid #eee; border-radius: 10px; padding: 10px 12px; }",
+        ".callout h4 { margin: 0 0 6px 0; }",
+        ".callout p { margin: 0; color: #333; font-size: 13px; line-height: 1.35; }",
+
+        # Notes
+        ".note { color: #444; background: #fff; border-left: 4px solid #ddd; padding: 10px 12px; border-radius: 10px; }",
+
+        # Table styling
+        ".sf-table-wrap { margin-top: 12px; }",
+        ".sf-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; overflow: hidden; }",
+        ".sf-table th, .sf-table td { border-bottom: 1px solid #eee; padding: 10px 12px; vertical-align: top; }",
+        ".sf-table th { text-align: left; background: #fafafa; font-weight: 700; }",
+        ".sf-table tr:last-child td { border-bottom: none; }",
+        ".sf-ecosystem { margin-top: 12px; }",
+        ".sf-ecosystem ul { margin: 8px 0 0 18px; }",
+
+        # Blog-like table enhancements
+        ".sf-lede { margin: 8px 0 12px 0; color: #333; }",
+        ".sf-table-blog td { font-size: 13px; line-height: 1.35; }",
+        ".sf-family-title { font-weight: 700; }",
+        ".sf-procs { white-space: normal; }",
+        ".sf-pill { display: inline-block; margin: 0 6px 6px 0; padding: 2px 8px; border-radius: 999px; border: 1px solid #e2e2e2; background: #f8f8f8; font-size: 12px; }",
+
+        # Color swatches
+        ".sf-color { width: 120px; }",
+        ".sf-swatch { display:inline-block; width: 18px; height: 18px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.12); vertical-align: middle; margin-right: 8px; }",
+        ".sf-swatch-label { font-size: 12px; color: #444; vertical-align: middle; }",
+
+        # How-to section cards
+        ".sf-how-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 10px 0 10px 0; }",
+        ".sf-how-card { background:#fff; border:1px solid #eee; border-radius:10px; padding:10px 12px; }",
+        ".sf-how-card h4 { margin: 0 0 6px 0; }",
+        ".sf-how-card p { margin: 0; font-size: 13px; line-height: 1.35; color:#333; }",
+        ".sf-how-tip { margin-top: 8px; font-size: 13px; color:#333; }",
+
+        # Header
+        ".hero { margin: 0 0 12px 0; }",
+        ".hero h1 { margin: 0; }",
+        ".hero p { margin: 6px 0 0 0; color: #333; }",
+
         *_json_viewer_css_lines(),
         "</style>",
         "</head><body>",
-        "<h1>Simulation Results</h1>",
+        # Top anchor for "back to contents"
+        '<a id="top"></a>',
     ]
 
+    # Title
+    html.append("""
+<div class="hero">
+  <h1>Spatio–Flux Test Suite Report</h1>
+  <p>
+    Browse a suite of runnable composites, inspect their structure, and explore the emitted state and dynamics.
+  </p>
+</div>
+""".strip())
+
     # ------------------------------------------------------------------
-    # Group files by simulation
+    # Group files by simulation (needed for Contents)
     # ------------------------------------------------------------------
     test_files: dict[str, list[Path]] = {test: [] for test in simulations}
     others: list[Path] = []
@@ -533,26 +935,63 @@ def generate_html_report(
         else:
             others.append(file)
 
-    # Only show tests that actually have output files
     available_tests = [test for test, files in test_files.items() if files]
 
     # ------------------------------------------------------------------
-    # Table of Contents
+    # Build TOC HTML once (we'll put it in the sticky sidebar)
     # ------------------------------------------------------------------
-    html.append("<nav><h2>Contents</h2><ul>")
+    toc_bits = []
+    toc_bits.append('<nav id="toc" class="sidebar-card">')
+    toc_bits.append("<h2>Contents</h2><ul>")
+    toc_bits.append('<li><a href="#about">About / Overview</a></li>')
+    toc_bits.append('<li><a href="#how-to">How to read the bigraph visualization</a></li>')
     for test in available_tests:
         sid = _safe_id(test)
-        html.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
-    html.append("</ul></nav>")
+        toc_bits.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
+    toc_bits.append("</ul></nav>")
+    toc_html = "\n".join(toc_bits)
+
+    # ------------------------------------------------------------------
+    # Layout wrapper (sidebar + main content)
+    # ------------------------------------------------------------------
+    html.append('<div class="layout">')
+    html.append('<aside class="sidebar">')
+    html.append(toc_html)
+    html.append("</aside>")
+    html.append('<main class="content">')
+
+    # ------------------------------------------------------------------
+    # About / Overview (collapsible)
+    # ------------------------------------------------------------------
+    intro_html = _spatio_flux_intro_html(
+        total_sim_time=total_sim_time,
+        outdir=str(output_dir)
+    )
+    if 'id="about"' not in intro_html:
+        intro_html = f'<div id="about"></div>\n{intro_html}'
+
+    html.append(f"""
+<details class="note" open>
+  <summary>About / Overview</summary>
+  {intro_html}
+</details>
+""".strip())
+
+    # ------------------------------------------------------------------
+    # How-to-read block
+    # ------------------------------------------------------------------
+    how_block = _how_to_read_bigraph_html()
+    if 'id="how-to"' not in how_block:
+        how_block = f'<div id="how-to"></div>\n{how_block}'
+    html.append(how_block)
 
     # ------------------------------------------------------------------
     # Per-simulation sections
     # ------------------------------------------------------------------
     for test in available_tests:
-        files = test_files[test]
-        files = sorted(files, key=lambda p: p.name)
-
+        files = sorted(test_files[test], key=lambda p: p.name)
         sid = _safe_id(test)
+
         html.append(f'<h2 id="{html_escape(sid)}">{html_escape(str(test))}</h2>')
 
         description = descriptions.get(test, "")
@@ -562,35 +1001,30 @@ def generate_html_report(
         if runtimes and test in runtimes:
             html.append(f"<p><strong>Runtime:</strong> {runtimes[test]:.2f} seconds</p>")
 
-        # Full downloadable JSON (prefer composition doc)
         download_json = (
-                next((f for f in files if f.name == f"{test}.json"), None)
-                or next((f for f in files if f.suffix == ".json"), None)
+            next((f for f in files if f.name == f"{test}.json"), None)
+            or next((f for f in files if f.suffix == ".json"), None)
         )
 
-        # JSON used for the viewer (prefer state JSON)
         viewer_json = (
-                next((f for f in files if f.name == f"{test}_state.json"), None)
-                or download_json
+            next((f for f in files if f.name == f"{test}_state.json"), None)
+            or download_json
         )
 
         viz_file = next((f for f in files if f.name == f"{test}_viz.png"), None)
         pngs = [f for f in files if f.suffix == ".png" and f != viz_file]
         gifs = [f for f in files if f.suffix == ".gif"]
 
-        # ---- JSON section ----
+        # JSON section
         if viewer_json:
-            # Title: what the embedded viewer is based on (optional but honest)
             html.append(f"<h3>{html_escape(viewer_json.name)}</h3>")
 
-            # Download: always the full json if present
             if download_json:
                 html.append(
                     f'<a class="download-btn" href="{_url_href(download_json.name)}" target="_blank">'
                     f'View full JSON</a>'
                 )
 
-            # Viewer: show filtered state view
             try:
                 state_data = _load_state_data_from_json(viewer_json)
                 if state_data:
@@ -617,9 +1051,7 @@ def generate_html_report(
             html.append(f"<h3>{html_escape(f.name)}</h3>")
             html.append(f'<img src="{html_escape(f.name)}" style="max-width:100%"><hr>')
 
-    # ------------------------------------------------------------------
     # Other files & total runtime
-    # ------------------------------------------------------------------
     if others:
         html.append("<h2>Other Generated Files</h2>")
         for f in sorted(others, key=lambda p: p.name):
@@ -630,7 +1062,13 @@ def generate_html_report(
             f"<h2>Total Simulation Time</h2><p><strong>{total_sim_time:.2f} seconds</strong></p>"
         )
 
-    # Attach the JS once at the end
+    # Close layout wrapper
+    html.append("</main></div>")
+
+    # Floating back-to-contents button
+    html.append('<a class="back-to-toc" href="#toc" title="Back to contents">↑ Contents</a>')
+
+    # JS (viewer + back-to-toc)
     html.append(_json_viewer_js())
     html.append("</body></html>")
 
