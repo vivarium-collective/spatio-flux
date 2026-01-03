@@ -1133,9 +1133,18 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  30,  #300, #DEFAULT_RUNTIME_LONGER*3,
+        'time':  60,  #300, #DEFAULT_RUNTIME_LONGER*3,
         'config': {},
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
+    },
+
+    'reference_demo_x2y2': {
+        'description': 'Different resolution for the spatio-flux reference demo',
+        'doc_func': get_reference_composite_doc,
+        'plot_func': plot_newtonian_particle_comets,
+        'time': 60,
+        'config': {'n_bins': [n*2 for n in SQUARE_BINS]},
+        'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8}
     },
 }
 

@@ -884,16 +884,8 @@ def generate_html_report(
 </div>
 """.strip())
 
-    # Intro (overview + table + ecosystem + refs)
-    html.append(
-        _spatio_flux_intro_html(
-            total_sim_time=total_sim_time,
-            outdir=str(output_dir)
-        )
-    )
-
     # ------------------------------------------------------------------
-    # Group files by simulation
+    # Group files by simulation (needed for Contents)
     # ------------------------------------------------------------------
     test_files: dict[str, list[Path]] = {test: [] for test in simulations}
     others: list[Path] = []
@@ -911,19 +903,34 @@ def generate_html_report(
     available_tests = [test for test, files in test_files.items() if files]
 
     # ------------------------------------------------------------------
-    # How-to-read block FIRST
-    # ------------------------------------------------------------------
-    html.append(_how_to_read_bigraph_html())
-
-    # ------------------------------------------------------------------
-    # Contents AFTER how-to-read
+    # Contents FIRST (moved above About / Overview)
     # ------------------------------------------------------------------
     html.append("<nav><h2>Contents</h2><ul>")
     html.append('<li><a href="#about">About / Overview</a></li>')
+    html.append('<li><a href="#how-to">How to read the bigraph visualization</a></li>')
     for test in available_tests:
         sid = _safe_id(test)
         html.append(f'<li><a href="#{html_escape(sid)}">{html_escape(str(test))}</a></li>')
     html.append("</ul></nav>")
+
+    # ------------------------------------------------------------------
+    # Intro (overview + table + ecosystem + refs)
+    # ------------------------------------------------------------------
+    html.append(
+        _spatio_flux_intro_html(
+            total_sim_time=total_sim_time,
+            outdir=str(output_dir)
+        )
+    )
+
+    # ------------------------------------------------------------------
+    # How-to-read block (now after overview; still above simulations)
+    # ------------------------------------------------------------------
+    how_block = _how_to_read_bigraph_html()
+    # Ensure it has an anchor even if the helper doesn't provide one
+    if 'id="how-to"' not in how_block:
+        how_block = f'<div id="how-to"></div>\n{how_block}'
+    html.append(how_block)
 
     # ------------------------------------------------------------------
     # Per-simulation sections
