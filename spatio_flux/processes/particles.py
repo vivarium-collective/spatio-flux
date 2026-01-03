@@ -368,12 +368,43 @@ class ManageBoundaries(Step):
 
 class ParticleExchange(Step):
     config_schema = {
-        'bounds': 'tuple[float,float]',
-        'n_bins': 'tuple[integer,integer]',
+        'n_bins': 'tuple[integer{1},integer{1}]',
+        'bounds': 'tuple[float{1.0},float{1.0}]',  # (xmax, ymax)
+        'depth':  'float{1}',
     }
 
     def initialize(self, config):
         self.env_size = ((0, config['bounds'][0]), (0, config['bounds'][1]))
+
+        nx, ny = tuple(self.config['n_bins'])
+
+        bounds = self.config.get('bounds', None)
+        if bounds is None:
+            raise KeyError("CountConcAdapter requires config['bounds'] = (xmax, ymax)")
+        if len(bounds) != 2:
+            raise ValueError("CountConcAdapter config['bounds'] must be a 2-tuple: (xmax, ymax)")
+
+        xmax, ymax = bounds
+        xmax = float(xmax)
+        ymax = float(ymax)
+
+        depth = float(self.config.get('depth', None))
+        if depth <= 0.0:
+            raise ValueError(f"CountConcAdapter requires depth > 0, got {depth}")
+
+        if nx <= 0 or ny <= 0:
+            raise ValueError(f"CountConcAdapter requires n_bins > 0, got {(nx, ny)}")
+
+        if xmax <= 0.0 or ymax <= 0.0:
+            raise ValueError(f"CountConcAdapter requires bounds > 0, got (xmax={xmax}, ymax={ymax})")
+
+        dx = xmax / float(nx)
+        dy = ymax / float(ny)
+
+        self.bin_volume = dx * dy * depth
+        if self.bin_volume <= 0.0:
+            raise ValueError(f"Computed bin_volume must be > 0, got {self.bin_volume}")
+
 
     def inputs(self):
         return {
@@ -392,7 +423,15 @@ class ParticleExchange(Step):
     def outputs(self):
         return {
             'particles': 'map[particle]',
-            'fields': 'map[array]',
+            # 'fields': 'map[array]',
+            'fields': {
+                '_type': 'map',
+                '_value': {
+                    '_type': 'array',
+                    '_shape': self.config['n_bins'],
+                    '_data': 'float'
+                },
+            }
         }
 
     def initial_state(self, config=None):
@@ -402,10 +441,15 @@ class ParticleExchange(Step):
         particles = state['particles']
         fields = state['fields']
 
+        # --- bin volume sanity ---
+        vol = float(getattr(self, "bin_volume", 0.0))
+        if vol <= 0.0:
+            raise ValueError(f"ParticleExchange internal bin_volume invalid: {vol}")
+
         particle_updates = {}
 
         # initialize zero-delta arrays for each field (same shape as stored arrays: (ny, nx))
-        field_updates = {mol_id: np.zeros_like(array) for mol_id, array in fields.items()}
+        field_updates = {mol_id: np.zeros_like(array, dtype=float) for mol_id, array in fields.items()}
 
         for pid, p in particles.items():
             x, y = p['position']
@@ -436,12 +480,14 @@ class ParticleExchange(Step):
             exch_before_present = isinstance(exch_before, dict) and len(exch_before) > 0
             exch = exch_before if exch_before_present else {}
 
-            # Apply exchange into field bin (arrays are indexed [y, x])
-            for mol_id, delta in exch.items():
+            # Apply exchange into field bin as a *concentration delta*:
+            #   field is concentration; exchange is assumed "amount" (counts/moles/etc.)
+            #   ΔC = ΔN / Vbin
+            for mol_id, delta_amount in exch.items():
                 if mol_id in field_updates:
-                    field_updates[mol_id][y_bin, x_bin] += delta
+                    field_updates[mol_id][y_bin, x_bin] += float(delta_amount) / vol
 
-            # update particle's exchange state
+            # update particle's exchange state (reset to 0 each step)
             if not exch_before_present:
                 exchange_update = {'_add': {m: 0.0 for m in fields.keys()}}
             else:
@@ -454,8 +500,9 @@ class ParticleExchange(Step):
 
         return {
             'particles': particle_updates,
-            'fields': field_updates,
+            'fields': field_updates,  # <-- delta arrays (concentration deltas)
         }
+
 
 def prune_instance_containers(obj):
     """

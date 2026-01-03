@@ -34,6 +34,7 @@ def get_conc_count_adapter(
         },
         'outputs': {
             'concentrations': conc_path,
+            'exchanges': exchange_path,
         },
     }
 
@@ -101,6 +102,16 @@ class CountConcAdapter(Step):
     def outputs(self):
         return {
             'concentrations': 'map[array]',
+            'exchanges': 'map[array]'
+            # 'exchanges': 'overwrite[fields]',
+            # 'exchanges': {
+            #     '_type': 'map',
+            #     '_value': {
+            #         '_type': 'array',
+            #         '_shape': self.config['n_bins'],
+            #         '_data': 'float',
+            #     }
+            # }
         }
 
     def update(self, state):
@@ -111,9 +122,17 @@ class CountConcAdapter(Step):
             raise ValueError(f"CountConcAdapter internal bin_volume invalid: {vol}")
 
         concentrations = {}
+        reset_exchanges = {}
         for mol_id, counts in exchanges.items():
             arr = np.asarray(counts, dtype=float)
             concentrations[mol_id] = arr / vol
+            reset_exchanges[mol_id] = -1 * counts
 
-        return {'concentrations': concentrations}
+        reset_exchanges = {mol_id: np.zeros(shape=self.config['n_bins']) for mol_id in exchanges.keys()}
+        print(f'conc count adapter, glc exchange: {state["exchanges"]["glucose"]}')
+
+        return {
+            'concentrations': concentrations,
+            'exchanges': reset_exchanges,
+        }
 

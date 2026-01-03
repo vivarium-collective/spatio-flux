@@ -1670,7 +1670,7 @@ def fields_and_agents_to_gif(
     default_rgb=(0.2, 0.6, 0.9),
     uniform_color=(0.2, 0.6, 0.9),  # set None to disable uniforming
 
-    # NEW: submass pies
+    # submass pies
     show_agent_submasses: bool = False,
     submasses_key: str = "sub_masses",
     submass_color_map=None,          # dict[label] -> matplotlib color

@@ -941,27 +941,27 @@ def get_reference_composite_doc(core=None, config=None):
     diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs, boundary_conditions=diffusion_boundary_config)
     spatial_kinetics = get_spatial_many_kinetics(model_id="low_yield_glucose_overflow", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
-    particle_exchange = get_particle_exchange_process(
-        n_bins=n_bins, bounds=bounds, concentration_fields_path=['lattice', 'fields'], exchange_fields_path=['lattice', 'exchanges'])
+
+    # Graph Rewrite Steps
     particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
-    # adapters
-    conc_count_adapter = get_conc_count_adapter(conc_path=['fields'], n_bins=n_bins, bounds=bounds, depth=depth)
+    # Adapters
+    particle_exchange = get_particle_exchange_process(
+        n_bins=n_bins, bounds=bounds, depth=depth,
+        concentration_fields_path=['fields'],
+        exchange_fields_path=['fields']
+    )
 
     # composite schema
     schema = get_community_dfba_particle_composition(models=models)
 
     doc = {
         "state": {
-            "lattice": {
-                # "bin_volume": 1.0,
-                "fields": fields,
-                "exchanges": {mol_id: np.zeros_like(f) for mol_id, f in fields.items()},
-                **spatial_kinetics,  # put them at the top level
-                "diffusion": diffusion,
-                "conc_count_adapter": conc_count_adapter,
-            },
+            "fields": fields,
+            # **spatial_kinetics,  # put them at the top level
+            # "diffusion": diffusion,
+            # "conc_count_adapter": conc_count_adapter,
             "particles": particles,
             "particle_exchange": particle_exchange,
             "particle_division": particle_division,
@@ -971,7 +971,6 @@ def get_reference_composite_doc(core=None, config=None):
         "schema": schema,
     }
     return doc
-
 
 
 # ==================================================
@@ -1134,8 +1133,10 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  120,  #300, #DEFAULT_RUNTIME_LONGER*3,
-        'config': {},
+        'time':  60,  #120,  #300, #DEFAULT_RUNTIME_LONGER*3,
+        'config': {
+            'n_bins': (2,2)
+        },
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },
 
