@@ -332,6 +332,8 @@ class DynamicFBA(Process):
             inputs["biomass"],
             interval
         )
+
+        # print(f'dFBA update: {update}')
         return update
 
 

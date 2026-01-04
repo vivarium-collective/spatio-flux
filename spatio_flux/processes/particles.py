@@ -440,7 +440,7 @@ class ParticleExchange(Step):
             'fields': {
                 '_type': 'map',
                 '_value': {
-                    '_type': 'array',
+                    '_type': 'positive_array',
                     '_shape': self.config['n_bins'],
                     '_data': 'float'
                 },
@@ -518,6 +518,7 @@ class ParticleExchange(Step):
             'particles': particle_updates,
             'fields': field_updates,  # concentration deltas
         }
+
 
 def prune_instance_containers(obj):
     """
@@ -737,3 +738,198 @@ class ParticleTotalMass(Step):
                 continue
 
         return {"total_mass": total}
+
+
+
+class ParticleNucleationFromField(Step):
+    """
+    Nucleate (add) small particles by consuming mass from a dissolved biomass field.
+
+    - Reads fields[biomass_id] as a 2D array.
+    - For each grid cell with concentration > threshold, increases probability of nucleation.
+    - On nucleation, removes `particle_mass` (or available amount) from that cell,
+      and adds a new particle at the cell center (or random within cell).
+    - New particles are constructed "like _make_child" in ParticleDivision:
+        * start from a template particle dict
+        * prune instance containers
+        * assign new id, position, and mass/sub_masses
+        * do NOT inherit parent's sub_masses unless explicitly written
+    """
+
+    config_schema = {
+        # field to consume
+        'biomass_id': make_default('string', 'biomass'),
+
+        # nucleation rule
+        'concentration_threshold': make_default('float', 0.0),
+        'base_probability': make_default('float', 0.0),        # once c > threshold
+        'probability_slope': make_default('float', 0.0),       # per (c - threshold)
+        'max_probability': make_default('float', 1.0),
+
+        # how much to pull out of the field per particle
+        'particle_mass': make_default('float', 1e-3),
+
+        # mapping bins -> positions (assumes fields are [x_bin, y_bin])
+        'n_bins': make_default('tuple[integer,integer]', (10, 10)),
+        'bounds': make_default('tuple[float,float]', (1.0, 1.0)),  # (xmax, ymax), origin assumed (0,0)
+        'position_mode': make_default('string', 'cell_center'),     # "cell_center" or "random_within_cell"
+
+        # particle writing behavior
+        'write_mass_to': make_default('string', 'mass'),  # "mass", "sub_masses", or "both"
+        'sub_mass_key': make_default('string', 'biomass'),
+
+        # particle template (minimal; user can include any other fields they want carried through)
+        'particle_template': make_default('any', {}),
+    }
+
+    def initialize(self, config):
+        pass
+
+    def inputs(self):
+        return {
+            'particles': 'map[particle]',
+            'fields': 'map[field]',
+        }
+
+    def outputs(self):
+        return {
+            'particles': 'map[particle]',
+            'fields': 'map[field]',
+        }
+
+    def initial_state(self, config=None):
+        return {}
+
+    def _cell_bounds(self, i, j, x_bins, y_bins, xmax, ymax):
+        dx = float(xmax) / float(x_bins)
+        dy = float(ymax) / float(y_bins)
+        x0, x1 = i * dx, (i + 1) * dx
+        y0, y1 = j * dy, (j + 1) * dy
+        return x0, x1, y0, y1
+
+    def _cell_position(self, i, j, x_bins, y_bins, xmax, ymax, mode):
+        x0, x1, y0, y1 = self._cell_bounds(i, j, x_bins, y_bins, xmax, ymax)
+        mode = (mode or 'cell_center').lower().strip()
+        if mode == 'random_within_cell':
+            return (float(np.random.uniform(x0, x1)), float(np.random.uniform(y0, y1)))
+        return (0.5 * (x0 + x1), 0.5 * (y0 + y1))
+
+    def _nucleation_probability(self, c, thr, base_p, slope, pmax):
+        if c <= thr:
+            return 0.0
+        p = float(base_p) + float(slope) * (float(c) - float(thr))
+        p = max(0.0, p)
+        return min(float(pmax), p) if pmax is not None else p
+
+    def _make_new_particle(self, template_particle, new_pos, new_mass):
+        """
+        Similar spirit to ParticleDivision._make_child:
+          - start from a template dict
+          - prune instance containers
+          - assign fresh id, position, and mass/sub_masses
+          - IMPORTANT: do not inherit template sub_masses unless requested
+        """
+        pid = short_id()
+
+        child = dict(template_particle) if isinstance(template_particle, dict) else {}
+        child = prune_instance_containers(child)
+
+        child['id'] = pid
+        child['position'] = (float(new_pos[0]), float(new_pos[1]))
+
+        write_mode = str(self.config.get('write_mass_to', 'mass')).lower().strip()
+        sub_key = str(self.config.get('sub_mass_key', 'biomass'))
+
+        # do not inherit any sub_masses by default
+        child.pop('sub_masses', None)
+
+        if write_mode in ('mass', 'both'):
+            child['mass'] = max(float(new_mass), 0.0)
+        else:
+            # if not writing top-level mass, avoid leaving stale template mass
+            child.pop('mass', None)
+
+        if write_mode in ('sub_masses', 'both'):
+            child['sub_masses'] = {sub_key: max(float(new_mass), 0.0)}
+        else:
+            child['sub_masses'] = {}
+
+        # If template has an exchange dict, reset to zeros (mirrors ParticleDivision behavior)
+        exch = template_particle.get('exchange', {}) if isinstance(template_particle, dict) else {}
+        if isinstance(exch, dict) and exch:
+            child['exchange'] = {k: 0.0 for k in exch.keys()}
+
+        return pid, child
+
+    def update(self, state):
+        particles = state.get('particles', {}) or {}
+        fields = state.get('fields', {}) or {}
+
+        biomass_id = str(self.config.get('biomass_id', 'biomass'))
+        field = fields.get(biomass_id, None)
+
+        # no field => no-op
+        if field is None:
+            return {'particles': {}, 'fields': {}}
+
+        # defensive copy
+        field_arr = np.array(field, dtype=float, copy=True)
+        if field_arr.ndim < 2:
+            return {'particles': {}, 'fields': {}}
+
+        thr = float(self.config.get('concentration_threshold', 0.0))
+        base_p = float(self.config.get('base_probability', 0.0))
+        slope = float(self.config.get('probability_slope', 0.0))
+        pmax = float(self.config.get('max_probability', 1.0))
+
+        particle_mass = float(self.config.get('particle_mass', 0.0))
+        if particle_mass <= 0.0:
+            return {'particles': {}, 'fields': {}}
+
+        # shape / mapping
+        fx, fy = field_arr.shape[:2]
+        x_bins, y_bins = self.config.get('n_bins', (fx, fy))
+        x_bins = int(min(int(x_bins), fx))
+        y_bins = int(min(int(y_bins), fy))
+
+        xmax, ymax = self.config.get('bounds', (1.0, 1.0))
+        mode = self.config.get('position_mode', 'cell_center')
+
+        template = self.config.get('particle_template', {}) or {}
+
+        adds = {}
+        any_field_change = False
+
+        for i in range(x_bins):
+            for j in range(y_bins):
+                c = float(field_arr[i, j])
+
+                p = self._nucleation_probability(c, thr, base_p, slope, pmax)
+                if p <= 0.0:
+                    continue
+
+                if float(np.random.uniform(0.0, 1.0)) >= p:
+                    continue
+
+                # pull mass from the field cell (limited by availability)
+                dm = min(particle_mass, max(c, 0.0))
+                if dm <= 0.0:
+                    continue
+
+                field_arr[i, j] = c - dm
+                any_field_change = True
+
+                pos = self._cell_position(i, j, x_bins, y_bins, xmax, ymax, mode)
+                pid, newp = self._make_new_particle(template, pos, dm)
+                adds[pid] = newp
+
+        if not adds and not any_field_change:
+            return {'particles': {}, 'fields': {}}
+
+        out = {}
+        out['particles'] = {'_add': adds} if adds else {}
+
+        # return only updated biomass field
+        out['fields'] = {biomass_id: field_arr} if any_field_change else {}
+
+        return out

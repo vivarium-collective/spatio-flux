@@ -9,19 +9,36 @@ LAPLACIAN_2D = np.array([[0,  1, 0],
 
 class DiffusionAdvection(Process):
     """
-    Explicit finite-difference diffusion–advection in 2D (ny, nx grid).
+    Explicit finite-difference diffusion–advection in 2D using a 1-cell ghost layer.
 
-    Array convention:
-      - state has shape (ny, nx) == (rows, cols)
+    Grid / array convention:
+      - fields are numpy arrays with shape (ny, nx) == (rows, cols)
       - x corresponds to columns (axis=1)
       - y corresponds to rows    (axis=0)
+      - config n_bins is (nx, ny) for consistency with other processes in this codebase
 
-    Boundary conditions are implemented via 1-cell ghost layers,
-    so diffusion and advection both respect them.
+    Boundary conditions:
+      Boundary conditions are implemented via 1-cell ghost layers so that both diffusion and
+      advection use BC-consistent neighbor values.
+
+      Supported per-side BC types (left/right/bottom/top):
+        - "periodic": wrap to opposite side (must be paired on both sides of an axis)
+        - "neumann":  zero normal gradient (diffusive no-flux wall) via ghost = boundary cell
+        - "outflow":  currently treated like neumann for ghost filling (advection-aware outflow
+                      can be added if desired)
+        - "dirichlet": clamp the boundary cell(s) in the domain to `value` every substep
+                       (infinite reservoir / fixed boundary concentration)
+        - "dirichlet_ghost": only clamp the ghost layer using `value` while allowing the
+                             boundary cell(s) to evolve (fixed exterior value at boundary face)
+
+      Notes:
+        - Dirichlet(-ghost) uses ghost = 2*value - boundary_cell.
+        - "dirichlet" pins boundary cells after each substep; "dirichlet_ghost" does not.
+        - For "periodic" you must set both sides periodic for that axis.
     """
 
     config_schema = {
-        # IMPORTANT: n_bins is (ny, nx) to match numpy array shape (rows, cols)
+        # IMPORTANT: n_bins is (nx, ny). Arrays are still (ny, nx) == (rows, cols).
         'n_bins': 'tuple[integer{1},integer{1}]',
         'bounds': 'tuple[float{1.0},float{1.0}]',  # (xmax, ymax)
 
@@ -30,20 +47,35 @@ class DiffusionAdvection(Process):
         'advection_coeffs': 'map[tuple[float,float]]',  # (vx, vy)
 
         # --- boundary conditions ---
-        # You can set global defaults and override per species.
+        # Boundary conditions are applied using a 1-cell ghost layer.
+        # Global defaults can be set under "default" and overridden per species.
         #
-        # Format:
+        # Supported boundary types (per side: left/right/bottom/top):
+        #   - "periodic":        wrap to opposite side (must be paired on both sides of an axis)
+        #   - "neumann":         zero normal gradient (diffusive no-flux wall)
+        #   - "outflow":         treated like neumann for ghost filling (advection-aware behavior
+        #                        may be added in the future)
+        #   - "dirichlet":       clamp the boundary cell(s) in the domain to `value` every substep
+        #                        (infinite reservoir / fixed boundary concentration)
+        #   - "dirichlet_ghost": clamp only the ghost layer using `value`, while allowing the
+        #                        boundary cell(s) to evolve (fixed exterior value at boundary face)
+        #
+        # Shorthand keys:
+        #   - "x": applies to both "left" and "right"
+        #   - "y": applies to both "bottom" and "top"
+        #
+        # Example:
         # boundary_conditions = {
         #   "default": {
-        #      "x": {"type": "periodic"},                  # shorthand for left/right periodic
-        #      "y": {"type": "neumann"},                   # shorthand for bottom/top neumann
-        #      # OR explicitly:
-        #      "left":   {"type": "dirichlet", "value": 1.0},
-        #      "right":  {"type": "neumann"},
-        #      "bottom": {"type": "dirichlet", "value": 0.0},
-        #      "top":    {"type": "outflow"},
+        #     "x": {"type": "periodic"},
+        #     "y": {"type": "neumann"},
         #   },
-        #   "glucose": {"left": {"type":"dirichlet","value":2.0}, "right":{"type":"neumann"}, ...},
+        #   "glucose": {
+        #     "left":   {"type": "dirichlet", "value": 2.0},
+        #     "right":  {"type": "neumann"},
+        #     "bottom": {"type": "dirichlet_ghost", "value": 0.0},
+        #     "top":    {"type": "outflow"},
+        #   }
         # }
         #
         'boundary_conditions': {'_type': 'map', '_default': {}},
@@ -208,6 +240,9 @@ class DiffusionAdvection(Process):
 
         newC = C + dt * (diff_term - adv_term)
 
+        # pin only "dirichlet" (dirichlet_ghost won't pin)
+        newC = self._apply_dirichlet_to_cells(newC, bc)
+
         if self.clip_negative:
             np.maximum(newC, 0.0, out=newC)
 
@@ -316,7 +351,7 @@ class DiffusionAdvection(Process):
             # left ghost
             if left_type in ('neumann', 'outflow'):
                 G[1:-1, 0] = C[:, 0]
-            elif left_type == 'dirichlet':
+            elif left_type in ('dirichlet', 'dirichlet_ghost'):
                 val = float(bc['left'].get('value', 0.0))
                 # ghost chosen so that boundary cell center is pinned well; we also pin explicitly later
                 G[1:-1, 0] = 2.0 * val - C[:, 0]
@@ -326,7 +361,7 @@ class DiffusionAdvection(Process):
             # right ghost
             if right_type in ('neumann', 'outflow'):
                 G[1:-1, -1] = C[:, -1]
-            elif right_type == 'dirichlet':
+            elif right_type in ('dirichlet', 'dirichlet_ghost'):
                 val = float(bc['right'].get('value', 0.0))
                 G[1:-1, -1] = 2.0 * val - C[:, -1]
             else:
@@ -342,7 +377,7 @@ class DiffusionAdvection(Process):
         else:
             if bottom_type in ('neumann', 'outflow'):
                 G[0, 1:-1] = C[0, :]
-            elif bottom_type == 'dirichlet':
+            elif bottom_type in ('dirichlet', 'dirichlet_ghost'):
                 val = float(bc['bottom'].get('value', 0.0))
                 G[0, 1:-1] = 2.0 * val - C[0, :]
             else:
@@ -350,7 +385,7 @@ class DiffusionAdvection(Process):
 
             if top_type in ('neumann', 'outflow'):
                 G[-1, 1:-1] = C[-1, :]
-            elif top_type == 'dirichlet':
+            elif top_type in ('dirichlet', 'dirichlet_ghost'):
                 val = float(bc['top'].get('value', 0.0))
                 G[-1, 1:-1] = 2.0 * val - C[-1, :]
             else:
@@ -363,4 +398,20 @@ class DiffusionAdvection(Process):
         G[-1, -1]   = 0.5 * (G[-2, -1] + G[-1, -2])
 
         return G
+
+    def _apply_dirichlet_to_cells(self, C, bc):
+        # x boundaries
+        if bc['left']['type'].lower() == 'dirichlet':
+            C[:, 0] = float(bc['left'].get('value', 0.0))
+        if bc['right']['type'].lower() == 'dirichlet':
+            C[:, -1] = float(bc['right'].get('value', 0.0))
+
+        # y boundaries (matching your current convention: bottom -> row 0, top -> row -1)
+        if bc['bottom']['type'].lower() == 'dirichlet':
+            C[0, :] = float(bc['bottom'].get('value', 0.0))
+        if bc['top']['type'].lower() == 'dirichlet':
+            C[-1, :] = float(bc['top'].get('value', 0.0))
+
+        return C
+
 

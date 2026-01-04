@@ -48,6 +48,7 @@ SQUARE_BINS = (10, 10)
 
 DEFAULT_BOUNDS = (40.0, 80.0)
 DEFAULT_BINS = (10, 20)
+DEFAULT_DEPTH = 1e0
 DEFAULT_BINS_SMALL = (2, 4)
 DEFAULT_ADVECTION = (0.0, 0.2)
 DEFAULT_DIFFUSION = 0.5
@@ -58,7 +59,6 @@ DEFAULT_INITIAL_MIN_MAX = {
         'glucose': (10, 10),
         'acetate': (0, 0),
         'dissolved biomass': (0, 0.1),
-        # 'detritus': (0, 0)
     }
 
 DEFAULT_RUNTIME_SHORT = 10
@@ -815,8 +815,8 @@ def plot_newtonian_particle_comets(results, state, config=None):
 
     particles_row = config.get("particles_row", "overlay")
     plot_time_series(results, field_names=['glucose', 'acetate', 'dissolved biomass'],
-                     coordinates=[(0, 0), (n_bins[0]-1, n_bins[1]-1)], out_dir='out', filename=f'{filename}_timeseries.png')
-    plot_particles_mass(results, out_dir='out', filename=f'{filename}_mass.png')
+                     coordinates=[(0, 0), (0, n_bins[1]-1), (n_bins[0]-1, 0), (n_bins[0]-1, n_bins[1]-1)],
+                     out_dir='out', filename=f'{filename}_timeseries.png')
     plot_particles_mass_with_submasses(results, out_dir='out', filename=f'{filename}_mass_submasses.png')
 
     submass_colors = {
@@ -859,10 +859,11 @@ def get_reference_composite_doc(core=None, config=None):
     user_cfg = config or {}
     bounds = user_cfg.get("bounds", SQUARE_BOUNDS)
     n_bins = user_cfg.get("n_bins", SQUARE_BINS)
-    depth = user_cfg.get("depth", 1 / 25)
+    depth = user_cfg.get("depth", DEFAULT_DEPTH)  #1e-2 # 1 / 25
 
     # High-level knobs
     division_mass_threshold = 0.4
+    division_jitter = 1e-1
     add_rate = 0.0
     initial_submasses = {
         'ecoli_1': 0.1,
@@ -870,29 +871,36 @@ def get_reference_composite_doc(core=None, config=None):
     }
 
     # Spatial fields state
-    glucose_level = 5.0
+    glucose_initial_level = 1.0
+    glucose_fill_level = 1.0
+    acetate_initial_level = 0.0
+    acetate_fill_level = 0.1
+
     biomass_id = "dissolved biomass"
     mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (glucose_level, glucose_level), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
+    initial_min_max = {"glucose": (glucose_initial_level, glucose_initial_level),
+                       "acetate": (acetate_initial_level, acetate_initial_level),
+                       biomass_id: (0.1, 0.2)}
 
-    # diffusion process config
-    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
+    # diffusion config
+    diffusion_coeffs = {'glucose': 1e0, 'acetate': 1e0, biomass_id: 1e0}
     advection_coeffs = {
-        # biomass_id: (0.0, 0.2), # dissolved biomass floats to the top
+        # biomass_id: (0.0, 0.5), # dissolved biomass floats to the top
         # 'acetate': (0.0, -0.5)  # acetates sinks
     }
     diffusion_boundary_config = {
         "default": {"x": {"type": "periodic"}, "y": {"type": "neumann"}},
-        "glucose": {"top": {"type": "dirichlet", "value": glucose_level}},
-        "acetate": {"bottom": {"type": "dirichlet", "value": glucose_level}}}
+        "glucose": {"top": {"type": "dirichlet_ghost", "value": glucose_fill_level}},
+        "acetate": {"bottom": {"type": "dirichlet_ghost", "value": acetate_fill_level}}
+    }
 
     # Particles + physics config
     n_particles = user_cfg.get("n_particles", 1)
     physics_cfg = {"gravity": -1.0,
                    "elasticity": 0.1,
                    "bounds": bounds,
-                   "jitter_per_second": 1e-2,
-                   "damping_per_second": 0.95,   # viscous
+                   "jitter_per_second": 2e-1,
+                   "damping_per_second": 0.9, #0.95   # viscous
                    "friction": 0.9}
     boundary_cfg = {"add_rate": add_rate}
 
@@ -932,7 +940,7 @@ def get_reference_composite_doc(core=None, config=None):
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
 
     # Graph-Rewrite steps
-    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
+    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, division_jitter=division_jitter, submass_split_mode='random')
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
     # Adapters
@@ -1118,18 +1126,29 @@ SIMULATIONS = {
         'description': 'SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA (e.g., glucose vs acetate strategies) + Monod/diffusion fields + mass-aggregated division.',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time':  120, #DEFAULT_RUNTIME_LONGER*3,
+        'time':  300, #DEFAULT_RUNTIME_LONGER*3,
         'config': {
             'n_bins': SQUARE_BINS
         },
         'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
     },
 
+    # 'reference_demo_depth2': {
+    #     'description': '2x the depth of the spatio-flux reference demo',
+    #     'doc_func': get_reference_composite_doc,
+    #     'plot_func': plot_newtonian_particle_comets,
+    #     'time': 200,
+    #     'config': {
+    #         'depth': 2 * DEFAULT_DEPTH
+    #     },
+    #     'plot_config': {'filename': 'reference_demo_depth10', "particles_row": "separate", "n_snapshots": 8}
+    # },
+
     'reference_demo_x2y2': {
-        'description': 'Different resolution for the spatio-flux reference demo',
+        'description': 'Increased field resolution for the spatio-flux reference demo',
         'doc_func': get_reference_composite_doc,
         'plot_func': plot_newtonian_particle_comets,
-        'time': 120,
+        'time': 300,
         'config': {
             'n_bins': [n * 2 for n in SQUARE_BINS]
         },

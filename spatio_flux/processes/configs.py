@@ -436,6 +436,7 @@ def get_particle_exchange_process(
 
 def get_particle_divide_process(
         division_mass_threshold=0.0,
+        division_jitter=1e-3,
         submass_split_mode='equal',  # 'equal' or 'random'
 ):
     return {
@@ -444,6 +445,7 @@ def get_particle_divide_process(
         'config': {
             'division_mass_threshold': division_mass_threshold,
             'submass_split_mode': submass_split_mode,
+            'division_jitter': division_jitter,
         },
         'inputs': {
             'particles': ['particles']
