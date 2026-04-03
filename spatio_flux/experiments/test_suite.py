@@ -1158,6 +1158,7 @@ def main():
 
     total_sim_time = 0.0  # To track simulation time only
     runtimes = {}
+    timing_details = {}  # {name: (process_time, framework_time)}
 
     test_names = list(SIMULATIONS.keys())
     tests_to_run = args.tests if args.tests else test_names
@@ -1178,19 +1179,22 @@ def main():
         print("Sending document...")
         runtime = sim_info.get('time', DEFAULT_RUNTIME_LONG)
         sim_start = time.time()
-        results = run_composite_document(doc, core=core, name=name, time=runtime,
-                                         show_types=True, show_values=True)
+        results, proc_time, fw_time = run_composite_document(
+            doc, core=core, name=name, time=runtime,
+            show_types=True, show_values=True)
         sim_end = time.time()
 
         sim_elapsed = sim_end - sim_start
         runtimes[name] = sim_elapsed
+        timing_details[name] = (proc_time, fw_time)
         total_sim_time += sim_elapsed
 
         print("Generating plots...")
         plot_config = sim_info.get('plot_config', {})
         sim_info['plot_func'](results, doc.get('state', doc), config=plot_config)
 
-        print(f"✅ Completed: {name} in {sim_elapsed:.2f} seconds")
+        print(f"✅ Completed: {name} in {sim_elapsed:.2f}s "
+              f"(process: {proc_time:.2f}s, framework: {fw_time:.2f}s)")
 
     print(f"\nCompiling HTML report...")
     generate_html_report(
@@ -1198,7 +1202,8 @@ def main():
         {k: v['config'] for k, v in SIMULATIONS.items()},
         {k: v['description'] for k, v in SIMULATIONS.items()},
         runtimes,
-        total_sim_time
+        total_sim_time,
+        timing_details=timing_details,
     )
 
 

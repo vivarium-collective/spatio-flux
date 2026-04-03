@@ -167,9 +167,13 @@ def run_composite_document(
     print(f"⏱ Simulating {name} for {time}s...")
     sim.run(time)
     results = gather_emitter_results(sim)
-    print(f"✅ Simulation complete: {name}")
 
-    return results[('emitter',)]
+    proc_t = sim.process_update_time
+    fw_t = sim.framework_time
+    print(f"✅ Simulation complete: {name} "
+          f"(process: {proc_t:.3f}s, framework: {fw_t:.3f}s)")
+
+    return results[('emitter',)], proc_t, fw_t
 
 def prepare_output_dir(output_dir):
     output_path = Path(output_dir)
@@ -809,7 +813,8 @@ def generate_html_report(
     simulations,
     descriptions,
     runtimes=None,
-    total_sim_time=None
+    total_sim_time=None,
+    timing_details=None,
 ):
     output_dir = Path(output_dir)
     report_path = output_dir / "report.html"
@@ -999,7 +1004,13 @@ def generate_html_report(
             html.append(f"<p><em>{html_escape(description)}</em></p>")
 
         if runtimes and test in runtimes:
-            html.append(f"<p><strong>Runtime:</strong> {runtimes[test]:.2f} seconds</p>")
+            rt = runtimes[test]
+            parts = [f"<strong>Runtime:</strong> {rt:.2f}s"]
+            if timing_details and test in timing_details:
+                proc_t, fw_t = timing_details[test]
+                parts.append(
+                    f"(process: {proc_t:.2f}s, framework: {fw_t:.2f}s)")
+            html.append(f"<p>{' '.join(parts)}</p>")
 
         download_json = (
             next((f for f in files if f.name == f"{test}.json"), None)
