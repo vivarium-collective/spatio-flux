@@ -171,7 +171,7 @@ def apply(schema: PositiveArray, current, update, path):
         Example (2D): {i: {j: delta}}  => current[i, j] += delta, clamped at 0
 
     Returns:
-        (new_array, [])
+        (array, [])
     """
 
     # Scalar fallback (rare): treat as PositiveFloat semantics
@@ -180,23 +180,24 @@ def apply(schema: PositiveArray, current, update, path):
             raise ValueError("Cannot apply dict update to scalar current value.")
         return np.maximum(0, current + update), []
 
-    # Dense update
+    # Dense update — clamp in place to avoid an extra allocation.
     if isinstance(update, np.ndarray):
-        return np.maximum(0, current + update), []
+        np.add(current, update, out=current)
+        np.maximum(current, 0, out=current)
+        return current, []
 
-    # Sparse update (nested dict)
-    result = np.array(current, copy=True)
-
+    # Sparse update (nested dict). Walk only the keys present in the
+    # update — touching cells that received deltas, not the whole grid.
     def _apply_sparse(delta, idx=()):
         if isinstance(delta, dict):
             for k, v in delta.items():
                 _apply_sparse(v, idx + (k,))
             return
-
-        result[idx] = np.maximum(0, result[idx] + delta)
+        new_val = current[idx] + delta
+        current[idx] = new_val if new_val > 0 else 0
 
     _apply_sparse(update)
-    return result, []
+    return current, []
 
 
 # ---------------------------------------------------------------------
