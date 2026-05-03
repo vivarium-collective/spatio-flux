@@ -168,17 +168,21 @@ def validate_model_registry_substrates(model_registry):
     return sorted(all_fields)
 
 
-def load_fba_model(model_file, bounds):
-    """
-    Load an SBML or named model and apply static bounds.
-    """
-    if model_file in MODEL_REGISTRY_DFBA:
-        # Load a named model from the registry
-        model_config = MODEL_REGISTRY_DFBA[model_file]
-        model_file = model_config['model_file']
+_BASE_MODEL_CACHE = {}
 
 
-    # Get the path to the directory containing *this* file
+def _load_base_model(model_file):
+    """Parse the SBML/named model once and cache the parsed cobra model.
+
+    cobra's ``load_model`` caches the SBML *string*, but still re-parses
+    it into a Model on every call. ``read_sbml_model`` doesn't cache at
+    all. The reference demo creates one dFBA per particle per division
+    and was paying ~170 ms of SBML parsing per daughter.
+    """
+    cached = _BASE_MODEL_CACHE.get(model_file)
+    if cached is not None:
+        return cached
+
     base_dir = Path(__file__).resolve().parent
     models_dir = base_dir / '..' / 'models'
     full_path = (models_dir / model_file).resolve()
@@ -189,10 +193,31 @@ def load_fba_model(model_file, bounds):
                 raise FileNotFoundError(f"SBML file not found at: {full_path}")
             model = cobra.io.read_sbml_model(str(full_path))
         else:
-            # Load a named model from registry
             model = load_model(model_file)
-    except:
-        raise ValueError(f"Failed to load model from {model_file}. Ensure it is a valid SBML file or registered model name.")
+    except Exception:
+        raise ValueError(
+            f"Failed to load model from {model_file}. "
+            f"Ensure it is a valid SBML file or registered model name.")
+
+    _BASE_MODEL_CACHE[model_file] = model
+    return model
+
+
+def load_fba_model(model_file, bounds):
+    """
+    Load an SBML or named model and apply static bounds.
+
+    Uses a process-wide cache for the parsed base model and copies it
+    so each caller gets an independent instance with its own bounds.
+    cobra's Model.copy() reuses metabolite/reaction objects more
+    efficiently than re-parsing SBML.
+    """
+    if model_file in MODEL_REGISTRY_DFBA:
+        model_config = MODEL_REGISTRY_DFBA[model_file]
+        model_file = model_config['model_file']
+
+    base = _load_base_model(model_file)
+    model = base.copy()
 
     for rxn_id, limits in bounds.items():
         rxn = model.reactions.get_by_id(rxn_id)

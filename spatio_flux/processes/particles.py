@@ -324,10 +324,8 @@ class ManageBoundaries(Step):
         dt = float(state.get('process_interval', 1.0))
 
         out = {}
-
-        # preserve your engine's special keys
-        out['_remove'] = []
-        out['_add'] = {}
+        removes = []
+        adds = {}
 
         for pid, p in particles.items():
             ox, oy = p.get('position', (0.0, 0.0))
@@ -335,7 +333,7 @@ class ManageBoundaries(Step):
 
             # removal check first (if already out of bounds)
             if self._should_remove(x, y):
-                out['_remove'].append(pid)
+                removes.append(pid)
                 continue
 
             # reflect any out-of-range coordinate
@@ -357,10 +355,18 @@ class ManageBoundaries(Step):
                         'position': pos,
                         'id': pid,
                     })
-                    out['_add'][pid] = new_p
+                    adds[pid] = new_p
 
-        # if nothing happened, emit empty update
-        if not out['_remove'] and not out['_add'] and len(out) == 2:
+        # Only include structural sentinels when non-empty. Emitting
+        # empty ``_add: {}`` / ``_remove: []`` flips ``has_structural``
+        # in the reconciler every tick, forcing a full realize even
+        # when nothing was actually added or removed.
+        if removes:
+            out['_remove'] = removes
+        if adds:
+            out['_add'] = adds
+
+        if not out:
             return {'particles': {}}
 
         return {'particles': out}
@@ -656,11 +662,13 @@ class ParticleDivision(Step):
     def update(self, state):
         particles = state['particles']
 
-        updated_particles = {'_remove': [], '_add': {}}
         thr = float(self.config['division_mass_threshold'])
 
         if thr <= 0.0 or not particles:
             return {'particles': {}}
+
+        removes = []
+        adds = {}
 
         ref_len = self._infer_ref_length(particles)
         r = float(self.config['division_jitter']) * ref_len
@@ -687,7 +695,7 @@ class ParticleDivision(Step):
             projected_count += 1
 
             # Remove parent
-            updated_particles['_remove'].append(pid)
+            removes.append(pid)
 
             # Parent position (fallback to (0,0) if missing)
             px, py = (0.0, 0.0)
@@ -715,13 +723,21 @@ class ParticleDivision(Step):
             c1_id, c1 = self._make_child(particle, c1_pos, child_mass=child_mass, child_sub_masses=c1_sub)
             c2_id, c2 = self._make_child(particle, c2_pos, child_mass=child_mass, child_sub_masses=c2_sub)
 
-            updated_particles['_add'][c1_id] = c1
-            updated_particles['_add'][c2_id] = c2
+            adds[c1_id] = c1
+            adds[c2_id] = c2
 
-        if not updated_particles['_remove'] and not updated_particles['_add']:
+        if not removes and not adds:
             return {'particles': {}}
 
-        return {'particles': updated_particles}
+        # Only include sentinel keys when non-empty so the reconciler
+        # doesn't flip ``has_structural`` on ticks where no division
+        # actually happened (which forces a full realize).
+        out = {}
+        if removes:
+            out['_remove'] = removes
+        if adds:
+            out['_add'] = adds
+        return {'particles': out}
 
 
 class ParticleTotalMass(Step):
