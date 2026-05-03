@@ -15,7 +15,9 @@ Usage:
 
 """
 import argparse
+import gc
 import time
+import matplotlib.pyplot as plt
 import numpy as np
 from pandas._libs import interval
 from process_bigraph import allocate_core
@@ -904,7 +906,7 @@ def get_reference_composite_doc(core=None, config=None):
             'kinetic_params': {'glucose': (0.1, 2), 'acetate': (1.0, 0.1)},
             'bounds': {
                 'EX_o2_e': {'lower': -2, 'upper': None},
-                'ATPM': {'lower': 1, 'upper': 1}
+                'ATPM': {'lower': 3, 'upper': 3}
             },
         },
         "ecoli_2": {
@@ -1199,6 +1201,10 @@ def main():
 
         print(f"✅ Completed: {name} in {sim_elapsed:.2f}s "
               f"(process: {proc_time:.2f}s, framework: {fw_time:.2f}s)")
+
+        plt.close('all')
+        del results, doc
+        gc.collect()
 
     print(f"\nCompiling HTML report...")
     generate_html_report(

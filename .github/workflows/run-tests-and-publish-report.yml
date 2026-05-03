@@ -22,6 +22,8 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
 
       - name: Install system dependencies (Graphviz)
         run: |
@@ -30,8 +32,9 @@ jobs:
 
       - name: Install Python dependencies with uv
         run: |
-          # Install all dependencies into a uv-managed virtual env
-          uv sync
+          # --frozen refuses to install if uv.lock doesn't match
+          # pyproject.toml, so silent dep drift becomes a loud failure.
+          uv sync --frozen
 
       - name: Run tests and generate report
         run: |
