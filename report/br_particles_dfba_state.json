@@ -1,36 +1,34 @@
 {
   "particles": {
-    "YRdKa6aM": {
+    "i79FL0L1": {
       "dFBA": {
-        "address": {
-          "protocol": "local",
-          "data": "DynamicFBA"
-        },
+        "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
-          "bounds": {
-            "ATPM": {
-              "lower": 1.0,
-              "upper": 1.0
-            },
-            "EX_o2_e": {
-              "lower": -2.0
-            }
-          },
+          "model_file": "textbook",
           "kinetic_params": {
-            "acetate": [
-              0.5,
-              2.0
-            ],
             "glucose": [
               0.5,
               1.0
+            ],
+            "acetate": [
+              0.5,
+              2.0
             ]
           },
           "substrate_update_reactions": {
-            "acetate": "EX_ac_e",
-            "glucose": "EX_glc__D_e"
+            "glucose": "EX_glc__D_e",
+            "acetate": "EX_ac_e"
           },
-          "model_file": "textbook"
+          "bounds": {
+            "EX_o2_e": {
+              "lower": -2.0,
+              "upper": null
+            },
+            "ATPM": {
+              "lower": 1.0,
+              "upper": 1.0
+            }
+          }
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
         "_outputs": "substrates:map[count]|biomass:mass",
@@ -49,210 +47,31 @@
           "biomass": [
             "mass"
           ]
-        }
+        },
+        "interval": 1.0
       },
-      "id": "YRdKa6aM",
+      "id": "i79FL0L1",
       "position": [
-        50.0,
-        31.07176804329529
+        17.535490580282147,
+        27.342818149912233
       ],
-      "mass": 0.9964143150298135,
+      "mass": 0.5981219424326498,
       "local": {},
       "exchange": {},
-      "sub_masses": {}
-    },
-    "of4GMuO6": {
-      "dFBA": {
-        "address": {
-          "protocol": "local",
-          "data": "DynamicFBA"
-        },
-        "config": {
-          "bounds": {
-            "ATPM": {
-              "lower": 1.0,
-              "upper": 1.0
-            },
-            "EX_o2_e": {
-              "lower": -2.0
-            }
-          },
-          "kinetic_params": {
-            "acetate": [
-              0.5,
-              2.0
-            ],
-            "glucose": [
-              0.5,
-              1.0
-            ]
-          },
-          "substrate_update_reactions": {
-            "acetate": "EX_ac_e",
-            "glucose": "EX_glc__D_e"
-          },
-          "model_file": "textbook"
-        },
-        "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
-        "inputs": {
-          "substrates": [
-            "local"
-          ],
-          "biomass": [
-            "mass"
-          ]
-        },
-        "outputs": {
-          "substrates": [
-            "exchange"
-          ],
-          "biomass": [
-            "mass"
-          ]
-        }
-      },
-      "id": null,
-      "position": [
-        18.848034098911054,
-        5.622460165551757
+      "sub_masses": {},
+      "shape": "circle",
+      "velocity": [
+        0.0,
+        0.0
       ],
-      "mass": 0.4655630544202695,
-      "local": {
-        "acetate": 0.0,
-        "glucose": 1.12
-      },
-      "exchange": {
-        "acetate": 0.0,
-        "glucose": 0.0
-      },
-      "sub_masses": {}
+      "inertia": 0.0,
+      "friction": 0.0,
+      "elasticity": 0.0,
+      "radius": 0.0
     }
   },
   "global_time": 0.0,
   "fields": {
-    "acetate": [
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ]
-    ],
     "glucose": [
       [
         0.01,
@@ -374,6 +193,128 @@
         10.0,
         10.0
       ]
+    ],
+    "acetate": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
     ]
   },
   "brownian_movement": {
@@ -382,23 +323,22 @@
       "data": "BrownianMovement"
     },
     "config": {
-      "interval": 1.0,
       "bounds": [
         50.0,
         50.0
       ],
-      "diffusion_rate": 0.5,
       "n_bins": [
         0,
         0
       ],
+      "diffusion_rate": 0.5,
       "advection_rate": [
         0.0,
         0.2
       ]
     },
-    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
-    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "inputs": {
       "particles": [
         "particles"
@@ -408,7 +348,8 @@
       "particles": [
         "particles"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "enforce_boundaries": {
     "address": {
@@ -416,7 +357,6 @@
       "data": "ManageBoundaries"
     },
     "config": {
-      "buffer": 0.0001,
       "bounds": [
         50.0,
         50.0
@@ -424,20 +364,19 @@
       "add_rate": 0.1,
       "boundary_to_add": [
         "top",
-        "top",
         "bottom",
         "left",
         "right"
       ],
-      "clamp_survivors": true,
+      "boundary_to_remove": [],
+      "buffer": 0.0001,
       "mass_range": [
         0.001,
         1.0
-      ],
-      "boundary_to_remove": []
+      ]
     },
-    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float",
-    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|process_interval:float",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "inputs": {
       "particles": [
         "particles"
@@ -459,20 +398,18 @@
       "data": "ParticleExchange"
     },
     "config": {
-      "rates_are_per_time": true,
-      "apply_mass_balance": false,
+      "n_bins": [
+        10,
+        10
+      ],
       "bounds": [
         50.0,
         50.0
       ],
-      "depth": 1.0,
-      "n_bins": [
-        10,
-        10
-      ]
+      "depth": 1.0
     },
-    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]",
-    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|fields:map[array[10|10,float]]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|fields:map[array[10|10,float]]",
     "inputs": {
       "particles": [
         "particles"
@@ -496,13 +433,13 @@
       "data": "ParticleDivision"
     },
     "config": {
-      "sub_mass_split": "equal",
-      "submass_split_mode": "equal",
       "division_mass_threshold": 5.0,
-      "division_jitter": 0.001
+      "division_jitter": 0.001,
+      "sub_mass_split": "equal",
+      "max_particles": 0
     },
-    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
-    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "inputs": {
       "particles": [
         "particles"
@@ -520,33 +457,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": {
-        "global_time": "node",
-        "particles": "node",
-        "fields": "node"
-      }
+      "emit": "global_time:node|fields:node|particles:node",
+      "subsample": 1
     },
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "particles": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
-    },
-    "_outputs": "",
+    "_inputs": "global_time:node|fields:node|particles:node",
+    "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     }
   }

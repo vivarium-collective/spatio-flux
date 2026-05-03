@@ -1,19 +1,33 @@
 {
   "global_time": "float",
   "fields": "map[array[20|20,float]]",
-  "diffusion": "link[fields:map[array[10|20,float]],fields:map[array[10|20,float]]]",
-  "emitter": {
-    "_type": "link",
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
+  "diffusion": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
     },
-    "_outputs": "",
+    "config": "node",
+    "_inputs": "fields:map[array[10|20,float]]",
+    "_outputs": "fields:map[array[10|20,float]]",
     "inputs": "wires",
-    "outputs": "wires"
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "emitter": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
   }
 }

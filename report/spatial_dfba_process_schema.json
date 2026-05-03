@@ -1,19 +1,33 @@
 {
   "global_time": "float",
-  "fields": "glucose:array[6|5,float]|acetate:array[6|5,float]|glycolate:array[6|5,float]|ammonium:array[6|5,float]|formate:array[6|5,float]|glutamate:array[6|5,float]|serine:array[6|5,float]|dissolved biomass:array[6|5,float]",
-  "spatial_dFBA": "link[fields:map[positive_array]|biomass:array[6|5,float],fields:map[array[6|5,float]]|biomass:array[6|5,float]]",
-  "emitter": {
-    "_type": "link",
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
+  "fields": "glucose:positive_array|acetate:positive_array|glycolate:positive_array|ammonium:positive_array|formate:positive_array|glutamate:positive_array|serine:positive_array|dissolved biomass:array[6|5,float]",
+  "spatial_dFBA": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
     },
-    "_outputs": "",
+    "config": "node",
+    "_inputs": "fields:map[positive_array]|biomass:array[6|5,float]",
+    "_outputs": "fields:map[array[6|5,float]]|biomass:array[6|5,float]",
     "inputs": "wires",
-    "outputs": "wires"
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "emitter": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
   }
 }

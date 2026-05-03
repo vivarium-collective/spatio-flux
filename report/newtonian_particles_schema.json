@@ -1,20 +1,48 @@
 {
   "global_time": "float",
   "particles": "map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:string|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
-  "newtonian_particles": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]]",
-  "enforce_boundaries": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float,particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
-  "emitter": {
-    "_type": "link",
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "particles": {
-        "_default": null
-      }
+  "newtonian_particles": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
     },
-    "_outputs": "",
+    "config": "node",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "inputs": "wires",
-    "outputs": "wires"
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "enforce_boundaries": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|process_interval:float",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "emitter": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "global_time:node|particles:node",
+    "_outputs": "node",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
   }
 }

@@ -1,20 +1,47 @@
 {
   "global_time": "float",
-  "dFBA": "link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
-  "monod_kinetics": "link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]",
+  "dFBA": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "substrates:map[concentration]|biomass:mass",
+    "_outputs": "substrates:map[count]|biomass:mass",
+    "inputs": "wires",
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "monod_kinetics": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "biomass:mass|substrates:map[concentration]",
+    "_outputs": "biomass:float|substrates:map[float]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "interval": "float"
+  },
   "fields": "glucose:concentration|acetate:concentration|dfba biomass:mass|kinetic biomass:mass",
   "emitter": {
-    "_type": "link",
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
     },
-    "_outputs": "",
+    "config": "node",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
     "inputs": "wires",
-    "outputs": "wires"
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
   }
 }

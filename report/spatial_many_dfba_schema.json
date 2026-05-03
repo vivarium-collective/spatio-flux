@@ -1,19 +1,133 @@
 {
   "global_time": "float",
   "fields": "map[array[4|2,float]]",
-  "spatial_dFBA": "dFBA[0,0]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[1,0]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[0,1]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[1,1]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[0,2]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[1,2]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[0,3]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]|dFBA[1,3]:link[substrates:map[concentration]|biomass:mass,substrates:map[count]|biomass:mass]",
-  "emitter": {
-    "_type": "link",
-    "_inputs": {
-      "global_time": {
-        "_default": null
+  "spatial_dFBA": {
+    "dFBA[0,0]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
       },
-      "fields": {
-        "_default": null
-      }
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
     },
-    "_outputs": "",
+    "dFBA[1,0]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    },
+    "dFBA[0,1]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    },
+    "dFBA[1,1]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    },
+    "dFBA[0,2]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    },
+    "dFBA[1,2]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    },
+    "dFBA[0,3]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    },
+    "dFBA[1,3]": {
+      "_type": "process",
+      "address": {
+        "_type": "protocol",
+        "protocol": "string",
+        "data": "node"
+      },
+      "config": "node",
+      "_inputs": "substrates:map[concentration]|biomass:mass",
+      "_outputs": "substrates:map[count]|biomass:mass",
+      "inputs": "wires",
+      "outputs": "wires",
+      "interval": "float"
+    }
+  },
+  "emitter": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
     "inputs": "wires",
-    "outputs": "wires"
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
   }
 }

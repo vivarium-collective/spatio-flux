@@ -6,22 +6,22 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {},
+      "model_file": "iMM904.xml",
       "kinetic_params": {
-        "ammonium": [
+        "glucose": [
           0.5,
           1.0
         ],
-        "glucose": [
+        "ammonium": [
           0.5,
           1.0
         ]
       },
       "substrate_update_reactions": {
-        "ammonium": "EX_nh4_e",
-        "glucose": "EX_glc__D_e"
+        "glucose": "EX_glc__D_e",
+        "ammonium": "EX_nh4_e"
       },
-      "model_file": "iMM904.xml"
+      "bounds": {}
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -56,7 +56,8 @@
         "fields",
         "biomass"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "fields": {
     "glucose": 5.0,
@@ -69,20 +70,11 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": {
-        "global_time": "node",
-        "fields": "node"
-      }
+      "emit": "global_time:node|fields:node",
+      "subsample": 1
     },
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
-    },
-    "_outputs": "",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"

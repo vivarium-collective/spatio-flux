@@ -6,30 +6,31 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {
-        "ATPM": {
-          "lower": 1.0,
-          "upper": 1.0
-        },
-        "EX_o2_e": {
-          "lower": -2.0
-        }
-      },
+      "model_file": "textbook",
       "kinetic_params": {
-        "acetate": [
-          0.5,
-          2.0
-        ],
         "glucose": [
           0.5,
           1.0
+        ],
+        "acetate": [
+          0.5,
+          2.0
         ]
       },
       "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
+        "glucose": "EX_glc__D_e",
+        "acetate": "EX_ac_e"
       },
-      "model_file": "textbook"
+      "bounds": {
+        "EX_o2_e": {
+          "lower": -2.0,
+          "upper": null
+        },
+        "ATPM": {
+          "lower": 1.0,
+          "upper": 1.0
+        }
+      }
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -64,7 +65,8 @@
         "fields",
         "ecoli core"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "ecoli dFBA": {
     "address": {
@@ -72,22 +74,22 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {},
+      "model_file": "iAF1260.xml",
       "kinetic_params": {
-        "formate": [
-          0.5,
-          2.0
-        ],
         "glucose": [
           0.5,
           1.0
+        ],
+        "formate": [
+          0.5,
+          2.0
         ]
       },
       "substrate_update_reactions": {
-        "formate": "EX_for_e",
-        "glucose": "EX_glc__D_e"
+        "glucose": "EX_glc__D_e",
+        "formate": "EX_for_e"
       },
-      "model_file": "iAF1260.xml"
+      "bounds": {}
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -122,7 +124,8 @@
         "fields",
         "ecoli"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "cdiff dFBA": {
     "address": {
@@ -130,22 +133,22 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {},
+      "model_file": "iCN900.xml",
       "kinetic_params": {
-        "acetate": [
-          0.5,
-          2.0
-        ],
         "glucose": [
           0.5,
           1.0
+        ],
+        "acetate": [
+          0.5,
+          2.0
         ]
       },
       "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
+        "glucose": "EX_glc__D_e",
+        "acetate": "EX_ac_e"
       },
-      "model_file": "iCN900.xml"
+      "bounds": {}
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -180,7 +183,8 @@
         "fields",
         "cdiff"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "pputida dFBA": {
     "address": {
@@ -188,8 +192,12 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {},
+      "model_file": "iJN746.xml",
       "kinetic_params": {
+        "glucose": [
+          1.0,
+          2.0
+        ],
         "ammonium": [
           2.0,
           4.0
@@ -197,18 +205,14 @@
         "glycolate": [
           0.5,
           1.0
-        ],
-        "glucose": [
-          1.0,
-          2.0
         ]
       },
       "substrate_update_reactions": {
+        "glucose": "EX_glc__D_e",
         "ammonium": "EX_nh4_e",
-        "glycolate": "EX_glyclt_e",
-        "glucose": "EX_glc__D_e"
+        "glycolate": "EX_glyclt_e"
       },
-      "model_file": "iJN746.xml"
+      "bounds": {}
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -251,7 +255,8 @@
         "fields",
         "pputida"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "yeast dFBA": {
     "address": {
@@ -259,22 +264,22 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {},
+      "model_file": "iMM904.xml",
       "kinetic_params": {
-        "ammonium": [
+        "glucose": [
           0.5,
           1.0
         ],
-        "glucose": [
+        "ammonium": [
           0.5,
           1.0
         ]
       },
       "substrate_update_reactions": {
-        "ammonium": "EX_nh4_e",
-        "glucose": "EX_glc__D_e"
+        "glucose": "EX_glc__D_e",
+        "ammonium": "EX_nh4_e"
       },
-      "model_file": "iMM904.xml"
+      "bounds": {}
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -309,7 +314,8 @@
         "fields",
         "yeast"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "llactis dFBA": {
     "address": {
@@ -317,8 +323,12 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {},
+      "model_file": "iNF517.xml",
       "kinetic_params": {
+        "glucose": [
+          0.5,
+          1.25
+        ],
         "glutamate": [
           0.05,
           0.1
@@ -326,18 +336,14 @@
         "serine": [
           0.05,
           0.1
-        ],
-        "glucose": [
-          0.5,
-          1.25
         ]
       },
       "substrate_update_reactions": {
+        "glucose": "EX_glc__D_e",
         "glutamate": "EX_glu__L_e",
-        "serine": "EX_ser__L_e",
-        "glucose": "EX_glc__D_e"
+        "serine": "EX_ser__L_e"
       },
-      "model_file": "iNF517.xml"
+      "bounds": {}
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -380,7 +386,8 @@
         "fields",
         "llactis"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "monod_kinetics": {
     "address": {
@@ -389,20 +396,6 @@
     },
     "config": {
       "reactions": {
-        "assimilate_glucose": {
-          "reactant": "glucose",
-          "product": "mass",
-          "km": 0.5,
-          "vmax": 0.01,
-          "yield": 1.0
-        },
-        "maintenance_turnover": {
-          "reactant": "mass",
-          "product": "detritus",
-          "km": 1.0,
-          "vmax": 0.001,
-          "yield": 1.0
-        },
         "assimilate_acetate": {
           "reactant": "acetate",
           "product": "mass",
@@ -437,7 +430,8 @@
         "fields",
         "monod biomass"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "fields": {
     "glucose": 10.0,
@@ -461,20 +455,11 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": {
-        "global_time": "node",
-        "fields": "node"
-      }
+      "emit": "global_time:node|fields:node",
+      "subsample": 1
     },
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
-    },
-    "_outputs": "",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"

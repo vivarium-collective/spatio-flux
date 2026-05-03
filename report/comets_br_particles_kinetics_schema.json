@@ -1,28 +1,138 @@
 {
-  "particles": "map[monod_kinetics:link[biomass:mass|substrates:map[concentration],biomass:float|substrates:map[float]]|id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]",
+  "particles": {
+    "_type": "map",
+    "_key": "string",
+    "_value": {
+      "monod_kinetics": {
+        "_type": "process",
+        "address": {
+          "_type": "protocol",
+          "protocol": "string",
+          "data": "node"
+        },
+        "config": "node",
+        "_inputs": "biomass:mass|substrates:map[concentration]",
+        "_outputs": "biomass:float|substrates:map[float]",
+        "inputs": "wires",
+        "outputs": "wires",
+        "interval": "float"
+      },
+      "id": "string",
+      "position": "tuple[set_float,set_float]",
+      "mass": "mass",
+      "local": "map[concentration]",
+      "exchange": "map[count]",
+      "sub_masses": "map[mass]",
+      "shape": "enum[circle,segment]",
+      "velocity": "tuple[set_float,set_float]",
+      "inertia": "set_float",
+      "friction": "set_float",
+      "elasticity": "set_float",
+      "radius": "set_float"
+    }
+  },
   "global_time": "float",
-  "fields": "map[array[10|10,float]]",
-  "spatial_dFBA": "link[fields:map[positive_array]|biomass:array[10|10,float],fields:map[array[10|10,float]]|biomass:array[10|10,float]]",
-  "diffusion": "link[fields:map[array[10|10,float]],fields:map[array[10|10,float]]]",
-  "brownian_movement": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
-  "enforce_boundaries": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|process_interval:float,particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
-  "particle_exchange": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]|fields:map[array[10|10,float]]]",
-  "particle_division": "link[particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]],particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]]]",
-  "emitter": {
-    "_type": "link",
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "particles": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
+  "fields": "map[positive_array]",
+  "spatial_dFBA": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
     },
-    "_outputs": "",
+    "config": "node",
+    "_inputs": "fields:map[positive_array]|biomass:array[10|10,float]",
+    "_outputs": "fields:map[array[10|10,float]]|biomass:array[10|10,float]",
     "inputs": "wires",
-    "outputs": "wires"
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "diffusion": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "fields:map[array[10|10,float]]",
+    "_outputs": "fields:map[array[10|10,float]]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "brownian_movement": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "enforce_boundaries": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|process_interval:float",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "particle_exchange": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|fields:map[array[10|10,float]]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]|fields:map[array[10|10,float]]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "particle_division": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "emitter": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "global_time:node|fields:node|particles:node",
+    "_outputs": "node",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
   }
 }

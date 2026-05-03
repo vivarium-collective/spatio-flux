@@ -8,18 +8,11 @@
     "config": {
       "reactions": {
         "assimilate_glucose": {
+          "reactant": "glucose",
           "product": "mass",
-          "vmax": 0.4,
           "km": 0.5,
-          "yield": 0.2,
-          "reactant": "glucose"
-        },
-        "maintenance_turnover": {
-          "reactant": "mass",
-          "product": "detritus",
-          "km": 1.0,
-          "vmax": 0.001,
-          "yield": 1.0
+          "vmax": 0.4,
+          "yield": 0.2
         },
         "overflow_to_acetate": {
           "reactant": "glucose",
@@ -70,7 +63,8 @@
         "fields",
         "biomass"
       ]
-    }
+    },
+    "interval": 0.1
   },
   "fields": {
     "glucose": 10.0,
@@ -83,20 +77,11 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": {
-        "global_time": "node",
-        "fields": "node"
-      }
+      "emit": "global_time:node|fields:node",
+      "subsample": 1
     },
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
-    },
-    "_outputs": "",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"

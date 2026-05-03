@@ -1,28 +1,28 @@
 digraph bigraph {
-	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
+	dpi=300 overlap=false rankdir=TB splines=true
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>fields</TD></TR></TABLE>>]
+	"('fields',)" [label=<fields>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.  5. 10. 15. 20…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.  5. 10. 15. 20…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0. 0. 0. 0. 0.]
- […</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+ […</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glycolate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glycolate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'glycolate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glycolate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'ammonium')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ammonium</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'ammonium')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>ammonium</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'formate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>formate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'formate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>formate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glutamate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glutamate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'glutamate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glutamate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[10. 10. 10. 10. 10…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'serine')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>serine</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0. 0. 0. 0. 0.]
- […</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+ […</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.1 0.1 0.1 0.1 0.…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved<BR/>biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.1 0.1 0.1 0.1 0.…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[6|5,float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('spatial_dFBA',)" [label=spatial_dFBA]
+	"('spatial_dFBA',)" [label=<spatial_dFBA>]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
@@ -41,18 +41,6 @@ digraph bigraph {
 	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'dissolved biomass')" -> "('spatial_dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
-		"('fields', 'serine')" -> "('spatial_dFBA',)" [label=<fields/serine> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
-		"('fields', 'ammonium')" -> "('spatial_dFBA',)" [label=<fields/ammonium> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
 		"('fields', 'glutamate')" -> "('spatial_dFBA',)" [label=<fields/glutamate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
@@ -61,7 +49,15 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'glucose')" -> "('spatial_dFBA',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'ammonium')" -> "('spatial_dFBA',)" [label=<fields/ammonium> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
+		"('fields', 'formate')" -> "('spatial_dFBA',)" [label=<fields/formate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
+		"('fields', 'serine')" -> "('spatial_dFBA',)" [label=<fields/serine> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
@@ -69,7 +65,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'formate')" -> "('spatial_dFBA',)" [label=<fields/formate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('spatial_dFBA',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
+		"('fields', 'dissolved biomass')" -> "('spatial_dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('spatial_dFBA',)" [color="#8b3935"]

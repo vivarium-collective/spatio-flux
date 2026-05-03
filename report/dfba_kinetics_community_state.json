@@ -6,30 +6,31 @@
       "data": "DynamicFBA"
     },
     "config": {
-      "bounds": {
-        "ATPM": {
-          "lower": 1.0,
-          "upper": 1.0
-        },
-        "EX_o2_e": {
-          "lower": -2.0
-        }
-      },
+      "model_file": "textbook",
       "kinetic_params": {
-        "acetate": [
-          0.5,
-          2.0
-        ],
         "glucose": [
           0.5,
           1.0
+        ],
+        "acetate": [
+          0.5,
+          2.0
         ]
       },
       "substrate_update_reactions": {
-        "acetate": "EX_ac_e",
-        "glucose": "EX_glc__D_e"
+        "glucose": "EX_glc__D_e",
+        "acetate": "EX_ac_e"
       },
-      "model_file": "textbook"
+      "bounds": {
+        "EX_o2_e": {
+          "lower": -2.0,
+          "upper": null
+        },
+        "ATPM": {
+          "lower": 1.0,
+          "upper": 1.0
+        }
+      }
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -64,7 +65,8 @@
         "fields",
         "dfba biomass"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "monod_kinetics": {
     "address": {
@@ -73,20 +75,6 @@
     },
     "config": {
       "reactions": {
-        "assimilate_glucose": {
-          "reactant": "glucose",
-          "product": "mass",
-          "km": 0.5,
-          "vmax": 0.01,
-          "yield": 1.0
-        },
-        "maintenance_turnover": {
-          "reactant": "mass",
-          "product": "detritus",
-          "km": 1.0,
-          "vmax": 0.001,
-          "yield": 1.0
-        },
         "assimilate_acetate": {
           "reactant": "acetate",
           "product": "mass",
@@ -121,7 +109,8 @@
         "fields",
         "kinetic biomass"
       ]
-    }
+    },
+    "interval": 1.0
   },
   "fields": {
     "glucose": 10.0,
@@ -135,20 +124,11 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": {
-        "global_time": "node",
-        "fields": "node"
-      }
+      "emit": "global_time:node|fields:node",
+      "subsample": 1
     },
-    "_inputs": {
-      "global_time": {
-        "_default": null
-      },
-      "fields": {
-        "_default": null
-      }
-    },
-    "_outputs": "",
+    "_inputs": "global_time:node|fields:node",
+    "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"

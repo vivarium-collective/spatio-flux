@@ -1,14 +1,14 @@
 digraph bigraph {
-	dpi=300 overlap=false rankdir=TB ratio=auto size="16,10" splines=true
+	dpi=300 overlap=false rankdir=TB splines=true
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>fields</TD></TR></TABLE>>]
+	"('fields',)" [label=<fields>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.  0.  0.  0.  0…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[20|20,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved<BR/>biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.  0.  0.  0.  0…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[20|20,float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.76063916 1.51364…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[20|20,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[1.22248355 1.14765…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[20|20,float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('diffusion',)" [label=diffusion]
+	"('diffusion',)" [label=<diffusion>]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
