@@ -1260,7 +1260,7 @@ wheels = [
 
 [[package]]
 name = "spatio-flux"
-version = "1.0.0"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "bigraph-schema" },
@@ -1282,7 +1282,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bigraph-schema", specifier = ">=1.2.3" },
+    { name = "bigraph-schema", specifier = ">=1.2.4" },
     { name = "bigraph-viz", specifier = ">=1.1.0" },
     { name = "cobra" },
     { name = "imageio" },
