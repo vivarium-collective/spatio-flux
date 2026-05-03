@@ -461,7 +461,7 @@ def plot_species_distributions_to_gif(
         filename='species_distribution.gif',
         title='',
         skip_frames=1,
-        max_frames=60,
+        max_frames=None,
         species_to_show=None,
 ):
     # Sort the results as before
@@ -573,7 +573,7 @@ def plot_species_distributions_with_particles_to_gif(
     filename='species_distribution_with_particles.gif',
     title='',
     skip_frames=1,
-    max_frames=60,
+    max_frames=None,
     bounds=(1.0, 1.0),
     mass_scaling=1.0,  # scaling factor for particle radius
     min_mass=0.01,
@@ -664,7 +664,7 @@ def plot_particles(
         filename='multi_species_diffusion.gif',
         fps=20,
         mass_scaling=10.0,
-        max_frames=60,
+        max_frames=None,
 ):
     """
     Plot particle movements and save the animation as a GIF.
@@ -1679,7 +1679,7 @@ def fields_and_agents_to_gif(
     filename='simulation_with_fields.gif',
     out_dir='out',
     skip_frames=1,
-    max_frames=60,
+    max_frames=None,
     title='',
     figure_size_inches=(6, 6),
     dpi=90,

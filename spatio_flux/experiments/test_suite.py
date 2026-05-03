@@ -442,7 +442,7 @@ def get_brownian_particles_alone_doc(core=None, config=None):
     n_bins = SQUARE_BINS
     bounds = SQUARE_BOUNDS
     n_particles = 1
-    time_interval = 1.0
+    time_interval = 0.1
     diffusion_rate = DEFAULT_DIFFUSION
     add_rate = 0.01
     doc = {
@@ -931,14 +931,8 @@ def get_reference_composite_doc(core=None, config=None):
     spatial_kinetics = get_spatial_many_kinetics(model_id="low_yield_glucose_overflow", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
 
-    # Graph-Rewrite steps. The reference demo carries internal
-    # multi-dFBA per particle; unbounded division blows up RAM as
-    # each new particle adds N internal processes. Cap the live
-    # population so the demo runs in bounded memory.
-    particle_division = get_particle_divide_process(
-        division_mass_threshold=division_mass_threshold,
-        submass_split_mode='random',
-        max_particles=user_cfg.get('max_particles', 32))
+    # Graph-Rewrite steps
+    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
     # Adapters

@@ -256,7 +256,7 @@ def pymunk_simulation_to_gif(
     filename='simulation.gif',
     out_dir='out',
     skip_frames=1,
-    max_frames=60,
+    max_frames=None,
     figure_size_inches=(6, 6),
     dpi=90,
     show_time_title=False,
