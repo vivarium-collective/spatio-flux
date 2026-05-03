@@ -562,6 +562,12 @@ class ParticleDivision(Step):
 
         # How to split sub_mass['sub_masses'] across daughters: "equal" or "random"
         'sub_mass_split': make_default('string', 'equal'),
+
+        # Hard cap on the live particle population. Once reached,
+        # division is skipped (parents stay alive past threshold).
+        # Prevents the exponential blow-up that takes down the
+        # process. 0 disables the cap.
+        'max_particles': make_default('integer', 0),
     }
 
     def initialize(self, config):
@@ -661,10 +667,24 @@ class ParticleDivision(Step):
 
         split_mode = str(self.config.get('sub_mass_split', 'equal')).lower().strip()
 
+        # Population cap: each division is +1 net particle. Track the
+        # projected count as we plan splits so we don't burst past
+        # the cap inside one tick.
+        max_particles = int(self.config.get('max_particles', 0) or 0)
+        projected_count = len(particles)
+
         for pid, particle in particles.items():
             mass = float(particle.get('mass', 0.0))
             if mass < thr:
                 continue
+
+            if max_particles and projected_count >= max_particles:
+                # Cap reached — leave the parent in place this tick
+                # rather than triggering exponential growth. The
+                # particle stays above threshold and may divide on
+                # a later tick once the population shrinks.
+                continue
+            projected_count += 1
 
             # Remove parent
             updated_particles['_remove'].append(pid)

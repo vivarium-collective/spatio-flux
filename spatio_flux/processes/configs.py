@@ -437,6 +437,7 @@ def get_particle_exchange_process(
 def get_particle_divide_process(
         division_mass_threshold=0.0,
         submass_split_mode='equal',  # 'equal' or 'random'
+        max_particles=0,             # 0 = unbounded; set per-test for heavy composites
 ):
     return {
         '_type': 'step',
@@ -444,6 +445,7 @@ def get_particle_divide_process(
         'config': {
             'division_mass_threshold': division_mass_threshold,
             'submass_split_mode': submass_split_mode,
+            'max_particles': max_particles,
         },
         'inputs': {
             'particles': ['particles']
@@ -635,15 +637,16 @@ def get_community_dfba_particle_composition(
         'outputs': make_default("wires", {'total_mass': [particle_mass_id]})
     }
 
-    # TODO -- this is making the type display wrong
+    # sub_masses is keyed by model name with mass-typed values.
+    # A plain dict (not a Map) declares the explicit key set so each
+    # daughter inherits the same {ecoli_1, ecoli_2, ...} shape and apply
+    # dispatches into Mass at each key. Wrapping as Map[{...}] is wrong
+    # because Map._value must be a single type, not a per-key dict —
+    # apply(Map) recurses with value_schema=_value, expecting a typed
+    # node and getting a dict-of-Mass instead.
     processes["sub_masses"] = {
-        '_type': 'map',
-        '_value': {
-            mass_name: 'mass' for mass_name in models.keys()}}
-    # processes["sub_masses"] = 'map[mass]'
-    # processes["sub_masses"] = {
-    #     mass_name: 'mass' for mass_name in models.keys()
-    # }
+        mass_name: 'mass' for mass_name in models.keys()
+    }
 
     return {
         "particles": {

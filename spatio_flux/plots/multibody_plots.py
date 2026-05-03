@@ -256,6 +256,7 @@ def pymunk_simulation_to_gif(
     filename='simulation.gif',
     out_dir='out',
     skip_frames=1,
+    max_frames=60,
     figure_size_inches=(6, 6),
     dpi=90,
     show_time_title=False,
@@ -281,6 +282,12 @@ def pymunk_simulation_to_gif(
     # merge layers & downsample frames
     if isinstance(data, (list, tuple)) and data:
         data = merge_plot_layers(data, merged_key=agents_key)
+    # Cap total frames so the GIF stays embeddable in the HTML
+    # report. Caller's explicit skip_frames wins; otherwise pick a
+    # stride that keeps output around max_frames.
+    n_total = len(data) if hasattr(data, '__len__') else len(list(data))
+    if max_frames is not None and n_total > max_frames * skip_frames:
+        skip_frames = max(1, int(-(-n_total // max_frames)))
     frames = list(data)[::max(1, int(skip_frames))]
     if not frames: raise ValueError("No frames to render.")
 

@@ -49,16 +49,20 @@ def initialize_fields(n_bins, initial_min_max=None):
     return fields
 
 
-def get_standard_emitter(state_keys):
+def get_standard_emitter(state_keys, subsample=1):
     OPTIONAL_KEYS = {'fields', 'particles', 'lattice'}
     # Always include 'global_time', include optional keys if present
     included_keys = ['global_time'] + [key for key in OPTIONAL_KEYS if key in state_keys]
     emitter_spec = {key: [key] for key in included_keys}
-    return emitter_from_wires(emitter_spec)
+    return emitter_from_wires(emitter_spec, subsample=subsample)
+
+
+EMIT_TARGET_COUNT = 60
 
 
 def run_composite_document(
-        document, core=None, name=None, time=None, outdir="out", show_types=False, show_values=False):
+        document, core=None, name=None, time=None, outdir="out", show_types=False, show_values=False,
+        emit_subsample=None, emit_target_count=EMIT_TARGET_COUNT):
     """
     Instantiates and runs a Composite simulation.
 
@@ -68,6 +72,14 @@ def run_composite_document(
         core (VivariumTypes): Core schema registration object.
         name (str): Output name prefix.
         outdir (str): Output directory.
+        emit_subsample (int): record every Nth tick in the RAMEmitter.
+            None (default) auto-computes a stride that targets
+            ``emit_target_count`` total emits. Pass an int to override.
+        emit_target_count (int): target total number of emits when
+            ``emit_subsample`` is None. Default 60 — matches the
+            60-frame cap in the GIF generators, so the emit rate
+            and the plot rate are aligned. Bigger means more
+            time-series resolution and more RAM during the run.
 
     Returns:
         dict: Simulation results emitted during the run.
@@ -81,11 +93,19 @@ def run_composite_document(
         date = datetime.now().strftime('%Y%m%d_%H%M%S')
         name = f'spatio_flux_{date}'
 
+    # Auto-stride: aim for ~emit_target_count emits regardless of
+    # runtime. ``time`` here is in the composite's internal units;
+    # processes with interval=1.0 emit once per unit, so this is a
+    # good proxy for tick count in the spatio-flux suite.
+    if emit_subsample is None:
+        emit_subsample = max(1, int(-(-int(time) // max(1, emit_target_count))))
+
     # Ensure proper structure for Vivarium Composite
     document = {'state': document} if 'state' not in document else document
     if 'emitter' not in document['state']:
         state_keys = list(document['state'].keys())
-        document['state']['emitter'] = get_standard_emitter(state_keys=state_keys)
+        document['state']['emitter'] = get_standard_emitter(
+            state_keys=state_keys, subsample=emit_subsample)
 
     print(f"🧩 Making composite {name}...")
 

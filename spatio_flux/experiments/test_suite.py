@@ -239,7 +239,7 @@ def get_dfba_kinetics_community_doc(core=None, config=None):
 def plot_dfba_kinetics_community(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_kinetics_community')
-    species_ids = ['glucose', 'acetate', 'dfba_biomass', 'kinetic_biomass']
+    species_ids = ['glucose', 'acetate', 'dfba biomass', 'kinetic biomass']
     plot_time_series(results, field_names=species_ids,
                      # log_scale=True,
                      # normalize=True,
@@ -442,7 +442,7 @@ def get_brownian_particles_alone_doc(core=None, config=None):
     n_bins = SQUARE_BINS
     bounds = SQUARE_BOUNDS
     n_particles = 1
-    time_interval = 0.1
+    time_interval = 1.0
     diffusion_rate = DEFAULT_DIFFUSION
     add_rate = 0.01
     doc = {
@@ -931,8 +931,14 @@ def get_reference_composite_doc(core=None, config=None):
     spatial_kinetics = get_spatial_many_kinetics(model_id="low_yield_glucose_overflow", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
     newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
 
-    # Graph-Rewrite steps
-    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
+    # Graph-Rewrite steps. The reference demo carries internal
+    # multi-dFBA per particle; unbounded division blows up RAM as
+    # each new particle adds N internal processes. Cap the live
+    # population so the demo runs in bounded memory.
+    particle_division = get_particle_divide_process(
+        division_mass_threshold=division_mass_threshold,
+        submass_split_mode='random',
+        max_particles=user_cfg.get('max_particles', 32))
     enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
 
     # Adapters
@@ -1122,7 +1128,7 @@ SIMULATIONS = {
         'config': {
             'n_bins': SQUARE_BINS
         },
-        'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8}
+        'plot_config': {'filename': 'spatioflux_reference_demo', "particles_row": "separate", "n_snapshots": 8},
     },
 
     'reference_demo_x2y2': {
@@ -1133,7 +1139,7 @@ SIMULATIONS = {
         'config': {
             'n_bins': [n * 2 for n in SQUARE_BINS]
         },
-        'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8}
+        'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8},
     }
 }
 
@@ -1178,10 +1184,14 @@ def main():
 
         print("Sending document...")
         runtime = sim_info.get('time', DEFAULT_RUNTIME_LONG)
+        # Per-test override for emit cadence; default auto-computes
+        # in run_composite_document to target ~60 emits.
+        emit_subsample = sim_info.get('emit_subsample')
         sim_start = time.time()
         results, proc_time, fw_time = run_composite_document(
             doc, core=core, name=name, time=runtime,
-            show_types=True, show_values=True)
+            show_types=True, show_values=True,
+            emit_subsample=emit_subsample)
         sim_end = time.time()
 
         sim_elapsed = sim_end - sim_start

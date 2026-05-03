@@ -461,6 +461,7 @@ def plot_species_distributions_to_gif(
         filename='species_distribution.gif',
         title='',
         skip_frames=1,
+        max_frames=60,
         species_to_show=None,
 ):
     # Sort the results as before
@@ -482,6 +483,12 @@ def plot_species_distributions_to_gif(
 
     times = sorted_results['time']
     n_times = len(times)
+
+    # Cap total emitted frames so the GIF stays embeddable in the
+    # HTML report. Caller's explicit skip_frames wins; otherwise pick
+    # a stride that keeps output around max_frames.
+    if max_frames is not None and n_times > max_frames * skip_frames:
+        skip_frames = max(1, int(np.ceil(n_times / max_frames)))
 
     # Compute global min and max for each selected species
     global_min_max = {
@@ -566,6 +573,7 @@ def plot_species_distributions_with_particles_to_gif(
     filename='species_distribution_with_particles.gif',
     title='',
     skip_frames=1,
+    max_frames=60,
     bounds=(1.0, 1.0),
     mass_scaling=1.0,  # scaling factor for particle radius
     min_mass=0.01,
@@ -639,6 +647,7 @@ def plot_species_distributions_with_particles_to_gif(
         filename=filename,
         out_dir=out_dir or "out",
         skip_frames=skip_frames,
+        max_frames=max_frames,
         title=title,
         figure_size_inches=(5 * max(1, len(sorted_results.get("fields", {}))), 5),
         dpi=120,                 # matches your old-ish output sharpness
@@ -655,6 +664,7 @@ def plot_particles(
         filename='multi_species_diffusion.gif',
         fps=20,
         mass_scaling=10.0,
+        max_frames=60,
 ):
     """
     Plot particle movements and save the animation as a GIF.
@@ -672,8 +682,15 @@ def plot_particles(
     ax.set_aspect('equal')
     n_frames = len(history)
 
+    # Cap total emitted frames so the GIF stays embeddable in the
+    # HTML report.
+    if max_frames is not None and n_frames > max_frames:
+        stride = max(1, int(np.ceil(n_frames / max_frames)))
+    else:
+        stride = 1
+
     images = []
-    for frame in range(n_frames):  # Include initial position
+    for frame in range(0, n_frames, stride):  # Include initial position
         ax.clear()
         ax.set_title(f'time {frame}')
         ax.set_xlim(*env_size[0])
@@ -1341,9 +1358,14 @@ def plot_snapshots_grid(
         r = p.get(particle_radius_key, None)
         if r is not None:
             try:
-                return float(r)
+                r_val = float(r)
             except Exception:
-                pass
+                r_val = None
+            # Treat 0.0 as "uninitialized": brownian particles default
+            # radius to 0 and rely on the mass-based fallback to draw
+            # something visible on snapshots.
+            if r_val is not None and r_val > 0:
+                return r_val
 
         if radius_fallback_from_mass:
             m = p.get(particle_mass_key, None)
@@ -1657,6 +1679,7 @@ def fields_and_agents_to_gif(
     filename='simulation_with_fields.gif',
     out_dir='out',
     skip_frames=1,
+    max_frames=60,
     title='',
     figure_size_inches=(6, 6),
     dpi=90,
@@ -1712,6 +1735,13 @@ def fields_and_agents_to_gif(
     # field_for_imshow should exist in your module; keep behavior consistent.
     # If not, uncomment a simple default:
     # def field_for_imshow(a): return np.asarray(a)
+
+    # Cap total frames so the GIF stays embeddable in the HTML
+    # report. Caller's explicit skip_frames wins; otherwise pick a
+    # stride that keeps output around max_frames.
+    n_total = len(data) if hasattr(data, '__len__') else len(list(data))
+    if max_frames is not None and n_total > max_frames * skip_frames:
+        skip_frames = max(1, int(np.ceil(n_total / max_frames)))
 
     # Make list of frames & downsample
     if isinstance(data, (list, tuple)):
