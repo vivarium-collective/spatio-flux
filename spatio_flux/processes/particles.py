@@ -671,7 +671,7 @@ class ParticleDivision(Step):
         adds = {}
 
         ref_len = self._infer_ref_length(particles)
-        r = float(self.config['division_jitter']) * ref_len
+        jitter_offset = float(self.config['division_jitter']) * ref_len
 
         split_mode = str(self.config.get('sub_mass_split', 'equal')).lower().strip()
 
@@ -703,7 +703,24 @@ class ParticleDivision(Step):
             if isinstance(pos, (list, tuple)) and len(pos) == 2:
                 px, py = float(pos[0]), float(pos[1])
 
-            # Symmetric jitter around parent
+            # Split parent mass equally (as before)
+            child_mass = max(mass, 0.0) / 2.0
+
+            # Daughters must be separated by at least 2*radius (no overlap),
+            # else pymunk's contact resolver fires a strong elastic impulse
+            # that compounds across generations and propels them outward.
+            # ``radius`` may not be declared in the particle's projected
+            # schema for this Step, so fall back to deriving it from the
+            # daughter mass and the default circle density.
+            try:
+                parent_radius = float(particle.get('radius', 0.0) or 0.0)
+            except (TypeError, ValueError):
+                parent_radius = 0.0
+            if parent_radius <= 0.0 and child_mass > 0.0:
+                parent_radius = math.sqrt(child_mass / (0.015 * math.pi))
+            min_offset = parent_radius + 1e-3
+            r = max(jitter_offset, min_offset)
+
             if r > 0.0:
                 angle = float(np.random.uniform(0.0, 2.0 * np.pi))
                 ox, oy = r * np.cos(angle), r * np.sin(angle)
@@ -712,9 +729,6 @@ class ParticleDivision(Step):
 
             c1_pos = (px + ox, py + oy)
             c2_pos = (px - ox, py - oy)
-
-            # Split parent mass equally (as before)
-            child_mass = max(mass, 0.0) / 2.0
 
             # Split sub_masses under sub_mass key
             parent_sub_masses = particle.get('sub_masses', {})

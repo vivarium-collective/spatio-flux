@@ -211,10 +211,12 @@ class PymunkParticleMovement(Process):
         # ------- integrate -------
         n_steps = max(1, int(self.config.get('substeps', 100)))
         dt = float(interval) / n_steps
-        d_step = self.damping_per_second ** max(dt, 0.0)
+        # pymunk applies v *= damping**dt internally per step, so set the
+        # per-second value directly. (Raising it to dt here would compound
+        # the dt factor and effectively disable damping.)
+        self.space.damping = self.damping_per_second
 
         for _ in range(n_steps):
-            self.space.damping = d_step
             # Only apply noise to dynamic bodies (skip static walls/kinematics)
             for body in self.space.bodies:
                 if body.body_type != pymunk.Body.DYNAMIC:
