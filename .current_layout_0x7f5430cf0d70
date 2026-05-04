@@ -1,0 +1,30 @@
+model_file ./e_coli_core.cmd 
+  model_world
+    grid_size 1 1
+    world_media
+      ac_e 0.0
+      acald_e 0.0
+      akg_e 0.0
+      co2_e 0.0
+      etoh_e 0.0
+      for_e 0.0
+      fru_e 0.0
+      fum_e 0.0
+      glc__D_e 0.011
+      gln__L_e 0.0
+      glu__L_e 0.0
+      h2o_e 1000.0
+      h_e 1000.0
+      lac__D_e 0.0
+      mal__L_e 0.0
+      nh4_e 1000.0
+      o2_e 1000.0
+      pi_e 1000.0
+      pyr_e 0.0
+      succ_e 0.0
+    //
+  //
+  initial_pop
+    0 0 0.0001
+  //
+//
