@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import os
 import time
+import base64
 import shutil
 from pathlib import Path
 
@@ -37,7 +38,11 @@ from spatio_flux.processes import (
     get_fields_with_schema,
     MODEL_REGISTRY_DFBA,
 )
+from spatio_flux.processes.dfba import DynamicFBA
 from spatio_flux.library.tools import run_composite_document
+from spatio_flux.library.ray_process import register_process_class
+from spatio_flux.library.tools import get_standard_emitter
+from process_bigraph import Composite, gather_emitter_results
 
 # cometspy
 import cometspy as cspy
@@ -48,7 +53,7 @@ import cometspy as cspy
 # ---------------------------------------------------------------------------
 # Units: hours, cm, mmol, gDW.
 
-DEFAULT_GRIDS = [4, 8, 16]         # N for an NxN grid; doubling sweep
+DEFAULT_GRIDS = [4, 8, 16, 32]     # N for an NxN grid; doubling sweep
 COMPARISON_GRID = 16               # the N used for the snapshot/timeseries panels
 
 TIME_STEP = 0.1                    # hours per dFBA step
@@ -443,6 +448,140 @@ def run_spatioflux_single(n: int, total_time: float = TOTAL_TIME, core=None) -> 
 
 
 # ---------------------------------------------------------------------------
+# spatio-flux RAY variant: per-cell DynamicFBA on Ray actors, dispatched
+# concurrently via ParallelComposite. Same physics as run_spatioflux —
+# only the transport/composition layer changes.
+# ---------------------------------------------------------------------------
+_RAY_REGISTERED = False
+
+def _ensure_ray_registered():
+    """One-time registration of DynamicFBA into the Ray-side registry so
+    actors can resolve it. Idempotent."""
+    global _RAY_REGISTERED
+    if not _RAY_REGISTERED:
+        register_process_class("DynamicFBA", DynamicFBA)
+        _RAY_REGISTERED = True
+
+
+def _build_ray_dfba_processes(n: int, mol_ids: list, biomass_id: str = "dissolved biomass",
+                              pool_size: int | None = None):
+    """Mirror of get_spatial_many_dfba, but each per-cell process is a
+    RayProcess routing through a shared actor pool. All cells use the
+    same (process_class, process_config) so they share one pool."""
+    cfg = MODEL_REGISTRY_DFBA["ecoli core"]
+    if pool_size is None:
+        pool_size = max(1, (os.cpu_count() or 4))
+    nx, ny = n, n
+    procs = {}
+    for y in range(ny):
+        for x in range(nx):
+            substrate_wires = {
+                m: ["fields", m, y, x] for m in mol_ids if m != biomass_id
+            }
+            procs[f"dFBA[{x},{y}]"] = {
+                "_type": "process",
+                "address": "local:RayProcess",
+                "config": {
+                    "process_class": "DynamicFBA",
+                    "process_config": cfg,
+                    "pool_size": int(pool_size),
+                },
+                "inputs": {
+                    "substrates": substrate_wires,
+                    "biomass": ["fields", biomass_id, y, x],
+                },
+                "outputs": {
+                    "substrates": substrate_wires,
+                    "biomass": ["fields", biomass_id, y, x],
+                },
+                "interval": float(TIME_STEP),
+            }
+    return procs
+
+
+def run_spatioflux_ray(n: int, total_time: float = TOTAL_TIME, core=None) -> dict:
+    """Per-cell DynamicFBA on Ray actors, dispatched in parallel via
+    ParallelComposite. Same physical setup as run_spatioflux."""
+    _ensure_ray_registered()
+    core = core or allocate_core()
+
+    n_bins = (n, n)
+    bounds = (n * SPACE_WIDTH, n * SPACE_WIDTH)
+    mol_ids = ["glucose", "acetate", "dissolved biomass"]
+
+    D_glc = float(GLC_DIFF) * 3600.0
+    D_bm  = float(BIOMASS_DIFF) * 3600.0
+    diffusion_coeffs = {
+        "glucose":           D_glc,
+        "acetate":           D_glc,
+        "dissolved biomass": D_bm,
+    }
+
+    glc_field = initial_glucose_field(n)
+    ac_field = np.zeros((n, n), dtype=float)
+    bm_field = np.zeros((n, n), dtype=float)
+    bx, by = biomass_seed_position(n)
+    bm_field[by, bx] = INITIAL_BIOMASS
+
+    initial_fields = {
+        "glucose": glc_field,
+        "acetate": ac_field,
+        "dissolved biomass": bm_field,
+    }
+
+    state = {
+        **_build_ray_dfba_processes(n, mol_ids),
+        "fields": get_fields_with_schema(
+            n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields
+        ),
+        "diffusion": {
+            **get_diffusion_advection_process(
+                bounds=bounds,
+                n_bins=n_bins,
+                mol_ids=mol_ids,
+                diffusion_coeffs=diffusion_coeffs,
+                advection_coeffs={},
+            ),
+            "interval": float(TIME_STEP),
+        },
+    }
+    state["emitter"] = get_standard_emitter(state_keys=list(state.keys()))
+
+    # Hand-rolled runner. parallel_processes=True is the upstream flag that
+    # makes the orchestrator dispatch per-tick process invocations through a
+    # ThreadPoolExecutor — required for RayProcess.update()'s blocking
+    # ray.get to actually overlap across cells.
+    sim = Composite(
+        {"state": state, "parallel_processes": True},
+        core=core,
+    )
+    t0 = time.perf_counter()
+    sim.run(float(total_time))
+    wall = time.perf_counter() - t0
+    raw = gather_emitter_results(sim)[("emitter",)]
+
+    n_emits = len(raw)
+    bm_hist  = np.zeros((n_emits, n, n), dtype=float)
+    glc_hist = np.zeros((n_emits, n, n), dtype=float)
+    ac_hist  = np.zeros((n_emits, n, n), dtype=float)
+    times = np.zeros(n_emits, dtype=float)
+    for i, step in enumerate(raw):
+        f = step["fields"]
+        bm_hist[i]  = np.asarray(f["dissolved biomass"])
+        glc_hist[i] = np.asarray(f["glucose"])
+        ac_hist[i]  = np.asarray(f["acetate"])
+        times[i] = float(step.get("global_time", i))
+
+    return {
+        "wall_time": wall,
+        "biomass_history": bm_hist,
+        "glucose_history": glc_hist,
+        "acetate_history": ac_hist,
+        "time_h": times,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Plotting
 # ---------------------------------------------------------------------------
 def _frame_indices(T: int, k: int) -> list[int]:
@@ -458,6 +597,8 @@ RUN_STYLE = {
                           "color": "#1f77b4", "ls": "-",  "marker": "o"},
     "spatioflux_single": {"label": "spatio-flux (SpatialDFBA)",
                           "color": "#2ca02c", "ls": "-.", "marker": "^"},
+    "spatioflux_ray":    {"label": "spatio-flux (Ray actors, parallel)",
+                          "color": "#9467bd", "ls": ":",  "marker": "D"},
     "cometspy":          {"label": "cometspy",
                           "color": "#d62728", "ls": "--", "marker": "s"},
 }
@@ -621,26 +762,42 @@ def plot_scaling(scaling: list[dict], out_path: Path):
 # ---------------------------------------------------------------------------
 # HTML report
 # ---------------------------------------------------------------------------
+_MIME_BY_EXT = {".png": "image/png", ".gif": "image/gif", ".jpg": "image/jpeg"}
+
+def _embed(out_dir: Path, name: str) -> str | None:
+    """Return a `data:` URI for the image at `out_dir/name`, or None if missing."""
+    p = out_dir / name
+    if not p.exists():
+        return None
+    mime = _MIME_BY_EXT.get(p.suffix.lower(), "application/octet-stream")
+    data = base64.b64encode(p.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{data}"
+
+
 def write_html_report(out_dir: Path, scaling: list[dict],
                       snap_n: int | None, grids: list[int]) -> None:
-    """Write a self-contained report.html that links every artifact."""
+    """Write a fully self-contained report.html with all images base64-embedded."""
+    def _f(x): return f"{x:.2f}s" if x is not None else "—"
+    def _r(num, den): return f"{num/den:.1f}×" if (num and den) else "—"
+
     rows = []
     for r in scaling:
         n = r["n"]
         cm = r.get("cometspy_time")
         sm = r.get("spatioflux_many_time")
         ss = r.get("spatioflux_single_time")
-        ratio = (sm / cm) if (cm and sm) else None
-        ratio_single = (ss / cm) if (cm and ss) else None
+        sr = r.get("spatioflux_ray_time")
         rows.append(
-            f"<tr>"
+            "<tr>"
             f"<td>{n}×{n}</td>"
-            f"<td>{cm:.2f}s</td>"
-            f"<td>{sm:.2f}s</td>"
-            f"<td>{ss:.2f}s</td>"
-            f"<td>{ratio:.1f}×</td>"
-            f"<td>{ratio_single:.1f}×</td>"
-            f"</tr>"
+            f"<td>{_f(cm)}</td>"
+            f"<td>{_f(sm)}</td>"
+            f"<td>{_f(ss)}</td>"
+            f"<td>{_f(sr)}</td>"
+            f"<td>{_r(sm, cm)}</td>"
+            f"<td>{_r(ss, cm)}</td>"
+            f"<td>{_r(sr, cm)}</td>"
+            "</tr>"
         )
     table = (
         "<table class='tbl'>"
@@ -648,30 +805,32 @@ def write_html_report(out_dir: Path, scaling: list[dict],
         "<th>grid</th><th>cometspy</th>"
         "<th>spatio-flux<br><span class='dim'>per-cell processes</span></th>"
         "<th>spatio-flux<br><span class='dim'>SpatialDFBA</span></th>"
+        "<th>spatio-flux<br><span class='dim'>Ray actors</span></th>"
         "<th>per-cell ÷ cometspy</th>"
         "<th>SpatialDFBA ÷ cometspy</th>"
+        "<th>Ray ÷ cometspy</th>"
         "</tr></thead>"
         f"<tbody>{''.join(rows)}</tbody></table>"
     )
 
     gif_blocks = []
     for n in grids:
-        gif = f"compare_n{n}.gif"
-        if (out_dir / gif).exists():
+        uri = _embed(out_dir, f"compare_n{n}.gif")
+        if uri:
             gif_blocks.append(
                 f"<figure><figcaption>N={n}×{n}</figcaption>"
-                f"<img src='{gif}' alt='compare n={n}'></figure>"
+                f"<img src='{uri}' alt='compare n={n}'></figure>"
             )
 
     snap_block = ""
     if snap_n is not None:
         items = []
         for field in ("glucose", "acetate", "biomass"):
-            f = f"snapshots_{field}_n{snap_n}.png"
-            if (out_dir / f).exists():
+            uri = _embed(out_dir, f"snapshots_{field}_n{snap_n}.png")
+            if uri:
                 items.append(
                     f"<figure><figcaption>{field}</figcaption>"
-                    f"<img src='{f}' alt='{field} snapshots'></figure>"
+                    f"<img src='{uri}' alt='{field} snapshots'></figure>"
                 )
         snap_block = (
             f"<h2>Snapshots at N={snap_n}×{snap_n}</h2>"
@@ -686,13 +845,17 @@ def write_html_report(out_dir: Path, scaling: list[dict],
         )
 
     biomass_block = ""
-    if snap_n is not None and (out_dir / f"biomass_trace_n{snap_n}.png").exists():
-        biomass_block = (
-            f"<h2>Biomass trajectory at N={snap_n}×{snap_n}</h2>"
-            "<p>Biomass at the seed cell (left) and summed across the grid "
-            "(right). All three implementations track the same growth curve.</p>"
-            f"<img class='wide' src='biomass_trace_n{snap_n}.png' alt='biomass trace'>"
-        )
+    if snap_n is not None:
+        biomass_uri = _embed(out_dir, f"biomass_trace_n{snap_n}.png")
+        if biomass_uri:
+            biomass_block = (
+                f"<h2>Biomass trajectory at N={snap_n}×{snap_n}</h2>"
+                "<p>Biomass at the seed cell (left) and summed across the grid "
+                "(right). All three implementations track the same growth curve.</p>"
+                f"<img class='wide' src='{biomass_uri}' alt='biomass trace'>"
+            )
+
+    scaling_uri = _embed(out_dir, "scaling.png") or ""
 
     html = f"""<!doctype html>
 <html lang='en'><head><meta charset='utf-8'>
@@ -741,7 +904,7 @@ def write_html_report(out_dir: Path, scaling: list[dict],
 </ul>
 
 <h2>Performance scaling</h2>
-<img class='scaling' src='scaling.png' alt='scaling'>
+<img class='scaling' src='{scaling_uri}' alt='scaling'>
 {table}
 
 {biomass_block}
@@ -756,19 +919,59 @@ def write_html_report(out_dir: Path, scaling: list[dict],
 </body></html>
 """
     (out_dir / "report.html").write_text(html)
-    print(f"💾 wrote: {out_dir / 'report.html'}")
+    size_mb = (out_dir / "report.html").stat().st_size / 1e6
+    print(f"💾 wrote: {out_dir / 'report.html'} ({size_mb:.1f} MB, self-contained)")
 
 
 # ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
+SCALING_JSON = "scaling.json"
+
+
+def _load_scaling(out_dir: Path) -> list[dict]:
+    """Load persisted scaling measurements, if any. Returns [] on first run."""
+    p = out_dir / SCALING_JSON
+    if not p.exists():
+        return []
+    try:
+        import json as _json
+        return _json.loads(p.read_text())
+    except Exception:
+        return []
+
+
+def _save_scaling(out_dir: Path, scaling: list[dict]) -> None:
+    """Persist scaling measurements (sorted by n)."""
+    import json as _json
+    sorted_scaling = sorted(scaling, key=lambda r: r["n"])
+    (out_dir / SCALING_JSON).write_text(_json.dumps(sorted_scaling, indent=2))
+
+
+def _merge_scaling(prev: list[dict], new: list[dict]) -> list[dict]:
+    """Merge new measurements into prev. Same n => new replaces prev."""
+    by_n = {r["n"]: r for r in prev}
+    for r in new:
+        by_n[r["n"]] = r
+    return sorted(by_n.values(), key=lambda r: r["n"])
+
+
 def main(grids=None, max_seconds_per_run: float = 600.0):
     """
     Run the comparison across a sequence of grid sizes.
 
-    `max_seconds_per_run` is a *prospective* safety cap: if the previous run
-    of either implementation already exceeded this budget, we stop scaling up
-    so we don't risk a hang or OOM at the next-larger grid.
+    Two-phase structure:
+      1. Timings phase: run all grids back-to-back, no GIF/plot work between
+         runs. Keeps the matplotlib + JSON-serialization overhead from
+         contending with subsequent Ray dispatch (which is GIL-sensitive).
+      2. Render phase: write GIFs, snapshots, scaling plot, report.
+
+    Scaling measurements are persisted to scaling.json and merged across
+    invocations — re-running with grids=[16] only will overwrite n=16's
+    measurements while preserving the rest.
+
+    `max_seconds_per_run` is a prospective safety cap: if the previous grid
+    took longer than this, we skip the next (larger) one to avoid hangs.
     """
     grids = grids or DEFAULT_GRIDS
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -780,9 +983,9 @@ def main(grids=None, max_seconds_per_run: float = 600.0):
 
     core = allocate_core()
 
-    scaling = []
-    snap_runs = {}
-    snap_n = None
+    # ---- Phase 1: timings only, no rendering ---------------------------- #
+    new_scaling = []
+    per_grid_results: dict[int, dict] = {}
 
     last_max = 0.0
     for n in grids:
@@ -805,37 +1008,62 @@ def main(grids=None, max_seconds_per_run: float = 600.0):
         sf_single_res = run_spatioflux_single(n, core=core)
         print(f"     wall: {sf_single_res['wall_time']:.2f}s")
 
-        scaling.append({
+        print("  → spatio-flux (Ray actors, parallel) ...", flush=True)
+        sf_ray_res = run_spatioflux_ray(n, core=allocate_core())
+        print(f"     wall: {sf_ray_res['wall_time']:.2f}s")
+
+        new_scaling.append({
             "n": n,
             "cometspy_time":          cm_res["wall_time"],
             "spatioflux_many_time":   sf_many_res["wall_time"],
             "spatioflux_single_time": sf_single_res["wall_time"],
+            "spatioflux_ray_time":    sf_ray_res["wall_time"],
         })
         last_max = max(cm_res["wall_time"],
                        sf_many_res["wall_time"],
-                       sf_single_res["wall_time"])
+                       sf_single_res["wall_time"],
+                       sf_ray_res["wall_time"])
 
-        per_grid = {
+        per_grid_results[n] = {
             "cometspy":          cm_res,
             "spatioflux_many":   sf_many_res,
             "spatioflux_single": sf_single_res,
+            "spatioflux_ray":    sf_ray_res,
         }
+
+    # ---- Persist + merge scaling data ----------------------------------- #
+    merged = _merge_scaling(_load_scaling(OUT_DIR), new_scaling)
+    _save_scaling(OUT_DIR, merged)
+    print(f"\n💾 scaling.json updated ({len(merged)} grid sizes recorded).")
+
+    # ---- Phase 2: rendering (after all timings captured) ---------------- #
+    print("\n=== rendering ===")
+    snap_n = None
+    snap_runs = None
+    for n, per_grid in per_grid_results.items():
         gif_path = OUT_DIR / f"compare_n{n}.gif"
-        print(f"  → writing {gif_path.name} ...", flush=True)
+        print(f"  → {gif_path.name} ...", flush=True)
         make_side_by_side_gif(per_grid, n, gif_path)
 
-        if n == COMPARISON_GRID or (COMPARISON_GRID not in grids and snap_n is None):
+        if n == COMPARISON_GRID:
             snap_runs = per_grid
             snap_n = n
 
+    # If COMPARISON_GRID wasn't in this run, fall back to the largest grid we did.
+    if snap_runs is None and per_grid_results:
+        snap_n = max(per_grid_results)
+        snap_runs = per_grid_results[snap_n]
+
     if snap_runs:
+        print("  → snapshots ...", flush=True)
         plot_snapshots(snap_runs, snap_n, OUT_DIR / f"snapshots_biomass_n{snap_n}.png", field="biomass")
         plot_snapshots(snap_runs, snap_n, OUT_DIR / f"snapshots_glucose_n{snap_n}.png", field="glucose")
         plot_snapshots(snap_runs, snap_n, OUT_DIR / f"snapshots_acetate_n{snap_n}.png", field="acetate")
         plot_biomass_trace(snap_runs, snap_n, OUT_DIR / f"biomass_trace_n{snap_n}.png")
 
-    plot_scaling(scaling, OUT_DIR / "scaling.png")
-    write_html_report(OUT_DIR, scaling, snap_n, grids)
+    print("  → scaling plot + report ...", flush=True)
+    plot_scaling(merged, OUT_DIR / "scaling.png")
+    write_html_report(OUT_DIR, merged, snap_n, [r["n"] for r in merged])
 
     print(f"\n✅ wrote: {OUT_DIR}")
 

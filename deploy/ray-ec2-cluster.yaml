@@ -1,0 +1,135 @@
+# =====================================================================
+# Ray cluster on EC2 for distributed spatio-flux
+#
+# Quickstart:
+#   pip install "ray[default]>=2.10" boto3
+#   ray up deploy/ray-ec2-cluster.yaml         # provision head + workers
+#   ray attach deploy/ray-ec2-cluster.yaml     # SSH into the head node
+#
+#   # On the head, run a sweep against the cluster:
+#   COMETS_HOME=/opt/comets python -m spatio_flux.experiments.compare_comets
+#
+#   ray down deploy/ray-ec2-cluster.yaml       # tear it all down
+#
+# Cost note: m5.2xlarge head + four m5.xlarge workers ≈ $1.30/hour
+# at on-demand prices. Use --use-spot in the worker block (commented
+# below) to drop ~70%, at the cost of preemption tolerance.
+# =====================================================================
+
+cluster_name: spatio-flux-ray
+
+# Total workers (excluding head). Ray autoscales between min/max.
+min_workers: 0
+max_workers: 4
+upscaling_speed: 1.0
+
+idle_timeout_minutes: 10
+
+# ---------------------------------------------------------------------
+# Where the cluster lives
+# ---------------------------------------------------------------------
+provider:
+  type: aws
+  region: us-east-1
+  # Optional: pin to your VPC/subnet. Leaving these unset uses the
+  # default VPC's auto-assigned subnet.
+  # availability_zone: us-east-1a
+  # security_group:
+  #   GroupName: ray-spatio-flux
+
+auth:
+  ssh_user: ubuntu
+  # ray will create + manage this key for you on first `ray up`.
+
+# ---------------------------------------------------------------------
+# Node images and sizes
+# ---------------------------------------------------------------------
+# Ubuntu 22.04 base AMI (free, no Marketplace subscription required).
+# Update per region from https://cloud-images.ubuntu.com/locator/ec2/
+available_node_types:
+  ray.head.default:
+    node_config:
+      InstanceType: m5.2xlarge        # 8 vCPU, 32 GB RAM
+      ImageId: ami-0fc5d935ebf8bc3bc  # ubuntu-22.04 us-east-1 (verify per region)
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 80
+            VolumeType: gp3
+    resources: {}
+    min_workers: 0
+    max_workers: 0
+
+  ray.worker.default:
+    node_config:
+      InstanceType: m5.xlarge         # 4 vCPU, 16 GB RAM (per worker)
+      ImageId: ami-0fc5d935ebf8bc3bc
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp3
+      # --- Spot pricing (commented; uncomment to save ~70%) ---
+      # InstanceMarketOptions:
+      #   MarketType: spot
+      #   SpotOptions:
+      #     MaxPrice: "0.10"
+    resources: {}
+    min_workers: 2
+    max_workers: 4
+
+head_node_type: ray.head.default
+
+# ---------------------------------------------------------------------
+# How to install spatio-flux on every node
+# ---------------------------------------------------------------------
+# Ray runs setup_commands once per node at provisioning time, then
+# head_setup_commands / worker_setup_commands. The COMETS java jar is
+# 130 MB — we copy it into S3 once and pull it down here, since the
+# Google Drive download isn't scriptable.
+setup_commands:
+  - sudo apt-get update -y
+  - sudo apt-get install -y python3.11 python3.11-venv python3-pip openjdk-17-jre-headless build-essential git
+  - sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+  - python -m pip install --upgrade pip uv
+  - rm -rf /home/ubuntu/spatio-flux
+  - git clone https://github.com/vivarium-collective/spatio-flux.git /home/ubuntu/spatio-flux
+  - cd /home/ubuntu/spatio-flux && uv pip install --system -e . "ray[default]>=2.10" cometspy
+
+# Workers also need spatio-flux + Ray actor deps. Same setup — Ray runs
+# setup_commands on every node by default.
+
+# ---------------------------------------------------------------------
+# Files to sync to every node before setup
+# ---------------------------------------------------------------------
+# Use this to ship the COMETS jar (which has no scriptable download)
+# from your laptop's local install up to the cluster. Replace path on
+# the left with wherever you keep it.
+file_mounts:
+  /opt/comets: ~/comets_install/comets_linux/comets_2.12.5
+
+# ---------------------------------------------------------------------
+# Environment variables every Ray worker should see
+# ---------------------------------------------------------------------
+# COMETS_HOME has to be set BEFORE Python imports cometspy, so it goes
+# in the ray runtime_env that wraps every actor invocation.
+head_start_ray_commands:
+  - ray stop
+  - >
+    COMETS_HOME=/opt/comets
+    ray start --head --port=6379
+    --object-manager-port=8076
+    --autoscaling-config=~/ray_bootstrap_config.yaml
+
+worker_start_ray_commands:
+  - ray stop
+  - >
+    COMETS_HOME=/opt/comets
+    ray start --address=$RAY_HEAD_IP:6379
+    --object-manager-port=8076
+
+# ---------------------------------------------------------------------
+# Ports to open in the security group (ray dashboard, head node)
+# ---------------------------------------------------------------------
+# `ray up` opens 6379 (head), 8076 (object manager), 8265 (dashboard)
+# automatically. Add more here if you want to expose extra services.
