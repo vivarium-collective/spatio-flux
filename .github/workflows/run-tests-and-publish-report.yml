@@ -5,9 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'spatio_flux/experiments/test_suite.py'
+      - 'spatio_flux/**'
       - '.github/workflows/run-tests-and-publish-report.yml'
       - 'pyproject.toml'
+      - 'uv.lock'
+  workflow_dispatch:
 
 jobs:
   run-tests:
