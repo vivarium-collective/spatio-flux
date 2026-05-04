@@ -5731,7 +5731,7 @@
       "data": "node"
     },
     "config": "node",
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "node",
     "inputs": "wires",
     "outputs": "wires",

@@ -29,11 +29,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {
-		"('fields', 'glucose')" -> "('monod_kinetics',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {
-		"('fields', 'biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('monod_kinetics',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('monod_kinetics',)" [color="#b17e74"]
