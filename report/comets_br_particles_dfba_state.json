@@ -1,6 +1,6 @@
 {
   "particles": {
-    "DXod2HEx": {
+    "lhkfsoyF": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -50,12 +50,12 @@
         },
         "interval": 1.0
       },
-      "id": "DXod2HEx",
+      "id": "lhkfsoyF",
       "position": [
-        25.256505050664835,
-        18.40305849598179
+        32.542069098081846,
+        5.223777262685081
       ],
-      "mass": 0.7487308842116857,
+      "mass": 0.5401506741762654,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -8632,20 +8632,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     }
   }
