@@ -1,6 +1,6 @@
 {
   "particles": {
-    "i79FL0L1": {
+    "7mtTvrJ8": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -50,12 +50,12 @@
         },
         "interval": 1.0
       },
-      "id": "i79FL0L1",
+      "id": "7mtTvrJ8",
       "position": [
-        17.535490580282147,
-        27.342818149912233
+        21.336753908586854,
+        26.94151982287337
       ],
-      "mass": 0.5981219424326498,
+      "mass": 0.9555667789112382,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -457,20 +457,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     }
   }

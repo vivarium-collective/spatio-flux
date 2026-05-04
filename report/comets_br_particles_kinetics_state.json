@@ -1,6 +1,6 @@
 {
   "particles": {
-    "7LH7uzbs": {
+    "qvXXbZBH": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "7LH7uzbs",
+      "id": "qvXXbZBH",
       "position": [
-        41.464346882982376,
-        11.75889374578653
+        6.567752350360845,
+        45.64362413984738
       ],
-      "mass": 8.487094416114287,
+      "mass": 9.70457863997438,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -927,20 +927,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     }
   }
