@@ -1,6 +1,6 @@
 {
   "particles": {
-    "qvXXbZBH": {
+    "p06OlUi0": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "qvXXbZBH",
+      "id": "p06OlUi0",
       "position": [
-        6.567752350360845,
-        45.64362413984738
+        34.25259486992509,
+        1.7048094363028676
       ],
-      "mass": 9.70457863997438,
+      "mass": 9.722727666337086,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -771,7 +771,7 @@
       "boundary_conditions": {},
       "max_dt": 0.1,
       "cfl_adv": 0.5,
-      "clip_negative": "true"
+      "clip_negative": true
     },
     "_inputs": "fields:map[array[10|10,float]]",
     "_outputs": "fields:map[array[10|10,float]]",

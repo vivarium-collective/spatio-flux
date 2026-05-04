@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Q8yLIPI-": {
+    "qtBCF8If": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -50,12 +50,12 @@
         },
         "interval": 1.0
       },
-      "id": "Q8yLIPI-",
+      "id": "qtBCF8If",
       "position": [
-        7.6023348094823255,
-        45.88974880591491
+        21.828354826879437,
+        42.80597040933839
       ],
-      "mass": 0.848285209721336,
+      "mass": 0.3678308976307447,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -8476,7 +8476,7 @@
       "boundary_conditions": {},
       "max_dt": 0.1,
       "cfl_adv": 0.5,
-      "clip_negative": "true"
+      "clip_negative": true
     },
     "_inputs": "fields:map[array[10|10,float]]",
     "_outputs": "fields:map[array[10|10,float]]",

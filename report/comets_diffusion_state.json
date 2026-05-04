@@ -8405,7 +8405,7 @@
       "boundary_conditions": {},
       "max_dt": 0.1,
       "cfl_adv": 0.5,
-      "clip_negative": "true"
+      "clip_negative": true
     },
     "_inputs": "fields:map[array[10|10,float]]",
     "_outputs": "fields:map[array[10|10,float]]",

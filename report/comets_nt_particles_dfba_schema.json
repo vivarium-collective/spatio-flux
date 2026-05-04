@@ -17,7 +17,7 @@
       "mass": "mass",
       "radius": "set_float",
       "position": "tuple[set_float,set_float]",
-      "velocity": "tuple[float,float]",
+      "velocity": "tuple[set_float,set_float]",
       "elasticity": "set_float",
       "id": "string",
       "local": "map[concentration]",
