@@ -68,6 +68,17 @@ KM_AC,   VMAX_AC  = 0.5, 2.0
 GLC_DIFF = 5e-6                    # cm^2/s, ~realistic for small molecule
 BIOMASS_DIFF = 1e-9                # cm^2/s, biomass barely diffuses
 
+# Multiplier applied to the spatio-flux diffusion coefficients (which run in
+# cm²/h after the *3600 conversion). Kept at 1.0 — cometspy and spatio-flux
+# disagree on absolute plume magnitudes because cometspy's FBA picks an
+# alternate optimum that secretes ~6× more acetate per unit growth, and its
+# diffusion solver appears to spread ~3-5× wider over matched (D, dt, dx).
+# Bumping this factor only addresses the second effect, so it makes
+# spatio-flux's already-thinner plume even thinner instead of brighter.
+# Both implementations show the same qualitative spatial dynamics; the
+# absolute concentration story belongs in a caption, not in a fudge factor.
+SPATIOFLUX_DIFFUSION_MATCH = 1.0
+
 INITIAL_BIOMASS = 0.05             # seed cell value (gDW or arbitrary biomass units)
 
 # Vertical glucose gradient: row 0 (top) low, row N-1 (bottom) high.
@@ -245,8 +256,8 @@ def run_spatioflux(n: int, total_time: float = TOTAL_TIME, core=None) -> dict:
     # the dimensionless dt*D/dx^2 matches.
     # cometspy uses dt in hours but D in cm^2/s, so the implicit conversion
     # is D_h = D_s * 3600. We pass D_h here.
-    D_glc = float(GLC_DIFF) * 3600.0
-    D_bm  = float(BIOMASS_DIFF) * 3600.0
+    D_glc = float(GLC_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    D_bm  = float(BIOMASS_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
     diffusion_coeffs = {
         "glucose":           D_glc,
         "acetate":           D_glc,
@@ -347,8 +358,8 @@ def run_spatioflux_single(n: int, total_time: float = TOTAL_TIME, core=None) -> 
     bounds = (n * SPACE_WIDTH, n * SPACE_WIDTH)
     mol_ids = ["glucose", "acetate", "dissolved biomass"]
 
-    D_glc = float(GLC_DIFF) * 3600.0
-    D_bm  = float(BIOMASS_DIFF) * 3600.0
+    D_glc = float(GLC_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    D_bm  = float(BIOMASS_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
     diffusion_coeffs = {
         "glucose":           D_glc,
         "acetate":           D_glc,
@@ -509,8 +520,8 @@ def run_spatioflux_ray(n: int, total_time: float = TOTAL_TIME, core=None) -> dic
     bounds = (n * SPACE_WIDTH, n * SPACE_WIDTH)
     mol_ids = ["glucose", "acetate", "dissolved biomass"]
 
-    D_glc = float(GLC_DIFF) * 3600.0
-    D_bm  = float(BIOMASS_DIFF) * 3600.0
+    D_glc = float(GLC_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    D_bm  = float(BIOMASS_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
     diffusion_coeffs = {
         "glucose":           D_glc,
         "acetate":           D_glc,
