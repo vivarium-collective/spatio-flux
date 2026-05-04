@@ -1,6 +1,6 @@
 {
   "particles": {
-    "pabgXKBt": {
+    "uQiEqhcB": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -50,12 +50,12 @@
         },
         "interval": 1.0
       },
-      "id": "pabgXKBt",
+      "id": "uQiEqhcB",
       "position": [
-        5.416103020127133,
-        26.62684369067595
+        3.0263255917549694,
+        41.79367991448216
       ],
-      "mass": 0.21360139355870827,
+      "mass": 0.9626784198897097,
       "local": {},
       "exchange": {},
       "sub_masses": {},
