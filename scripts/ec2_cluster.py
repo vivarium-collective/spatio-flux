@@ -425,15 +425,20 @@ def main() -> int:
         head_ip = ips[head_id]
         print(f"→ head_ip={head_ip}")
 
-        if launched_now:
-            print("→ docker pull on all nodes")
-            docker_pull_all(ssm, all_ids, image_uri, region)
-            print("→ starting ray head")
-            start_ray_head(ssm, head_id, image_uri)
-            print("→ starting ray workers")
-            start_ray_workers(ssm, worker_ids, image_uri, head_ip)
-            print("→ waiting for workers to register")
-            wait_workers_registered(ssm, head_id, n_workers)
+        # Always (re)pull and (re)start the container — even on reused
+        # clusters. The container can be missing if a previous run
+        # crashed mid-bring-up or if docker --restart unless-stopped
+        # didn't recover after an instance reboot. docker pull is fast
+        # when cached; start_ray_* runs `docker rm -f` first so this is
+        # safe and idempotent.
+        print("→ docker pull on all nodes (idempotent)")
+        docker_pull_all(ssm, all_ids, image_uri, region)
+        print("→ starting ray head")
+        start_ray_head(ssm, head_id, image_uri)
+        print("→ starting ray workers")
+        start_ray_workers(ssm, worker_ids, image_uri, head_ip)
+        print("→ waiting for workers to register")
+        wait_workers_registered(ssm, head_id, n_workers)
 
         print(f"→ running experiment mode={mode}")
         run_experiment(

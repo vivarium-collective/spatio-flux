@@ -41,10 +41,11 @@ done
 [[ -z "$AWS_PROFILE" ]] && { echo "AWS_PROFILE required" >&2; exit 1; }
 
 CLUSTER_NAME="spatio-flux-ray-${STACK_PREFIX}"
-# The cluster yaml's provider.security_group.GroupName is
-# ``ray-spatio-flux-${STACK_PREFIX}`` (deploy/ray-govcloud-cluster.yaml).
-# We also probe the cluster-name and a few near-misses in case an older
-# yaml or different Ray version named it differently.
+ORCHESTRATOR_CLUSTER_ID="sf-${STACK_PREFIX}"
+# Two tagging schemes to clean up:
+#   1. Ray autoscaler:    tag:ray-cluster-name=spatio-flux-ray-<stack>
+#   2. ec2_cluster.py:    tag:spatio-flux-cluster=sf-<stack>
+# Both may exist if you've used both code paths over time.
 SG_NAME="ray-spatio-flux-${STACK_PREFIX}"
 
 aws_call() {
@@ -52,8 +53,10 @@ aws_call() {
 }
 
 # -------- Step 0: enumerate what we're about to kill ---------------------
-echo "═══ what's still running (cluster=$CLUSTER_NAME) ═══"
-LIVE_INSTANCES="$(
+echo "═══ what's still running ═══"
+echo "  ray-autoscaler tag: ray-cluster-name=$CLUSTER_NAME"
+echo "  ec2_cluster.py tag: spatio-flux-cluster=$ORCHESTRATOR_CLUSTER_ID"
+LIVE_INSTANCES_RAY="$(
     aws_call ec2 describe-instances \
         --filters \
             "Name=tag:ray-cluster-name,Values=${CLUSTER_NAME}" \
@@ -61,6 +64,15 @@ LIVE_INSTANCES="$(
         --query 'Reservations[*].Instances[*].[InstanceId,State.Name,InstanceType,PrivateIpAddress]' \
         --output text 2>/dev/null
 )"
+LIVE_INSTANCES_SF="$(
+    aws_call ec2 describe-instances \
+        --filters \
+            "Name=tag:spatio-flux-cluster,Values=${ORCHESTRATOR_CLUSTER_ID}" \
+            "Name=instance-state-name,Values=pending,running,stopping,stopped" \
+        --query 'Reservations[*].Instances[*].[InstanceId,State.Name,InstanceType,PrivateIpAddress]' \
+        --output text 2>/dev/null
+)"
+LIVE_INSTANCES="$(printf '%s\n%s\n' "$LIVE_INSTANCES_RAY" "$LIVE_INSTANCES_SF" | grep -v '^$' || true)"
 
 if [[ -n "$LIVE_INSTANCES" ]]; then
     echo "$LIVE_INSTANCES"

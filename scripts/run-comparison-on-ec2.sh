@@ -154,39 +154,61 @@ COMMAND_ID="$(
 )"
 echo "   ssm command id: $COMMAND_ID"
 
-# ------- poll until done -----------------------------------------------
-echo "→ waiting for command to finish ..."
+# ------- poll: stream the bootstrap log from S3 ------------------------
+# The submit node uploads ec2-bootstrap.log to S3 every 20s. Mirror it
+# locally and emit only the new lines on each poll so the user sees
+# real-time progress (instance launches, docker pulls, ray status,
+# experiment output) instead of just dots. Also detect log silence
+# as a possible "stuck" indicator.
+echo "→ following bootstrap log (refresh every 20s) ..."
+LOCAL_LOG="$WORK_DIR/bootstrap.log"
+: > "$LOCAL_LOG"
+LAST_LINES=0
+SILENT_TICKS=0
 while :; do
     STATUS="$(aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
         ssm get-command-invocation \
         --command-id "$COMMAND_ID" \
         --instance-id "$SUBMIT_INSTANCE_ID" \
         --query 'Status' --output text 2>/dev/null || echo Pending)"
+
+    # Pull the latest bootstrap log; show new lines since last poll.
+    if aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
+            s3 cp "${S3_PREFIX}/ec2-bootstrap.log" "${LOCAL_LOG}.new" \
+            >/dev/null 2>&1; then
+        NEW_LINES=$(wc -l < "${LOCAL_LOG}.new")
+        if (( NEW_LINES > LAST_LINES )); then
+            tail -n +$((LAST_LINES + 1)) "${LOCAL_LOG}.new" | sed 's/^/  │ /'
+            LAST_LINES=$NEW_LINES
+            SILENT_TICKS=0
+        else
+            SILENT_TICKS=$((SILENT_TICKS + 1))
+            if (( SILENT_TICKS == 6 )); then  # 2 min
+                echo "  ⚠ log silent for 2 min (could be a long step like docker pull or experiment runtime)"
+            elif (( SILENT_TICKS == 30 )); then  # 10 min
+                echo "  ⚠⚠ log silent for 10 min — likely stuck. SSM status: $STATUS"
+            fi
+        fi
+        mv "${LOCAL_LOG}.new" "$LOCAL_LOG"
+    fi
+
     case "$STATUS" in
-        Success) echo "   ✓ Success"; break ;;
+        Success)
+            echo
+            echo "   ✓ Success"
+            break ;;
         Failed|Cancelled|TimedOut)
+            echo
             echo "   ✗ Status=$STATUS"
             echo
             echo "═════════════════════════════════════════════════════════════════════"
-            echo "  full bootstrap log (s3://.../runs/${RUN_ID}/ec2-bootstrap.log)"
-            echo "═════════════════════════════════════════════════════════════════════"
-            # The bootstrap log is the canonical source: it's already
-            # uploaded every 20s, the cleanup trap appends collect_diagnostics
-            # output (console output + SSM live state), then re-uploads. No
-            # truncation — the whole log lands here so you see the failure
-            # in context with the head's diagnostics inline.
-            aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
-                s3 cp "${S3_PREFIX}/ec2-bootstrap.log" - 2>/dev/null \
-                || echo "(no log on S3 — bootstrap died before first upload)"
-            echo
-            echo "═════════════════════════════════════════════════════════════════════"
-            echo "  log file: aws s3 cp ${S3_PREFIX}/ec2-bootstrap.log -"
+            echo "  bootstrap log already streamed above. Full copy:"
+            echo "  aws s3 cp ${S3_PREFIX}/ec2-bootstrap.log -"
             echo "═════════════════════════════════════════════════════════════════════"
             exit 1 ;;
-        *) printf '.'; sleep 30 ;;
     esac
+    sleep 20
 done
-echo
 
 # ------- pull results back ---------------------------------------------
 LOCAL_OUT="$REPO_ROOT/out/comets_compare"
