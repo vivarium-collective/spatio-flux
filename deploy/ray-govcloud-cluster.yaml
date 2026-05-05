@@ -1,0 +1,150 @@
+# =====================================================================
+# Ray cluster on EC2 — GovCloud variant for the SMS API VPC.
+#
+# Docker-based: workers boot the ECS-optimized Amazon Linux 2 AMI
+# (docker + awscli pre-installed and running), then pull a pre-baked
+# image from ECR with all of spatio-flux + ray + cometspy + COMETS jar
+# inside. Zero apt at runtime. The only host-level step is one
+# `docker login` to ECR; everything else (ray, python, cobra, cometspy,
+# Java) is in the container.
+#
+# Build the image with: ./scripts/build-and-push-image.sh (laptop)
+# Set the ECR URI in:    deploy/.spatio-flux-image (auto-written by build)
+#
+# Used by scripts/ec2-bootstrap.sh which renders this with envsubst:
+#   ${AMI_ID} ${VPC_ID} ${SUBNET_ID} ${SG_ID} ${AWS_REGION_RESOLVED}
+#   ${SUBMIT_NODE_IP} ${IAM_INSTANCE_PROFILE} ${STACK_PREFIX}
+#   ${IMAGE_URI}
+# =====================================================================
+
+cluster_name: spatio-flux-ray-${STACK_PREFIX}
+
+min_workers: 0
+max_workers: 4
+upscaling_speed: 1.0
+idle_timeout_minutes: 15
+
+provider:
+  type: aws
+  region: ${AWS_REGION_RESOLVED}
+  use_internal_ips: true
+  security_group:
+    GroupName: ray-spatio-flux-${STACK_PREFIX}
+    IpPermissions:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        IpRanges:
+          - CidrIp: ${SUBMIT_NODE_IP}/32
+
+auth:
+  # Amazon Linux 2 ECS-optimized AMI uses ec2-user, not ubuntu.
+  ssh_user: ec2-user
+
+# Run all Ray commands inside this container. Ray's autoscaler handles
+# the docker pull + run; head_start_ray_commands and
+# worker_start_ray_commands execute INSIDE the container.
+docker:
+  image: ${IMAGE_URI}
+  container_name: spatio_flux_ray
+  pull_before_run: true
+  run_options:
+    - "--ulimit nofile=65535:65535"
+
+available_node_types:
+  ray.head.default:
+    node_config:
+      InstanceType: m5.2xlarge
+      ImageId: ${AMI_ID}
+      SubnetIds:
+        - ${SUBNET_ID}
+      IamInstanceProfile:
+        Name: ${IAM_INSTANCE_PROFILE}
+      # Cloud-init runs this on first boot — earlier than any Ray hook.
+      # We need it to:
+      #   (1) install rsync (file_mounts at step 2/7 needs it)
+      #   (2) docker login to ECR (Ray's docker pull at step 5/7 needs it)
+      # Both happen here because all later hooks (initialization_commands,
+      # setup_commands) run too late.
+      UserData: |
+        #!/bin/bash
+        # Install rsync (Ray file_mounts at step 2/7 needs it).
+        yum install -y rsync
+        # Configure docker credential helper for ec2-user. ECS-optimized
+        # AL2 ships with amazon-ecr-credential-helper pre-installed;
+        # pointing docker at it via credHelpers means every `docker pull`
+        # auto-fetches a fresh ECR token via the EC2 instance-role IAM,
+        # no manual `docker login` needed and no 12-hour expiry concern.
+        # Ray's docker pull runs as ec2-user, so the config has to live
+        # in /home/ec2-user/.docker, not /root/.docker.
+        mkdir -p /home/ec2-user/.docker
+        cat > /home/ec2-user/.docker/config.json <<EOF
+        {
+          "credHelpers": {
+            "${ECR_HOST}": "ecr-login"
+          }
+        }
+        EOF
+        chown -R ec2-user:ec2-user /home/ec2-user/.docker
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs: { VolumeSize: 80, VolumeType: gp3 }
+    resources: {}
+    min_workers: 0
+    max_workers: 0
+
+  ray.worker.default:
+    node_config:
+      InstanceType: m5.4xlarge
+      ImageId: ${AMI_ID}
+      SubnetIds:
+        - ${SUBNET_ID}
+      IamInstanceProfile:
+        Name: ${IAM_INSTANCE_PROFILE}
+      # Same UserData as the head — see comment above. Cloud-init at
+      # first boot installs rsync (for Ray file_mounts) and authenticates
+      # the docker daemon to ECR (for Ray's docker pull).
+      UserData: |
+        #!/bin/bash
+        # Install rsync (Ray file_mounts at step 2/7 needs it).
+        yum install -y rsync
+        # Configure docker credential helper for ec2-user. ECS-optimized
+        # AL2 ships with amazon-ecr-credential-helper pre-installed;
+        # pointing docker at it via credHelpers means every `docker pull`
+        # auto-fetches a fresh ECR token via the EC2 instance-role IAM,
+        # no manual `docker login` needed and no 12-hour expiry concern.
+        # Ray's docker pull runs as ec2-user, so the config has to live
+        # in /home/ec2-user/.docker, not /root/.docker.
+        mkdir -p /home/ec2-user/.docker
+        cat > /home/ec2-user/.docker/config.json <<EOF
+        {
+          "credHelpers": {
+            "${ECR_HOST}": "ecr-login"
+          }
+        }
+        EOF
+        chown -R ec2-user:ec2-user /home/ec2-user/.docker
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs: { VolumeSize: 60, VolumeType: gp3 }
+    resources: {}
+    min_workers: 4
+    max_workers: 4
+
+head_node_type: ray.head.default
+
+# setup_commands run INSIDE the docker container (after Ray's docker
+# pull at step 5/7). All host-level setup is done in UserData; nothing
+# needs to happen in the container before ray start.
+setup_commands: []
+
+# These run INSIDE the container (via Ray's docker integration).
+# The image already has /opt/spatio-flux-venv/bin first on PATH and
+# COMETS_HOME=/opt/comets, so ``ray`` resolves correctly.
+head_start_ray_commands:
+  - ray stop
+  - ray start --head --port=6379 --object-manager-port=8076 --autoscaling-config=~/ray_bootstrap_config.yaml
+
+worker_start_ray_commands:
+  - ray stop
+  - ray start --address=$RAY_HEAD_IP:6379 --object-manager-port=8076

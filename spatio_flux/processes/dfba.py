@@ -51,6 +51,7 @@ MODEL_REGISTRY_DFBA = {
             'EX_o2_e': {'lower': -2, 'upper': None},
             'ATPM': {'lower': 1, 'upper': 1}
         },
+        # 'solver': 'glpk',  # optional override; cobra's default is glpk
     },
     'ecoli': {
         'model_file': 'iAF1260.xml',
@@ -203,7 +204,10 @@ def _load_base_model(model_file):
     return model
 
 
-def load_fba_model(model_file, bounds):
+HIGHS_DIRECT_SOLVER = "highs_direct"
+
+
+def load_fba_model(model_file, bounds, solver=None):
     """
     Load an SBML or named model and apply static bounds.
 
@@ -211,13 +215,27 @@ def load_fba_model(model_file, bounds):
     so each caller gets an independent instance with its own bounds.
     cobra's Model.copy() reuses metabolite/reaction objects more
     efficiently than re-parsing SBML.
+
+    ``solver`` is an optional optlang interface name (e.g. "glpk",
+    "hybrid" for HiGHS, "scipy"), or the sentinel ``"highs_direct"`` to
+    use the bare-highspy wrapper (handled separately by the caller —
+    this function does *not* wrap, only forwards the configured cobra
+    solver). When None, cobra's default applies. Set on the *copied*
+    model so the cache stays solver-agnostic.
     """
     if model_file in MODEL_REGISTRY_DFBA:
         model_config = MODEL_REGISTRY_DFBA[model_file]
+        if solver is None:
+            solver = model_config.get('solver')
         model_file = model_config['model_file']
 
     base = _load_base_model(model_file)
     model = base.copy()
+
+    # cobra doesn't know the highs_direct sentinel — leave its internal
+    # solver alone; the caller wraps the model afterward.
+    if solver and solver != HIGHS_DIRECT_SOLVER:
+        model.solver = solver
 
     for rxn_id, limits in bounds.items():
         rxn = model.reactions.get_by_id(rxn_id)
@@ -229,6 +247,18 @@ def load_fba_model(model_file, bounds):
             rxn.upper_bound = limits["upper"]
 
     return model
+
+
+def _wrap_with_solver(cobra_model, solver):
+    """If ``solver == "highs_direct"`` return a HiGHSFBASolver wrapping
+    the cobra model. Otherwise return the cobra model unchanged. The
+    wrapper exposes the minimal cobra-Model surface ``run_fba_update``
+    uses — bound R/W and ``optimize()`` — but solves via highspy with
+    a long-lived warm-started simplex basis."""
+    if solver != HIGHS_DIRECT_SOLVER:
+        return cobra_model
+    from spatio_flux.library.highs_solver import HiGHSFBASolver
+    return HiGHSFBASolver(cobra_model)
 
 
 def run_fba_update(model, config, substrates, biomass, interval):
@@ -327,13 +357,16 @@ class DynamicFBA(Process):
         "kinetic_params": "map[tuple[float,float]]",
         "substrate_update_reactions": "map[string]",
         "bounds": "map[bounds]",
+        "solver": "maybe[string]",
     }
 
     def initialize(self, config):
-        self.model = load_fba_model(
+        cobra_model = load_fba_model(
             model_file=config["model_file"],
-            bounds=config["bounds"]
+            bounds=config["bounds"],
+            solver=config.get("solver"),
         )
+        self.model = _wrap_with_solver(cobra_model, config.get("solver"))
 
     def inputs(self):
         return {
@@ -382,6 +415,7 @@ class SpatialDFBA(Process):
                 'kinetic_params': 'map[tuple[float,float]]',
                 'substrate_update_reactions': 'map[string]',
                 'bounds': 'map[bounds]',
+                'solver': 'maybe[string]',
             },
         },
         'model_grid': 'maybe[list[list[string]]]',  # should be (ny, nx)
@@ -430,10 +464,12 @@ class SpatialDFBA(Process):
             model_file = model_cfg['model_file']
             bounds = model_cfg.get('bounds', {})
 
-            self.models[model_id] = load_fba_model(
+            cobra_model = load_fba_model(
                 model_file=model_file,
                 bounds=bounds,
+                solver=model_cfg.get('solver'),
             )
+            self.models[model_id] = _wrap_with_solver(cobra_model, model_cfg.get('solver'))
             self.model_configs[model_id] = dict(model_cfg)
 
         # --- Build and validate model_grid -----------------------------
@@ -573,6 +609,78 @@ class SpatialDFBA(Process):
         }
 
 
+class ShardedDFBA(Process):
+    """
+    Run dFBA on a configurable list of cells using one shared cobra Model.
+
+    Designed to be hosted on a Ray actor (via ``RayProcess``): each shard
+    handles its own cells in a tight loop, so per-shard dispatch costs
+    amortize across many cells. The shard is topology-agnostic — the
+    cells it owns are an unordered collection of keys, with no implied
+    grid structure or neighbor coupling. All spatial coupling lives in
+    the diffusion process.
+
+    Config is otherwise identical to ``DynamicFBA``, plus:
+      - cell_keys: ordered list of cell identifiers ("c_y_x" by convention).
+
+    Inputs / outputs nest one level deeper: ``cells[<key>] = {substrates,
+    biomass}`` so each cell's state can be wired to its own grid path.
+    """
+
+    config_schema = {
+        "model_file": "string{ecoli core}",
+        "kinetic_params": "map[tuple[float,float]]",
+        "substrate_update_reactions": "map[string]",
+        "bounds": "map[bounds]",
+        "solver": "maybe[string]",
+        "cell_keys": "list[string]",
+    }
+
+    def initialize(self, config):
+        cobra_model = load_fba_model(
+            model_file=config["model_file"],
+            bounds=config["bounds"],
+            solver=config.get("solver"),
+        )
+        self.model = _wrap_with_solver(cobra_model, config.get("solver"))
+        self.cell_keys = list(config["cell_keys"])
+
+    def inputs(self):
+        return {
+            "cells": {
+                k: {
+                    "substrates": "map[concentration]",
+                    "biomass": "mass",
+                }
+                for k in self.cell_keys
+            }
+        }
+
+    def outputs(self):
+        return {
+            "cells": {
+                k: {
+                    "substrates": "map[count]",
+                    "biomass": "mass",
+                }
+                for k in self.cell_keys
+            }
+        }
+
+    def update(self, inputs, interval):
+        cells_in = inputs["cells"]
+        cells_out = {}
+        for k in self.cell_keys:
+            cell = cells_in[k]
+            upd = run_fba_update(
+                self.model,
+                self.config,
+                cell["substrates"],
+                cell["biomass"],
+                interval,
+            )
+            cells_out[k] = upd
+        return {"cells": cells_out}
 
 
 def get_field_names(model_registry):

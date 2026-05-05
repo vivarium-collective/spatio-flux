@@ -38,9 +38,10 @@ from spatio_flux.processes import (
     get_fields_with_schema,
     MODEL_REGISTRY_DFBA,
 )
-from spatio_flux.processes.dfba import DynamicFBA
+from spatio_flux.processes.dfba import DynamicFBA, ShardedDFBA
 from spatio_flux.library.tools import run_composite_document
-from spatio_flux.library.ray_process import register_process_class
+from spatio_flux.library.ray_process import register_process_class, shutdown_pools
+from spatio_flux.library.shard_manager import ShardManager
 from spatio_flux.library.tools import get_standard_emitter
 from process_bigraph import Composite, gather_emitter_results
 
@@ -53,7 +54,8 @@ import cometspy as cspy
 # ---------------------------------------------------------------------------
 # Units: hours, cm, mmol, gDW.
 
-DEFAULT_GRIDS = [4, 8, 16, 32]     # N for an NxN grid; doubling sweep
+DEFAULT_GRIDS = [4, 8, 16, 32]     # plot A: all four local implementations
+LARGE_GRIDS = [8, 16, 32, 64, 128, 256]  # plot B: cometspy vs spatioflux_ray_remote (shards)
 COMPARISON_GRID = 16               # the N used for the snapshot/timeseries panels
 
 TIME_STEP = 0.1                    # hours per dFBA step
@@ -466,12 +468,24 @@ def run_spatioflux_single(n: int, total_time: float = TOTAL_TIME, core=None) -> 
 _RAY_REGISTERED = False
 
 def _ensure_ray_registered():
-    """One-time registration of DynamicFBA into the Ray-side registry so
-    actors can resolve it. Idempotent."""
+    """One-time registration of dFBA classes into the Ray-side registry so
+    actors can resolve them by name. Idempotent."""
     global _RAY_REGISTERED
     if not _RAY_REGISTERED:
         register_process_class("DynamicFBA", DynamicFBA)
+        register_process_class("ShardedDFBA", ShardedDFBA)
         _RAY_REGISTERED = True
+
+
+def _maybe_init_ray(ray_address: str | None):
+    """Initialize Ray if not already running. ``ray_address`` connects to an
+    existing head (``"auto"`` discovers a local one, an IP:port hits a remote
+    cluster). When None, lets Ray's lazy in-process init fire on first use."""
+    if not ray_address:
+        return
+    import ray
+    if not ray.is_initialized():
+        ray.init(address=ray_address, log_to_driver=False)
 
 
 def _build_ray_dfba_processes(n: int, mol_ids: list, biomass_id: str = "dissolved biomass",
@@ -593,6 +607,242 @@ def run_spatioflux_ray(n: int, total_time: float = TOTAL_TIME, core=None) -> dic
 
 
 # ---------------------------------------------------------------------------
+# spatio-flux SHARDED Ray variant: cells batched into N_shards. Uses
+# ShardManager, which owns its own pool of Ray actors with explicit
+# context-manager lifecycle — bypasses RayProcess pool dedup that would
+# otherwise spawn one isolated pool per shard. Topology-agnostic — cells
+# are assigned by linear index (stripe), not spatial neighborhood; spatial
+# coupling lives only in the diffusion process.
+#
+# Pass ``ray_address`` (or set RAY_ADDRESS env) to place actors on a
+# remote cluster instead of a local Ray instance.
+# ---------------------------------------------------------------------------
+def run_spatioflux_ray_remote(
+    n: int,
+    total_time: float = TOTAL_TIME,
+    core=None,
+    n_shards: int | None = None,
+    solver: str | None = None,
+    ray_address: str | None = None,
+) -> dict:
+    """Sharded per-cell dFBA on Ray actors (local or remote cluster).
+
+    ``ray_address`` connects to an existing Ray head — ``"auto"`` for a
+    local one or an IP:port for a remote cluster. When None, lazy-inits
+    a local Ray instance.
+    """
+    address = ray_address or os.environ.get("RAY_ADDRESS")
+    core = core or allocate_core()
+
+    n_bins = (n, n)
+    bounds = (n * SPACE_WIDTH, n * SPACE_WIDTH)
+    mol_ids = ["glucose", "acetate", "dissolved biomass"]
+
+    D_glc = float(GLC_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    D_bm  = float(BIOMASS_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    diffusion_coeffs = {
+        "glucose":           D_glc,
+        "acetate":           D_glc,
+        "dissolved biomass": D_bm,
+    }
+
+    glc_field = initial_glucose_field(n)
+    ac_field = np.zeros((n, n), dtype=float)
+    bm_field = np.zeros((n, n), dtype=float)
+    bx, by = biomass_seed_position(n)
+    bm_field[by, bx] = INITIAL_BIOMASS
+
+    initial_fields = {
+        "glucose": glc_field,
+        "acetate": ac_field,
+        "dissolved biomass": bm_field,
+    }
+
+    with ShardManager(
+        model_id="ecoli core",
+        n=n,
+        n_shards=n_shards,
+        solver=solver,
+        mol_ids=mol_ids,
+        biomass_id="dissolved biomass",
+        ray_address=address,
+    ) as mgr:
+        state = {
+            **mgr.process_specs(interval=float(TIME_STEP)),
+            "fields": get_fields_with_schema(
+                n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields
+            ),
+            "diffusion": {
+                **get_diffusion_advection_process(
+                    bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
+                    diffusion_coeffs=diffusion_coeffs, advection_coeffs={},
+                ),
+                "interval": float(TIME_STEP),
+            },
+        }
+        state["emitter"] = get_standard_emitter(state_keys=list(state.keys()))
+
+        sim = Composite({"state": state, "parallel_processes": True}, core=core)
+        t0 = time.perf_counter()
+        sim.run(float(total_time))
+        wall = time.perf_counter() - t0
+        raw = gather_emitter_results(sim)[("emitter",)]
+
+    n_emits = len(raw)
+    bm_hist  = np.zeros((n_emits, n, n), dtype=float)
+    glc_hist = np.zeros((n_emits, n, n), dtype=float)
+    ac_hist  = np.zeros((n_emits, n, n), dtype=float)
+    times = np.zeros(n_emits, dtype=float)
+    for i, step in enumerate(raw):
+        f = step["fields"]
+        bm_hist[i]  = np.asarray(f["dissolved biomass"])
+        glc_hist[i] = np.asarray(f["glucose"])
+        ac_hist[i]  = np.asarray(f["acetate"])
+        times[i] = float(step.get("global_time", i))
+
+    return {
+        "wall_time": wall,
+        "biomass_history": bm_hist,
+        "glucose_history": glc_hist,
+        "acetate_history": ac_hist,
+        "time_h": times,
+    }
+
+
+# ---------------------------------------------------------------------------
+# spatio-flux PROTOCOL variant: same per-cell DynamicFBA topology as
+# run_spatioflux, but each cell's ``address`` is ``"ray:DynamicFBA"``.
+#
+# The Ray protocol (process_bigraph.protocols.ray) keeps every cell as a
+# real Process node in the graph (faithful representation — supports
+# per-cell substate, mid-run mutation, introspection) while still batching
+# all per-tick updates through a shared shard-actor pool. One ray.get per
+# shard per tick, regardless of how many cells the graph contains.
+#
+# Tradeoff vs the explicit ShardManager (run_spatioflux_ray_remote): the
+# faithful state graph means N×N Composite-side dispatch ops per tick; the
+# explicit collapse is currently faster at small N but loses the per-cell
+# graph structure. See doc/ray_protocol_design.md for the design notes.
+# ---------------------------------------------------------------------------
+def run_spatioflux_ray_protocol(
+    n: int,
+    total_time: float = TOTAL_TIME,
+    core=None,
+    n_shards: int | None = None,
+    solver: str | None = None,
+    ray_address: str | None = None,
+) -> dict:
+    """Per-cell dFBA via address-based Ray protocol — each cell stays as
+    a real Process node; protocol handles transparent batching.
+
+    ``n_shards`` is plumbed via the RAY_SHARDS_DEFAULT env var since the
+    runtime is created lazily. For a remote cluster, set ``ray_address``."""
+    address = ray_address or os.environ.get("RAY_ADDRESS")
+    core = core or allocate_core()
+
+    # The Ray runtime reads RAY_SHARDS_DEFAULT once at first creation.
+    if n_shards is not None:
+        os.environ["RAY_SHARDS_DEFAULT"] = str(n_shards)
+
+    if address:
+        import ray as _ray
+        if not _ray.is_initialized():
+            _ray.init(address=address, log_to_driver=False)
+
+    n_bins = (n, n)
+    bounds = (n * SPACE_WIDTH, n * SPACE_WIDTH)
+    mol_ids = ["glucose", "acetate", "dissolved biomass"]
+    biomass_id = "dissolved biomass"
+    substrate_mols = [m for m in mol_ids if m != biomass_id]
+
+    D_glc = float(GLC_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    D_bm  = float(BIOMASS_DIFF) * 3600.0 * SPATIOFLUX_DIFFUSION_MATCH
+    diffusion_coeffs = {
+        "glucose":           D_glc,
+        "acetate":           D_glc,
+        "dissolved biomass": D_bm,
+    }
+
+    glc_field = initial_glucose_field(n)
+    ac_field = np.zeros((n, n), dtype=float)
+    bm_field = np.zeros((n, n), dtype=float)
+    bx, by = biomass_seed_position(n)
+    bm_field[by, bx] = INITIAL_BIOMASS
+
+    initial_fields = {
+        "glucose": glc_field,
+        "acetate": ac_field,
+        "dissolved biomass": bm_field,
+    }
+
+    cfg = dict(MODEL_REGISTRY_DFBA["ecoli core"])
+    if solver is not None:
+        cfg["solver"] = solver
+
+    procs = {}
+    for y in range(n):
+        for x in range(n):
+            wires = {
+                "substrates": {m: ["fields", m, y, x] for m in substrate_mols},
+                "biomass": ["fields", biomass_id, y, x],
+            }
+            procs[f"dFBA[{x},{y}]"] = {
+                "_type": "process",
+                "address": "ray:DynamicFBA",   # ← protocol-prefix sharded backend
+                "config": cfg,
+                "inputs": wires,
+                "outputs": wires,
+                "interval": float(TIME_STEP),
+            }
+
+    state = {
+        **procs,
+        "fields": get_fields_with_schema(
+            n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields
+        ),
+        "diffusion": {
+            **get_diffusion_advection_process(
+                bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
+                diffusion_coeffs=diffusion_coeffs, advection_coeffs={},
+            ),
+            "interval": float(TIME_STEP),
+        },
+    }
+    state["emitter"] = get_standard_emitter(state_keys=list(state.keys()))
+
+    sim = Composite({"state": state, "parallel_processes": True}, core=core)
+    t0 = time.perf_counter()
+    sim.run(float(total_time))
+    wall = time.perf_counter() - t0
+    raw = gather_emitter_results(sim)[("emitter",)]
+
+    # Tear down the per-core actor pool so subsequent runs (different N,
+    # different solver) don't accumulate actors across the sweep.
+    from process_bigraph.protocols.ray import shutdown_all_runtimes
+    shutdown_all_runtimes()
+
+    n_emits = len(raw)
+    bm_hist  = np.zeros((n_emits, n, n), dtype=float)
+    glc_hist = np.zeros((n_emits, n, n), dtype=float)
+    ac_hist  = np.zeros((n_emits, n, n), dtype=float)
+    times = np.zeros(n_emits, dtype=float)
+    for i, step in enumerate(raw):
+        f = step["fields"]
+        bm_hist[i]  = np.asarray(f["dissolved biomass"])
+        glc_hist[i] = np.asarray(f["glucose"])
+        ac_hist[i]  = np.asarray(f["acetate"])
+        times[i] = float(step.get("global_time", i))
+
+    return {
+        "wall_time": wall,
+        "biomass_history": bm_hist,
+        "glucose_history": glc_hist,
+        "acetate_history": ac_hist,
+        "time_h": times,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Plotting
 # ---------------------------------------------------------------------------
 def _frame_indices(T: int, k: int) -> list[int]:
@@ -601,17 +851,19 @@ def _frame_indices(T: int, k: int) -> list[int]:
     return [int(round(i * (T - 1) / (k - 1))) for i in range(k)]
 
 
-# Display order, labels, colors, and line-styles for the three implementations.
+# Display order, labels, colors, and line-styles for each implementation.
 # Keys must match the ones used in `per_grid` / `scaling[*]`.
 RUN_STYLE = {
-    "spatioflux_many":   {"label": "spatio-flux (per-cell processes)",
-                          "color": "#1f77b4", "ls": "-",  "marker": "o"},
-    "spatioflux_single": {"label": "spatio-flux (SpatialDFBA)",
-                          "color": "#2ca02c", "ls": "-.", "marker": "^"},
-    "spatioflux_ray":    {"label": "spatio-flux (Ray actors, parallel)",
-                          "color": "#9467bd", "ls": ":",  "marker": "D"},
-    "cometspy":          {"label": "cometspy",
-                          "color": "#d62728", "ls": "--", "marker": "s"},
+    "spatioflux_many":        {"label": "spatio-flux (per-cell processes)",
+                               "color": "#1f77b4", "ls": "-",  "marker": "o"},
+    "spatioflux_single":      {"label": "spatio-flux (SpatialDFBA)",
+                               "color": "#2ca02c", "ls": "-.", "marker": "^"},
+    "spatioflux_ray":         {"label": "spatio-flux (Ray actors, parallel)",
+                               "color": "#9467bd", "ls": ":",  "marker": "D"},
+    "spatioflux_ray_remote":  {"label": "spatio-flux (Ray shards on EC2)",
+                               "color": "#ff7f0e", "ls": "-",  "marker": "*"},
+    "cometspy":               {"label": "cometspy",
+                               "color": "#d62728", "ls": "--", "marker": "s"},
 }
 
 
@@ -785,47 +1037,89 @@ def _embed(out_dir: Path, name: str) -> str | None:
     return f"data:{mime};base64,{data}"
 
 
-def write_html_report(out_dir: Path, scaling: list[dict],
-                      snap_n: int | None, grids: list[int]) -> None:
-    """Write a fully self-contained report.html with all images base64-embedded."""
+def _scaling_table(scaling: list[dict],
+                   keys: list[str],
+                   ratio_to: str | None = "cometspy_time") -> str:
+    """Render a wall-clock table for any subset of impl keys.
+
+    `keys` must align with RUN_STYLE entries (without the "_time" suffix).
+    `ratio_to` adds ratio columns vs that impl (set None to omit).
+    """
     def _f(x): return f"{x:.2f}s" if x is not None else "—"
     def _r(num, den): return f"{num/den:.1f}×" if (num and den) else "—"
+
+    head = "<th>grid</th>" + "".join(
+        f"<th>{RUN_STYLE[k]['label']}</th>" for k in keys
+    )
+    if ratio_to:
+        ratio_keys = [k for k in keys if k + "_time" != ratio_to]
+        head += "".join(
+            f"<th>{RUN_STYLE[k]['label']} ÷ {RUN_STYLE[ratio_to[:-5]]['label']}</th>"
+            for k in ratio_keys
+        )
 
     rows = []
     for r in scaling:
         n = r["n"]
-        cm = r.get("cometspy_time")
-        sm = r.get("spatioflux_many_time")
-        ss = r.get("spatioflux_single_time")
-        sr = r.get("spatioflux_ray_time")
-        rows.append(
-            "<tr>"
-            f"<td>{n}×{n}</td>"
-            f"<td>{_f(cm)}</td>"
-            f"<td>{_f(sm)}</td>"
-            f"<td>{_f(ss)}</td>"
-            f"<td>{_f(sr)}</td>"
-            f"<td>{_r(sm, cm)}</td>"
-            f"<td>{_r(ss, cm)}</td>"
-            f"<td>{_r(sr, cm)}</td>"
-            "</tr>"
-        )
-    table = (
+        cells = [f"<td>{n}×{n}</td>"]
+        cells += [f"<td>{_f(r.get(k + '_time'))}</td>" for k in keys]
+        if ratio_to:
+            den = r.get(ratio_to)
+            cells += [f"<td>{_r(r.get(k + '_time'), den)}</td>"
+                      for k in keys if k + "_time" != ratio_to]
+        rows.append("<tr>" + "".join(cells) + "</tr>")
+
+    return (
         "<table class='tbl'>"
-        "<thead><tr>"
-        "<th>grid</th><th>cometspy</th>"
-        "<th>spatio-flux<br><span class='dim'>per-cell processes</span></th>"
-        "<th>spatio-flux<br><span class='dim'>SpatialDFBA</span></th>"
-        "<th>spatio-flux<br><span class='dim'>Ray actors</span></th>"
-        "<th>per-cell ÷ cometspy</th>"
-        "<th>SpatialDFBA ÷ cometspy</th>"
-        "<th>Ray ÷ cometspy</th>"
-        "</tr></thead>"
+        f"<thead><tr>{head}</tr></thead>"
         f"<tbody>{''.join(rows)}</tbody></table>"
     )
 
+
+def write_html_report(out_dir: Path,
+                      scaling_small: list[dict] | None,
+                      scaling_large: list[dict] | None,
+                      snap_n: int | None,
+                      gif_grids: list[int]) -> None:
+    """Write a fully self-contained report.html with all images base64-embedded.
+
+    The report has two scaling sections:
+      - Plot A: small grids, all four local implementations.
+      - Plot B: large grids, cometspy vs spatio-flux Ray shards on EC2.
+    """
+    small_keys = ["cometspy", "spatioflux_many", "spatioflux_single", "spatioflux_ray"]
+    large_keys = ["cometspy", "spatioflux_ray_remote"]
+
+    plot_a_block = ""
+    if scaling_small:
+        scaling_a_uri = _embed(out_dir, "scaling.png") or ""
+        plot_a_block = (
+            "<h2>Plot A — small grids, all local implementations</h2>"
+            "<p>Four implementations run on this machine: cometspy (Java backend), "
+            "spatio-flux's per-cell <code>DynamicFBA</code> composition, "
+            "spatio-flux's single <code>SpatialDFBA</code> process, and "
+            "spatio-flux's Ray-actor-pool variant.</p>"
+            f"<img class='scaling' src='{scaling_a_uri}' alt='scaling small'>"
+            + _scaling_table(scaling_small, small_keys)
+        )
+
+    plot_b_block = ""
+    if scaling_large:
+        scaling_b_uri = _embed(out_dir, "scaling_large.png") or ""
+        plot_b_block = (
+            "<h2>Plot B — large grids, cometspy vs Ray shards on EC2</h2>"
+            "<p>Sharded per-cell dFBA on a remote Ray cluster: each shard owns a "
+            "stripe of cells and dispatches one Ray RPC per tick batching all "
+            "its cobra solves. Topology-agnostic — spatial coupling lives only "
+            "in the diffusion process. Compared against cometspy at matched "
+            "physical setup. Push beyond N=64 to see whether the parallel "
+            "implementation closes the gap with the Java backend at scale.</p>"
+            f"<img class='scaling' src='{scaling_b_uri}' alt='scaling large'>"
+            + _scaling_table(scaling_large, large_keys)
+        )
+
     gif_blocks = []
-    for n in grids:
+    for n in gif_grids:
         uri = _embed(out_dir, f"compare_n{n}.gif")
         if uri:
             gif_blocks.append(
@@ -862,11 +1156,11 @@ def write_html_report(out_dir: Path, scaling: list[dict],
             biomass_block = (
                 f"<h2>Biomass trajectory at N={snap_n}×{snap_n}</h2>"
                 "<p>Biomass at the seed cell (left) and summed across the grid "
-                "(right). All three implementations track the same growth curve.</p>"
+                "(right). All implementations track the same growth curve.</p>"
                 f"<img class='wide' src='{biomass_uri}' alt='biomass trace'>"
             )
 
-    scaling_uri = _embed(out_dir, "scaling.png") or ""
+    all_grids = sorted({r["n"] for r in (scaling_small or []) + (scaling_large or [])})
 
     html = f"""<!doctype html>
 <html lang='en'><head><meta charset='utf-8'>
@@ -897,34 +1191,32 @@ def write_html_report(out_dir: Path, scaling: list[dict],
 <h1>Spatio-Flux vs COMETS</h1>
 <p class='lede'>
   Compositional dFBA (spatio-flux) vs the reference COMETS Java backend (via
-  <code>cometspy</code>) on a matched 2D dFBA + diffusion problem. Three
-  implementations: cometspy, spatio-flux's per-cell <code>DynamicFBA</code>
-  process composition, and spatio-flux's single <code>SpatialDFBA</code>
-  process that loops over cells internally.
+  <code>cometspy</code>) on a matched 2D dFBA + diffusion problem. Two scaling
+  studies: small grids comparing four local implementations, and large grids
+  comparing cometspy with a sharded Ray cluster on EC2.
 </p>
 
 <h2>Setup</h2>
 <ul>
   <li>Model: <em>E. coli</em> core (textbook)</li>
-  <li>Grid: square N×N (N ∈ {{{', '.join(str(n) for n in grids)}}})</li>
+  <li>Grid: square N×N (N ∈ {{{', '.join(str(n) for n in all_grids)}}})</li>
   <li>Total time {TOTAL_TIME} h, dFBA timestep {TIME_STEP} h, cell width {SPACE_WIDTH} cm</li>
   <li>Initial: vertical glucose gradient ({GLC_LOW} → {GLC_HIGH}), single biomass seed at top center</li>
   <li>Glucose &amp; acetate diffuse ({GLC_DIFF:.1e} cm²/s); biomass barely diffuses ({BIOMASS_DIFF:.1e} cm²/s)</li>
   <li>Matched MM kinetics: K<sub>m</sub>=0.5 mM, V<sub>max</sub>=1 mmol/gDW/h. Matched ATPM=1, EX_o2_e≥-2.</li>
-  <li>LP solver: GLOP (cometspy) and cobra default (spatio-flux)</li>
+  <li>LP solver: GLOP (cometspy) and cobra default GLPK (spatio-flux)</li>
 </ul>
 
-<h2>Performance scaling</h2>
-<img class='scaling' src='{scaling_uri}' alt='scaling'>
-{table}
+{plot_a_block}
+
+{plot_b_block}
 
 {biomass_block}
 
 {snap_block}
 
 <h2>Per-grid animations</h2>
-<p>Three rows (per-cell composition, SpatialDFBA, cometspy) × three fields
-(glucose, acetate, biomass), played in lockstep.</p>
+<p>Rows = implementations × fields (glucose, acetate, biomass), played in lockstep.</p>
 <div class='grid'>{''.join(gif_blocks)}</div>
 
 </body></html>
@@ -937,12 +1229,13 @@ def write_html_report(out_dir: Path, scaling: list[dict],
 # ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
-SCALING_JSON = "scaling.json"
+SCALING_JSON_SMALL = "scaling.json"
+SCALING_JSON_LARGE = "scaling_large.json"
 
 
-def _load_scaling(out_dir: Path) -> list[dict]:
+def _load_scaling(out_dir: Path, name: str) -> list[dict]:
     """Load persisted scaling measurements, if any. Returns [] on first run."""
-    p = out_dir / SCALING_JSON
+    p = out_dir / name
     if not p.exists():
         return []
     try:
@@ -952,11 +1245,11 @@ def _load_scaling(out_dir: Path) -> list[dict]:
         return []
 
 
-def _save_scaling(out_dir: Path, scaling: list[dict]) -> None:
+def _save_scaling(out_dir: Path, name: str, scaling: list[dict]) -> None:
     """Persist scaling measurements (sorted by n)."""
     import json as _json
     sorted_scaling = sorted(scaling, key=lambda r: r["n"])
-    (out_dir / SCALING_JSON).write_text(_json.dumps(sorted_scaling, indent=2))
+    (out_dir / name).write_text(_json.dumps(sorted_scaling, indent=2))
 
 
 def _merge_scaling(prev: list[dict], new: list[dict]) -> list[dict]:
@@ -967,45 +1260,32 @@ def _merge_scaling(prev: list[dict], new: list[dict]) -> list[dict]:
     return sorted(by_n.values(), key=lambda r: r["n"])
 
 
-def main(grids=None, max_seconds_per_run: float = 600.0):
-    """
-    Run the comparison across a sequence of grid sizes.
-
-    Two-phase structure:
-      1. Timings phase: run all grids back-to-back, no GIF/plot work between
-         runs. Keeps the matplotlib + JSON-serialization overhead from
-         contending with subsequent Ray dispatch (which is GIL-sensitive).
-      2. Render phase: write GIFs, snapshots, scaling plot, report.
-
-    Scaling measurements are persisted to scaling.json and merged across
-    invocations — re-running with grids=[16] only will overwrite n=16's
-    measurements while preserving the rest.
-
-    `max_seconds_per_run` is a prospective safety cap: if the previous grid
-    took longer than this, we skip the next (larger) one to avoid hangs.
-    """
-    grids = grids or DEFAULT_GRIDS
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-
+def _check_comets():
     if "COMETS_HOME" not in os.environ:
         raise RuntimeError(
             "COMETS_HOME not set. Point it at your COMETS install dir."
         )
 
+
+def run_small_sweep(grids=None, max_seconds_per_run: float = 600.0):
+    """Plot A: small grids, all four local implementations (cometspy +
+    three spatio-flux variants). Persists to scaling.json."""
+    grids = grids or DEFAULT_GRIDS
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    _check_comets()
     core = allocate_core()
 
-    # ---- Phase 1: timings only, no rendering ---------------------------- #
     new_scaling = []
     per_grid_results: dict[int, dict] = {}
-
     last_max = 0.0
+
     for n in grids:
         if last_max > max_seconds_per_run:
             print(f"\n⏹  prior grid took {last_max:.1f}s > budget "
                   f"{max_seconds_per_run:.0f}s; stopping before n={n}.")
             break
 
-        print(f"\n=== grid {n}x{n} ===")
+        print(f"\n=== [small] grid {n}x{n} ===")
 
         print("  → cometspy ...", flush=True)
         cm_res = run_cometspy(n)
@@ -1030,10 +1310,8 @@ def main(grids=None, max_seconds_per_run: float = 600.0):
             "spatioflux_single_time": sf_single_res["wall_time"],
             "spatioflux_ray_time":    sf_ray_res["wall_time"],
         })
-        last_max = max(cm_res["wall_time"],
-                       sf_many_res["wall_time"],
-                       sf_single_res["wall_time"],
-                       sf_ray_res["wall_time"])
+        last_max = max(cm_res["wall_time"], sf_many_res["wall_time"],
+                       sf_single_res["wall_time"], sf_ray_res["wall_time"])
 
         per_grid_results[n] = {
             "cometspy":          cm_res,
@@ -1042,28 +1320,106 @@ def main(grids=None, max_seconds_per_run: float = 600.0):
             "spatioflux_ray":    sf_ray_res,
         }
 
-    # ---- Persist + merge scaling data ----------------------------------- #
-    merged = _merge_scaling(_load_scaling(OUT_DIR), new_scaling)
-    _save_scaling(OUT_DIR, merged)
-    print(f"\n💾 scaling.json updated ({len(merged)} grid sizes recorded).")
+    merged = _merge_scaling(_load_scaling(OUT_DIR, SCALING_JSON_SMALL), new_scaling)
+    _save_scaling(OUT_DIR, SCALING_JSON_SMALL, merged)
+    print(f"\n💾 {SCALING_JSON_SMALL} updated ({len(merged)} grid sizes).")
+    return merged, per_grid_results
 
-    # ---- Phase 2: rendering (after all timings captured) ---------------- #
+
+def run_large_sweep(grids=None,
+                    max_seconds_per_run: float = 1800.0,
+                    ray_address: str | None = None,
+                    n_shards: int | None = None,
+                    solver: str | None = None):
+    """Plot B: large grids, cometspy vs sharded-Ray (local or remote).
+    Persists to scaling_large.json. ``ray_address`` connects to a remote
+    Ray head when set; defaults to local in-process Ray.
+
+    The plot-B path defaults to ``solver="highs_direct"`` — bare-highspy
+    with a warm-started simplex basis kept alive on each shard actor.
+    That's the architecturally-best LP backend in this stack (~12× faster
+    per solve than cobra's GLPK on E. coli core), and it's what gives the
+    sharded path a real shot at matching cometspy's GLOP-per-cell speed.
+    Override with ``--solver glpk`` to compare against the cobra default.
+    """
+    grids = grids or LARGE_GRIDS
+    if solver is None:
+        solver = "highs_direct"
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    _check_comets()
+
+    new_scaling = []
+    per_grid_results: dict[int, dict] = {}
+    last_max = 0.0
+
+    for n in grids:
+        if last_max > max_seconds_per_run:
+            print(f"\n⏹  prior grid took {last_max:.1f}s > budget "
+                  f"{max_seconds_per_run:.0f}s; stopping before n={n}.")
+            break
+
+        print(f"\n=== [large] grid {n}x{n} ===")
+
+        print("  → cometspy ...", flush=True)
+        cm_res = run_cometspy(n)
+        print(f"     wall: {cm_res['wall_time']:.2f}s")
+
+        print("  → spatio-flux (Ray shards, remote) ...", flush=True)
+        sf_remote_res = run_spatioflux_ray_remote(
+            n,
+            core=allocate_core(),
+            ray_address=ray_address,
+            n_shards=n_shards,
+            solver=solver,
+        )
+        print(f"     wall: {sf_remote_res['wall_time']:.2f}s")
+
+        new_scaling.append({
+            "n": n,
+            "cometspy_time":             cm_res["wall_time"],
+            "spatioflux_ray_remote_time": sf_remote_res["wall_time"],
+        })
+        last_max = max(cm_res["wall_time"], sf_remote_res["wall_time"])
+
+        per_grid_results[n] = {
+            "cometspy":              cm_res,
+            "spatioflux_ray_remote": sf_remote_res,
+        }
+
+    merged = _merge_scaling(_load_scaling(OUT_DIR, SCALING_JSON_LARGE), new_scaling)
+    _save_scaling(OUT_DIR, SCALING_JSON_LARGE, merged)
+    print(f"\n💾 {SCALING_JSON_LARGE} updated ({len(merged)} grid sizes).")
+    return merged, per_grid_results
+
+
+def render(small_results: dict[int, dict] | None,
+           large_results: dict[int, dict] | None):
+    """Generate GIFs/snapshots from the run results, plus the two scaling
+    plots and the combined HTML report. Reads any persisted scaling files
+    so you can render after either sweep alone."""
     print("\n=== rendering ===")
+
     snap_n = None
-    snap_runs = None
-    for n, per_grid in per_grid_results.items():
-        gif_path = OUT_DIR / f"compare_n{n}.gif"
-        print(f"  → {gif_path.name} ...", flush=True)
-        make_side_by_side_gif(per_grid, n, gif_path)
+    snap_runs: dict | None = None
+    gif_grids: list[int] = []
 
-        if n == COMPARISON_GRID:
-            snap_runs = per_grid
-            snap_n = n
+    for results in filter(None, [small_results, large_results]):
+        for n, per_grid in results.items():
+            gif_path = OUT_DIR / f"compare_n{n}.gif"
+            print(f"  → {gif_path.name} ...", flush=True)
+            make_side_by_side_gif(per_grid, n, gif_path)
+            gif_grids.append(n)
 
-    # If COMPARISON_GRID wasn't in this run, fall back to the largest grid we did.
-    if snap_runs is None and per_grid_results:
-        snap_n = max(per_grid_results)
-        snap_runs = per_grid_results[snap_n]
+            if snap_runs is None and n == COMPARISON_GRID:
+                snap_runs = per_grid
+                snap_n = n
+
+    # Fall back to the largest grid actually run.
+    if snap_runs is None:
+        all_results = {**(small_results or {}), **(large_results or {})}
+        if all_results:
+            snap_n = max(all_results)
+            snap_runs = all_results[snap_n]
 
     if snap_runs:
         print("  → snapshots ...", flush=True)
@@ -1072,12 +1428,60 @@ def main(grids=None, max_seconds_per_run: float = 600.0):
         plot_snapshots(snap_runs, snap_n, OUT_DIR / f"snapshots_acetate_n{snap_n}.png", field="acetate")
         plot_biomass_trace(snap_runs, snap_n, OUT_DIR / f"biomass_trace_n{snap_n}.png")
 
-    print("  → scaling plot + report ...", flush=True)
-    plot_scaling(merged, OUT_DIR / "scaling.png")
-    write_html_report(OUT_DIR, merged, snap_n, [r["n"] for r in merged])
+    scaling_small = _load_scaling(OUT_DIR, SCALING_JSON_SMALL)
+    scaling_large = _load_scaling(OUT_DIR, SCALING_JSON_LARGE)
 
+    print("  → scaling plots + report ...", flush=True)
+    if scaling_small:
+        plot_scaling(scaling_small, OUT_DIR / "scaling.png")
+    if scaling_large:
+        plot_scaling(scaling_large, OUT_DIR / "scaling_large.png")
+    write_html_report(OUT_DIR, scaling_small, scaling_large, snap_n, sorted(set(gif_grids)))
     print(f"\n✅ wrote: {OUT_DIR}")
 
 
+def main(mode: str = "small",
+         small_grids=None,
+         large_grids=None,
+         ray_address: str | None = None,
+         n_shards: int | None = None,
+         solver: str | None = None):
+    """Entry point.
+
+    mode:
+      "small" — plot A only (DEFAULT_GRIDS, four local impls)
+      "large" — plot B only (LARGE_GRIDS, cometspy + ray shards)
+      "both"  — both sweeps, then a single combined report.
+    """
+    small_per_grid = None
+    large_per_grid = None
+
+    if mode in ("small", "both"):
+        _, small_per_grid = run_small_sweep(grids=small_grids)
+    if mode in ("large", "both"):
+        _, large_per_grid = run_large_sweep(
+            grids=large_grids, ray_address=ray_address,
+            n_shards=n_shards, solver=solver,
+        )
+
+    render(small_per_grid, large_per_grid)
+
+
 if __name__ == "__main__":
-    main()
+    import argparse
+    p = argparse.ArgumentParser(description="Compare spatio-flux vs cometspy.")
+    p.add_argument("--mode", choices=["small", "large", "both"], default="small",
+                   help="which sweep to run (default: small)")
+    p.add_argument("--ray-address", default=os.environ.get("RAY_ADDRESS"),
+                   help="Ray head address for the large sweep "
+                        "('auto' for local autodiscovery, host:port for remote)")
+    p.add_argument("--n-shards", type=int, default=None,
+                   help="number of shards for the sharded-Ray impl "
+                        "(default: os.cpu_count())")
+    p.add_argument("--solver", default=None,
+                   help="cobra solver name (e.g. glpk, hybrid, scipy)")
+    args = p.parse_args()
+    main(mode=args.mode,
+         ray_address=args.ray_address,
+         n_shards=args.n_shards,
+         solver=args.solver)
