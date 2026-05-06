@@ -681,8 +681,11 @@ class ShardedDFBA(Process):
         }
 
     def update(self, inputs, interval):
+        import time as _time
         cells_in = inputs["cells"]
         cells_out = {}
+        t_start = _time.monotonic()
+        n_cells = len(self.cell_keys)
         for k in self.cell_keys:
             cell = cells_in[k]
             upd = run_fba_update(
@@ -693,6 +696,21 @@ class ShardedDFBA(Process):
                 interval,
             )
             cells_out[k] = upd
+        t_elapsed = _time.monotonic() - t_start
+        # Aggregate per-shard tick stats. First-tick print confirms
+        # whether per-cell solve time is the bottleneck (~ms is cold-start
+        # territory; ~10s of μs is warm-start). Tracks running averages.
+        cnt = getattr(self, '_tick_count', 0) + 1
+        sum_ms = getattr(self, '_sum_total_ms', 0.0) + t_elapsed * 1000
+        self._tick_count = cnt
+        self._sum_total_ms = sum_ms
+        if cnt <= 2:
+            per_cell_us = (t_elapsed / max(1, n_cells)) * 1_000_000
+            print(
+                f"  ShardedDFBA tick #{cnt}: {n_cells} cells in "
+                f"{t_elapsed*1000:.1f}ms ({per_cell_us:.0f}μs/cell)",
+                flush=True,
+            )
         return {"cells": cells_out}
 
 

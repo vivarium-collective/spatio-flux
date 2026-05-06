@@ -69,6 +69,26 @@ tar --exclude='.venv' --exclude='out' --exclude='out_*' --exclude='originalout' 
 cp -R "$COMETS_SRC"/. "$WORK/comets/"
 cp "$REPO_ROOT/deploy/Dockerfile" "$WORK/Dockerfile"
 
+# Sibling repo: process-bigraph. We install from local source instead of
+# PyPI when a sibling checkout exists, so framework changes (e.g.
+# tick_lifecycle hooks) are picked up immediately. Default lookup is
+# ../process-bigraph relative to spatio-flux. Override with
+# PROCESS_BIGRAPH_SRC=<path> or set to "skip" to use PyPI.
+# Always create the staging directory (even if empty) so the Dockerfile's
+# COPY directive doesn't error on missing path.
+PROCESS_BIGRAPH_SRC="${PROCESS_BIGRAPH_SRC:-${REPO_ROOT}/../process-bigraph}"
+mkdir -p "$WORK/process-bigraph"
+if [[ "$PROCESS_BIGRAPH_SRC" != "skip" && -d "$PROCESS_BIGRAPH_SRC" ]]; then
+    tar --exclude='.venv' --exclude='.git' --exclude='__pycache__' \
+        --exclude='*.egg-info' --exclude='dist' --exclude='build' \
+        -C "$PROCESS_BIGRAPH_SRC" -cf - . | tar -C "$WORK/process-bigraph" -xf -
+    echo "   process-bigraph: local source ($(du -sh "$WORK/process-bigraph" | cut -f1))"
+else
+    # Empty marker dir; Dockerfile checks for pyproject.toml presence.
+    touch "$WORK/process-bigraph/.empty"
+    echo "   process-bigraph: PyPI (no local source at $PROCESS_BIGRAPH_SRC)"
+fi
+
 echo "   src:    $(du -sh "$WORK/src" | cut -f1)"
 echo "   comets: $(du -sh "$WORK/comets" | cut -f1)"
 

@@ -21,6 +21,26 @@
 
 set -euo pipefail
 
+# Top-level wall timer — every exit path prints how long the whole
+# orchestration took, from `./scripts/run-comparison-on-ec2.sh` invocation
+# to whatever made it exit (success, failure, ctrl-C). Uses EXIT trap so
+# it fires regardless of how we leave.
+SCRIPT_T0=$(date +%s)
+print_elapsed() {
+    # `rc` is set by the surrounding trap line (so we can use this fn
+    # in chained traps without clobbering each other's $?).
+    local rc="${rc:-$?}"
+    local elapsed=$(( $(date +%s) - SCRIPT_T0 ))
+    local mins=$((elapsed / 60))
+    local secs=$((elapsed % 60))
+    printf '\n⏱  total elapsed: %dm %ds (rc=%d)\n' "$mins" "$secs" "$rc" >&2
+    return "$rc"
+}
+# Initial trap that just prints elapsed if we exit before WORK_DIR is
+# defined (e.g. arg-parse failure). Replaced later with the combined
+# rm-then-print version once WORK_DIR exists.
+trap 'rc=$?; print_elapsed' EXIT
+
 AWS_PROFILE="${AWS_PROFILE:-}"
 AWS_REGION="${AWS_DEFAULT_REGION:-${AWS_REGION:-us-gov-west-1}}"
 STACK_PREFIX="${STACK_PREFIX:-smsvpctest}"
@@ -136,7 +156,7 @@ aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
 BOOTSTRAP_CMD="aws --region '${AWS_REGION}' s3 cp '${S3_PREFIX}/ec2-bootstrap.sh' /tmp/ec2-bootstrap.sh && chmod +x /tmp/ec2-bootstrap.sh && S3_PREFIX='${S3_PREFIX}' STACK_PREFIX='${STACK_PREFIX}' MODE='${MODE}' N_SHARDS='${N_SHARDS}' SOLVER='${SOLVER}' KEEP_CLUSTER='${KEEP_CLUSTER}' IMAGE_URI='${IMAGE_URI}' BAKED_AMI_ID='${BAKED_AMI_ID}' /tmp/ec2-bootstrap.sh"
 
 WORK_DIR="$(mktemp -d)"
-trap 'rm -rf "$WORK_DIR"' EXIT
+trap 'rc=$?; rm -rf "$WORK_DIR"; print_elapsed' EXIT
 PARAMS_FILE="$WORK_DIR/ssm-params.json"
 python3 -c "import json,sys; print(json.dumps({'commands':[sys.argv[1]]}))" \
     "$BOOTSTRAP_CMD" > "$PARAMS_FILE"

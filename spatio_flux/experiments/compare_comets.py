@@ -55,7 +55,7 @@ import cometspy as cspy
 # Units: hours, cm, mmol, gDW.
 
 DEFAULT_GRIDS = [4, 8, 16, 32]     # plot A: all four local implementations
-LARGE_GRIDS = [8, 16, 32, 64, 128, 256]  # plot B: cometspy vs spatioflux_ray_remote (shards)
+LARGE_GRIDS = [8, 16, 32, 64, 128]  # plot B: cometspy vs spatioflux_ray_remote (shards)
 COMPARISON_GRID = 16               # the N used for the snapshot/timeseries panels
 
 TIME_STEP = 0.1                    # hours per dFBA step
@@ -1342,6 +1342,7 @@ def run_large_sweep(grids=None,
     sharded path a real shot at matching cometspy's GLOP-per-cell speed.
     Override with ``--solver glpk`` to compare against the cobra default.
     """
+    import time as _time
     grids = grids or LARGE_GRIDS
     if solver is None:
         solver = "highs_direct"
@@ -1351,6 +1352,7 @@ def run_large_sweep(grids=None,
     new_scaling = []
     per_grid_results: dict[int, dict] = {}
     last_max = 0.0
+    t_sweep_start = _time.monotonic()
 
     for n in grids:
         if last_max > max_seconds_per_run:
@@ -1358,13 +1360,20 @@ def run_large_sweep(grids=None,
                   f"{max_seconds_per_run:.0f}s; stopping before n={n}.")
             break
 
-        print(f"\n=== [large] grid {n}x{n} ===")
+        t_grid_start = _time.monotonic()
+        print(f"\n=== [large] grid {n}x{n} ===  "
+              f"(elapsed since sweep start: "
+              f"{t_grid_start - t_sweep_start:.1f}s)")
 
         print("  → cometspy ...", flush=True)
+        t_cm_start = _time.monotonic()
         cm_res = run_cometspy(n)
-        print(f"     wall: {cm_res['wall_time']:.2f}s")
+        cm_total = _time.monotonic() - t_cm_start
+        print(f"     wall: {cm_res['wall_time']:.2f}s  "
+              f"(total incl. setup: {cm_total:.2f}s)")
 
         print("  → spatio-flux (Ray shards, remote) ...", flush=True)
+        t_sf_start = _time.monotonic()
         sf_remote_res = run_spatioflux_ray_remote(
             n,
             core=allocate_core(),
@@ -1372,7 +1381,12 @@ def run_large_sweep(grids=None,
             n_shards=n_shards,
             solver=solver,
         )
-        print(f"     wall: {sf_remote_res['wall_time']:.2f}s")
+        sf_total = _time.monotonic() - t_sf_start
+        print(f"     wall: {sf_remote_res['wall_time']:.2f}s  "
+              f"(total incl. ShardManager setup+teardown: {sf_total:.2f}s)")
+
+        grid_elapsed = _time.monotonic() - t_grid_start
+        print(f"  ⏱  grid {n}x{n} grand total: {grid_elapsed:.1f}s")
 
         new_scaling.append({
             "n": n,
@@ -1385,6 +1399,10 @@ def run_large_sweep(grids=None,
             "cometspy":              cm_res,
             "spatioflux_ray_remote": sf_remote_res,
         }
+
+    sweep_total = _time.monotonic() - t_sweep_start
+    print(f"\n⏱  large sweep total: {sweep_total:.1f}s "
+          f"({sweep_total/60:.1f} min) across {len(grids)} grids")
 
     merged = _merge_scaling(_load_scaling(OUT_DIR, SCALING_JSON_LARGE), new_scaling)
     _save_scaling(OUT_DIR, SCALING_JSON_LARGE, merged)

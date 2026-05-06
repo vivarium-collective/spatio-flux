@@ -406,6 +406,127 @@ class ShardManager:
         Empty dict if no update was queued this tick."""
         return self._results.pop(proc_id, {})
 
+    def _disabled_tick_lifecycle(
+            self,
+            processes,
+            composite,
+            global_time: float,
+            end_time: float,
+            force_complete: bool,
+    ):
+        """DISABLED: renamed from `tick_lifecycle` because the v1 implementation
+        had a state-extraction bug (assumed flat ``cells`` field, but
+        the actual wiring is ``cells/key → fields/mol/y/x``). The
+        upstream framework hook in process_bigraph (composite.py
+        ``_partition_processes_by_runtime`` + ``_run_tick_lifecycle``)
+        is sound and tested; only this runtime adapter is incomplete.
+
+        FOLLOW-UP: rename back to ``tick_lifecycle`` once the per-process
+        state extraction is fixed (use composite._cached_view per process
+        to honor wiring; OR build a proper batched view of the
+        ``fields`` array and slice per-shard).
+
+        With this method renamed, ``hasattr(rt, 'tick_lifecycle')`` is
+        False, so Composite falls back to the per-process loop +
+        flush_pending — the path that was working before this edit.
+
+        Take over the entire invoke+apply lifecycle for our managed
+        ``_ShardFacade`` processes. Returns one combined Defer covering
+        all per-shard outputs, so Composite walks the schema once for the
+        whole batch instead of N times.
+
+        What this saves vs. Composite's per-process loop:
+
+        - **N _cached_view calls**: Composite normally calls ``_cached_view(path)``
+          per process to extract its sub-state. With 72 ``_ShardFacade``
+          processes for a 64x64 grid, that's 72 schema walks per tick. We do
+          ONE direct dict slice on ``composite.state['cells']`` instead.
+
+        - **N apply_updates schema walks**: Composite normally collects N
+          per-process Defers and reconciles N (schema, state) tuples in
+          apply_updates. We return ONE (schema, state) tuple covering the
+          merged update for all shards' cells, so apply_updates does one
+          schema-walk on the combined tree.
+
+        The remote dispatch itself is unchanged: each ``_ShardFacade.invoke()``
+        enqueues a future on this manager via ``enqueue()``, and Composite's
+        ``_flush_protocol_runtimes`` hook runs ``flush_pending()`` (below)
+        to ``ray.get`` them all in parallel before the combined Defer
+        resolves."""
+        if not processes:
+            return None
+
+        # Per-process state extraction via composite._cached_view —
+        # _ShardFacade port wiring maps each cell to ``fields[mol][y][x]``
+        # paths, so we can't just read a top-level "cells" field. The
+        # _cached_view call is what Composite's run_process would have
+        # done; we go through it for correctness.
+        # FUTURE: a faster path would be ONE read of composite.state['fields']
+        # followed by manual array slicing per shard's (y, x) coordinates,
+        # bypassing the schema walk N times. Deferred until the framework
+        # hook is validated end-to-end.
+        raw_defers = []  # list of (path, defer)
+        next_time = end_time
+        for req in processes:
+            proc = req['instance']
+            interval = float(req['interval']) if req['interval'] else 0.0
+            # Use Composite's view mechanism so wiring (cells/key →
+            # fields/mol/y/x) is honored. Equivalent to what run_process
+            # would call.
+            state = composite._cached_view(req['path'])
+            # process_update wraps invoke in a Defer that projects the
+            # output back through the same wiring on apply.
+            defer = composite.process_update(
+                req['path'],
+                {'instance': proc, 'interval': interval},
+                state,
+                interval,
+                already_clean=True,
+            )
+            raw_defers.append((req['path'], defer))
+            future_time = global_time + interval
+            if future_time < next_time:
+                next_time = future_time
+
+        class _BatchedDefer:
+            """Concatenates the per-process Defers into a single Defer.
+
+            apply_updates already batches its reconcile across multiple
+            (schema, state) tuples — so by returning ONE Defer that emits
+            a flat list, we get the same batched-reconcile behavior, and
+            we get there without Composite having to manage N separate
+            front entries.
+            """
+            __slots__ = ('_defers',)
+
+            def __init__(self_inner, defers):
+                self_inner._defers = defers
+
+            def get(self_inner):
+                results = []
+                for _path, d in self_inner._defers:
+                    series = d.get()
+                    if series is None:
+                        continue
+                    if not isinstance(series, list):
+                        series = [series]
+                    results.extend(series)
+                return results
+
+        # Common-path stash: the combined Defer covers all our processes'
+        # outputs, which (via process_update's projection) write to
+        # ``fields[mol][y][x]`` paths. We use ``('fields',)`` as the
+        # smallest common ancestor for those — Composite's apply pass
+        # walks once from there. (The actual key in self.front is mostly
+        # bookkeeping; apply_updates resolves the projected paths from
+        # the (schema, state) tuples themselves.)
+        return {
+            'common_path': ('fields',),
+            'next_time': next_time,
+            'process_paths': [path for path, _ in raw_defers],
+            'defer': _BatchedDefer(raw_defers),
+        }
+
     def flush_pending(self) -> None:
         """Resolve all queued updates in parallel via a single
         ``ray.get(list)``. Composite calls this once per tick between

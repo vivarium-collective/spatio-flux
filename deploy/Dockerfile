@@ -46,8 +46,16 @@ ENV COMETS_HOME=/opt/comets
 # stable path that's first on PATH for the entrypoint.
 RUN mkdir -p /app
 COPY src/ /app/spatio-flux/
+# Optional: local process-bigraph for upstream framework iteration. When
+# present (build-and-push-image.sh stages it), install editable from
+# local source so framework changes (e.g. tick_lifecycle hooks) ship
+# without waiting for a PyPI release. Falls back to PyPI when absent.
+COPY process-bigraph/ /app/process-bigraph/
 WORKDIR /app/spatio-flux
 RUN uv venv --python 3.11 /opt/spatio-flux-venv \
+    && (test -f /app/process-bigraph/pyproject.toml \
+        && uv pip install --python /opt/spatio-flux-venv/bin/python -e /app/process-bigraph \
+        || true) \
     && uv pip install --python /opt/spatio-flux-venv/bin/python \
        -e . "ray[default]>=2.10" cometspy
 
