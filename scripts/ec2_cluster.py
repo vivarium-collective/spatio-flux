@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import os
 import re
+import shlex
 import sys
 import time
 import urllib.request
@@ -237,18 +238,80 @@ def find_existing_cluster(ec2, cluster_id: str) -> tuple[str | None, list[str]]:
 # Docker + Ray bring-up
 # ---------------------------------------------------------------------------
 
-def ecr_login_cmd(image_uri: str, region: str) -> str:
-    """Shell snippet that authenticates docker to ECR for the given image URI."""
-    ecr_host = image_uri.split("/", 1)[0]
-    return (f"aws ecr get-login-password --region {region} "
-            f"| docker login --username AWS --password-stdin {ecr_host}")
-
-
 def docker_pull_all(ssm, instance_ids: list[str], image_uri: str, region: str) -> None:
+    """
+    Pull the worker image from ECR on every instance.
+
+    Uses amazon-ecr-credential-helper as docker's credential resolver,
+    NOT `aws ecr get-login-password | docker login`:
+      - SSM has no TTY, so `docker login` errors with "Cannot perform
+        an interactive login from a non TTY device".
+      - SSM's default PATH on ECS-AL2 doesn't have `aws` (it ships with
+        SSM agent + docker, not awscli). The helper binary is found via
+        docker's own resolver.
+
+    Diagnostic touches we picked up the hard way:
+      - HOME=/root explicitly so docker reads /root/.docker/config.json.
+      - Wait for cloud-init's UserData yum to release the rpm DB lock
+        before we try to install the helper rpm.
+      - Per-host credHelpers (not catch-all credsStore) — same format
+        the AMI's UserData writes, known to work with this docker version.
+      - Print the resolved credential helper output before pulling so a
+        helper failure isn't silent.
+    """
+    ecr_host = image_uri.split("/", 1)[0]
+    config_json = '{"credHelpers": {"' + ecr_host + '": "ecr-login"}}'
     ssm_run(ssm, instance_ids, [
-        "set -e",
-        ecr_login_cmd(image_uri, region),
-        f"docker pull {image_uri}",
+        # NOTE no `set -e` here — we want diagnostics to keep printing
+        # even if individual probes fail. Each probe's exit code is
+        # captured and printed instead.
+        "set +e",
+        "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "export HOME=/root",
+        # Wait for cloud-init's UserData yum to release the rpm DB lock.
+        "for _ in $(seq 1 30); do "
+        "    pgrep -x yum >/dev/null 2>&1 || break; sleep 2; "
+        "done",
+        "yum install -y amazon-ecr-credential-helper >/dev/null",
+        "echo \"=== yum install exit: $? ===\"",
+        # The bake of this AMI somehow ended up with a 0-byte helper
+        # binary (yum reported success but the file is empty). Detect
+        # and reinstall — yum reinstall forces re-extraction of the
+        # rpm payload regardless of whether rpm thinks it's installed.
+        "HELPER=/usr/bin/docker-credential-ecr-login",
+        "if [[ ! -s \"$HELPER\" ]]; then "
+        "    echo '  helper is 0 bytes, force-reinstalling'; "
+        "    rm -f \"$HELPER\"; "
+        "    yum reinstall -y amazon-ecr-credential-helper >/dev/null 2>&1 "
+        "        || yum install -y amazon-ecr-credential-helper >/dev/null; "
+        "fi",
+        "echo '--- helper binary ---'",
+        "ls -la /usr/bin/docker-credential-ecr-login 2>&1",
+        "[[ -s /usr/bin/docker-credential-ecr-login ]] "
+        "    || { echo '  STILL 0 BYTES — bailing'; exit 1; }",
+        "docker-credential-ecr-login version 2>&1; echo \"  version exit: $?\"",
+        "echo '--- IMDS instance role ---'",
+        "TOKEN=$(curl -fsS -m 5 -X PUT -H 'X-aws-ec2-metadata-token-ttl-seconds: 60' "
+        "    http://169.254.169.254/latest/api/token); "
+        "curl -fsS -m 5 -H \"X-aws-ec2-metadata-token: $TOKEN\" "
+        "    http://169.254.169.254/latest/meta-data/iam/info 2>&1; "
+        "echo \"  imds exit: $?\"",
+        "echo '--- helper probe (separated streams) ---'",
+        f"echo '{ecr_host}' > /tmp/probe-in",
+        "docker-credential-ecr-login get < /tmp/probe-in > /tmp/probe-out 2> /tmp/probe-err",
+        "echo \"  helper exit: $?\"",
+        "echo '  stdout:'; sed 's/^/    /' /tmp/probe-out | head -5",
+        "echo '  stderr:'; sed 's/^/    /' /tmp/probe-err | head -10",
+        "echo '--- docker config ---'",
+        "mkdir -p /root/.docker",
+        f"echo '{config_json}' > /root/.docker/config.json",
+        "cat /root/.docker/config.json",
+        "echo \"  HOME=$HOME  USER=$USER  DOCKER_CONFIG=${DOCKER_CONFIG:-unset}\"",
+        "echo '--- docker pull ---'",
+        f"docker pull {image_uri} 2>&1; rc=$?; echo \"  pull exit: $rc\"",
+        f"docker image inspect {image_uri} >/dev/null 2>&1 && echo 'pulled-ok' || echo 'NOT-PULLED'",
+        # Final exit reflects whether the image actually got pulled.
+        f"docker image inspect {image_uri} >/dev/null 2>&1",
     ], name="docker-pull", timeout_s=600)
 
 
@@ -260,9 +323,13 @@ def start_ray_head(ssm, head_id: str, image_uri: str) -> None:
         # gcs, raylet, dashboard agent etc. Putting the container on the
         # host network avoids needing to map each one and avoids docker
         # bridge NAT for inter-node Ray traffic.
+        # --shm-size=10g: Ray's plasma object store uses /dev/shm. The
+        # default 64MB causes Ray to fall back to /tmp/ray and breaks at
+        # scale. 10GB is enough for our object store needs without
+        # over-committing host memory.
         # --restart unless-stopped: survives daemon restart for long runs.
         # ray start --block keeps PID 1 alive so docker doesn't exit.
-        f"docker run -d --name spatio_flux_ray --network host --restart unless-stopped "
+        f"docker run -d --name spatio_flux_ray --network host --shm-size=10g --restart unless-stopped "
         f"  --entrypoint ray {image_uri} "
         f"  start --head --port=6379 --dashboard-host=0.0.0.0 --block",
         "sleep 5",
@@ -275,7 +342,7 @@ def start_ray_workers(ssm, worker_ids: list[str], image_uri: str, head_ip: str) 
     ssm_run(ssm, worker_ids, [
         "set -e",
         "docker rm -f spatio_flux_ray 2>/dev/null || true",
-        f"docker run -d --name spatio_flux_ray --network host --restart unless-stopped "
+        f"docker run -d --name spatio_flux_ray --network host --shm-size=10g --restart unless-stopped "
         f"  --entrypoint ray {image_uri} "
         f"  start --address={head_ip}:6379 --block",
         "sleep 5",
@@ -306,6 +373,63 @@ def wait_workers_registered(ssm, head_id: str, expected: int, *, timeout_s: int 
     raise RuntimeError(f"workers didn't register within {timeout_s}s")
 
 
+def _probe_remote_log(ssm, instance_id: str, log_path: str, line_cursor: int) -> tuple[str, int]:
+    """One-shot SSM probe to fetch new log lines since `line_cursor`.
+    Returns (new_text, updated_cursor). Quiet on failure.
+
+    log_path is inside the spatio_flux_ray container — wrap reads in
+    `docker exec` since the file doesn't exist on the host filesystem.
+    """
+    # Inner script runs inside the container; we don't want HOST bash
+    # to expand $L, $(...), or $p before docker exec gets the args.
+    # shlex.quote wraps the inner script in single quotes (with proper
+    # escaping if it contains single quotes) — that's the only reliable
+    # way to make the host pass it through verbatim.
+    # Use SINGLE quotes around sed's range so bash doesn't expand $p
+    # to the value of an unset variable (turning '1,$p' into '1,p',
+    # which sed rejects). Single quotes inside the inner script are
+    # safe — shlex.quote will escape them when wrapping for bash -c.
+    inner = (
+        f"L=$(wc -l < {log_path} 2>/dev/null || echo 0); "
+        f'if [ "$L" -gt {line_cursor} ]; then '
+        f"  sed -n '{line_cursor + 1},$p' {log_path} 2>/dev/null | head -300; "
+        f"fi; "
+        f'echo "__CURSOR__=$L"'
+    )
+    probe_cmd = f"docker exec spatio_flux_ray bash -c {shlex.quote(inner)}"
+    try:
+        cmd_id = ssm.send_command(
+            InstanceIds=[instance_id],
+            DocumentName="AWS-RunShellScript",
+            Parameters={"commands": [probe_cmd]},
+            Comment="log-probe",
+        )["Command"]["CommandId"]
+    except Exception:
+        return "", line_cursor
+    for _ in range(10):
+        time.sleep(0.7)
+        try:
+            inv = ssm.get_command_invocation(CommandId=cmd_id, InstanceId=instance_id)
+        except ssm.exceptions.InvocationDoesNotExist:
+            continue
+        except Exception:
+            return "", line_cursor
+        if inv["Status"] in ("Success", "Failed", "TimedOut", "Cancelled"):
+            content = inv.get("StandardOutputContent", "")
+            new_cursor = line_cursor
+            text_lines: list[str] = []
+            for ln in content.splitlines():
+                if ln.startswith("__CURSOR__="):
+                    try:
+                        new_cursor = int(ln.split("=", 1)[1])
+                    except ValueError:
+                        pass
+                else:
+                    text_lines.append(ln)
+            return "\n".join(text_lines), new_cursor
+    return "", line_cursor
+
+
 def run_experiment(
     ssm, head_id: str, *,
     mode: str, n_shards: str, solver: str,
@@ -318,29 +442,146 @@ def run_experiment(
     if solver:
         extras += ["--solver", solver]
     extras_str = " ".join(extras)
-    ssm_run(ssm, [head_id], [
-        "set -e",
-        # Run the experiment inside the head's running ray container so
-        # ray.init() inside compare_comets connects to the local cluster.
+    # Submit the experiment async (separate SSM command, non-blocking),
+    # then loop polling /tmp/experiment.log so we can stream live output
+    # back into the bootstrap log. Without async + streaming, SSM only
+    # returns stdout when the command finishes — we'd see nothing for
+    # the entire experiment runtime (could be many minutes).
+    experiment_cmd = (
         f"docker exec spatio_flux_ray bash -c '"
-        f"  cd /app/spatio-flux && "
-        f"  python -m spatio_flux.experiments.compare_comets --mode {mode} {extras_str} && "
-        f"  aws --region {region} s3 sync out/comets_compare/ {s3_prefix}/results/'",
-    ], name="experiment", timeout_s=timeout_s)
+        f"  set +e; "
+        f"  cd /app/spatio-flux; "
+        f"  : > /tmp/experiment.log; "
+        f"  python -u -m spatio_flux.experiments.compare_comets --mode {mode} {extras_str} > /tmp/experiment.log 2>&1; "
+        f"  rc=$?; "
+        f"  echo \"=== experiment exit: $rc ===\" >> /tmp/experiment.log; "
+        f"  aws --region {region} s3 cp /tmp/experiment.log {s3_prefix}/experiment.log; "
+        f"  if [ $rc -eq 0 ]; then aws --region {region} s3 sync out/comets_compare/ {s3_prefix}/results/; fi; "
+        f"  exit $rc'"
+    )
+    print("  → submitting experiment (streaming /tmp/experiment.log every 30s)")
+    cmd_id = ssm.send_command(
+        InstanceIds=[head_id],
+        DocumentName="AWS-RunShellScript",
+        Parameters={
+            "commands": ["set +e", experiment_cmd],
+            "executionTimeout": [str(timeout_s)],
+        },
+        Comment="experiment",
+    )["Command"]["CommandId"]
+    print(f"  → experiment cmd_id={cmd_id}")
+
+    deadline = time.time() + timeout_s + 120
+    cursor = 0
+    last_status = None
+    while time.time() < deadline:
+        time.sleep(30)
+        new_text, cursor = _probe_remote_log(ssm, head_id, "/tmp/experiment.log", cursor)
+        if new_text.strip():
+            for line in new_text.splitlines():
+                print(f"  exp│ {line}")
+        try:
+            inv = ssm.get_command_invocation(CommandId=cmd_id, InstanceId=head_id)
+            status = inv.get("Status", "InProgress")
+        except ssm.exceptions.InvocationDoesNotExist:
+            status = "Pending"
+        except Exception:
+            status = "Unknown"
+        if status != last_status:
+            print(f"  → experiment status: {status}")
+            last_status = status
+        if status in ("Success", "Failed", "Cancelled", "TimedOut"):
+            # Final flush of any tail content the loop might have missed.
+            new_text, _ = _probe_remote_log(ssm, head_id, "/tmp/experiment.log", cursor)
+            for line in new_text.splitlines():
+                if line.strip():
+                    print(f"  exp│ {line}")
+            if status != "Success":
+                # Dump the FULL experiment.log so the user sees the
+                # actual error inline. Without this they have to manually
+                # `aws s3 cp` the log file just to see what failed.
+                print()
+                print("  ═══ FULL experiment.log (python output) ═══")
+                try:
+                    full_text, _ = _probe_remote_log(
+                        ssm, head_id, "/tmp/experiment.log", line_cursor=0)
+                    if full_text.strip():
+                        for line in full_text.splitlines()[-200:]:
+                            print(f"  exp│ {line}")
+                    else:
+                        print("  (experiment.log empty — wrapper bash died "
+                              "before python ran. See SSM stderr below.)")
+                except Exception as e:
+                    print(f"  (couldn't fetch experiment.log: {e})")
+
+                # ALSO dump the SSM command's own stdout/stderr — this is
+                # what the wrapper bash printed (docker exec failures,
+                # quoting errors, missing binaries etc) — separate from
+                # whatever python wrote inside the container.
+                print()
+                print("  ═══ SSM stderr (wrapper bash) ═══")
+                stderr_content = inv.get("StandardErrorContent", "")
+                if stderr_content.strip():
+                    for line in stderr_content.splitlines()[-50:]:
+                        print(f"  ssm│ {line}")
+                else:
+                    print("  (empty)")
+                print("  ═══ SSM stdout (wrapper bash) ═══")
+                stdout_content = inv.get("StandardOutputContent", "")
+                if stdout_content.strip():
+                    for line in stdout_content.splitlines()[-50:]:
+                        print(f"  ssm│ {line}")
+                else:
+                    print("  (empty)")
+                raise RuntimeError(f"experiment {status}")
+            return
+    raise RuntimeError(f"experiment didn't terminate within {timeout_s}s")
 
 
 def collect_node_diag(ssm, instance_ids: list[str], label: str) -> None:
     """Best-effort dump of container state on each node — stays in the bootstrap log."""
     try:
-        ssm_run(ssm, instance_ids, [
-            "echo '=== docker ps ===' && docker ps -a",
+        results = ssm_run(ssm, instance_ids, [
+            "echo '=== docker ps -a ===' && docker ps -a",
             "echo '=== spatio_flux_ray logs (tail 100) ===' "
             "&& docker logs --tail 100 spatio_flux_ray 2>&1 || true",
             "echo '=== systemd docker ===' && systemctl is-active docker",
             "echo '=== disk ===' && df -h / /var/lib/docker 2>&1 | head -5",
+            "echo '=== ports listening ===' && (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | head -20",
         ], name=f"diag-{label}", timeout_s=60)
+        # Print the captured output per-instance — without this the diag
+        # runs silently and the bootstrap log shows nothing useful.
+        for iid, inv in results.items():
+            out = inv.get("StandardOutputContent", "").strip()
+            print(f"\n  --- diag {label} on {iid} ---")
+            for line in out.splitlines()[:80]:
+                print(f"    {line}")
     except Exception as e:
         print(f"  diag collection failed: {e}")
+
+
+def ensure_intra_cluster_traffic(ec2, sg_id: str) -> None:
+    """
+    Add a self-referencing all-traffic ingress rule to the cluster SG so
+    nodes can reach each other on Ray's many ports (6379, plus dynamic
+    raylet/object-manager/dashboard ports). Idempotent — if the rule
+    already exists, AWS returns InvalidPermission.Duplicate which we swallow.
+    """
+    try:
+        ec2.authorize_security_group_ingress(
+            GroupId=sg_id,
+            IpPermissions=[{
+                "IpProtocol": "-1",  # all protocols
+                "UserIdGroupPairs": [{"GroupId": sg_id}],
+            }],
+        )
+        print(f"  ✓ added intra-cluster ingress rule to {sg_id}")
+    except Exception as e:
+        msg = str(e)
+        if "InvalidPermission.Duplicate" in msg:
+            print(f"  ✓ intra-cluster ingress rule already on {sg_id}")
+        else:
+            print(f"  ⚠ could not add intra-cluster rule to {sg_id}: {msg}")
 
 
 def terminate(ec2, instance_ids: list[str]) -> None:
@@ -377,6 +618,9 @@ def main() -> int:
 
     ec2 = boto3.client("ec2", region_name=region)
     ssm = boto3.client("ssm", region_name=region)
+
+    print("→ ensuring SG allows intra-cluster traffic")
+    ensure_intra_cluster_traffic(ec2, net["sg_id"])
 
     # AMI: prefer baked, fall back to ECS-AL2. The ec2_cluster.py
     # control plane doesn't depend on rsync or amazon-ecr-credential-helper

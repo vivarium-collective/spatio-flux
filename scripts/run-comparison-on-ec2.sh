@@ -202,8 +202,16 @@ while :; do
             echo "   ✗ Status=$STATUS"
             echo
             echo "═════════════════════════════════════════════════════════════════════"
-            echo "  bootstrap log already streamed above. Full copy:"
-            echo "  aws s3 cp ${S3_PREFIX}/ec2-bootstrap.log -"
+            echo "  experiment.log on S3 (full python output)"
+            echo "═════════════════════════════════════════════════════════════════════"
+            aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
+                s3 cp "${S3_PREFIX}/experiment.log" - 2>/dev/null \
+                || echo "(no experiment.log on S3 — experiment didn't get to upload)"
+            echo
+            echo "═════════════════════════════════════════════════════════════════════"
+            echo "  bootstrap log was streamed above; full copies:"
+            echo "    aws s3 cp ${S3_PREFIX}/ec2-bootstrap.log -"
+            echo "    aws s3 cp ${S3_PREFIX}/experiment.log -"
             echo "═════════════════════════════════════════════════════════════════════"
             exit 1 ;;
     esac

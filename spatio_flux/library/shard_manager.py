@@ -105,10 +105,12 @@ def _shard_actor_class():
     return _ShardActor
 
 
-# Module registry: maps shard_slot (int) → ray actor handle. Manager
-# owns the lifecycle of its slots; _ShardFacade looks up its actor by
-# slot at initialize time. Globals scoped per Python process.
+# Module registries: maps shard_slot (int) → ray actor handle / managing
+# ShardManager. Manager owns the lifecycle of its slots; _ShardFacade
+# looks up its actor + manager by slot at initialize time. Globals
+# scoped per Python process.
 _SHARD_REGISTRY: dict[int, Any] = {}
+_MANAGER_FOR_SLOT: dict[int, "ShardManager"] = {}
 _NEXT_SLOT = 0
 
 
@@ -119,9 +121,30 @@ def _alloc_slot() -> int:
     return s
 
 
+class _ShardDefer:
+    """Defer-shaped object returned by ``_ShardFacade.invoke``. ``.get()``
+    blocks until ``ShardManager.flush_pending`` has resolved the batch.
+    Composite's ``_flush_protocol_runtimes`` hook ensures that's true
+    before any ``apply_updates`` reads from us."""
+    __slots__ = ("_manager", "_proc_id")
+
+    def __init__(self, manager: "ShardManager", proc_id: int):
+        self._manager = manager
+        self._proc_id = proc_id
+
+    def get(self):
+        return self._manager.collect(self._proc_id)
+
+
 class _ShardFacade(Process):
-    """Local Process delegating ``update()`` to a Ray actor identified
-    by integer ``shard_slot``. Bypasses RayProcess and its pool dedup."""
+    """Local Process whose ``invoke()`` enqueues onto a ShardManager
+    runtime instead of doing a per-tick blocking ray.get. The runtime's
+    ``flush_pending`` then resolves all shard updates in PARALLEL (single
+    ``ray.get(list_of_futures)`` call), giving real cluster utilization.
+
+    Without this batching the per-shard ``ray.get`` is sequential on
+    Composite's invoke pass — N shards = N×latency, no parallelism, 0%
+    CPU on workers."""
 
     config_schema = {
         "shard_slot": "integer",
@@ -132,12 +155,17 @@ class _ShardFacade(Process):
         self.cell_keys = list(config["cell_keys"])
         self._slot = int(config["shard_slot"])
         self._actor = _SHARD_REGISTRY.get(self._slot)
-        if self._actor is None:
+        self._manager = _MANAGER_FOR_SLOT.get(self._slot)
+        if self._actor is None or self._manager is None:
             raise RuntimeError(
-                f"_ShardFacade: no actor registered for slot "
+                f"_ShardFacade: no actor/manager registered for slot "
                 f"{self._slot}. The ShardManager that owns it must be "
                 f"alive when the Composite is constructed."
             )
+        # Composite reads this attribute and adds the manager to its
+        # active-runtimes list so flush_pending fires once per tick
+        # AFTER the invoke pass and BEFORE apply_updates pulls deltas.
+        self._protocol_runtime = self._manager
 
     def inputs(self):
         return {
@@ -155,9 +183,22 @@ class _ShardFacade(Process):
             }
         }
 
-    def update(self, inputs, interval):
+    def invoke(self, state, interval):
+        # Non-blocking: just enqueue the .remote() future on the manager.
+        # Composite collects all shard Defers across the tick, then
+        # flush_pending() does the parallel ray.get on the union.
         _require_ray()
-        return ray.get(self._actor.update.remote(inputs, float(interval)))
+        proc_id = id(self)
+        self._manager.enqueue(
+            proc_id, self._actor, state, float(interval),
+        )
+        # Diagnostic: confirm invoke is being called per tick. Only print
+        # the first few so we don't spam the log.
+        cnt = getattr(self, '_invoke_count', 0) + 1
+        self._invoke_count = cnt
+        if cnt <= 2:
+            print(f"  _ShardFacade.invoke #{cnt} slot={self._slot}", flush=True)
+        return _ShardDefer(self._manager, proc_id)
 
 
 def _stripe_assignment(n: int, n_shards: int) -> list[list[tuple[int, int]]]:
@@ -213,8 +254,46 @@ class ShardManager:
             else:
                 ray.init(ignore_reinit_error=True, log_to_driver=False)
 
+        # Heuristic for default n_shards: aim for ~target_cells_per_shard
+        # cells per actor so per-actor work amortizes the RPC + cobra-load
+        # overhead. Bounded by the cluster's actual CPU count (more actors
+        # than CPUs would just queue, no benefit).
+        #
+        # Why a "cells per actor" target instead of just maxing out CPUs:
+        #   - Tiny grids (8x8 = 64 cells) on 72 actors = 1 cell/actor;
+        #     overhead dominates and total wall is SLOWER than n_shards=8.
+        #   - Huge grids (128x128 = 16384 cells) on 8 actors = 2048
+        #     cells/actor; per-actor work is CPU-bound and total wall is
+        #     SLOWER than spreading across 72 actors.
+        #   - Targeting ~32 cells/actor amortizes RPC overhead while still
+        #     parallelizing wide enough at scale.
+        # Override via RAY_SHARDS_TARGET_CELLS env var if needed.
+        target_cells_per_shard = int(
+            os.environ.get("RAY_SHARDS_TARGET_CELLS", "32")
+        )
+        cluster_cpus = None
+        if ray.is_initialized():
+            try:
+                cluster_cpus = int(ray.cluster_resources().get("CPU", 0))
+            except Exception:
+                cluster_cpus = None
+        cap = cluster_cpus or (os.cpu_count() or 4)
+        n_cells = n * n
         if n_shards is None:
-            n_shards = min(n * n, max(1, os.cpu_count() or 4))
+            ideal = max(1, n_cells // target_cells_per_shard)
+            n_shards = min(n_cells, cap, max(1, ideal))
+        else:
+            # Honor explicit n_shards but clamp to sane range.
+            n_shards = min(n_cells, max(1, n_shards))
+        # Print the resolved values so we can verify cluster utilization
+        # in the experiment log without redeploying for every check.
+        cells_per_shard = n_cells / max(1, n_shards)
+        print(
+            f"  ShardManager: n={n} cells={n_cells} n_shards={n_shards} "
+            f"cells_per_shard={cells_per_shard:.1f} "
+            f"cluster_CPU={cap} target_cells/shard={target_cells_per_shard}",
+            flush=True,
+        )
         self._shards = _stripe_assignment(n, n_shards)
         self._n_shards = len(self._shards)
 
@@ -233,9 +312,27 @@ class ShardManager:
         self._actors: list[Any] = []
         self._entered = False
 
+        # Per-tick batch state. enqueue() appends futures here; the
+        # Composite's _flush_protocol_runtimes() calls flush_pending()
+        # once per tick to ray.get them all in parallel; collect() then
+        # serves the resolved deltas to each _ShardDefer.get().
+        self._pending: dict[int, Any] = {}
+        self._results: dict[int, dict] = {}
+
+        # Tick-level timing accumulators. Per-flush ray.get wall is the
+        # actual compute (max actor + serialization); inter-flush gap is
+        # whatever Composite/process_bigraph spends per tick (apply_updates,
+        # tree traversal, etc.). Summarized at __exit__.
+        self._tick_count = 0
+        self._sum_get_ms = 0.0
+        self._sum_between_ms = 0.0
+        self._last_flush_end = None
+
     # -- lifecycle --------------------------------------------------- #
 
     def __enter__(self) -> "ShardManager":
+        import time as _time
+        t0 = _time.monotonic()
         actor_cls = _shard_actor_class()
         # Spawn all actors concurrently. .remote() is non-blocking; the
         # __init__ work happens in parallel on each actor.
@@ -245,27 +342,109 @@ class ShardManager:
             actor = actor_cls.remote(shard_cfg)
             slot = _alloc_slot()
             _SHARD_REGISTRY[slot] = actor
+            _MANAGER_FOR_SLOT[slot] = self
             self._slots.append(slot)
             self._actors.append(actor)
+        t_spawn = _time.monotonic() - t0
         # Pre-warm: race all __init__'s in parallel so the first
         # sim.run() doesn't pay sequential cold-start. ray.get on a
         # list of futures is the canonical "wait for all in parallel".
         ray.get([a.ping.remote() for a in self._actors])
+        t_ready = _time.monotonic() - t0
+        print(
+            f"  ShardManager.__enter__: spawned {len(self._actors)} actors "
+            f"in {t_spawn:.2f}s, all ready in {t_ready:.2f}s "
+            f"(actor cold-start incl. cobra load)",
+            flush=True,
+        )
         self._entered = True
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        import time as _time
+        t0 = _time.monotonic()
         for slot, actor in zip(self._slots, self._actors):
             try:
                 ray.kill(actor)
             except Exception:
                 pass
             _SHARD_REGISTRY.pop(slot, None)
+            _MANAGER_FOR_SLOT.pop(slot, None)
+        t_kill = _time.monotonic() - t0
+        # Tick stats summary — answers "is my wall time compute or overhead?"
+        if self._tick_count > 0:
+            avg_get = self._sum_get_ms / self._tick_count
+            avg_between = self._sum_between_ms / self._tick_count
+            print(
+                f"  ShardManager.tick stats: {self._tick_count} ticks, "
+                f"avg ray.get={avg_get:.1f}ms (compute), "
+                f"avg between={avg_between:.1f}ms (Composite tick overhead). "
+                f"Total compute={self._sum_get_ms/1000:.2f}s, "
+                f"total overhead={self._sum_between_ms/1000:.2f}s",
+                flush=True,
+            )
+        print(f"  ShardManager.__exit__: killed {len(self._actors)} actors "
+              f"in {t_kill:.2f}s", flush=True)
         self._slots = []
         self._actors = []
         self._entered = False
+        self._pending.clear()
+        self._results.clear()
         # Don't suppress exceptions.
         return None
+
+    # -- protocol-runtime API (used by _ShardFacade + Composite) ----- #
+
+    def enqueue(self, proc_id: int, actor: Any,
+                inputs: dict, interval: float) -> None:
+        """Queue one shard's update as a Ray remote call. Non-blocking;
+        the future is resolved by flush_pending() at end-of-tick."""
+        self._pending[proc_id] = actor.update.remote(inputs, float(interval))
+
+    def collect(self, proc_id: int) -> dict:
+        """Return the resolved delta for proc_id (after flush_pending).
+        Empty dict if no update was queued this tick."""
+        return self._results.pop(proc_id, {})
+
+    def flush_pending(self) -> None:
+        """Resolve all queued updates in parallel via a single
+        ``ray.get(list)``. Composite calls this once per tick between
+        the invoke pass and apply_updates."""
+        if not self._pending:
+            return
+        import time as _time
+        proc_ids = list(self._pending.keys())
+        futures = list(self._pending.values())
+        self._pending.clear()
+
+        t_start = _time.monotonic()
+        # Inter-flush gap = wall time between the previous flush returning
+        # and this flush starting. That's everything the orchestrator
+        # (Composite + process_bigraph) does per tick OUTSIDE of remote
+        # work — invoke pass, apply_updates, schema validation, etc.
+        if self._last_flush_end is not None:
+            between_ms = (t_start - self._last_flush_end) * 1000
+        else:
+            between_ms = 0.0
+
+        results = ray.get(futures)
+        t_done = _time.monotonic()
+        get_ms = (t_done - t_start) * 1000
+
+        for proc_id, result in zip(proc_ids, results):
+            self._results[proc_id] = result
+
+        # Accumulate for the __exit__ summary.
+        self._tick_count += 1
+        self._sum_get_ms += get_ms
+        self._sum_between_ms += between_ms
+        self._last_flush_end = t_done
+
+        # Print first few ticks live so we can watch behavior change.
+        if self._tick_count <= 3:
+            print(f"  ShardManager.flush_pending #{self._tick_count}: "
+                  f"{len(futures)} futures, ray.get={get_ms:.1f}ms, "
+                  f"between_ticks={between_ms:.1f}ms", flush=True)
 
     # -- composite spec ---------------------------------------------- #
 

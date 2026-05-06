@@ -7,9 +7,22 @@ Performs time-stepped metabolic modeling by combining COBRApy-based
 optimization with kinetic uptake constraints.
 """
 import os
+import pathlib
 import warnings
 import numpy as np
 from pathlib import Path
+
+# Workaround for cobra bug: cobra/core/configuration.py calls
+# pathlib.Path.mkdir(parents=True) on its cache directory WITHOUT
+# exist_ok=True, so concurrent imports (e.g. multiple Ray actors
+# starting simultaneously on the same node) race and the second one
+# crashes with FileExistsError. Patch mkdir to always tolerate
+# already-existing dirs before importing cobra.
+_orig_mkdir = pathlib.Path.mkdir
+def _safe_mkdir(self, mode=0o777, parents=False, exist_ok=False):
+    return _orig_mkdir(self, mode=mode, parents=parents, exist_ok=True)
+pathlib.Path.mkdir = _safe_mkdir
+
 import cobra
 from cobra.io import load_model
 from process_bigraph import Process

@@ -100,4 +100,8 @@ aws --region "$REGION" s3 cp \
 echo "→ orchestrator: $WORK/ec2_cluster.py"
 
 # ----- exec the orchestrator -------------------------------------------
-exec "$SUBMIT_VENV/bin/python3" "$WORK/ec2_cluster.py"
+# `-u` forces unbuffered stdout/stderr. Without it, python block-buffers
+# when piped through tee, hiding all the orchestrator's progress prints
+# until the process exits. With -u, every print() flushes immediately
+# and shows up in the live S3 log on the next 20s upload tick.
+exec "$SUBMIT_VENV/bin/python3" -u "$WORK/ec2_cluster.py"

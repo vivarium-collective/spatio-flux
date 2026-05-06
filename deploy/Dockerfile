@@ -28,6 +28,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
         awscli \
         rsync \
         openssh-client \
+        graphviz \
     && rm -rf /var/lib/apt/lists/* \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
