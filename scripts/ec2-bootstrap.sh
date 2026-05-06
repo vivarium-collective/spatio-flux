@@ -91,13 +91,21 @@ if ! "$SUBMIT_VENV/bin/python3" -c 'import boto3' 2>/dev/null; then
     uv pip install --python "$SUBMIT_VENV/bin/python3" boto3
 fi
 
-# ----- fetch the orchestrator from S3 ----------------------------------
+# ----- fetch the orchestrator + vendored ec2_ssm from S3 ---------------
+# ec2_cluster.py imports EC2SSMRayCluster from process_bigraph; on the
+# submit venv we don't have that package (restricted egress, no PyPI).
+# We vendor process_bigraph/protocols/clusters/ec2_ssm.py next to it,
+# and ec2_cluster.py falls back to a local `from ec2_ssm import ...`.
 WORK="/tmp/spatio-flux-run"
 mkdir -p "$WORK"
 aws --region "$REGION" s3 cp \
     "${S3_PREFIX}/ec2_cluster.py" \
     "$WORK/ec2_cluster.py"
+aws --region "$REGION" s3 cp \
+    "${S3_PREFIX}/ec2_ssm.py" \
+    "$WORK/ec2_ssm.py"
 echo "→ orchestrator: $WORK/ec2_cluster.py"
+echo "→ vendored ec2_ssm: $WORK/ec2_ssm.py"
 
 # ----- exec the orchestrator -------------------------------------------
 # `-u` forces unbuffered stdout/stderr. Without it, python block-buffers

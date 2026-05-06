@@ -53,13 +53,41 @@ else
 fi
 
 # ----- 2. kill python on head ----------------------------------------
+# Try the canonical (post-Step-5-lift) tag scheme first; fall back to the
+# legacy spatio-flux-* tags for clusters launched before the lift. If
+# neither matches, dump every running instance with its tags so the
+# user can see what's actually there.
+echo
+echo "═══ locating head node (tag process-bigraph-cluster=sf-${STACK_PREFIX}) ═══"
 HEAD_ID="$(aws_call ec2 describe-instances \
-    --filters "Name=tag:spatio-flux-cluster,Values=sf-${STACK_PREFIX}" \
-              "Name=tag:spatio-flux-role,Values=head" \
+    --filters "Name=tag:process-bigraph-cluster,Values=sf-${STACK_PREFIX}" \
+              "Name=tag:process-bigraph-role,Values=head" \
               "Name=instance-state-name,Values=running" \
     --query 'Reservations[0].Instances[0].InstanceId' --output text 2>/dev/null)"
 
+if [[ -z "$HEAD_ID" || "$HEAD_ID" == "None" ]]; then
+    echo "  not found under new tags — trying legacy tags (spatio-flux-cluster=sf-${STACK_PREFIX})"
+    HEAD_ID="$(aws_call ec2 describe-instances \
+        --filters "Name=tag:spatio-flux-cluster,Values=sf-${STACK_PREFIX}" \
+                  "Name=tag:spatio-flux-role,Values=head" \
+                  "Name=instance-state-name,Values=running" \
+        --query 'Reservations[0].Instances[0].InstanceId' --output text 2>/dev/null)"
+fi
+
+if [[ -z "$HEAD_ID" || "$HEAD_ID" == "None" ]]; then
+    echo "  no match under either tag scheme. Dumping all running instances + tags:"
+    aws_call ec2 describe-instances \
+        --filters "Name=instance-state-name,Values=running" \
+        --query 'Reservations[].Instances[].[InstanceId,InstanceType,LaunchTime,Tags]' \
+        --output text 2>/dev/null | sed 's/^/    /' | head -50
+    echo
+    echo "  If you see your cluster instances above, the tag filter is the"
+    echo "  problem — share the relevant Tags block so the script can be"
+    echo "  updated. Otherwise the cluster is genuinely down."
+fi
+
 if [[ -n "$HEAD_ID" && "$HEAD_ID" != "None" ]]; then
+    echo "  ✓ head=$HEAD_ID"
     echo
     echo "═══ killing wedged python on head $HEAD_ID ═══"
     PARAMS="$(mktemp)"

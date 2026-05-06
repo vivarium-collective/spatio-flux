@@ -892,7 +892,7 @@ wheels = [
 
 [[package]]
 name = "process-bigraph"
-version = "1.4.4"
+version = "1.4.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigraph-schema" },
@@ -902,9 +902,9 @@ dependencies = [
     { name = "scipy" },
     { name = "sympy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fa/61/84fb48619bf9c8d8167390dc2e5438d3f9473855c61f0df7fb76822a81e6/process_bigraph-1.4.4.tar.gz", hash = "sha256:379075de0ea6205f04ad96e45d6c2dd4af6af1863dd6c8d07fbff95e7ac17368", size = 93803, upload-time = "2026-05-05T21:43:48.732Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/80/33/55f49a3ec3946ff8f8c4f7e4211979be2d2c80bd15a397cefa48aeef55a0/process_bigraph-1.4.5.tar.gz", hash = "sha256:fd37e84266cd5f487c4b2c7f2920931f40075b2977c2fd1bf238d4b78a1dfd85", size = 112790, upload-time = "2026-05-06T08:32:40.123Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/22/d1f30486ab0a43aa2b4ea9536de81ef9646f9edaa6fdcd3c9c9e56f63607/process_bigraph-1.4.4-py3-none-any.whl", hash = "sha256:1b548d918373fda57a66e2baf16ec324a965b8451fd838d519ab6400d3d43ff0", size = 101150, upload-time = "2026-05-05T21:43:47.094Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/78/fe6bb69fe73b9a0eff4a9ad84d9eeb8c815148a283631a095633c8222308/process_bigraph-1.4.5-py3-none-any.whl", hash = "sha256:ed3f3ebf0b2643d99b26301ab70333edfb8f9059c30e3f6f9f5703415892b185", size = 122220, upload-time = "2026-05-06T08:32:38.444Z" },
 ]
 
 [[package]]

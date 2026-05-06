@@ -141,16 +141,25 @@ SUBMIT_INSTANCE_ID="$(
 }
 echo "→ submit:   $SUBMIT_INSTANCE_ID"
 
-# ------- upload the two files the submit node needs --------------------
+# ------- upload the files the submit node needs ------------------------
 # ec2-bootstrap.sh: SSM entry point, sets up env + installs boto3.
-# ec2_cluster.py:   actual orchestrator (replaces Ray's autoscaler with
-#                   direct SSM-driven cluster lifecycle).
+# ec2_cluster.py:   spatio-flux orchestrator wrapper.
+# ec2_ssm.py:       upstream EC2SSMRayCluster (vendored next to
+#                   ec2_cluster.py; submit venv has no full
+#                   process_bigraph install, restricted egress).
 # No source tarball, no COMETS jar (those live inside the Docker image).
-echo "→ uploading bootstrap + orchestrator ..."
+PB_CLUSTERS_DIR="$(cd "$REPO_ROOT/.." && pwd)/process-bigraph/process_bigraph/protocols/clusters"
+if [[ ! -f "$PB_CLUSTERS_DIR/ec2_ssm.py" ]]; then
+    echo "✗ expected upstream ec2_ssm.py at $PB_CLUSTERS_DIR/ec2_ssm.py — clone process-bigraph as a sibling repo first" >&2
+    exit 1
+fi
+echo "→ uploading bootstrap + orchestrator + vendored ec2_ssm.py ..."
 aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
     s3 cp "$REPO_ROOT/scripts/ec2-bootstrap.sh" "${S3_PREFIX}/ec2-bootstrap.sh" >/dev/null
 aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
     s3 cp "$REPO_ROOT/scripts/ec2_cluster.py" "${S3_PREFIX}/ec2_cluster.py" >/dev/null
+aws --profile "$AWS_PROFILE" --region "$AWS_REGION" \
+    s3 cp "$PB_CLUSTERS_DIR/ec2_ssm.py" "${S3_PREFIX}/ec2_ssm.py" >/dev/null
 
 # ------- send via SSM --------------------------------------------------
 BOOTSTRAP_CMD="aws --region '${AWS_REGION}' s3 cp '${S3_PREFIX}/ec2-bootstrap.sh' /tmp/ec2-bootstrap.sh && chmod +x /tmp/ec2-bootstrap.sh && S3_PREFIX='${S3_PREFIX}' STACK_PREFIX='${STACK_PREFIX}' MODE='${MODE}' N_SHARDS='${N_SHARDS}' SOLVER='${SOLVER}' KEEP_CLUSTER='${KEEP_CLUSTER}' IMAGE_URI='${IMAGE_URI}' BAKED_AMI_ID='${BAKED_AMI_ID}' /tmp/ec2-bootstrap.sh"

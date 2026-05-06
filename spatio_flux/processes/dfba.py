@@ -656,7 +656,25 @@ class ShardedDFBA(Process):
             solver=config.get("solver"),
         )
         self.model = _wrap_with_solver(cobra_model, config.get("solver"))
-        self.cell_keys = list(config["cell_keys"])
+        # cell_keys is per-session, not part of the expensive init.
+        # Default to empty so a pool actor can be constructed without
+        # knowing its cells yet — Session.reconfigure rebinds them.
+        self.cell_keys = list(config.get("cell_keys") or [])
+
+    def reconfigure(self, config):
+        """Cheap per-session rebinding — does NOT reload the cobra
+        Model or rebuild the LP. Just rebinds the cell list this shard
+        will iterate on the next ``update`` call.
+
+        This is what makes ActorPool actually amortize: the cobra +
+        LP setup happens once in ``initialize`` (per pool spawn);
+        every Session that claims this actor gets a cheap cell_keys
+        swap instead of a fresh model load.
+        """
+        if "cell_keys" in config:
+            self.cell_keys = list(config["cell_keys"] or [])
+        # Other fields (model, solver, kinetics) are immutable per-pool;
+        # changing them requires a different pool (different config_hash).
 
     def inputs(self):
         return {

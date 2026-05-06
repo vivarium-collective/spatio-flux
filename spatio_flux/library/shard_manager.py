@@ -56,6 +56,8 @@ from __future__ import annotations
 import os
 from typing import Any, Optional
 
+import numpy as np
+
 try:
     import ray
     _RAY_IMPORT_ERROR: Optional[ImportError] = None
@@ -88,14 +90,30 @@ def _shard_actor_class():
         """Long-lived actor owning one ShardedDFBA — single cobra
         model + (optionally) a HiGHS warm-started solver. Receives the
         shard's per-cell state per tick, returns deltas. Persistent
-        state across ticks for warm-started simplex bases."""
+        state across ticks for warm-started simplex bases.
+
+        Designed for ActorPool reuse across many Session instances:
+          - ``__init__`` does the expensive work (cobra import, model
+            load, LP build) ONCE. config should contain everything
+            EXCEPT cell_keys.
+          - ``reconfigure`` rebinds cell_keys per-Session, no model reload.
+          - Pool keeps these actors alive across many Composites.
+        """
 
         def __init__(self, shard_config: dict):
             from spatio_flux.processes.dfba import ShardedDFBA
-            self.proc = ShardedDFBA(shard_config, core=allocate_core())
+            # cell_keys default empty — set per-Session via reconfigure.
+            cfg = {**shard_config, "cell_keys": shard_config.get("cell_keys") or []}
+            self.proc = ShardedDFBA(cfg, core=allocate_core())
 
         def update(self, inputs: dict, interval: float) -> dict:
             return self.proc.update(inputs, float(interval))
+
+        def reconfigure(self, sim_config: dict) -> None:
+            """Cheap per-Session rebinding — delegates to
+            ``ShardedDFBA.reconfigure``. Does NOT reload cobra or
+            rebuild the LP — that happens once in ``__init__``."""
+            self.proc.reconfigure(sim_config)
 
         def ping(self) -> str:
             """Pre-warm probe — ensures __init__ has completed."""
@@ -119,6 +137,25 @@ def _alloc_slot() -> int:
     s = _NEXT_SLOT
     _NEXT_SLOT += 1
     return s
+
+
+def shutdown_pools() -> None:
+    """Kill all ShardManager-allocated pool actors.
+
+    ShardManager.__exit__ no longer kills actors — that's the whole
+    point of the pool/session refactor. Call this once at end-of-process
+    (or end-of-script) to actually release the cluster resources.
+
+    Delegates to ``process_bigraph.protocols.pool.shutdown_all_pools``,
+    which tears down EVERY pool registered upstream (not just ours).
+    For finer-grained shutdown, call that function directly from your
+    own teardown logic.
+    """
+    try:
+        from process_bigraph.protocols.pool import shutdown_all_pools
+        shutdown_all_pools()
+    except ImportError:
+        pass  # process_bigraph not available — nothing to shut down
 
 
 class _ShardDefer:
@@ -192,12 +229,6 @@ class _ShardFacade(Process):
         self._manager.enqueue(
             proc_id, self._actor, state, float(interval),
         )
-        # Diagnostic: confirm invoke is being called per tick. Only print
-        # the first few so we don't spam the log.
-        cnt = getattr(self, '_invoke_count', 0) + 1
-        self._invoke_count = cnt
-        if cnt <= 2:
-            print(f"  _ShardFacade.invoke #{cnt} slot={self._slot}", flush=True)
         return _ShardDefer(self._manager, proc_id)
 
 
@@ -311,6 +342,10 @@ class ShardManager:
         self._slots: list[int] = []
         self._actors: list[Any] = []
         self._entered = False
+        # Set on __enter__: the ActorPool we claim from + the Session
+        # holding our claim. Both stay None when not entered.
+        self._pool: Optional[Any] = None
+        self._session: Optional[Any] = None
 
         # Per-tick batch state. enqueue() appends futures here; the
         # Composite's _flush_protocol_runtimes() calls flush_pending()
@@ -332,45 +367,73 @@ class ShardManager:
 
     def __enter__(self) -> "ShardManager":
         import time as _time
+        from process_bigraph.protocols.pool import get_or_create_pool
+        from process_bigraph.protocols.session import Session
+
         t0 = _time.monotonic()
         actor_cls = _shard_actor_class()
-        # Spawn all actors concurrently. .remote() is non-blocking; the
-        # __init__ work happens in parallel on each actor.
-        for shard_cells in self._shards:
-            keys = [f"c_{y}_{x}" for (y, x) in shard_cells]
-            shard_cfg = {**self._cfg, "cell_keys": keys}
-            actor = actor_cls.remote(shard_cfg)
+
+        # Pool key intentionally EXCLUDES cell_keys — those are per-Session.
+        # Two ShardManagers using the same model + solver share one pool
+        # (and so amortize cobra load across all their sims).
+        pool_config = {
+            "model_file": self._cfg.get("model_file"),
+            "solver": self._cfg.get("solver"),
+            "kinetic_params": self._cfg.get("kinetic_params"),
+            "substrate_update_reactions": self._cfg.get(
+                "substrate_update_reactions"),
+            "bounds": self._cfg.get("bounds"),
+        }
+        self._pool = get_or_create_pool(actor_cls, pool_config, self._n_shards)
+        was_warmed = self._pool.stats()["warmed"]
+        self._pool.warm()
+        t_warm = _time.monotonic() - t0
+
+        # Acquire actors via Session — but skip Session's batched
+        # reconfigure since we need PER-actor cell_keys, not one
+        # uniform sim_config.
+        self._session = Session(
+            self._pool, n_actors=self._n_shards, reconfigure=False)
+        self._session.__enter__()
+        actors = self._session.actors
+
+        # Per-shard reconfigure: each actor gets its own cell_keys list.
+        per_shard_keys = [
+            [f"c_{y}_{x}" for (y, x) in shard_cells]
+            for shard_cells in self._shards
+        ]
+        ray.get([
+            actor.reconfigure.remote({"cell_keys": keys})
+            for actor, keys in zip(actors, per_shard_keys)
+        ])
+
+        # Wire actors into the legacy slot registry so _ShardFacade can
+        # look them up by integer slot.
+        for actor in actors:
             slot = _alloc_slot()
             _SHARD_REGISTRY[slot] = actor
             _MANAGER_FOR_SLOT[slot] = self
             self._slots.append(slot)
             self._actors.append(actor)
-        t_spawn = _time.monotonic() - t0
-        # Pre-warm: race all __init__'s in parallel so the first
-        # sim.run() doesn't pay sequential cold-start. ray.get on a
-        # list of futures is the canonical "wait for all in parallel".
-        ray.get([a.ping.remote() for a in self._actors])
+
         t_ready = _time.monotonic() - t0
+        kind = "(reused warmed pool)" if was_warmed else "(pool cold-start)"
         print(
-            f"  ShardManager.__enter__: spawned {len(self._actors)} actors "
-            f"in {t_spawn:.2f}s, all ready in {t_ready:.2f}s "
-            f"(actor cold-start incl. cobra load)",
+            f"  ShardManager.__enter__: claimed {len(self._actors)} actors "
+            f"from pool {kind} in {t_ready:.2f}s",
             flush=True,
         )
         self._entered = True
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        import time as _time
-        t0 = _time.monotonic()
-        for slot, actor in zip(self._slots, self._actors):
-            try:
-                ray.kill(actor)
-            except Exception:
-                pass
+        # Release actors back to pool — DO NOT KILL. The whole point of
+        # ActorPool is that subsequent Sessions reuse these actors with
+        # their cobra Models still loaded.
+        for slot in self._slots:
             _SHARD_REGISTRY.pop(slot, None)
             _MANAGER_FOR_SLOT.pop(slot, None)
-        t_kill = _time.monotonic() - t0
+
         # Tick stats summary — answers "is my wall time compute or overhead?"
         if self._tick_count > 0:
             avg_get = self._sum_get_ms / self._tick_count
@@ -383,8 +446,15 @@ class ShardManager:
                 f"total overhead={self._sum_between_ms/1000:.2f}s",
                 flush=True,
             )
-        print(f"  ShardManager.__exit__: killed {len(self._actors)} actors "
-              f"in {t_kill:.2f}s", flush=True)
+
+        if self._session is not None:
+            self._session.__exit__(exc_type, exc_val, exc_tb)
+            self._session = None
+
+        print(
+            f"  ShardManager.__exit__: released {len(self._actors)} actors "
+            f"to pool (NOT killed)", flush=True)
+
         self._slots = []
         self._actors = []
         self._entered = False
@@ -406,7 +476,7 @@ class ShardManager:
         Empty dict if no update was queued this tick."""
         return self._results.pop(proc_id, {})
 
-    def _disabled_tick_lifecycle(
+    def tick_lifecycle(
             self,
             processes,
             composite,
@@ -414,117 +484,163 @@ class ShardManager:
             end_time: float,
             force_complete: bool,
     ):
-        """DISABLED: renamed from `tick_lifecycle` because the v1 implementation
-        had a state-extraction bug (assumed flat ``cells`` field, but
-        the actual wiring is ``cells/key → fields/mol/y/x``). The
-        upstream framework hook in process_bigraph (composite.py
-        ``_partition_processes_by_runtime`` + ``_run_tick_lifecycle``)
-        is sound and tested; only this runtime adapter is incomplete.
+        """v3 — direct state mutation. Skips ``apply_updates`` entirely.
 
-        FOLLOW-UP: rename back to ``tick_lifecycle`` once the per-process
-        state extraction is fixed (use composite._cached_view per process
-        to honor wiring; OR build a proper batched view of the
-        ``fields`` array and slice per-shard).
+        At scale the dominant per-tick cost wasn't N-times-overhead (which
+        v2 collapsed) but the *single* combined ``apply_updates`` walk over
+        a schema covering ~total_cells × n_fields wires. v3 short-circuits
+        that by reading and writing the underlying numpy field arrays
+        directly, exploiting the spatio-flux topology
+        (``cells/key → fields/mol/y/x``) we own:
 
-        With this method renamed, ``hasattr(rt, 'tick_lifecycle')`` is
-        False, so Composite falls back to the per-process loop +
-        flush_pending — the path that was working before this edit.
+        - **Read pass**: read ``composite.state['fields']`` once. Per shard,
+          numpy-slice each cell's (y, x) coordinates out of the relevant
+          mol arrays — no per-process ``_cached_view``.
+        - **Dispatch**: one parallel ``ray.get`` over all 72 actor futures.
+        - **Write pass**: per shard, build delta arrays and apply via
+          ``fields[mol][ys, xs] += d_arr`` (numpy fancy index, vectorized).
+          No ``apply_updates``, no schema walk, no reconcile.
 
-        Take over the entire invoke+apply lifecycle for our managed
-        ``_ShardFacade`` processes. Returns one combined Defer covering
-        all per-shard outputs, so Composite walks the schema once for the
-        whole batch instead of N times.
+        Trade-offs:
+        - Doesn't go through bigraph_schema at all on the apply side —
+          callers depending on `_apply` semantics for the cell projections
+          (e.g. emitter step triggers gated on cell-path changes) won't see
+          path-level deltas. Spatio-flux's emitter is time-triggered, so
+          this is fine here. Other downstream uses would need v3 to
+          report changed paths back to the framework.
+        - Couples the runtime to the wiring shape (cells/key → fields).
+          The framework hook itself stays generic; the *runtime adapter*
+          is allowed to know its own topology.
 
-        What this saves vs. Composite's per-process loop:
-
-        - **N _cached_view calls**: Composite normally calls ``_cached_view(path)``
-          per process to extract its sub-state. With 72 ``_ShardFacade``
-          processes for a 64x64 grid, that's 72 schema walks per tick. We do
-          ONE direct dict slice on ``composite.state['cells']`` instead.
-
-        - **N apply_updates schema walks**: Composite normally collects N
-          per-process Defers and reconciles N (schema, state) tuples in
-          apply_updates. We return ONE (schema, state) tuple covering the
-          merged update for all shards' cells, so apply_updates does one
-          schema-walk on the combined tree.
-
-        The remote dispatch itself is unchanged: each ``_ShardFacade.invoke()``
-        enqueues a future on this manager via ``enqueue()``, and Composite's
-        ``_flush_protocol_runtimes`` hook runs ``flush_pending()`` (below)
-        to ``ray.get`` them all in parallel before the combined Defer
-        resolves."""
+        Returns ``applied=True`` so the framework's
+        ``_run_tick_lifecycle`` skips its apply pass entirely (no defer
+        placed in self.front).
+        """
         if not processes:
             return None
 
-        # Per-process state extraction via composite._cached_view —
-        # _ShardFacade port wiring maps each cell to ``fields[mol][y][x]``
-        # paths, so we can't just read a top-level "cells" field. The
-        # _cached_view call is what Composite's run_process would have
-        # done; we go through it for correctness.
-        # FUTURE: a faster path would be ONE read of composite.state['fields']
-        # followed by manual array slicing per shard's (y, x) coordinates,
-        # bypassing the schema walk N times. Deferred until the framework
-        # hook is validated end-to-end.
-        raw_defers = []  # list of (path, defer)
+        import time as _time
+        t_start = _time.monotonic()
+        # Inter-flush gap measured the same way as flush_pending: time
+        # since the previous tick's end. With v3 doing its own ray.get,
+        # flush_pending is no longer called — so we manage timing here.
+        if self._last_flush_end is not None:
+            between_ms = (t_start - self._last_flush_end) * 1000
+        else:
+            between_ms = 0.0
+
+        # ---- read pass: snapshot inputs from fields arrays ------------
+        fields = composite.state['fields']
+        substrate_mols = [m for m in self._mol_ids if m != self._biomass_id]
+        biomass_id = self._biomass_id
+
+        # Per-shard precomputed (ys_arr, xs_arr) cache. cell_keys parsing
+        # is invariant across ticks, so the first tick pays the parse and
+        # subsequent ticks reuse the int-array indices.
+        # Stored on the manager (not the facade) to keep facades lean.
+        cache = getattr(self, '_index_cache', None)
+        if cache is None:
+            cache = {}
+            self._index_cache = cache
+
         next_time = end_time
+        futures = []
+        # Parallel arrays: per-process metadata for the apply pass.
+        proc_meta: list = []  # (ys_arr, xs_arr, cell_keys)
         for req in processes:
             proc = req['instance']
             interval = float(req['interval']) if req['interval'] else 0.0
-            # Use Composite's view mechanism so wiring (cells/key →
-            # fields/mol/y/x) is honored. Equivalent to what run_process
-            # would call.
-            state = composite._cached_view(req['path'])
-            # process_update wraps invoke in a Defer that projects the
-            # output back through the same wiring on apply.
-            defer = composite.process_update(
-                req['path'],
-                {'instance': proc, 'interval': interval},
-                state,
-                interval,
-                already_clean=True,
-            )
-            raw_defers.append((req['path'], defer))
+            cell_keys = proc.cell_keys
+
+            cached = cache.get(id(proc))
+            if cached is None:
+                ys = np.empty(len(cell_keys), dtype=np.int64)
+                xs = np.empty(len(cell_keys), dtype=np.int64)
+                for i, key in enumerate(cell_keys):
+                    # Cell keys are always 'c_y_x'.
+                    parts = key.split('_')
+                    ys[i] = int(parts[1])
+                    xs[i] = int(parts[2])
+                cache[id(proc)] = (ys, xs)
+            else:
+                ys, xs = cached
+
+            # numpy-index out the (substrates, biomass) values per cell
+            # in one pass per mol. Builds dict-of-dicts that the
+            # ShardActor.update API expects.
+            sub_vals = {m: fields[m][ys, xs] for m in substrate_mols}
+            bio_vals = fields[biomass_id][ys, xs]
+            cells_in: dict = {}
+            for i, key in enumerate(cell_keys):
+                cells_in[key] = {
+                    'substrates': {m: float(sub_vals[m][i]) for m in substrate_mols},
+                    'biomass': float(bio_vals[i]),
+                }
+
+            futures.append(proc._actor.update.remote(
+                {'cells': cells_in}, interval))
+            proc_meta.append((ys, xs, cell_keys))
+
             future_time = global_time + interval
             if future_time < next_time:
                 next_time = future_time
 
-        class _BatchedDefer:
-            """Concatenates the per-process Defers into a single Defer.
+        # ---- dispatch: one parallel ray.get on all actor futures ------
+        t_dispatch = _time.monotonic()
+        results = ray.get(futures)
+        t_get = _time.monotonic()
+        get_ms = (t_get - t_dispatch) * 1000
 
-            apply_updates already batches its reconcile across multiple
-            (schema, state) tuples — so by returning ONE Defer that emits
-            a flat list, we get the same batched-reconcile behavior, and
-            we get there without Composite having to manage N separate
-            front entries.
-            """
-            __slots__ = ('_defers',)
+        # ---- write pass: vectorized fancy-index += per mol per shard --
+        for (ys, xs, cell_keys), result in zip(proc_meta, results):
+            cells_out = result.get('cells', {})
+            n = len(cell_keys)
+            # Pre-allocate delta arrays per mol; fill in cell order.
+            d_sub = {m: np.zeros(n, dtype=fields[m].dtype) for m in substrate_mols}
+            d_bio = np.zeros(n, dtype=fields[biomass_id].dtype)
+            for i, key in enumerate(cell_keys):
+                cell = cells_out.get(key)
+                if cell is None:
+                    continue
+                substrates = cell.get('substrates') or {}
+                for m in substrate_mols:
+                    d_sub[m][i] = substrates.get(m, 0.0)
+                d_bio[i] = cell.get('biomass', 0.0)
+            # Apply via numpy fancy indexing — single vectorized add per
+            # mol per shard. Cells within a shard are unique so no need
+            # for np.add.at (which handles repeated indices). Across
+            # shards the cell sets are disjoint by construction.
+            for m in substrate_mols:
+                fields[m][ys, xs] += d_sub[m]
+            fields[biomass_id][ys, xs] += d_bio
 
-            def __init__(self_inner, defers):
-                self_inner._defers = defers
+        t_done = _time.monotonic()
 
-            def get(self_inner):
-                results = []
-                for _path, d in self_inner._defers:
-                    series = d.get()
-                    if series is None:
-                        continue
-                    if not isinstance(series, list):
-                        series = [series]
-                    results.extend(series)
-                return results
+        # ---- timing accumulators (matches flush_pending's instrumentation)
+        self._tick_count += 1
+        self._sum_get_ms += get_ms
+        # "between_ticks" here is the gap between successive
+        # tick_lifecycle invocations — same metric we tracked for
+        # flush_pending so the comparison stays apples-to-apples.
+        self._sum_between_ms += between_ms
+        self._last_flush_end = t_done
+        # Stage breakdown for the first few ticks so we can see where
+        # time goes in v3.
+        if self._tick_count <= 3:
+            t_read = (t_dispatch - t_start) * 1000
+            t_apply = (t_done - t_get) * 1000
+            print(
+                f"  ShardManager.tick_lifecycle #{self._tick_count}: "
+                f"{len(futures)} shards, "
+                f"read+dispatch={t_read:.1f}ms, ray.get={get_ms:.1f}ms, "
+                f"apply={t_apply:.1f}ms, between={between_ms:.1f}ms",
+                flush=True,
+            )
 
-        # Common-path stash: the combined Defer covers all our processes'
-        # outputs, which (via process_update's projection) write to
-        # ``fields[mol][y][x]`` paths. We use ``('fields',)`` as the
-        # smallest common ancestor for those — Composite's apply pass
-        # walks once from there. (The actual key in self.front is mostly
-        # bookkeeping; apply_updates resolves the projected paths from
-        # the (schema, state) tuples themselves.)
         return {
-            'common_path': ('fields',),
             'next_time': next_time,
-            'process_paths': [path for path, _ in raw_defers],
-            'defer': _BatchedDefer(raw_defers),
+            'process_paths': [req['path'] for req in processes],
+            'applied': True,
         }
 
     def flush_pending(self) -> None:

@@ -1474,15 +1474,34 @@ def main(mode: str = "small",
     small_per_grid = None
     large_per_grid = None
 
-    if mode in ("small", "both"):
-        _, small_per_grid = run_small_sweep(grids=small_grids)
-    if mode in ("large", "both"):
-        _, large_per_grid = run_large_sweep(
-            grids=large_grids, ray_address=ray_address,
-            n_shards=n_shards, solver=solver,
-        )
+    try:
+        if mode in ("small", "both"):
+            _, small_per_grid = run_small_sweep(grids=small_grids)
+        if mode in ("large", "both"):
+            _, large_per_grid = run_large_sweep(
+                grids=large_grids, ray_address=ray_address,
+                n_shards=n_shards, solver=solver,
+            )
 
-    render(small_per_grid, large_per_grid)
+        render(small_per_grid, large_per_grid)
+    finally:
+        # Pool actors persist across grid sweeps by design (cobra is
+        # loaded once for the whole script). At end-of-script we still
+        # need to kill them — otherwise the Python interpreter hangs at
+        # exit, holding live actor handles, and the bash wrapper that
+        # runs the experiment never gets to run `aws s3 sync` for
+        # results upload. shutdown_pools is idempotent so a partial
+        # sweep failure also lands here cleanly.
+        try:
+            shutdown_pools()
+        except Exception as e:
+            print(f"  shutdown_pools failed: {e}", flush=True)
+        try:
+            import ray
+            if ray.is_initialized():
+                ray.shutdown()
+        except Exception as e:
+            print(f"  ray.shutdown failed: {e}", flush=True)
 
 
 if __name__ == "__main__":

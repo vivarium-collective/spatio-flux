@@ -95,11 +95,11 @@ aws_call s3 cp "${S3_PREFIX}/ec2-bootstrap.log" - 2>/dev/null | tail -50 \
 
 # ----- 5. cluster instance state -------------------------------------
 echo
-echo "═══ cluster instances (tag spatio-flux-cluster=sf-${STACK_PREFIX}) ═══"
+echo "═══ cluster instances (tag process-bigraph-cluster=sf-${STACK_PREFIX}) ═══"
 aws_call ec2 describe-instances \
-    --filters "Name=tag:spatio-flux-cluster,Values=sf-${STACK_PREFIX}" \
+    --filters "Name=tag:process-bigraph-cluster,Values=sf-${STACK_PREFIX}" \
               "Name=instance-state-name,Values=pending,running,stopping,stopped" \
-    --query 'Reservations[*].Instances[*].[InstanceId,State.Name,PrivateIpAddress,Tags[?Key==`spatio-flux-role`].Value|[0]]' \
+    --query 'Reservations[*].Instances[*].[InstanceId,State.Name,PrivateIpAddress,Tags[?Key==`process-bigraph-role`].Value|[0]]' \
     --output text 2>/dev/null \
     || echo "(no cluster instances)"
 
@@ -118,8 +118,8 @@ echo
 echo "═══ LIVE experiment.log on head via SSM (definitive) ═══"
 HEAD_ID="$(
     aws_call ec2 describe-instances \
-        --filters "Name=tag:spatio-flux-cluster,Values=sf-${STACK_PREFIX}" \
-                  "Name=tag:spatio-flux-role,Values=head" \
+        --filters "Name=tag:process-bigraph-cluster,Values=sf-${STACK_PREFIX}" \
+                  "Name=tag:process-bigraph-role,Values=head" \
                   "Name=instance-state-name,Values=running" \
         --query 'Reservations[0].Instances[0].InstanceId' --output text 2>/dev/null
 )"
