@@ -1,6 +1,6 @@
 {
   "particles": {
-    "aJByMzPO": {
+    "zWYHZows": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -28,7 +28,8 @@
               "lower": 1.0,
               "upper": 1.0
             }
-          }
+          },
+          "solver": null
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
         "_outputs": "substrates:map[count]|biomass:mass",
@@ -50,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "aJByMzPO",
+      "id": "zWYHZows",
       "position": [
-        3.1369102340466135,
-        10.21814047443838
+        49.348328317337995,
+        30.98725754862601
       ],
-      "mass": 0.36930034499154485,
+      "mass": 0.04838365715735434,
       "local": {},
       "exchange": {},
       "sub_masses": {},

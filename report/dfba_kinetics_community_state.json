@@ -30,7 +30,8 @@
           "lower": 1.0,
           "upper": 1.0
         }
-      }
+      },
+      "solver": null
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",

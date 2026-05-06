@@ -21,7 +21,8 @@
         "glucose": "EX_glc__D_e",
         "formate": "EX_for_e"
       },
-      "bounds": {}
+      "bounds": {},
+      "solver": null
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
