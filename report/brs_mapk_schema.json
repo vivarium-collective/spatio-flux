@@ -1,0 +1,33 @@
+{
+  "cell": "overwrite[tree[node]]",
+  "global_time": "float",
+  "brs": {
+    "_type": "process",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "state:tree[node]",
+    "_outputs": "state:overwrite[tree[node]]",
+    "inputs": "wires",
+    "outputs": "wires",
+    "interval": "float"
+  },
+  "emitter": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "global_time:node|cell:node",
+    "_outputs": "node",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  }
+}

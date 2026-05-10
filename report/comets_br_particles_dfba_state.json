@@ -1,6 +1,6 @@
 {
   "particles": {
-    "OZGDi1iH": {
+    "YrkvgAiL": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "OZGDi1iH",
+      "id": "YrkvgAiL",
       "position": [
-        46.405393716043264,
-        21.692011272460054
+        13.26810782271261,
+        20.967177499852223
       ],
-      "mass": 0.42929666422204843,
+      "mass": 0.40271397140957765,
       "local": {},
       "exchange": {},
       "sub_masses": {},

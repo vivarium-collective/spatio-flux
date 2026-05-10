@@ -1,0 +1,42 @@
+{
+  "cell": {
+    "_type": "Cell",
+    "cytoplasm": {
+      "_type": "Compartment",
+      "kind": {
+        "_type": "Cytoplasm"
+      },
+      "mek": {
+        "_type": "MEK"
+      },
+      "erk0": {
+        "_type": "pERK",
+        "name": "erk0"
+      },
+      "erk1": {
+        "_type": "ERK",
+        "name": "erk1"
+      },
+      "erk2": {
+        "_type": "ERK",
+        "name": "erk2"
+      },
+      "nucleus": {
+        "_type": "Compartment",
+        "kind": {
+          "_type": "Nucleus"
+        }
+      },
+      "er_lumen": {
+        "_type": "Compartment",
+        "kind": {
+          "_type": "ERLumen"
+        },
+        "erk3": {
+          "_type": "ERK",
+          "name": "erk3"
+        }
+      }
+    }
+  }
+}

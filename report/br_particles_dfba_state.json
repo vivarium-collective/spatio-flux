@@ -1,6 +1,6 @@
 {
   "particles": {
-    "zWYHZows": {
+    "EnOE2N3z": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "zWYHZows",
+      "id": "EnOE2N3z",
       "position": [
-        49.348328317337995,
-        30.98725754862601
+        43.226523426236355,
+        35.0539892445561
       ],
-      "mass": 0.04838365715735434,
+      "mass": 0.40422352395505806,
       "local": {},
       "exchange": {},
       "sub_masses": {},

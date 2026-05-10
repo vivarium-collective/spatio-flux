@@ -1,6 +1,6 @@
 {
   "particles": {
-    "tNIZAwOv": {
+    "xYlMsJo_": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "tNIZAwOv",
+      "id": "xYlMsJo_",
       "position": [
-        28.883823223609788,
-        2.9796844809376277
+        15.071679091686574,
+        1.4922552739011552
       ],
-      "mass": 6.930001737995024,
+      "mass": 8.468048233502543,
       "local": {},
       "exchange": {},
       "sub_masses": {},
