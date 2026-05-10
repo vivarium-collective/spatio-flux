@@ -9,9 +9,9 @@ description = "A demonstration of process composition rebuilding and extending C
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "bigraph-schema>=1.2.4",
-    "process-bigraph[ray,server-rest,ec2-ssm]>=1.2.2",
-    "bigraph-viz>=1.1.0",
+    "bigraph-schema",
+    "process-bigraph[ray,server-rest,ec2-ssm]",
+    "bigraph-viz",
     "cobra",
     "highspy",
     "imageio",

@@ -315,7 +315,7 @@ def rule_phosphorylate():
           the rule cannot fire on a MEK that's already in complex
           (active-site stoichiometry).
         - The reactum re-introduces both ports wired to a single
-          ``LinkVar('e')``.  ``e`` is unbound on the redex side,
+          ``LinkVar('bond')``.  ``e`` is unbound on the redex side,
           so ``instantiate`` mints a *fresh* anchor path under
           ``_edges`` and links both ports to it.
         - The substrate's control flips ``ERK → pERK``.
@@ -337,11 +337,11 @@ def rule_phosphorylate():
                 '_type': 'Compartment',
                 'enzyme': {
                     '_type': 'MEK',
-                    'outputs': {'enzyme_port': LinkVar('e')}},
+                    'outputs': {'enzyme_port': LinkVar('bond')}},
                 'substrate': {
                     '_type': 'pERK',
                     'name': Site(),
-                    'outputs': {'substrate_port': LinkVar('e')}},
+                    'outputs': {'substrate_port': LinkVar('bond')}},
                 'bystanders': Site()}},
         instantiation={'bystanders': 'bystanders', 'name': 'name'},
         rate=2.0,
@@ -359,7 +359,7 @@ def rule_dissociate():
 
     Bigraph encoding:
         - The redex requires both ports wired to the same edge
-          (``LinkVar('e')``) — so the rule fires exactly when MEK
+          (``LinkVar('bond')``) — so the rule fires exactly when MEK
           and a pERK are in complex.
         - The reactum drops the ``outputs`` keys on both nodes,
           so the bond's two endpoints are gone — the edge is
@@ -371,11 +371,11 @@ def rule_dissociate():
                 '_type': 'Compartment',
                 'enzyme': {
                     '_type': 'MEK',
-                    'outputs': {'enzyme_port': LinkVar('e')}},
+                    'outputs': {'enzyme_port': LinkVar('bond')}},
                 'substrate': {
                     '_type': 'pERK',
                     'name': Site(),
-                    'outputs': {'substrate_port': LinkVar('e')}},
+                    'outputs': {'substrate_port': LinkVar('bond')}},
                 'bystanders': Site()}},
         reactum={
             'compartment': {
@@ -408,33 +408,33 @@ def rule_dephosphorylate():
     is the rule that keeps events firing past steady state."""
     return ReactionRule(
         redex={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'kind': {'_type': 'Nucleus'},
                     'substrate': {
                         '_type': 'pERK',
                         'name': Site(),
                         'outputs': Absent()},
-                    'enclosed_rest': Site()},
-                'enclosing_rest': Site()},
+                    'inner_rest': Site()},
+                'outer_rest': Site()},
         },
         reactum={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'kind': {'_type': 'Nucleus'},
                     'substrate': {'_type': 'ERK', 'name': Site()},
-                    'enclosed_rest': Site()},
-                'enclosing_rest': Site()},
+                    'inner_rest': Site()},
+                'outer_rest': Site()},
         },
         instantiation={
-            'enclosing_rest': 'enclosing_rest',
-            'enclosed_rest': 'enclosed_rest',
+            'outer_rest': 'outer_rest',
+            'inner_rest': 'inner_rest',
             'name': 'name'},
         rate=0.4,
         label='dephosphorylate')
@@ -455,30 +455,30 @@ def rule_translocate_erk_in():
     """
     return ReactionRule(
         redex={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
                 'substrate': {
                     '_type': 'ERK',
                     'name': Site()},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
-                    'enclosed_rest': Site()},
-                'enclosing_rest': Site()},
+                    'inner_rest': Site()},
+                'outer_rest': Site()},
         },
         reactum={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
-                    'enclosed_rest': Site(),
+                    'inner_rest': Site(),
                     'substrate': {'_type': 'ERK', 'name': Site()}},
-                'enclosing_rest': Site()},
+                'outer_rest': Site()},
         },
         instantiation={
-            'enclosing_rest': 'enclosing_rest',
-            'enclosed_rest': 'enclosed_rest',
+            'outer_rest': 'outer_rest',
+            'inner_rest': 'inner_rest',
             'name': 'name'},
         rate=1.0,
         label='translocate_erk_in')
@@ -497,30 +497,30 @@ def rule_translocate_erk_out():
     """
     return ReactionRule(
         redex={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'substrate': {
                         '_type': 'ERK',
                         'name': Site()},
-                    'enclosed_rest': Site()},
-                'enclosing_rest': Site()},
+                    'inner_rest': Site()},
+                'outer_rest': Site()},
         },
         reactum={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
-                    'enclosed_rest': Site()},
+                    'inner_rest': Site()},
                 'substrate': {'_type': 'ERK', 'name': Site()},
-                'enclosing_rest': Site()},
+                'outer_rest': Site()},
         },
         instantiation={
-            'enclosing_rest': 'enclosing_rest',
-            'enclosed_rest': 'enclosed_rest',
+            'outer_rest': 'outer_rest',
+            'inner_rest': 'inner_rest',
             'name': 'name'},
         rate=1.0,
         label='translocate_erk_out')
@@ -550,33 +550,33 @@ def rule_translocate_perk_in():
     """
     return ReactionRule(
         redex={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
                 'substrate': {
                     '_type': 'pERK',
                     'name': Site(),
                     'outputs': Absent()},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'kind': {'_type': 'Nucleus'},
-                    'enclosed_rest': Site()},
-                'enclosing_rest': Site()},
+                    'inner_rest': Site()},
+                'outer_rest': Site()},
         },
         reactum={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'kind': {'_type': 'Nucleus'},
-                    'enclosed_rest': Site(),
+                    'inner_rest': Site(),
                     'substrate': {'_type': 'pERK', 'name': Site()}},
-                'enclosing_rest': Site()},
+                'outer_rest': Site()},
         },
         instantiation={
-            'enclosing_rest': 'enclosing_rest',
-            'enclosed_rest': 'enclosed_rest',
+            'outer_rest': 'outer_rest',
+            'inner_rest': 'inner_rest',
             'name': 'name'},
         rate=2.0,
         label='translocate_perk_in')
@@ -599,33 +599,33 @@ def rule_translocate_perk_out():
     """
     return ReactionRule(
         redex={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'kind': {'_type': 'Nucleus'},
                     'substrate': {
                         '_type': 'pERK',
                         'name': Site(),
                         'outputs': Absent()},
-                    'enclosed_rest': Site()},
-                'enclosing_rest': Site()},
+                    'inner_rest': Site()},
+                'outer_rest': Site()},
         },
         reactum={
-            'enclosing': {
+            'outer': {
                 '_type': 'Compartment',
                 'kind': {'_type': 'Cytoplasm'},
-                'enclosed': {
+                'inner': {
                     '_type': 'Compartment',
                     'kind': {'_type': 'Nucleus'},
-                    'enclosed_rest': Site()},
+                    'inner_rest': Site()},
                 'substrate': {'_type': 'pERK', 'name': Site()},
-                'enclosing_rest': Site()},
+                'outer_rest': Site()},
         },
         instantiation={
-            'enclosing_rest': 'enclosing_rest',
-            'enclosed_rest': 'enclosed_rest',
+            'outer_rest': 'outer_rest',
+            'inner_rest': 'inner_rest',
             'name': 'name'},
         rate=0.1,
         label='translocate_perk_out')
@@ -1875,7 +1875,7 @@ def _redex_pattern_to_state(node, edge_anchors=None):
     """Convert a redex/reactum pattern (which mixes plain dicts with
     Site / LinkVar / Absent placeholders) into a state dict that
     ``plot_bigraph`` can render. Sites become a labelled ``Site``
-    leaf, each ``LinkVar('e')`` becomes a wire path
+    leaf, each ``LinkVar('bond')`` becomes a wire path
     ``['_edges', '~e']`` — bigraph-viz's place-graph rendering
     then draws a real link-graph edge between every port whose
     value points to the same anchor. Absents are dropped
@@ -1886,7 +1886,10 @@ def _redex_pattern_to_state(node, edge_anchors=None):
         return {'_type': 'Site'}
     if isinstance(node, LinkVar):
         edge_anchors.add(node.name)
-        return ['_edges', f'~{node.name}']
+        # Drop the '~' anchor-fresh marker for display: the rule
+        # patterns are static, so the edge label can use the
+        # LinkVar name directly ('bond' rather than '~bond').
+        return ['_edges', node.name]
     if isinstance(node, Absent):
         return None
     if isinstance(node, dict):
@@ -1914,7 +1917,7 @@ def _render_rule_pattern(label, pattern, out_dir, suffix):
     Each LinkVar in the pattern becomes a wire path that
     bigraph-viz's link-graph renderer draws as an actual edge
     between paired endpoints (e.g. MEK·cleft and pERK·docking
-    sharing ``LinkVar('e')``)."""
+    sharing ``LinkVar('bond')``)."""
     try:
         from bigraph_viz import plot_bigraph
         from process_bigraph import allocate_core

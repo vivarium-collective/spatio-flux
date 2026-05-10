@@ -96,16 +96,16 @@ wheels = [
 
 [[package]]
 name = "bigraph-viz"
-version = "2.0.0"
+version = "2.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigraph-schema" },
     { name = "graphviz" },
     { name = "process-bigraph" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/95/6446e0178197b16639c57dd816f05fcdf54f4341ee46127633a01c38a351/bigraph_viz-2.0.0.tar.gz", hash = "sha256:6ef8d60f1ea9afedb4652ca7970b11e9f77e3b6800345c83a3a3c1b4fc0450bb", size = 35656, upload-time = "2026-05-10T16:38:00.528Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/1a/605ba7b3dea8c25d9c77335834650310a98470652d16709494b2c1a9b440/bigraph_viz-2.0.1.tar.gz", hash = "sha256:3f62dfcade78d215051c782caac59710cb47b80b4288876a8c6c70e167cbf263", size = 35857, upload-time = "2026-05-10T17:35:29.833Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/c0/f4054052974aea0144b0060bbf1cfaee979b281f4b9138cb3e3ce476d0d2/bigraph_viz-2.0.0-py3-none-any.whl", hash = "sha256:5886364fda7bdd0fe973dc7eb3827cb58d8082109e7676b59bc6b2ab5292dbd9", size = 35189, upload-time = "2026-05-10T16:37:59.164Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/87/7705deb319d9a56afefa4821e8bcb6878764d45d5f335e9e4c63157e7cac/bigraph_viz-2.0.1-py3-none-any.whl", hash = "sha256:3d98d9b747f16b9c4c8367b480c59c69b45931ea24703f83a4dfce351b4e9638", size = 35412, upload-time = "2026-05-10T17:35:28.32Z" },
 ]
 
 [[package]]
@@ -1667,14 +1667,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bigraph-schema", specifier = ">=1.2.4" },
-    { name = "bigraph-viz", specifier = ">=1.1.0" },
+    { name = "bigraph-schema" },
+    { name = "bigraph-viz" },
     { name = "cobra" },
     { name = "highspy" },
     { name = "imageio" },
     { name = "ipython" },
     { name = "matplotlib" },
-    { name = "process-bigraph", extras = ["ray", "server-rest", "ec2-ssm"], specifier = ">=1.2.2" },
+    { name = "process-bigraph", extras = ["ray", "server-rest", "ec2-ssm"] },
     { name = "pymunk" },
     { name = "scipy" },
 ]

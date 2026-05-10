@@ -1010,6 +1010,13 @@ def generate_html_report(
     for file in all_files:
         if file.name == report_path.name:
             continue
+        # Skip private auxiliary outputs (anything beginning with
+        # an underscore — e.g. per-rule pattern PNGs that are
+        # already inlined into a test's trace figure). These would
+        # otherwise pile up in "Other Generated Files" as a long
+        # naked file list.
+        if file.name.startswith('_'):
+            continue
         for test in test_files:
             if file.name.startswith(str(test)):
                 test_files[test].append(file)
@@ -1152,10 +1159,15 @@ def generate_html_report(
             html.append(f"<h3>{html_escape(f.name)}</h3>")
             html.append(f'<img src="{html_escape(f.name)}" style="max-width:100%"><hr>')
 
-        # GIFs
+        # GIFs — these are typically the highlight (animations of
+        # the simulation), so render them at the full content
+        # column width with no upper cap.
         for f in gifs:
             html.append(f"<h3>{html_escape(f.name)}</h3>")
-            html.append(f'<img src="{html_escape(f.name)}" style="max-width:100%"><hr>')
+            html.append(
+                f'<img src="{html_escape(f.name)}" '
+                'style="display:block; width:100%; max-width:1200px; '
+                'height:auto; margin: 12px auto;"><hr>')
 
     # Other files & total runtime
     if others:
