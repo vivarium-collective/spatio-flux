@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "bigraph-schema>=1.2.4",
-    "process-bigraph>=1.2.2",
+    "process-bigraph[ray,server-rest,ec2-ssm]>=1.2.2",
     "bigraph-viz>=1.1.0",
     "cobra",
     "highspy",
@@ -26,6 +26,11 @@ dev = [
     "build",
     "pytest",
 ]
+
+#[tool.uv.sources]
+#bigraph-schema = { path = "../bigraph-schema", editable = true }
+#process-bigraph = { path = "../process-bigraph", editable = true }
+#bigraph-viz = { path = "../bigraph-viz", editable = true }
 
 # Make sure all subpackages are included
 [tool.setuptools.packages.find]

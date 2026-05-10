@@ -816,6 +816,75 @@ def _json_viewer_js() -> str:
 """.strip()
 
 
+def _render_markdown(text):
+    """Minimal markdown → HTML renderer for the per-test overview
+    sidecars. Supports the constructs used in our explainer files:
+    ATX headings (### h3 / #### h4), bold (``**``), italic (``*``,
+    ``_``), inline code (backticks), unordered lists (``- ``), and
+    blank-line-separated paragraphs. Anything more elaborate
+    should go through a real markdown library."""
+    import re
+    lines = text.splitlines()
+    out = []
+    i = 0
+    in_list = False
+
+    def inline(s):
+        s = html_escape(s)
+        s = re.sub(r'`([^`]+)`', r'<code>\1</code>', s)
+        s = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', s)
+        # italics: avoid touching the `**` we already converted
+        s = re.sub(r'(?<!\w)\*([^*\n]+)\*(?!\w)', r'<em>\1</em>', s)
+        s = re.sub(r'(?<!\w)_([^_\n]+)_(?!\w)', r'<em>\1</em>', s)
+        return s
+
+    def close_list():
+        nonlocal in_list
+        if in_list:
+            out.append('</ul>')
+            in_list = False
+
+    while i < len(lines):
+        line = lines[i].rstrip()
+        if not line:
+            close_list()
+            i += 1
+            continue
+        m = re.match(r'^(#{1,6})\s+(.*)$', line)
+        if m:
+            close_list()
+            level = min(len(m.group(1)), 6)
+            out.append(f'<h{level}>{inline(m.group(2))}</h{level}>')
+            i += 1
+            continue
+        if line.lstrip().startswith('- '):
+            if not in_list:
+                out.append('<ul>')
+                in_list = True
+            content = line.lstrip()[2:]
+            # Continuation lines (indented) join the same item.
+            j = i + 1
+            while j < len(lines) and lines[j].startswith('  '):
+                content += ' ' + lines[j].strip()
+                j += 1
+            out.append(f'<li>{inline(content)}</li>')
+            i = j
+            continue
+        # Plain paragraph: gather contiguous non-blank, non-list lines.
+        close_list()
+        para = [line]
+        j = i + 1
+        while (j < len(lines) and lines[j].strip()
+               and not lines[j].lstrip().startswith('- ')
+               and not re.match(r'^#{1,6}\s', lines[j])):
+            para.append(lines[j].rstrip())
+            j += 1
+        out.append(f'<p>{inline(" ".join(para))}</p>')
+        i = j
+    close_list()
+    return '\n'.join(out)
+
+
 def generate_html_report(
     output_dir,
     simulations,
@@ -1033,6 +1102,24 @@ def generate_html_report(
         viz_file = next((f for f in files if f.name == f"{test}_viz.png"), None)
         pngs = [f for f in files if f.suffix == ".png" and f != viz_file]
         gifs = [f for f in files if f.suffix == ".gif"]
+        overview_md = next(
+            (f for f in files if f.name == f"{test}_overview.md"), None)
+
+        # Long-form overview rendered from a markdown sidecar (if any
+        # test wrote one, e.g. a biology explainer). Sits between the
+        # one-line description and the JSON / figure sections.
+        if overview_md:
+            try:
+                md_text = overview_md.read_text()
+                html.append(
+                    '<details open class="intro-card">'
+                    '<summary><strong>Overview</strong></summary>'
+                    + _render_markdown(md_text) +
+                    '</details>')
+            except Exception as e:
+                html.append(
+                    f"<pre>Could not load overview: {html_escape(str(e))}"
+                    "</pre>")
 
         # JSON section
         if viewer_json:

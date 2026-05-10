@@ -16,6 +16,7 @@ Usage:
 """
 import argparse
 import gc
+import os
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +31,8 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
 from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_monod_kinetics_process_from_config
+from spatio_flux.processes.bigraph_reactive_system import (
+    get_brs_mapk_doc, plot_brs_mapk)
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
@@ -1136,7 +1139,26 @@ SIMULATIONS = {
             'n_bins': [n * 2 for n in SQUARE_BINS]
         },
         'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8},
-    }
+    },
+
+    # ---- Bigraphical Reactive System (structural rewrites) -------------------
+    'brs_mapk': {
+        'description': (
+            'MAPK signalling encoded as a Bigraphical Reactive System: '
+            'MEK1 phosphorylates ERK2 in the cytoplasm; phospho-ERK '
+            'imports into the nucleus. Six rules under Gillespie SSA. '
+            'See the overview section below for biology, encoding, '
+            'and rule semantics.'),
+        'doc_func': get_brs_mapk_doc,
+        'plot_func': plot_brs_mapk,
+        'time': 80,
+        'config': {
+            'mode': 'gillespie',
+            'seed': 42,
+            'interval': 1.0,
+        },
+        'plot_config': {'filename': 'brs_mapk', 'n_snapshots': 6},
+    },
 }
 
 
@@ -1147,14 +1169,45 @@ def parse_args():
         help='Names of tests to run. If none given, runs the full set.'
     )
     parser.add_argument('--output', default='out', help='Output directory')
+    parser.add_argument(
+        '--skip-existing', action='store_true',
+        help=('Reuse cached per-test artifacts: do not wipe the output '
+              'directory at start, and skip any test whose '
+              '<filename>_viz.png already exists. Lets you add or '
+              're-run a single test without losing the rest of the '
+              'report.'))
     return parser.parse_args()
+
+
+def _existing_outputs_for(sim_name, output_dir):
+    """True if a previous run's artifacts for this test are present.
+
+    A test is considered cached if its composite viz PNG exists. The
+    viz is produced unconditionally by ``run_composite_document`` and
+    is the cheapest single signal that a test completed before.
+    """
+    plot_config = SIMULATIONS[sim_name].get('plot_config', {}) or {}
+    base = plot_config.get('filename', sim_name)
+    # The harness writes to './out/' regardless of --output; check both
+    # so this stays correct if the harness is later parameterised.
+    candidates = [
+        os.path.join(output_dir, f'{base}_viz.png'),
+        os.path.join('out', f'{base}_viz.png'),
+    ]
+    return any(os.path.exists(c) for c in candidates)
 
 
 def main():
     args = parse_args()
 
     output_dir = args.output
-    prepare_output_dir(output_dir)
+
+    if not args.skip_existing:
+        prepare_output_dir(output_dir)
+    else:
+        # Don't wipe — preserve whatever cached artifacts are there
+        # so the report can rebuild from disk.
+        os.makedirs(output_dir, exist_ok=True)
 
     core = allocate_core()
 
@@ -1170,6 +1223,10 @@ def main():
         print(f"\n🚀 Running test: {name}")
         if name not in SIMULATIONS:
             print(f"Skipping unknown test: '{name}'")
+            continue
+
+        if args.skip_existing and _existing_outputs_for(name, output_dir):
+            print(f"⏭️  Skipping '{name}' (cached outputs already exist)")
             continue
 
         sim_info = SIMULATIONS[name]
