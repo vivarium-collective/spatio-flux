@@ -1,6 +1,6 @@
 {
   "particles": {
-    "xYlMsJo_": {
+    "jrmEq1yM": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "xYlMsJo_",
+      "id": "jrmEq1yM",
       "position": [
-        15.071679091686574,
-        1.4922552739011552
+        12.427620522159117,
+        19.383873439190936
       ],
-      "mass": 8.468048233502543,
+      "mass": 2.775556421352431,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -927,20 +927,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     }
   }

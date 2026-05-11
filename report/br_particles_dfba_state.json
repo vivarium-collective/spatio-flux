@@ -1,6 +1,6 @@
 {
   "particles": {
-    "EnOE2N3z": {
+    "YoHiCdzK": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "EnOE2N3z",
+      "id": "YoHiCdzK",
       "position": [
-        43.226523426236355,
-        35.0539892445561
+        28.12239891477179,
+        13.601313786717057
       ],
-      "mass": 0.40422352395505806,
+      "mass": 0.9467015454293204,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -458,20 +458,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     }
   }
