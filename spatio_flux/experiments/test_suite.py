@@ -1240,14 +1240,12 @@ def main():
         # Per-test override for emit cadence; default auto-computes
         # in run_composite_document to target ~60 emits.
         emit_subsample = sim_info.get('emit_subsample')
-        sim_start = time.time()
         results, proc_time, fw_time = run_composite_document(
             doc, core=core, name=name, time=runtime,
             show_types=True, show_values=True,
             emit_subsample=emit_subsample)
-        sim_end = time.time()
 
-        sim_elapsed = sim_end - sim_start
+        sim_elapsed = proc_time + fw_time
         runtimes[name] = sim_elapsed
         timing_details[name] = (proc_time, fw_time)
         total_sim_time += sim_elapsed
