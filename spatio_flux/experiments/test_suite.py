@@ -174,22 +174,6 @@ def plot_dfba_process_spatial(results, state, config=None):
 
 # --- Diffusion Advection-----------------------------------------------
 
-def get_diffusion_process_doc(core=None, config=None):
-    mol_ids = ['glucose', 'dissolved biomass']
-    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
-    diffusion_coeffs = {'glucose': DEFAULT_DIFFUSION/10, 'dissolved biomass': DEFAULT_DIFFUSION/10}
-    n_bins = DEFAULT_BINS
-    bounds = DEFAULT_BOUNDS
-    # initialize fields
-    glc_field = np.random.uniform(low=0.1,high=2,size=(n_bins[1], n_bins[0]))
-    biomass_field = np.zeros((n_bins[1], n_bins[0]))
-    biomass_field[4:5,:] = 10
-    return {
-        'fields': {'dissolved biomass': biomass_field, 'glucose': glc_field},
-        'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids,
-                                                     diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs),
-    }
-
 def plot_diffusion_process(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'diffusion_process')
@@ -833,12 +817,11 @@ SIMULATIONS = {
 
     # ---- Spatial models ---------------------------------------------------
     'diffusion_process': {
-        'description': 'Field transport primitive: finite-volume diffusion/advection on a 2D lattice. Use to validate boundary conditions, stability, and transport timescales.',
-        'doc_func': get_diffusion_process_doc,
-        'plot_func': plot_diffusion_process,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {},
-        'plot_config': {'filename': 'diffusion_process'}
+        'generator':   'diffusion_process',
+        'plot_func':   plot_diffusion_process,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'diffusion_process'},
     },
 
     # ---- Brownian Particle composite models --------------------------------
