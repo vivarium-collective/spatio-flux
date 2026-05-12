@@ -262,36 +262,6 @@ def plot_particles_sim(results, state, config=None):
     plot_particle_traces(history=history, bounds=bounds, out_dir="out", filename=f'{filename}_particles_traces.png',
                          radius_scaling=0.1, min_brightness=0.1, legend=False, units="µm")
 
-# --- Particles with Monod Kinetics -----------------------------------------------------------
-
-def get_br_particles_kinetics_doc(core=None, config=None):
-    division_mass_threshold = config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
-    initial_min_max = {'glucose': (5.0, 10.0), 'acetate': (0, 0)}
-    initial_min_max = {'glucose': (5.0, 10.0), 'acetate': (0, 0)}
-
-    model_id = config.get('model_id', 'overflow_metabolism')
-    particle_config = MODEL_REGISTRY_KINETICS[model_id]()
-
-    mol_ids = list(initial_min_max.keys())
-    n_bins = SQUARE_BINS
-    bounds = SQUARE_BOUNDS
-    n_particles = 1
-    particle_diffusion = DEFAULT_DIFFUSION/2
-    particle_advection = (0,0) #DEFAULT_ADVECTION
-    add_rate = 0.0
-    return {
-        'state': {
-            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-            'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
-            'brownian_movement': get_brownian_movement_process(bounds=bounds,diffusion_rate=particle_diffusion, advection_rate=particle_advection),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-        },
-        # put kinetic metabolism in the particles
-        'schema': get_kinetic_particle_composition(core=core, config=particle_config)
-    }
-
 # --- dFBA-Particles ---------------------------------------------------
 
 def get_br_particles_dfba_doc(core=None, config=None):
@@ -816,12 +786,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'brownian_particles'},
     },
     'br_particles_kinetics': {
-        'description': 'Particle–field coupling (kinetics): Brownian agents sample local lattice concentrations and apply Monod-style exchange, modifying both particle mass and fields.',
-        'doc_func': get_br_particles_kinetics_doc,
-        'plot_func': plot_particles_sim,
-        'time': DEFAULT_RUNTIME_LONGER,
-        'config': {},
-        'plot_config': {'filename': 'br_particles_kinetics', 'n_snapshots': 6}
+        'generator':   'br_particles_kinetics',
+        'plot_func':   plot_particles_sim,
+        'time':        DEFAULT_RUNTIME_LONGER,
+        'overrides':   {},
+        'plot_config': {'filename': 'br_particles_kinetics', 'n_snapshots': 6},
     },
     'br_particles_dfba': {
         'description': 'Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion couples to fields and biomass accumulates into particle mass/size.',
