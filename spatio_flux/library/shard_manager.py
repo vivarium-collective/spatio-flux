@@ -277,6 +277,7 @@ class ShardManager:
         mol_ids: Optional[list[str]] = None,
         biomass_id: str = "dissolved biomass",
         ray_address: Optional[str] = None,
+        box_volume_L: float = 1.0,
     ):
         _require_ray()
         if not ray.is_initialized():
@@ -332,6 +333,7 @@ class ShardManager:
         cfg = dict(MODEL_REGISTRY_DFBA[model_id])
         if solver is not None:
             cfg["solver"] = solver
+        cfg["box_volume_L"] = float(box_volume_L)
         self._cfg = cfg
 
         self._mol_ids = list(mol_ids) if mol_ids else [
@@ -383,6 +385,7 @@ class ShardManager:
             "substrate_update_reactions": self._cfg.get(
                 "substrate_update_reactions"),
             "bounds": self._cfg.get("bounds"),
+            "box_volume_L": self._cfg.get("box_volume_L", 1.0),
         }
         self._pool = get_or_create_pool(actor_cls, pool_config, self._n_shards)
         was_warmed = self._pool.stats()["warmed"]

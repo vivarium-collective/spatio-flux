@@ -96,16 +96,16 @@ wheels = [
 
 [[package]]
 name = "bigraph-viz"
-version = "2.0.1"
+version = "2.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigraph-schema" },
     { name = "graphviz" },
     { name = "process-bigraph" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/1a/605ba7b3dea8c25d9c77335834650310a98470652d16709494b2c1a9b440/bigraph_viz-2.0.1.tar.gz", hash = "sha256:3f62dfcade78d215051c782caac59710cb47b80b4288876a8c6c70e167cbf263", size = 35857, upload-time = "2026-05-10T17:35:29.833Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/1e/061e33687b6557f8061f3e9d627d49c8282ed844e23e8f67d4e7aa6020d9/bigraph_viz-2.0.2.tar.gz", hash = "sha256:95c402912a91531289f044e2c961a510a3e334db43462038a5bd0719a1c4fa87", size = 35862, upload-time = "2026-05-10T17:38:52.299Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f4/87/7705deb319d9a56afefa4821e8bcb6878764d45d5f335e9e4c63157e7cac/bigraph_viz-2.0.1-py3-none-any.whl", hash = "sha256:3d98d9b747f16b9c4c8367b480c59c69b45931ea24703f83a4dfce351b4e9638", size = 35412, upload-time = "2026-05-10T17:35:28.32Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/84/9a797cb8e9431945ce7c9d52588b52fa08275e8652ee6711cd81117d9f9e/bigraph_viz-2.0.2-py3-none-any.whl", hash = "sha256:3b8fff27f7c3bfa9ff4141658a1646ca6f96c2da125f81f0f4dcaaa5b783bfd5", size = 35412, upload-time = "2026-05-10T17:38:50.745Z" },
 ]
 
 [[package]]
@@ -1088,7 +1088,7 @@ wheels = [
 
 [[package]]
 name = "process-bigraph"
-version = "1.4.10"
+version = "1.4.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigraph-schema" },
@@ -1098,9 +1098,9 @@ dependencies = [
     { name = "scipy" },
     { name = "sympy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/d4/81082206ce155f26a6873ddfa37986d0471795a569a31ec3a521754fbe25/process_bigraph-1.4.10.tar.gz", hash = "sha256:a2a7f1378a4ededc17e6e94f15226b48146cc8738f3960a31236c4fe1648eff0", size = 112451, upload-time = "2026-05-10T13:42:57.348Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/be/d307f7862b71ba98f783b22638872a4d9c7e47662420608b52ec2ff1bc6b/process_bigraph-1.4.12.tar.gz", hash = "sha256:b9627e5c2028f2bdf359dad32ae550d73e9243b98abc5edcbe98c3fa0b5e0991", size = 116493, upload-time = "2026-05-12T09:40:55.679Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a1/ee/5da3f3ed93866ed905da5f358dd561048981477080b0f0bd590f47a8b1f1/process_bigraph-1.4.10-py3-none-any.whl", hash = "sha256:559985cefc794f3711167a10c177c6cb5660f822ad9c7446670c2617784bf950", size = 121828, upload-time = "2026-05-10T13:42:56.129Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/8c/a8e70351ce20154e149bca925992b6bc4dba51cdd7e36e975ecfe70d1d9b/process_bigraph-1.4.12-py3-none-any.whl", hash = "sha256:e39f0eab801e44f86b35b59e5416c4c42acc2478f1973aee3898506ff5b4c33e", size = 126378, upload-time = "2026-05-12T09:40:54.05Z" },
 ]
 
 [package.optional-dependencies]

@@ -61,6 +61,12 @@ COMPARISON_GRID = 16               # the N used for the snapshot/timeseries pane
 TIME_STEP = 0.1                    # hours per dFBA step
 TOTAL_TIME = 4.0                   # hours total
 SPACE_WIDTH = 0.05                 # cm per grid cell (0.5 mm)
+# Per-cell volume in L = (spaceWidth cm)^3 * 1 mL/cm^3 * 1e-3 L/mL.
+# COMETS uses spaceWidth^3 for 2D-with-implicit-depth boxes; we match.
+# Threaded into DynamicFBA / SpatialDFBA / ShardedDFBA so that FBA's
+# mmol/gDW/h × gDW × h amount gets converted to a mM concentration delta
+# (which is the unit the field is tracked in for MM kinetics).
+BOX_VOLUME_L = SPACE_WIDTH ** 3 * 1e-3
 
 # Michaelis-Menten kinetics for glucose / acetate uptake. Matched on both
 # sides so the dFBA solves the same problem given the same substrate field.
@@ -81,12 +87,17 @@ BIOMASS_DIFF = 1e-9                # cm^2/s, biomass barely diffuses
 # absolute concentration story belongs in a caption, not in a fudge factor.
 SPATIOFLUX_DIFFUSION_MATCH = 1.0
 
-INITIAL_BIOMASS = 0.05             # seed cell value (gDW or arbitrary biomass units)
+INITIAL_BIOMASS = 1.0e-6           # gDW per box — cometspy tutorial scale
+                                   # (petri_dish.md uses 1e-6; demographic_noise
+                                   # uses ~6.4e-5). At V_box=1.25e-7 L this is
+                                   # ~8 g/L cell density — realistic.
 
-# Vertical glucose gradient: row 0 (top) low, row N-1 (bottom) high.
-# Both ends well above KM_GLC so the gradient drives differential growth.
-GLC_LOW = 1.0
-GLC_HIGH = 20.0
+# Vertical glucose gradient (mM concentration): row 0 (top) low, row N-1
+# (bottom) high. Both ends >> KM_GLC=0.5 mM so MM saturates everywhere
+# (cometspy-style), but the *amount* per box (c × V_box) differs by 10×
+# top-to-bottom, so the top is more easily exhausted than the bottom.
+GLC_LOW = 50.0
+GLC_HIGH = 500.0
 
 OUT_DIR = Path("out/comets_compare")
 
@@ -136,14 +147,32 @@ def run_cometspy(n: int, total_time: float = TOTAL_TIME) -> dict:
     # Don't open_exchanges() — that would erase the ATPM/O2 bounds above.
     cm.change_optimizer("GLOP")
 
+    # cometspy's MM machinery applies defaultVmax=1 to EVERY exchange uptake
+    # every cycle, overwriting whatever cobra-level lower_bound we set. Pin
+    # O2's Vmax to 2.0 so the (saturating-O2) MM uptake bound matches the
+    # spatio-flux model's hard bound of -2. Also set acetate's Vmax to 2.0
+    # (VMAX_AC) so it matches MODEL_REGISTRY_DFBA's kinetic_params.
+    cm.change_vmax("EX_o2_e", float(VMAX_AC))     # 2.0
+    cm.change_vmax("EX_ac_e", float(VMAX_AC))     # 2.0
+
     layout = cspy.layout([cm])
     layout.grid = [n, n]
 
-    # set baseline metabolites needed by e. coli core (in mmol/cell)
-    # high "static" reservoirs so they are never limiting
+    # cometspy stores metabolites as mmol-per-box AMOUNTS, then internally
+    # divides by the box volume for MM. Spatio-flux treats fields as mM
+    # concentrations directly. To put both on identical physical footing
+    # we expose the gradient as mM concentration on both sides and convert
+    # to amount only at the cometspy API boundary.
+    # Static reservoir target: keep them saturating regardless of V_box.
+    # 1000 mM × V_box is small in mmol, but `static=True` pins the
+    # *amount* so once cometspy converts amount→mM internally it stays
+    # high enough to be non-limiting. To be safe, fix the static at a
+    # high mM-equivalent (1e6 mM → 1e6 × V_box mmol).
+    static_mM = 1e6
+    static_amt = static_mM * BOX_VOLUME_L
     for met in ("o2_e", "nh4_e", "pi_e", "h2o_e", "h_e", "co2_e"):
-        layout.set_specific_metabolite(met, 1000.0)
-        layout.set_specific_static(met, 1000.0)
+        layout.set_specific_metabolite(met, float(static_amt))
+        layout.set_specific_static(met, float(static_amt))
 
     # add glucose and acetate as exchanged metabolites (start at near-zero
     # globally, then write the gradient per cell)
@@ -154,12 +183,12 @@ def run_cometspy(n: int, total_time: float = TOTAL_TIME) -> dict:
     layout.set_specific_metabolite_diffusion("glc__D_e", float(GLC_DIFF))
     layout.set_specific_metabolite_diffusion("ac_e", float(GLC_DIFF))
 
-    # seed glucose vertical gradient
+    # seed glucose vertical gradient (field is in mM; convert mM → mmol/box)
     glc_field = initial_glucose_field(n)
     for y in range(n):
         for x in range(n):
             layout.set_specific_metabolite_at_location(
-                "glc__D_e", (x, y), float(glc_field[y, x])
+                "glc__D_e", (x, y), float(glc_field[y, x] * BOX_VOLUME_L)
             )
 
     # seed biomass: single cell at top center
@@ -168,12 +197,11 @@ def run_cometspy(n: int, total_time: float = TOTAL_TIME) -> dict:
 
     # parameters
     p = cspy.params()
-    # match spatio-flux's MM kinetics (Km=0.5 mM, Vmax=1 mmol/gDW/h for glc,
-    # Vmax=2 for ac). cometspy uses defaultKm/defaultVmax for any exchange
-    # without explicit override; we set these to the glucose values and bump
-    # acetate's Vmax via the model object below.
+    # match spatio-flux's MM kinetics. cometspy's defaultVmax is in
+    # mmol/gDW/h (same as ours) but defaultKm is in *molar (M)*, not mM
+    # (see cometspy/params.py: 'defaultKm': 'M (molar conc.)'). Convert.
     p.set_param("defaultVmax", float(VMAX_GLC))
-    p.set_param("defaultKm", float(KM_GLC))
+    p.set_param("defaultKm", float(KM_GLC) * 1e-3)  # mM → M
     p.set_param("defaultDiffConst", float(BIOMASS_DIFF))  # biomass diffusion
     p.set_param("timeStep", float(TIME_STEP))
     p.set_param("maxCycles", int(round(total_time / TIME_STEP)))
@@ -206,6 +234,9 @@ def run_cometspy(n: int, total_time: float = TOTAL_TIME) -> dict:
         bm_hist[c, y, x] += float(row["biomass"])
 
     # parse media log → (T+1, n, n) per metabolite. media log is 1-indexed in (x,y).
+    # cometspy reports the stored *amount* (mmol per box). Divide by box
+    # volume to get mM concentration so the side-by-side panels are in
+    # the same units as the spatio-flux fields.
     media_df = sim.media.copy()
     glc_hist = np.zeros((n_cycles + 1, n, n), dtype=float)
     ac_hist  = np.zeros((n_cycles + 1, n, n), dtype=float)
@@ -216,11 +247,11 @@ def run_cometspy(n: int, total_time: float = TOTAL_TIME) -> dict:
         x = int(row["x"]) - 1
         y = int(row["y"]) - 1
         m = row["metabolite"]
-        v = float(row["conc_mmol"])
+        v_mM = float(row["conc_mmol"]) / BOX_VOLUME_L
         if m == "glc__D_e":
-            glc_hist[c, y, x] = v
+            glc_hist[c, y, x] = v_mM
         elif m == "ac_e":
-            ac_hist[c, y, x] = v
+            ac_hist[c, y, x] = v_mM
 
     time_h = np.arange(n_cycles + 1) * TIME_STEP
 
@@ -290,6 +321,12 @@ def run_spatioflux(n: int, total_time: float = TOTAL_TIME, core=None) -> dict:
     # built into get_spatial_many_dfba is 1.0; we want TIME_STEP.
     for k in spatial_dfba:
         spatial_dfba[k]["interval"] = float(TIME_STEP)
+        # MODEL_REGISTRY_DFBA configs are shared dicts; copy before adding
+        # box_volume_L so we don't mutate the registry itself.
+        spatial_dfba[k]["config"] = {
+            **spatial_dfba[k]["config"],
+            "box_volume_L": float(BOX_VOLUME_L),
+        }
 
     doc = {
         **spatial_dfba,
@@ -391,6 +428,7 @@ def run_spatioflux_single(n: int, total_time: float = TOTAL_TIME, core=None) -> 
             "n_bins": n_bins,
             "models": {"ecoli core": ecoli_cfg},
             "model_grid": [["ecoli core"] * n for _ in range(n)],
+            "box_volume_L": float(BOX_VOLUME_L),
         },
         "inputs": {
             "fields": {
@@ -493,7 +531,7 @@ def _build_ray_dfba_processes(n: int, mol_ids: list, biomass_id: str = "dissolve
     """Mirror of get_spatial_many_dfba, but each per-cell process is a
     RayProcess routing through a shared actor pool. All cells use the
     same (process_class, process_config) so they share one pool."""
-    cfg = MODEL_REGISTRY_DFBA["ecoli core"]
+    cfg = {**MODEL_REGISTRY_DFBA["ecoli core"], "box_volume_L": float(BOX_VOLUME_L)}
     if pool_size is None:
         pool_size = max(1, (os.cpu_count() or 4))
     nx, ny = n, n
@@ -666,6 +704,7 @@ def run_spatioflux_ray_remote(
         mol_ids=mol_ids,
         biomass_id="dissolved biomass",
         ray_address=address,
+        box_volume_L=float(BOX_VOLUME_L),
     ) as mgr:
         state = {
             **mgr.process_specs(interval=float(TIME_STEP)),
@@ -776,6 +815,7 @@ def run_spatioflux_ray_protocol(
     }
 
     cfg = dict(MODEL_REGISTRY_DFBA["ecoli core"])
+    cfg["box_volume_L"] = float(BOX_VOLUME_L)
     if solver is not None:
         cfg["solver"] = solver
 

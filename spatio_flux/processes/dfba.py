@@ -278,40 +278,41 @@ def run_fba_update(model, config, substrates, biomass, interval):
     """
     Run a single FBA update step using uptake kinetics and biomass growth.
 
-    Parameters:
-    -----------
-    - model: cobra.Model instance, modified in-place for bounds and optimization.
-    - config: dict, must include:
-        - 'kinetic_params': {substrate: (Km, Vmax)}
-        - 'substrate_update_reactions': {substrate: reaction_id}
-    - substrates: dict of external substrate concentrations {substrate: float}
-    - biomass: current biomass (float)
-    - interval: simulation time interval (float)
-
-    Returns:
-    --------
-    dict with:
-        - 'substrates': {substrate: delta_concentration}
-        - 'biomass': delta_biomass
+    Units: MM kinetics treat the substrate field value as a concentration
+    (mM). FBA returns flux in mmol/gDW/h, so flux × biomass × dt is an
+    *amount* (mmol). To write that back into a concentration field we
+    divide by ``box_volume_L`` (the per-cell volume in L). The default 1.0
+    preserves legacy behavior where the field was effectively dimensionless;
+    set it explicitly (e.g. spaceWidth_cm**3 * 1e-3) when comparing against
+    a real-units backend like COMETS.
     """
 
     update_substrates = {}
     delta_biomass = 0.0
+    box_volume_L = float(config.get("box_volume_L", 1.0))
 
-    # Set uptake bounds using Michaelis-Menten kinetics
+    # Set uptake bounds using Michaelis-Menten kinetics, additionally
+    # clipped by the substrate budget available in the box. Without this
+    # clip, FBA optimizes at the MM rate and returns mu accordingly, but
+    # the substrate field can only deliver `c × V_box` mmol — so biomass
+    # grows as if uptake succeeded while substrate gets capped to zero.
+    # Clipping the FBA *bound* makes mu and the substrate delta consistent
+    # with the COMETS convention.
     for substrate, reaction_id in config["substrate_update_reactions"].items():
-        # if substrate not in substrates:
-        #     continue
-
         Km, Vmax = config["kinetic_params"][substrate]
-        substrate_concentration = substrates.get(substrate, 0.0)  # TODO: handle missing substrates?
+        substrate_concentration = substrates.get(substrate, 0.0)
         uptake_rate = -1 * Vmax * substrate_concentration / (Km + substrate_concentration)
 
-        if model.reactions.get_by_id(reaction_id).upper_bound < uptake_rate:
-            # If the current upper bound is lower than the calculated uptake rate, adjust it
-            model.reactions.get_by_id(reaction_id).upper_bound = uptake_rate
+        # Budget cap: -(amount_mmol) / (biomass × interval) is the most
+        # negative uptake the box can support over this step. When biomass
+        # or interval is zero, fall back to the MM rate.
+        bm_dt = float(biomass) * float(interval)
+        if bm_dt > 0.0:
+            uptake_budget = -(substrate_concentration * box_volume_L) / bm_dt
+            uptake_rate = max(uptake_rate, uptake_budget)
 
-        # set the lower bound
+        if model.reactions.get_by_id(reaction_id).upper_bound < uptake_rate:
+            model.reactions.get_by_id(reaction_id).upper_bound = uptake_rate
         model.reactions.get_by_id(reaction_id).lower_bound = uptake_rate
 
     # Run FBA optimization
@@ -325,8 +326,9 @@ def run_fba_update(model, config, substrates, biomass, interval):
             # if substrate not in substrates:
             #     continue
 
-            flux = solution.fluxes[rxn_id] * biomass * interval
-            delta = max(flux, -substrates[substrate])  # prevent negative concentrations
+            flux_mmol = solution.fluxes[rxn_id] * biomass * interval
+            delta = flux_mmol / box_volume_L  # mmol amount → mM concentration
+            delta = max(delta, -substrates[substrate])  # prevent negative concentrations
             update_substrates[substrate] = delta
     else:
         for substrate in config["substrate_update_reactions"]:
@@ -371,6 +373,7 @@ class DynamicFBA(Process):
         "substrate_update_reactions": "map[string]",
         "bounds": "map[bounds]",
         "solver": "maybe[string]",
+        "box_volume_L": {"_type": "float", "_default": 1.0},
     }
 
     def initialize(self, config):
@@ -432,6 +435,7 @@ class SpatialDFBA(Process):
             },
         },
         'model_grid': 'maybe[list[list[string]]]',  # should be (ny, nx)
+        'box_volume_L': {'_type': 'float', '_default': 1.0},
     }
 
     def initialize(self, config):
@@ -597,6 +601,7 @@ class SpatialDFBA(Process):
                     'substrate_update_reactions': model_cfg.get('substrate_update_reactions', {}),
                     'bounds': model_cfg.get('bounds', {}),
                     'model_id': model_id,
+                    'box_volume_L': self.config.get('box_volume_L', 1.0),
                 }
 
                 upd = run_fba_update(
@@ -647,6 +652,7 @@ class ShardedDFBA(Process):
         "bounds": "map[bounds]",
         "solver": "maybe[string]",
         "cell_keys": "list[string]",
+        "box_volume_L": {"_type": "float", "_default": 1.0},
     }
 
     def initialize(self, config):
