@@ -486,15 +486,16 @@ def make_id(prefix='id', nhex=6):
 def make_rng(seed=None):
     """Create an RNG backed by numpy so np.random.seed() controls it.
 
-    When ``seed`` is not None, the numpy global RNG is re-seeded; this
-    ensures backward-compatible behaviour for callers that explicitly pass
-    a seed.  In tests the seed is managed externally by the fixture.
+    The ``seed`` parameter is intentionally ignored.  Callers that want
+    deterministic output should call ``np.random.seed(seed)`` themselves
+    *before* invoking ``make_rng()``.  Reseeding inside this function
+    would corrupt the global numpy RNG state mid-simulation.
     """
-    if seed is not None:
-        np.random.seed(seed)
-
     class _NumpyRNG:
-        """Thin wrapper exposing the random.Random interface via numpy."""
+        """Thin wrapper exposing a subset of the random.Random interface via
+        numpy's global RNG.  Only ``uniform()`` and ``random()`` are
+        implemented; the full ``random.Random`` API is not available.
+        """
         def uniform(self, a, b):
             return float(np.random.uniform(a, b))
         def random(self):
