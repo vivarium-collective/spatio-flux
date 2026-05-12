@@ -262,39 +262,6 @@ def plot_particles_sim(results, state, config=None):
     plot_particle_traces(history=history, bounds=bounds, out_dir="out", filename=f'{filename}_particles_traces.png',
                          radius_scaling=0.1, min_brightness=0.1, legend=False, units="µm")
 
-# --- dFBA-Particles ---------------------------------------------------
-
-def get_br_particles_dfba_doc(core=None, config=None):
-    particle_model_id = config.get('particle_model_id', 'ecoli core')
-    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
-    mol_ids = ['glucose', 'acetate']
-
-    bounds = SQUARE_BOUNDS
-    n_bins = SQUARE_BINS
-    nx, ny = n_bins
-    shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
-    acetate_field = np.zeros(shape, dtype=float)
-    glc_y = np.linspace(0.01, 10.0, ny, dtype=float)[:, None]  # (ny, 1)
-    glc_field = np.repeat(glc_y, nx, axis=1)  # (ny, nx)
-    initial_fields = {'glucose': glc_field, 'acetate': acetate_field}
-
-    n_particles = 1
-    add_rate = 0.1
-    particle_diffusion = DEFAULT_DIFFUSION
-    particle_advection = DEFAULT_ADVECTION
-
-    return {
-        'state': {
-            'fields': get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-            'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
-            'brownian_movement': get_brownian_movement_process(bounds=bounds, diffusion_rate=particle_diffusion, advection_rate=particle_advection),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-        },
-        'schema': get_dfba_particle_composition(model_file=particle_model_id)
-    }
-
 def plot_particle_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_dfba')
@@ -793,14 +760,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'br_particles_kinetics', 'n_snapshots': 6},
     },
     'br_particles_dfba': {
-        'description': 'Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion couples to fields and biomass accumulates into particle mass/size.',
-        'doc_func': get_br_particles_dfba_doc,
-        'plot_func': plot_particle_dfba,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {
-            'particle_model_id': 'ecoli core'
-        },
-        'plot_config': {'filename': 'br_particles_dfba', "particles_row": "separate"}
+        'generator':   'br_particles_dfba',
+        'plot_func':   plot_particles_sim,
+        'time':        DEFAULT_RUNTIME_LONGER,
+        'overrides':   {'particle_model_id': 'ecoli core'},
+        'plot_config': {'filename': 'br_particles_dfba', 'particles_row': 'separate'},
     },
 
     # ---- COMETS-like composite models --------------------------------------
