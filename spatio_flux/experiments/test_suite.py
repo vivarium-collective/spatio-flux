@@ -600,10 +600,22 @@ def main():
         gc.collect()
 
     print(f"\nCompiling HTML report...")
+
+    # Descriptions live on the @composite_generator decorator for migrated
+    # entries; fall back to the in-SIMULATIONS 'description' for any
+    # legacy entry that still carries one.
+    def _description_for(name, sim_info):
+        gen_name = sim_info.get('generator')
+        if gen_name is not None:
+            for entry in COMPOSITE_REGISTRY.values():
+                if entry.name == gen_name:
+                    return entry.description
+        return sim_info.get('description', '')
+
     generate_html_report(
         output_dir,
         {k: v.get('config', v.get('overrides', {})) for k, v in SIMULATIONS.items()},
-        {k: v.get('description', '') for k, v in SIMULATIONS.items()},
+        {k: _description_for(k, v) for k, v in SIMULATIONS.items()},
         runtimes,
         total_sim_time,
         timing_details=timing_details,
