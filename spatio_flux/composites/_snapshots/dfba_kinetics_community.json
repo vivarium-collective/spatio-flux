@@ -1,0 +1,112 @@
+{
+  "dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "bounds": {
+        "ATPM": {
+          "lower": 1,
+          "upper": 1
+        },
+        "EX_o2_e": {
+          "lower": -2,
+          "upper": null
+        }
+      },
+      "kinetic_params": {
+        "acetate": [
+          0.5,
+          2
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "textbook",
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "dfba biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "dfba biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  },
+  "fields": {
+    "acetate": 0,
+    "dfba biomass": 0.01,
+    "glucose": 10,
+    "kinetic biomass": 0.01
+  },
+  "monod_kinetics": {
+    "_type": "process",
+    "address": "local:MonodKinetics",
+    "config": {
+      "reactions": {
+        "assimilate_acetate": {
+          "km": 0.6,
+          "product": "mass",
+          "reactant": "acetate",
+          "vmax": 0.3,
+          "yield": 0.2
+        }
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "kinetic biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "kinetic biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      }
+    }
+  }
+}

@@ -133,24 +133,6 @@ def plot_community_dfba(results, state, config=None):
 
 
 # --- DFBA-Monod Community ------------------------------------------------
-def get_dfba_kinetics_community_doc(core=None, config=None):
-    dfba_model_id = 'ecoli core'
-    kinetic_model_id = 'acetate_only'  #'overflow_metabolism'
-    dfba_biomass_id = 'dfba biomass'
-    kinetic_biomass_id = 'kinetic biomass'
-
-    kinetic_model_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
-    doc = {
-        'dFBA': get_dfba_process_from_registry(model_id=dfba_model_id, biomass_id=dfba_biomass_id, path=['fields']),
-        'monod_kinetics': get_monod_kinetics_process_from_config(model_config=kinetic_model_config, biomass_id=kinetic_biomass_id),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            dfba_biomass_id: 0.01,
-            kinetic_biomass_id: 0.01,
-        }
-    }
-    return doc
 
 def plot_dfba_kinetics_community(results, state, config=None):
     config = config or {}
@@ -906,12 +888,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'community_dfba'},
     },
     'dfba_kinetics_community': {
-        'description': 'Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents in a shared environment. Demonstrates heterogeneous process composition under one schema.',
-        'doc_func': get_dfba_kinetics_community_doc,
-        'plot_func': plot_dfba_kinetics_community,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {},
-        'plot_config': {'filename': 'dfba_kinetics_community'}
+        'generator':   'dfba_kinetics_community',
+        'plot_func':   plot_dfba_kinetics_community,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'dfba_kinetics_community'},
     },
     'spatial_many_dfba': {
         'description': 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.',
