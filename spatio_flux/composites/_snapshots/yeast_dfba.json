@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "ammonium": 10.0,
+    "biomass": 0.1,
+    "glucose": 5
+  },
+  "yeast dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "ammonium": [
+          0.5,
+          1
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "iMM904.xml",
+      "substrate_update_reactions": {
+        "ammonium": "EX_nh4_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "substrates": {
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "substrates": {
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  }
+}

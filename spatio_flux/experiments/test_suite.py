@@ -99,30 +99,6 @@ def plot_kinetics_single(results, state, config=None, filename='kinetics_single_
 
 # --- DFBA Single ---------------------------------------------------
 
-def get_dfba_single_doc(
-        core=None,
-        config=None,
-):
-    model_id = config.get('model_id', 'ecoli core')
-    biomass_id = 'biomass'
-    dfba_process = get_dfba_process_from_registry(
-        model_id=model_id,
-        biomass_id=biomass_id,
-        path=['fields']
-    )
-    substrates = list(dfba_process['inputs']['substrates'].keys())
-    initial_fields = config.get('initial_fields', {'glucose': 2, 'acetate': 0})
-    if biomass_id not in initial_fields:
-        initial_fields[biomass_id] = 0.1
-    for substrate in substrates:
-        if substrate not in initial_fields:
-            initial_fields[substrate] = 10.0
-    doc = {
-        f'{model_id} dFBA': dfba_process,
-        'fields': initial_fields
-    }
-    return doc
-
 def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseries.png'):
     config = config or {}
     field_names = list(state['fields'].keys())
@@ -953,12 +929,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'ecoli_dfba'},
     },
     'yeast_dfba': {
-        'description': 'Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular glucose and biomass. Cross-model check of the dFBA pipeline.',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'yeast', 'initial_fields': {'glucose': 5}},
-        'plot_config': {'filename': 'yeast_dfba'}
+        'generator':   'yeast_dfba',
+        'plot_func':   plot_dfba_single,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {'model_id': 'yeast', 'glucose': 5.0},
+        'plot_config': {'filename': 'yeast_dfba'},
     },
 
     # ---- Multi-metabolism models ------------------------------------------
