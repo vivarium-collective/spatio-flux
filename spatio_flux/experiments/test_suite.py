@@ -338,111 +338,6 @@ def plot_newtonian_particle_comets(results, state, config=None):
                         )
 
 
-# --- spatio-flux reference composite simulation ---------------------------------------------------
-
-def get_reference_composite_doc(core=None, config=None):
-    user_cfg = config or {}
-    bounds = user_cfg.get("bounds", SQUARE_BOUNDS)
-    n_bins = user_cfg.get("n_bins", SQUARE_BINS)
-    depth = user_cfg.get("depth", 1 / 25)
-
-    # High-level knobs
-    division_mass_threshold = 0.4
-    add_rate = 0.0
-    initial_submasses = {
-        'ecoli_1': 0.1,
-        'ecoli_2': 0.1
-    }
-
-    # Spatial fields state
-    glucose_level = 5.0
-    biomass_id = "dissolved biomass"
-    mol_ids = ["glucose", "acetate", biomass_id]
-    initial_min_max = {"glucose": (glucose_level, glucose_level), "acetate": (0.0, 0.0), biomass_id: (0.1, 0.2)}
-
-    # diffusion process config
-    diffusion_coeffs = {'glucose': 1e-1, 'acetate': 1e-1, biomass_id: 1e-1}
-    advection_coeffs = {
-        # biomass_id: (0.0, 0.2), # dissolved biomass floats to the top
-        # 'acetate': (0.0, -0.5)  # acetates sinks
-    }
-    diffusion_boundary_config = {
-        "default": {"x": {"type": "periodic"}, "y": {"type": "neumann"}},
-        "glucose": {"top": {"type": "dirichlet", "value": glucose_level}},
-        "acetate": {"bottom": {"type": "dirichlet", "value": glucose_level}}}
-
-    # Particles + physics config
-    n_particles = user_cfg.get("n_particles", 1)
-    physics_cfg = {"gravity": -1.0,
-                   "elasticity": 0.1,
-                   "bounds": bounds,
-                   "jitter_per_second": 1e-2,
-                   "damping_per_second": 0.95,   # viscous
-                   "friction": 0.9}
-    boundary_cfg = {"add_rate": add_rate}
-
-    # dFBA Models for community simulation within particles
-    models = {
-        "ecoli_1": {
-            'model_file': 'textbook',
-            'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
-            'kinetic_params': {'glucose': (0.1, 2), 'acetate': (1.0, 0.1)},
-            'bounds': {
-                'EX_o2_e': {'lower': -2, 'upper': None},
-                'ATPM': {'lower': 3, 'upper': 3}
-            },
-        },
-        "ecoli_2": {
-            'model_file': 'textbook',
-            'substrate_update_reactions': {'glucose': 'EX_glc__D_e', 'acetate': 'EX_ac_e',},
-            'kinetic_params': {'glucose': (1.0, 0.1), 'acetate': (0.01, 1)},
-            'bounds': {
-                'EX_o2_e': {'lower': -2, 'upper': None},
-                'ATPM': {'lower': 1, 'upper': 1}
-            }
-        }
-    }
-
-    # State
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-    particles = get_newtonian_particles_state(n_particles=n_particles, bounds=bounds)
-
-    # put mass metabolism inside the particles
-    for pid, internal in particles.items():
-        internal['sub_masses'] = initial_submasses.copy()
-
-    # Processes
-    diffusion = get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, diffusion_coeffs=diffusion_coeffs, advection_coeffs=advection_coeffs, boundary_conditions=diffusion_boundary_config)
-    spatial_kinetics = get_spatial_many_kinetics(model_id="low_yield_glucose_overflow", biomass_id=biomass_id, n_bins=n_bins, mol_ids=mol_ids, path=["fields"])
-    newtonian_particles = get_newtonian_particles_process(config=physics_cfg)
-
-    # Graph-Rewrite steps
-    particle_division = get_particle_divide_process(division_mass_threshold=division_mass_threshold, submass_split_mode='random')
-    enforce_boundaries = get_boundaries_process(particle_process_name="newtonian_particles", bounds=bounds, add_rate=boundary_cfg["add_rate"])
-
-    # Adapters
-    particle_exchange = get_particle_exchange_process(n_bins=n_bins, bounds=bounds, depth=depth)
-
-    # composite schema
-    schema = get_community_dfba_particle_composition(models=models)
-
-    doc = {
-        "state": {
-            **spatial_kinetics,  # put them at the top level
-            "fields": fields,
-            "diffusion": diffusion,
-            "particles": particles,
-            "particle_exchange": particle_exchange,
-            "particle_division": particle_division,
-            "enforce_boundaries": enforce_boundaries,
-            "newtonian_particles": newtonian_particles,
-        },
-        "schema": schema,
-    }
-    return doc
-
-
-
 # ==================================================
 # Functions for running tests and generating reports
 # ==================================================
@@ -591,14 +486,12 @@ SIMULATIONS = {
     },
 
     'reference_demo_x2y2': {
-        'description': 'Different resolution for the spatio-flux reference demo',
-        'doc_func': get_reference_composite_doc,
-        'plot_func': plot_newtonian_particle_comets,
-        'time': 120,
-        'config': {
-            'n_bins': [n * 2 for n in SQUARE_BINS]
-        },
-        'plot_config': {'filename': 'reference_demo_x2y2', "particles_row": "separate", "n_snapshots": 8},
+        'generator':   'reference_demo_x2y2',
+        'plot_func':   plot_newtonian_particle_comets,
+        'time':        120,
+        'overrides':   {'n_bins': [n * 2 for n in SQUARE_BINS]},
+        'plot_config': {'filename': 'reference_demo_x2y2',
+                        'particles_row': 'separate', 'n_snapshots': 8},
     },
 }
 
