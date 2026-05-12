@@ -33,6 +33,8 @@ SNAPSHOT_DIR = REPO_ROOT / "spatio_flux" / "composites" / "_snapshots"
 
 def _capture_from_old(name: str) -> dict:
     """Call the legacy doc_func in SIMULATIONS with its declared config."""
+    import numpy as np
+    np.random.seed(0)
     from spatio_flux.experiments.test_suite import SIMULATIONS  # local import
     sim = SIMULATIONS[name]
     core = allocate_core()
@@ -42,6 +44,8 @@ def _capture_from_old(name: str) -> dict:
 
 def _capture_from_new(name: str) -> dict:
     """Call the registered composite_generator with default parameters."""
+    import numpy as np
+    np.random.seed(0)
     from spatio_flux.composites import REGISTRY
     from pbg_superpowers.composite_generator import build_generator
     # Find the entry whose name matches.

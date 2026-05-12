@@ -53,6 +53,7 @@ from spatio_flux.composites._constants import (  # noqa: F401
     DEFAULT_ADD_RATE, DEFAULT_ADD_BOUNDARY, DEFAULT_REMOVE_BOUNDARY,
     DEFAULT_INITIAL_MIN_MAX,
     get_newtonian_particles_process,
+    build_model_grid,
 )
 from spatio_flux.composites import REGISTRY as COMPOSITE_REGISTRY
 from pbg_superpowers.composite_generator import build_generator
@@ -170,37 +171,6 @@ def plot_spatial_many_dfba(results, state, config=None):
     plot_species_distributions_to_gif(results, out_dir='out', filename=f'{filename}_video.gif')
 
 # --- DFBA Spatial Process ---------------------------------------------
-
-def build_model_grid(n_bins, model_positions=None):
-    """
-    Build a model_grid array
-    """
-    nx, ny = n_bins  # x bins, y bins
-    out_of_bounds = []
-
-    # Validate positions (x, y)
-    if model_positions:
-        for model_id, positions in model_positions.items():
-            for (x, y) in positions:
-                if not (0 <= x < nx and 0 <= y < ny):
-                    out_of_bounds.append((model_id, (x, y)))
-
-    if out_of_bounds:
-        raise ValueError(
-            f"The following positions are out of bounds for grid n_bins={n_bins}: {out_of_bounds}"
-        )
-
-    # Build empty grid: rows = y, cols = x
-    model_grid = [['' for _ in range(nx)] for _ in range(ny)]
-
-    # Fill grid using model_positions (x, y → [y][x])
-    if model_positions:
-        for model_id, positions in model_positions.items():
-            for (x, y) in positions:
-                model_grid[y][x] = model_id
-
-    return model_grid
-
 
 def get_spatial_dfba_process_doc(core=None, config=None):
     # make the fields

@@ -40,3 +40,34 @@ def get_newtonian_particles_process(config=None):
         'inputs':  {'particles': ['particles']},
         'outputs': {'particles': ['particles']},
     }
+
+
+def build_model_grid(n_bins, model_positions=None):
+    """
+    Build a model_grid array
+    """
+    nx, ny = n_bins  # x bins, y bins
+    out_of_bounds = []
+
+    # Validate positions (x, y)
+    if model_positions:
+        for model_id, positions in model_positions.items():
+            for (x, y) in positions:
+                if not (0 <= x < nx and 0 <= y < ny):
+                    out_of_bounds.append((model_id, (x, y)))
+
+    if out_of_bounds:
+        raise ValueError(
+            f"The following positions are out of bounds for grid n_bins={n_bins}: {out_of_bounds}"
+        )
+
+    # Build empty grid: rows = y, cols = x
+    model_grid = [['' for _ in range(nx)] for _ in range(ny)]
+
+    # Fill grid using model_positions (x, y → [y][x])
+    if model_positions:
+        for model_id, positions in model_positions.items():
+            for (x, y) in positions:
+                model_grid[y][x] = model_id
+
+    return model_grid

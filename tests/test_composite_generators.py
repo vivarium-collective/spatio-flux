@@ -23,6 +23,12 @@ SNAPSHOT_DIR = (
 )
 
 
+@pytest.fixture(autouse=True)
+def _seed_numpy():
+    """Snapshots were captured with seed 0; pin the global RNG for tests."""
+    np.random.seed(0)
+
+
 def test_normalize_doc_passes_scalars_through():
     doc = {"a": 1, "b": "x", "c": True, "d": None, "e": 1.5}
     assert normalize_doc(doc) == doc
