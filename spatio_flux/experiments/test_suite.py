@@ -592,8 +592,8 @@ def main():
         plot_config = sim_info.get('plot_config', {})
         sim_info['plot_func'](results, doc.get('state', doc), config=plot_config)
 
-        print(f"✅ Completed: {name} in {sim_elapsed:.2f}s "
-              f"(process: {proc_time:.2f}s, framework: {fw_time:.2f}s)")
+        print(f"✅ Completed: {name} in {sim_elapsed:.3f}s "
+              f"(process: {proc_time:.3f}s, framework: {fw_time:.3f}s)")
 
         plt.close('all')
         del results, doc
