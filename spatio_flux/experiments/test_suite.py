@@ -410,40 +410,6 @@ def plot_particle_dfba_comets(results, state, config=None):
     plot_species_distributions_with_particles_to_gif(results, bounds=bounds, out_dir='out', filename=f'{filename}_video.gif')
 
 
-# ---- PYMUNK PARTICLES ------------------------------------------------
-
-def get_newtonian_particles_doc(core=None, config=None):
-    n_particles = config.get('n_particles', 1)
-    bounds = SQUARE_BOUNDS #(100.0, 300.0)
-    add_rate = 0.02
-
-    # run simulation
-    config = {
-        'gravity': -0.2,  # -9.81,
-        'elasticity': 0.1,
-        'bounds': bounds,
-        'jitter_per_second': 0.5,
-        'damping_per_second': .998,
-    }
-
-    processes = {
-        'newtonian_particles': get_newtonian_particles_process(config=config),
-        'enforce_boundaries': get_boundaries_process(particle_process_name='newtonian_particles', bounds=bounds, add_rate=add_rate),
-    }
-
-    initial_state = {'particles': get_newtonian_particles_state(
-        n_particles=n_particles,
-        bounds=config['bounds'],
-    )}
-
-    # complete document
-    return {
-        'state': {
-            **initial_state,
-            **processes,
-        },
-    }
-
 def plot_newtonian_particles(results, state, config=None):
     filename = config.get('filename', 'newtonian_particles')
     pymunk_config = state['newtonian_particles']['config']
@@ -795,12 +761,11 @@ SIMULATIONS = {
 
     # ---- Pymunk Newtonian Particle composite models ------------------------
     'newtonian_particles': {
-        'description': 'Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding in continuous space. Use to validate contact dynamics + boundary enforcement.',
-        'doc_func': get_newtonian_particles_doc,
-        'plot_func': plot_newtonian_particles,
-        'time': DEFAULT_RUNTIME_LONGER,
-        'config': {},
-        'plot_config': {'filename': 'newtonian_particles'}
+        'generator':   'newtonian_particles',
+        'plot_func':   plot_newtonian_particles,
+        'time':        DEFAULT_RUNTIME_LONGER,
+        'overrides':   {},
+        'plot_config': {'filename': 'newtonian_particles'},
     },
     'comets_nt_particles_dfba': {
         'description': 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.',

@@ -1,0 +1,82 @@
+{
+  "state": {
+    "enforce_boundaries": {
+      "_type": "step",
+      "address": "local:ManageBoundaries",
+      "config": {
+        "add_rate": 0.02,
+        "boundary_to_add": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ],
+        "boundary_to_remove": [],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "buffer": 0.0001,
+        "clamp_survivors": true,
+        "mass_range": [
+          0.001,
+          1.0
+        ]
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ],
+        "process_interval": [
+          "newtonian_particles",
+          "interval"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "newtonian_particles": {
+      "_type": "process",
+      "address": "local:PymunkParticleMovement",
+      "config": {
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "damping_per_second": 0.998,
+        "elasticity": 0.1,
+        "gravity": -0.2,
+        "jitter_per_second": 0.5
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particles": {
+      "p_524768": {
+        "elasticity": 0.0,
+        "mass": 0.0825097768683,
+        "position": [
+          33.038088798,
+          28.8385778813
+        ],
+        "radius": 1.32322025589,
+        "shape": "circle",
+        "velocity": [
+          -0.0,
+          0.0
+        ]
+      }
+    }
+  }
+}
