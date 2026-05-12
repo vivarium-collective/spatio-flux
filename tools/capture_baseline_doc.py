@@ -60,6 +60,10 @@ def _capture_from_new(name: str) -> dict:
             f"multiple registered generators named '{name}': {matches!r}"
         )
     core = allocate_core()
+    # Re-seed after allocate_core so that the RNG state entering the
+    # generator is stable regardless of prior framework initialisation.
+    # This mirrors the identical pattern in tests/test_composite_generators.py.
+    np.random.seed(0)
     return build_generator(matches[0], core=core)
 
 

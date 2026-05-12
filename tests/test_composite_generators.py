@@ -25,7 +25,14 @@ SNAPSHOT_DIR = (
 
 @pytest.fixture(autouse=True)
 def _seed_numpy():
-    """Snapshots were captured with seed 0; pin the global RNG for tests."""
+    """Snapshots were captured with seed 0; pin the global RNG for tests.
+
+    The seed is set here so that non-snapshot tests that generate numpy
+    arrays also run deterministically.  For snapshot tests the seed is
+    additionally re-applied *after* allocate_core() (which consumes RNG)
+    so that the generator function sees a stable state regardless of how
+    many cores have been allocated earlier in the session.
+    """
     np.random.seed(0)
 
 
@@ -91,5 +98,9 @@ def test_generator_matches_snapshot(name):
     baseline = json.loads(snapshot_path.read_text())
     [entry] = [e for e in REGISTRY.values() if e.name == name]
     core = allocate_core()
+    # Re-seed AFTER allocate_core so the generator function always sees
+    # the same RNG state, regardless of how many cores were allocated in
+    # earlier parametrized variants within the same pytest session.
+    np.random.seed(0)
     doc = build_generator(entry, core=core)
     assert normalize_doc(doc) == baseline
