@@ -1,6 +1,6 @@
 {
   "particles": {
-    "jWHMhXqk": {
+    "Flj8rRN2": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "jWHMhXqk",
+      "id": "Flj8rRN2",
       "position": [
-        23.38574668309832,
-        20.891187349275143
+        3.788564426203078,
+        30.91957386470533
       ],
-      "mass": 0.0292475880359513,
+      "mass": 0.02726187144323664,
       "local": {},
       "exchange": {},
       "sub_masses": {},

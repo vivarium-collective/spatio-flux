@@ -1,6 +1,6 @@
 {
   "particles": {
-    "YoHiCdzK": {
+    "9EgLndaM": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "YoHiCdzK",
+      "id": "9EgLndaM",
       "position": [
-        28.12239891477179,
-        13.601313786717057
+        9.627518821305097,
+        0.46777094373719463
       ],
-      "mass": 0.9467015454293204,
+      "mass": 0.787718224921767,
       "local": {},
       "exchange": {},
       "sub_masses": {},
