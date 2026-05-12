@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Flj8rRN2": {
+    "yD-RuJEe": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -29,7 +29,8 @@
               "upper": 1.0
             }
           },
-          "solver": null
+          "solver": null,
+          "box_volume_L": 1.0
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
         "_outputs": "substrates:map[count]|biomass:mass",
@@ -51,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "Flj8rRN2",
+      "id": "yD-RuJEe",
       "position": [
-        3.788564426203078,
-        30.91957386470533
+        16.663176465769364,
+        11.662591190008436
       ],
-      "mass": 0.02726187144323664,
+      "mass": 0.4850099108740398,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -103,7 +104,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -184,7 +186,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -265,7 +268,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -346,7 +350,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -427,7 +432,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -508,7 +514,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -589,7 +596,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -670,7 +678,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -751,7 +760,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -832,7 +842,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -913,7 +924,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -994,7 +1006,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1075,7 +1088,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1156,7 +1170,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1237,7 +1252,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1318,7 +1334,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1399,7 +1416,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1480,7 +1498,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1561,7 +1580,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1642,7 +1662,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1723,7 +1744,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1804,7 +1826,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1885,7 +1908,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -1966,7 +1990,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2047,7 +2072,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2128,7 +2154,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2209,7 +2236,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2290,7 +2318,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2371,7 +2400,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2452,7 +2482,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2533,7 +2564,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2614,7 +2646,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2695,7 +2728,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2776,7 +2810,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2857,7 +2892,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -2938,7 +2974,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3019,7 +3056,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3100,7 +3138,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3181,7 +3220,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3262,7 +3302,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3343,7 +3384,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3424,7 +3466,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3505,7 +3548,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3586,7 +3630,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3667,7 +3712,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3748,7 +3794,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3829,7 +3876,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3910,7 +3958,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -3991,7 +4040,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4072,7 +4122,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4153,7 +4204,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4234,7 +4286,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4315,7 +4368,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4396,7 +4450,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4477,7 +4532,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4558,7 +4614,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4639,7 +4696,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4720,7 +4778,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4801,7 +4860,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4882,7 +4942,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -4963,7 +5024,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5044,7 +5106,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5125,7 +5188,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5206,7 +5270,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5287,7 +5352,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5368,7 +5434,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5449,7 +5516,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5530,7 +5598,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5611,7 +5680,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5692,7 +5762,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5773,7 +5844,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5854,7 +5926,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -5935,7 +6008,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6016,7 +6090,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6097,7 +6172,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6178,7 +6254,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6259,7 +6336,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6340,7 +6418,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6421,7 +6500,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6502,7 +6582,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6583,7 +6664,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6664,7 +6746,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6745,7 +6828,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6826,7 +6910,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6907,7 +6992,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -6988,7 +7074,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7069,7 +7156,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7150,7 +7238,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7231,7 +7320,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7312,7 +7402,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7393,7 +7484,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7474,7 +7566,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7555,7 +7648,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7636,7 +7730,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7717,7 +7812,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7798,7 +7894,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7879,7 +7976,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -7960,7 +8058,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -8041,7 +8140,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -8122,7 +8222,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -8733,20 +8834,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     }
   }

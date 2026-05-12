@@ -1,6 +1,6 @@
 {
   "particles": {
-    "9EgLndaM": {
+    "DXhTjO0M": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -29,7 +29,8 @@
               "upper": 1.0
             }
           },
-          "solver": null
+          "solver": null,
+          "box_volume_L": 1.0
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
         "_outputs": "substrates:map[count]|biomass:mass",
@@ -51,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "9EgLndaM",
+      "id": "DXhTjO0M",
       "position": [
-        9.627518821305097,
-        0.46777094373719463
+        13.2226117895422,
+        35.814371136146185
       ],
-      "mass": 0.787718224921767,
+      "mass": 0.047618814852180766,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -458,20 +459,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     }
   }

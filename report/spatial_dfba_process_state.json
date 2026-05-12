@@ -537,7 +537,8 @@
           "llactis",
           "llactis"
         ]
-      ]
+      ],
+      "box_volume_L": 1.0
     },
     "_inputs": "fields:map[positive_array]|biomass:array[6|5,float]",
     "_outputs": "fields:map[array[6|5,float]]|biomass:array[6|5,float]",

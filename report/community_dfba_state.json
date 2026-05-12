@@ -31,7 +31,8 @@
           "upper": 1.0
         }
       },
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -91,7 +92,8 @@
         "formate": "EX_for_e"
       },
       "bounds": {},
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -151,7 +153,8 @@
         "acetate": "EX_ac_e"
       },
       "bounds": {},
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -216,7 +219,8 @@
         "glycolate": "EX_glyclt_e"
       },
       "bounds": {},
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -284,7 +288,8 @@
         "ammonium": "EX_nh4_e"
       },
       "bounds": {},
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",
@@ -349,7 +354,8 @@
         "serine": "EX_ser__L_e"
       },
       "bounds": {},
-      "solver": null
+      "solver": null,
+      "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[count]|biomass:mass",

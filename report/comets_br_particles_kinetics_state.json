@@ -1,6 +1,6 @@
 {
   "particles": {
-    "L52eJEo2": {
+    "uv9H5Soj": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "L52eJEo2",
+      "id": "uv9H5Soj",
       "position": [
-        29.475528595108347,
-        41.606796911651735
+        33.25800144419376,
+        13.30568939675839
       ],
-      "mass": 6.015684540185806,
+      "mass": 9.586138767278063,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -701,7 +701,8 @@
           "ecoli core",
           "ecoli core"
         ]
-      ]
+      ],
+      "box_volume_L": 1.0
     },
     "_inputs": "fields:map[positive_array]|biomass:array[10|10,float]",
     "_outputs": "fields:map[array[10|10,float]]|biomass:array[10|10,float]",
@@ -927,20 +928,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     }
   }

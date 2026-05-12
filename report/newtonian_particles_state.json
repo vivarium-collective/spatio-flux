@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_d8a921": {
+    "p_a8cb97": {
       "id": "",
       "position": [
-        37.95584734102565,
-        25.00248793527927
+        36.70772385174043,
+        36.63191153724275
       ],
-      "mass": 0.12061916622977639,
+      "mass": 0.01297374633660576,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
-        -0.0,
+        0.0,
         0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 1.5998806845966953
+      "radius": 0.5247012940573809
     }
   },
   "newtonian_particles": {
