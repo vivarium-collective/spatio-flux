@@ -83,23 +83,6 @@ STANDARD_FIELD_COLORS = {
 
 # --- Kinetics Single ---------------------------------------------------
 
-def get_kinetics_single_doc(
-        core=None,
-        config=None,
-):
-    model_id = config.get('model_id', 'overflow_metabolism')
-    model_config = MODEL_REGISTRY_KINETICS[model_id]()
-    interval = 0.1
-    doc = {
-        'monod_kinetics': get_monod_kinetics_process_from_config(model_config=model_config, interval=interval),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            'biomass': 0.1
-        }
-    }
-    return doc
-
 def plot_kinetics_single(results, state, config=None, filename='kinetics_single_timeseries'):
     config = config or {}
     field_names = list(state['fields'].keys())
@@ -948,12 +931,11 @@ def get_reference_composite_doc(core=None, config=None):
 SIMULATIONS = {
     # ---- Metabolism-only models -------------------------------------------
     'monod_kinetics': {
-        'description': 'Field-only baseline: Monod uptake/growth on a well-mixed substrate pool (no spatial lattice, no particles). Use to sanity-check kinetics + mass balance.',
-        'doc_func': get_kinetics_single_doc,
-        'plot_func': plot_kinetics_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'overflow_metabolism'},
-        'plot_config': {'filename': 'monod_kinetics'}
+        'generator':   'monod_kinetics',
+        'plot_func':   plot_kinetics_single,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {'model_id': 'overflow_metabolism'},
+        'plot_config': {'filename': 'monod_kinetics'},
     },
     'ecoli_core_dfba': {
         'generator':   'ecoli_core_dfba',
