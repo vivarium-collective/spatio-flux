@@ -30,7 +30,6 @@ from spatio_flux.plots.plot import ( plot_time_series, plot_particles_mass, plot
 )
 # from spatio_flux.plots.plot_core import assemble_type_figures, assemble_process_figures
 from spatio_flux.processes.pymunk_particles import pymunk_simulation_to_gif
-from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_monod_kinetics_process_from_config
 from spatio_flux.processes import (
     get_spatial_many_dfba, get_spatial_dFBA_process, get_fields, get_fields_with_schema, get_field_names,
     get_diffusion_advection_process, get_brownian_movement_process, get_particle_exchange_process,
@@ -181,40 +180,6 @@ def plot_diffusion_process(results, state, config=None):
 
 # --- COMETS -----------------------------------------------------------
 
-def get_comets_doc(core=None, config=None):
-    dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    n_bins = SQUARE_BINS  #[b*2 for b in SQUARE_BINS]    # (nx, ny)
-    bounds = SQUARE_BOUNDS  # (xmax, ymax)
-    diffusion_coeffs = {'glucose': 0.0, 'acetate': 1e-1, 'dissolved biomass': 1e-2}
-    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
-    nx, ny = n_bins
-    shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
-
-    # Fields
-    acetate_field = np.zeros(shape, dtype=float)
-    # vertical gradient in y (rows): low at top row, high at bottom row
-    glc_y = np.linspace(0.01, 10.0, ny, dtype=float)[:, None]  # (ny, 1)
-    glc_field = np.repeat(glc_y, nx, axis=1)  # (ny, nx)
-    # biomass strip: top row(s), middle half of x
-    biomass_field = np.zeros(shape, dtype=float)
-    x0 = nx // 2
-    biomass_field[0:1, x0-1:x0+1] = 0.1
-
-    initial_fields = {
-        'dissolved biomass': biomass_field,
-        'glucose': glc_field,
-        'acetate': acetate_field,
-    }
-
-    spatial_dfba = get_spatial_many_dfba(model_id=dissolved_model_id, mol_ids=mol_ids, n_bins=n_bins, path=['fields'])
-    doc = {
-        **spatial_dfba,
-        'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        'diffusion': get_diffusion_advection_process(
-            bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs, diffusion_coeffs=diffusion_coeffs)
-    }
-    return doc
 
 def plot_comets(results, state, config=None):
     config = config or {}
@@ -277,45 +242,6 @@ def plot_particle_dfba(results, state, config=None):
 
 # --- Particle-COMETS ----------------------------------------------------
 
-def get_comets_br_particles_kinetics_doc(core=None, config=None):
-    division_mass_threshold=config.get('division_mass_threshold', DIVISION_MASS_THRESHOLD) # divide at mass 5.0
-
-    dissolved_model_id = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    particle_config = MODEL_REGISTRY_KINETICS['overflow_metabolism']()
-    n_bins = SQUARE_BINS
-    bounds = SQUARE_BOUNDS
-    particle_diffusion = DEFAULT_DIFFUSION
-    particle_advection = DEFAULT_ADVECTION
-    n_particles = 1
-    add_rate = 0.1
-
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=DEFAULT_INITIAL_MIN_MAX)
-    n_grid = (n_bins[1], n_bins[0])  # shape (ny, nx)
-    fields['dissolved biomass'] = np.zeros(n_grid)  # Initialize biomass field to zero
-    fields['dissolved biomass'][0, int(n_grid[0]/4):int(3*n_grid[0]/4)] = 0.1  # Add some biomass in the first row
-
-    # make the spatial dfba with different models and parameters
-    spatial_dFBA_config = {
-        'n_bins': n_bins,
-        'models': MODEL_REGISTRY_DFBA,
-        'mol_ids': mol_ids,
-    }
-
-    return {
-        'state': {
-            'fields': fields,
-            'particles': get_particles_state(n_particles=n_particles, bounds=bounds, mass_range=(1E0, 1E1)),
-            'spatial_dFBA': get_spatial_dFBA_process(config=spatial_dFBA_config, model_id=dissolved_model_id),
-            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids),
-            'brownian_movement': get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-        },
-        'schema': get_kinetic_particle_composition(core, config=particle_config)
-    }
-
 def plot_kinetic_particle_comets(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particle_comets')
@@ -331,70 +257,6 @@ def plot_kinetic_particle_comets(results, state, config=None):
 
 
 # --- dFBA-Particles-COMETS ---------------------------------------------------
-
-def get_comets_br_particles_dfba_doc(core=None, config=None):
-    """ Build a composite document for spatial dFBA fields + particle dynamics."""
-    # Config / IDs
-    config = config or {}
-    particle_model_id = config.get("particle_model_id", "ecoli core")
-    dissolved_model_id = config.get("dissolved_model_id", "ecoli core")
-
-    # Particle division
-    division_mass_threshold = config.get("division_mass_threshold", 3)
-
-    # Spatial grid / bounds
-    mol_ids = ["glucose", "acetate", "dissolved biomass"]
-
-    bounds = SQUARE_BOUNDS
-    n_bins = SQUARE_BINS
-    nx, ny = n_bins
-    shape = (ny, nx)  # numpy arrays are (rows=y, cols=x)
-
-    # Initial fields
-    acetate_field = np.zeros(shape, dtype=float)
-    glc_y = np.linspace(0.01, 10.0, ny, dtype=float)[:, None]   # (ny, 1)
-    glc_field = np.repeat(glc_y, nx, axis=1)                    # (ny, nx)
-    biomass_field = np.zeros(shape, dtype=float)
-    x0, x1 = nx // 4, 3 * nx // 4
-    biomass_field[0:1, x0:x1] = 0.1
-    initial_fields = {
-        "dissolved biomass": biomass_field,
-        "glucose": glc_field,
-        "acetate": acetate_field,
-    }
-
-    # Process parameters
-    advection_coeffs = {"dissolved biomass": DEFAULT_ADVECTION}
-
-    n_particles = config.get("n_particles", 1)
-    add_rate = config.get("add_rate", 0.3)
-    particle_advection = config.get("particle_advection", (0, -0.2))
-    particle_diffusion = config.get("particle_diffusion", DEFAULT_DIFFUSION)
-
-    # Subsystems / state blocks
-    spatial_dfba = get_spatial_many_dfba(n_bins=n_bins, model_id=dissolved_model_id, mol_ids=mol_ids, path=["fields"])
-
-    state = {
-        # Put the dfba processes at the top level
-        **spatial_dfba,
-        # Field substrate state + transport
-        "fields": get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_fields=initial_fields),
-        "diffusion": get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-        # Particles + movement + boundary enforcement + exchange + division
-        "particles": get_particles_state(n_particles=n_particles, bounds=bounds),
-        "brownian_movement": get_brownian_movement_process(bounds=bounds, advection_rate=particle_advection, diffusion_rate=particle_diffusion),
-        "enforce_boundaries": get_boundaries_process(particle_process_name="brownian_movement", bounds=bounds, add_rate=add_rate),
-        "particle_exchange": get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-        "particle_division": get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-    }
-
-    # Document
-    doc = {
-        "state": state,
-        "schema": get_dfba_particle_composition(model_file=particle_model_id),
-    }
-    return doc
-
 
 def plot_particle_dfba_comets(results, state, config=None):
     config = config or {}
@@ -421,60 +283,6 @@ def plot_newtonian_particles(results, state, config=None):
                          radius_scaling=0.1, min_brightness=0.1,)
 
 # --- PYMUNK COMETS ------------------------------------------------
-
-def get_newtonian_particle_comets_doc(core=None, config=None):
-    config = config or {}
-
-    division_mass_threshold = 0.5
-    add_rate = 0.01  # 0.02
-
-    particle_model_id = config.get('particle_model_id', 'ecoli core')
-    dissolved_model_id = config.get('dissolved_model_id', 'ecoli core')
-    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    initial_min_max = {'glucose': (0.5, 2), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    bounds = config.get('bounds', SQUARE_BOUNDS)
-    n_bins = config.get('n_bins', tuple(n * 2 for n in SQUARE_BINS))
-    advection_coeffs = {'dissolved biomass': DEFAULT_ADVECTION}
-    fields = get_fields(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max)
-
-    # pymunk
-    n_particles = config.get('n_particles', 2)
-
-    # run simulation
-    particle_config = {
-        'gravity': -1.0,  #-0.2, -9.81,
-        'elasticity': 0.1,
-        'bounds': bounds,
-        'jitter_per_second': 1e-1,   # 0.01,
-        'damping_per_second': 1e-1,  #5,  #.995,
-    }
-    boundary_config = {
-        'add_rate': add_rate,
-        'boundary_to_remove': [],  # ['right', 'left'],
-        'new_particle_radius_range': (0.05, 0.2),
-        'new_particle_mass_range': (0.001, 0.01),
-    }
-
-    doc = {
-        'state': {
-            'fields': fields,
-            'diffusion': get_diffusion_advection_process(bounds=bounds, n_bins=n_bins, mol_ids=mol_ids, advection_coeffs=advection_coeffs),
-            # 'spatial_dFBA': get_spatial_many_dfba(n_bins=n_bins, model_file=dissolved_model_id),
-            'spatial_kinetics': get_spatial_many_kinetics(model_id='single_substrate_assimilation', n_bins=n_bins, mol_ids=mol_ids),
-            'particles': get_newtonian_particles_state(n_particles=n_particles, bounds=bounds),
-            'newtonian_particles': get_newtonian_particles_process(config=particle_config),
-            'particle_exchange': get_particle_exchange_process(n_bins=n_bins, bounds=bounds),
-            'particle_division': get_particle_divide_process(division_mass_threshold=division_mass_threshold),
-            'enforce_boundaries': get_boundaries_process(
-                particle_process_name='newtonian_particles', bounds=bounds,
-                boundary_to_add=('top',),
-                add_rate=boundary_config['add_rate'],
-                mass_range=(1e-3, 1e-2)
-            ),
-        },
-        'schema': get_dfba_particle_composition(model_file=particle_model_id)
-    }
-    return doc
 
 
 def plot_newtonian_particle_comets(results, state, config=None):
@@ -735,28 +543,25 @@ SIMULATIONS = {
 
     # ---- COMETS-like composite models --------------------------------------
     'comets_diffusion': {
-        'description': 'COMETS-style spatial dFBA: per-site dFBA coupled to diffusion/advection, yielding spatiotemporal nutrient gradients and growth fronts on the lattice.',
-        'doc_func': get_comets_doc,
-        'plot_func': plot_comets,
-        'time': DEFAULT_RUNTIME_LONGER,
-        'config': {},
-        'plot_config': {'filename': 'comets_diffusion', 'n_snapshots': 5}
+        'generator':   'comets_diffusion',
+        'plot_func':   plot_comets,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'comets_diffusion'},
     },
     'comets_br_particles_kinetics': {
-        'description': 'COMETS + motile kinetic agents: adds Brownian particles with internal kinetics that exchange with COMETS fields. Demonstrates moving agents on a diffusing chemical landscape.',
-        'doc_func': get_comets_br_particles_kinetics_doc,
-        'plot_func': plot_kinetic_particle_comets,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {},
-        'plot_config': {'filename': 'comets_br_particles_kinetics', 'n_snapshots': 5}
+        'generator':   'comets_br_particles_kinetics',
+        'plot_func':   plot_kinetic_particle_comets,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'comets_br_particles_kinetics', 'n_snapshots': 5},
     },
     'comets_br_particles_dfba': {
-        'description': 'COMETS + motile metabolic agents: Brownian particles carry dFBA and exchange with diffusing fields. Look for gradient-following effects and spatially structured growth.',
-        'doc_func': get_comets_br_particles_dfba_doc,
-        'plot_func': plot_particle_dfba_comets,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {},
-        'plot_config': {'filename': 'comets_br_particles_dfba', 'n_snapshots': 4}
+        'generator':   'comets_br_particles_dfba',
+        'plot_func':   plot_particle_dfba_comets,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'comets_br_particles_dfba', 'n_snapshots': 4},
     },
 
     # ---- Pymunk Newtonian Particle composite models ------------------------
@@ -768,12 +573,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'newtonian_particles'},
     },
     'comets_nt_particles_dfba': {
-        'description': 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.',
-        'doc_func': get_newtonian_particle_comets_doc,
-        'plot_func': plot_newtonian_particle_comets,
-        'time': DEFAULT_RUNTIME_LONG, #ER,
-        'config': {},
-        'plot_config': {'filename': 'comets_nt_particles_dfba'}
+        'generator':   'comets_nt_particles_dfba',
+        'plot_func':   plot_newtonian_particle_comets,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'comets_nt_particles_dfba'},
     },
 
     # ---- Integrated-Composite Demo  ---------------------------------------------
