@@ -1,0 +1,679 @@
+{
+  "fields": {
+    "acetate": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "ammonium": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    "dissolved biomass": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    "formate": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    "glucose": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ],
+        [
+          0.0,
+          5.0,
+          10.0,
+          15.0,
+          20.0
+        ]
+      ]
+    },
+    "glutamate": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    "glycolate": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    "serine": {
+      "__numpy__": true,
+      "dtype": "float64",
+      "shape": [
+        6,
+        5
+      ],
+      "values": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    }
+  },
+  "spatial_dFBA": {
+    "_type": "process",
+    "address": "local:SpatialDFBA",
+    "config": {
+      "model_grid": [
+        [
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core",
+          "ecoli core"
+        ],
+        [
+          "ecoli",
+          "ecoli",
+          "ecoli",
+          "ecoli",
+          "ecoli"
+        ],
+        [
+          "cdiff",
+          "cdiff",
+          "cdiff",
+          "cdiff",
+          "cdiff"
+        ],
+        [
+          "pputida",
+          "pputida",
+          "pputida",
+          "pputida",
+          "pputida"
+        ],
+        [
+          "yeast",
+          "yeast",
+          "yeast",
+          "yeast",
+          "yeast"
+        ],
+        [
+          "llactis",
+          "llactis",
+          "llactis",
+          "llactis",
+          "llactis"
+        ]
+      ],
+      "models": {
+        "cdiff": {
+          "kinetic_params": {
+            "acetate": [
+              0.5,
+              2
+            ],
+            "glucose": [
+              0.5,
+              1
+            ]
+          },
+          "model_file": "iCN900.xml",
+          "substrate_update_reactions": {
+            "acetate": "EX_ac_e",
+            "glucose": "EX_glc__D_e"
+          }
+        },
+        "ecoli": {
+          "kinetic_params": {
+            "formate": [
+              0.5,
+              2
+            ],
+            "glucose": [
+              0.5,
+              1
+            ]
+          },
+          "model_file": "iAF1260.xml",
+          "substrate_update_reactions": {
+            "formate": "EX_for_e",
+            "glucose": "EX_glc__D_e"
+          }
+        },
+        "ecoli core": {
+          "bounds": {
+            "ATPM": {
+              "lower": 1,
+              "upper": 1
+            },
+            "EX_o2_e": {
+              "lower": -2,
+              "upper": null
+            }
+          },
+          "kinetic_params": {
+            "acetate": [
+              0.5,
+              2
+            ],
+            "glucose": [
+              0.5,
+              1
+            ]
+          },
+          "model_file": "textbook",
+          "substrate_update_reactions": {
+            "acetate": "EX_ac_e",
+            "glucose": "EX_glc__D_e"
+          }
+        },
+        "llactis": {
+          "kinetic_params": {
+            "glucose": [
+              0.5,
+              1.25
+            ],
+            "glutamate": [
+              0.05,
+              0.1
+            ],
+            "serine": [
+              0.05,
+              0.1
+            ]
+          },
+          "model_file": "iNF517.xml",
+          "substrate_update_reactions": {
+            "glucose": "EX_glc__D_e",
+            "glutamate": "EX_glu__L_e",
+            "serine": "EX_ser__L_e"
+          }
+        },
+        "pputida": {
+          "kinetic_params": {
+            "ammonium": [
+              2,
+              4
+            ],
+            "glucose": [
+              1,
+              2
+            ],
+            "glycolate": [
+              0.5,
+              1
+            ]
+          },
+          "model_file": "iJN746.xml",
+          "substrate_update_reactions": {
+            "ammonium": "EX_nh4_e",
+            "glucose": "EX_glc__D_e",
+            "glycolate": "EX_glyclt_e"
+          }
+        },
+        "yeast": {
+          "kinetic_params": {
+            "ammonium": [
+              0.5,
+              1
+            ],
+            "glucose": [
+              0.5,
+              1
+            ]
+          },
+          "model_file": "iMM904.xml",
+          "substrate_update_reactions": {
+            "ammonium": "EX_nh4_e",
+            "glucose": "EX_glc__D_e"
+          }
+        }
+      },
+      "mol_ids": [
+        "glucose",
+        "acetate",
+        "glycolate",
+        "ammonium",
+        "formate",
+        "glutamate",
+        "serine"
+      ],
+      "n_bins": [
+        5,
+        6
+      ]
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ],
+      "fields": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "glutamate": [
+          "fields",
+          "glutamate"
+        ],
+        "glycolate": [
+          "fields",
+          "glycolate"
+        ],
+        "serine": [
+          "fields",
+          "serine"
+        ]
+      }
+    },
+    "outputs": {
+      "biomass": [
+        "fields",
+        "dissolved biomass"
+      ],
+      "fields": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "glutamate": [
+          "fields",
+          "glutamate"
+        ],
+        "glycolate": [
+          "fields",
+          "glycolate"
+        ],
+        "serine": [
+          "fields",
+          "serine"
+        ]
+      }
+    }
+  }
+}
