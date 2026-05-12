@@ -154,16 +154,6 @@ def plot_dfba_kinetics_community(results, state, config=None):
 
 # --- Many DFBA Spatial ---------------------------------------------------
 
-def get_spatial_many_dfba_doc(core=None, config=None):
-    dissolved_model_file = 'ecoli core'
-    mol_ids = ['glucose', 'acetate', 'dissolved biomass']
-    initial_min_max = {'glucose': (0, 20), 'acetate': (0, 0), 'dissolved biomass': (0, 0.1)}
-    n_bins = DEFAULT_BINS_SMALL
-    return {
-        'fields': get_fields_with_schema(n_bins=n_bins, mol_ids=mol_ids, initial_min_max=initial_min_max),
-        'spatial_dFBA': get_spatial_many_dfba(model_id=dissolved_model_file, mol_ids=mol_ids, n_bins=n_bins)
-    }
-
 def plot_spatial_many_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'spatial_many_dfba')
@@ -865,12 +855,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'dfba_kinetics_community'},
     },
     'spatial_many_dfba': {
-        'description': 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.',
-        'doc_func': get_spatial_many_dfba_doc,
-        'plot_func': plot_spatial_many_dfba,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'ecoli core'},
-        'plot_config': {'filename': 'spatial_many_dfba'}
+        'generator':   'spatial_many_dfba',
+        'plot_func':   plot_spatial_many_dfba,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {'model_id': 'ecoli core'},
+        'plot_config': {'filename': 'spatial_many_dfba'},
     },
     'spatial_dfba_process': {
         'description': 'Spatial microenvironment (vectorized dFBA): one spatial dFBA process updates all lattice sites as a single structured state. Demonstrates batched execution + field coupling.',
