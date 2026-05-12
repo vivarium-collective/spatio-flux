@@ -1,0 +1,71 @@
+{
+  "ecoli core dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "bounds": {
+        "ATPM": {
+          "lower": 1,
+          "upper": 1
+        },
+        "EX_o2_e": {
+          "lower": -2,
+          "upper": null
+        }
+      },
+      "kinetic_params": {
+        "acetate": [
+          0.5,
+          2
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "textbook",
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  },
+  "fields": {
+    "acetate": 0,
+    "biomass": 0.1,
+    "glucose": 10
+  }
+}

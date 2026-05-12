@@ -570,7 +570,7 @@ def _spatio_flux_intro_html(total_sim_time=None, outdir: str | None = None) -> s
     meta_bits = []
     if total_sim_time is not None:
         meta_bits.append(
-            f"<span class='meta-pill'><strong>Total sim time:</strong> {total_sim_time:.2f}s</span>"
+            f"<span class='meta-pill'><strong>Total sim time:</strong> {total_sim_time:.3f}s</span>"
         )
     meta_bits.append(
         f"<span class='meta-pill'><strong>Generated:</strong> "
@@ -1089,11 +1089,11 @@ def generate_html_report(
 
         if runtimes and test in runtimes:
             rt = runtimes[test]
-            parts = [f"<strong>Runtime:</strong> {rt:.2f}s"]
+            parts = [f"<strong>Runtime:</strong> {rt:.3f}s"]
             if timing_details and test in timing_details:
                 proc_t, fw_t = timing_details[test]
                 parts.append(
-                    f"(process: {proc_t:.2f}s, framework: {fw_t:.2f}s)")
+                    f"(process: {proc_t:.3f}s, framework: {fw_t:.3f}s)")
             html.append(f"<p>{' '.join(parts)}</p>")
 
         download_json = (
@@ -1177,7 +1177,7 @@ def generate_html_report(
 
     if total_sim_time is not None:
         html.append(
-            f"<h2>Total Simulation Time</h2><p><strong>{total_sim_time:.2f} seconds</strong></p>"
+            f"<h2>Total Simulation Time</h2><p><strong>{total_sim_time:.3f} seconds</strong></p>"
         )
 
     # Close layout wrapper

@@ -1,0 +1,8244 @@
+{
+  "schema": {
+    "particles": {
+      "_type": "map",
+      "_value": {
+        "dFBA": {
+          "_type": "process",
+          "address": {
+            "_default": "local:DynamicFBA",
+            "_type": "string"
+          },
+          "config": {
+            "_default": {
+              "bounds": {
+                "ATPM": {
+                  "lower": 1,
+                  "upper": 1
+                },
+                "EX_o2_e": {
+                  "lower": -2,
+                  "upper": null
+                }
+              },
+              "kinetic_params": {
+                "acetate": [
+                  0.5,
+                  2
+                ],
+                "glucose": [
+                  0.5,
+                  1
+                ]
+              },
+              "model_file": "textbook",
+              "substrate_update_reactions": {
+                "acetate": "EX_ac_e",
+                "glucose": "EX_glc__D_e"
+              }
+            },
+            "_type": "node"
+          },
+          "inputs": {
+            "_default": {
+              "biomass": [
+                "mass"
+              ],
+              "substrates": [
+                "local"
+              ]
+            },
+            "_type": "wires"
+          },
+          "outputs": {
+            "_default": {
+              "biomass": [
+                "mass"
+              ],
+              "substrates": [
+                "exchange"
+              ]
+            },
+            "_type": "wires"
+          }
+        }
+      }
+    }
+  },
+  "state": {
+    "brownian_movement": {
+      "_type": "process",
+      "address": "local:BrownianMovement",
+      "config": {
+        "advection_rate": [
+          0,
+          -0.2
+        ],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "diffusion_rate": 0.5,
+        "interval": 1.0
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "interval": 1.0,
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "dFBA[0,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[0,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            0
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            0
+          ]
+        }
+      }
+    },
+    "dFBA[1,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[1,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            1
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            1
+          ]
+        }
+      }
+    },
+    "dFBA[2,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[2,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            2
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            2
+          ]
+        }
+      }
+    },
+    "dFBA[3,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[3,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            3
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            3
+          ]
+        }
+      }
+    },
+    "dFBA[4,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[4,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            4
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            4
+          ]
+        }
+      }
+    },
+    "dFBA[5,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[5,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            5
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            5
+          ]
+        }
+      }
+    },
+    "dFBA[6,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[6,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            6
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            6
+          ]
+        }
+      }
+    },
+    "dFBA[7,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[7,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            7
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            7
+          ]
+        }
+      }
+    },
+    "dFBA[8,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[8,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            8
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            8
+          ]
+        }
+      }
+    },
+    "dFBA[9,0]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,1]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,2]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,3]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,4]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,5]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,6]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,7]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,8]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            9
+          ]
+        }
+      }
+    },
+    "dFBA[9,9]": {
+      "_type": "process",
+      "address": "local:DynamicFBA",
+      "config": {
+        "bounds": {
+          "ATPM": {
+            "lower": 1,
+            "upper": 1
+          },
+          "EX_o2_e": {
+            "lower": -2,
+            "upper": null
+          }
+        },
+        "kinetic_params": {
+          "acetate": [
+            0.5,
+            2
+          ],
+          "glucose": [
+            0.5,
+            1
+          ]
+        },
+        "model_file": "textbook",
+        "substrate_update_reactions": {
+          "acetate": "EX_ac_e",
+          "glucose": "EX_glc__D_e"
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            9
+          ]
+        }
+      },
+      "interval": 1.0,
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            9
+          ]
+        }
+      }
+    },
+    "diffusion": {
+      "_type": "process",
+      "address": "local:DiffusionAdvection",
+      "config": {
+        "advection_coeffs": {
+          "acetate": [
+            0,
+            0
+          ],
+          "dissolved biomass": [
+            0.0,
+            0.2
+          ],
+          "glucose": [
+            0,
+            0
+          ]
+        },
+        "boundary_conditions": null,
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "default_diffusion_dt": 0.1,
+        "default_diffusion_rate": 0.1,
+        "diffusion_coeffs": {
+          "acetate": 0.1,
+          "dissolved biomass": 0.1,
+          "glucose": 0.1
+        },
+        "n_bins": [
+          10,
+          10
+        ]
+      },
+      "inputs": {
+        "fields": [
+          "fields"
+        ]
+      },
+      "outputs": {
+        "fields": [
+          "fields"
+        ]
+      }
+    },
+    "enforce_boundaries": {
+      "_type": "step",
+      "address": "local:ManageBoundaries",
+      "config": {
+        "add_rate": 0.3,
+        "boundary_to_add": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ],
+        "boundary_to_remove": [],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "buffer": 0.0001,
+        "clamp_survivors": true,
+        "mass_range": [
+          0.001,
+          1.0
+        ]
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ],
+        "process_interval": [
+          "brownian_movement",
+          "interval"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "fields": {
+      "_type": "map",
+      "_value": {
+        "_data": "float",
+        "_shape": [
+          10,
+          10
+        ],
+        "_type": "array"
+      },
+      "acetate": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "dissolved biomass": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.0,
+            0.0,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "glucose": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01
+          ],
+          [
+            1.12,
+            1.12,
+            1.12,
+            1.12,
+            1.12,
+            1.12,
+            1.12,
+            1.12,
+            1.12,
+            1.12
+          ],
+          [
+            2.23,
+            2.23,
+            2.23,
+            2.23,
+            2.23,
+            2.23,
+            2.23,
+            2.23,
+            2.23,
+            2.23
+          ],
+          [
+            3.34,
+            3.34,
+            3.34,
+            3.34,
+            3.34,
+            3.34,
+            3.34,
+            3.34,
+            3.34,
+            3.34
+          ],
+          [
+            4.45,
+            4.45,
+            4.45,
+            4.45,
+            4.45,
+            4.45,
+            4.45,
+            4.45,
+            4.45,
+            4.45
+          ],
+          [
+            5.56,
+            5.56,
+            5.56,
+            5.56,
+            5.56,
+            5.56,
+            5.56,
+            5.56,
+            5.56,
+            5.56
+          ],
+          [
+            6.67,
+            6.67,
+            6.67,
+            6.67,
+            6.67,
+            6.67,
+            6.67,
+            6.67,
+            6.67,
+            6.67
+          ],
+          [
+            7.78,
+            7.78,
+            7.78,
+            7.78,
+            7.78,
+            7.78,
+            7.78,
+            7.78,
+            7.78,
+            7.78
+          ],
+          [
+            8.89,
+            8.89,
+            8.89,
+            8.89,
+            8.89,
+            8.89,
+            8.89,
+            8.89,
+            8.89,
+            8.89
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ]
+        ]
+      }
+    },
+    "particle_division": {
+      "_type": "step",
+      "address": "local:ParticleDivision",
+      "config": {
+        "division_mass_threshold": 3,
+        "max_particles": 0,
+        "submass_split_mode": "equal"
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particle_exchange": {
+      "_type": "step",
+      "address": "local:ParticleExchange",
+      "config": {
+        "apply_mass_balance": false,
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "depth": 1.0,
+        "n_bins": [
+          10,
+          10
+        ],
+        "rates_are_per_time": true
+      },
+      "inputs": {
+        "fields": [
+          "fields"
+        ],
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "fields": [
+          "fields"
+        ],
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particles": {
+      "rAp_jC-q": {
+        "id": "rAp_jC-q",
+        "mass": 0.545338299814,
+        "position": [
+          35.7594683186,
+          30.1381688036
+        ]
+      }
+    }
+  }
+}

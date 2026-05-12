@@ -1,0 +1,920 @@
+{
+  "schema": {
+    "particles": {
+      "_type": "map",
+      "_value": {
+        "monod_kinetics": {
+          "_type": "process",
+          "address": {
+            "_default": "local:MonodKinetics",
+            "_type": "protocol"
+          },
+          "config": {
+            "_default": {
+              "reactions": {
+                "assimilate_acetate": {
+                  "km": 0.6,
+                  "product": "mass",
+                  "reactant": "acetate",
+                  "vmax": 0.3,
+                  "yield": 0.2
+                },
+                "assimilate_glucose": {
+                  "km": 0.5,
+                  "product": "mass",
+                  "reactant": "glucose",
+                  "vmax": 0.4,
+                  "yield": 0.2
+                },
+                "overflow_to_acetate": {
+                  "km": 0.5,
+                  "product": "acetate",
+                  "reactant": "glucose",
+                  "vmax": 0.3,
+                  "yield": 0.5
+                }
+              }
+            },
+            "_type": "node"
+          },
+          "inputs": {
+            "_default": {
+              "biomass": [
+                "mass"
+              ],
+              "substrates": [
+                "local"
+              ]
+            },
+            "_type": "wires"
+          },
+          "outputs": {
+            "_default": {
+              "biomass": [
+                "mass"
+              ],
+              "substrates": [
+                "exchange"
+              ]
+            },
+            "_type": "wires"
+          }
+        }
+      }
+    }
+  },
+  "state": {
+    "brownian_movement": {
+      "_type": "process",
+      "address": "local:BrownianMovement",
+      "config": {
+        "advection_rate": [
+          0.0,
+          0.2
+        ],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "diffusion_rate": 0.5,
+        "interval": 1.0
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "interval": 1.0,
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "diffusion": {
+      "_type": "process",
+      "address": "local:DiffusionAdvection",
+      "config": {
+        "advection_coeffs": {
+          "acetate": [
+            0,
+            0
+          ],
+          "glucose": [
+            0,
+            0
+          ]
+        },
+        "boundary_conditions": null,
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "default_diffusion_dt": 0.1,
+        "default_diffusion_rate": 0.1,
+        "diffusion_coeffs": {
+          "acetate": 0.1,
+          "glucose": 0.1
+        },
+        "n_bins": [
+          10,
+          10
+        ]
+      },
+      "inputs": {
+        "fields": [
+          "fields"
+        ]
+      },
+      "outputs": {
+        "fields": [
+          "fields"
+        ]
+      }
+    },
+    "enforce_boundaries": {
+      "_type": "step",
+      "address": "local:ManageBoundaries",
+      "config": {
+        "add_rate": 0.1,
+        "boundary_to_add": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ],
+        "boundary_to_remove": [],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "buffer": 0.0001,
+        "clamp_survivors": true,
+        "mass_range": [
+          0.001,
+          1.0
+        ]
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ],
+        "process_interval": [
+          "brownian_movement",
+          "interval"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "fields": {
+      "acetate": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "dissolved biomass": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.0,
+            0.0,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "glucose": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ]
+        ]
+      }
+    },
+    "particle_division": {
+      "_type": "step",
+      "address": "local:ParticleDivision",
+      "config": {
+        "division_mass_threshold": 5.0,
+        "max_particles": 0,
+        "submass_split_mode": "equal"
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particle_exchange": {
+      "_type": "step",
+      "address": "local:ParticleExchange",
+      "config": {
+        "apply_mass_balance": false,
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "depth": 1.0,
+        "n_bins": [
+          10,
+          10
+        ],
+        "rates_are_per_time": true
+      },
+      "inputs": {
+        "fields": [
+          "fields"
+        ],
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "fields": [
+          "fields"
+        ],
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particles": {
+      "aAUU6N6z": {
+        "id": "aAUU6N6z",
+        "mass": 1.72991250989,
+        "position": [
+          38.7023666349,
+          16.6572576014
+        ]
+      }
+    },
+    "spatial_dFBA": {
+      "_type": "process",
+      "address": "local:SpatialDFBA",
+      "config": {
+        "model_grid": [
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ]
+        ],
+        "models": {
+          "cdiff": {
+            "kinetic_params": {
+              "acetate": [
+                0.5,
+                2
+              ],
+              "glucose": [
+                0.5,
+                1
+              ]
+            },
+            "model_file": "iCN900.xml",
+            "substrate_update_reactions": {
+              "acetate": "EX_ac_e",
+              "glucose": "EX_glc__D_e"
+            }
+          },
+          "ecoli": {
+            "kinetic_params": {
+              "formate": [
+                0.5,
+                2
+              ],
+              "glucose": [
+                0.5,
+                1
+              ]
+            },
+            "model_file": "iAF1260.xml",
+            "substrate_update_reactions": {
+              "formate": "EX_for_e",
+              "glucose": "EX_glc__D_e"
+            }
+          },
+          "ecoli core": {
+            "bounds": {
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              },
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              }
+            },
+            "kinetic_params": {
+              "acetate": [
+                0.5,
+                2
+              ],
+              "glucose": [
+                0.5,
+                1
+              ]
+            },
+            "model_file": "textbook",
+            "substrate_update_reactions": {
+              "acetate": "EX_ac_e",
+              "glucose": "EX_glc__D_e"
+            }
+          },
+          "llactis": {
+            "kinetic_params": {
+              "glucose": [
+                0.5,
+                1.25
+              ],
+              "glutamate": [
+                0.05,
+                0.1
+              ],
+              "serine": [
+                0.05,
+                0.1
+              ]
+            },
+            "model_file": "iNF517.xml",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "glutamate": "EX_glu__L_e",
+              "serine": "EX_ser__L_e"
+            }
+          },
+          "pputida": {
+            "kinetic_params": {
+              "ammonium": [
+                2,
+                4
+              ],
+              "glucose": [
+                1,
+                2
+              ],
+              "glycolate": [
+                0.5,
+                1
+              ]
+            },
+            "model_file": "iJN746.xml",
+            "substrate_update_reactions": {
+              "ammonium": "EX_nh4_e",
+              "glucose": "EX_glc__D_e",
+              "glycolate": "EX_glyclt_e"
+            }
+          },
+          "yeast": {
+            "kinetic_params": {
+              "ammonium": [
+                0.5,
+                1
+              ],
+              "glucose": [
+                0.5,
+                1
+              ]
+            },
+            "model_file": "iMM904.xml",
+            "substrate_update_reactions": {
+              "ammonium": "EX_nh4_e",
+              "glucose": "EX_glc__D_e"
+            }
+          }
+        },
+        "mol_ids": [
+          "glucose",
+          "acetate"
+        ],
+        "n_bins": [
+          10,
+          10
+        ]
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass"
+        ],
+        "fields": {
+          "acetate": [
+            "fields",
+            "acetate"
+          ],
+          "glucose": [
+            "fields",
+            "glucose"
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass"
+        ],
+        "fields": {
+          "acetate": [
+            "fields",
+            "acetate"
+          ],
+          "glucose": [
+            "fields",
+            "glucose"
+          ]
+        }
+      }
+    }
+  }
+}

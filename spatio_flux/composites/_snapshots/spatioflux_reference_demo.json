@@ -1,0 +1,7358 @@
+{
+  "schema": {
+    "particles": {
+      "_type": "map",
+      "_value": {
+        "aggregate_mass": {
+          "_type": "step",
+          "address": {
+            "_default": "local:ParticleTotalMass",
+            "_type": "string"
+          },
+          "config": {
+            "_default": {},
+            "_type": "node"
+          },
+          "inputs": {
+            "_default": {
+              "sub_masses": [
+                "sub_masses"
+              ]
+            },
+            "_type": "wires"
+          },
+          "outputs": {
+            "_default": {
+              "total_mass": [
+                "mass"
+              ]
+            },
+            "_type": "wires"
+          }
+        },
+        "ecoli_1 dFBA": {
+          "_type": "process",
+          "address": {
+            "_default": "local:DynamicFBA",
+            "_type": "string"
+          },
+          "config": {
+            "_default": {
+              "bounds": {
+                "ATPM": {
+                  "lower": 3,
+                  "upper": 3
+                },
+                "EX_o2_e": {
+                  "lower": -2,
+                  "upper": null
+                }
+              },
+              "kinetic_params": {
+                "acetate": [
+                  1.0,
+                  0.1
+                ],
+                "glucose": [
+                  0.1,
+                  2
+                ]
+              },
+              "model_file": "textbook",
+              "substrate_update_reactions": {
+                "acetate": "EX_ac_e",
+                "glucose": "EX_glc__D_e"
+              }
+            },
+            "_type": "node"
+          },
+          "inputs": {
+            "_default": {
+              "biomass": [
+                "sub_masses",
+                "ecoli_1"
+              ],
+              "substrates": [
+                "local"
+              ]
+            },
+            "_type": "wires"
+          },
+          "outputs": {
+            "_default": {
+              "biomass": [
+                "sub_masses",
+                "ecoli_1"
+              ],
+              "substrates": [
+                "exchange"
+              ]
+            },
+            "_type": "wires"
+          }
+        },
+        "ecoli_2 dFBA": {
+          "_type": "process",
+          "address": {
+            "_default": "local:DynamicFBA",
+            "_type": "string"
+          },
+          "config": {
+            "_default": {
+              "bounds": {
+                "ATPM": {
+                  "lower": 1,
+                  "upper": 1
+                },
+                "EX_o2_e": {
+                  "lower": -2,
+                  "upper": null
+                }
+              },
+              "kinetic_params": {
+                "acetate": [
+                  0.01,
+                  1
+                ],
+                "glucose": [
+                  1.0,
+                  0.1
+                ]
+              },
+              "model_file": "textbook",
+              "substrate_update_reactions": {
+                "acetate": "EX_ac_e",
+                "glucose": "EX_glc__D_e"
+              }
+            },
+            "_type": "node"
+          },
+          "inputs": {
+            "_default": {
+              "biomass": [
+                "sub_masses",
+                "ecoli_2"
+              ],
+              "substrates": [
+                "local"
+              ]
+            },
+            "_type": "wires"
+          },
+          "outputs": {
+            "_default": {
+              "biomass": [
+                "sub_masses",
+                "ecoli_2"
+              ],
+              "substrates": [
+                "exchange"
+              ]
+            },
+            "_type": "wires"
+          }
+        },
+        "sub_masses": {
+          "ecoli_1": "mass",
+          "ecoli_2": "mass"
+        }
+      }
+    }
+  },
+  "state": {
+    "diffusion": {
+      "_type": "process",
+      "address": "local:DiffusionAdvection",
+      "config": {
+        "advection_coeffs": {
+          "acetate": [
+            0,
+            0
+          ],
+          "dissolved biomass": [
+            0,
+            0
+          ],
+          "glucose": [
+            0,
+            0
+          ]
+        },
+        "boundary_conditions": {
+          "acetate": {
+            "bottom": {
+              "type": "dirichlet",
+              "value": 5.0
+            }
+          },
+          "default": {
+            "x": {
+              "type": "periodic"
+            },
+            "y": {
+              "type": "neumann"
+            }
+          },
+          "glucose": {
+            "top": {
+              "type": "dirichlet",
+              "value": 5.0
+            }
+          }
+        },
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "default_diffusion_dt": 0.1,
+        "default_diffusion_rate": 0.1,
+        "diffusion_coeffs": {
+          "acetate": 0.1,
+          "dissolved biomass": 0.1,
+          "glucose": 0.1
+        },
+        "n_bins": [
+          10,
+          10
+        ]
+      },
+      "inputs": {
+        "fields": [
+          "fields"
+        ]
+      },
+      "outputs": {
+        "fields": [
+          "fields"
+        ]
+      }
+    },
+    "enforce_boundaries": {
+      "_type": "step",
+      "address": "local:ManageBoundaries",
+      "config": {
+        "add_rate": 0.0,
+        "boundary_to_add": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ],
+        "boundary_to_remove": [],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "buffer": 0.0001,
+        "clamp_survivors": true,
+        "mass_range": [
+          0.001,
+          1.0
+        ]
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ],
+        "process_interval": [
+          "newtonian_particles",
+          "interval"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "fields": {
+      "acetate": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "dissolved biomass": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            0.131179588199,
+            0.169634348882,
+            0.137775183929,
+            0.117960367756,
+            0.102467872839,
+            0.106724963146,
+            0.16793927735,
+            0.145369684456,
+            0.153657921111,
+            0.189667129304
+          ],
+          [
+            0.19903389474,
+            0.12168969844,
+            0.16630782031,
+            0.126332237674,
+            0.102065099947,
+            0.175837865384,
+            0.132001715082,
+            0.138346389417,
+            0.158831711355,
+            0.183104845524
+          ],
+          [
+            0.162898184359,
+            0.187265065545,
+            0.127354203482,
+            0.179804683391,
+            0.118563594431,
+            0.195279165697,
+            0.168748827639,
+            0.121550767711,
+            0.194737059049,
+            0.173085580677
+          ],
+          [
+            0.12539416426,
+            0.121331197737,
+            0.151820071393,
+            0.102566271805,
+            0.120747007544,
+            0.142468546875,
+            0.137416998033,
+            0.146357542436,
+            0.127762870629,
+            0.158678434646
+          ],
+          [
+            0.186385560592,
+            0.111753185596,
+            0.151737910715,
+            0.113206810635,
+            0.171685968119,
+            0.139605970281,
+            0.156542131186,
+            0.118327983621,
+            0.114484775934,
+            0.148805628065
+          ],
+          [
+            0.135561273785,
+            0.194043194525,
+            0.176532525381,
+            0.174866361985,
+            0.190371973975,
+            0.108342243544,
+            0.155219246992,
+            0.158447606896,
+            0.196193637855,
+            0.129214752679
+          ],
+          [
+            0.124082877992,
+            0.110029394227,
+            0.101642962959,
+            0.192952931679,
+            0.166991654659,
+            0.178515291202,
+            0.128173010575,
+            0.158641016619,
+            0.106395526612,
+            0.148562759593
+          ],
+          [
+            0.197749513974,
+            0.187650524532,
+            0.133815895184,
+            0.196157015454,
+            0.123170162647,
+            0.194931882242,
+            0.194137770471,
+            0.179920258735,
+            0.163044793687,
+            0.187428796662
+          ],
+          [
+            0.129302028451,
+            0.184894355531,
+            0.161787669192,
+            0.101323685776,
+            0.134723351793,
+            0.114814086095,
+            0.198182938982,
+            0.147837030704,
+            0.14973913655,
+            0.16394725164
+          ],
+          [
+            0.136858460613,
+            0.113690027169,
+            0.182211773319,
+            0.11898479119,
+            0.151131898255,
+            0.122431702897,
+            0.109784448449,
+            0.186219151742,
+            0.197291948902,
+            0.196083465806
+          ]
+        ]
+      },
+      "glucose": {
+        "__numpy__": true,
+        "dtype": "float64",
+        "shape": [
+          10,
+          10
+        ],
+        "values": [
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ]
+        ]
+      }
+    },
+    "monod_kinetics[0,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[0,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            0
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          0
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            0
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            0
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[1,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            1
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          1
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            1
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            1
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[2,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            2
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          2
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            2
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            2
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[3,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            3
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          3
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            3
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            3
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[4,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            4
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          4
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            4
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            4
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[5,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            5
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          5
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            5
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            5
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[6,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            6
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          6
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            6
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            6
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[7,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            7
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          7
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            7
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            7
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[8,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            8
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          8
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            8
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            8
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,0]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          0,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            0,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            0,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,1]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          1,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            1,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            1,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,2]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          2,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            2,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            2,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,3]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          3,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            3,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            3,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,4]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          4,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            4,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            4,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,5]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          5,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            5,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            5,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,6]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          6,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            6,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            6,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,7]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          7,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            7,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            7,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,8]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          8,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            8,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            8,
+            9
+          ]
+        }
+      }
+    },
+    "monod_kinetics[9,9]": {
+      "_type": "process",
+      "address": "local:MonodKinetics",
+      "config": {
+        "reactions": {
+          "assimilate_glucose": {
+            "km": 1.0,
+            "product": "mass",
+            "reactant": "glucose",
+            "vmax": 0.02,
+            "yield": 0.15
+          },
+          "overflow_to_acetate": {
+            "km": 1.0,
+            "product": "acetate",
+            "reactant": "glucose",
+            "vmax": 0.2,
+            "yield": 0.85
+          }
+        }
+      },
+      "inputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            9
+          ]
+        }
+      },
+      "outputs": {
+        "biomass": [
+          "fields",
+          "dissolved biomass",
+          9,
+          9
+        ],
+        "substrates": {
+          "acetate": [
+            "fields",
+            "acetate",
+            9,
+            9
+          ],
+          "glucose": [
+            "fields",
+            "glucose",
+            9,
+            9
+          ]
+        }
+      }
+    },
+    "newtonian_particles": {
+      "_type": "process",
+      "address": "local:PymunkParticleMovement",
+      "config": {
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "damping_per_second": 0.95,
+        "elasticity": 0.1,
+        "friction": 0.9,
+        "gravity": -1.0,
+        "jitter_per_second": 0.01
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particle_division": {
+      "_type": "step",
+      "address": "local:ParticleDivision",
+      "config": {
+        "division_mass_threshold": 0.4,
+        "max_particles": 0,
+        "submass_split_mode": "random"
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particle_exchange": {
+      "_type": "step",
+      "address": "local:ParticleExchange",
+      "config": {
+        "apply_mass_balance": false,
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "depth": 0.04,
+        "n_bins": [
+          10,
+          10
+        ],
+        "rates_are_per_time": true
+      },
+      "inputs": {
+        "fields": [
+          "fields"
+        ],
+        "particles": [
+          "particles"
+        ]
+      },
+      "outputs": {
+        "fields": [
+          "fields"
+        ],
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particles": {
+      "p_bf33c2": {
+        "elasticity": 0.0,
+        "mass": 0.163000578851,
+        "position": [
+          34.9425286257,
+          18.9464504691
+        ],
+        "radius": 1.85983324883,
+        "shape": "circle",
+        "sub_masses": {
+          "ecoli_1": 0.1,
+          "ecoli_2": 0.1
+        },
+        "velocity": [
+          -0.0,
+          0.0
+        ]
+      }
+    }
+  }
+}

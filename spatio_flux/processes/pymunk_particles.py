@@ -1,7 +1,7 @@
 import random
 import math
-import uuid
 
+import numpy as np
 import pymunk
 
 from process_bigraph import Composite, gather_emitter_results, Process
@@ -474,10 +474,33 @@ class PymunkParticleMovement(Process):
 # -------------------------
 
 def make_id(prefix='id', nhex=6):
-    return f"{prefix}_{uuid.uuid4().hex[:nhex]}"
+    """Generate a deterministic ID using numpy random state.
+
+    Uses numpy's random state so that ``np.random.seed()`` produces
+    deterministic IDs in tests and snapshot captures.
+    """
+    raw = np.random.randint(0, 16, size=nhex)
+    hex_chars = ''.join(format(x, 'x') for x in raw)
+    return f"{prefix}_{hex_chars}"
 
 def make_rng(seed=None):
-    return random.Random(seed)
+    """Create an RNG backed by numpy so np.random.seed() controls it.
+
+    The ``seed`` parameter is intentionally ignored.  Callers that want
+    deterministic output should call ``np.random.seed(seed)`` themselves
+    *before* invoking ``make_rng()``.  Reseeding inside this function
+    would corrupt the global numpy RNG state mid-simulation.
+    """
+    class _NumpyRNG:
+        """Thin wrapper exposing a subset of the random.Random interface via
+        numpy's global RNG.  Only ``uniform()`` and ``random()`` are
+        implemented; the full ``random.Random`` API is not available.
+        """
+        def uniform(self, a, b):
+            return float(np.random.uniform(a, b))
+        def random(self):
+            return float(np.random.random())
+    return _NumpyRNG()
 
 def circle_mass_from_radius(radius, density):
     """
