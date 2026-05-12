@@ -3,11 +3,24 @@
 Each registered generator's default-built doc must match its baseline JSON
 snapshot under spatio_flux/composites/_snapshots/.
 """
+import json
 import math
+from pathlib import Path
+
 import numpy as np
 import pytest
+from process_bigraph import allocate_core
 
+import spatio_flux.composites  # noqa: F401 -- ensures registry is populated
+from spatio_flux.composites import REGISTRY
+from pbg_superpowers.composite_generator import build_generator
 from spatio_flux.composites._serialize import normalize_doc
+
+
+SNAPSHOT_DIR = (
+    Path(__file__).resolve().parent.parent
+    / "spatio_flux" / "composites" / "_snapshots"
+)
 
 
 def test_normalize_doc_passes_scalars_through():
@@ -56,3 +69,21 @@ def test_normalize_doc_repr_falls_back_for_unencodable_objects():
     assert result == {
         "thing": {"__repr__": "Weird", "value": "Weird()"},
     }
+
+
+def _names() -> list[str]:
+    return sorted(e.name for e in REGISTRY.values())
+
+
+@pytest.mark.parametrize("name", _names() or ["__noop__"])
+def test_generator_matches_snapshot(name):
+    if name == "__noop__":
+        pytest.skip("no composite generators registered yet")
+    snapshot_path = SNAPSHOT_DIR / f"{name}.json"
+    if not snapshot_path.exists():
+        pytest.skip(f"no baseline snapshot for '{name}'")
+    baseline = json.loads(snapshot_path.read_text())
+    [entry] = [e for e in REGISTRY.values() if e.name == name]
+    core = allocate_core()
+    doc = build_generator(entry, core=core)
+    assert normalize_doc(doc) == baseline
