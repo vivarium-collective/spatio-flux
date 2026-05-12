@@ -946,12 +946,11 @@ SIMULATIONS = {
         'plot_config': {'filename': 'ecoli_core_dfba'},
     },
     'ecoli_dfba': {
-        'description': 'Single-cell metabolism (large model): dynamic FBA using iAF1260 with tracked extracellular fields (e.g., glucose/formate) and biomass. Stress-tests solver + exchange wiring.',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'ecoli', 'initial_fields': {'glucose': 10, 'formate': 5}},
-        'plot_config': {'filename': 'ecoli_dfba'}
+        'generator':   'ecoli_dfba',
+        'plot_func':   plot_dfba_single,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {'model_id': 'ecoli', 'glucose': 10.0, 'formate': 5.0},
+        'plot_config': {'filename': 'ecoli_dfba'},
     },
     'yeast_dfba': {
         'description': 'Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular glucose and biomass. Cross-model check of the dFBA pipeline.',

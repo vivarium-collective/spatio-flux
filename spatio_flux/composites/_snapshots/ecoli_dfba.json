@@ -1,0 +1,61 @@
+{
+  "ecoli dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "formate": [
+          0.5,
+          2
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "iAF1260.xml",
+      "substrate_update_reactions": {
+        "formate": "EX_for_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "substrates": {
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "substrates": {
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  },
+  "fields": {
+    "biomass": 0.1,
+    "formate": 5,
+    "glucose": 10
+  }
+}
