@@ -20,7 +20,6 @@ import os
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-from pandas._libs import interval
 from process_bigraph import allocate_core
 
 from spatio_flux.library.tools import run_composite_document, prepare_output_dir, generate_html_report

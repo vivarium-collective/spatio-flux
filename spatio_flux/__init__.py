@@ -99,3 +99,9 @@ TYPES_DICT = {
 def register_types(core):
     core.register_types(TYPES_DICT)
     return core
+
+
+# Side-effect import: populates the composite-generator registry so
+# pbg-superpowers' dashboard discovery surfaces them. See
+# spatio_flux.composites for the convention.
+from . import composites as _composites  # noqa: F401
