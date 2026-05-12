@@ -117,45 +117,6 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
 
 # --- Multiple DFBAs ---------------------------------------------------
 
-def get_community_dfba_doc(core=None, config=None):
-    dt = 1.0
-
-    # set up the dfba processes
-    model_ids = list(MODEL_REGISTRY_DFBA.keys())
-    dfbas = {}
-    for model_id, spec in MODEL_REGISTRY_DFBA.items():
-        process_id = f'{model_id} dFBA'
-        dfba_process = get_dfba_process_from_registry(
-            model_id=model_id,
-            biomass_id=model_id,
-            path=['fields'],
-            interval=dt,
-        )
-        dfbas[process_id] = dfba_process
-
-    initial_biomass = {organism: 0.1 for organism in model_ids}
-
-    # set up the kinetic process
-    kinetic_model_id = 'acetate_only'  #'overflow_metabolism'
-    kinetic_biomass_id = 'monod biomass'
-    kinetic_model_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
-    initial_biomass[kinetic_biomass_id] = 0.1
-
-    # fields
-    field_names = get_field_names(MODEL_REGISTRY_DFBA)
-    more_fields = {mol_id: 0.1 for mol_id in field_names if mol_id not in ['glucose', 'acetate']}
-    doc = {
-        **dfbas,
-        'monod_kinetics': get_monod_kinetics_process_from_config(model_config=kinetic_model_config, biomass_id=kinetic_biomass_id, interval=dt),
-        'fields': {
-            'glucose': 10,
-            'acetate': 0,
-            **more_fields,
-            **initial_biomass
-        }
-    }
-    return doc
-
 def plot_community_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_multi_timeseries.png')
@@ -938,12 +899,11 @@ SIMULATIONS = {
 
     # ---- Multi-metabolism models ------------------------------------------
     'community_dfba': {
-        'description': 'Multi-agent well-mixed community: several independent dFBA instances share the same extracellular pools, creating competition/cross-feeding dynamics without space.',
-        'doc_func': get_community_dfba_doc,
-        'plot_func': plot_community_dfba,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {},
-        'plot_config': {'filename': 'community_dfba'}
+        'generator':   'community_dfba',
+        'plot_func':   plot_community_dfba,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {},
+        'plot_config': {'filename': 'community_dfba'},
     },
     'dfba_kinetics_community': {
         'description': 'Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents in a shared environment. Demonstrates heterogeneous process composition under one schema.',

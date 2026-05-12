@@ -1,0 +1,413 @@
+{
+  "cdiff dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "acetate": [
+          0.5,
+          2
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "iCN900.xml",
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "cdiff"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "cdiff"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  },
+  "ecoli core dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "bounds": {
+        "ATPM": {
+          "lower": 1,
+          "upper": 1
+        },
+        "EX_o2_e": {
+          "lower": -2,
+          "upper": null
+        }
+      },
+      "kinetic_params": {
+        "acetate": [
+          0.5,
+          2
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "textbook",
+      "substrate_update_reactions": {
+        "acetate": "EX_ac_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "ecoli core"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "ecoli core"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  },
+  "ecoli dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "formate": [
+          0.5,
+          2
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "iAF1260.xml",
+      "substrate_update_reactions": {
+        "formate": "EX_for_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "ecoli"
+      ],
+      "substrates": {
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "ecoli"
+      ],
+      "substrates": {
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  },
+  "fields": {
+    "acetate": 0,
+    "cdiff": 0.1,
+    "ecoli": 0.1,
+    "ecoli core": 0.1,
+    "glucose": 10,
+    "llactis": 0.1,
+    "monod biomass": 0.1,
+    "pputida": 0.1,
+    "yeast": 0.1
+  },
+  "llactis dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "glucose": [
+          0.5,
+          1.25
+        ],
+        "glutamate": [
+          0.05,
+          0.1
+        ],
+        "serine": [
+          0.05,
+          0.1
+        ]
+      },
+      "model_file": "iNF517.xml",
+      "substrate_update_reactions": {
+        "glucose": "EX_glc__D_e",
+        "glutamate": "EX_glu__L_e",
+        "serine": "EX_ser__L_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "llactis"
+      ],
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "glutamate": [
+          "fields",
+          "glutamate"
+        ],
+        "serine": [
+          "fields",
+          "serine"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "llactis"
+      ],
+      "substrates": {
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "glutamate": [
+          "fields",
+          "glutamate"
+        ],
+        "serine": [
+          "fields",
+          "serine"
+        ]
+      }
+    }
+  },
+  "monod_kinetics": {
+    "_type": "process",
+    "address": "local:MonodKinetics",
+    "config": {
+      "reactions": {
+        "assimilate_acetate": {
+          "km": 0.6,
+          "product": "mass",
+          "reactant": "acetate",
+          "vmax": 0.3,
+          "yield": 0.2
+        }
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "monod biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "monod biomass"
+      ],
+      "substrates": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ]
+      }
+    }
+  },
+  "pputida dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "ammonium": [
+          2,
+          4
+        ],
+        "glucose": [
+          1,
+          2
+        ],
+        "glycolate": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "iJN746.xml",
+      "substrate_update_reactions": {
+        "ammonium": "EX_nh4_e",
+        "glucose": "EX_glc__D_e",
+        "glycolate": "EX_glyclt_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "pputida"
+      ],
+      "substrates": {
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "glycolate": [
+          "fields",
+          "glycolate"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "pputida"
+      ],
+      "substrates": {
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ],
+        "glycolate": [
+          "fields",
+          "glycolate"
+        ]
+      }
+    }
+  },
+  "yeast dFBA": {
+    "_type": "process",
+    "address": "local:DynamicFBA",
+    "config": {
+      "kinetic_params": {
+        "ammonium": [
+          0.5,
+          1
+        ],
+        "glucose": [
+          0.5,
+          1
+        ]
+      },
+      "model_file": "iMM904.xml",
+      "substrate_update_reactions": {
+        "ammonium": "EX_nh4_e",
+        "glucose": "EX_glc__D_e"
+      }
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "yeast"
+      ],
+      "substrates": {
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    },
+    "interval": 1.0,
+    "outputs": {
+      "biomass": [
+        "fields",
+        "yeast"
+      ],
+      "substrates": {
+        "ammonium": [
+          "fields",
+          "ammonium"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
+  }
+}
