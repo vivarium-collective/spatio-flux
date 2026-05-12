@@ -8,7 +8,6 @@ reads local field values, and can contribute to the environment.
 """
 import base64
 import pprint
-import uuid
 import numpy as np
 import math
 from bigraph_schema import make_default
@@ -21,8 +20,12 @@ DIVISION_MASS_THRESHOLD = 5.0
 
 
 def short_id(length=6):
-    """Generate a short, URL-safe unique ID string"""
-    raw = uuid.uuid4().bytes[:length]
+    """Generate a short, URL-safe unique ID string.
+
+    Uses numpy's random state so that seeding with ``np.random.seed()``
+    produces deterministic IDs in tests and snapshot captures.
+    """
+    raw = bytes(np.random.randint(0, 256, size=length, dtype=np.uint8))
     return base64.urlsafe_b64encode(raw).rstrip(b'=').decode('ascii')
 
 

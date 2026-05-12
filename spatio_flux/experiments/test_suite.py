@@ -242,23 +242,6 @@ def plot_comets(results, state, config=None):
 
 # --- Particles -----------------------------------------------------------
 
-def get_brownian_particles_alone_doc(core=None, config=None):
-    n_bins = SQUARE_BINS
-    bounds = SQUARE_BOUNDS
-    n_particles = 1
-    time_interval = 0.1
-    diffusion_rate = DEFAULT_DIFFUSION
-    add_rate = 0.01
-    doc = {
-        'state': {
-            'particles': get_particles_state(n_particles=n_particles, bounds=bounds),
-            'brownian_movement': get_brownian_movement_process(bounds=bounds, diffusion_rate=diffusion_rate, interval=time_interval),
-            'enforce_boundaries': get_boundaries_process(particle_process_name='brownian_movement', bounds=bounds, add_rate=add_rate),
-        },
-    }
-    return doc
-
-
 def plot_particles_sim(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'particles')
@@ -826,12 +809,11 @@ SIMULATIONS = {
 
     # ---- Brownian Particle composite models --------------------------------
     'brownian_particles': {
-        'description': 'Particle-only baseline: Brownian motion of agents with mass in continuous space (no fields, no metabolism). Checks integrator + particle state schema.',
-        'doc_func': get_brownian_particles_alone_doc,
-        'plot_func': plot_particles_sim,
-        'time': DEFAULT_RUNTIME_LONGER,
-        'config': {},
-        'plot_config': {'filename': 'brownian_particles'}
+        'generator':   'brownian_particles',
+        'plot_func':   plot_particles_sim,
+        'time':        DEFAULT_RUNTIME_LONGER,
+        'overrides':   {},
+        'plot_config': {'filename': 'brownian_particles'},
     },
     'br_particles_kinetics': {
         'description': 'Particle–field coupling (kinetics): Brownian agents sample local lattice concentrations and apply Monod-style exchange, modifying both particle mass and fields.',

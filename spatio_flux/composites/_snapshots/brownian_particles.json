@@ -1,0 +1,79 @@
+{
+  "state": {
+    "brownian_movement": {
+      "_type": "process",
+      "address": "local:BrownianMovement",
+      "config": {
+        "advection_rate": [
+          0,
+          0
+        ],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "diffusion_rate": 0.5,
+        "interval": 0.1
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ]
+      },
+      "interval": 0.1,
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "enforce_boundaries": {
+      "_type": "step",
+      "address": "local:ManageBoundaries",
+      "config": {
+        "add_rate": 0.01,
+        "boundary_to_add": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ],
+        "boundary_to_remove": [],
+        "bounds": [
+          50.0,
+          50.0
+        ],
+        "buffer": 0.0001,
+        "clamp_survivors": true,
+        "mass_range": [
+          0.001,
+          1.0
+        ]
+      },
+      "inputs": {
+        "particles": [
+          "particles"
+        ],
+        "process_interval": [
+          "brownian_movement",
+          "interval"
+        ]
+      },
+      "outputs": {
+        "particles": [
+          "particles"
+        ]
+      }
+    },
+    "particles": {
+      "rAp_jC-q": {
+        "id": "rAp_jC-q",
+        "mass": 0.545338299814,
+        "position": [
+          35.7594683186,
+          30.1381688036
+        ]
+      }
+    }
+  }
+}
