@@ -54,6 +54,8 @@ from spatio_flux.composites._constants import (  # noqa: F401
     DEFAULT_INITIAL_MIN_MAX,
     get_newtonian_particles_process,
 )
+from spatio_flux.composites import REGISTRY as COMPOSITE_REGISTRY
+from pbg_superpowers.composite_generator import build_generator
 
 DEFAULT_RUNTIME_SHORT = 10
 DEFAULT_RUNTIME_LONG = 60
@@ -954,12 +956,12 @@ SIMULATIONS = {
         'plot_config': {'filename': 'monod_kinetics'}
     },
     'ecoli_core_dfba': {
-        'description': 'Single-cell metabolism baseline: dynamic FBA for E. coli core with external glucose/acetate and biomass over time (no space, no particles).',
-        'doc_func': get_dfba_single_doc,
-        'plot_func': plot_dfba_single,
-        'time': DEFAULT_RUNTIME_LONG,
-        'config': {'model_id': 'ecoli core', 'initial_fields': {'glucose': 10, 'acetate': 0}},
-        'plot_config': {'filename': 'ecoli_core_dfba'}
+        'generator':   'ecoli_core_dfba',
+        'plot_func':   plot_dfba_single,
+        'time':        DEFAULT_RUNTIME_LONG,
+        'overrides':   {'model_id': 'ecoli core',
+                        'glucose': 10.0, 'acetate': 0.0},
+        'plot_config': {'filename': 'ecoli_core_dfba'},
     },
     'ecoli_dfba': {
         'description': 'Single-cell metabolism (large model): dynamic FBA using iAF1260 with tracked extracellular fields (e.g., glucose/formate) and biomass. Stress-tests solver + exchange wiring.',
@@ -1189,8 +1191,13 @@ def main():
         sim_info = SIMULATIONS[name]
 
         print("Creating document...")
-        config = sim_info.get('config', {})
-        doc = sim_info['doc_func'](core=core, config=config)
+        if 'generator' in sim_info:
+            entry = next(e for e in COMPOSITE_REGISTRY.values()
+                         if e.name == sim_info['generator'])
+            doc = build_generator(entry, overrides=sim_info.get('overrides', {}), core=core)
+        else:
+            config = sim_info.get('config', {})
+            doc = sim_info['doc_func'](core=core, config=config)
 
         print("Sending document...")
         runtime = sim_info.get('time', DEFAULT_RUNTIME_LONG)
@@ -1221,8 +1228,8 @@ def main():
     print(f"\nCompiling HTML report...")
     generate_html_report(
         output_dir,
-        {k: v['config'] for k, v in SIMULATIONS.items()},
-        {k: v['description'] for k, v in SIMULATIONS.items()},
+        {k: v.get('config', v.get('overrides', {})) for k, v in SIMULATIONS.items()},
+        {k: v.get('description', '') for k, v in SIMULATIONS.items()},
         runtimes,
         total_sim_time,
         timing_details=timing_details,
