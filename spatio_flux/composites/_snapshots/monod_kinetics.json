@@ -1,33 +1,42 @@
 {
+  "fields": {
+    "acetate": 0.0,
+    "biomass": 0.1,
+    "glucose": 10.0
+  },
   "monod_kinetics": {
     "_type": "process",
     "address": "local:MonodKinetics",
     "config": {
       "reactions": {
-        "assimilate_glucose": {
-          "reactant": "glucose",
+        "assimilate_acetate": {
+          "km": 0.6,
           "product": "mass",
+          "reactant": "acetate",
+          "vmax": 0.3,
+          "yield": 0.2
+        },
+        "assimilate_glucose": {
           "km": 0.5,
+          "product": "mass",
+          "reactant": "glucose",
           "vmax": 0.4,
           "yield": 0.2
         },
         "overflow_to_acetate": {
-          "reactant": "glucose",
-          "product": "acetate",
           "km": 0.5,
+          "product": "acetate",
+          "reactant": "glucose",
           "vmax": 0.3,
           "yield": 0.5
-        },
-        "assimilate_acetate": {
-          "reactant": "acetate",
-          "product": "mass",
-          "km": 0.6,
-          "vmax": 0.3,
-          "yield": 0.2
         }
       }
     },
     "inputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
       "substrates": {
         "acetate": [
           "fields",
@@ -37,13 +46,14 @@
           "fields",
           "glucose"
         ]
-      },
-      "biomass": [
-        "fields",
-        "biomass"
-      ]
+      }
     },
+    "interval": 0.1,
     "outputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
       "substrates": {
         "acetate": [
           "fields",
@@ -53,36 +63,41 @@
           "fields",
           "glucose"
         ]
-      },
-      "biomass": [
-        "fields",
-        "biomass"
-      ]
-    },
-    "interval": 0.1
+      }
+    }
   },
-  "fields": {
-    "glucose": 10.0,
-    "acetate": 0.0,
-    "biomass": 0.1
-  },
-  "viz_biomass": {
+  "viz_timeseries": {
     "_type": "step",
-    "address": "local:DemoTimeSeriesPlot",
+    "address": "local:TestSuiteTimeSeries",
     "config": {
-      "title": "biomass over time"
+      "field_names": [
+        "glucose",
+        "acetate",
+        "biomass"
+      ],
+      "time_units": "step",
+      "title": "Monod kinetics",
+      "y_label": "concentration / biomass"
     },
     "inputs": {
-      "value": [
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "biomass": [
         "fields",
         "biomass"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
       ]
     },
     "outputs": {
       "html": [
-        "viz_biomass_html"
+        "viz_timeseries_html"
       ]
     }
   },
-  "viz_biomass_html": ""
+  "viz_timeseries_html": ""
 }

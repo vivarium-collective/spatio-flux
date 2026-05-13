@@ -38,6 +38,20 @@ def spatial_many_dfba(core=None, *, model_id="ecoli core",
             n_bins=n_bins_t, mol_ids=mol_ids, initial_min_max=initial_min_max),
         "spatial_dFBA": get_spatial_many_dfba(
             model_id=model_id, mol_ids=mol_ids, n_bins=n_bins_t),
+        # Inline test-suite-style snapshots grid (matplotlib PNG-as-HTML):
+        # row per field, evenly-spaced columns across the trajectory.
+        "viz_snapshots": {
+            "_type": "step",
+            "address": "local:FieldSnapshotsGrid",
+            "config": {
+                "field_names": mol_ids,
+                "n_snapshots": 4,
+                "title": "spatial dFBA fields",
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_snapshots_html"]},
+        },
+        "viz_snapshots_html": "",
     }
 
 
@@ -75,6 +89,9 @@ def spatial_dfba_process(core=None, *, n_bins=[5, 6]):
     }
     model_grid = build_model_grid(n_bins=n_bins_t,
                                   model_positions=model_positions)
+    # A small subset of mol_ids for the per-step snapshots grid - keep
+    # the rendered PNG compact while still showing the key fluxes.
+    viz_field_names = ["glucose", "acetate", "dissolved biomass"]
     return {
         "fields": fields,
         "spatial_dFBA": get_spatial_dFBA_process(config={
@@ -83,6 +100,18 @@ def spatial_dfba_process(core=None, *, n_bins=[5, 6]):
             "model_grid": model_grid,
             "mol_ids": mol_ids,
         }),
+        "viz_snapshots": {
+            "_type": "step",
+            "address": "local:FieldSnapshotsGrid",
+            "config": {
+                "field_names": viz_field_names,
+                "n_snapshots": 4,
+                "title": "spatial dFBA process fields",
+            },
+            "inputs": {name: ["fields", name] for name in viz_field_names},
+            "outputs": {"html": ["viz_snapshots_html"]},
+        },
+        "viz_snapshots_html": "",
     }
 
 
@@ -132,4 +161,18 @@ def diffusion_process(core=None, *, n_bins=list(DEFAULT_BINS),
             "outputs": {"html": ["viz_field_html"]},
         },
         "viz_field_html": "",
+        # Test-suite-style snapshots grid: accumulate the trajectory and
+        # render evenly-spaced PNG snapshots for both transported fields.
+        "viz_snapshots": {
+            "_type": "step",
+            "address": "local:FieldSnapshotsGrid",
+            "config": {
+                "field_names": mol_ids,
+                "n_snapshots": 4,
+                "title": "diffusion trajectory",
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_snapshots_html"]},
+        },
+        "viz_snapshots_html": "",
     }

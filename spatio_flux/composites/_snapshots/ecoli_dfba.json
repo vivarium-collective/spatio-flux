@@ -3,78 +3,93 @@
     "_type": "process",
     "address": "local:DynamicFBA",
     "config": {
-      "model_file": "iAF1260.xml",
-      "substrate_update_reactions": {
-        "glucose": "EX_glc__D_e",
-        "formate": "EX_for_e"
-      },
       "kinetic_params": {
-        "glucose": [
-          0.5,
-          1
-        ],
         "formate": [
           0.5,
           2
+        ],
+        "glucose": [
+          0.5,
+          1
         ]
+      },
+      "model_file": "iAF1260.xml",
+      "substrate_update_reactions": {
+        "formate": "EX_for_e",
+        "glucose": "EX_glc__D_e"
       }
     },
     "inputs": {
-      "substrates": {
-        "glucose": [
-          "fields",
-          "glucose"
-        ],
-        "formate": [
-          "fields",
-          "formate"
-        ]
-      },
       "biomass": [
         "fields",
         "biomass"
-      ]
+      ],
+      "substrates": {
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
     },
+    "interval": 1.0,
     "outputs": {
-      "substrates": {
-        "glucose": [
-          "fields",
-          "glucose"
-        ],
-        "formate": [
-          "fields",
-          "formate"
-        ]
-      },
       "biomass": [
         "fields",
         "biomass"
-      ]
-    },
-    "interval": 1.0
+      ],
+      "substrates": {
+        "formate": [
+          "fields",
+          "formate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      }
+    }
   },
   "fields": {
-    "glucose": 10.0,
+    "biomass": 0.1,
     "formate": 5.0,
-    "biomass": 0.1
+    "glucose": 10.0
   },
-  "viz_biomass": {
+  "viz_timeseries": {
     "_type": "step",
-    "address": "local:DemoTimeSeriesPlot",
+    "address": "local:TestSuiteTimeSeries",
     "config": {
-      "title": "biomass over time"
+      "field_names": [
+        "glucose",
+        "formate",
+        "biomass"
+      ],
+      "time_units": "step",
+      "title": "ecoli dFBA",
+      "y_label": "concentration / biomass"
     },
     "inputs": {
-      "value": [
+      "biomass": [
         "fields",
         "biomass"
+      ],
+      "formate": [
+        "fields",
+        "formate"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
       ]
     },
     "outputs": {
       "html": [
-        "viz_biomass_html"
+        "viz_timeseries_html"
       ]
     }
   },
-  "viz_biomass_html": ""
+  "viz_timeseries_html": ""
 }

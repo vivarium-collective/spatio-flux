@@ -745,5 +745,38 @@
         }
       }
     }
-  }
+  },
+  "viz_snapshots": {
+    "_type": "step",
+    "address": "local:FieldSnapshotsGrid",
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "n_snapshots": 4,
+      "title": "spatial dFBA fields"
+    },
+    "inputs": {
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_snapshots_html"
+      ]
+    }
+  },
+  "viz_snapshots_html": ""
 }

@@ -64,8 +64,42 @@
     }
   },
   "fields": {
-    "acetate": 0,
+    "acetate": 0.0,
     "biomass": 0.1,
-    "glucose": 10
-  }
+    "glucose": 10.0
+  },
+  "viz_timeseries": {
+    "_type": "step",
+    "address": "local:TestSuiteTimeSeries",
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "biomass"
+      ],
+      "time_units": "step",
+      "title": "ecoli core dFBA",
+      "y_label": "concentration / biomass"
+    },
+    "inputs": {
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": ""
 }

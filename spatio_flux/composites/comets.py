@@ -67,6 +67,20 @@ def comets_diffusion(core=None, *, dissolved_model_id="ecoli core",
             bounds=bounds_t, n_bins=n_bins_t, mol_ids=mol_ids,
             advection_coeffs=advection_coeffs,
             diffusion_coeffs=diffusion_coeffs),
+        # Test-suite-style snapshots grid: row per field, evenly-spaced
+        # PNG snapshots across the trajectory (matplotlib base64 HTML).
+        "viz_snapshots": {
+            "_type": "step",
+            "address": "local:FieldSnapshotsGrid",
+            "config": {
+                "field_names": mol_ids,
+                "n_snapshots": 5,
+                "title": "COMETS diffusion fields",
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_snapshots_html"]},
+        },
+        "viz_snapshots_html": "",
     }
 
 
@@ -133,6 +147,19 @@ def comets_br_particles_kinetics(
                 n_bins=n_bins_t, bounds=bounds_t),
             "particle_division": get_particle_divide_process(
                 division_mass_threshold=division_mass_threshold),
+            # Test-suite-style snapshots grid across the trajectory.
+            "viz_snapshots": {
+                "_type": "step",
+                "address": "local:FieldSnapshotsGrid",
+                "config": {
+                    "field_names": mol_ids,
+                    "n_snapshots": 5,
+                    "title": "COMETS fields (br_particles_kinetics)",
+                },
+                "inputs": {name: ["fields", name] for name in mol_ids},
+                "outputs": {"html": ["viz_snapshots_html"]},
+            },
+            "viz_snapshots_html": "",
         },
         "schema": get_kinetic_particle_composition(core, config=particle_config),
     }
@@ -201,6 +228,19 @@ def comets_br_particles_dfba(
             n_bins=n_bins_t, bounds=bounds_t),
         "particle_division": get_particle_divide_process(
             division_mass_threshold=division_mass_threshold),
+        # Test-suite-style snapshots grid across the trajectory.
+        "viz_snapshots": {
+            "_type": "step",
+            "address": "local:FieldSnapshotsGrid",
+            "config": {
+                "field_names": mol_ids,
+                "n_snapshots": 4,
+                "title": "COMETS fields (br_particles_dfba)",
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_snapshots_html"]},
+        },
+        "viz_snapshots_html": "",
     }
     return {
         "state": state,
@@ -264,6 +304,19 @@ def comets_nt_particles_dfba(
                 particle_process_name="newtonian_particles",
                 bounds=bounds_t, boundary_to_add=("top",),
                 add_rate=0.01, mass_range=(1e-3, 1e-2)),
+            # Test-suite-style snapshots grid across the trajectory.
+            "viz_snapshots": {
+                "_type": "step",
+                "address": "local:FieldSnapshotsGrid",
+                "config": {
+                    "field_names": mol_ids,
+                    "n_snapshots": 4,
+                    "title": "COMETS fields (nt_particles_dfba)",
+                },
+                "inputs": {name: ["fields", name] for name in mol_ids},
+                "outputs": {"html": ["viz_snapshots_html"]},
+            },
+            "viz_snapshots_html": "",
         },
         "schema": get_dfba_particle_composition(model_file=particle_model_id),
     }

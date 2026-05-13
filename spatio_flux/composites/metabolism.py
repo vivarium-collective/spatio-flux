@@ -34,7 +34,29 @@ def ecoli_core_dfba(core=None, *, model_id="ecoli core",
     initial_fields = {"glucose": glucose, "acetate": acetate, "biomass": biomass}
     for substrate in dfba_process["inputs"]["substrates"]:
         initial_fields.setdefault(substrate, 10.0)
-    return {f"{model_id} dFBA": dfba_process, "fields": initial_fields}
+    return {
+        f"{model_id} dFBA": dfba_process,
+        "fields": initial_fields,
+        # Inline test-suite-style time-series viz (matplotlib PNG embedded
+        # as base64 HTML), wired to the actual extracellular field stores.
+        "viz_timeseries": {
+            "_type": "step",
+            "address": "local:TestSuiteTimeSeries",
+            "config": {
+                "field_names": ["glucose", "acetate", "biomass"],
+                "title": f"{model_id} dFBA",
+                "time_units": "step",
+                "y_label": "concentration / biomass",
+            },
+            "inputs": {
+                "glucose": ["fields", "glucose"],
+                "acetate": ["fields", "acetate"],
+                "biomass": ["fields", "biomass"],
+            },
+            "outputs": {"html": ["viz_timeseries_html"]},
+        },
+        "viz_timeseries_html": "",
+    }
 
 
 @composite_generator(
@@ -59,15 +81,25 @@ def monod_kinetics(core=None, *, model_id="overflow_metabolism",
         "monod_kinetics": get_monod_kinetics_process_from_config(
             model_config=model_config, interval=interval),
         "fields": {"glucose": glucose, "acetate": acetate, "biomass": biomass},
-        # Inline viz: accumulate biomass per step.
-        "viz_biomass": {
+        # Inline test-suite-style multi-field time-series viz (matplotlib
+        # PNG-as-base64 HTML), wired to the well-mixed field stores.
+        "viz_timeseries": {
             "_type": "step",
-            "address": "local:DemoTimeSeriesPlot",
-            "config": {"title": "biomass over time"},
-            "inputs": {"value": ["fields", "biomass"]},
-            "outputs": {"html": ["viz_biomass_html"]},
+            "address": "local:TestSuiteTimeSeries",
+            "config": {
+                "field_names": ["glucose", "acetate", "biomass"],
+                "title": "Monod kinetics",
+                "time_units": "step",
+                "y_label": "concentration / biomass",
+            },
+            "inputs": {
+                "glucose": ["fields", "glucose"],
+                "acetate": ["fields", "acetate"],
+                "biomass": ["fields", "biomass"],
+            },
+            "outputs": {"html": ["viz_timeseries_html"]},
         },
-        "viz_biomass_html": "",
+        "viz_timeseries_html": "",
     }
 
 
@@ -95,15 +127,25 @@ def ecoli_dfba(core=None, *, model_id="ecoli",
     return {
         f"{model_id} dFBA": dfba_process,
         "fields": initial_fields,
-        # Inline viz: accumulate biomass per step and render a time-series.
-        "viz_biomass": {
+        # Inline test-suite-style multi-field time-series viz (matplotlib
+        # PNG-as-base64 HTML), wired to the actual extracellular fields.
+        "viz_timeseries": {
             "_type": "step",
-            "address": "local:DemoTimeSeriesPlot",
-            "config": {"title": "biomass over time"},
-            "inputs": {"value": ["fields", "biomass"]},
-            "outputs": {"html": ["viz_biomass_html"]},
+            "address": "local:TestSuiteTimeSeries",
+            "config": {
+                "field_names": ["glucose", "formate", "biomass"],
+                "title": f"{model_id} dFBA",
+                "time_units": "step",
+                "y_label": "concentration / biomass",
+            },
+            "inputs": {
+                "glucose": ["fields", "glucose"],
+                "formate": ["fields", "formate"],
+                "biomass": ["fields", "biomass"],
+            },
+            "outputs": {"html": ["viz_timeseries_html"]},
         },
-        "viz_biomass_html": "",
+        "viz_timeseries_html": "",
     }
 
 
@@ -126,7 +168,27 @@ def yeast_dfba(core=None, *, model_id="yeast", glucose=5.0, biomass=0.1):
     initial_fields = {"glucose": glucose, "biomass": biomass}
     for substrate in dfba_process["inputs"]["substrates"]:
         initial_fields.setdefault(substrate, 10.0)
-    return {f"{model_id} dFBA": dfba_process, "fields": initial_fields}
+    return {
+        f"{model_id} dFBA": dfba_process,
+        "fields": initial_fields,
+        # Inline test-suite-style time-series viz (matplotlib PNG-as-HTML).
+        "viz_timeseries": {
+            "_type": "step",
+            "address": "local:TestSuiteTimeSeries",
+            "config": {
+                "field_names": ["glucose", "biomass"],
+                "title": f"{model_id} dFBA",
+                "time_units": "step",
+                "y_label": "concentration / biomass",
+            },
+            "inputs": {
+                "glucose": ["fields", "glucose"],
+                "biomass": ["fields", "biomass"],
+            },
+            "outputs": {"html": ["viz_timeseries_html"]},
+        },
+        "viz_timeseries_html": "",
+    }
 
 
 @composite_generator(
@@ -159,6 +221,10 @@ def community_dfba(core=None, *, dt=1.0, kinetic_model_id="acetate_only",
     kinetic_model_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
     field_names = get_field_names(MODEL_REGISTRY_DFBA)
     more_fields = {m: 0.1 for m in field_names if m not in ("glucose", "acetate")}
+    # Inline test-suite-style time-series viz wired to glucose/acetate plus
+    # every per-organism biomass store (one line each).
+    viz_field_names = ["glucose", "acetate", *model_ids, kinetic_biomass_id]
+    viz_inputs = {name: ["fields", name] for name in viz_field_names}
     return {
         **dfbas,
         "monod_kinetics": get_monod_kinetics_process_from_config(
@@ -166,6 +232,20 @@ def community_dfba(core=None, *, dt=1.0, kinetic_model_id="acetate_only",
             biomass_id=kinetic_biomass_id, interval=dt),
         "fields": {"glucose": glucose, "acetate": acetate,
                    **more_fields, **biomasses},
+        "viz_timeseries": {
+            "_type": "step",
+            "address": "local:TestSuiteTimeSeries",
+            "config": {
+                "field_names": viz_field_names,
+                "title": "community dFBA",
+                "time_units": "step",
+                "y_label": "concentration / biomass",
+                "log_scale": True,
+            },
+            "inputs": viz_inputs,
+            "outputs": {"html": ["viz_timeseries_html"]},
+        },
+        "viz_timeseries_html": "",
     }
 
 
@@ -193,6 +273,8 @@ def dfba_kinetics_community(core=None, *,
                             kinetic_biomass_id="kinetic biomass",
                             glucose=10.0, acetate=0.0, initial_biomass=0.01):
     kinetic_config = MODEL_REGISTRY_KINETICS[kinetic_model_id]()
+    viz_field_names = ["glucose", "acetate", dfba_biomass_id, kinetic_biomass_id]
+    viz_inputs = {name: ["fields", name] for name in viz_field_names}
     return {
         "dFBA": get_dfba_process_from_registry(
             model_id=dfba_model_id, biomass_id=dfba_biomass_id,
@@ -205,4 +287,17 @@ def dfba_kinetics_community(core=None, *,
             dfba_biomass_id: initial_biomass,
             kinetic_biomass_id: initial_biomass,
         },
+        "viz_timeseries": {
+            "_type": "step",
+            "address": "local:TestSuiteTimeSeries",
+            "config": {
+                "field_names": viz_field_names,
+                "title": "dFBA + Monod hybrid community",
+                "time_units": "step",
+                "y_label": "concentration / biomass",
+            },
+            "inputs": viz_inputs,
+            "outputs": {"html": ["viz_timeseries_html"]},
+        },
+        "viz_timeseries_html": "",
     }

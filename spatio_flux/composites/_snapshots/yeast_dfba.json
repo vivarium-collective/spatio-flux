@@ -2,8 +2,37 @@
   "fields": {
     "ammonium": 10.0,
     "biomass": 0.1,
-    "glucose": 5
+    "glucose": 5.0
   },
+  "viz_timeseries": {
+    "_type": "step",
+    "address": "local:TestSuiteTimeSeries",
+    "config": {
+      "field_names": [
+        "glucose",
+        "biomass"
+      ],
+      "time_units": "step",
+      "title": "yeast dFBA",
+      "y_label": "concentration / biomass"
+    },
+    "inputs": {
+      "biomass": [
+        "fields",
+        "biomass"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "yeast dFBA": {
     "_type": "process",
     "address": "local:DynamicFBA",

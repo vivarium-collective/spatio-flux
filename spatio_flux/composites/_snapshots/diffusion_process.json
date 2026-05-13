@@ -1,4 +1,45 @@
 {
+  "diffusion": {
+    "_type": "process",
+    "address": "local:DiffusionAdvection",
+    "config": {
+      "advection_coeffs": {
+        "dissolved biomass": [
+          0.0,
+          0.2
+        ],
+        "glucose": [
+          0,
+          0
+        ]
+      },
+      "boundary_conditions": null,
+      "bounds": [
+        40.0,
+        80.0
+      ],
+      "default_diffusion_dt": 0.1,
+      "default_diffusion_rate": 0.1,
+      "diffusion_coeffs": {
+        "dissolved biomass": 0.05,
+        "glucose": 0.05
+      },
+      "n_bins": [
+        10,
+        20
+      ]
+    },
+    "inputs": {
+      "fields": [
+        "fields"
+      ]
+    },
+    "outputs": {
+      "fields": [
+        "fields"
+      ]
+    }
+  },
   "fields": {
     "dissolved biomass": {
       "__numpy__": true,
@@ -501,47 +542,6 @@
       ]
     }
   },
-  "diffusion": {
-    "_type": "process",
-    "address": "local:DiffusionAdvection",
-    "config": {
-      "n_bins": [
-        10,
-        20
-      ],
-      "bounds": [
-        40.0,
-        80.0
-      ],
-      "default_diffusion_rate": 0.1,
-      "default_diffusion_dt": 0.1,
-      "diffusion_coeffs": {
-        "glucose": 0.05,
-        "dissolved biomass": 0.05
-      },
-      "advection_coeffs": {
-        "glucose": [
-          0,
-          0
-        ],
-        "dissolved biomass": [
-          0.0,
-          0.2
-        ]
-      },
-      "boundary_conditions": null
-    },
-    "inputs": {
-      "fields": [
-        "fields"
-      ]
-    },
-    "outputs": {
-      "fields": [
-        "fields"
-      ]
-    }
-  },
   "viz_field": {
     "_type": "step",
     "address": "local:FieldHeatmap",
@@ -560,5 +560,33 @@
       ]
     }
   },
-  "viz_field_html": ""
+  "viz_field_html": "",
+  "viz_snapshots": {
+    "_type": "step",
+    "address": "local:FieldSnapshotsGrid",
+    "config": {
+      "field_names": [
+        "glucose",
+        "dissolved biomass"
+      ],
+      "n_snapshots": 4,
+      "title": "diffusion trajectory"
+    },
+    "inputs": {
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_snapshots_html"
+      ]
+    }
+  },
+  "viz_snapshots_html": ""
 }

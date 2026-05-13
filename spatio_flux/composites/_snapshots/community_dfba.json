@@ -172,11 +172,11 @@
     }
   },
   "fields": {
-    "acetate": 0,
+    "acetate": 0.0,
     "cdiff": 0.1,
     "ecoli": 0.1,
     "ecoli core": 0.1,
-    "glucose": 10,
+    "glucose": 10.0,
     "llactis": 0.1,
     "monod biomass": 0.1,
     "pputida": 0.1,
@@ -356,6 +356,71 @@
       }
     }
   },
+  "viz_timeseries": {
+    "_type": "step",
+    "address": "local:TestSuiteTimeSeries",
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "ecoli core",
+        "ecoli",
+        "cdiff",
+        "pputida",
+        "yeast",
+        "llactis",
+        "monod biomass"
+      ],
+      "log_scale": true,
+      "time_units": "step",
+      "title": "community dFBA",
+      "y_label": "concentration / biomass"
+    },
+    "inputs": {
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "cdiff": [
+        "fields",
+        "cdiff"
+      ],
+      "ecoli": [
+        "fields",
+        "ecoli"
+      ],
+      "ecoli core": [
+        "fields",
+        "ecoli core"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "llactis": [
+        "fields",
+        "llactis"
+      ],
+      "monod biomass": [
+        "fields",
+        "monod biomass"
+      ],
+      "pputida": [
+        "fields",
+        "pputida"
+      ],
+      "yeast": [
+        "fields",
+        "yeast"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "yeast dFBA": {
     "_type": "process",
     "address": "local:DynamicFBA",
