@@ -94,18 +94,23 @@ def spatial_dfba_process(core=None, *, n_bins=[5, 6]):
         "transport timescales."
     ),
     parameters={
-        "n_bins": {"type": "object", "default": list(DEFAULT_BINS)},
-        "bounds": {"type": "object", "default": list(DEFAULT_BOUNDS)},
+        "n_bins":         {"type": "object", "default": list(DEFAULT_BINS)},
+        "bounds":         {"type": "object", "default": list(DEFAULT_BOUNDS)},
+        "diffusion_rate": {"type": "float",  "default": DEFAULT_DIFFUSION / 10},
+        "advection_rate": {"type": "object", "default": list(DEFAULT_ADVECTION)},
     },
 )
 def diffusion_process(core=None, *, n_bins=list(DEFAULT_BINS),
-                      bounds=list(DEFAULT_BOUNDS)):
+                      bounds=list(DEFAULT_BOUNDS),
+                      diffusion_rate=DEFAULT_DIFFUSION / 10,
+                      advection_rate=list(DEFAULT_ADVECTION)):
     n_bins_t, bounds_t = tuple(n_bins), tuple(bounds)
+    advection_rate_t = tuple(advection_rate)
     mol_ids = ["glucose", "dissolved biomass"]
-    advection_coeffs = {"dissolved biomass": DEFAULT_ADVECTION}
+    advection_coeffs = {"dissolved biomass": advection_rate_t}
     diffusion_coeffs = {
-        "glucose": DEFAULT_DIFFUSION / 10,
-        "dissolved biomass": DEFAULT_DIFFUSION / 10,
+        "glucose": diffusion_rate,
+        "dissolved biomass": diffusion_rate,
     }
     glc_field = np.random.uniform(
         low=0.1, high=2, size=(n_bins_t[1], n_bins_t[0]))
