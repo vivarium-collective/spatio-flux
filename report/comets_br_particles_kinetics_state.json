@@ -1,6 +1,6 @@
 {
   "particles": {
-    "uv9H5Soj": {
+    "HdYZ1K7O": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "uv9H5Soj",
+      "id": "HdYZ1K7O",
       "position": [
-        33.25800144419376,
-        13.30568939675839
+        11.101893384848438,
+        26.279373269938045
       ],
-      "mass": 9.586138767278063,
+      "mass": 2.794559640071159,
       "local": {},
       "exchange": {},
       "sub_masses": {},

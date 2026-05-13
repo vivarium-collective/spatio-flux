@@ -1,6 +1,6 @@
 {
   "particles": {
-    "DXhTjO0M": {
+    "v7F5jFSU": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "DXhTjO0M",
+      "id": "v7F5jFSU",
       "position": [
-        13.2226117895422,
-        35.814371136146185
+        13.183325531842826,
+        15.915668704549029
       ],
-      "mass": 0.047618814852180766,
+      "mass": 0.6498650062244948,
       "local": {},
       "exchange": {},
       "sub_masses": {},

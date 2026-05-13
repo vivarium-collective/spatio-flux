@@ -1,6 +1,6 @@
 {
   "particles": {
-    "yD-RuJEe": {
+    "N_PlTDxr": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "yD-RuJEe",
+      "id": "N_PlTDxr",
       "position": [
-        16.663176465769364,
-        11.662591190008436
+        15.729698501170036,
+        37.23226211662262
       ],
-      "mass": 0.4850099108740398,
+      "mass": 0.5178877249902615,
       "local": {},
       "exchange": {},
       "sub_masses": {},
