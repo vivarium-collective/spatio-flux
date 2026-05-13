@@ -207,7 +207,10 @@ def _load_base_model(model_file):
                 raise FileNotFoundError(f"SBML file not found at: {full_path}")
             model = cobra.io.read_sbml_model(str(full_path))
         else:
-            model = load_model(model_file)
+            # cache=False bypasses cobra.io.web._cached_load, which uses
+            # diskcache (pickle deserialization, CVE-affected). Our own
+            # _BASE_MODEL_CACHE above already memoizes within the process.
+            model = load_model(model_file, cache=False)
     except Exception:
         raise ValueError(
             f"Failed to load model from {model_file}. "

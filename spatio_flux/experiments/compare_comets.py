@@ -130,7 +130,8 @@ def run_cometspy(n: int, total_time: float = TOTAL_TIME) -> dict:
           'acetate_history'     : (T+1, n, n) array of acetate
           'time_h'              : (T+1,) array of times (hours)
     """
-    e_coli = cobra.io.load_model("textbook")
+    # cache=False bypasses cobra's diskcache (pickle deserialization CVE).
+    e_coli = cobra.io.load_model("textbook", cache=False)
 
     # Match the bounds spatio-flux's MODEL_REGISTRY_DFBA['ecoli core'] applies:
     # restrict ATPM (so low-uptake conditions can still satisfy ATP demand)
