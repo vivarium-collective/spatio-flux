@@ -54,6 +54,31 @@ Each composite is a `@composite_generator`-decorated function under
 `spatio_flux/composites/`, discoverable by the
 [pbg-superpowers](https://github.com/vivarium-collective/pbg-superpowers) dashboard.
 
+### Reusing composites at different scales
+
+Generators expose their lattice and transport parameters as keyword arguments —
+defaults match what the test-suite report uses, but callers (or the dashboard's
+parameter form) can override them to reuse the same composite at a different
+resolution or with different transport rates. Commonly available knobs:
+
+- `n_bins`, `bounds` — lattice resolution and physical extent (default `SQUARE_BINS` / `SQUARE_BOUNDS`, or `DEFAULT_BINS` / `DEFAULT_BOUNDS` for diffusion-only generators)
+- `diffusion_rate`, `advection_rate` — Brownian-particle or field transport coefficients (default `DEFAULT_DIFFUSION`, `DEFAULT_ADVECTION`; some generators use a scaled default such as `DEFAULT_DIFFUSION / 2`)
+- `n_particles`, `add_rate`, `division_mass_threshold` — particle population controls
+- `initial_min_max` — per-molecule (min, max) ranges used to seed field state
+- `field_advection_rate` — field-level advection where it must be disambiguated from particle advection (e.g. `comets_br_particles_dfba`)
+
+Each generator declares only the subset of parameters it actually uses; see the
+`parameters={…}` block on each `@composite_generator` for the authoritative
+list and types. Build a doc with overrides via:
+
+```python
+from pbg_superpowers.composite_generator import build_generator
+from spatio_flux.composites import REGISTRY
+
+entry = next(e for e in REGISTRY.values() if e.name == "diffusion_process")
+doc = build_generator(entry, overrides={"n_bins": [20, 40], "diffusion_rate": 0.1})
+```
+
 ---
 
 ## Run it locally
