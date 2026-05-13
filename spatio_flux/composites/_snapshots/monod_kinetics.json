@@ -1,42 +1,33 @@
 {
-  "fields": {
-    "acetate": 0,
-    "biomass": 0.1,
-    "glucose": 10
-  },
   "monod_kinetics": {
     "_type": "process",
     "address": "local:MonodKinetics",
     "config": {
       "reactions": {
-        "assimilate_acetate": {
-          "km": 0.6,
-          "product": "mass",
-          "reactant": "acetate",
-          "vmax": 0.3,
-          "yield": 0.2
-        },
         "assimilate_glucose": {
-          "km": 0.5,
-          "product": "mass",
           "reactant": "glucose",
+          "product": "mass",
+          "km": 0.5,
           "vmax": 0.4,
           "yield": 0.2
         },
         "overflow_to_acetate": {
-          "km": 0.5,
-          "product": "acetate",
           "reactant": "glucose",
+          "product": "acetate",
+          "km": 0.5,
           "vmax": 0.3,
           "yield": 0.5
+        },
+        "assimilate_acetate": {
+          "reactant": "acetate",
+          "product": "mass",
+          "km": 0.6,
+          "vmax": 0.3,
+          "yield": 0.2
         }
       }
     },
     "inputs": {
-      "biomass": [
-        "fields",
-        "biomass"
-      ],
       "substrates": {
         "acetate": [
           "fields",
@@ -46,14 +37,13 @@
           "fields",
           "glucose"
         ]
-      }
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
     },
-    "interval": 0.1,
     "outputs": {
-      "biomass": [
-        "fields",
-        "biomass"
-      ],
       "substrates": {
         "acetate": [
           "fields",
@@ -63,7 +53,36 @@
           "fields",
           "glucose"
         ]
-      }
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "interval": 0.1
+  },
+  "fields": {
+    "glucose": 10.0,
+    "acetate": 0.0,
+    "biomass": 0.1
+  },
+  "viz_biomass": {
+    "_type": "step",
+    "address": "local:DemoTimeSeriesPlot",
+    "config": {
+      "title": "biomass over time"
+    },
+    "inputs": {
+      "value": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_biomass_html"
+      ]
     }
-  }
+  },
+  "viz_biomass_html": ""
 }

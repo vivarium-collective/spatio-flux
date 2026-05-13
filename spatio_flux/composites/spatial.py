@@ -123,4 +123,13 @@ def diffusion_process(core=None, *, n_bins=list(DEFAULT_BINS),
             bounds=bounds_t, n_bins=n_bins_t, mol_ids=mol_ids,
             diffusion_coeffs=diffusion_coeffs,
             advection_coeffs=advection_coeffs),
+        # Inline viz: render the glucose field as a 2D heatmap each step.
+        "viz_field": {
+            "_type": "step",
+            "address": "local:FieldHeatmap",
+            "config": {"title": "glucose field"},
+            "inputs": {"field": ["fields", "glucose"]},
+            "outputs": {"html": ["viz_field_html"]},
+        },
+        "viz_field_html": "",
     }

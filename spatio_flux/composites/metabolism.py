@@ -59,6 +59,15 @@ def monod_kinetics(core=None, *, model_id="overflow_metabolism",
         "monod_kinetics": get_monod_kinetics_process_from_config(
             model_config=model_config, interval=interval),
         "fields": {"glucose": glucose, "acetate": acetate, "biomass": biomass},
+        # Inline viz: accumulate biomass per step.
+        "viz_biomass": {
+            "_type": "step",
+            "address": "local:DemoTimeSeriesPlot",
+            "config": {"title": "biomass over time"},
+            "inputs": {"value": ["fields", "biomass"]},
+            "outputs": {"html": ["viz_biomass_html"]},
+        },
+        "viz_biomass_html": "",
     }
 
 
@@ -83,7 +92,19 @@ def ecoli_dfba(core=None, *, model_id="ecoli",
     initial_fields = {"glucose": glucose, "formate": formate, "biomass": biomass}
     for substrate in dfba_process["inputs"]["substrates"]:
         initial_fields.setdefault(substrate, 10.0)
-    return {f"{model_id} dFBA": dfba_process, "fields": initial_fields}
+    return {
+        f"{model_id} dFBA": dfba_process,
+        "fields": initial_fields,
+        # Inline viz: accumulate biomass per step and render a time-series.
+        "viz_biomass": {
+            "_type": "step",
+            "address": "local:DemoTimeSeriesPlot",
+            "config": {"title": "biomass over time"},
+            "inputs": {"value": ["fields", "biomass"]},
+            "outputs": {"html": ["viz_biomass_html"]},
+        },
+        "viz_biomass_html": "",
+    }
 
 
 @composite_generator(

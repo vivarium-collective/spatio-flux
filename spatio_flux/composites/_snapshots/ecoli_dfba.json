@@ -3,59 +3,78 @@
     "_type": "process",
     "address": "local:DynamicFBA",
     "config": {
+      "model_file": "iAF1260.xml",
+      "substrate_update_reactions": {
+        "glucose": "EX_glc__D_e",
+        "formate": "EX_for_e"
+      },
       "kinetic_params": {
-        "formate": [
-          0.5,
-          2
-        ],
         "glucose": [
           0.5,
           1
+        ],
+        "formate": [
+          0.5,
+          2
         ]
-      },
-      "model_file": "iAF1260.xml",
-      "substrate_update_reactions": {
-        "formate": "EX_for_e",
-        "glucose": "EX_glc__D_e"
       }
     },
     "inputs": {
-      "biomass": [
-        "fields",
-        "biomass"
-      ],
       "substrates": {
-        "formate": [
-          "fields",
-          "formate"
-        ],
         "glucose": [
           "fields",
           "glucose"
+        ],
+        "formate": [
+          "fields",
+          "formate"
         ]
-      }
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
     },
-    "interval": 1.0,
     "outputs": {
-      "biomass": [
-        "fields",
-        "biomass"
-      ],
       "substrates": {
-        "formate": [
-          "fields",
-          "formate"
-        ],
         "glucose": [
           "fields",
           "glucose"
+        ],
+        "formate": [
+          "fields",
+          "formate"
         ]
-      }
-    }
+      },
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "interval": 1.0
   },
   "fields": {
-    "biomass": 0.1,
-    "formate": 5,
-    "glucose": 10
-  }
+    "glucose": 10.0,
+    "formate": 5.0,
+    "biomass": 0.1
+  },
+  "viz_biomass": {
+    "_type": "step",
+    "address": "local:DemoTimeSeriesPlot",
+    "config": {
+      "title": "biomass over time"
+    },
+    "inputs": {
+      "value": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_biomass_html"
+      ]
+    }
+  },
+  "viz_biomass_html": ""
 }
