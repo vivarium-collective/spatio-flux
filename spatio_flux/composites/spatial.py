@@ -52,6 +52,20 @@ def spatial_many_dfba(core=None, *, model_id="ecoli core",
             "outputs": {"html": ["viz_snapshots_html"]},
         },
         "viz_snapshots_html": "",
+        # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+        # base64 image/gif data URI showing the full trajectory in motion.
+        "viz_animation": {
+            "_type": "step",
+            "address": "local:FieldAnimationGif",
+            "config": {
+                "field_names": mol_ids,
+                "title": "spatial dFBA field animation",
+                "fps": 4,
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_animation_html"]},
+        },
+        "viz_animation_html": "",
     }
 
 
@@ -112,6 +126,20 @@ def spatial_dfba_process(core=None, *, n_bins=[5, 6]):
             "outputs": {"html": ["viz_snapshots_html"]},
         },
         "viz_snapshots_html": "",
+        # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+        # base64 image/gif data URI showing the full trajectory in motion.
+        "viz_animation": {
+            "_type": "step",
+            "address": "local:FieldAnimationGif",
+            "config": {
+                "field_names": viz_field_names,
+                "title": "spatial dFBA process field animation",
+                "fps": 4,
+            },
+            "inputs": {name: ["fields", name] for name in viz_field_names},
+            "outputs": {"html": ["viz_animation_html"]},
+        },
+        "viz_animation_html": "",
     }
 
 
@@ -175,4 +203,18 @@ def diffusion_process(core=None, *, n_bins=list(DEFAULT_BINS),
             "outputs": {"html": ["viz_snapshots_html"]},
         },
         "viz_snapshots_html": "",
+        # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+        # base64 image/gif data URI showing the full trajectory in motion.
+        "viz_animation": {
+            "_type": "step",
+            "address": "local:FieldAnimationGif",
+            "config": {
+                "field_names": mol_ids,
+                "title": "diffusion field animation",
+                "fps": 4,
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_animation_html"]},
+        },
+        "viz_animation_html": "",
     }

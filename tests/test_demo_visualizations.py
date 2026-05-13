@@ -1,6 +1,7 @@
 """Tests for the FieldHeatmap viz that ships with spatio-flux."""
 import numpy as np
 
+from spatio_flux.visualizations.field_animation_gif import FieldAnimationGif
 from spatio_flux.visualizations.field_heatmap import FieldHeatmap
 from pbg_superpowers.visualization import Visualization
 
@@ -55,3 +56,47 @@ def test_field_heatmap_demo_dict():
     demo = FieldHeatmap.demo()
     assert 'field' in demo
     assert isinstance(demo['field'], list)
+
+
+def test_field_animation_gif_renders_a_gif():
+    inst = FieldAnimationGif.__new__(FieldAnimationGif)
+    inst.config = {
+        'field_names': ['glucose', 'acetate'],
+        'title': 'demo animation',
+        'fps': 4,
+        'cmap': 'viridis',
+    }
+    inst._history = []
+    # Push three timesteps with two fields each.
+    for k in range(3):
+        out = inst.update({
+            'glucose': np.array([[1.0 + k, 0.5], [0.3, 0.1]], dtype=float),
+            'acetate': np.array([[0.0, 0.1 + k], [0.2, 0.3]], dtype=float),
+        })
+    assert 'html' in out
+    html = out['html']
+    assert 'data:image/gif;base64,' in html
+    # Strip the prefix and decode to confirm we produced non-zero GIF bytes.
+    b64 = html.split('data:image/gif;base64,', 1)[1].split('"', 1)[0]
+    import base64 as _b64
+    gif_bytes = _b64.b64decode(b64)
+    assert len(gif_bytes) > 0
+    # GIF magic header.
+    assert gif_bytes[:6] in (b'GIF87a', b'GIF89a')
+
+
+def test_field_animation_gif_handles_no_data():
+    inst = FieldAnimationGif.__new__(FieldAnimationGif)
+    inst.config = {
+        'field_names': ['glucose'],
+        'title': '',
+        'fps': 4,
+        'cmap': 'viridis',
+    }
+    inst._history = []
+    # Update with no data -> render falls back to placeholder.
+    out = inst.update({})
+    assert 'html' in out
+    assert 'No field data yet' in out['html']
+    # No GIF data URI should be emitted.
+    assert 'data:image/gif' not in out['html']

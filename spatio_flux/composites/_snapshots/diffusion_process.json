@@ -542,6 +542,34 @@
       ]
     }
   },
+  "viz_animation": {
+    "_type": "step",
+    "address": "local:FieldAnimationGif",
+    "config": {
+      "field_names": [
+        "glucose",
+        "dissolved biomass"
+      ],
+      "fps": 4,
+      "title": "diffusion field animation"
+    },
+    "inputs": {
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ],
+      "glucose": [
+        "fields",
+        "glucose"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_animation_html"
+      ]
+    }
+  },
+  "viz_animation_html": "",
   "viz_field": {
     "_type": "step",
     "address": "local:FieldHeatmap",

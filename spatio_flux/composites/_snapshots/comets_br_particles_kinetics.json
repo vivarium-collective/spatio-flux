@@ -916,6 +916,34 @@
         }
       }
     },
+    "viz_animation": {
+      "_type": "step",
+      "address": "local:FieldAnimationGif",
+      "config": {
+        "field_names": [
+          "glucose",
+          "acetate"
+        ],
+        "fps": 4,
+        "title": "COMETS animation (br_particles_kinetics)"
+      },
+      "inputs": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      },
+      "outputs": {
+        "html": [
+          "viz_animation_html"
+        ]
+      }
+    },
+    "viz_animation_html": "",
     "viz_snapshots": {
       "_type": "step",
       "address": "local:FieldSnapshotsGrid",

@@ -30407,6 +30407,39 @@
         }
       }
     },
+    "viz_animation": {
+      "_type": "step",
+      "address": "local:FieldAnimationGif",
+      "config": {
+        "field_names": [
+          "glucose",
+          "acetate",
+          "dissolved biomass"
+        ],
+        "fps": 4,
+        "title": "COMETS animation (nt_particles_dfba)"
+      },
+      "inputs": {
+        "acetate": [
+          "fields",
+          "acetate"
+        ],
+        "dissolved biomass": [
+          "fields",
+          "dissolved biomass"
+        ],
+        "glucose": [
+          "fields",
+          "glucose"
+        ]
+      },
+      "outputs": {
+        "html": [
+          "viz_animation_html"
+        ]
+      }
+    },
+    "viz_animation_html": "",
     "viz_snapshots": {
       "_type": "step",
       "address": "local:FieldSnapshotsGrid",

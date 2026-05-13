@@ -81,6 +81,20 @@ def comets_diffusion(core=None, *, dissolved_model_id="ecoli core",
             "outputs": {"html": ["viz_snapshots_html"]},
         },
         "viz_snapshots_html": "",
+        # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+        # base64 image/gif data URI showing the full trajectory in motion.
+        "viz_animation": {
+            "_type": "step",
+            "address": "local:FieldAnimationGif",
+            "config": {
+                "field_names": mol_ids,
+                "title": "COMETS diffusion field animation",
+                "fps": 4,
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_animation_html"]},
+        },
+        "viz_animation_html": "",
     }
 
 
@@ -160,6 +174,20 @@ def comets_br_particles_kinetics(
                 "outputs": {"html": ["viz_snapshots_html"]},
             },
             "viz_snapshots_html": "",
+            # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+            # base64 image/gif data URI showing the full trajectory in motion.
+            "viz_animation": {
+                "_type": "step",
+                "address": "local:FieldAnimationGif",
+                "config": {
+                    "field_names": mol_ids,
+                    "title": "COMETS animation (br_particles_kinetics)",
+                    "fps": 4,
+                },
+                "inputs": {name: ["fields", name] for name in mol_ids},
+                "outputs": {"html": ["viz_animation_html"]},
+            },
+            "viz_animation_html": "",
         },
         "schema": get_kinetic_particle_composition(core, config=particle_config),
     }
@@ -241,6 +269,20 @@ def comets_br_particles_dfba(
             "outputs": {"html": ["viz_snapshots_html"]},
         },
         "viz_snapshots_html": "",
+        # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+        # base64 image/gif data URI showing the full trajectory in motion.
+        "viz_animation": {
+            "_type": "step",
+            "address": "local:FieldAnimationGif",
+            "config": {
+                "field_names": mol_ids,
+                "title": "COMETS animation (br_particles_dfba)",
+                "fps": 4,
+            },
+            "inputs": {name: ["fields", name] for name in mol_ids},
+            "outputs": {"html": ["viz_animation_html"]},
+        },
+        "viz_animation_html": "",
     }
     return {
         "state": state,
@@ -317,6 +359,20 @@ def comets_nt_particles_dfba(
                 "outputs": {"html": ["viz_snapshots_html"]},
             },
             "viz_snapshots_html": "",
+            # Animated-GIF counterpart to viz_snapshots: same wiring, but a
+            # base64 image/gif data URI showing the full trajectory in motion.
+            "viz_animation": {
+                "_type": "step",
+                "address": "local:FieldAnimationGif",
+                "config": {
+                    "field_names": mol_ids,
+                    "title": "COMETS animation (nt_particles_dfba)",
+                    "fps": 4,
+                },
+                "inputs": {name: ["fields", name] for name in mol_ids},
+                "outputs": {"html": ["viz_animation_html"]},
+            },
+            "viz_animation_html": "",
         },
         "schema": get_dfba_particle_composition(model_file=particle_model_id),
     }
