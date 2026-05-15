@@ -119,7 +119,13 @@ def plot_dfba_single(results, state, config=None, filename='dfba_single_timeseri
 def plot_community_dfba(results, state, config=None):
     config = config or {}
     filename = config.get('filename', 'dfba_multi_timeseries.png')
-    species_ids = [state[s]['inputs']['biomass'][-1] for s in state.keys() if s not in ['fields', 'emitter', 'global_time']]
+    species_ids = [
+        entry['inputs']['biomass'][-1]
+        for entry in state.values()
+        if isinstance(entry, dict)
+        and isinstance(entry.get('inputs'), dict)
+        and 'biomass' in entry['inputs']
+    ]
     plot_time_series(results, field_names=species_ids, log_scale=True, normalize=True, out_dir='out', filename=filename,
                      title='hybrid community',
                      figsize=(4.5, 3.5),
