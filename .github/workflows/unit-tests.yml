@@ -1,0 +1,39 @@
+name: Unit tests
+
+on:
+  pull_request:
+    paths:
+      - 'spatio_flux/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/unit-tests.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'spatio_flux/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/unit-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+
+      - name: Install dependencies
+        run: uv sync --frozen --group dev
+
+      - name: Run pytest
+        run: uv run pytest tests/ -q
