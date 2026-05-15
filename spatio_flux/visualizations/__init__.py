@@ -8,6 +8,7 @@ Importing this package makes its Visualization classes available to
 from spatio_flux.visualizations.field_animation_gif import FieldAnimationGif
 from spatio_flux.visualizations.field_heatmap import FieldHeatmap
 from spatio_flux.visualizations.field_snapshots import FieldSnapshotsGrid
+from spatio_flux.visualizations.particle_traces import ParticleTraces
 from spatio_flux.visualizations.test_suite_timeseries import (
     TestSuiteTimeSeries,
 )
@@ -16,5 +17,6 @@ __all__ = [
     "FieldAnimationGif",
     "FieldHeatmap",
     "FieldSnapshotsGrid",
+    "ParticleTraces",
     "TestSuiteTimeSeries",
 ]
