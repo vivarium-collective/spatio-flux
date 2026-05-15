@@ -8621,6 +8621,82 @@
     },
     "interval": 1.0
   },
+  "viz_snapshots": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldSnapshotsGrid"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "n_snapshots": 5,
+      "title": "COMETS diffusion fields",
+      "colormap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_snapshots_html"
+      ]
+    }
+  },
+  "viz_snapshots_html": "",
+  "viz_animation": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldAnimationGif"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "title": "COMETS diffusion field animation",
+      "fps": 4,
+      "cmap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_animation_html"
+      ]
+    }
+  },
+  "viz_animation_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

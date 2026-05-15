@@ -3,20 +3,20 @@
   "fields": {
     "glucose": [
       [
-        12.435429049957465,
-        11.540486089156357
+        13.641477580697952,
+        14.921212197517267
       ],
       [
-        2.68314342399546,
-        16.64957688218415
+        3.652892428806358,
+        9.701313859833524
       ],
       [
-        13.55030874915987,
-        4.5139316863785535
+        18.461061501813198,
+        10.039145320047462
       ],
       [
-        8.779041334425617,
-        6.593045944985483
+        8.154926275081353,
+        17.015331128478028
       ]
     ],
     "acetate": [
@@ -39,20 +39,20 @@
     ],
     "dissolved biomass": [
       [
-        0.023693904905207508,
-        0.047779100347371345
+        0.0001490621090819988,
+        0.0838307362556957
       ],
       [
-        0.037100290105448096,
-        0.06377371361801512
+        0.08139002747242913,
+        0.01763696513723292
       ],
       [
-        0.04833740544141826,
-        0.03224826825845584
+        0.01335030359558086,
+        0.06411400303539667
       ],
       [
-        0.011202627348796658,
-        0.011302546425677762
+        0.08214266840231718,
+        0.047188824299533166
       ]
     ]
   },
@@ -762,6 +762,82 @@
       "interval": 1.0
     }
   },
+  "viz_snapshots": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldSnapshotsGrid"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "n_snapshots": 4,
+      "title": "spatial dFBA fields",
+      "colormap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_snapshots_html"
+      ]
+    }
+  },
+  "viz_snapshots_html": "",
+  "viz_animation": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldAnimationGif"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "title": "spatial dFBA field animation",
+      "fps": 4,
+      "cmap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_animation_html"
+      ]
+    }
+  },
+  "viz_animation_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

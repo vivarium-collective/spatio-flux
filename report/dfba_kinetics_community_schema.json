@@ -29,6 +29,22 @@
     "interval": "float"
   },
   "fields": "glucose:concentration|acetate:concentration|dfba biomass:mass|kinetic biomass:mass",
+  "viz_timeseries": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "glucose:float|acetate:float|dfba biomass:float|kinetic biomass:float",
+    "_outputs": "html:string",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "viz_timeseries_html": "string",
   "emitter": {
     "_type": "step",
     "address": {

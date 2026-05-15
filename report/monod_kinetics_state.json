@@ -71,6 +71,45 @@
     "acetate": 0.0,
     "biomass": 0.1
   },
+  "viz_timeseries": {
+    "address": {
+      "protocol": "local",
+      "data": "TestSuiteTimeSeries"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "biomass"
+      ],
+      "title": "Monod kinetics",
+      "time_units": "step",
+      "y_label": "concentration / biomass",
+      "log_scale": false
+    },
+    "_inputs": "glucose:float|acetate:float|biomass:float",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

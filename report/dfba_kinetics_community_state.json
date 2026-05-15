@@ -120,6 +120,50 @@
     "dfba biomass": 0.01,
     "kinetic biomass": 0.01
   },
+  "viz_timeseries": {
+    "address": {
+      "protocol": "local",
+      "data": "TestSuiteTimeSeries"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dfba biomass",
+        "kinetic biomass"
+      ],
+      "title": "dFBA + Monod hybrid community",
+      "time_units": "step",
+      "y_label": "concentration / biomass",
+      "log_scale": false
+    },
+    "_inputs": "glucose:float|acetate:float|dfba biomass:float|kinetic biomass:float",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dfba biomass": [
+        "fields",
+        "dfba biomass"
+      ],
+      "kinetic biomass": [
+        "fields",
+        "kinetic biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

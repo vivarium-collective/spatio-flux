@@ -1,6 +1,6 @@
 {
   "particles": {
-    "yDXF_3wW": {
+    "g-L5fxOK": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "yDXF_3wW",
+      "id": "g-L5fxOK",
       "position": [
-        3.812222004297283,
-        48.63645924915356
+        3.6575554825028886,
+        11.094385838818111
       ],
-      "mass": 3.1302035599769398,
+      "mass": 9.060238093324529,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -922,6 +922,72 @@
       ]
     }
   },
+  "viz_snapshots": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldSnapshotsGrid"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate"
+      ],
+      "n_snapshots": 5,
+      "title": "COMETS fields (br_particles_kinetics)",
+      "colormap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_snapshots_html"
+      ]
+    }
+  },
+  "viz_snapshots_html": "",
+  "viz_animation": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldAnimationGif"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate"
+      ],
+      "title": "COMETS animation (br_particles_kinetics)",
+      "fps": 4,
+      "cmap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_animation_html"
+      ]
+    }
+  },
+  "viz_animation_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

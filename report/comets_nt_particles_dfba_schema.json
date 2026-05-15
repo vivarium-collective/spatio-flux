@@ -5704,6 +5704,38 @@
     "priority": "float",
     "_triggers": "node"
   },
+  "viz_snapshots": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "viz_snapshots_html": "string",
+  "viz_animation": {
+    "_type": "step",
+    "address": {
+      "_type": "protocol",
+      "protocol": "string",
+      "data": "node"
+    },
+    "config": "node",
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": "wires",
+    "outputs": "wires",
+    "priority": "float",
+    "_triggers": "node"
+  },
+  "viz_animation_html": "string",
   "emitter": {
     "_type": "step",
     "address": {

@@ -461,6 +461,75 @@
     "glutamate": 0.0,
     "serine": 0.0
   },
+  "viz_timeseries": {
+    "address": {
+      "protocol": "local",
+      "data": "TestSuiteTimeSeries"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "ecoli core",
+        "ecoli",
+        "cdiff",
+        "pputida",
+        "yeast",
+        "llactis",
+        "monod biomass"
+      ],
+      "title": "community dFBA",
+      "time_units": "step",
+      "y_label": "concentration / biomass",
+      "log_scale": true
+    },
+    "_inputs": "glucose:float|acetate:float|ecoli core:float|ecoli:float|cdiff:float|pputida:float|yeast:float|llactis:float|monod biomass:float",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "ecoli core": [
+        "fields",
+        "ecoli core"
+      ],
+      "ecoli": [
+        "fields",
+        "ecoli"
+      ],
+      "cdiff": [
+        "fields",
+        "cdiff"
+      ],
+      "pputida": [
+        "fields",
+        "pputida"
+      ],
+      "yeast": [
+        "fields",
+        "yeast"
+      ],
+      "llactis": [
+        "fields",
+        "llactis"
+      ],
+      "monod biomass": [
+        "fields",
+        "monod biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

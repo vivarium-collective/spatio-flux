@@ -66,6 +66,45 @@
     "formate": 5.0,
     "biomass": 0.1
   },
+  "viz_timeseries": {
+    "address": {
+      "protocol": "local",
+      "data": "TestSuiteTimeSeries"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "formate",
+        "biomass"
+      ],
+      "title": "ecoli dFBA",
+      "time_units": "step",
+      "y_label": "concentration / biomass",
+      "log_scale": false
+    },
+    "_inputs": "glucose:float|formate:float|biomass:float",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "formate": [
+        "fields",
+        "formate"
+      ],
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

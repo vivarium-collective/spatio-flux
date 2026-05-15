@@ -1,6 +1,6 @@
 {
   "particles": {
-    "m3fPhLHj": {
+    "BOFSyb2O": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "m3fPhLHj",
+      "id": "BOFSyb2O",
       "position": [
-        40.42660058100683,
-        8.558671164442305
+        7.301088318887661,
+        28.202632852222408
       ],
-      "mass": 0.01914692012022793,
+      "mass": 0.11026016275874614,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -8828,6 +8828,82 @@
       ]
     }
   },
+  "viz_snapshots": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldSnapshotsGrid"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "n_snapshots": 4,
+      "title": "COMETS fields (br_particles_dfba)",
+      "colormap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_snapshots_html"
+      ]
+    }
+  },
+  "viz_snapshots_html": "",
+  "viz_animation": {
+    "address": {
+      "protocol": "local",
+      "data": "FieldAnimationGif"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "acetate",
+        "dissolved biomass"
+      ],
+      "title": "COMETS animation (br_particles_dfba)",
+      "fps": 4,
+      "cmap": "viridis"
+    },
+    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "acetate": [
+        "fields",
+        "acetate"
+      ],
+      "dissolved biomass": [
+        "fields",
+        "dissolved biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_animation_html"
+      ]
+    }
+  },
+  "viz_animation_html": "",
   "emitter": {
     "address": {
       "protocol": "local",

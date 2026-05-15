@@ -66,6 +66,40 @@
     "biomass": 0.1,
     "ammonium": 10.0
   },
+  "viz_timeseries": {
+    "address": {
+      "protocol": "local",
+      "data": "TestSuiteTimeSeries"
+    },
+    "config": {
+      "field_names": [
+        "glucose",
+        "biomass"
+      ],
+      "title": "yeast dFBA",
+      "time_units": "step",
+      "y_label": "concentration / biomass",
+      "log_scale": false
+    },
+    "_inputs": "glucose:float|biomass:float",
+    "_outputs": "html:string",
+    "inputs": {
+      "glucose": [
+        "fields",
+        "glucose"
+      ],
+      "biomass": [
+        "fields",
+        "biomass"
+      ]
+    },
+    "outputs": {
+      "html": [
+        "viz_timeseries_html"
+      ]
+    }
+  },
+  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",
