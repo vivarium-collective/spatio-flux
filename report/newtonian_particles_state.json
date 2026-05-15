@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_7dcb1d": {
+    "p_0ed3db": {
       "id": "",
       "position": [
-        9.729594393262763,
-        20.845075241474127
+        40.77923857753915,
+        13.658858380241497
       ],
-      "mass": 0.013468111659611284,
+      "mass": 0.0382666919841788,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
-        -0.0,
+        0.0,
         -0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 0.5346047193632227
+      "radius": 0.9011350757096714
     }
   },
   "newtonian_particles": {

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "CnBMMDdg": {
+    "EaCfSZ_C": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "CnBMMDdg",
+      "id": "EaCfSZ_C",
       "position": [
-        29.387190058920325,
-        13.51470258509529
+        5.563432295667431,
+        1.5013691425671105
       ],
-      "mass": 1.5798851347743188,
+      "mass": 9.779863085669819,
       "local": {},
       "exchange": {},
       "sub_masses": {},
