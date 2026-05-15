@@ -1,6 +1,6 @@
 {
   "particles": {
-    "S6F6OKF-": {
+    "xJ_AxjBv": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "S6F6OKF-",
+      "id": "xJ_AxjBv",
       "position": [
-        27.647598116029915,
-        27.611544285441514
+        25.755145194616947,
+        43.32829118535636
       ],
-      "mass": 0.4740670849284228,
+      "mass": 0.5466016878873406,
       "local": {},
       "exchange": {},
       "sub_masses": {},

@@ -2,11 +2,11 @@ digraph bigraph {
 	dpi=300 overlap=false rankdir=TB splines=true
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'dissolved biomass')" [label=<dissolved<BR/>biomass>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<glucose>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<acetate>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'dissolved biomass')" [label=<dissolved<BR/>biomass>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields',)" [label=<fields>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -29,15 +29,11 @@ digraph bigraph {
 	"('viz_snapshots',)" [label=<viz_snapshots>]
 	"('viz_animation',)" [label=<viz_animation>]
 	edge [style=filled]
-	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
-	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_snapshots',)" {
-		"('fields', 'dissolved biomass')" -> "('viz_snapshots',)" [label=<dissolved biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_snapshots',)" {
 		"('fields', 'glucose')" -> "('viz_snapshots',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
@@ -47,8 +43,8 @@ digraph bigraph {
 		"('fields', 'acetate')" -> "('viz_snapshots',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_animation',)" {
-		"('fields', 'dissolved biomass')" -> "('viz_animation',)" [label=<dissolved biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('viz_snapshots',)" {
+		"('fields', 'dissolved biomass')" -> "('viz_snapshots',)" [label=<dissolved biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_animation',)" {
@@ -57,6 +53,10 @@ digraph bigraph {
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_animation',)" {
 		"('fields', 'acetate')" -> "('viz_animation',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
+	subgraph "('viz_animation',)" {
+		"('fields', 'dissolved biomass')" -> "('viz_animation',)" [label=<dissolved biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
 	subgraph "('viz_snapshots',)" {
@@ -68,7 +68,7 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
@@ -76,7 +76,7 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {

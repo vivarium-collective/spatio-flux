@@ -1,6 +1,6 @@
 {
   "particles": {
-    "1zHPmqVk": {
+    "1O--ErJd": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "1zHPmqVk",
+      "id": "1O--ErJd",
       "position": [
-        19.74804519266909,
-        25.4020193605549
+        17.837131854254302,
+        40.27994401568795
       ],
-      "mass": 0.8226935875471056,
+      "mass": 0.4323803515323788,
       "local": {},
       "exchange": {},
       "sub_masses": {},

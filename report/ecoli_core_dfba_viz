@@ -30,23 +30,19 @@ digraph bigraph {
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'glucose')" -> "('viz_timeseries',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_timeseries',)" {
 		"('fields', 'biomass')" -> "('viz_timeseries',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
 		"('fields', 'acetate')" -> "('viz_timeseries',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
+	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
+	subgraph "('viz_timeseries',)" {
+		"('fields', 'glucose')" -> "('viz_timeseries',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
 		"('viz_timeseries_html',)" -> "('viz_timeseries',)" [label=<html> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('ecoli core dFBA',)" {
-		"('fields', 'biomass')" -> "('ecoli core dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
@@ -55,6 +51,10 @@ digraph bigraph {
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli core dFBA',)" {
 		"('fields', 'glucose')" -> "('ecoli core dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('ecoli core dFBA',)" {
+		"('fields', 'biomass')" -> "('ecoli core dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('fields', 'glucose')" [color="#bdb48b"]
