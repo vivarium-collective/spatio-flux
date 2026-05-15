@@ -16,6 +16,7 @@ Usage:
 """
 import argparse
 import gc
+import json
 import os
 import time
 import matplotlib.pyplot as plt
@@ -566,6 +567,13 @@ def main():
 
         if args.skip_existing and _existing_outputs_for(name, output_dir):
             print(f"⏭️  Skipping '{name}' (cached outputs already exist)")
+            timing_path = os.path.join(output_dir, f"{name}_timing.json")
+            if os.path.exists(timing_path):
+                with open(timing_path) as f:
+                    t = json.load(f)
+                runtimes[name] = t["elapsed"]
+                timing_details[name] = (t["process_time"], t["framework_time"])
+                total_sim_time += t["elapsed"]
             continue
 
         sim_info = SIMULATIONS[name]
@@ -593,6 +601,12 @@ def main():
         runtimes[name] = sim_elapsed
         timing_details[name] = (proc_time, fw_time)
         total_sim_time += sim_elapsed
+        with open(os.path.join(output_dir, f"{name}_timing.json"), "w") as f:
+            json.dump({
+                "process_time": proc_time,
+                "framework_time": fw_time,
+                "elapsed": sim_elapsed,
+            }, f)
 
         print("Generating plots...")
         plot_config = sim_info.get('plot_config', {})
