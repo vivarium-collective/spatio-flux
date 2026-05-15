@@ -1,6 +1,6 @@
 {
   "particles": {
-    "BOFSyb2O": {
+    "S6F6OKF-": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "BOFSyb2O",
+      "id": "S6F6OKF-",
       "position": [
-        7.301088318887661,
-        28.202632852222408
+        27.647598116029915,
+        27.611544285441514
       ],
-      "mass": 0.11026016275874614,
+      "mass": 0.4740670849284228,
       "local": {},
       "exchange": {},
       "sub_masses": {},

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "RyKvdCAB": {
+    "1zHPmqVk": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "RyKvdCAB",
+      "id": "1zHPmqVk",
       "position": [
-        47.61293349392103,
-        4.6384671159934605
+        19.74804519266909,
+        25.4020193605549
       ],
-      "mass": 0.47340363210437636,
+      "mass": 0.8226935875471056,
       "local": {},
       "exchange": {},
       "sub_masses": {},
