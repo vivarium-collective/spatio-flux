@@ -41,11 +41,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'dfba biomass')" -> "('viz_timeseries',)" [label=<dfba biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'kinetic biomass')" -> "('viz_timeseries',)" [label=<kinetic biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'kinetic biomass')" -> "('viz_timeseries',)" [label=<kinetic biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'dfba biomass')" -> "('viz_timeseries',)" [label=<dfba biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
@@ -61,19 +61,19 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA',)" {
-		"('fields', 'acetate')" -> "('dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('dFBA',)" {
 		"('fields', 'glucose')" -> "('dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('monod_kinetics',)" {
-		"('fields', 'kinetic biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('dFBA',)" {
+		"('fields', 'acetate')" -> "('dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {
 		"('fields', 'acetate')" -> "('monod_kinetics',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics',)" {
+		"('fields', 'kinetic biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('dFBA',)" [color="#8b3935"]

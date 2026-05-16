@@ -1,6 +1,6 @@
 {
   "particles": {
-    "e89AqWJC": {
+    "nDEtpNec": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "e89AqWJC",
+      "id": "nDEtpNec",
       "position": [
-        28.8138378199784,
-        15.34349305339916
+        1.893595163954842,
+        4.053391726036759
       ],
-      "mass": 0.17720905709676602,
+      "mass": 0.942785748020543,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -459,20 +459,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     }
   }
