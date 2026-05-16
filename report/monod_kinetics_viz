@@ -34,11 +34,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'biomass')" -> "('viz_timeseries',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'acetate')" -> "('viz_timeseries',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'acetate')" -> "('viz_timeseries',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'biomass')" -> "('viz_timeseries',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
@@ -46,11 +46,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {
-		"('fields', 'glucose')" -> "('monod_kinetics',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {
-		"('fields', 'biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('monod_kinetics',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {

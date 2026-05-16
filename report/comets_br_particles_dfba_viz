@@ -4,35 +4,35 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('particles',)" [label=<particles>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2')" [label=<5forn8d2>]
+	"('particles', 'KRBGgvxr')" [label=<KRBGgvxr>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'mass')" [label=<mass>]
+	"('particles', 'KRBGgvxr', 'mass')" [label=<mass>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'local')" [label=<local>]
+	"('particles', 'KRBGgvxr', 'local')" [label=<local>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'exchange')" [label=<exchange>]
+	"('particles', 'KRBGgvxr', 'exchange')" [label=<exchange>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'position')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>position</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (17.073177546573916,…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'position')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>position</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (0.5870867778863975,…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'mass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>mass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.75</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'mass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>mass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.87</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'local')" [label=<local>]
+	"('particles', 'KRBGgvxr', 'local')" [label=<local>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'exchange')" [label=<exchange>]
+	"('particles', 'KRBGgvxr', 'exchange')" [label=<exchange>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'sub_masses')" [label=<sub_masses>]
+	"('particles', 'KRBGgvxr', 'sub_masses')" [label=<sub_masses>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'shape')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>shape</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: circle</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: enum[circle,segment]</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'shape')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>shape</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: circle</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: enum[circle,segment]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'velocity')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>velocity</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (0.0, 0.0)</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'velocity')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>velocity</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (0.0, 0.0)</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'inertia')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>inertia</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'inertia')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>inertia</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'friction')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>friction</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'friction')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>friction</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'elasticity')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>elasticity</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'elasticity')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>elasticity</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', '5forn8d2', 'radius')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>radius</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
+	"('particles', 'KRBGgvxr', 'radius')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>radius</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: set_float</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'dissolved biomass')" [label=<dissolved<BR/>biomass>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -58,7 +58,7 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('viz_animation_html',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>viz_animation_html</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: </FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: string</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('particles', '5forn8d2', 'dFBA')" [label=<dFBA>]
+	"('particles', 'KRBGgvxr', 'dFBA')" [label=<dFBA>]
 	"('dFBA[0,0]',)" [label=<dFBA[*]<BR/>(x100)>]
 	"('diffusion',)" [label=<diffusion>]
 	"('brownian_movement',)" [label=<brownian_movement>]
@@ -68,31 +68,31 @@ digraph bigraph {
 	"('viz_snapshots',)" [label=<viz_snapshots>]
 	"('viz_animation',)" [label=<viz_animation>]
 	edge [style=filled]
-	"('particles',)" -> "('particles', '5forn8d2')" [arrowhead=none constraint=true penwidth=2]
+	"('particles',)" -> "('particles', 'KRBGgvxr')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'mass')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'mass')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'local')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'local')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'exchange')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'exchange')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'dFBA')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'dFBA')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'position')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'position')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'sub_masses')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'sub_masses')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'shape')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'shape')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'velocity')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'velocity')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'inertia')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'inertia')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'friction')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'friction')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'elasticity')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'elasticity')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', '5forn8d2')" -> "('particles', '5forn8d2', 'radius')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'KRBGgvxr')" -> "('particles', 'KRBGgvxr', 'radius')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
@@ -102,12 +102,16 @@ digraph bigraph {
 	edge [style=filled]
 	"('brownian_movement',)" -> "('brownian_movement', 'interval')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('particles', '5forn8d2', 'dFBA')" {
-		"('particles', '5forn8d2', 'local')" -> "('particles', '5forn8d2', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'KRBGgvxr', 'dFBA')" {
+		"('particles', 'KRBGgvxr', 'local')" -> "('particles', 'KRBGgvxr', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('enforce_boundaries',)" {
 		"('brownian_movement', 'interval')" -> "('enforce_boundaries',)" [label=<process_interval> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
+	subgraph "('viz_snapshots',)" {
+		"('fields', 'acetate')" -> "('viz_snapshots',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_snapshots',)" {
@@ -118,8 +122,8 @@ digraph bigraph {
 		"('fields', 'glucose')" -> "('viz_snapshots',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_snapshots',)" {
-		"('fields', 'acetate')" -> "('viz_snapshots',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('viz_animation',)" {
+		"('fields', 'acetate')" -> "('viz_animation',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_animation',)" {
@@ -129,13 +133,9 @@ digraph bigraph {
 	subgraph "('viz_animation',)" {
 		"('fields', 'glucose')" -> "('viz_animation',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_animation',)" {
-		"('fields', 'acetate')" -> "('viz_animation',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
-	subgraph "('particles', '5forn8d2', 'dFBA')" {
-		"('particles', '5forn8d2', 'exchange')" -> "('particles', '5forn8d2', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'KRBGgvxr', 'dFBA')" {
+		"('particles', 'KRBGgvxr', 'exchange')" -> "('particles', 'KRBGgvxr', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
 	subgraph "('viz_snapshots',)" {
@@ -146,8 +146,12 @@ digraph bigraph {
 		"('viz_animation_html',)" -> "('viz_animation',)" [label=<html> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('particles', '5forn8d2', 'dFBA')" {
-		"('particles', '5forn8d2', 'mass')" -> "('particles', '5forn8d2', 'dFBA')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'KRBGgvxr', 'dFBA')" {
+		"('particles', 'KRBGgvxr', 'mass')" -> "('particles', 'KRBGgvxr', 'dFBA')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
@@ -156,10 +160,6 @@ digraph bigraph {
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
 		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {
@@ -175,11 +175,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_exchange',)" {
-		"('fields',)" -> "('particle_exchange',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+		"('particles',)" -> "('particle_exchange',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_exchange',)" {
-		"('particles',)" -> "('particle_exchange',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
+		"('fields',)" -> "('particle_exchange',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_division',)" {
@@ -197,19 +197,19 @@ digraph bigraph {
 	"('fields', 'glucose')" [color="#bdb48b"]
 	"('fields', 'acetate')" [color="#bdb48b"]
 	"('fields', 'dissolved biomass')" [color="#bdb48b"]
-	"('particles', '5forn8d2')" [color="#9ab1a2"]
-	"('particles', '5forn8d2', 'position')" [color="#9ab1a2"]
-	"('particles', '5forn8d2', 'mass')" [color="#9ab1a2"]
-	"('particles', '5forn8d2', 'sub_masses')" [color="#9ab1a2"]
-	"('particles', '5forn8d2', 'local')" [color="#bdb48b"]
-	"('particles', '5forn8d2', 'exchange')" [color="#bb975f"]
-	"('particles', '5forn8d2', 'dFBA')" [color="#8b3935"]
-	"('particles', '5forn8d2', 'shape')" [color="#6e9578"]
-	"('particles', '5forn8d2', 'velocity')" [color="#6e9578"]
-	"('particles', '5forn8d2', 'inertia')" [color="#6e9578"]
-	"('particles', '5forn8d2', 'radius')" [color="#6e9578"]
-	"('particles', '5forn8d2', 'elasticity')" [color="#6e9578"]
-	"('particles', '5forn8d2', 'friction')" [color="#6e9578"]
+	"('particles', 'KRBGgvxr')" [color="#9ab1a2"]
+	"('particles', 'KRBGgvxr', 'position')" [color="#9ab1a2"]
+	"('particles', 'KRBGgvxr', 'mass')" [color="#9ab1a2"]
+	"('particles', 'KRBGgvxr', 'sub_masses')" [color="#9ab1a2"]
+	"('particles', 'KRBGgvxr', 'local')" [color="#bdb48b"]
+	"('particles', 'KRBGgvxr', 'exchange')" [color="#bb975f"]
+	"('particles', 'KRBGgvxr', 'dFBA')" [color="#8b3935"]
+	"('particles', 'KRBGgvxr', 'shape')" [color="#6e9578"]
+	"('particles', 'KRBGgvxr', 'velocity')" [color="#6e9578"]
+	"('particles', 'KRBGgvxr', 'inertia')" [color="#6e9578"]
+	"('particles', 'KRBGgvxr', 'radius')" [color="#6e9578"]
+	"('particles', 'KRBGgvxr', 'elasticity')" [color="#6e9578"]
+	"('particles', 'KRBGgvxr', 'friction')" [color="#6e9578"]
 	"('particles',)" [color="#C6E3D0" style=filled]
 	"('brownian_movement',)" [color="#C6E3D0" style=filled]
 	"('particle_division',)" [color="#A9DDE3" style=filled]
@@ -222,17 +222,17 @@ digraph bigraph {
 	"('fields', 'glucose')" [color="#F3E8B3" style=filled]
 	"('fields', 'acetate')" [color="#F3E8B3" style=filled]
 	"('fields', 'dissolved biomass')" [color="#F3E8B3" style=filled]
-	"('particles', '5forn8d2')" [color="#C6E3D0" style=filled]
-	"('particles', '5forn8d2', 'position')" [color="#C6E3D0" style=filled]
-	"('particles', '5forn8d2', 'mass')" [color="#C6E3D0" style=filled]
-	"('particles', '5forn8d2', 'sub_masses')" [color="#C6E3D0" style=filled]
-	"('particles', '5forn8d2', 'local')" [color="#F3E8B3" style=filled]
-	"('particles', '5forn8d2', 'exchange')" [color="#F1C27A" style=filled]
-	"('particles', '5forn8d2', 'dFBA')" [color="#B34A44" style=filled]
-	"('particles', '5forn8d2', 'shape')" [color="#8EC09A" style=filled]
-	"('particles', '5forn8d2', 'velocity')" [color="#8EC09A" style=filled]
-	"('particles', '5forn8d2', 'inertia')" [color="#8EC09A" style=filled]
-	"('particles', '5forn8d2', 'radius')" [color="#8EC09A" style=filled]
-	"('particles', '5forn8d2', 'elasticity')" [color="#8EC09A" style=filled]
-	"('particles', '5forn8d2', 'friction')" [color="#8EC09A" style=filled]
+	"('particles', 'KRBGgvxr')" [color="#C6E3D0" style=filled]
+	"('particles', 'KRBGgvxr', 'position')" [color="#C6E3D0" style=filled]
+	"('particles', 'KRBGgvxr', 'mass')" [color="#C6E3D0" style=filled]
+	"('particles', 'KRBGgvxr', 'sub_masses')" [color="#C6E3D0" style=filled]
+	"('particles', 'KRBGgvxr', 'local')" [color="#F3E8B3" style=filled]
+	"('particles', 'KRBGgvxr', 'exchange')" [color="#F1C27A" style=filled]
+	"('particles', 'KRBGgvxr', 'dFBA')" [color="#B34A44" style=filled]
+	"('particles', 'KRBGgvxr', 'shape')" [color="#8EC09A" style=filled]
+	"('particles', 'KRBGgvxr', 'velocity')" [color="#8EC09A" style=filled]
+	"('particles', 'KRBGgvxr', 'inertia')" [color="#8EC09A" style=filled]
+	"('particles', 'KRBGgvxr', 'radius')" [color="#8EC09A" style=filled]
+	"('particles', 'KRBGgvxr', 'elasticity')" [color="#8EC09A" style=filled]
+	"('particles', 'KRBGgvxr', 'friction')" [color="#8EC09A" style=filled]
 }

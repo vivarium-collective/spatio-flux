@@ -1,6 +1,6 @@
 {
   "particles": {
-    "7WGh7_P-": {
+    "3LyVPPdK": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,12 +51,12 @@
         },
         "interval": 1.0
       },
-      "id": "7WGh7_P-",
+      "id": "3LyVPPdK",
       "position": [
-        11.119464302518606,
-        4.226996275101492
+        19.44519367353938,
+        9.604772722097998
       ],
-      "mass": 9.820477385774769,
+      "mass": 2.530781984699586,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -994,20 +994,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     }
   }

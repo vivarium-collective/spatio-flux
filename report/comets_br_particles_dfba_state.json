@@ -1,6 +1,6 @@
 {
   "particles": {
-    "5forn8d2": {
+    "KRBGgvxr": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -52,12 +52,12 @@
         },
         "interval": 1.0
       },
-      "id": "5forn8d2",
+      "id": "KRBGgvxr",
       "position": [
-        17.073177546573916,
-        15.137574200876486
+        0.5870867778863975,
+        8.297710295893657
       ],
-      "mass": 0.7528560485595244,
+      "mass": 0.8704475011509306,
       "local": {},
       "exchange": {},
       "sub_masses": {},

@@ -34,11 +34,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'formate')" -> "('viz_timeseries',)" [label=<formate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'biomass')" -> "('viz_timeseries',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
-		"('fields', 'biomass')" -> "('viz_timeseries',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'formate')" -> "('viz_timeseries',)" [label=<formate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
 	subgraph "('viz_timeseries',)" {
@@ -50,11 +50,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli dFBA',)" {
-		"('fields', 'glucose')" -> "('ecoli dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'formate')" -> "('ecoli dFBA',)" [label=<substrates/formate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('ecoli dFBA',)" {
-		"('fields', 'formate')" -> "('ecoli dFBA',)" [label=<substrates/formate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('ecoli dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('fields', 'glucose')" [color="#bdb48b"]
