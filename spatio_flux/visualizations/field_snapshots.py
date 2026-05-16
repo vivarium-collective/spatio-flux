@@ -76,7 +76,7 @@ class FieldSnapshotsGrid(Visualization):
         # Generic array type — store may be ndarray or list-of-lists.
         return {name: {"_type": "array", "_data": "float"} for name in fields}
 
-    def update(self, state):
+    def accumulate(self, state):
         if not hasattr(self, "_history") or self._history is None:
             self._history = []
         fields = (getattr(self, "config", None) or {}).get("field_names") or []
@@ -87,9 +87,8 @@ class FieldSnapshotsGrid(Visualization):
                 snap[name] = arr
         if snap:
             self._history.append(snap)
-        return {"html": self._render()}
 
-    def _render(self) -> str:
+    def render(self) -> str:
         cfg = getattr(self, "config", None) or {}
         fields = cfg.get("field_names") or []
         n_snap = max(1, int(cfg.get("n_snapshots", 4)))

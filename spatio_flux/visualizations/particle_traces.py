@@ -62,16 +62,15 @@ class ParticleTraces(Visualization):
     def inputs(self):
         return {"particles": "map[particle]"}
 
-    def update(self, state):
+    def accumulate(self, state):
         if not hasattr(self, "_history") or self._history is None:
             self._history = []
         particles = state.get("particles") or {}
         # Copy so mutations to live state don't corrupt history frames.
         frame = {pid: dict(p) for pid, p in particles.items() if isinstance(p, dict)}
         self._history.append(frame)
-        return {"html": self._render()}
 
-    def _render(self) -> str:
+    def render(self) -> str:
         cfg = getattr(self, "config", None) or {}
         title = cfg.get("title", "particle traces")
         bounds = cfg.get("bounds") or (50.0, 50.0)
