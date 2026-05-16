@@ -1099,7 +1099,7 @@ wheels = [
 
 [[package]]
 name = "pbg-superpowers"
-version = "0.7.0"
+version = "0.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigraph-schema" },
@@ -1109,9 +1109,9 @@ dependencies = [
     { name = "process-bigraph" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d7/5e/5c5f6830b752bd46a95d1968e0ea86f937e4703038afd671ec3ef1ffc8df/pbg_superpowers-0.7.0.tar.gz", hash = "sha256:67ad07d55679a5525ef5fc050049c73da0f4eb92e294f9a09b1869fdee8fd427", size = 123375, upload-time = "2026-05-12T15:35:06.216Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bd/5b/2d535ca7c7c6ac9ed57c894b18956df72aa0409a973584a67700c2dafe55/pbg_superpowers-0.9.0.tar.gz", hash = "sha256:39b959c6f87ebcaf1e34d87056f30eedb385db2aa4940a4895c0eaee8d0b9fe3", size = 195177, upload-time = "2026-05-16T02:38:32.451Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/e5/7ba1762dcdc11a4384e131a16e09d690a88a2ebcaa367265756daf173d7e/pbg_superpowers-0.7.0-py3-none-any.whl", hash = "sha256:c2d262ee238d30ff936bd41735d25785eb20e24ff3e603ec7793c9d2b389e2c6", size = 48855, upload-time = "2026-05-12T15:35:04.798Z" },
+    { url = "https://files.pythonhosted.org/packages/64/ea/67fa39772670aa5e0201c97797e0f3a1e2e210f9d565055f06ec37291172/pbg_superpowers-0.9.0-py3-none-any.whl", hash = "sha256:2cff9135fa5f3f4c9f5f2c39735e56067c8cc90498597d736396c99e11c3f94c", size = 53355, upload-time = "2026-05-16T02:38:30.853Z" },
 ]
 
 [[package]]
@@ -1832,7 +1832,7 @@ requires-dist = [
     { name = "imageio" },
     { name = "ipython" },
     { name = "matplotlib" },
-    { name = "pbg-superpowers", specifier = ">=0.4.16" },
+    { name = "pbg-superpowers", specifier = ">=0.9.0" },
     { name = "process-bigraph", extras = ["ray", "server-rest", "ec2-ssm"] },
     { name = "pymunk" },
     { name = "scipy" },
