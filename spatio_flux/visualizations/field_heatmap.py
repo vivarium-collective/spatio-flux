@@ -5,9 +5,9 @@ store; the heatmap captures the latest grid state into HTML so the dashboard
 can preview the spatial pattern after a run.
 
 The viz accepts the field either as ``list[list[float]]`` or as a numpy
-ndarray (which it will convert). Streaming mode: each step replaces the
-rendered snapshot with the latest grid; ``render_results`` returns the most
-recent snapshot.
+ndarray (which it will convert). Default ``render_mode='end'``: accumulate
+the latest field each tick, render once via :func:`render_results`. Set
+``render_mode='stream'`` to render per-tick (legacy behaviour).
 """
 from __future__ import annotations
 import json
@@ -50,8 +50,13 @@ class FieldHeatmap(Visualization):
         # (spatial composites) or a list-of-lists; ``_to_2d_list`` normalises.
         return {'field': {'_type': 'array', '_data': 'float'}}
 
-    def update(self, state):
-        field = _to_2d_list(state.get('field'))
+    def accumulate(self, state):
+        # FieldHeatmap is a "latest snapshot" viz — no history, just the
+        # most recent grid.
+        self._last_field = _to_2d_list(state.get('field'))
+
+    def render(self):
+        field = getattr(self, '_last_field', None) or []
         title = (getattr(self, 'config', None) or {}).get('title', '')
         colorscale = (getattr(self, 'config', None) or {}).get(
             'colorscale', 'Viridis')
@@ -67,15 +72,13 @@ class FieldHeatmap(Visualization):
             'yaxis': {'title': {'text': 'y'}, 'scaleanchor': 'x'},
             'height': 360,
         }
-        return {
-            'html': (
-                '<div id="viz" style="height:360px"></div>'
-                '<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>'
-                '<script>Plotly.newPlot("viz", ' + json.dumps(traces) + ', '
-                + json.dumps(layout)
-                + ', {responsive:true, displayModeBar:false});</script>'
-            )
-        }
+        return (
+            '<div id="viz" style="height:360px"></div>'
+            '<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>'
+            '<script>Plotly.newPlot("viz", ' + json.dumps(traces) + ', '
+            + json.dumps(layout)
+            + ', {responsive:true, displayModeBar:false});</script>'
+        )
 
     @classmethod
     def demo(cls):

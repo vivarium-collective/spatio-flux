@@ -96,15 +96,14 @@ class TestSuiteTimeSeries(Visualization):
         fields = (getattr(self, "config", None) or {}).get("field_names") or []
         return {name: "float" for name in fields}
 
-    def update(self, state):
+    def accumulate(self, state):
         if not hasattr(self, "_history") or self._history is None:
             self._history = []
         fields = (getattr(self, "config", None) or {}).get("field_names") or []
         snapshot = {name: _coerce_float(state.get(name)) for name in fields}
         self._history.append(snapshot)
-        return {"html": self._render()}
 
-    def _render(self) -> str:
+    def render(self) -> str:
         cfg = getattr(self, "config", None) or {}
         fields = cfg.get("field_names") or []
         title = cfg.get("title", "timeseries")
