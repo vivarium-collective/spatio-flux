@@ -20,7 +20,7 @@ import numpy as np
 
 import imageio.v2 as imageio
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 
 def _to_2d_array(v):

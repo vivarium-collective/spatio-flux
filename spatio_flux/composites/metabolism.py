@@ -1,7 +1,7 @@
 """Composite generators — metabolism group. See spec at
 docs/superpowers/specs/2026-05-12-composite-generator-convention.md."""
 
-from pbg_superpowers.composite_generator import composite_generator
+from viva_superpowers.composite_generator import composite_generator
 
 from spatio_flux.processes import get_dfba_process_from_registry, MODEL_REGISTRY_DFBA, get_field_names
 from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_monod_kinetics_process_from_config

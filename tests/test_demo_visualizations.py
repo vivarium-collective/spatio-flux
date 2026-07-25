@@ -1,14 +1,14 @@
 """Tests for the FieldHeatmap viz that ships with spatio-flux.
 
 These vizes now use the new ``accumulate(state)`` + ``render()`` contract
-from ``pbg_superpowers.visualization.Visualization`` (v0.9.0+), so tests
+from ``viva_superpowers.visualization.Visualization`` (v0.9.0+), so tests
 exercise the two-phase path: accumulate per tick, then render once.
 """
 import numpy as np
 
 from spatio_flux.visualizations.field_animation_gif import FieldAnimationGif
 from spatio_flux.visualizations.field_heatmap import FieldHeatmap
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 
 # --- FieldHeatmap ----------------------------------------------------------

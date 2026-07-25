@@ -1098,20 +1098,37 @@ wheels = [
 ]
 
 [[package]]
+name = "pbg-emitters"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "bigraph-schema" },
+    { name = "numpy" },
+    { name = "process-bigraph" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/ac/c7e8a52facc4a73ca57ce918e4a4b38e1fe9205da65048160c98c06a0822/pbg_emitters-0.2.1.tar.gz", hash = "sha256:32eee4871745440044667ae2bb94f8d69d09e649503d2cb4dd27cc836dfa4fe5", size = 94393, upload-time = "2026-07-03T03:02:16.657Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/89/cb/7543a7d38fe7ce30019cd0d1616bd2dc249adad02b6a360ce079b8b90800/pbg_emitters-0.2.1-py3-none-any.whl", hash = "sha256:fa72e0269c7278e5a9f5a01a4bc7cb502109cff1007b8258c58d48a1322cf01e", size = 83560, upload-time = "2026-07-03T03:02:15.296Z" },
+]
+
+[[package]]
 name = "pbg-superpowers"
-version = "0.9.0"
+version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigraph-schema" },
     { name = "click" },
     { name = "jinja2" },
     { name = "jsonschema", extra = ["format-nongpl"] },
+    { name = "pbg-emitters" },
     { name = "process-bigraph" },
+    { name = "pypdf" },
     { name = "pyyaml" },
+    { name = "ruamel-yaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bd/5b/2d535ca7c7c6ac9ed57c894b18956df72aa0409a973584a67700c2dafe55/pbg_superpowers-0.9.0.tar.gz", hash = "sha256:39b959c6f87ebcaf1e34d87056f30eedb385db2aa4940a4895c0eaee8d0b9fe3", size = 195177, upload-time = "2026-05-16T02:38:32.451Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b4/c7/539d3dfa46a896370c8ba6a4b71a8c67f5cb523cb01d8fe0aa9e122cdde5/pbg_superpowers-0.16.0.tar.gz", hash = "sha256:29586e3af2b732934717c485931480bd4e33613a07543f3077d83c13d5d7213b", size = 1413823, upload-time = "2026-07-25T20:38:24.505Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/ea/67fa39772670aa5e0201c97797e0f3a1e2e210f9d565055f06ec37291172/pbg_superpowers-0.9.0-py3-none-any.whl", hash = "sha256:2cff9135fa5f3f4c9f5f2c39735e56067c8cc90498597d736396c99e11c3f94c", size = 53355, upload-time = "2026-05-16T02:38:30.853Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/92/84914100888dba584150e743cd35ab23332ce4ecd58f6bdfeccb9371abb8/pbg_superpowers-0.16.0-py3-none-any.whl", hash = "sha256:5bc54398d2f0313f1d734e989f85b78c3e5b3d825e9582fbc41d709dfbedbcc7", size = 362202, upload-time = "2026-07-25T20:38:22.915Z" },
 ]
 
 [[package]]
@@ -1427,6 +1444,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/33/c1/1d9de9aeaa1b89b0186e5fe23294ff6517fce1bc69149185577cd31016b2/pyparsing-3.3.1.tar.gz", hash = "sha256:47fad0f17ac1e2cad3de3b458570fbc9b03560aa029ed5e16ee5554da9a2251c", size = 1550512, upload-time = "2025-12-23T03:14:04.391Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/40/2614036cdd416452f5bf98ec037f38a1afb17f327cb8e6b652d4729e0af8/pyparsing-3.3.1-py3-none-any.whl", hash = "sha256:023b5e7e5520ad96642e2c6db4cb683d3970bd640cdf7115049a6e9c3682df82", size = 121793, upload-time = "2025-12-23T03:14:02.103Z" },
+]
+
+[[package]]
+name = "pypdf"
+version = "6.14.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/72/7dfd5ff1c9c37de97a731701f51af091325f123d9d4270361c9c69e4431f/pypdf-6.14.2.tar.gz", hash = "sha256:7873f502fe4385e79539b21d872392dc0c4e3714327c15881cbc7fbfd1f95b25", size = 6491182, upload-time = "2026-06-23T14:18:30.859Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/e6/136aa8993a2ae7214e0b0ef2edaa0d2e08d1d4e4982635b08a835ff31ec8/pypdf-6.14.2-py3-none-any.whl", hash = "sha256:3f07891af76dc002657e04993ab9b4de81de29f9013b9761d0b7968bff12e946", size = 349514, upload-time = "2026-06-23T14:18:28.867Z" },
 ]
 
 [[package]]
@@ -1832,7 +1858,7 @@ requires-dist = [
     { name = "imageio" },
     { name = "ipython" },
     { name = "matplotlib" },
-    { name = "pbg-superpowers", specifier = ">=0.9.0" },
+    { name = "pbg-superpowers", specifier = ">=0.16.0" },
     { name = "process-bigraph", extras = ["ray", "server-rest", "ec2-ssm"] },
     { name = "pymunk" },
     { name = "scipy" },

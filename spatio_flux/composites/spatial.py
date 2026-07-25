@@ -1,7 +1,7 @@
 """Composite generators — spatial group. See spec at
 docs/superpowers/specs/2026-05-12-composite-generator-convention.md."""
 import numpy as np
-from pbg_superpowers.composite_generator import composite_generator
+from viva_superpowers.composite_generator import composite_generator
 
 from spatio_flux.processes import (
     MODEL_REGISTRY_DFBA, get_fields, get_fields_with_schema,

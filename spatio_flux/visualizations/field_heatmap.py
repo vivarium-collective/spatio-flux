@@ -12,7 +12,7 @@ the latest field each tick, render once via :func:`render_results`. Set
 from __future__ import annotations
 import json
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 
 def _to_2d_list(field):

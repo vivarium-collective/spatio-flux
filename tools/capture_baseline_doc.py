@@ -47,7 +47,7 @@ def _capture_from_new(name: str) -> dict:
     import numpy as np
     np.random.seed(0)
     from spatio_flux.composites import REGISTRY
-    from pbg_superpowers.composite_generator import build_generator
+    from viva_superpowers.composite_generator import build_generator
     # Find the entry whose name matches.
     matches = [e for e in REGISTRY.values() if e.name == name]
     if not matches:

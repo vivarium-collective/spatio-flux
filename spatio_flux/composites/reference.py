@@ -1,6 +1,6 @@
 """Composite generators — reference group. See spec at
 docs/superpowers/specs/2026-05-12-composite-generator-convention.md."""
-from pbg_superpowers.composite_generator import composite_generator
+from viva_superpowers.composite_generator import composite_generator
 
 from spatio_flux.processes import (
     get_fields, get_newtonian_particles_state,

@@ -55,7 +55,7 @@ from spatio_flux.composites._constants import (  # noqa: F401
     build_model_grid,
 )
 from spatio_flux.composites import REGISTRY as COMPOSITE_REGISTRY
-from pbg_superpowers.composite_generator import build_generator
+from viva_superpowers.composite_generator import build_generator
 
 DEFAULT_RUNTIME_SHORT = 10
 DEFAULT_RUNTIME_LONG = 60

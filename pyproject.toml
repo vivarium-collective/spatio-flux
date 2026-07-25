@@ -17,7 +17,7 @@ dependencies = [
     "imageio",
     "ipython",
     "matplotlib",
-    "pbg-superpowers>=0.9.0",
+    "pbg-superpowers>=0.16.0",
     "pymunk",
     "scipy",
 ]

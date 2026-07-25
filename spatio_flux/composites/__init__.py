@@ -4,7 +4,7 @@ Importing this package triggers ``@composite_generator`` registration for
 every composite in every submodule. The dashboard's ``discover_generators``
 call relies on this.
 """
-from pbg_superpowers.composite_generator import _REGISTRY as REGISTRY
+from viva_superpowers.composite_generator import _REGISTRY as REGISTRY
 
 # Trigger decorator side-effects in every submodule.
 from . import metabolism  # noqa: F401
