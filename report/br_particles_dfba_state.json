@@ -1,6 +1,6 @@
 {
   "particles": {
-    "BvrRKep-": {
+    "SCiEKpkh": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -33,7 +33,7 @@
           "box_volume_L": 1.0
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": {
           "substrates": [
             "local"
@@ -50,14 +50,25 @@
             "mass"
           ]
         },
-        "interval": 1.0
+        "interval": 1.0,
+        "_contract": {
+          "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+          "description": "",
+          "inputs": {},
+          "outputs": {},
+          "config": {},
+          "math": [],
+          "symbols": {},
+          "assumptions": [],
+          "references": []
+        }
       },
-      "id": "BvrRKep-",
+      "id": "SCiEKpkh",
       "position": [
-        47.483624852424725,
-        10.938007271400323
+        40.00464717053164,
+        24.912804423774148
       ],
-      "mass": 0.7674342014069535,
+      "mass": 0.9501527376426213,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -351,7 +362,18 @@
         "particles"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Brownian particle motion: displaces each particle by a diffusion-scaled random walk plus advection, confined to the domain bounds.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "enforce_boundaries": {
     "address": {
@@ -392,6 +414,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "particle_exchange": {
@@ -427,6 +460,17 @@
       "fields": [
         "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Particle-field exchange: couples each particle's local uptake/secretion to the lattice field bin it occupies, converting between per-cell counts and field concentrations.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "particle_division": {
@@ -451,6 +495,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Particle division: splits any particle whose mass exceeds the division threshold into two daughters, partitioning mass and sub-masses with jitter.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "emitter": {
@@ -459,21 +514,34 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }

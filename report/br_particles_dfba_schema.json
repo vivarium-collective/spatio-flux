@@ -8,7 +8,7 @@
         "address": "string",
         "config": "node",
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": "wires",
         "outputs": "wires",
         "interval": "float"
@@ -96,7 +96,7 @@
       "data": "node"
     },
     "config": "node",
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": "wires",
     "outputs": "wires",

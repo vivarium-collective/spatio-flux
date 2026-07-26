@@ -12,7 +12,7 @@
         },
         "config": "node",
         "_inputs": "biomass:mass|substrates:map[concentration]",
-        "_outputs": "biomass:float|substrates:map[float]",
+        "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
         "inputs": "wires",
         "outputs": "wires",
         "interval": "float"

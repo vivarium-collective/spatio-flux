@@ -12,7 +12,7 @@
         },
         "config": "node",
         "_inputs": "biomass:mass|substrates:map[concentration]",
-        "_outputs": "biomass:float|substrates:map[float]",
+        "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
         "inputs": "wires",
         "outputs": "wires",
         "interval": "float"
@@ -55,8 +55,8 @@
       "data": "node"
     },
     "config": "node",
-    "_inputs": "fields:map[array[10|10,float]]",
-    "_outputs": "fields:map[array[10|10,float]]",
+    "_inputs": "fields:map[positive_array]",
+    "_outputs": "fields:map[positive_array]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -120,38 +120,6 @@
     "priority": "float",
     "_triggers": "node"
   },
-  "viz_snapshots": {
-    "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
-    "config": "node",
-    "_inputs": "glucose:array[1,float]|acetate:array[1,float]",
-    "_outputs": "html:string",
-    "inputs": "wires",
-    "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  },
-  "viz_snapshots_html": "string",
-  "viz_animation": {
-    "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
-    "config": "node",
-    "_inputs": "glucose:array[1,float]|acetate:array[1,float]",
-    "_outputs": "html:string",
-    "inputs": "wires",
-    "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  },
-  "viz_animation_html": "string",
   "emitter": {
     "_type": "step",
     "address": {
@@ -160,7 +128,7 @@
       "data": "node"
     },
     "config": "node",
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "node",
     "inputs": "wires",
     "outputs": "wires",

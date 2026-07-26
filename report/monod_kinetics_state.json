@@ -31,7 +31,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "acetate": [
@@ -64,52 +64,24 @@
         "biomass"
       ]
     },
-    "interval": 0.1
+    "interval": 0.1,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "fields": {
     "glucose": 10.0,
     "acetate": 0.0,
     "biomass": 0.1
   },
-  "viz_timeseries": {
-    "address": {
-      "protocol": "local",
-      "data": "TestSuiteTimeSeries"
-    },
-    "config": {
-      "field_names": [
-        "glucose",
-        "acetate",
-        "biomass"
-      ],
-      "title": "Monod kinetics",
-      "time_units": "step",
-      "y_label": "concentration / biomass",
-      "log_scale": false
-    },
-    "_inputs": "glucose:float|acetate:float|biomass:float",
-    "_outputs": "html:string",
-    "inputs": {
-      "glucose": [
-        "fields",
-        "glucose"
-      ],
-      "acetate": [
-        "fields",
-        "acetate"
-      ],
-      "biomass": [
-        "fields",
-        "biomass"
-      ]
-    },
-    "outputs": {
-      "html": [
-        "viz_timeseries_html"
-      ]
-    }
-  },
-  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",
@@ -128,6 +100,19 @@
       "fields": [
         "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }

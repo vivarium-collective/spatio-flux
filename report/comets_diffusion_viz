@@ -10,61 +10,23 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields',)" [label=<fields>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved<BR/>biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.  0.  0.  0.  0.…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[10|10,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved<BR/>biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.  0.  0.  0.  0.…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.01  0.01  0.01 …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[10|10,float]</FONT></TD></TR></TABLE>>]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.01  0.01  0.01 …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0. 0. 0. 0. 0. 0. …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: array[10|10,float]</FONT></TD></TR></TABLE>>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('viz_snapshots_html',)" [label=<viz_snapshots_html>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('viz_snapshots_html',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>viz_snapshots_html</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: </FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: string</FONT></TD></TR></TABLE>>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('viz_animation_html',)" [label=<viz_animation_html>]
-	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('viz_animation_html',)" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>viz_animation_html</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: </FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: string</FONT></TD></TR></TABLE>>]
+	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0. 0. 0. 0. 0. 0. …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
 	"('dFBA[0,0]',)" [label=<dFBA[*]<BR/>(x100)>]
 	"('diffusion',)" [label=<diffusion>]
-	"('viz_snapshots',)" [label=<viz_snapshots>]
-	"('viz_animation',)" [label=<viz_animation>]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'dissolved biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_snapshots',)" {
-		"('fields', 'glucose')" -> "('viz_snapshots',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_snapshots',)" {
-		"('fields', 'acetate')" -> "('viz_snapshots',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_snapshots',)" {
-		"('fields', 'dissolved biomass')" -> "('viz_snapshots',)" [label=<dissolved biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_animation',)" {
-		"('fields', 'glucose')" -> "('viz_animation',)" [label=<glucose> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_animation',)" {
-		"('fields', 'acetate')" -> "('viz_animation',)" [label=<acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('viz_animation',)" {
-		"('fields', 'dissolved biomass')" -> "('viz_animation',)" [label=<dissolved biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
-	subgraph "('viz_snapshots',)" {
-		"('viz_snapshots_html',)" -> "('viz_snapshots',)" [label=<html> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
-	subgraph "('viz_animation',)" {
-		"('viz_animation_html',)" -> "('viz_animation',)" [label=<html> constraint=true fontsize="10pt" labelloc=t]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
@@ -73,10 +35,6 @@ digraph bigraph {
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
 		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {

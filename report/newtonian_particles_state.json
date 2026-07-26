@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_244f84": {
+    "p_aa1670": {
       "id": "",
       "position": [
-        29.823176488010507,
-        41.29342085294067
+        20.655997049679065,
+        9.34883056056313
       ],
-      "mass": 0.03229306622441437,
+      "mass": 0.03057492158596569,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
-        0.0,
-        0.0
+        -0.0,
+        -0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 0.8278164947385764
+      "radius": 0.8054936296088697
     }
   },
   "newtonian_particles": {
@@ -78,7 +78,18 @@
         "particles"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Newtonian particle physics (Pymunk): integrates rigid-body dynamics - forces, collisions, friction, elasticity - for motile particles within the domain.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "enforce_boundaries": {
     "address": {
@@ -119,6 +130,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "emitter": {
@@ -139,6 +161,19 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }

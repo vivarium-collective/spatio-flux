@@ -9,28 +9,12 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
   },
   "fields": "glucose:concentration|biomass:mass|ammonium:concentration",
-  "viz_timeseries": {
-    "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
-    "config": "node",
-    "_inputs": "glucose:float|biomass:float",
-    "_outputs": "html:string",
-    "inputs": "wires",
-    "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  },
-  "viz_timeseries_html": "string",
   "emitter": {
     "_type": "step",
     "address": {

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "KRBGgvxr": {
+    "2wGA8WKF": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -33,7 +33,7 @@
           "box_volume_L": 1.0
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": {
           "substrates": [
             "local"
@@ -50,14 +50,25 @@
             "mass"
           ]
         },
-        "interval": 1.0
+        "interval": 1.0,
+        "_contract": {
+          "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+          "description": "",
+          "inputs": {},
+          "outputs": {},
+          "config": {},
+          "math": [],
+          "symbols": {},
+          "assumptions": [],
+          "references": []
+        }
       },
-      "id": "KRBGgvxr",
+      "id": "2wGA8WKF",
       "position": [
-        0.5870867778863975,
-        8.297710295893657
+        20.89434385343663,
+        37.0652892812184
       ],
-      "mass": 0.8704475011509306,
+      "mass": 0.00509662090823111,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -108,7 +119,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -153,7 +164,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,0]": {
     "address": {
@@ -190,7 +212,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -235,7 +257,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,0]": {
     "address": {
@@ -272,7 +305,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -317,7 +350,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,0]": {
     "address": {
@@ -354,7 +398,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -399,7 +443,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,0]": {
     "address": {
@@ -436,7 +491,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -481,7 +536,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,0]": {
     "address": {
@@ -518,7 +584,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -563,7 +629,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,0]": {
     "address": {
@@ -600,7 +677,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -645,7 +722,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,0]": {
     "address": {
@@ -682,7 +770,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -727,7 +815,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,0]": {
     "address": {
@@ -764,7 +863,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -809,7 +908,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,0]": {
     "address": {
@@ -846,7 +956,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -891,7 +1001,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,1]": {
     "address": {
@@ -928,7 +1049,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -973,7 +1094,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,1]": {
     "address": {
@@ -1010,7 +1142,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1055,7 +1187,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,1]": {
     "address": {
@@ -1092,7 +1235,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1137,7 +1280,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,1]": {
     "address": {
@@ -1174,7 +1328,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1219,7 +1373,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,1]": {
     "address": {
@@ -1256,7 +1421,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1301,7 +1466,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,1]": {
     "address": {
@@ -1338,7 +1514,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1383,7 +1559,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,1]": {
     "address": {
@@ -1420,7 +1607,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1465,7 +1652,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,1]": {
     "address": {
@@ -1502,7 +1700,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1547,7 +1745,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,1]": {
     "address": {
@@ -1584,7 +1793,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1629,7 +1838,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,1]": {
     "address": {
@@ -1666,7 +1886,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1711,7 +1931,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,2]": {
     "address": {
@@ -1748,7 +1979,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1793,7 +2024,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,2]": {
     "address": {
@@ -1830,7 +2072,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1875,7 +2117,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,2]": {
     "address": {
@@ -1912,7 +2165,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1957,7 +2210,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,2]": {
     "address": {
@@ -1994,7 +2258,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2039,7 +2303,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,2]": {
     "address": {
@@ -2076,7 +2351,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2121,7 +2396,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,2]": {
     "address": {
@@ -2158,7 +2444,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2203,7 +2489,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,2]": {
     "address": {
@@ -2240,7 +2537,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2285,7 +2582,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,2]": {
     "address": {
@@ -2322,7 +2630,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2367,7 +2675,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,2]": {
     "address": {
@@ -2404,7 +2723,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2449,7 +2768,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,2]": {
     "address": {
@@ -2486,7 +2816,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2531,7 +2861,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,3]": {
     "address": {
@@ -2568,7 +2909,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2613,7 +2954,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,3]": {
     "address": {
@@ -2650,7 +3002,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2695,7 +3047,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,3]": {
     "address": {
@@ -2732,7 +3095,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2777,7 +3140,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,3]": {
     "address": {
@@ -2814,7 +3188,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2859,7 +3233,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,3]": {
     "address": {
@@ -2896,7 +3281,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2941,7 +3326,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,3]": {
     "address": {
@@ -2978,7 +3374,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3023,7 +3419,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,3]": {
     "address": {
@@ -3060,7 +3467,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3105,7 +3512,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,3]": {
     "address": {
@@ -3142,7 +3560,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3187,7 +3605,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,3]": {
     "address": {
@@ -3224,7 +3653,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3269,7 +3698,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,3]": {
     "address": {
@@ -3306,7 +3746,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3351,7 +3791,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,4]": {
     "address": {
@@ -3388,7 +3839,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3433,7 +3884,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,4]": {
     "address": {
@@ -3470,7 +3932,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3515,7 +3977,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,4]": {
     "address": {
@@ -3552,7 +4025,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3597,7 +4070,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,4]": {
     "address": {
@@ -3634,7 +4118,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3679,7 +4163,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,4]": {
     "address": {
@@ -3716,7 +4211,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3761,7 +4256,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,4]": {
     "address": {
@@ -3798,7 +4304,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3843,7 +4349,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,4]": {
     "address": {
@@ -3880,7 +4397,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3925,7 +4442,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,4]": {
     "address": {
@@ -3962,7 +4490,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4007,7 +4535,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,4]": {
     "address": {
@@ -4044,7 +4583,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4089,7 +4628,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,4]": {
     "address": {
@@ -4126,7 +4676,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4171,7 +4721,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,5]": {
     "address": {
@@ -4208,7 +4769,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4253,7 +4814,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,5]": {
     "address": {
@@ -4290,7 +4862,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4335,7 +4907,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,5]": {
     "address": {
@@ -4372,7 +4955,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4417,7 +5000,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,5]": {
     "address": {
@@ -4454,7 +5048,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4499,7 +5093,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,5]": {
     "address": {
@@ -4536,7 +5141,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4581,7 +5186,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,5]": {
     "address": {
@@ -4618,7 +5234,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4663,7 +5279,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,5]": {
     "address": {
@@ -4700,7 +5327,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4745,7 +5372,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,5]": {
     "address": {
@@ -4782,7 +5420,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4827,7 +5465,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,5]": {
     "address": {
@@ -4864,7 +5513,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4909,7 +5558,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,5]": {
     "address": {
@@ -4946,7 +5606,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4991,7 +5651,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,6]": {
     "address": {
@@ -5028,7 +5699,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5073,7 +5744,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,6]": {
     "address": {
@@ -5110,7 +5792,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5155,7 +5837,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,6]": {
     "address": {
@@ -5192,7 +5885,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5237,7 +5930,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,6]": {
     "address": {
@@ -5274,7 +5978,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5319,7 +6023,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,6]": {
     "address": {
@@ -5356,7 +6071,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5401,7 +6116,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,6]": {
     "address": {
@@ -5438,7 +6164,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5483,7 +6209,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,6]": {
     "address": {
@@ -5520,7 +6257,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5565,7 +6302,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,6]": {
     "address": {
@@ -5602,7 +6350,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5647,7 +6395,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,6]": {
     "address": {
@@ -5684,7 +6443,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5729,7 +6488,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,6]": {
     "address": {
@@ -5766,7 +6536,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5811,7 +6581,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,7]": {
     "address": {
@@ -5848,7 +6629,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5893,7 +6674,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,7]": {
     "address": {
@@ -5930,7 +6722,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5975,7 +6767,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,7]": {
     "address": {
@@ -6012,7 +6815,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6057,7 +6860,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,7]": {
     "address": {
@@ -6094,7 +6908,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6139,7 +6953,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,7]": {
     "address": {
@@ -6176,7 +7001,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6221,7 +7046,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,7]": {
     "address": {
@@ -6258,7 +7094,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6303,7 +7139,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,7]": {
     "address": {
@@ -6340,7 +7187,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6385,7 +7232,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,7]": {
     "address": {
@@ -6422,7 +7280,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6467,7 +7325,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,7]": {
     "address": {
@@ -6504,7 +7373,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6549,7 +7418,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,7]": {
     "address": {
@@ -6586,7 +7466,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6631,7 +7511,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,8]": {
     "address": {
@@ -6668,7 +7559,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6713,7 +7604,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,8]": {
     "address": {
@@ -6750,7 +7652,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6795,7 +7697,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,8]": {
     "address": {
@@ -6832,7 +7745,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6877,7 +7790,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,8]": {
     "address": {
@@ -6914,7 +7838,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6959,7 +7883,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,8]": {
     "address": {
@@ -6996,7 +7931,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7041,7 +7976,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,8]": {
     "address": {
@@ -7078,7 +8024,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7123,7 +8069,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,8]": {
     "address": {
@@ -7160,7 +8117,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7205,7 +8162,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,8]": {
     "address": {
@@ -7242,7 +8210,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7287,7 +8255,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,8]": {
     "address": {
@@ -7324,7 +8303,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7369,7 +8348,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,8]": {
     "address": {
@@ -7406,7 +8396,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7451,7 +8441,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[0,9]": {
     "address": {
@@ -7488,7 +8489,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7533,7 +8534,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[1,9]": {
     "address": {
@@ -7570,7 +8582,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7615,7 +8627,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[2,9]": {
     "address": {
@@ -7652,7 +8675,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7697,7 +8720,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[3,9]": {
     "address": {
@@ -7734,7 +8768,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7779,7 +8813,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[4,9]": {
     "address": {
@@ -7816,7 +8861,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7861,7 +8906,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[5,9]": {
     "address": {
@@ -7898,7 +8954,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7943,7 +8999,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[6,9]": {
     "address": {
@@ -7980,7 +9047,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -8025,7 +9092,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[7,9]": {
     "address": {
@@ -8062,7 +9140,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -8107,7 +9185,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[8,9]": {
     "address": {
@@ -8144,7 +9233,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -8189,7 +9278,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "dFBA[9,9]": {
     "address": {
@@ -8226,7 +9326,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -8271,7 +9371,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "fields": {
     "dissolved biomass": [
@@ -8680,8 +9791,8 @@
       "cfl_adv": 0.5,
       "clip_negative": true
     },
-    "_inputs": "fields:map[array[10|10,float]]",
-    "_outputs": "fields:map[array[10|10,float]]",
+    "_inputs": "fields:map[positive_array]",
+    "_outputs": "fields:map[positive_array]",
     "inputs": {
       "fields": [
         "fields"
@@ -8692,7 +9803,18 @@
         "fields"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Diffusion-advection transport: evolves each molecular field on the lattice by finite-difference diffusion (CFL-limited sub-stepping) plus advection at the configured coefficients.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "brownian_movement": {
     "address": {
@@ -8726,7 +9848,18 @@
         "particles"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Brownian particle motion: displaces each particle by a diffusion-scaled random walk plus advection, confined to the domain bounds.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "enforce_boundaries": {
     "address": {
@@ -8767,6 +9900,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "particle_exchange": {
@@ -8802,6 +9946,17 @@
       "fields": [
         "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Particle-field exchange: couples each particle's local uptake/secretion to the lattice field bin it occupies, converting between per-cell counts and field concentrations.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "particle_division": {
@@ -8826,84 +9981,19 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Particle division: splits any particle whose mass exceeds the division threshold into two daughters, partitioning mass and sub-masses with jitter.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
-  "viz_snapshots": {
-    "address": {
-      "protocol": "local",
-      "data": "FieldSnapshotsGrid"
-    },
-    "config": {
-      "field_names": [
-        "glucose",
-        "acetate",
-        "dissolved biomass"
-      ],
-      "n_snapshots": 4,
-      "title": "COMETS fields (br_particles_dfba)",
-      "colormap": "viridis"
-    },
-    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
-    "_outputs": "html:string",
-    "inputs": {
-      "glucose": [
-        "fields",
-        "glucose"
-      ],
-      "acetate": [
-        "fields",
-        "acetate"
-      ],
-      "dissolved biomass": [
-        "fields",
-        "dissolved biomass"
-      ]
-    },
-    "outputs": {
-      "html": [
-        "viz_snapshots_html"
-      ]
-    }
-  },
-  "viz_snapshots_html": "",
-  "viz_animation": {
-    "address": {
-      "protocol": "local",
-      "data": "FieldAnimationGif"
-    },
-    "config": {
-      "field_names": [
-        "glucose",
-        "acetate",
-        "dissolved biomass"
-      ],
-      "title": "COMETS animation (br_particles_dfba)",
-      "fps": 4,
-      "cmap": "viridis"
-    },
-    "_inputs": "glucose:array[1,float]|acetate:array[1,float]|dissolved biomass:array[1,float]",
-    "_outputs": "html:string",
-    "inputs": {
-      "glucose": [
-        "fields",
-        "glucose"
-      ],
-      "acetate": [
-        "fields",
-        "acetate"
-      ],
-      "dissolved biomass": [
-        "fields",
-        "dissolved biomass"
-      ]
-    },
-    "outputs": {
-      "html": [
-        "viz_animation_html"
-      ]
-    }
-  },
-  "viz_animation_html": "",
   "emitter": {
     "address": {
       "protocol": "local",
@@ -8925,6 +10015,19 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }

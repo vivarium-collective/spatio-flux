@@ -8,7 +8,7 @@
         "address": "string",
         "config": "node",
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": "wires",
         "outputs": "wires",
         "interval": "float"
@@ -18,7 +18,7 @@
         "address": "string",
         "config": "node",
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": "wires",
         "outputs": "wires",
         "interval": "float"
@@ -58,7 +58,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -72,7 +72,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -86,7 +86,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -100,7 +100,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -114,7 +114,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -128,7 +128,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -142,7 +142,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -156,7 +156,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -170,7 +170,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -184,7 +184,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -198,7 +198,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -212,7 +212,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -226,7 +226,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -240,7 +240,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -254,7 +254,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -268,7 +268,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -282,7 +282,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -296,7 +296,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -310,7 +310,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -324,7 +324,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -338,7 +338,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -352,7 +352,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -366,7 +366,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -380,7 +380,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -394,7 +394,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -408,7 +408,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -422,7 +422,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -436,7 +436,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -450,7 +450,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -464,7 +464,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -478,7 +478,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -492,7 +492,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -506,7 +506,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -520,7 +520,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -534,7 +534,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -548,7 +548,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -562,7 +562,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -576,7 +576,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -590,7 +590,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -604,7 +604,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -618,7 +618,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -632,7 +632,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -646,7 +646,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -660,7 +660,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -674,7 +674,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -688,7 +688,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -702,7 +702,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -716,7 +716,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -730,7 +730,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -744,7 +744,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -758,7 +758,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -772,7 +772,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -786,7 +786,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -800,7 +800,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -814,7 +814,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -828,7 +828,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -842,7 +842,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -856,7 +856,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -870,7 +870,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -884,7 +884,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -898,7 +898,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -912,7 +912,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -926,7 +926,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -940,7 +940,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -954,7 +954,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -968,7 +968,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -982,7 +982,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -996,7 +996,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1010,7 +1010,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1024,7 +1024,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1038,7 +1038,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1052,7 +1052,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1066,7 +1066,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1080,7 +1080,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1094,7 +1094,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1108,7 +1108,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1122,7 +1122,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1136,7 +1136,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1150,7 +1150,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1164,7 +1164,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1178,7 +1178,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1192,7 +1192,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1206,7 +1206,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1220,7 +1220,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1234,7 +1234,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1248,7 +1248,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1262,7 +1262,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1276,7 +1276,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1290,7 +1290,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1304,7 +1304,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1318,7 +1318,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1332,7 +1332,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1346,7 +1346,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1360,7 +1360,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1374,7 +1374,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1388,7 +1388,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1402,7 +1402,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1416,7 +1416,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1430,7 +1430,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1444,7 +1444,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1458,7 +1458,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1472,7 +1472,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1486,7 +1486,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1500,7 +1500,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1514,7 +1514,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1528,7 +1528,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1542,7 +1542,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1556,7 +1556,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1570,7 +1570,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1584,7 +1584,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1598,7 +1598,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1612,7 +1612,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1626,7 +1626,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1640,7 +1640,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1654,7 +1654,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1668,7 +1668,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1682,7 +1682,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1696,7 +1696,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1710,7 +1710,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1724,7 +1724,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1738,7 +1738,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1752,7 +1752,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1766,7 +1766,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1780,7 +1780,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1794,7 +1794,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1808,7 +1808,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1822,7 +1822,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1836,7 +1836,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1850,7 +1850,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1864,7 +1864,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1878,7 +1878,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1892,7 +1892,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1906,7 +1906,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1920,7 +1920,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1934,7 +1934,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1948,7 +1948,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1962,7 +1962,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1976,7 +1976,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -1990,7 +1990,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2004,7 +2004,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2018,7 +2018,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2032,7 +2032,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2046,7 +2046,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2060,7 +2060,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2074,7 +2074,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2088,7 +2088,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2102,7 +2102,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2116,7 +2116,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2130,7 +2130,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2144,7 +2144,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2158,7 +2158,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2172,7 +2172,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2186,7 +2186,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2200,7 +2200,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2214,7 +2214,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2228,7 +2228,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2242,7 +2242,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2256,7 +2256,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2270,7 +2270,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2284,7 +2284,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2298,7 +2298,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2312,7 +2312,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2326,7 +2326,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2340,7 +2340,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2354,7 +2354,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2368,7 +2368,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2382,7 +2382,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2396,7 +2396,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2410,7 +2410,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2424,7 +2424,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2438,7 +2438,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2452,7 +2452,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2466,7 +2466,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2480,7 +2480,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2494,7 +2494,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2508,7 +2508,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2522,7 +2522,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2536,7 +2536,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2550,7 +2550,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2564,7 +2564,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2578,7 +2578,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2592,7 +2592,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2606,7 +2606,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2620,7 +2620,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2634,7 +2634,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2648,7 +2648,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2662,7 +2662,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2676,7 +2676,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2690,7 +2690,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2704,7 +2704,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2718,7 +2718,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2732,7 +2732,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2746,7 +2746,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2760,7 +2760,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2774,7 +2774,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2788,7 +2788,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2802,7 +2802,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2816,7 +2816,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2830,7 +2830,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2844,7 +2844,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2858,7 +2858,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2872,7 +2872,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2886,7 +2886,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2900,7 +2900,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2914,7 +2914,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2928,7 +2928,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2942,7 +2942,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2956,7 +2956,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2970,7 +2970,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2984,7 +2984,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -2998,7 +2998,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3012,7 +3012,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3026,7 +3026,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3040,7 +3040,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3054,7 +3054,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3068,7 +3068,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3082,7 +3082,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3096,7 +3096,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3110,7 +3110,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3124,7 +3124,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3138,7 +3138,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3152,7 +3152,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3166,7 +3166,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3180,7 +3180,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3194,7 +3194,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3208,7 +3208,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3222,7 +3222,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3236,7 +3236,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3250,7 +3250,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3264,7 +3264,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3278,7 +3278,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3292,7 +3292,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3306,7 +3306,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3320,7 +3320,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3334,7 +3334,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3348,7 +3348,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3362,7 +3362,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3376,7 +3376,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3390,7 +3390,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3404,7 +3404,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3418,7 +3418,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3432,7 +3432,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3446,7 +3446,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3460,7 +3460,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3474,7 +3474,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3488,7 +3488,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3502,7 +3502,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3516,7 +3516,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3530,7 +3530,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3544,7 +3544,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3558,7 +3558,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3572,7 +3572,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3586,7 +3586,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3600,7 +3600,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3614,7 +3614,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3628,7 +3628,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3642,7 +3642,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3656,7 +3656,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3670,7 +3670,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3684,7 +3684,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3698,7 +3698,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3712,7 +3712,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3726,7 +3726,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3740,7 +3740,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3754,7 +3754,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3768,7 +3768,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3782,7 +3782,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3796,7 +3796,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3810,7 +3810,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3824,7 +3824,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3838,7 +3838,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3852,7 +3852,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3866,7 +3866,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3880,7 +3880,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3894,7 +3894,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3908,7 +3908,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3922,7 +3922,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3936,7 +3936,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3950,7 +3950,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3964,7 +3964,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3978,7 +3978,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -3992,7 +3992,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4006,7 +4006,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4020,7 +4020,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4034,7 +4034,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4048,7 +4048,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4062,7 +4062,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4076,7 +4076,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4090,7 +4090,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4104,7 +4104,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4118,7 +4118,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4132,7 +4132,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4146,7 +4146,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4160,7 +4160,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4174,7 +4174,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4188,7 +4188,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4202,7 +4202,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4216,7 +4216,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4230,7 +4230,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4244,7 +4244,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4258,7 +4258,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4272,7 +4272,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4286,7 +4286,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4300,7 +4300,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4314,7 +4314,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4328,7 +4328,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4342,7 +4342,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4356,7 +4356,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4370,7 +4370,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4384,7 +4384,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4398,7 +4398,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4412,7 +4412,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4426,7 +4426,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4440,7 +4440,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4454,7 +4454,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4468,7 +4468,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4482,7 +4482,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4496,7 +4496,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4510,7 +4510,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4524,7 +4524,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4538,7 +4538,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4552,7 +4552,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4566,7 +4566,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4580,7 +4580,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4594,7 +4594,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4608,7 +4608,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4622,7 +4622,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4636,7 +4636,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4650,7 +4650,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4664,7 +4664,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4678,7 +4678,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4692,7 +4692,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4706,7 +4706,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4720,7 +4720,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4734,7 +4734,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4748,7 +4748,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4762,7 +4762,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4776,7 +4776,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4790,7 +4790,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4804,7 +4804,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4818,7 +4818,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4832,7 +4832,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4846,7 +4846,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4860,7 +4860,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4874,7 +4874,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4888,7 +4888,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4902,7 +4902,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4916,7 +4916,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4930,7 +4930,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4944,7 +4944,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4958,7 +4958,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4972,7 +4972,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -4986,7 +4986,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5000,7 +5000,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5014,7 +5014,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5028,7 +5028,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5042,7 +5042,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5056,7 +5056,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5070,7 +5070,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5084,7 +5084,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5098,7 +5098,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5112,7 +5112,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5126,7 +5126,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5140,7 +5140,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5154,7 +5154,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5168,7 +5168,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5182,7 +5182,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5196,7 +5196,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5210,7 +5210,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5224,7 +5224,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5238,7 +5238,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5252,7 +5252,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5266,7 +5266,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5280,7 +5280,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5294,7 +5294,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5308,7 +5308,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5322,7 +5322,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5336,7 +5336,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5350,7 +5350,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5364,7 +5364,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5378,7 +5378,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5392,7 +5392,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5406,7 +5406,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5420,7 +5420,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5434,7 +5434,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5448,7 +5448,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5462,7 +5462,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5476,7 +5476,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5490,7 +5490,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5504,7 +5504,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5518,7 +5518,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5532,7 +5532,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5546,7 +5546,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5560,7 +5560,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5574,7 +5574,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5588,7 +5588,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5602,7 +5602,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5616,7 +5616,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5630,7 +5630,7 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5644,12 +5644,12 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
   },
-  "fields": "map[array[20|20,float]]",
+  "fields": "map[positive_array]",
   "diffusion": {
     "_type": "process",
     "address": {
@@ -5658,8 +5658,8 @@
       "data": "node"
     },
     "config": "node",
-    "_inputs": "fields:map[array[20|20,float]]",
-    "_outputs": "fields:map[array[20|20,float]]",
+    "_inputs": "fields:map[positive_array]",
+    "_outputs": "fields:map[positive_array]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -5731,7 +5731,7 @@
       "data": "node"
     },
     "config": "node",
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "node",
     "inputs": "wires",
     "outputs": "wires",

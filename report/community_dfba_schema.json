@@ -9,7 +9,7 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -23,7 +23,7 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -37,7 +37,7 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -51,7 +51,7 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -65,7 +65,7 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -79,7 +79,7 @@
     },
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
@@ -93,28 +93,12 @@
     },
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
     "interval": "float"
   },
   "fields": "glucose:concentration|acetate:concentration|ecoli core:mass|ecoli:mass|cdiff:mass|pputida:mass|yeast:mass|llactis:mass|monod biomass:mass|formate:concentration|ammonium:concentration|glycolate:concentration|glutamate:concentration|serine:concentration",
-  "viz_timeseries": {
-    "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
-    "config": "node",
-    "_inputs": "glucose:float|acetate:float|ecoli core:float|ecoli:float|cdiff:float|pputida:float|yeast:float|llactis:float|monod biomass:float",
-    "_outputs": "html:string",
-    "inputs": "wires",
-    "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  },
-  "viz_timeseries_html": "string",
   "emitter": {
     "_type": "step",
     "address": {

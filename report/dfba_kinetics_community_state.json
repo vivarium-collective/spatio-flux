@@ -35,7 +35,7 @@
       "box_volume_L": 1.0
     },
     "_inputs": "substrates:map[concentration]|biomass:mass",
-    "_outputs": "substrates:map[count]|biomass:mass",
+    "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -68,7 +68,18 @@
         "dfba biomass"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics": {
     "address": {
@@ -87,7 +98,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "acetate": [
@@ -112,7 +123,18 @@
         "kinetic biomass"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "fields": {
     "glucose": 10.0,
@@ -120,50 +142,6 @@
     "dfba biomass": 0.01,
     "kinetic biomass": 0.01
   },
-  "viz_timeseries": {
-    "address": {
-      "protocol": "local",
-      "data": "TestSuiteTimeSeries"
-    },
-    "config": {
-      "field_names": [
-        "glucose",
-        "acetate",
-        "dfba biomass",
-        "kinetic biomass"
-      ],
-      "title": "dFBA + Monod hybrid community",
-      "time_units": "step",
-      "y_label": "concentration / biomass",
-      "log_scale": false
-    },
-    "_inputs": "glucose:float|acetate:float|dfba biomass:float|kinetic biomass:float",
-    "_outputs": "html:string",
-    "inputs": {
-      "glucose": [
-        "fields",
-        "glucose"
-      ],
-      "acetate": [
-        "fields",
-        "acetate"
-      ],
-      "dfba biomass": [
-        "fields",
-        "dfba biomass"
-      ],
-      "kinetic biomass": [
-        "fields",
-        "kinetic biomass"
-      ]
-    },
-    "outputs": {
-      "html": [
-        "viz_timeseries_html"
-      ]
-    }
-  },
-  "viz_timeseries_html": "",
   "emitter": {
     "address": {
       "protocol": "local",
@@ -182,6 +160,19 @@
       "fields": [
         "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }

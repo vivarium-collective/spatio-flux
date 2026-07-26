@@ -1,6 +1,6 @@
 {
   "particles": {
-    "p_93cec7": {
+    "p_bcf259": {
       "ecoli_1 dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -33,7 +33,7 @@
           "box_volume_L": 1.0
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": {
           "substrates": [
             "local"
@@ -52,7 +52,18 @@
             "ecoli_1"
           ]
         },
-        "interval": 1.0
+        "interval": 1.0,
+        "_contract": {
+          "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+          "description": "",
+          "inputs": {},
+          "outputs": {},
+          "config": {},
+          "math": [],
+          "symbols": {},
+          "assumptions": [],
+          "references": []
+        }
       },
       "ecoli_2 dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
@@ -86,7 +97,7 @@
           "box_volume_L": 1.0
         },
         "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[count]|biomass:mass",
+        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": {
           "substrates": [
             "local"
@@ -105,7 +116,18 @@
             "ecoli_2"
           ]
         },
-        "interval": 1.0
+        "interval": 1.0,
+        "_contract": {
+          "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+          "description": "",
+          "inputs": {},
+          "outputs": {},
+          "config": {},
+          "math": [],
+          "symbols": {},
+          "assumptions": [],
+          "references": []
+        }
       },
       "aggregate_mass": {
         "address": "{'protocol': 'local', 'data': 'ParticleTotalMass'}",
@@ -121,6 +143,17 @@
           "total_mass": [
             "mass"
           ]
+        },
+        "_contract": {
+          "summary": "Total-mass reducer: sums a particle's sub-masses into its aggregate mass each interval.",
+          "description": "",
+          "inputs": {},
+          "outputs": {},
+          "config": {},
+          "math": [],
+          "symbols": {},
+          "assumptions": [],
+          "references": []
         }
       },
       "sub_masses": {
@@ -128,14 +161,14 @@
         "ecoli_2": 0.1
       },
       "shape": "circle",
-      "mass": 0.019800807689261155,
-      "radius": 0.6482177022120396,
+      "mass": 0.054171663214255074,
+      "radius": 1.072174611156105,
       "position": [
-        14.057655754603033,
-        7.911460260487116
+        21.022186130137708,
+        32.81733431280326
       ],
       "velocity": [
-        -0.0,
+        0.0,
         0.0
       ],
       "elasticity": 0.0,
@@ -171,7 +204,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -216,7 +249,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,1]": {
     "address": {
@@ -242,7 +286,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -287,7 +331,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,2]": {
     "address": {
@@ -313,7 +368,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -358,7 +413,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,3]": {
     "address": {
@@ -384,7 +450,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -429,7 +495,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,4]": {
     "address": {
@@ -455,7 +532,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -500,7 +577,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,5]": {
     "address": {
@@ -526,7 +614,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -571,7 +659,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,6]": {
     "address": {
@@ -597,7 +696,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -642,7 +741,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,7]": {
     "address": {
@@ -668,7 +778,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -713,7 +823,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,8]": {
     "address": {
@@ -739,7 +860,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -784,7 +905,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[0,9]": {
     "address": {
@@ -810,7 +942,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -855,7 +987,18 @@
         0
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,0]": {
     "address": {
@@ -881,7 +1024,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -926,7 +1069,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,1]": {
     "address": {
@@ -952,7 +1106,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -997,7 +1151,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,2]": {
     "address": {
@@ -1023,7 +1188,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1068,7 +1233,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,3]": {
     "address": {
@@ -1094,7 +1270,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1139,7 +1315,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,4]": {
     "address": {
@@ -1165,7 +1352,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1210,7 +1397,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,5]": {
     "address": {
@@ -1236,7 +1434,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1281,7 +1479,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,6]": {
     "address": {
@@ -1307,7 +1516,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1352,7 +1561,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,7]": {
     "address": {
@@ -1378,7 +1598,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1423,7 +1643,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,8]": {
     "address": {
@@ -1449,7 +1680,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1494,7 +1725,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[1,9]": {
     "address": {
@@ -1520,7 +1762,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1565,7 +1807,18 @@
         1
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,0]": {
     "address": {
@@ -1591,7 +1844,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1636,7 +1889,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,1]": {
     "address": {
@@ -1662,7 +1926,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1707,7 +1971,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,2]": {
     "address": {
@@ -1733,7 +2008,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1778,7 +2053,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,3]": {
     "address": {
@@ -1804,7 +2090,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1849,7 +2135,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,4]": {
     "address": {
@@ -1875,7 +2172,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1920,7 +2217,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,5]": {
     "address": {
@@ -1946,7 +2254,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -1991,7 +2299,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,6]": {
     "address": {
@@ -2017,7 +2336,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2062,7 +2381,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,7]": {
     "address": {
@@ -2088,7 +2418,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2133,7 +2463,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,8]": {
     "address": {
@@ -2159,7 +2500,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2204,7 +2545,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[2,9]": {
     "address": {
@@ -2230,7 +2582,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2275,7 +2627,18 @@
         2
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,0]": {
     "address": {
@@ -2301,7 +2664,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2346,7 +2709,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,1]": {
     "address": {
@@ -2372,7 +2746,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2417,7 +2791,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,2]": {
     "address": {
@@ -2443,7 +2828,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2488,7 +2873,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,3]": {
     "address": {
@@ -2514,7 +2910,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2559,7 +2955,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,4]": {
     "address": {
@@ -2585,7 +2992,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2630,7 +3037,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,5]": {
     "address": {
@@ -2656,7 +3074,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2701,7 +3119,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,6]": {
     "address": {
@@ -2727,7 +3156,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2772,7 +3201,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,7]": {
     "address": {
@@ -2798,7 +3238,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2843,7 +3283,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,8]": {
     "address": {
@@ -2869,7 +3320,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2914,7 +3365,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[3,9]": {
     "address": {
@@ -2940,7 +3402,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -2985,7 +3447,18 @@
         3
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,0]": {
     "address": {
@@ -3011,7 +3484,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3056,7 +3529,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,1]": {
     "address": {
@@ -3082,7 +3566,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3127,7 +3611,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,2]": {
     "address": {
@@ -3153,7 +3648,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3198,7 +3693,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,3]": {
     "address": {
@@ -3224,7 +3730,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3269,7 +3775,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,4]": {
     "address": {
@@ -3295,7 +3812,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3340,7 +3857,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,5]": {
     "address": {
@@ -3366,7 +3894,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3411,7 +3939,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,6]": {
     "address": {
@@ -3437,7 +3976,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3482,7 +4021,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,7]": {
     "address": {
@@ -3508,7 +4058,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3553,7 +4103,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,8]": {
     "address": {
@@ -3579,7 +4140,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3624,7 +4185,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[4,9]": {
     "address": {
@@ -3650,7 +4222,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3695,7 +4267,18 @@
         4
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,0]": {
     "address": {
@@ -3721,7 +4304,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3766,7 +4349,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,1]": {
     "address": {
@@ -3792,7 +4386,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3837,7 +4431,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,2]": {
     "address": {
@@ -3863,7 +4468,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3908,7 +4513,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,3]": {
     "address": {
@@ -3934,7 +4550,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -3979,7 +4595,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,4]": {
     "address": {
@@ -4005,7 +4632,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4050,7 +4677,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,5]": {
     "address": {
@@ -4076,7 +4714,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4121,7 +4759,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,6]": {
     "address": {
@@ -4147,7 +4796,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4192,7 +4841,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,7]": {
     "address": {
@@ -4218,7 +4878,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4263,7 +4923,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,8]": {
     "address": {
@@ -4289,7 +4960,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4334,7 +5005,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[5,9]": {
     "address": {
@@ -4360,7 +5042,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4405,7 +5087,18 @@
         5
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,0]": {
     "address": {
@@ -4431,7 +5124,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4476,7 +5169,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,1]": {
     "address": {
@@ -4502,7 +5206,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4547,7 +5251,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,2]": {
     "address": {
@@ -4573,7 +5288,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4618,7 +5333,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,3]": {
     "address": {
@@ -4644,7 +5370,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4689,7 +5415,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,4]": {
     "address": {
@@ -4715,7 +5452,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4760,7 +5497,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,5]": {
     "address": {
@@ -4786,7 +5534,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4831,7 +5579,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,6]": {
     "address": {
@@ -4857,7 +5616,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4902,7 +5661,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,7]": {
     "address": {
@@ -4928,7 +5698,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -4973,7 +5743,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,8]": {
     "address": {
@@ -4999,7 +5780,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5044,7 +5825,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[6,9]": {
     "address": {
@@ -5070,7 +5862,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5115,7 +5907,18 @@
         6
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,0]": {
     "address": {
@@ -5141,7 +5944,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5186,7 +5989,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,1]": {
     "address": {
@@ -5212,7 +6026,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5257,7 +6071,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,2]": {
     "address": {
@@ -5283,7 +6108,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5328,7 +6153,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,3]": {
     "address": {
@@ -5354,7 +6190,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5399,7 +6235,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,4]": {
     "address": {
@@ -5425,7 +6272,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5470,7 +6317,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,5]": {
     "address": {
@@ -5496,7 +6354,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5541,7 +6399,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,6]": {
     "address": {
@@ -5567,7 +6436,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5612,7 +6481,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,7]": {
     "address": {
@@ -5638,7 +6518,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5683,7 +6563,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,8]": {
     "address": {
@@ -5709,7 +6600,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5754,7 +6645,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[7,9]": {
     "address": {
@@ -5780,7 +6682,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5825,7 +6727,18 @@
         7
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,0]": {
     "address": {
@@ -5851,7 +6764,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5896,7 +6809,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,1]": {
     "address": {
@@ -5922,7 +6846,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -5967,7 +6891,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,2]": {
     "address": {
@@ -5993,7 +6928,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6038,7 +6973,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,3]": {
     "address": {
@@ -6064,7 +7010,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6109,7 +7055,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,4]": {
     "address": {
@@ -6135,7 +7092,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6180,7 +7137,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,5]": {
     "address": {
@@ -6206,7 +7174,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6251,7 +7219,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,6]": {
     "address": {
@@ -6277,7 +7256,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6322,7 +7301,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,7]": {
     "address": {
@@ -6348,7 +7338,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6393,7 +7383,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,8]": {
     "address": {
@@ -6419,7 +7420,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6464,7 +7465,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[8,9]": {
     "address": {
@@ -6490,7 +7502,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6535,7 +7547,18 @@
         8
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,0]": {
     "address": {
@@ -6561,7 +7584,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6606,7 +7629,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,1]": {
     "address": {
@@ -6632,7 +7666,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6677,7 +7711,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,2]": {
     "address": {
@@ -6703,7 +7748,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6748,7 +7793,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,3]": {
     "address": {
@@ -6774,7 +7830,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6819,7 +7875,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,4]": {
     "address": {
@@ -6845,7 +7912,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6890,7 +7957,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,5]": {
     "address": {
@@ -6916,7 +7994,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -6961,7 +8039,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,6]": {
     "address": {
@@ -6987,7 +8076,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7032,7 +8121,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,7]": {
     "address": {
@@ -7058,7 +8158,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7103,7 +8203,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,8]": {
     "address": {
@@ -7129,7 +8240,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7174,7 +8285,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "monod_kinetics[9,9]": {
     "address": {
@@ -7200,7 +8322,7 @@
       }
     },
     "_inputs": "biomass:mass|substrates:map[concentration]",
-    "_outputs": "biomass:float|substrates:map[float]",
+    "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": {
       "substrates": {
         "glucose": [
@@ -7245,7 +8367,18 @@
         9
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "fields": {
     "glucose": [
@@ -7494,124 +8627,124 @@
     ],
     "dissolved biomass": [
       [
-        0.17215261477840677,
-        0.17154089171711667,
-        0.10260232347406256,
-        0.11443600576675828,
-        0.11191686608289131,
-        0.16983425512278233,
-        0.16370807879652682,
-        0.136409468189442,
-        0.10124755970642296,
-        0.13298161990505875
+        0.19201256729890048,
+        0.15192720472861637,
+        0.11646967603418061,
+        0.11865748179141226,
+        0.19164740878595177,
+        0.1017135390769255,
+        0.18918067876801634,
+        0.13752914545669948,
+        0.10028265345406816,
+        0.158612519579559
       ],
       [
-        0.18486563079709886,
-        0.1429644341020777,
-        0.1304332882752868,
-        0.1689691094928612,
-        0.16623476532910997,
-        0.1671401707965515,
-        0.11243248904043067,
-        0.1086376209104892,
-        0.1549542375201067,
-        0.10475009696277282
+        0.16750163691824477,
+        0.1310081479973461,
+        0.1222878584828974,
+        0.149217043979352,
+        0.19928257771401983,
+        0.17966439624870476,
+        0.16336592724205573,
+        0.1024991073320065,
+        0.13727505275587296,
+        0.12294873161081023
       ],
       [
-        0.17729691073480325,
-        0.11384055155782036,
-        0.18446985170821467,
-        0.1176839435003847,
-        0.16018586994557918,
-        0.107896767811796,
-        0.12973046922662593,
-        0.12536048783595272,
-        0.12578711300990553,
-        0.13128911439385849
+        0.11394799565330473,
+        0.14820831726642775,
+        0.10139998038119205,
+        0.19827210871933987,
+        0.13702161663109322,
+        0.19433075878602937,
+        0.17086248700349022,
+        0.1281391978969366,
+        0.1303851491487918,
+        0.11705681521437597
       ],
       [
-        0.17901670851369195,
-        0.15202006117959904,
-        0.17450779636513086,
-        0.1080429542991799,
-        0.14088473114153224,
-        0.18369659348004141,
-        0.15076854957898686,
-        0.13416998188354337,
-        0.19580465378787368,
-        0.14778395484536477
+        0.18453975779164442,
+        0.15181433883775636,
+        0.14643406024863545,
+        0.14887553970020795,
+        0.1630367096799114,
+        0.1560219798901491,
+        0.11963248261221159,
+        0.10912418708552729,
+        0.1893494781948137,
+        0.12461038471924835
       ],
       [
-        0.16665892551955358,
-        0.13214511683850363,
-        0.11572500421922312,
-        0.16941841886907713,
-        0.1559277926340112,
-        0.1863265614012492,
-        0.14551513716010983,
-        0.1306993326990356,
-        0.12052734328061253,
-        0.1501886399247847
+        0.11644863788195405,
+        0.157676321637777,
+        0.127504926065569,
+        0.1854610360025918,
+        0.19895993513472415,
+        0.1040338865326286,
+        0.17356304164717645,
+        0.143588782491157,
+        0.1172302613655886,
+        0.1812801302096363
       ],
       [
-        0.18961956352989334,
-        0.11122503338864134,
-        0.19153796855507177,
-        0.1489011210107981,
-        0.1368797152582833,
-        0.17233201537882853,
-        0.1887283020475329,
-        0.18402736042674261,
-        0.14137694881632346,
-        0.1797838218399825
+        0.17584166425998446,
+        0.12489438839096005,
+        0.12675987917334464,
+        0.1812956370572596,
+        0.12274919397170886,
+        0.1899228944365599,
+        0.1490683842189735,
+        0.11581623353429268,
+        0.1869703919674094,
+        0.120806865454953
       ],
       [
-        0.16639988826108681,
-        0.1934925757573251,
-        0.18873489344993594,
-        0.100897729728884,
-        0.1359210266750578,
-        0.1443275950926149,
-        0.1913629075477939,
-        0.11542357561204969,
-        0.17670431014779722,
-        0.192466985574072
+        0.12629302762148084,
+        0.155797801867259,
+        0.15253398781392283,
+        0.1345418390808562,
+        0.1428733741948163,
+        0.11490304793226301,
+        0.1276469287151852,
+        0.12087318569269066,
+        0.148202621302106,
+        0.18766096010070252
       ],
       [
-        0.14666904827426072,
-        0.16878023587826552,
-        0.19980605137828963,
-        0.17003179310962707,
-        0.15255136766583935,
-        0.12826893911414244,
-        0.16963976549166188,
-        0.1299002388359491,
-        0.13009858848434697,
-        0.16285056976731188
+        0.19542705737220445,
+        0.1369684063998491,
+        0.13792512047667888,
+        0.10721656427760475,
+        0.18760499145312287,
+        0.1842897972654018,
+        0.169087302660475,
+        0.11483718591463143,
+        0.1012835657308617,
+        0.11896147254681338
       ],
       [
-        0.13929839670059552,
-        0.1561356973969366,
-        0.19278051003634866,
-        0.13079014588779755,
-        0.15543395266106413,
-        0.13403782994137714,
-        0.1743469611268348,
-        0.19782272073847804,
-        0.1485389669178243,
-        0.15199349948257979
+        0.19058512732206206,
+        0.1099711245457929,
+        0.16993261515475705,
+        0.11580304644508121,
+        0.1620057918974613,
+        0.16269900709779234,
+        0.1375320275391424,
+        0.162421849904336,
+        0.14032126354187202,
+        0.1653834806576756
       ],
       [
-        0.17775594179595006,
-        0.17114169972239662,
-        0.1334159347096554,
-        0.14314589680044731,
-        0.18793247903898042,
-        0.14701911402059506,
-        0.17571976841079845,
-        0.15434668531209614,
-        0.1448717893124394,
-        0.1323232503494331
+        0.10700031226517029,
+        0.10467800764212085,
+        0.17584253001861344,
+        0.1929935180986257,
+        0.18007921200465568,
+        0.16473977799834355,
+        0.19254732168252206,
+        0.152992434043977,
+        0.11120747826885174,
+        0.1862383219743873
       ]
     ]
   },
@@ -7658,8 +8791,8 @@
       "cfl_adv": 0.5,
       "clip_negative": true
     },
-    "_inputs": "fields:map[array[10|10,float]]",
-    "_outputs": "fields:map[array[10|10,float]]",
+    "_inputs": "fields:map[positive_array]",
+    "_outputs": "fields:map[positive_array]",
     "inputs": {
       "fields": [
         "fields"
@@ -7670,7 +8803,18 @@
         "fields"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Diffusion-advection transport: evolves each molecular field on the lattice by finite-difference diffusion (CFL-limited sub-stepping) plus advection at the configured coefficients.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "particle_exchange": {
     "address": {
@@ -7705,6 +8849,17 @@
       "fields": [
         "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Particle-field exchange: couples each particle's local uptake/secretion to the lattice field bin it occupies, converting between per-cell counts and field concentrations.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "particle_division": {
@@ -7729,6 +8884,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Particle division: splits any particle whose mass exceeds the division threshold into two daughters, partitioning mass and sub-masses with jitter.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "enforce_boundaries": {
@@ -7770,6 +8936,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "newtonian_particles": {
@@ -7828,7 +9005,18 @@
         "particles"
       ]
     },
-    "interval": 1.0
+    "interval": 1.0,
+    "_contract": {
+      "summary": "Newtonian particle physics (Pymunk): integrates rigid-body dynamics - forces, collisions, friction, elasticity - for motile particles within the domain.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "emitter": {
     "address": {
@@ -7851,6 +9039,19 @@
       "fields": [
         "fields"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }

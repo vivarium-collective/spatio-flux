@@ -1,13 +1,13 @@
 {
   "global_time": 0.0,
   "particles": {
-    "83Czr9bB": {
-      "id": "83Czr9bB",
+    "J9-1mJSg": {
+      "id": "J9-1mJSg",
       "position": [
-        49.30842804605621,
-        0.58535465633347
+        2.04021547367369,
+        19.54887722737691
       ],
-      "mass": 0.7776508134442592,
+      "mass": 0.8650492000472437,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -54,7 +54,18 @@
         "particles"
       ]
     },
-    "interval": 0.1
+    "interval": 0.1,
+    "_contract": {
+      "summary": "Brownian particle motion: displaces each particle by a diffusion-scaled random walk plus advection, confined to the domain bounds.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
+    }
   },
   "enforce_boundaries": {
     "address": {
@@ -95,6 +106,17 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "description": "",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   },
   "emitter": {
@@ -115,6 +137,19 @@
       "particles": [
         "particles"
       ]
+    },
+    "_contract": {
+      "summary": "Store historical states in memory.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "inputs": {},
+      "outputs": {},
+      "config": {},
+      "math": [
+        "``subsample`` records only every Nth composite tick (default 1 ="
+      ],
+      "symbols": {},
+      "assumptions": [],
+      "references": []
     }
   }
 }
