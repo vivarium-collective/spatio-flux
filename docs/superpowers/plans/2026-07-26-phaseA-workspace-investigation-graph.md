@@ -475,12 +475,22 @@ git commit -m "feat(studies): generate 19 study.yaml files; all baseline composi
 
 ---
 
-### Task 4: Manual dashboard verification + plan-doc note
+### Task 4: Dashboard verification
+
+> **Status (2026-07-26):** Structural verification DONE — using the installed
+> `vivarium-workbench` code (from `~/code/vivarium-workbench`, its own venv):
+> `WorkspacePaths.load(ws).iter_study_dirs()` discovers **all 19 studies**, the
+> `spatio-flux-test-suite` investigation is discovered, and the automated Task-3
+> test confirms all 19 baseline refs are in the `@composite_generator` registry
+> the env worker reads. **Live composite render (env-worker discovery) is BLOCKED
+> on Task 5** — see below.
 
 **Files:**
-- Modify: `docs/superpowers/plans/2026-07-26-phaseA-workspace-investigation-graph.md` (check off a verification note)
+- Modify: this plan file (record the verification result)
 
-This task has no automated test — it confirms the dashboard renders the workspace end-to-end, which needs the `vivarium-workbench` server (not a spatio-flux dependency).
+This task confirms the dashboard renders the workspace end-to-end, which needs the
+`vivarium-workbench` server serving from a venv where the workspace package
+(`spatio_flux`) and the modern `viva_superpowers` are importable (Task 5).
 
 - [ ] **Step 1: Serve the workspace**
 
@@ -511,6 +521,72 @@ git commit -m "docs(phaseA): record dashboard verification of the investigation 
 ```
 
 If any fail: the resolver test in Task 3 should already have caught a bad ref; a dashboard-only failure points at `workspace.yaml`/`core.py` (Task 1) or the env worker not importing the package — re-check `package_path: spatio_flux` and that `spatio_flux` is importable from the worktree (editable install or `PYTHONPATH`).
+
+---
+
+### Task 5: Serving-venv modernization (unblocks the live render)
+
+**Discovered during execution.** The modern workbench discovers generators by
+launching an **env-worker subprocess in the serving venv** that runs
+`from viva_superpowers.composite_generator import _REGISTRY, discover_generators`
+and imports the workspace package. spatio-flux's venv currently has the
+**pre-rebrand `pbg-superpowers 0.7.0`** (no `viva_superpowers`) and no
+`vivarium-workbench`, so the env worker can't import the discovery API and
+soft-degrades to zero composites. This is the "update it to a modern workbench"
+dependency bump.
+
+**Decision required before implementing:** whether to (a) upgrade spatio-flux's
+shared `.venv` in place, or (b) build a dedicated serving venv / worktree venv
+(safer given the shared-checkout concurrency hazard). Default recommendation: a
+**dedicated serving venv** so concurrent sessions using the shared venv are
+unaffected (mirrors the `reference_workbench_demo_isolated_worktree` /
+`workbench_serving_venv_needs_v2ecoli_deps` pattern).
+
+**Files:**
+- Modify: `pyproject.toml` (dependency bump: `viva-superpowers` / `pbg-superpowers>=0.16` shim; `bigraph-schema>=1.4.3`; add `vivarium-workbench` as a serving/dev extra)
+
+- [ ] **Step 1: Create/choose the serving venv** (dedicated, not the shared one)
+
+```bash
+uv venv ~/code/spatio-flux--workbench-modernization/.venv-serve
+SERVE=~/code/spatio-flux--workbench-modernization/.venv-serve/bin/python
+```
+
+- [ ] **Step 2: Install the workspace package + modern deps into it**
+
+```bash
+# spatio_flux (editable, from the worktree) + modern superpowers + workbench
+~/code/spatio-flux--workbench-modernization/.venv-serve/bin/uv pip install -e ~/code/spatio-flux--workbench-modernization
+~/code/spatio-flux--workbench-modernization/.venv-serve/bin/uv pip install "viva-superpowers>=0.16" "bigraph-schema>=1.4.3"
+~/code/spatio-flux--workbench-modernization/.venv-serve/bin/uv pip install -e ~/code/vivarium-workbench
+```
+
+- [ ] **Step 3: Verify `viva_superpowers` resolves the 19 generators in that venv**
+
+```bash
+$SERVE - <<'PY'
+import viva_superpowers.composite_generator as cg
+import spatio_flux.composites  # fire decorators
+print("generators:", len([k for k in cg._REGISTRY if k.startswith("spatio_flux")]))
+PY
+```
+Expected: `generators: 19`.
+
+- [ ] **Step 4: Serve + confirm live composite-resolve**
+
+```bash
+$SERVE -m vivarium_workbench serve --workspace ~/code/spatio-flux--workbench-modernization --port 8099 &
+sleep 8
+curl -s "http://127.0.0.1:8099/api/composite-resolve?id=spatio_flux.composites.reference.spatioflux_reference_demo" | python -m json.tool
+```
+Expected: `"wiring_status": "ready"`; the Investigations tab shows 19 studies with the tier DAG and no "composite not found" banner.
+
+- [ ] **Step 5: Record the result + commit the pyproject bump**
+
+```bash
+git add pyproject.toml docs/superpowers/plans/2026-07-26-phaseA-workspace-investigation-graph.md
+git commit -m "chore(deps): modernize serving venv (viva_superpowers + vivarium-workbench) for live render"
+```
 
 ---
 
