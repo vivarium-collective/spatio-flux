@@ -397,12 +397,19 @@ def test_all_19_studies_on_disk():
     assert set(studies) == {s["slug"] for s in STUDIES}
 
 def test_every_baseline_composite_resolves():
-    # Mirrors the workbench resolver: process_bigraph.composite_spec.get(ref).
+    # Mirrors the workbench resolver / known_composite_ids: the composite
+    # registry is keyed by the dotted id `<module>.<name>`. A ref absent from
+    # the registry is the dashboard's "composite not found" banner.
+    # NOTE: in the installed spatio-flux venv the registry is
+    # pbg_superpowers.composite_generator._REGISTRY (== viva_superpowers, ==
+    # what the dashboard enumerates). Newer trees expose
+    # process_bigraph.composite_spec.get; use whichever the venv provides.
     import spatio_flux.composites  # noqa: F401  (fire @composite_generator)
-    from process_bigraph.composite_spec import get as get_spec
+    from pbg_superpowers.composite_generator import _REGISTRY
+    known = set(_REGISTRY.keys())
     for slug, spec in _load_studies().items():
         ref = spec["baseline"][0]["composite"]
-        assert get_spec(ref) is not None, f"{slug}: composite not found: {ref}"
+        assert ref in known, f"{slug}: composite not found: {ref}"
 
 def test_prerequisites_reference_real_slugs_and_are_acyclic():
     studies = _load_studies()

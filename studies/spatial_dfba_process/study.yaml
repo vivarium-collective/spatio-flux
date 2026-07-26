@@ -1,0 +1,25 @@
+schema_version: 3
+name: spatial_dfba_process
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.spatial.spatial_dfba_process
+  params: {}
+purpose:
+  question: 'Spatial microenvironment (vectorized dFBA): one spatial dFBA process
+    updates all lattice sites as a single structured state. Demonstrates batched execution
+    + field coupling.'
+  mechanism: Runs the spatio_flux.composites.spatial.spatial_dfba_process composite
+    (pair composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - ecoli_core_dfba
+  - diffusion_process
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

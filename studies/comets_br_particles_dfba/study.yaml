@@ -1,0 +1,24 @@
+schema_version: 3
+name: comets_br_particles_dfba
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.comets.comets_br_particles_dfba
+  params: {}
+purpose:
+  question: "Full COMETS-style spatial composite: lattice dFBA + advection\u2013diffusion\
+    \ + Brownian particles with internal dFBA + division. End-to-end coupled scenario."
+  mechanism: Runs the spatio_flux.composites.comets.comets_br_particles_dfba composite
+    (triple composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - comets_diffusion
+  - br_particles_dfba
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

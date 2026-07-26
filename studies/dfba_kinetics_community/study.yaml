@@ -1,0 +1,25 @@
+schema_version: 3
+name: dfba_kinetics_community
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.metabolism.dfba_kinetics_community
+  params: {}
+purpose:
+  question: 'Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents
+    in a shared environment. Demonstrates heterogeneous process composition under
+    one schema.'
+  mechanism: Runs the spatio_flux.composites.metabolism.dfba_kinetics_community composite
+    (pair composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - ecoli_core_dfba
+  - monod_kinetics
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

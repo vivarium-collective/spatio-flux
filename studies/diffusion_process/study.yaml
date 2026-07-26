@@ -1,0 +1,22 @@
+schema_version: 3
+name: diffusion_process
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.spatial.diffusion_process
+  params: {}
+purpose:
+  question: 'Field transport primitive: finite-volume diffusion/advection on a 2D
+    lattice. Use to validate boundary conditions, stability, and transport timescales.'
+  mechanism: Runs the spatio_flux.composites.spatial.diffusion_process composite (standalone
+    process).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites: []
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

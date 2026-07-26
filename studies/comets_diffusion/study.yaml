@@ -1,0 +1,24 @@
+schema_version: 3
+name: comets_diffusion
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.comets.comets_diffusion
+  params: {}
+purpose:
+  question: "Two-phase coupling (no particles): spatial dFBA on a lattice with advection\u2013\
+    diffusion of substrates + biomass. The classic COMETS field-only scenario."
+  mechanism: Runs the spatio_flux.composites.comets.comets_diffusion composite (pair
+    composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - ecoli_core_dfba
+  - diffusion_process
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

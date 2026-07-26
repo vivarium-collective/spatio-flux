@@ -1,0 +1,24 @@
+schema_version: 3
+name: yeast_dfba
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.metabolism.yeast_dfba
+  params:
+    model_id: yeast
+    glucose: 5.0
+purpose:
+  question: 'Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular
+    glucose and biomass. Cross-model check of the dFBA pipeline.'
+  mechanism: Runs the spatio_flux.composites.metabolism.yeast_dfba composite (standalone
+    process).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites: []
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

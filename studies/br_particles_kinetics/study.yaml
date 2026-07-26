@@ -1,0 +1,25 @@
+schema_version: 3
+name: br_particles_kinetics
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.particles.br_particles_kinetics
+  params: {}
+purpose:
+  question: "Particle\u2013field coupling (kinetics): Brownian agents sample local\
+    \ lattice concentrations and apply Monod-style exchange, modifying both particle\
+    \ mass and fields."
+  mechanism: Runs the spatio_flux.composites.particles.br_particles_kinetics composite
+    (pair composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - brownian_particles
+  - monod_kinetics
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

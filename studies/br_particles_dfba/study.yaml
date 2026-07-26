@@ -1,0 +1,25 @@
+schema_version: 3
+name: br_particles_dfba
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.particles.br_particles_dfba
+  params:
+    particle_model_id: ecoli core
+purpose:
+  question: 'Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion
+    couples to fields and biomass accumulates into particle mass/size.'
+  mechanism: Runs the spatio_flux.composites.particles.br_particles_dfba composite
+    (pair composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - brownian_particles
+  - ecoli_core_dfba
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

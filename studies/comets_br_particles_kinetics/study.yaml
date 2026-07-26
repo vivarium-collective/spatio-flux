@@ -1,0 +1,25 @@
+schema_version: 3
+name: comets_br_particles_kinetics
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.comets.comets_br_particles_kinetics
+  params: {}
+purpose:
+  question: 'Three-way coupling: spatial dFBA fields + Brownian particle agents that
+    run Monod kinetics locally + diffusion. End-to-end smoke test of the COMETS-style
+    composite stack with kinetic agents.'
+  mechanism: Runs the spatio_flux.composites.comets.comets_br_particles_kinetics composite
+    (triple composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - comets_diffusion
+  - br_particles_kinetics
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.

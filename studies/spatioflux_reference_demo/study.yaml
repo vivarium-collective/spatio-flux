@@ -1,0 +1,27 @@
+schema_version: 3
+name: spatioflux_reference_demo
+created: '2026-07-26'
+status: planned
+phase: Design
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.reference.spatioflux_reference_demo
+  params:
+    n_bins:
+    - 10
+    - 10
+purpose:
+  question: "SpatioFlux demonstration reference composite: Newtonian motile particles\
+    \ + particle\u2013field exchange + internal multi-dFBA + Monod/diffusion fields\
+    \ + mass-aggregated division."
+  mechanism: Runs the spatio_flux.composites.reference.spatioflux_reference_demo composite
+    (reference demo).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - comets_nt_particles_dfba
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.
