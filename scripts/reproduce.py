@@ -17,6 +17,12 @@ import sys
 import yaml
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Ensure the repo root is importable so `from scripts.build_report import ...`
+# works when invoked as `python scripts/reproduce.py` (which puts scripts/ on
+# sys.path, not the repo root).
+if REPO not in sys.path:
+    sys.path.insert(0, REPO)
 INVESTIGATION = os.path.join("investigations", "spatio-flux-test-suite", "investigation.yaml")
 
 

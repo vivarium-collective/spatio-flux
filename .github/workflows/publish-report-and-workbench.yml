@@ -69,7 +69,10 @@ jobs:
       - name: Reproduce the investigation (run all studies + build report)
         # Runs every study's post-run analysis flush (charts + zarr run-stores)
         # and builds report/index.html. Run inside the venv (not `uv run`, which
-        # would re-sync and undo the workbench@main install).
+        # would re-sync and undo the workbench@main install). PYTHONPATH puts the
+        # repo root on the path so `scripts.*` imports resolve.
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           source .venv/bin/activate
           python scripts/reproduce.py --out report/index.html
