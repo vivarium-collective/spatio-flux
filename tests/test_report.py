@@ -21,3 +21,10 @@ def test_collect_report_inputs_reads_timing_when_present(tmp_path):
     slugs, _, _, runtimes, timing, total = collect_report_inputs(REPO)
     # runtimes only populated for studies that have been run; contract holds either way
     assert isinstance(runtimes, dict) and total >= 0.0
+
+
+def test_reproduce_lists_all_investigation_studies():
+    from scripts.reproduce import study_slugs
+    slugs = study_slugs(REPO)
+    assert len(slugs) == 19
+    assert "spatioflux_reference_demo" in slugs

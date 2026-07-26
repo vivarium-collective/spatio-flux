@@ -87,12 +87,23 @@ doc = build_generator(entry, overrides={"n_bins": [20, 40], "diffusion_rate": 0.
 git clone https://github.com/vivarium-collective/spatio-flux.git
 cd spatio-flux
 uv sync
-uv run python spatio_flux/experiments/test_suite.py --output out
-open out/report.html
+# Reproduce the whole test suite from the investigation (runs all 19 studies,
+# then builds the report) and open it:
+uv run python scripts/reproduce.py
+open report/index.html
 ```
 
-`--tests <name1> <name2> …` runs a subset. `--skip-existing` reuses cached per-test
-artifacts so you can re-render the HTML without re-simulating.
+`--only <slug>` reproduces a single study. Each scenario is a study under
+`studies/<slug>/`; the investigation graph lives in
+`investigations/spatio-flux-test-suite/investigation.yaml`. To browse it
+interactively, serve the workbench dashboard:
+
+```bash
+vivarium-workbench serve --workspace .
+```
+
+> The legacy `spatio_flux/experiments/test_suite.py` runner has been superseded by
+> the investigation + `scripts/reproduce.py`.
 
 ---
 
