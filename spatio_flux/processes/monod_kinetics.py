@@ -408,14 +408,12 @@ class MonodKinetics(Process):
         }
 
     def outputs(self):
-        # Deltas kept LIGHTWEIGHT (float) — not concentration/mass — for speed:
-        # Monod runs embedded per particle, and `concentration`'s custom resolve
-        # dispatches explode per-particle-per-tick under division. The store owns
-        # the accumulate/clamp apply, so semantics (mM concentration / gDW mass
-        # deltas) are unchanged; only the display label is generic here.
+        # Biologically-explicit signed deltas (mM concentration change / gDW mass
+        # change) as render-only Float subclasses — fast per-particle (no custom
+        # resolve) while the store owns the accumulate/clamp apply.
         return {
-            'biomass': 'float',
-            'substrates': 'map[float]',
+            'biomass': 'mass_delta',
+            'substrates': 'map[concentration_delta]',
         }
 
     @staticmethod

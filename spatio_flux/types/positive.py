@@ -61,6 +61,26 @@ class PositiveArray(Array):
 class Delta(Float):
     pass
 
+
+@dataclass(kw_only=True)
+class ConcentrationDelta(Float):
+    """A signed change in concentration (mM), emitted by a process to a
+    Concentration store. Biologically a *concentration change*, not an absolute.
+
+    Deliberately a plain ``Float`` subclass with NO custom ``resolve``/``apply``:
+    the store (``concentration``) owns the accumulate-and-clamp semantics, and a
+    render-only delta type resolves as cheaply as ``float``/``count``. Typing the
+    output as ``concentration`` instead triggers the custom Concentration
+    ``resolve`` dispatch per-particle-per-tick under division (embedded dFBA),
+    which balloons ``access()``/deepcopy calls (~100x slowdown). This keeps the
+    biology explicit in the loom while staying fast."""
+
+
+@dataclass(kw_only=True)
+class MassDelta(Float):
+    """A signed change in mass (gDW), emitted to a Mass store. Render-only Float
+    subclass — see :class:`ConcentrationDelta` for the performance rationale."""
+
 # ---------------------------------------------------------------------
 # Render methods: dataclass schema -> registry name
 # ---------------------------------------------------------------------
@@ -95,6 +115,16 @@ def render(schema: SetFloat, defaults: bool = False):
     return "set_float"
 
 
+@render.dispatch
+def render(schema: ConcentrationDelta, defaults: bool = False):
+    return "concentration_delta"
+
+
+@render.dispatch
+def render(schema: MassDelta, defaults: bool = False):
+    return "mass_delta"
+
+
 # ---------------------------------------------------------------------
 # Resolve methods: merge across numeric schema updates
 # ---------------------------------------------------------------------
@@ -120,6 +150,33 @@ def resolve(current: Concentration, update: Float, path=()):
     # If update is generic numeric but provides a default, keep it.
     if update._default and not current._default:
         return replace(current, _default=update._default)
+    return current
+
+
+@resolve.dispatch
+def resolve(current: Concentration, update: ConcentrationDelta, path=()):
+    # A delta emitted into a Concentration store: the store type wins. Trivial,
+    # allocation-free — no resolve_subclass recursion (delta and store are Float
+    # siblings, which would otherwise fail to resolve).
+    return current
+
+
+@resolve.dispatch
+def resolve(current: Mass, update: MassDelta, path=()):
+    # A delta emitted into a Mass store: the store type wins.
+    return current
+
+
+@resolve.dispatch
+def resolve(current: Count, update: ConcentrationDelta, path=()):
+    # dFBA/Monod substrate deltas are polymorphic: they flow into a Count store
+    # (particle exchange = molecule counts) as well as Concentration fields. The
+    # store type wins in every case.
+    return current
+
+
+@resolve.dispatch
+def resolve(current: Count, update: MassDelta, path=()):
     return current
 
 
@@ -212,4 +269,6 @@ positive_types = {
     "concentration": Concentration,
     "set_float": SetFloat,
     "delta_conc": Delta,
+    "concentration_delta": ConcentrationDelta,
+    "mass_delta": MassDelta,
 }

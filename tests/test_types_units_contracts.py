@@ -28,13 +28,12 @@ def test_dfba_ports_carry_units():
     ins, outs = inst.inputs(), inst.outputs()
     assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
     assert ins["substrates"]["_value"]["_units"] == "mM"
-    # biomass output stays `mass` (gDW) — mass has no custom resolve dispatch so
-    # it's cheap even per-particle. substrate delta output is kept lightweight
-    # (map[count]) for performance: `concentration`'s custom resolve dispatches
-    # explode per-particle-per-tick under division (embedded DFBA). Semantics are
-    # unchanged (the store owns apply); input ports still carry the mM/gDW units.
-    assert outs["biomass"] == {"_type": "mass", "_units": "gDW"}
-    assert outs["substrates"] == "map[count]"
+    # outputs are biologically-explicit signed deltas: a mM concentration change
+    # and a gDW mass change. These are render-only Float subclasses (fast, no
+    # custom-resolve recursion) with trivial store-wins resolve dispatches, so
+    # the store (concentration/count/mass) owns the accumulate/clamp apply.
+    assert outs["biomass"] == "mass_delta"
+    assert outs["substrates"] == "map[concentration_delta]"
 
 
 def test_monod_ports_carry_units():
@@ -43,10 +42,18 @@ def test_monod_ports_carry_units():
     ins, outs = inst.inputs(), inst.outputs()
     assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
     assert ins["substrates"]["_value"]["_units"] == "mM"
-    # outputs kept lightweight (float) for the per-particle path; the store owns
-    # the accumulate/clamp apply so the mM/gDW semantics are unchanged.
-    assert outs["biomass"] == "float"
-    assert outs["substrates"] == "map[float]"
+    assert outs["biomass"] == "mass_delta"
+    assert outs["substrates"] == "map[concentration_delta]"
+
+
+def test_delta_types_render_and_resolve_fast():
+    # concentration_delta / mass_delta render meaningfully and resolve against
+    # count/concentration/mass stores (store type wins) without the concentration
+    # custom-resolve slowdown.
+    from spatio_flux.types.positive import ConcentrationDelta, MassDelta
+    core = build_core()
+    assert core.render(core.access("concentration_delta")) == "concentration_delta"
+    assert core.render(core.access("mass_delta")) == "mass_delta"
 
 
 def test_diffusion_fields_are_positive_array():

@@ -395,16 +395,14 @@ class DynamicFBA(Process):
         }
 
     def outputs(self):
-        # Deltas. NOTE: output types are kept LIGHTWEIGHT (count/mass) — not
-        # `concentration` — for performance. The substrate delta is semantically a
-        # mM concentration change (run_fba_update divides mmol by box_volume_L), but
-        # `concentration` carries custom `resolve` dispatches that are re-invoked
-        # per-particle-per-tick when particles divide (embedded DFBA), causing a
-        # ~100x slowdown at high particle counts. The store type owns the
-        # accumulate/clamp apply regardless, so the semantics are unchanged.
+        # Biologically-explicit signed deltas: a mM concentration change and a gDW
+        # mass change (run_fba_update divides mmol by box_volume_L -> mM). These are
+        # render-only Float subclasses (no custom resolve/apply) so they stay as
+        # fast as `count` even per-particle-per-tick under division — the store
+        # (concentration/mass) owns the accumulate/clamp apply.
         return {
-            "substrates": "map[count]",   # mM concentration delta (typed count for speed)
-            "biomass": {"_type": "mass", "_units": "gDW"},   # delta biomass (gDW)
+            "substrates": "map[concentration_delta]",
+            "biomass": "mass_delta",
         }
 
     def update(self, inputs, interval):
