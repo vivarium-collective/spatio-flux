@@ -2,6 +2,23 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Status (2026-07-26): EXECUTED.** All 19 scenarios reproduce their figures via
+> the post-run flush (Tasks 1–7). Tests: `test_analysis_flush.py` + `test_fidelity.py`
+> green — 19/19 completeness, deterministic scenarios match `out0/` within 0.08 MAD
+> (quantitative timeseries ≤0.044). Deviations from the plan as written:
+> (1) `FLUSH_SPEC` lives in `spatio_flux/analysis/flush_spec.py` (package code) not
+> `scripts/`, so the runner imports package, not scripts; (2) structure artifacts
+> (`_viz.png`/`_schema.json`/`_state.json`) come from `run_composite_document`, not a
+> separate flush step; (3) runner reads baseline ref/params from `study.yaml` (not a
+> STUDY_INDEX); (4) two env fixes were required — system **graphviz** (bigraph diagram)
+> and a `matplotlib.cm.get_cmap` shim for matplotlib≥3.9; (5) the "verbatim no-extension"
+> filename quirk was dropped (current `plot_time_series` + `out0` both use `.png`).
+> **Still TODO:** SQLite `runs.db` persistence (dashboard run-history; figures already
+> surface via `image:charts/*`) and recording `runs[].outcomes` (Task 7 Step 4).
+>
+> GIF fidelity vs `out0` is informational only — the historical oracle was captured at a
+> different emit cadence, misaligning frame-by-frame comparison.
+
 **Goal:** Reproduce every figure, GIF, diagram, and serialized artifact the current test suite emits — for all 19 studies — as a **post-simulation analysis flush** (Visualization/analysis Steps run after the run, NOT embedded in the composite), writing byte-for-purpose-identical files into `studies/<slug>/charts/` and `studies/<slug>/viz/`, validated against the `out0/` reference set.
 
 **Architecture:** A per-study **bespoke runner** (`canonical_runs:` convention) builds the study's composite, runs it while persisting the full per-tick trajectory to `studies/<slug>/runs.db` (SQLite, dashboard-visible), then invokes a **post-run analysis flush** that replays the trajectory through the existing `spatio_flux/plots/plot.py` primitives — the fidelity guarantee, reused verbatim — pointing their `out_dir` at the study's `charts/`. Each plot primitive is wrapped as a registered `Visualization` subclass so it appears in the dashboard Registry and is declared per-study. The 5 existing Path-A HTML viz Steps are **unwired from the composites** (`composites/metabolism.py`, `spatial.py`, `comets.py`) since visualizations no longer live in the composite.
