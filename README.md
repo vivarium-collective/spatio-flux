@@ -1,6 +1,7 @@
 # Spatio-Flux
 
 [![▶ live test report](https://img.shields.io/badge/▶%20live%20report-test%20suite-1b9e77?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/report/index.html)
+[![▶ read-only workbench](https://img.shields.io/badge/▶%20read--only-workbench-3a5b8f?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/workbench/index.html)
 [![paper](https://img.shields.io/badge/paper-arXiv%3A2512.23754-3a5b3a?style=flat-square)](https://arxiv.org/abs/2512.23754)
 [![ecosystem](https://img.shields.io/badge/part%20of-vivarium--collective-1c4a78?style=flat-square)](https://github.com/vivarium-collective)
 
@@ -15,6 +16,12 @@ Systems Biology* (Agmon & Spangler, [arXiv:2512.23754](https://arxiv.org/abs/251
 
 > ▶ **[Browse the live test suite report →](https://vivarium-collective.github.io/spatio-flux/report/index.html)**
 > 19 composite scenarios, each with structure diagrams, time series, and plots.
+>
+> ▶ **[Open the read-only workbench →](https://vivarium-collective.github.io/spatio-flux/workbench/index.html)**
+> The same 19 scenarios as a browsable **investigation** of studies — the
+> composition DAG (standalone processes → pairs → triples → reference demos),
+> each study's runs, reproduced visualizations, and the process/loom explorer —
+> served with no backend.
 
 ![Spatio-Flux reference composite](doc/spatioflux_reference_demo_viz.png)
 
