@@ -101,3 +101,18 @@ def test_resolve_runtime_from_state():
     assert ctx["$coordinates_corners"] == [[0, 0], [9, 9]]
     assert ctx["$coordinates_comets"] == [[0, 5], [5, 5], [9, 5]]
     assert ctx["$all_fields"] == ["glucose", "acetate"]
+
+
+# ---- Task 5: viz Steps decoupled from composites ----------------------------
+
+def test_no_visualization_steps_wired_into_composites():
+    import re
+    import glob
+    pat = re.compile(r"local:(TestSuiteTimeSeries|FieldSnapshotsGrid|"
+                     r"FieldAnimationGif|FieldHeatmap|ParticleTraces)")
+    hits = []
+    for p in glob.glob(os.path.join(REPO, "spatio_flux", "composites", "*.py")):
+        with open(p) as f:
+            if pat.search(f.read()):
+                hits.append(os.path.basename(p))
+    assert hits == [], f"viz still wired into composites: {hits}"
