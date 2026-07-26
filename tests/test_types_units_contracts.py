@@ -28,10 +28,13 @@ def test_dfba_ports_carry_units():
     ins, outs = inst.inputs(), inst.outputs()
     assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
     assert ins["substrates"]["_value"]["_units"] == "mM"
-    # outputs: substrate delta is a mM concentration change (NOT a count — that was
-    # a stale type from before the mmol->mM box_volume conversion). biomass in gDW.
+    # biomass output stays `mass` (gDW) — mass has no custom resolve dispatch so
+    # it's cheap even per-particle. substrate delta output is kept lightweight
+    # (map[count]) for performance: `concentration`'s custom resolve dispatches
+    # explode per-particle-per-tick under division (embedded DFBA). Semantics are
+    # unchanged (the store owns apply); input ports still carry the mM/gDW units.
     assert outs["biomass"] == {"_type": "mass", "_units": "gDW"}
-    assert outs["substrates"]["_value"] == {"_type": "concentration", "_units": "mM"}
+    assert outs["substrates"] == "map[count]"
 
 
 def test_monod_ports_carry_units():
@@ -40,11 +43,10 @@ def test_monod_ports_carry_units():
     ins, outs = inst.inputs(), inst.outputs()
     assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
     assert ins["substrates"]["_value"]["_units"] == "mM"
-    # outputs typed to their true dimension (concentration/mass) + units — the
-    # store owns the accumulate/clamp apply, so signed deltas flow through the
-    # output port unchanged (verified: deterministic sims still match out0).
-    assert outs["biomass"] == {"_type": "mass", "_units": "gDW"}
-    assert outs["substrates"]["_value"] == {"_type": "concentration", "_units": "mM"}
+    # outputs kept lightweight (float) for the per-particle path; the store owns
+    # the accumulate/clamp apply so the mM/gDW semantics are unchanged.
+    assert outs["biomass"] == "float"
+    assert outs["substrates"] == "map[float]"
 
 
 def test_diffusion_fields_are_positive_array():

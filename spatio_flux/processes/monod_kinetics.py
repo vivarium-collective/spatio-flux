@@ -408,12 +408,14 @@ class MonodKinetics(Process):
         }
 
     def outputs(self):
-        # Deltas typed to their true dimension (concentration/mass) + units. The
-        # store owns the accumulate/clamp apply; signed consumption deltas flow
-        # through the output port unchanged (verified: deterministic sims match out0).
+        # Deltas kept LIGHTWEIGHT (float) — not concentration/mass — for speed:
+        # Monod runs embedded per particle, and `concentration`'s custom resolve
+        # dispatches explode per-particle-per-tick under division. The store owns
+        # the accumulate/clamp apply, so semantics (mM concentration / gDW mass
+        # deltas) are unchanged; only the display label is generic here.
         return {
-            'biomass': {'_type': 'mass', '_units': 'gDW'},
-            'substrates': {'_type': 'map', '_value': {'_type': 'concentration', '_units': 'mM'}},
+            'biomass': 'float',
+            'substrates': 'map[float]',
         }
 
     @staticmethod
