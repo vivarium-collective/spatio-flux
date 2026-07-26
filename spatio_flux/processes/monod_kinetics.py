@@ -474,3 +474,11 @@ class MonodKinetics(Process):
             'biomass': delta_biomass,
             'substrates': delta_substrates,
         }
+
+
+# --- Process contract ---
+MonodKinetics.description = (
+    "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions "
+    "of local substrate concentration (mM); returns substrate concentration and "
+    "biomass (gDW) deltas."
+)

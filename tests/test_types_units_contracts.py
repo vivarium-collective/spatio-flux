@@ -40,3 +40,25 @@ def test_monod_ports_carry_units():
     # outputs keep the plain-float delta semantics, just labelled
     assert outs["biomass"]["_units"] == "gDW"
     assert outs["substrates"]["_value"]["_units"] == "mM"
+
+
+# ---- Task 3: process contracts (description class attribute) ----------------
+
+def _process_classes():
+    import inspect
+    from process_bigraph import Process, Step
+    from spatio_flux.processes import (
+        dfba, monod_kinetics, diffusion_advection, particles, pymunk_particles,
+    )
+    mods = [dfba, monod_kinetics, diffusion_advection, particles, pymunk_particles]
+    return [c for m in mods for _, c in inspect.getmembers(m, inspect.isclass)
+            if issubclass(c, (Process, Step)) and c.__module__ == m.__name__]
+
+
+def test_all_processes_have_descriptions():
+    classes = _process_classes()
+    assert classes, "no process classes discovered"
+    missing = [c.__name__ for c in classes
+               if not (isinstance(getattr(c, "description", ""), str)
+                       and getattr(c, "description", "").strip())]
+    assert not missing, f"processes missing a description: {missing}"

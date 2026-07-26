@@ -958,3 +958,21 @@ if __name__ == "__main__":
                 'concentrations': ['fields', 0, 0, 'species', '*', 'concentration']},
             'outputs': {
                 'counts': ['fields', 0, 0, 'species', '*', 'count']}}}
+
+
+# --- Process contracts (formal descriptions surfaced by Edge.describe()) ---
+DynamicFBA.description = (
+    "Dynamic FBA: each interval, constrains exchange-flux bounds from local "
+    "substrate concentrations (mM) and biomass (gDW), maximizes the biomass "
+    "objective by linear programming, and returns substrate count deltas and "
+    "biomass growth (gDW)."
+)
+SpatialDFBA.description = (
+    "Spatial dynamic FBA: runs an independent dynamic-FBA model per lattice bin "
+    "over the molecular field arrays, coupling metabolism to the spatial "
+    "substrate distribution."
+)
+ShardedDFBA.description = (
+    "Sharded spatial dynamic FBA: partitions the lattice across shards and solves "
+    "the per-bin FBA problems in parallel for large grids."
+)
