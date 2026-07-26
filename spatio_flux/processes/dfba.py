@@ -395,9 +395,12 @@ class DynamicFBA(Process):
         }
 
     def outputs(self):
+        # Deltas. The store type owns the accumulate/clamp apply, so these output
+        # types are semantic/display labels: substrate delta is a mM concentration
+        # change (run_fba_update divides mmol by box_volume_L -> mM), biomass in gDW.
         return {
-            "substrates": "map[count]",   # deltas (not absolute concentrations)
-            "biomass": {"_type": "mass", "_units": "gDW"},   # delta biomass (gDW)
+            "substrates": {"_type": "map", "_value": {"_type": "concentration", "_units": "mM"}},
+            "biomass": {"_type": "mass", "_units": "gDW"},
         }
 
     def update(self, inputs, interval):

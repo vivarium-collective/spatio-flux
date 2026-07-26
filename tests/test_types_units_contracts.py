@@ -28,7 +28,10 @@ def test_dfba_ports_carry_units():
     ins, outs = inst.inputs(), inst.outputs()
     assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
     assert ins["substrates"]["_value"]["_units"] == "mM"
+    # outputs: substrate delta is a mM concentration change (NOT a count — that was
+    # a stale type from before the mmol->mM box_volume conversion). biomass in gDW.
     assert outs["biomass"] == {"_type": "mass", "_units": "gDW"}
+    assert outs["substrates"]["_value"] == {"_type": "concentration", "_units": "mM"}
 
 
 def test_monod_ports_carry_units():
@@ -37,9 +40,19 @@ def test_monod_ports_carry_units():
     ins, outs = inst.inputs(), inst.outputs()
     assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
     assert ins["substrates"]["_value"]["_units"] == "mM"
-    # outputs keep the plain-float delta semantics, just labelled
-    assert outs["biomass"]["_units"] == "gDW"
-    assert outs["substrates"]["_value"]["_units"] == "mM"
+    # outputs typed to their true dimension (concentration/mass) + units — the
+    # store owns the accumulate/clamp apply, so signed deltas flow through the
+    # output port unchanged (verified: deterministic sims still match out0).
+    assert outs["biomass"] == {"_type": "mass", "_units": "gDW"}
+    assert outs["substrates"]["_value"] == {"_type": "concentration", "_units": "mM"}
+
+
+def test_diffusion_fields_are_positive_array():
+    from spatio_flux.processes.diffusion_advection import DiffusionAdvection
+    inst = DiffusionAdvection.__new__(DiffusionAdvection)
+    inst.config = {"n_bins": (4, 4)}
+    for ports in (inst.inputs(), inst.outputs()):
+        assert ports["fields"]["_value"]["_type"] == "positive_array"
 
 
 # ---- Task 3: process contracts (description class attribute) ----------------

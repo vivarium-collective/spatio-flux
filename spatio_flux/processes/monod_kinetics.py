@@ -408,10 +408,12 @@ class MonodKinetics(Process):
         }
 
     def outputs(self):
-        # plain-float deltas (preserve accumulate semantics), labelled with units
+        # Deltas typed to their true dimension (concentration/mass) + units. The
+        # store owns the accumulate/clamp apply; signed consumption deltas flow
+        # through the output port unchanged (verified: deterministic sims match out0).
         return {
-            'biomass': {'_type': 'float', '_units': 'gDW'},
-            'substrates': {'_type': 'map', '_value': {'_type': 'float', '_units': 'mM'}},
+            'biomass': {'_type': 'mass', '_units': 'gDW'},
+            'substrates': {'_type': 'map', '_value': {'_type': 'concentration', '_units': 'mM'}},
         }
 
     @staticmethod

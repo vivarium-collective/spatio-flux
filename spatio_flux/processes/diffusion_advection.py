@@ -109,7 +109,7 @@ class DiffusionAdvection(Process):
             'fields': {
                 '_type': 'map',
                 '_value': {
-                    '_type': 'array',
+                    '_type': 'positive_array',
                     '_shape': self.config['n_bins'],
                     '_data': 'float',
                 },
@@ -121,7 +121,7 @@ class DiffusionAdvection(Process):
             'fields': {
                 '_type': 'map',
                 '_value': {
-                    '_type': 'array',
+                    '_type': 'positive_array',
                     '_shape': self.config['n_bins'],
                     '_data': 'float',
                 },
