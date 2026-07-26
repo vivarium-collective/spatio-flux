@@ -18,6 +18,16 @@ import matplotlib.patches as mpatches
 from matplotlib import cm
 from matplotlib.lines import Line2D
 
+# matplotlib >= 3.9 removed ``matplotlib.cm.get_cmap``; restore it (old
+# ``(name, lut=None)`` signature) via the modern ``matplotlib.colormaps`` API so
+# the plotting code below works on both old and new matplotlib.
+if not hasattr(cm, "get_cmap"):
+    def _compat_get_cmap(name, lut=None):
+        import matplotlib
+        cmap = matplotlib.colormaps[name]
+        return cmap.resampled(lut) if lut else cmap
+    cm.get_cmap = _compat_get_cmap
+
 
 def _evenly_spaced_indices(n_items, n_pick):
     """Choose n_pick indices spread across [0, n_items-1]."""
