@@ -477,13 +477,14 @@ git commit -m "feat(studies): generate 19 study.yaml files; all baseline composi
 
 ### Task 4: Dashboard verification
 
-> **Status (2026-07-26):** Structural verification DONE — using the installed
-> `vivarium-workbench` code (from `~/code/vivarium-workbench`, its own venv):
-> `WorkspacePaths.load(ws).iter_study_dirs()` discovers **all 19 studies**, the
-> `spatio-flux-test-suite` investigation is discovered, and the automated Task-3
-> test confirms all 19 baseline refs are in the `@composite_generator` registry
-> the env worker reads. **Live composite render (env-worker discovery) is BLOCKED
-> on Task 5** — see below.
+> **Status (2026-07-26): DONE, including live render.** After Task 5 built the
+> dedicated `.venv-serve`, `vivarium-workbench serve --workspace . --port 8137`
+> (from that venv) resolves composites live:
+> `GET /api/composite-resolve?id=spatio_flux.composites.reference.spatioflux_reference_demo`
+> → **200** with the composite's description, parameters, and fully-expanded
+> `state`. `WorkspacePaths.load(ws).iter_study_dirs()` discovers all 19 studies;
+> the `spatio-flux-test-suite` investigation is discovered; `viva_superpowers`
+> in the serving venv sees all 19 generators. Structural + live verification both green.
 
 **Files:**
 - Modify: this plan file (record the verification result)
@@ -524,7 +525,19 @@ If any fail: the resolver test in Task 3 should already have caught a bad ref; a
 
 ---
 
-### Task 5: Serving-venv modernization (unblocks the live render)
+### Task 5: Serving-venv modernization (unblocks the live render) — DONE
+
+> **Status (2026-07-26): DONE.** Built `~/code/spatio-flux--workbench-modernization/.venv-serve`
+> (Python 3.12) and installed `spatio_flux` (editable) + `viva-superpowers>=0.16` +
+> `bigraph-schema>=1.4.3` + `vivarium-workbench` (editable). Verified: all four import;
+> `viva_superpowers.composite_generator._REGISTRY` sees **19** spatio_flux generators;
+> the served dashboard resolves composites (Task 4). Exact commands used:
+> `uv pip install --python .venv-serve/bin/python -e .` then
+> `... "viva-superpowers>=0.16" "bigraph-schema>=1.4.3"` then `... -e ~/code/vivarium-workbench`.
+> **Follow-up (deferred to merge time):** bump `pyproject.toml` deps (viva-superpowers,
+> bigraph-schema>=1.4.3, a `serve` extra with vivarium-workbench) so `uv sync` reproduces
+> `.venv-serve` without manual installs. Not done now to avoid churning the shared
+> dependency set pre-merge.
 
 **Discovered during execution.** The modern workbench discovers generators by
 launching an **env-worker subprocess in the serving venv** that runs
