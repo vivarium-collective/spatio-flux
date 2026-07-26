@@ -28,3 +28,17 @@ def test_reproduce_lists_all_investigation_studies():
     slugs = study_slugs(REPO)
     assert len(slugs) == 19
     assert "spatioflux_reference_demo" in slugs
+
+
+def test_test_suite_module_retired():
+    import importlib.util
+    assert importlib.util.find_spec("spatio_flux.experiments.test_suite") is None
+
+
+def test_no_code_imports_test_suite():
+    import subprocess
+    r = subprocess.run(
+        ["grep", "-rIl", "from spatio_flux.experiments.test_suite import",
+         "spatio_flux", "scripts", "tools"],
+        cwd=REPO, capture_output=True, text=True)
+    assert r.stdout.strip() == "", f"stale imports: {r.stdout}"
