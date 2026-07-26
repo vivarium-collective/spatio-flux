@@ -23,3 +23,48 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - spatial_dfba_process
+  - '60'
+  label: reproduce spatial_dfba_process figures
+  default: true
+visualizations:
+- name: spatial_dfba_process_timeseries.png
+  address: image:charts/spatial_dfba_process_timeseries.png
+  chart: image
+- name: spatial_dfba_process_model_grid.png
+  address: image:charts/spatial_dfba_process_model_grid.png
+  chart: image
+- name: spatial_dfba_process_video.gif
+  address: image:charts/spatial_dfba_process_video.gif
+  chart: image
+- name: spatial_dfba_process_viz.png
+  address: image:charts/spatial_dfba_process_viz.png
+  chart: image
+- name: spatial_dfba_process_schema.json
+  address: image:charts/spatial_dfba_process_schema.json
+  chart: image
+- name: spatial_dfba_process_state.json
+  address: image:charts/spatial_dfba_process_state.json
+  chart: image
+behavior_tests:
+- name: SPATIAL_DFBA_PROCESS-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - spatial_dfba_process_timeseries.png
+    - spatial_dfba_process_model_grid.png
+    - spatial_dfba_process_video.gif
+    - spatial_dfba_process_viz.png
+    - spatial_dfba_process_schema.json
+    - spatial_dfba_process_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

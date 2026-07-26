@@ -53,3 +53,28 @@ def test_all_expected_steps_registered():
                 "snapshots_grid", "particles_mass", "particles_mass_submasses",
                 "particle_traces", "model_grid", "pymunk_gif", "fields_agents_gif"}
     assert expected <= set(ANALYSIS_STEPS)
+
+
+# ---- Task 3: FLUSH_SPEC + scaffolder emits canonical_runs/visualizations ----
+
+def test_flush_spec_covers_all_19_and_uses_registered_steps():
+    from spatio_flux.analysis.flush_spec import FLUSH_SPEC
+    from spatio_flux.analysis.flush import ANALYSIS_STEPS
+    import spatio_flux.analysis  # register
+    from scripts.scaffold_studies import STUDIES
+    assert set(FLUSH_SPEC) == {s["slug"] for s in STUDIES}
+    for slug, specs in FLUSH_SPEC.items():
+        for s in specs:
+            assert s["step"] in ANALYSIS_STEPS, f"{slug}: unregistered step {s['step']}"
+    steps = {e["step"] for e in FLUSH_SPEC["spatioflux_reference_demo"]}
+    assert {"timeseries", "particles_mass", "particles_mass_submasses",
+            "fields_agents_gif", "snapshots_grid"} <= steps
+
+
+def test_scaffolder_emits_canonical_runs_and_viz():
+    from scripts.scaffold_studies import render_study, STUDIES
+    demo = next(s for s in STUDIES if s["slug"] == "comets_diffusion")
+    spec = render_study(demo)
+    assert spec["canonical_runs"][0]["script"] == "spatio_flux/runners/run_study.py"
+    assert any(v["address"].startswith("image:charts/") for v in spec["visualizations"])
+    assert spec["behavior_tests"][0]["name"] == "COMETS_DIFFUSION-REPRODUCES-REPORT"

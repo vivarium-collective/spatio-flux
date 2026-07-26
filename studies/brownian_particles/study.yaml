@@ -20,3 +20,52 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - brownian_particles
+  - '200'
+  label: reproduce brownian_particles figures
+  default: true
+visualizations:
+- name: brownian_particles_video.gif
+  address: image:charts/brownian_particles_video.gif
+  chart: image
+- name: brownian_particles_mass.png
+  address: image:charts/brownian_particles_mass.png
+  chart: image
+- name: brownian_particles_snapshots.png
+  address: image:charts/brownian_particles_snapshots.png
+  chart: image
+- name: brownian_particles_particles_traces.png
+  address: image:charts/brownian_particles_particles_traces.png
+  chart: image
+- name: brownian_particles_viz.png
+  address: image:charts/brownian_particles_viz.png
+  chart: image
+- name: brownian_particles_schema.json
+  address: image:charts/brownian_particles_schema.json
+  chart: image
+- name: brownian_particles_state.json
+  address: image:charts/brownian_particles_state.json
+  chart: image
+behavior_tests:
+- name: BROWNIAN_PARTICLES-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - brownian_particles_video.gif
+    - brownian_particles_mass.png
+    - brownian_particles_snapshots.png
+    - brownian_particles_particles_traces.png
+    - brownian_particles_viz.png
+    - brownian_particles_schema.json
+    - brownian_particles_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

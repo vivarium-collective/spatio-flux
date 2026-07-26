@@ -21,3 +21,40 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - monod_kinetics
+  - '60'
+  label: reproduce monod_kinetics figures
+  default: true
+visualizations:
+- name: monod_kinetics.png
+  address: image:charts/monod_kinetics.png
+  chart: image
+- name: monod_kinetics_viz.png
+  address: image:charts/monod_kinetics_viz.png
+  chart: image
+- name: monod_kinetics_schema.json
+  address: image:charts/monod_kinetics_schema.json
+  chart: image
+- name: monod_kinetics_state.json
+  address: image:charts/monod_kinetics_state.json
+  chart: image
+behavior_tests:
+- name: MONOD_KINETICS-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - monod_kinetics.png
+    - monod_kinetics_viz.png
+    - monod_kinetics_schema.json
+    - monod_kinetics_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

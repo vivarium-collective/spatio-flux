@@ -23,3 +23,52 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - br_particles_kinetics
+  - '200'
+  label: reproduce br_particles_kinetics figures
+  default: true
+visualizations:
+- name: br_particles_kinetics_video.gif
+  address: image:charts/br_particles_kinetics_video.gif
+  chart: image
+- name: br_particles_kinetics_mass.png
+  address: image:charts/br_particles_kinetics_mass.png
+  chart: image
+- name: br_particles_kinetics_snapshots.png
+  address: image:charts/br_particles_kinetics_snapshots.png
+  chart: image
+- name: br_particles_kinetics_particles_traces.png
+  address: image:charts/br_particles_kinetics_particles_traces.png
+  chart: image
+- name: br_particles_kinetics_viz.png
+  address: image:charts/br_particles_kinetics_viz.png
+  chart: image
+- name: br_particles_kinetics_schema.json
+  address: image:charts/br_particles_kinetics_schema.json
+  chart: image
+- name: br_particles_kinetics_state.json
+  address: image:charts/br_particles_kinetics_state.json
+  chart: image
+behavior_tests:
+- name: BR_PARTICLES_KINETICS-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - br_particles_kinetics_video.gif
+    - br_particles_kinetics_mass.png
+    - br_particles_kinetics_snapshots.png
+    - br_particles_kinetics_particles_traces.png
+    - br_particles_kinetics_viz.png
+    - br_particles_kinetics_schema.json
+    - br_particles_kinetics_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

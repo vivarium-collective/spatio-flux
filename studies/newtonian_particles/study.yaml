@@ -20,3 +20,48 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - newtonian_particles
+  - '200'
+  label: reproduce newtonian_particles figures
+  default: true
+visualizations:
+- name: newtonian_particles_mass.png
+  address: image:charts/newtonian_particles_mass.png
+  chart: image
+- name: newtonian_particles_video.gif
+  address: image:charts/newtonian_particles_video.gif
+  chart: image
+- name: newtonian_particles_particles_traces.png
+  address: image:charts/newtonian_particles_particles_traces.png
+  chart: image
+- name: newtonian_particles_viz.png
+  address: image:charts/newtonian_particles_viz.png
+  chart: image
+- name: newtonian_particles_schema.json
+  address: image:charts/newtonian_particles_schema.json
+  chart: image
+- name: newtonian_particles_state.json
+  address: image:charts/newtonian_particles_state.json
+  chart: image
+behavior_tests:
+- name: NEWTONIAN_PARTICLES-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - newtonian_particles_mass.png
+    - newtonian_particles_video.gif
+    - newtonian_particles_particles_traces.png
+    - newtonian_particles_viz.png
+    - newtonian_particles_schema.json
+    - newtonian_particles_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

@@ -24,3 +24,40 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - ecoli_dfba
+  - '60'
+  label: reproduce ecoli_dfba figures
+  default: true
+visualizations:
+- name: ecoli_dfba.png
+  address: image:charts/ecoli_dfba.png
+  chart: image
+- name: ecoli_dfba_viz.png
+  address: image:charts/ecoli_dfba_viz.png
+  chart: image
+- name: ecoli_dfba_schema.json
+  address: image:charts/ecoli_dfba_schema.json
+  chart: image
+- name: ecoli_dfba_state.json
+  address: image:charts/ecoli_dfba_state.json
+  chart: image
+behavior_tests:
+- name: ECOLI_DFBA-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - ecoli_dfba.png
+    - ecoli_dfba_viz.png
+    - ecoli_dfba_schema.json
+    - ecoli_dfba_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

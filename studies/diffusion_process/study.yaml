@@ -20,3 +20,40 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - diffusion_process
+  - '60'
+  label: reproduce diffusion_process figures
+  default: true
+visualizations:
+- name: diffusion_process_video.gif
+  address: image:charts/diffusion_process_video.gif
+  chart: image
+- name: diffusion_process_viz.png
+  address: image:charts/diffusion_process_viz.png
+  chart: image
+- name: diffusion_process_schema.json
+  address: image:charts/diffusion_process_schema.json
+  chart: image
+- name: diffusion_process_state.json
+  address: image:charts/diffusion_process_state.json
+  chart: image
+behavior_tests:
+- name: DIFFUSION_PROCESS-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - diffusion_process_video.gif
+    - diffusion_process_viz.png
+    - diffusion_process_schema.json
+    - diffusion_process_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

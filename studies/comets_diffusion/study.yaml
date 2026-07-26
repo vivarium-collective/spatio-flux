@@ -22,3 +22,48 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - comets_diffusion
+  - '60'
+  label: reproduce comets_diffusion figures
+  default: true
+visualizations:
+- name: comets_diffusion_timeseries.png
+  address: image:charts/comets_diffusion_timeseries.png
+  chart: image
+- name: comets_diffusion_snapshots.png
+  address: image:charts/comets_diffusion_snapshots.png
+  chart: image
+- name: comets_diffusion_video.gif
+  address: image:charts/comets_diffusion_video.gif
+  chart: image
+- name: comets_diffusion_viz.png
+  address: image:charts/comets_diffusion_viz.png
+  chart: image
+- name: comets_diffusion_schema.json
+  address: image:charts/comets_diffusion_schema.json
+  chart: image
+- name: comets_diffusion_state.json
+  address: image:charts/comets_diffusion_state.json
+  chart: image
+behavior_tests:
+- name: COMETS_DIFFUSION-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - comets_diffusion_timeseries.png
+    - comets_diffusion_snapshots.png
+    - comets_diffusion_video.gif
+    - comets_diffusion_viz.png
+    - comets_diffusion_schema.json
+    - comets_diffusion_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

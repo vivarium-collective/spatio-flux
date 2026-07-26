@@ -8,8 +8,19 @@ composite generator's own description.
 import os
 import yaml
 from spatio_flux.composites import REGISTRY
+from spatio_flux.analysis.flush_spec import FLUSH_SPEC, expected_files
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Default runtimes per scenario (from test_suite.py DEFAULT_RUNTIME_* + overrides).
+_RUNTIME = {
+    "brownian_particles": 200, "br_particles_kinetics": 200, "br_particles_dfba": 200,
+    "newtonian_particles": 200, "spatioflux_reference_demo": 120, "reference_demo_x2y2": 120,
+}
+
+
+def _runtime_for(slug):
+    return _RUNTIME.get(slug, 60)
 
 # Complete table — the 19 scenarios (slug == SIMULATIONS key).
 STUDIES = [
@@ -93,6 +104,26 @@ def render_study(entry):
             "Faithful reproduction of an existing scenario; no new biology.",
             "Graph edges document composition, they do not gate execution.",
         ],
+        "canonical_runs": [{
+            "name": "reproduce",
+            "script": "spatio_flux/runners/run_study.py",
+            "args": [slug, str(_runtime_for(slug))],
+            "label": f"reproduce {slug} figures",
+            "default": True,
+        }],
+        "visualizations": [
+            {"name": f, "address": f"image:charts/{f}", "chart": "image"}
+            for f in expected_files(slug)
+        ],
+        "behavior_tests": [{
+            "name": f"{slug.upper()}-REPRODUCES-REPORT",
+            "classification": "regression",
+            "description": ("All test-suite artifacts for this scenario are reproduced "
+                            "and match the out0 reference within tolerance."),
+            "measure": {"kind": "artifacts_present", "expected": expected_files(slug)},
+            "pass_if": {"op": "all_exist_and_match", "tolerance": 0.02},
+            "requires_simulation": "reproduce",
+        }],
     }
 
 

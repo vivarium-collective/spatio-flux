@@ -25,3 +25,56 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - spatioflux_reference_demo
+  - '120'
+  label: reproduce spatioflux_reference_demo figures
+  default: true
+visualizations:
+- name: spatioflux_reference_demo_timeseries.png
+  address: image:charts/spatioflux_reference_demo_timeseries.png
+  chart: image
+- name: spatioflux_reference_demo_mass.png
+  address: image:charts/spatioflux_reference_demo_mass.png
+  chart: image
+- name: spatioflux_reference_demo_mass_submasses.png
+  address: image:charts/spatioflux_reference_demo_mass_submasses.png
+  chart: image
+- name: spatioflux_reference_demo_video.gif
+  address: image:charts/spatioflux_reference_demo_video.gif
+  chart: image
+- name: spatioflux_reference_demo_snapshots.png
+  address: image:charts/spatioflux_reference_demo_snapshots.png
+  chart: image
+- name: spatioflux_reference_demo_viz.png
+  address: image:charts/spatioflux_reference_demo_viz.png
+  chart: image
+- name: spatioflux_reference_demo_schema.json
+  address: image:charts/spatioflux_reference_demo_schema.json
+  chart: image
+- name: spatioflux_reference_demo_state.json
+  address: image:charts/spatioflux_reference_demo_state.json
+  chart: image
+behavior_tests:
+- name: SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - spatioflux_reference_demo_timeseries.png
+    - spatioflux_reference_demo_mass.png
+    - spatioflux_reference_demo_mass_submasses.png
+    - spatioflux_reference_demo_video.gif
+    - spatioflux_reference_demo_snapshots.png
+    - spatioflux_reference_demo_viz.png
+    - spatioflux_reference_demo_schema.json
+    - spatioflux_reference_demo_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

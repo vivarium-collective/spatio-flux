@@ -23,3 +23,56 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - reference_demo_x2y2
+  - '120'
+  label: reproduce reference_demo_x2y2 figures
+  default: true
+visualizations:
+- name: reference_demo_x2y2_timeseries.png
+  address: image:charts/reference_demo_x2y2_timeseries.png
+  chart: image
+- name: reference_demo_x2y2_mass.png
+  address: image:charts/reference_demo_x2y2_mass.png
+  chart: image
+- name: reference_demo_x2y2_mass_submasses.png
+  address: image:charts/reference_demo_x2y2_mass_submasses.png
+  chart: image
+- name: reference_demo_x2y2_video.gif
+  address: image:charts/reference_demo_x2y2_video.gif
+  chart: image
+- name: reference_demo_x2y2_snapshots.png
+  address: image:charts/reference_demo_x2y2_snapshots.png
+  chart: image
+- name: reference_demo_x2y2_viz.png
+  address: image:charts/reference_demo_x2y2_viz.png
+  chart: image
+- name: reference_demo_x2y2_schema.json
+  address: image:charts/reference_demo_x2y2_schema.json
+  chart: image
+- name: reference_demo_x2y2_state.json
+  address: image:charts/reference_demo_x2y2_state.json
+  chart: image
+behavior_tests:
+- name: REFERENCE_DEMO_X2Y2-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - reference_demo_x2y2_timeseries.png
+    - reference_demo_x2y2_mass.png
+    - reference_demo_x2y2_mass_submasses.png
+    - reference_demo_x2y2_video.gif
+    - reference_demo_x2y2_snapshots.png
+    - reference_demo_x2y2_viz.png
+    - reference_demo_x2y2_schema.json
+    - reference_demo_x2y2_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

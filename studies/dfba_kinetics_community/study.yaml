@@ -23,3 +23,40 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - dfba_kinetics_community
+  - '60'
+  label: reproduce dfba_kinetics_community figures
+  default: true
+visualizations:
+- name: dfba_kinetics_community
+  address: image:charts/dfba_kinetics_community
+  chart: image
+- name: dfba_kinetics_community_viz.png
+  address: image:charts/dfba_kinetics_community_viz.png
+  chart: image
+- name: dfba_kinetics_community_schema.json
+  address: image:charts/dfba_kinetics_community_schema.json
+  chart: image
+- name: dfba_kinetics_community_state.json
+  address: image:charts/dfba_kinetics_community_state.json
+  chart: image
+behavior_tests:
+- name: DFBA_KINETICS_COMMUNITY-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - dfba_kinetics_community
+    - dfba_kinetics_community_viz.png
+    - dfba_kinetics_community_schema.json
+    - dfba_kinetics_community_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

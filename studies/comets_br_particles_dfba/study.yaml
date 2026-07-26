@@ -22,3 +22,52 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - comets_br_particles_dfba
+  - '60'
+  label: reproduce comets_br_particles_dfba figures
+  default: true
+visualizations:
+- name: comets_br_particles_dfba_timeseries.png
+  address: image:charts/comets_br_particles_dfba_timeseries.png
+  chart: image
+- name: comets_br_particles_dfba_mass.png
+  address: image:charts/comets_br_particles_dfba_mass.png
+  chart: image
+- name: comets_br_particles_dfba_snapshots.png
+  address: image:charts/comets_br_particles_dfba_snapshots.png
+  chart: image
+- name: comets_br_particles_dfba_video.gif
+  address: image:charts/comets_br_particles_dfba_video.gif
+  chart: image
+- name: comets_br_particles_dfba_viz.png
+  address: image:charts/comets_br_particles_dfba_viz.png
+  chart: image
+- name: comets_br_particles_dfba_schema.json
+  address: image:charts/comets_br_particles_dfba_schema.json
+  chart: image
+- name: comets_br_particles_dfba_state.json
+  address: image:charts/comets_br_particles_dfba_state.json
+  chart: image
+behavior_tests:
+- name: COMETS_BR_PARTICLES_DFBA-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - comets_br_particles_dfba_timeseries.png
+    - comets_br_particles_dfba_mass.png
+    - comets_br_particles_dfba_snapshots.png
+    - comets_br_particles_dfba_video.gif
+    - comets_br_particles_dfba_viz.png
+    - comets_br_particles_dfba_schema.json
+    - comets_br_particles_dfba_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce

@@ -22,3 +22,40 @@ pipeline_gate:
 limitations:
 - Faithful reproduction of an existing scenario; no new biology.
 - Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - yeast_dfba
+  - '60'
+  label: reproduce yeast_dfba figures
+  default: true
+visualizations:
+- name: yeast_dfba.png
+  address: image:charts/yeast_dfba.png
+  chart: image
+- name: yeast_dfba_viz.png
+  address: image:charts/yeast_dfba_viz.png
+  chart: image
+- name: yeast_dfba_schema.json
+  address: image:charts/yeast_dfba_schema.json
+  chart: image
+- name: yeast_dfba_state.json
+  address: image:charts/yeast_dfba_state.json
+  chart: image
+behavior_tests:
+- name: YEAST_DFBA-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - yeast_dfba.png
+    - yeast_dfba_viz.png
+    - yeast_dfba_schema.json
+    - yeast_dfba_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce
