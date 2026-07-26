@@ -18,3 +18,25 @@ def test_units_key_works_on_custom_types():
     core = build_core()
     node = core.access({"_type": "concentration", "_units": "mM"})
     assert getattr(node, "_units", None) == "mM"
+
+
+# ---- Task 2: unit-bearing metabolism ports ---------------------------------
+
+def test_dfba_ports_carry_units():
+    from spatio_flux.processes.dfba import DynamicFBA
+    inst = DynamicFBA.__new__(DynamicFBA)
+    ins, outs = inst.inputs(), inst.outputs()
+    assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
+    assert ins["substrates"]["_value"]["_units"] == "mM"
+    assert outs["biomass"] == {"_type": "mass", "_units": "gDW"}
+
+
+def test_monod_ports_carry_units():
+    from spatio_flux.processes.monod_kinetics import MonodKinetics
+    inst = MonodKinetics.__new__(MonodKinetics)
+    ins, outs = inst.inputs(), inst.outputs()
+    assert ins["biomass"] == {"_type": "mass", "_units": "gDW"}
+    assert ins["substrates"]["_value"]["_units"] == "mM"
+    # outputs keep the plain-float delta semantics, just labelled
+    assert outs["biomass"]["_units"] == "gDW"
+    assert outs["substrates"]["_value"]["_units"] == "mM"

@@ -403,14 +403,15 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'biomass': 'mass',
-            'substrates': 'map[concentration]',
+            'biomass': {'_type': 'mass', '_units': 'gDW'},
+            'substrates': {'_type': 'map', '_value': {'_type': 'concentration', '_units': 'mM'}},
         }
 
     def outputs(self):
+        # plain-float deltas (preserve accumulate semantics), labelled with units
         return {
-            'biomass': 'float',
-            'substrates': 'map[float]',
+            'biomass': {'_type': 'float', '_units': 'gDW'},
+            'substrates': {'_type': 'map', '_value': {'_type': 'float', '_units': 'mM'}},
         }
 
     @staticmethod
