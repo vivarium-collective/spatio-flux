@@ -18,3 +18,5 @@ studies/*/charts/
 studies/*/viz/
 .pbg/
 .venv-serve/
+studies/*/*_timing.json
+reports/

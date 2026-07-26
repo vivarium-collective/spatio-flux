@@ -78,3 +78,26 @@ def test_scaffolder_emits_canonical_runs_and_viz():
     assert spec["canonical_runs"][0]["script"] == "spatio_flux/runners/run_study.py"
     assert any(v["address"].startswith("image:charts/") for v in spec["visualizations"])
     assert spec["behavior_tests"][0]["name"] == "COMETS_DIFFUSION-REPRODUCES-REPORT"
+
+
+# ---- Task 4: runner runtime-placeholder resolution --------------------------
+
+def test_apply_resolves_placeholders():
+    from spatio_flux.runners.run_study import _apply
+    ctx = {"$bounds": (50.0, 50.0), "$colors": {"glucose": "#000"}}
+    out = _apply({"filename": "x", "bounds": "$bounds",
+                  "field_colors": "$colors", "n_snapshots": 5}, ctx)
+    assert out["bounds"] == (50.0, 50.0)
+    assert out["field_colors"] == {"glucose": "#000"}
+    assert out["n_snapshots"] == 5 and out["filename"] == "x"
+
+
+def test_resolve_runtime_from_state():
+    from spatio_flux.runners.run_study import _resolve_runtime
+    state = {"fields": {"glucose": 1.0, "acetate": 0.0},
+             "diffusion": {"config": {"bounds": (50.0, 50.0), "n_bins": (10, 10)}}}
+    ctx = _resolve_runtime(state)
+    assert ctx["$bounds"] == (50.0, 50.0)
+    assert ctx["$coordinates_corners"] == [[0, 0], [9, 9]]
+    assert ctx["$coordinates_comets"] == [[0, 5], [5, 5], [9, 5]]
+    assert ctx["$all_fields"] == ["glucose", "acetate"]
