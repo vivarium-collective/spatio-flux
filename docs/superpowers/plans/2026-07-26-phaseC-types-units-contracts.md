@@ -7,10 +7,19 @@
 > NOT `quantity[float,X]` (leaves `_units` None here) and NO pint registration
 > (pint is only invoked by `_compute_unit_scale` for cross-unit wire conversion).
 > DFBA/Monod ports carry mM/gDW; all 11 processes/steps have a formal `description`
-> surfaced by `Edge.describe()` (verified). Base port types were **preserved** (the
-> 19 sims still reproduce) — the riskier float→mass / array→positive_array retyping
-> was intentionally NOT done to protect the working flush. Diffusion field arrays left
-> generic (heterogeneous molecules). Tests: `tests/test_types_units_contracts.py` green.
+> surfaced by `Edge.describe()` (verified). Tests: `tests/test_types_units_contracts.py` green.
+>
+> **Deep retyping DONE (later pass, "go to the bottom of it"):** established +
+> verified that in this process-bigraph the STORE type owns the accumulate/clamp
+> `apply`, so a process OUTPUT port type is a schema-resolution + loom-display label
+> and signed deltas flow through it unchanged (proven: typing Monod's negative-delta
+> substrate output as the clamping `concentration` left the deterministic sims
+> matching `out0`). Given that: DFBA `outputs.substrates` `map[count]`→`map[concentration]`
+> (mM) — `count` was stale from before the mmol→mM `box_volume_L` conversion; DFBA/Monod
+> `outputs.biomass`→`mass` (gDW); Monod `outputs.substrates`→`concentration` (mM);
+> `DiffusionAdvection` fields `array[float]`→`positive_array` (non-negative concentrations,
+> aligning with SpatialDFBA/ParticleExchange). Behavior-preserving: 19 composites build,
+> all 10 deterministic scenarios still match `out0`, particle scenarios still reproduce.
 > **Task 4 (units_resolver + Visualization.units_resolver): SKIPPED as redundant** —
 > the flush already passes `field_units` to the plots, and spatio-flux doesn't render
 > through the workbench viz path, so the resolver would be dead code; loom port-units

@@ -13,8 +13,10 @@
 > STUDY_INDEX); (4) two env fixes were required — system **graphviz** (bigraph diagram)
 > and a `matplotlib.cm.get_cmap` shim for matplotlib≥3.9; (5) the "verbatim no-extension"
 > filename quirk was dropped (current `plot_time_series` + `out0` both use `.png`).
-> **Still TODO:** SQLite `runs.db` persistence (dashboard run-history; figures already
-> surface via `image:charts/*`) and recording `runs[].outcomes` (Task 7 Step 4).
+> **Still TODO:** recording `runs[].outcomes` (Task 7 Step 4). NOTE: SQLite `runs.db`
+> persistence is explicitly NOT wanted — the current approach is the interchangeable
+> XArray/zarr emitter (`runs.<id>.zarr`), not SQLite. Figures already surface via
+> `image:charts/*`; if run-history persistence is added it goes through the XArray emitter.
 >
 > GIF fidelity vs `out0` is informational only — the historical oracle was captured at a
 > different emit cadence, misaligning frame-by-frame comparison.
