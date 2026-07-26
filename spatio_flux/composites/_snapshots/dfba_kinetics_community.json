@@ -108,44 +108,5 @@
         ]
       }
     }
-  },
-  "viz_timeseries": {
-    "_type": "step",
-    "address": "local:TestSuiteTimeSeries",
-    "config": {
-      "field_names": [
-        "glucose",
-        "acetate",
-        "dfba biomass",
-        "kinetic biomass"
-      ],
-      "time_units": "step",
-      "title": "dFBA + Monod hybrid community",
-      "y_label": "concentration / biomass"
-    },
-    "inputs": {
-      "acetate": [
-        "fields",
-        "acetate"
-      ],
-      "dfba biomass": [
-        "fields",
-        "dfba biomass"
-      ],
-      "glucose": [
-        "fields",
-        "glucose"
-      ],
-      "kinetic biomass": [
-        "fields",
-        "kinetic biomass"
-      ]
-    },
-    "outputs": {
-      "html": [
-        "viz_timeseries_html"
-      ]
-    }
-  },
-  "viz_timeseries_html": ""
+  }
 }

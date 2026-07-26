@@ -65,39 +65,5 @@
         ]
       }
     }
-  },
-  "viz_timeseries": {
-    "_type": "step",
-    "address": "local:TestSuiteTimeSeries",
-    "config": {
-      "field_names": [
-        "glucose",
-        "acetate",
-        "biomass"
-      ],
-      "time_units": "step",
-      "title": "Monod kinetics",
-      "y_label": "concentration / biomass"
-    },
-    "inputs": {
-      "acetate": [
-        "fields",
-        "acetate"
-      ],
-      "biomass": [
-        "fields",
-        "biomass"
-      ],
-      "glucose": [
-        "fields",
-        "glucose"
-      ]
-    },
-    "outputs": {
-      "html": [
-        "viz_timeseries_html"
-      ]
-    }
-  },
-  "viz_timeseries_html": ""
+  }
 }
