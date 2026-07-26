@@ -2,6 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Status (2026-07-26): EXECUTED (core), 2 items open.** `scripts/build_report.py`
+> reproduces `report.html` by REUSING `generate_html_report` (merges per-study
+> `charts/` + study-sourced descriptions/timing) — verified end-to-end (19-scenario
+> `report/index.html`, 152 KB, cards/imgs/gifs/descriptions). `scripts/reproduce.py`
+> runs the investigation then builds the report; README repointed to it. Simpler than
+> the plan's Task-1 refactor: no `render_report` extraction needed — full renderer reuse.
+> **OPEN:** (1) **deleting `test_suite.py` is blocked** — `experiments/figure_A.py` and
+> `figure_B.py` import it (paper-figure scripts); needs a decision (port them / retire
+> them / keep a shim) before deletion. (2) **CI publish (Task 5) not wired** — needs a
+> push + a GitHub Actions run.
+
 **Goal:** Produce `report.html` in the current look — the published page at `vivarium-collective.github.io/spatio-flux/report/index.html` — but driven by the investigation's study artifacts instead of an `out/` scan, and retire `test_suite.py` so the investigation is the single source of truth.
 
 **Architecture:** Refactor `spatio_flux/library/tools.py::generate_html_report` into a **data-in renderer** (`render_report(report_data)`) that consumes a `report_data` structure and reuses the existing CSS / sticky-TOC / per-scenario-card / JSON-state-viewer HTML verbatim. A `scripts/build_report.py` collects `report_data` by walking `investigations/spatio-flux-test-suite/` + each `studies/<slug>/charts|viz` + `<slug>_timing.json` + the composite `description`. A `scripts/reproduce.py` runs every study (the investigation) then builds the report — replacing `test_suite.py`, which is deleted. CI publishes both the report and the native `vivarium-workbench-publish` bundle.
