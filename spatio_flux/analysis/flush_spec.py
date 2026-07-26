@@ -97,10 +97,10 @@ FLUSH_SPEC = {
     "ecoli_dfba": [_scalar_ts("ecoli_dfba", "dFBA")],
     "yeast_dfba": [_scalar_ts("yeast_dfba", "dFBA")],
     "community_dfba": [_scalar_ts("community_dfba", "hybrid community",
-                                  field_names="$community_species", verbatim_filename=True,
+                                  field_names="$community_species",
                                   log_scale=True, normalize=True, field_units={})],
     "dfba_kinetics_community": [_scalar_ts(
-        "dfba_kinetics_community", None, verbatim_filename=True,
+        "dfba_kinetics_community", None,
         field_names=["glucose", "acetate", "dfba biomass", "kinetic biomass"],
         field_units={"glucose": "mM", "acetate": "mM", "dfba_biomass": "gDW"})],
     # ---- spatial ----
@@ -181,8 +181,6 @@ def _final_name(step, config):
     if step in ("species_dist_gif", "species_dist_with_particles_gif",
                 "pymunk_gif", "fields_agents_gif"):
         return name if name.endswith(".gif") else f"{name}.gif"
-    if config.get("verbatim_filename"):
-        return name
     return name if name.endswith(".png") else f"{name}.png"
 
 

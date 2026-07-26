@@ -32,8 +32,8 @@ canonical_runs:
   label: reproduce dfba_kinetics_community figures
   default: true
 visualizations:
-- name: dfba_kinetics_community
-  address: image:charts/dfba_kinetics_community
+- name: dfba_kinetics_community.png
+  address: image:charts/dfba_kinetics_community.png
   chart: image
 - name: dfba_kinetics_community_viz.png
   address: image:charts/dfba_kinetics_community_viz.png
@@ -52,7 +52,7 @@ behavior_tests:
   measure:
     kind: artifacts_present
     expected:
-    - dfba_kinetics_community
+    - dfba_kinetics_community.png
     - dfba_kinetics_community_viz.png
     - dfba_kinetics_community_schema.json
     - dfba_kinetics_community_state.json

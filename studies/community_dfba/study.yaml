@@ -31,8 +31,8 @@ canonical_runs:
   label: reproduce community_dfba figures
   default: true
 visualizations:
-- name: community_dfba
-  address: image:charts/community_dfba
+- name: community_dfba.png
+  address: image:charts/community_dfba.png
   chart: image
 - name: community_dfba_viz.png
   address: image:charts/community_dfba_viz.png
@@ -51,7 +51,7 @@ behavior_tests:
   measure:
     kind: artifacts_present
     expected:
-    - community_dfba
+    - community_dfba.png
     - community_dfba_viz.png
     - community_dfba_schema.json
     - community_dfba_state.json
