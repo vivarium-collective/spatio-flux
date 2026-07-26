@@ -22,3 +22,24 @@ def test_build_core_constructs():
     # custom spatio-flux types registered
     assert core.access("concentration") is not None
     assert core.access("particle") is not None
+
+
+# ---- Task 2: scaffolder table + investigation file -------------------------
+
+def test_scaffolder_table_complete():
+    from scripts.scaffold_studies import STUDIES
+    slugs = {s["slug"] for s in STUDIES}
+    assert len(STUDIES) == 19
+    assert "spatioflux_reference_demo" in slugs
+    for s in STUDIES:
+        for p in s["prerequisites"]:
+            assert p in slugs, f"{s['slug']} -> unknown prereq {p}"
+
+
+def test_investigation_lists_all_19():
+    with open(os.path.join(REPO, "investigations", "spatio-flux-test-suite",
+                           "investigation.yaml")) as f:
+        inv = yaml.safe_load(f)
+    from scripts.scaffold_studies import STUDIES
+    assert inv["name"] == "spatio-flux-test-suite"
+    assert set(inv["studies"]) == {s["slug"] for s in STUDIES}
