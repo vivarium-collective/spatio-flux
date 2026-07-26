@@ -9,3 +9,4 @@ from spatio_flux.analysis.flush import (  # noqa: F401
     register_step,
     run_analysis_flush,
 )
+from spatio_flux.analysis import steps as _steps  # noqa: F401  (register steps on import)
