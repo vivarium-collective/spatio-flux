@@ -1,8 +1,13 @@
 schema_version: 3
 name: comets_diffusion
 created: '2026-07-26'
-status: planned
-phase: Design
+status: complete
+phase: Evaluate
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+evaluation_status: evaluated
+gate_status: passed
 baseline:
 - name: baseline
   composite: spatio_flux.composites.comets.comets_diffusion
@@ -67,3 +72,46 @@ behavior_tests:
     op: all_exist_and_match
     tolerance: 0.02
   requires_simulation: reproduce
+runs:
+- name: comets_diffusion-reproduce
+  run_id: comets_diffusion-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.comets.comets_diffusion
+  emitter:
+    kind: xarray
+    store: studies/comets_diffusion/runs.comets_diffusion-reproduce.zarr
+  store_path: studies/comets_diffusion/runs.comets_diffusion-reproduce.zarr
+  timestamp: '2026-07-26T12:00:00Z'
+  result: PASS
+  outcomes:
+    COMETS_DIFFUSION-REPRODUCES-REPORT:
+      result: PASS
+      detail: All 6 report artifacts reproduced via the post-run analysis flush; deterministic
+        scenarios match the out0 reference within tolerance.
+findings:
+- id: F1
+  kind: computational
+  status: passed
+  statement: spatio_flux reproduces the comets_diffusion test-suite report artifacts
+    via the post-run analysis flush.
+  evidence:
+    from_test: COMETS_DIFFUSION-REPRODUCES-REPORT
+  provenance:
+    run_ids:
+    - comets_diffusion-reproduce
+conclusion_logic:
+  if_primary_tests_pass:
+    implementation_status: The comets_diffusion scenario is faithfully reproduced
+      by the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference
+      test-suite artifacts; it does not add new biological claims beyond the original
+      scenario.
+    pipeline_unblocks: []
+  if_primary_tests_fail:
+    diagnose:
+    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Check the composite build and the FLUSH_SPEC config for this slug.
+    block_downstream: Downstream composition studies that reuse this scenario should
+      be re-examined.

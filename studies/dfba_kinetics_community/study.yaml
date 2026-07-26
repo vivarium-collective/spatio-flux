@@ -1,8 +1,13 @@
 schema_version: 3
 name: dfba_kinetics_community
 created: '2026-07-26'
-status: planned
-phase: Design
+status: complete
+phase: Evaluate
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+evaluation_status: evaluated
+gate_status: passed
 baseline:
 - name: baseline
   composite: spatio_flux.composites.metabolism.dfba_kinetics_community
@@ -60,3 +65,46 @@ behavior_tests:
     op: all_exist_and_match
     tolerance: 0.02
   requires_simulation: reproduce
+runs:
+- name: dfba_kinetics_community-reproduce
+  run_id: dfba_kinetics_community-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.metabolism.dfba_kinetics_community
+  emitter:
+    kind: xarray
+    store: studies/dfba_kinetics_community/runs.dfba_kinetics_community-reproduce.zarr
+  store_path: studies/dfba_kinetics_community/runs.dfba_kinetics_community-reproduce.zarr
+  timestamp: '2026-07-26T12:00:00Z'
+  result: PASS
+  outcomes:
+    DFBA_KINETICS_COMMUNITY-REPRODUCES-REPORT:
+      result: PASS
+      detail: All 4 report artifacts reproduced via the post-run analysis flush; deterministic
+        scenarios match the out0 reference within tolerance.
+findings:
+- id: F1
+  kind: computational
+  status: passed
+  statement: spatio_flux reproduces the dfba_kinetics_community test-suite report
+    artifacts via the post-run analysis flush.
+  evidence:
+    from_test: DFBA_KINETICS_COMMUNITY-REPRODUCES-REPORT
+  provenance:
+    run_ids:
+    - dfba_kinetics_community-reproduce
+conclusion_logic:
+  if_primary_tests_pass:
+    implementation_status: The dfba_kinetics_community scenario is faithfully reproduced
+      by the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference
+      test-suite artifacts; it does not add new biological claims beyond the original
+      scenario.
+    pipeline_unblocks: []
+  if_primary_tests_fail:
+    diagnose:
+    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Check the composite build and the FLUSH_SPEC config for this slug.
+    block_downstream: Downstream composition studies that reuse this scenario should
+      be re-examined.

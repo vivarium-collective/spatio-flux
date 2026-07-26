@@ -20,3 +20,5 @@ studies/*/viz/
 .venv-serve/
 studies/*/*_timing.json
 reports/
+
+studies/*/*.zarr

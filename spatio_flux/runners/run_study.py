@@ -25,6 +25,12 @@ from pbg_superpowers.composite_generator import build_generator, _REGISTRY
 from spatio_flux.analysis.flush import run_analysis_flush
 from spatio_flux.analysis.flush_spec import FLUSH_SPEC, STANDARD_FIELD_COLORS
 from spatio_flux.library.tools import run_composite_document
+from spatio_flux.runners.run_store import write_run_zarr
+
+
+def _run_id(slug):
+    # Unique per study — list_simulations dedups rows by run_id.
+    return f"{slug}-reproduce"
 
 
 def _load_baseline(slug):
@@ -109,11 +115,17 @@ def main(slug, runtime=None):
              for s in FLUSH_SPEC[slug]]
     written = run_analysis_flush(slug, results, state, charts, specs)
 
+    # Persist the trajectory to the per-study zarr run-store so the run is
+    # discoverable + tagged in the SimulationsDB (via the study.yaml runs: entry).
+    run_id = _run_id(slug)
+    store = write_run_zarr(study_dir, run_id, results,
+                           provenance={"composite": ref, "config": params, "run_id": run_id})
+
     with open(os.path.join(study_dir, f"{slug}_timing.json"), "w") as f:
         json.dump({"process_time": proc_t, "framework_time": fw_t,
                    "elapsed": proc_t + fw_t}, f)
-    print(f"✅ {slug}: wrote {len(written)} figures to {charts} "
-          f"({proc_t + fw_t:.2f}s)")
+    print(f"✅ {slug}: wrote {len(written)} figures to {charts}; "
+          f"zarr -> {store} ({proc_t + fw_t:.2f}s)")
 
 
 if __name__ == "__main__":
