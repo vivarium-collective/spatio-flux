@@ -2,6 +2,20 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Status (2026-07-26): EXECUTED (Tasks 1–3, 5).** Units mechanism resolved:
+> attach via a `_units` **key on the port schema** (`{'_type':'float','_units':'mM'}`),
+> NOT `quantity[float,X]` (leaves `_units` None here) and NO pint registration
+> (pint is only invoked by `_compute_unit_scale` for cross-unit wire conversion).
+> DFBA/Monod ports carry mM/gDW; all 11 processes/steps have a formal `description`
+> surfaced by `Edge.describe()` (verified). Base port types were **preserved** (the
+> 19 sims still reproduce) — the riskier float→mass / array→positive_array retyping
+> was intentionally NOT done to protect the working flush. Diffusion field arrays left
+> generic (heterogeneous molecules). Tests: `tests/test_types_units_contracts.py` green.
+> **Task 4 (units_resolver + Visualization.units_resolver): SKIPPED as redundant** —
+> the flush already passes `field_units` to the plots, and spatio-flux doesn't render
+> through the workbench viz path, so the resolver would be dead code; loom port-units
+> come directly from the `_units` schema keys.
+
 **Goal:** Give the bigraph-loom process view meaningful, unit-bearing type coverage for spatio-flux: tighten the weak/generic ports, attach units to the unit-bearing ports, and give every process a formal `description` contract — so the loom inspector shows typed, described, unit-labeled ports and figure axes carry units.
 
 **Architecture:** Three orthogonal, independently-testable changes on the existing processes. (1) A units spike pins how the modern bigraph-schema `quantity[<datatype>,<unit>]` type populates `_units`; (2) re-type unit-bearing ports with `quantity[...]` and tighten generic `float`/`array[float]` outputs to the existing typed `count`/`mass`/`positive_array` types; (3) set a `description` class attribute on each process/Step (surfaced by the workbench's `Edge.describe()` → `_attach_process_docs` path). A `units_resolver.build_units_index()` + `Visualization.units_resolver` wiring (mirroring v2ecoli) turns the port `_units` into figure-axis and inspector labels.
