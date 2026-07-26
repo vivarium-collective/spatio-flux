@@ -1,0 +1,37 @@
+schema_version: 2
+name: spatio-flux-test-suite
+title: "Spatio-Flux Test Suite — compositional multiscale scenarios"
+created: '2026-07-26'
+status: running
+executive: |
+  The spatio-flux reference application reproduced as one investigation: 19
+  studies, each a composition scenario from the original test suite, arranged
+  standalone processes → pairs → triples → reference demos.
+scientific_argument: |
+  Independently developed processes (dFBA, Monod kinetics, diffusion-advection,
+  Brownian and Newtonian particles) compose through typed shared state. Running
+  the standalone processes first, then their combinations, demonstrates that
+  composition is additive and inspectable.
+biological_story: |
+  Metabolism, spatial transport, and particle dynamics coupled on a shared
+  lattice reproduce COMETS-style spatial dFBA and particle–field exchange.
+studies:
+- monod_kinetics
+- ecoli_core_dfba
+- ecoli_dfba
+- yeast_dfba
+- diffusion_process
+- brownian_particles
+- newtonian_particles
+- community_dfba
+- dfba_kinetics_community
+- spatial_many_dfba
+- spatial_dfba_process
+- comets_diffusion
+- br_particles_kinetics
+- br_particles_dfba
+- comets_br_particles_kinetics
+- comets_br_particles_dfba
+- comets_nt_particles_dfba
+- spatioflux_reference_demo
+- reference_demo_x2y2

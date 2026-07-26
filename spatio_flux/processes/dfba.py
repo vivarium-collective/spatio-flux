@@ -389,16 +389,20 @@ class DynamicFBA(Process):
 
     def inputs(self):
         return {
-            "substrates": "map[concentration]",  # external concentrations
-            "biomass": "mass",
+            # external concentrations (mM); biomass in grams dry weight
+            "substrates": {"_type": "map", "_value": {"_type": "concentration", "_units": "mM"}},
+            "biomass": {"_type": "mass", "_units": "gDW"},
         }
 
     def outputs(self):
+        # Biologically-explicit signed deltas: a mM concentration change and a gDW
+        # mass change (run_fba_update divides mmol by box_volume_L -> mM). These are
+        # render-only Float subclasses (no custom resolve/apply) so they stay as
+        # fast as `count` even per-particle-per-tick under division — the store
+        # (concentration/mass) owns the accumulate/clamp apply.
         return {
-            "substrates": "map[count]",   # deltas (not absolute concentrations)
-            "biomass": "mass",           # delta biomass
-            # "substrates": "map[count]",   # deltas (not absolute concentrations)
-            # "biomass": "count",           # delta biomass
+            "substrates": "map[concentration_delta]",
+            "biomass": "mass_delta",
         }
 
     def update(self, inputs, interval):
@@ -959,3 +963,21 @@ if __name__ == "__main__":
                 'concentrations': ['fields', 0, 0, 'species', '*', 'concentration']},
             'outputs': {
                 'counts': ['fields', 0, 0, 'species', '*', 'count']}}}
+
+
+# --- Process contracts (formal descriptions surfaced by Edge.describe()) ---
+DynamicFBA.description = (
+    "Dynamic FBA: each interval, constrains exchange-flux bounds from local "
+    "substrate concentrations (mM) and biomass (gDW), maximizes the biomass "
+    "objective by linear programming, and returns substrate count deltas and "
+    "biomass growth (gDW)."
+)
+SpatialDFBA.description = (
+    "Spatial dynamic FBA: runs an independent dynamic-FBA model per lattice bin "
+    "over the molecular field arrays, coupling metabolism to the spatial "
+    "substrate distribution."
+)
+ShardedDFBA.description = (
+    "Sharded spatial dynamic FBA: partitions the lattice across shards and solves "
+    "the per-bin FBA problems in parallel for large grids."
+)

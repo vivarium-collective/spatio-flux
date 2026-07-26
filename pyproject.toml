@@ -38,3 +38,9 @@ dev = [
 where = ["."]
 include = ["spatio_flux*"]
 exclude = ["tests*", "docs*"]
+
+[tool.pytest.ini_options]
+# Put the repo root on sys.path so tests can import both `spatio_flux` and
+# `scripts` (the scaffolder/report modules) without a PYTHONPATH env var —
+# matches how CI runs `pytest tests/`.
+pythonpath = ["."]

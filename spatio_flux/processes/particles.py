@@ -777,3 +777,27 @@ class ParticleTotalMass(Step):
                 continue
 
         return {"total_mass": total}
+
+
+# --- Process contracts ---
+BrownianMovement.description = (
+    "Brownian particle motion: displaces each particle by a diffusion-scaled random "
+    "walk plus advection, confined to the domain bounds."
+)
+ManageBoundaries.description = (
+    "Boundary manager: adds particles at configured inflow boundaries and removes "
+    "particles crossing configured outflow boundaries each interval."
+)
+ParticleExchange.description = (
+    "Particle-field exchange: couples each particle's local uptake/secretion to the "
+    "lattice field bin it occupies, converting between per-cell counts and field "
+    "concentrations."
+)
+ParticleDivision.description = (
+    "Particle division: splits any particle whose mass exceeds the division "
+    "threshold into two daughters, partitioning mass and sub-masses with jitter."
+)
+ParticleTotalMass.description = (
+    "Total-mass reducer: sums a particle's sub-masses into its aggregate mass each "
+    "interval."
+)

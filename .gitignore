@@ -10,3 +10,15 @@ profile/
 devenv.lock
 originalout/
 updateout/
+
+# workbench runtime artifacts (Phase B+)
+studies/*/runs.db
+studies/*/parquet-runs/
+studies/*/charts/
+studies/*/viz/
+.pbg/
+.venv-serve/
+studies/*/*_timing.json
+reports/
+
+studies/*/*.zarr

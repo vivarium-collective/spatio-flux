@@ -1,0 +1,119 @@
+schema_version: 3
+name: brownian_particles
+created: '2026-07-26'
+status: complete
+phase: Evaluate
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+evaluation_status: evaluated
+gate_status: passed
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.particles.brownian_particles
+  params: {}
+purpose:
+  question: 'Particle-only baseline: Brownian motion of agents with mass in continuous
+    space (no fields, no metabolism). Checks integrator + particle state schema.'
+  mechanism: Runs the spatio_flux.composites.particles.brownian_particles composite
+    (standalone process).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites: []
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - brownian_particles
+  - '200'
+  label: reproduce brownian_particles figures
+  default: true
+visualizations:
+- name: brownian_particles_video.gif
+  address: image:charts/brownian_particles_video.gif
+  chart: image
+- name: brownian_particles_mass.png
+  address: image:charts/brownian_particles_mass.png
+  chart: image
+- name: brownian_particles_snapshots.png
+  address: image:charts/brownian_particles_snapshots.png
+  chart: image
+- name: brownian_particles_particles_traces.png
+  address: image:charts/brownian_particles_particles_traces.png
+  chart: image
+- name: brownian_particles_viz.png
+  address: image:charts/brownian_particles_viz.png
+  chart: image
+- name: brownian_particles_schema.json
+  address: image:charts/brownian_particles_schema.json
+  chart: image
+- name: brownian_particles_state.json
+  address: image:charts/brownian_particles_state.json
+  chart: image
+behavior_tests:
+- name: BROWNIAN_PARTICLES-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - brownian_particles_video.gif
+    - brownian_particles_mass.png
+    - brownian_particles_snapshots.png
+    - brownian_particles_particles_traces.png
+    - brownian_particles_viz.png
+    - brownian_particles_schema.json
+    - brownian_particles_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce
+runs:
+- name: brownian_particles-reproduce
+  run_id: brownian_particles-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.particles.brownian_particles
+  emitter:
+    kind: xarray
+    store: studies/brownian_particles/runs.brownian_particles-reproduce.zarr
+  store_path: studies/brownian_particles/runs.brownian_particles-reproduce.zarr
+  timestamp: '2026-07-26T12:00:00Z'
+  result: PASS
+  outcomes:
+    BROWNIAN_PARTICLES-REPRODUCES-REPORT:
+      result: PASS
+      detail: All 7 report artifacts reproduced via the post-run analysis flush; deterministic
+        scenarios match the out0 reference within tolerance.
+findings:
+- id: F1
+  kind: computational
+  status: passed
+  statement: spatio_flux reproduces the brownian_particles test-suite report artifacts
+    via the post-run analysis flush.
+  evidence:
+    from_test: BROWNIAN_PARTICLES-REPRODUCES-REPORT
+  provenance:
+    run_ids:
+    - brownian_particles-reproduce
+conclusion_logic:
+  if_primary_tests_pass:
+    implementation_status: The brownian_particles scenario is faithfully reproduced
+      by the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference
+      test-suite artifacts; it does not add new biological claims beyond the original
+      scenario.
+    pipeline_unblocks: []
+  if_primary_tests_fail:
+    diagnose:
+    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Check the composite build and the FLUSH_SPEC config for this slug.
+    block_downstream: Downstream composition studies that reuse this scenario should
+      be re-examined.

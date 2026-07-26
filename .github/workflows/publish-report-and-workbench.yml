@@ -1,0 +1,105 @@
+name: Publish report + read-only workbench
+
+# Post-merge DEPLOY (not a PR gate — a failure here never blocks a merge).
+# Reproduces the spatio-flux-test-suite investigation (runs all 19 studies via
+# the post-run analysis flush) and publishes two static views to gh-pages:
+#   report/     — the faithful test-suite report (build_report.py), served at
+#                 vivarium-collective.github.io/spatio-flux/report/
+#   workbench/  — the read-only interactive workbench snapshot
+#                 (vivarium-workbench-publish), served at
+#                 vivarium-collective.github.io/spatio-flux/workbench/
+#
+# The publish env upgrades to the modern stack (pbg-superpowers>=0.16 provides
+# the viva_superpowers module the workbench reads; bigraph-schema>=1.4.3;
+# vivarium-workbench@main), matching the local serving venv.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'spatio_flux/**'
+      - 'studies/**'
+      - 'investigations/**'
+      - 'scripts/**'
+      - 'workspace.yaml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/publish-report-and-workbench.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: publish-spatio-flux
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # push to gh-pages
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VIVARIUM_WORKBENCH_REQUIRE_LOOM: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+
+      - name: Install system dependencies (Graphviz)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Install project dependencies
+        run: uv sync --frozen
+
+      - name: Upgrade to the modern publish stack
+        # pbg-superpowers>=0.16 ships the viva_superpowers module + shared
+        # composite registry the workbench reads; bigraph-schema>=1.4.3 for the
+        # typed/units API; vivarium-workbench@main for the publish CLI + loom.
+        run: |
+          uv pip install --upgrade "pbg-superpowers>=0.16" "bigraph-schema>=1.4.3"
+          uv pip install "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
+
+      - name: Reproduce the investigation (run all studies + build report)
+        # Runs every study's post-run analysis flush (charts + zarr run-stores)
+        # and builds report/index.html. Run inside the venv (not `uv run`, which
+        # would re-sync and undo the workbench@main install).
+        run: |
+          source .venv/bin/activate
+          python scripts/reproduce.py --out report/index.html
+
+      - name: Build the read-only workbench snapshot
+        run: |
+          source .venv/bin/activate
+          vivarium-workbench-publish --workspace . --out workbench-site \
+            --base-path /spatio-flux/workbench \
+            --interactive-url ""
+
+      - name: Publish report/ and workbench/ to gh-pages
+        run: |
+          set -euo pipefail
+          test -f report/index.html || { echo "::error::no report/index.html"; exit 1; }
+          test -f workbench-site/index.html || { echo "::error::no workbench snapshot"; exit 1; }
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages || true
+          git worktree add /tmp/ghp gh-pages 2>/dev/null || {
+            git checkout --orphan gh-pages-tmp && git worktree add /tmp/ghp gh-pages-tmp; }
+          rm -rf /tmp/ghp/report /tmp/ghp/workbench
+          mkdir -p /tmp/ghp/report /tmp/ghp/workbench
+          cp -R report/. /tmp/ghp/report/
+          cp -R workbench-site/. /tmp/ghp/workbench/
+          cd /tmp/ghp
+          git add report workbench
+          if git diff --cached --quiet; then
+            echo "no changes to publish"
+          else
+            git commit -m "gh-pages: republish report + read-only workbench (${GITHUB_SHA::7})"
+            git push origin HEAD:gh-pages
+          fi

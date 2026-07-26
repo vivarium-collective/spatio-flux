@@ -912,3 +912,9 @@ def run_pymunk_particles():
 
 if __name__ == '__main__':
     run_pymunk_particles()
+
+# --- Process contract ---
+PymunkParticleMovement.description = (
+    "Newtonian particle physics (Pymunk): integrates rigid-body dynamics - forces, "
+    "collisions, friction, elasticity - for motile particles within the domain."
+)

@@ -14,7 +14,9 @@ from PIL import Image, ImageChops, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
-from spatio_flux.experiments.test_suite import (
+from pbg_superpowers.composite_generator import build_generator, _REGISTRY
+
+from spatio_flux.experiments.scenarios import (
     SIMULATIONS,
     DEFAULT_RUNTIME_LONG,
     allocate_core,
@@ -45,10 +47,13 @@ def run_reference_composite_and_plots():
         raise KeyError(f"No simulation named '{TEST_NAME}'")
 
     sim_info = SIMULATIONS[TEST_NAME]
-    config = sim_info.get("config", {}) or {}
 
     print(f"\n🚀 Running test: {TEST_NAME}")
-    doc = sim_info["doc_func"](core=core, config=config)
+    doc = build_generator(
+        _REGISTRY[sim_info["generator"]],
+        overrides=sim_info.get("overrides", {}),
+        core=core,
+    )
 
     runtime = sim_info.get("time", DEFAULT_RUNTIME_LONG)
     t0 = time.time()
@@ -61,7 +66,7 @@ def run_reference_composite_and_plots():
         outdir=str(OUT_DIR),
         show_types=False,
         show_values=False,
-    )
+    )[0]
 
     print(f"✅ Completed in {time.time() - t0:.2f}s")
 

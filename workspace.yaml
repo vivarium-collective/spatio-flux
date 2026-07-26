@@ -1,0 +1,13 @@
+schema_version: 2
+name: spatio_flux
+package_path: spatio_flux
+runtime:
+  default_emitter: sqlite
+phases: []
+observables: []
+visualizations: []
+simulations: []
+datasets: []
+references_bib: references/papers.bib
+server:
+  enabled: true

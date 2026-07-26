@@ -109,7 +109,7 @@ class DiffusionAdvection(Process):
             'fields': {
                 '_type': 'map',
                 '_value': {
-                    '_type': 'array',
+                    '_type': 'positive_array',
                     '_shape': self.config['n_bins'],
                     '_data': 'float',
                 },
@@ -121,7 +121,7 @@ class DiffusionAdvection(Process):
             'fields': {
                 '_type': 'map',
                 '_value': {
-                    '_type': 'array',
+                    '_type': 'positive_array',
                     '_shape': self.config['n_bins'],
                     '_data': 'float',
                 },
@@ -364,3 +364,11 @@ class DiffusionAdvection(Process):
 
         return G
 
+
+
+# --- Process contract ---
+DiffusionAdvection.description = (
+    "Diffusion-advection transport: evolves each molecular field on the lattice by "
+    "finite-difference diffusion (CFL-limited sub-stepping) plus advection at the "
+    "configured coefficients."
+)

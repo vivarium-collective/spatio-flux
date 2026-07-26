@@ -1,0 +1,126 @@
+schema_version: 3
+name: comets_nt_particles_dfba
+created: '2026-07-26'
+status: complete
+phase: Evaluate
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+evaluation_status: evaluated
+gate_status: passed
+baseline:
+- name: baseline
+  composite: spatio_flux.composites.comets.comets_nt_particles_dfba
+  params: {}
+purpose:
+  question: 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while
+    COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.'
+  mechanism: Runs the spatio_flux.composites.comets.comets_nt_particles_dfba composite
+    (triple composition).
+  expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
+pipeline_gate:
+  prerequisites:
+  - comets_diffusion
+  - newtonian_particles
+  - br_particles_dfba
+  enables: []
+  proceed_condition: Composition ordering only; this study runs independently.
+limitations:
+- Faithful reproduction of an existing scenario; no new biology.
+- Graph edges document composition, they do not gate execution.
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_study.py
+  args:
+  - comets_nt_particles_dfba
+  - '60'
+  label: reproduce comets_nt_particles_dfba figures
+  default: true
+visualizations:
+- name: comets_nt_particles_dfba_timeseries.png
+  address: image:charts/comets_nt_particles_dfba_timeseries.png
+  chart: image
+- name: comets_nt_particles_dfba_mass.png
+  address: image:charts/comets_nt_particles_dfba_mass.png
+  chart: image
+- name: comets_nt_particles_dfba_mass_submasses.png
+  address: image:charts/comets_nt_particles_dfba_mass_submasses.png
+  chart: image
+- name: comets_nt_particles_dfba_video.gif
+  address: image:charts/comets_nt_particles_dfba_video.gif
+  chart: image
+- name: comets_nt_particles_dfba_snapshots.png
+  address: image:charts/comets_nt_particles_dfba_snapshots.png
+  chart: image
+- name: comets_nt_particles_dfba_viz.png
+  address: image:charts/comets_nt_particles_dfba_viz.png
+  chart: image
+- name: comets_nt_particles_dfba_schema.json
+  address: image:charts/comets_nt_particles_dfba_schema.json
+  chart: image
+- name: comets_nt_particles_dfba_state.json
+  address: image:charts/comets_nt_particles_dfba_state.json
+  chart: image
+behavior_tests:
+- name: COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT
+  classification: regression
+  description: All test-suite artifacts for this scenario are reproduced and match
+    the out0 reference within tolerance.
+  measure:
+    kind: artifacts_present
+    expected:
+    - comets_nt_particles_dfba_timeseries.png
+    - comets_nt_particles_dfba_mass.png
+    - comets_nt_particles_dfba_mass_submasses.png
+    - comets_nt_particles_dfba_video.gif
+    - comets_nt_particles_dfba_snapshots.png
+    - comets_nt_particles_dfba_viz.png
+    - comets_nt_particles_dfba_schema.json
+    - comets_nt_particles_dfba_state.json
+  pass_if:
+    op: all_exist_and_match
+    tolerance: 0.02
+  requires_simulation: reproduce
+runs:
+- name: comets_nt_particles_dfba-reproduce
+  run_id: comets_nt_particles_dfba-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.comets.comets_nt_particles_dfba
+  emitter:
+    kind: xarray
+    store: studies/comets_nt_particles_dfba/runs.comets_nt_particles_dfba-reproduce.zarr
+  store_path: studies/comets_nt_particles_dfba/runs.comets_nt_particles_dfba-reproduce.zarr
+  timestamp: '2026-07-26T12:00:00Z'
+  result: PASS
+  outcomes:
+    COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT:
+      result: PASS
+      detail: All 8 report artifacts reproduced via the post-run analysis flush; deterministic
+        scenarios match the out0 reference within tolerance.
+findings:
+- id: F1
+  kind: computational
+  status: passed
+  statement: spatio_flux reproduces the comets_nt_particles_dfba test-suite report
+    artifacts via the post-run analysis flush.
+  evidence:
+    from_test: COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT
+  provenance:
+    run_ids:
+    - comets_nt_particles_dfba-reproduce
+conclusion_logic:
+  if_primary_tests_pass:
+    implementation_status: The comets_nt_particles_dfba scenario is faithfully reproduced
+      by the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference
+      test-suite artifacts; it does not add new biological claims beyond the original
+      scenario.
+    pipeline_unblocks: []
+  if_primary_tests_fail:
+    diagnose:
+    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Check the composite build and the FLUSH_SPEC config for this slug.
+    block_downstream: Downstream composition studies that reuse this scenario should
+      be re-examined.

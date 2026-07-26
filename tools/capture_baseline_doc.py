@@ -32,14 +32,17 @@ SNAPSHOT_DIR = REPO_ROOT / "spatio_flux" / "composites" / "_snapshots"
 
 
 def _capture_from_old(name: str) -> dict:
-    """Call the legacy doc_func in SIMULATIONS with its declared config."""
-    import numpy as np
-    np.random.seed(0)
-    from spatio_flux.experiments.test_suite import SIMULATIONS  # local import
-    sim = SIMULATIONS[name]
-    core = allocate_core()
-    doc = sim["doc_func"](core=core, config=sim.get("config", {}))
-    return doc
+    """Legacy doc_func capture path — retired.
+
+    The old ``spatio_flux/experiments/test_suite.py`` (and its per-scenario
+    ``doc_func`` entries) has been deleted; every scenario is now a registered
+    composite_generator. Re-run with ``--update`` to capture from the new
+    generator instead.
+    """
+    raise SystemExit(
+        f"capture-from-old is retired (test_suite.py deleted); "
+        f"re-run with --update to capture '{name}' from its composite_generator."
+    )
 
 
 def _capture_from_new(name: str) -> dict:

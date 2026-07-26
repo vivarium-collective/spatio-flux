@@ -403,14 +403,17 @@ class MonodKinetics(Process):
 
     def inputs(self):
         return {
-            'biomass': 'mass',
-            'substrates': 'map[concentration]',
+            'biomass': {'_type': 'mass', '_units': 'gDW'},
+            'substrates': {'_type': 'map', '_value': {'_type': 'concentration', '_units': 'mM'}},
         }
 
     def outputs(self):
+        # Biologically-explicit signed deltas (mM concentration change / gDW mass
+        # change) as render-only Float subclasses — fast per-particle (no custom
+        # resolve) while the store owns the accumulate/clamp apply.
         return {
-            'biomass': 'float',
-            'substrates': 'map[float]',
+            'biomass': 'mass_delta',
+            'substrates': 'map[concentration_delta]',
         }
 
     @staticmethod
@@ -473,3 +476,11 @@ class MonodKinetics(Process):
             'biomass': delta_biomass,
             'substrates': delta_substrates,
         }
+
+
+# --- Process contract ---
+MonodKinetics.description = (
+    "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions "
+    "of local substrate concentration (mM); returns substrate concentration and "
+    "biomass (gDW) deltas."
+)

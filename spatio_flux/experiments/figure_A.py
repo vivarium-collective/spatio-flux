@@ -24,7 +24,9 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-from spatio_flux.experiments.test_suite import (
+from pbg_superpowers.composite_generator import build_generator, _REGISTRY
+
+from spatio_flux.experiments.scenarios import (
     SIMULATIONS,
     DEFAULT_RUNTIME_LONG,
     allocate_core,
@@ -192,16 +194,19 @@ def run_tests(*, skip_existing: bool = False) -> None:
             continue
 
         sim_info = SIMULATIONS[name]
-        config = sim_info.get("config", {}) or {}
 
         print(f"\n🚀 Running test: {name}")
-        doc = sim_info["doc_func"](core=core, config=config)
+        doc = build_generator(
+            _REGISTRY[sim_info["generator"]],
+            overrides=sim_info.get("overrides", {}),
+            core=core,
+        )
 
         runtime = sim_info.get("time", DEFAULT_RUNTIME_LONG)
         t0 = time.time()
         results = run_composite_document(
             doc, core=core, name=name, time=runtime, outdir=str(OUT_DIR)
-        )
+        )[0]
         dt = time.time() - t0
         print(f"✅ Completed sim: {name} in {dt:.2f}s")
 

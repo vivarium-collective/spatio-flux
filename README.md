@@ -1,6 +1,7 @@
 # Spatio-Flux
 
 [![▶ live test report](https://img.shields.io/badge/▶%20live%20report-test%20suite-1b9e77?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/report/index.html)
+[![▶ read-only workbench](https://img.shields.io/badge/▶%20read--only-workbench-3a5b8f?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/workbench/index.html)
 [![paper](https://img.shields.io/badge/paper-arXiv%3A2512.23754-3a5b3a?style=flat-square)](https://arxiv.org/abs/2512.23754)
 [![ecosystem](https://img.shields.io/badge/part%20of-vivarium--collective-1c4a78?style=flat-square)](https://github.com/vivarium-collective)
 
@@ -15,6 +16,12 @@ Systems Biology* (Agmon & Spangler, [arXiv:2512.23754](https://arxiv.org/abs/251
 
 > ▶ **[Browse the live test suite report →](https://vivarium-collective.github.io/spatio-flux/report/index.html)**
 > 19 composite scenarios, each with structure diagrams, time series, and plots.
+>
+> ▶ **[Open the read-only workbench →](https://vivarium-collective.github.io/spatio-flux/workbench/index.html)**
+> The same 19 scenarios as a browsable **investigation** of studies — the
+> composition DAG (standalone processes → pairs → triples → reference demos),
+> each study's runs, reproduced visualizations, and the process/loom explorer —
+> served with no backend.
 
 ![Spatio-Flux reference composite](doc/spatioflux_reference_demo_viz.png)
 
@@ -87,12 +94,23 @@ doc = build_generator(entry, overrides={"n_bins": [20, 40], "diffusion_rate": 0.
 git clone https://github.com/vivarium-collective/spatio-flux.git
 cd spatio-flux
 uv sync
-uv run python spatio_flux/experiments/test_suite.py --output out
-open out/report.html
+# Reproduce the whole test suite from the investigation (runs all 19 studies,
+# then builds the report) and open it:
+uv run python scripts/reproduce.py
+open report/index.html
 ```
 
-`--tests <name1> <name2> …` runs a subset. `--skip-existing` reuses cached per-test
-artifacts so you can re-render the HTML without re-simulating.
+`--only <slug>` reproduces a single study. Each scenario is a study under
+`studies/<slug>/`; the investigation graph lives in
+`investigations/spatio-flux-test-suite/investigation.yaml`. To browse it
+interactively, serve the workbench dashboard:
+
+```bash
+vivarium-workbench serve --workspace .
+```
+
+> The legacy `spatio_flux/experiments/test_suite.py` runner has been superseded by
+> the investigation + `scripts/reproduce.py`.
 
 ---
 
