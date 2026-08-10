@@ -1,0 +1,57 @@
+schema_version: 3
+name: fig-08
+title: Fig 8 — spatio-flux reference model
+investigation: paper-figures
+created: '2026-08-09'
+status: complete
+confidence: Accepted
+claim: image generated
+purpose:
+  question: What does Fig 8 — the spatio-flux reference model depict, and does its
+    bigraph-loom image generate?
+  mechanism: 'spatio-flux reference model (spatioflux_reference_demo): fields + diffusion
+    + a Monod-kinetics array with Newtonian particles carrying per-particle dFBA (ecoli_1,
+    ecoli_2) aggregated into particle mass, rendered in bigraph-loom.'
+  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
+baseline:
+- name: reference
+  composite: spatio_flux.composites.fig08-reference-model
+  params: {}
+expected_behavior:
+- bigraph-loom image generated correctly
+visualizations:
+- name: 8a-reference-model.svg
+  address: image:visualizations/fig08-reference-model.svg
+  chart: image
+- name: 8b-reference-snapshots.png
+  address: image:visualizations/fig08b-reference-snapshots.png
+  chart: image
+variants: []
+interventions: []
+runs:
+- name: spatio_flux.composites.fig08-reference-model__1786323969__ec848e
+  status: completed
+  timestamp: 1786323971.978923
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+simulation_set:
+- name: reference-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig08-reference-model
+  is_baseline: true
+  status: ran
+pipeline_gate:
+  gate_evaluator:
+    result: not_started
+    blocked_by: []
+    evaluated_by: code
+    diverges_from_authored: false

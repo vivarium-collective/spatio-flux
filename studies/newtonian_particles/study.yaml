@@ -34,23 +34,14 @@ canonical_runs:
   label: reproduce newtonian_particles figures
   default: true
 visualizations:
-- name: newtonian_particles_mass.png
-  address: image:charts/newtonian_particles_mass.png
-  chart: image
-- name: newtonian_particles_video.gif
-  address: image:charts/newtonian_particles_video.gif
+- name: newtonian_particles.svg
+  address: image:visualizations/newtonian_particles.svg
   chart: image
 - name: newtonian_particles_particles_traces.png
   address: image:charts/newtonian_particles_particles_traces.png
   chart: image
-- name: newtonian_particles_viz.png
-  address: image:charts/newtonian_particles_viz.png
-  chart: image
-- name: newtonian_particles_schema.json
-  address: image:charts/newtonian_particles_schema.json
-  chart: image
-- name: newtonian_particles_state.json
-  address: image:charts/newtonian_particles_state.json
+- name: newtonian_particles_mass.png
+  address: image:charts/newtonian_particles_mass.png
   chart: image
 behavior_tests:
 - name: NEWTONIAN_PARTICLES-REPRODUCES-REPORT

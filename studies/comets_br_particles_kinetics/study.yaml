@@ -37,26 +37,17 @@ canonical_runs:
   label: reproduce comets_br_particles_kinetics figures
   default: true
 visualizations:
+- name: comets_br_particles_kinetics.svg
+  address: image:visualizations/comets_br_particles_kinetics.svg
+  chart: image
 - name: comets_br_particles_kinetics_timeseries.png
   address: image:charts/comets_br_particles_kinetics_timeseries.png
-  chart: image
-- name: comets_br_particles_kinetics_mass.png
-  address: image:charts/comets_br_particles_kinetics_mass.png
   chart: image
 - name: comets_br_particles_kinetics_snapshots.png
   address: image:charts/comets_br_particles_kinetics_snapshots.png
   chart: image
-- name: comets_br_particles_kinetics_video.gif
-  address: image:charts/comets_br_particles_kinetics_video.gif
-  chart: image
-- name: comets_br_particles_kinetics_viz.png
-  address: image:charts/comets_br_particles_kinetics_viz.png
-  chart: image
-- name: comets_br_particles_kinetics_schema.json
-  address: image:charts/comets_br_particles_kinetics_schema.json
-  chart: image
-- name: comets_br_particles_kinetics_state.json
-  address: image:charts/comets_br_particles_kinetics_state.json
+- name: comets_br_particles_kinetics_mass.png
+  address: image:charts/comets_br_particles_kinetics_mass.png
   chart: image
 behavior_tests:
 - name: COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT

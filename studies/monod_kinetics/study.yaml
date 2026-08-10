@@ -35,17 +35,11 @@ canonical_runs:
   label: reproduce monod_kinetics figures
   default: true
 visualizations:
+- name: monod_kinetics.svg
+  address: image:visualizations/monod_kinetics.svg
+  chart: image
 - name: monod_kinetics.png
   address: image:charts/monod_kinetics.png
-  chart: image
-- name: monod_kinetics_viz.png
-  address: image:charts/monod_kinetics_viz.png
-  chart: image
-- name: monod_kinetics_schema.json
-  address: image:charts/monod_kinetics_schema.json
-  chart: image
-- name: monod_kinetics_state.json
-  address: image:charts/monod_kinetics_state.json
   chart: image
 behavior_tests:
 - name: MONOD_KINETICS-REPRODUCES-REPORT

@@ -34,11 +34,8 @@ canonical_runs:
   label: reproduce brownian_particles figures
   default: true
 visualizations:
-- name: brownian_particles_video.gif
-  address: image:charts/brownian_particles_video.gif
-  chart: image
-- name: brownian_particles_mass.png
-  address: image:charts/brownian_particles_mass.png
+- name: brownian_particles.svg
+  address: image:visualizations/brownian_particles.svg
   chart: image
 - name: brownian_particles_snapshots.png
   address: image:charts/brownian_particles_snapshots.png
@@ -46,14 +43,8 @@ visualizations:
 - name: brownian_particles_particles_traces.png
   address: image:charts/brownian_particles_particles_traces.png
   chart: image
-- name: brownian_particles_viz.png
-  address: image:charts/brownian_particles_viz.png
-  chart: image
-- name: brownian_particles_schema.json
-  address: image:charts/brownian_particles_schema.json
-  chart: image
-- name: brownian_particles_state.json
-  address: image:charts/brownian_particles_state.json
+- name: brownian_particles_mass.png
+  address: image:charts/brownian_particles_mass.png
   chart: image
 behavior_tests:
 - name: BROWNIAN_PARTICLES-REPRODUCES-REPORT

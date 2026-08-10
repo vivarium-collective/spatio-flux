@@ -48,10 +48,18 @@ def test_investigation_lists_all_19():
 # ---- Task 3: generated studies resolve + form a valid DAG -------------------
 
 def _load_studies():
+    # Scope to the spatio-flux-test-suite investigation only. Other investigations
+    # (e.g. paper-figures) also live under studies/ with different conventions
+    # (static-spec baselines, no pipeline_gate) — they aren't what these tests check.
+    from scripts.scaffold_studies import STUDIES
+    slugs = {s["slug"] for s in STUDIES}
     out = {}
     for p in glob.glob(os.path.join(REPO, "studies", "*", "study.yaml")):
+        name = os.path.basename(os.path.dirname(p))
+        if name not in slugs:
+            continue
         with open(p) as f:
-            out[os.path.basename(os.path.dirname(p))] = yaml.safe_load(f)
+            out[name] = yaml.safe_load(f)
     return out
 
 
