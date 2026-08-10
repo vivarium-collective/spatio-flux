@@ -85,10 +85,23 @@ SPATIO_FLUX_TYPES = {
     "count_concentration_volume": CountConcentrationVolume,
 }
 
+# Scalar types used by the paper-figure draft composites (Fig 1b / 3b / 2). They
+# resolve to plain floats; registering them here lets those composites RUN (not
+# just render) — e.g. Fig 1b's multiscale draft, whose stores are typed
+# cell_count / phase / energy / volume.
+_PAPER_FIGURE_SCALARS = {
+    "energy":     {"_inherit": "float"},
+    "volume":     {"_inherit": "float"},
+    "cell_count": {"_inherit": "float"},
+    "phase":      {"_inherit": "float"},
+    "node":       {"_inherit": "float"},
+}
+
 TYPES_DICT = {
     **SPATIO_FLUX_TYPES,
     "boundary_side": BOUNDARY_SIDE_TYPE,
     "reaction": REACTION_TYPE,
+    **_PAPER_FIGURE_SCALARS,
 }
 
 
