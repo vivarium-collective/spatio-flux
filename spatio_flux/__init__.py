@@ -94,7 +94,7 @@ _PAPER_FIGURE_SCALARS = {
     "volume":     {"_inherit": "float"},
     "cell_count": {"_inherit": "float"},
     "phase":      {"_inherit": "float"},
-    "node":       {"_inherit": "float"},
+    "place_node": {"_inherit": "float"},
 }
 
 TYPES_DICT = {

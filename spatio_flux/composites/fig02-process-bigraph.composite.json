@@ -9,19 +9,19 @@
   "state": {
     "n1": {
       "n3": {
-        "_type": "node",
+        "_type": "place_node",
         "_value": 0.0
       },
       "n4": {
         "n6": {
-          "_type": "node",
+          "_type": "place_node",
           "_value": 0.0
         }
       }
     },
     "n2": {
       "n5": {
-        "_type": "node",
+        "_type": "place_node",
         "_value": 0.0
       }
     },
@@ -43,10 +43,10 @@
         }
       },
       "_inputs": {
-        "in": "node"
+        "in": "place_node"
       },
       "_outputs": {
-        "out": "node"
+        "out": "place_node"
       },
       "_contract": {
         "summary": "Process p \u2014 connects place-graph nodes via typed ports",
@@ -91,10 +91,10 @@
         }
       },
       "_inputs": {
-        "in": "node"
+        "in": "place_node"
       },
       "_outputs": {
-        "out": "node"
+        "out": "place_node"
       },
       "_contract": {
         "summary": "Process p \u2014 connects place-graph nodes via typed ports",
@@ -141,10 +141,10 @@
         }
       },
       "_inputs": {
-        "in": "node"
+        "in": "place_node"
       },
       "_outputs": {
-        "out": "node"
+        "out": "place_node"
       },
       "_contract": {
         "summary": "Process p \u2014 connects place-graph nodes via typed ports",

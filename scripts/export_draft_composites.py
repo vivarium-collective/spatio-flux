@@ -64,7 +64,7 @@ def main() -> None:
     # types can be left unresolved on the core; a DIRECT register_type resolves
     # them. Force-register so Composite validation finds them. (The dashboard
     # renders the written static spec verbatim, so this only affects validation.)
-    for _name in ("energy", "volume", "cell_count", "phase", "node"):
+    for _name in ("energy", "volume", "cell_count", "phase", "place_node"):
         try:
             core.register_type(_name, {"_inherit": "float"})
         except Exception:

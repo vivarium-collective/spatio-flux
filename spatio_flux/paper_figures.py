@@ -26,7 +26,7 @@ _EXTRA_TYPES = {
     "volume":     {"_inherit": "float"},
     "cell_count": {"_inherit": "float"},
     "phase":      {"_inherit": "float"},
-    "node":       {"_inherit": "float"},   # abstract bigraph node (Fig 2)
+    "place_node": {"_inherit": "float"},   # abstract bigraph node (Fig 2)
 }
 
 
@@ -289,8 +289,8 @@ class Transport(DraftProcess):
 # ── helpers ──────────────────────────────────────────────────────────────────
 @draft_process(
     name="BigraphLink",
-    inputs={"in": "node"},
-    outputs={"out": "node"},
+    inputs={"in": "place_node"},
+    outputs={"out": "place_node"},
     contract={
         "summary": "Process p — connects place-graph nodes via typed ports",
         "description": "A process in the process bigraph: it connects nodes of the "
@@ -386,8 +386,8 @@ def fig02_bigraph_state() -> dict:
     """
     return {
         # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
-        "n1": {"n3": _v("node", 0.0), "n4": {"n6": _v("node", 0.0)}},
-        "n2": {"n5": _v("node", 0.0)},
+        "n1": {"n3": _v("place_node", 0.0), "n4": {"n6": _v("place_node", 0.0)}},
+        "n2": {"n5": _v("place_node", 0.0)},
         # Processes wired across the place graph (paths into the nesting).
         "p1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"]}),
         "p2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
