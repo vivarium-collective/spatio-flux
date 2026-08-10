@@ -37,18 +37,6 @@ visualizations:
 - name: diffusion_process.svg
   address: image:visualizations/diffusion_process.svg
   chart: image
-- name: diffusion_process_video.gif
-  address: image:charts/diffusion_process_video.gif
-  chart: image
-- name: diffusion_process_viz.png
-  address: image:charts/diffusion_process_viz.png
-  chart: image
-- name: diffusion_process_schema.json
-  address: image:charts/diffusion_process_schema.json
-  chart: image
-- name: diffusion_process_state.json
-  address: image:charts/diffusion_process_state.json
-  chart: image
 behavior_tests:
 - name: DIFFUSION_PROCESS-REPRODUCES-REPORT
   classification: regression

@@ -43,15 +43,6 @@ visualizations:
 - name: dfba_kinetics_community.png
   address: image:charts/dfba_kinetics_community.png
   chart: image
-- name: dfba_kinetics_community_viz.png
-  address: image:charts/dfba_kinetics_community_viz.png
-  chart: image
-- name: dfba_kinetics_community_schema.json
-  address: image:charts/dfba_kinetics_community_schema.json
-  chart: image
-- name: dfba_kinetics_community_state.json
-  address: image:charts/dfba_kinetics_community_state.json
-  chart: image
 behavior_tests:
 - name: DFBA_KINETICS_COMMUNITY-REPRODUCES-REPORT
   classification: regression

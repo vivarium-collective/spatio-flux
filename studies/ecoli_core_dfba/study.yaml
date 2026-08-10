@@ -43,15 +43,6 @@ visualizations:
 - name: ecoli_core_dfba.png
   address: image:charts/ecoli_core_dfba.png
   chart: image
-- name: ecoli_core_dfba_viz.png
-  address: image:charts/ecoli_core_dfba_viz.png
-  chart: image
-- name: ecoli_core_dfba_schema.json
-  address: image:charts/ecoli_core_dfba_schema.json
-  chart: image
-- name: ecoli_core_dfba_state.json
-  address: image:charts/ecoli_core_dfba_state.json
-  chart: image
 behavior_tests:
 - name: ECOLI_CORE_DFBA-REPRODUCES-REPORT
   classification: regression

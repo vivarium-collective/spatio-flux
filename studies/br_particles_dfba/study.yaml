@@ -40,26 +40,14 @@ visualizations:
 - name: br_particles_dfba.svg
   address: image:visualizations/br_particles_dfba.svg
   chart: image
-- name: br_particles_dfba_video.gif
-  address: image:charts/br_particles_dfba_video.gif
-  chart: image
-- name: br_particles_dfba_mass.png
-  address: image:charts/br_particles_dfba_mass.png
-  chart: image
 - name: br_particles_dfba_snapshots.png
   address: image:charts/br_particles_dfba_snapshots.png
   chart: image
 - name: br_particles_dfba_particles_traces.png
   address: image:charts/br_particles_dfba_particles_traces.png
   chart: image
-- name: br_particles_dfba_viz.png
-  address: image:charts/br_particles_dfba_viz.png
-  chart: image
-- name: br_particles_dfba_schema.json
-  address: image:charts/br_particles_dfba_schema.json
-  chart: image
-- name: br_particles_dfba_state.json
-  address: image:charts/br_particles_dfba_state.json
+- name: br_particles_dfba_mass.png
+  address: image:charts/br_particles_dfba_mass.png
   chart: image
 behavior_tests:
 - name: BR_PARTICLES_DFBA-REPRODUCES-REPORT

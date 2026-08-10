@@ -42,15 +42,6 @@ visualizations:
 - name: community_dfba.png
   address: image:charts/community_dfba.png
   chart: image
-- name: community_dfba_viz.png
-  address: image:charts/community_dfba_viz.png
-  chart: image
-- name: community_dfba_schema.json
-  address: image:charts/community_dfba_schema.json
-  chart: image
-- name: community_dfba_state.json
-  address: image:charts/community_dfba_state.json
-  chart: image
 behavior_tests:
 - name: COMMUNITY_DFBA-REPRODUCES-REPORT
   classification: regression

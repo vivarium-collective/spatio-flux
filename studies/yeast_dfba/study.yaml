@@ -42,15 +42,6 @@ visualizations:
 - name: yeast_dfba.png
   address: image:charts/yeast_dfba.png
   chart: image
-- name: yeast_dfba_viz.png
-  address: image:charts/yeast_dfba_viz.png
-  chart: image
-- name: yeast_dfba_schema.json
-  address: image:charts/yeast_dfba_schema.json
-  chart: image
-- name: yeast_dfba_state.json
-  address: image:charts/yeast_dfba_state.json
-  chart: image
 behavior_tests:
 - name: YEAST_DFBA-REPRODUCES-REPORT
   classification: regression

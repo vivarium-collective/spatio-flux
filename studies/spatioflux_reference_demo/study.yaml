@@ -45,26 +45,14 @@ visualizations:
 - name: spatioflux_reference_demo_timeseries.png
   address: image:charts/spatioflux_reference_demo_timeseries.png
   chart: image
+- name: spatioflux_reference_demo_snapshots.png
+  address: image:charts/spatioflux_reference_demo_snapshots.png
+  chart: image
 - name: spatioflux_reference_demo_mass.png
   address: image:charts/spatioflux_reference_demo_mass.png
   chart: image
 - name: spatioflux_reference_demo_mass_submasses.png
   address: image:charts/spatioflux_reference_demo_mass_submasses.png
-  chart: image
-- name: spatioflux_reference_demo_video.gif
-  address: image:charts/spatioflux_reference_demo_video.gif
-  chart: image
-- name: spatioflux_reference_demo_snapshots.png
-  address: image:charts/spatioflux_reference_demo_snapshots.png
-  chart: image
-- name: spatioflux_reference_demo_viz.png
-  address: image:charts/spatioflux_reference_demo_viz.png
-  chart: image
-- name: spatioflux_reference_demo_schema.json
-  address: image:charts/spatioflux_reference_demo_schema.json
-  chart: image
-- name: spatioflux_reference_demo_state.json
-  address: image:charts/spatioflux_reference_demo_state.json
   chart: image
 behavior_tests:
 - name: SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT

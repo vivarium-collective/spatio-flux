@@ -43,26 +43,14 @@ visualizations:
 - name: comets_nt_particles_dfba_timeseries.png
   address: image:charts/comets_nt_particles_dfba_timeseries.png
   chart: image
+- name: comets_nt_particles_dfba_snapshots.png
+  address: image:charts/comets_nt_particles_dfba_snapshots.png
+  chart: image
 - name: comets_nt_particles_dfba_mass.png
   address: image:charts/comets_nt_particles_dfba_mass.png
   chart: image
 - name: comets_nt_particles_dfba_mass_submasses.png
   address: image:charts/comets_nt_particles_dfba_mass_submasses.png
-  chart: image
-- name: comets_nt_particles_dfba_video.gif
-  address: image:charts/comets_nt_particles_dfba_video.gif
-  chart: image
-- name: comets_nt_particles_dfba_snapshots.png
-  address: image:charts/comets_nt_particles_dfba_snapshots.png
-  chart: image
-- name: comets_nt_particles_dfba_viz.png
-  address: image:charts/comets_nt_particles_dfba_viz.png
-  chart: image
-- name: comets_nt_particles_dfba_schema.json
-  address: image:charts/comets_nt_particles_dfba_schema.json
-  chart: image
-- name: comets_nt_particles_dfba_state.json
-  address: image:charts/comets_nt_particles_dfba_state.json
   chart: image
 behavior_tests:
 - name: COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT

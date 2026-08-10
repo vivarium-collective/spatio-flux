@@ -43,26 +43,14 @@ visualizations:
 - name: reference_demo_x2y2_timeseries.png
   address: image:charts/reference_demo_x2y2_timeseries.png
   chart: image
+- name: reference_demo_x2y2_snapshots.png
+  address: image:charts/reference_demo_x2y2_snapshots.png
+  chart: image
 - name: reference_demo_x2y2_mass.png
   address: image:charts/reference_demo_x2y2_mass.png
   chart: image
 - name: reference_demo_x2y2_mass_submasses.png
   address: image:charts/reference_demo_x2y2_mass_submasses.png
-  chart: image
-- name: reference_demo_x2y2_video.gif
-  address: image:charts/reference_demo_x2y2_video.gif
-  chart: image
-- name: reference_demo_x2y2_snapshots.png
-  address: image:charts/reference_demo_x2y2_snapshots.png
-  chart: image
-- name: reference_demo_x2y2_viz.png
-  address: image:charts/reference_demo_x2y2_viz.png
-  chart: image
-- name: reference_demo_x2y2_schema.json
-  address: image:charts/reference_demo_x2y2_schema.json
-  chart: image
-- name: reference_demo_x2y2_state.json
-  address: image:charts/reference_demo_x2y2_state.json
   chart: image
 behavior_tests:
 - name: REFERENCE_DEMO_X2Y2-REPRODUCES-REPORT
