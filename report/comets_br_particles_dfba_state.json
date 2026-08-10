@@ -1,6 +1,6 @@
 {
   "particles": {
-    "tC8LWY8r": {
+    "gPqaEcvn": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -83,12 +83,12 @@
           "amendments": []
         }
       },
-      "id": "tC8LWY8r",
+      "id": "gPqaEcvn",
       "position": [
-        1.4384701262430744,
-        25.85058832881124
+        47.320576818699436,
+        4.865659957329038
       ],
-      "mass": 0.01718946676436369,
+      "mass": 0.07315361067867047,
       "local": {},
       "exchange": {},
       "sub_masses": {},

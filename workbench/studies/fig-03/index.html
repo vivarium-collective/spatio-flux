@@ -139,6 +139,20 @@
 
 
 
+<div class="composite-lint-banner" role="alert"
+     style="margin:8px 0 14px 0;padding:10px 14px;background:#fffbeb;border:1px solid #f59e0b;border-left-width:5px;border-radius:6px;color:#92400e;font-size:0.9em">
+  
+  <div>⚠ composite not found in registry: <code>spatio_flux.composites.fig03a-process-graph</code></div>
+  
+  <div>⚠ composite not found in registry: <code>spatio_flux.composites.fig03b-composite-process</code></div>
+  
+  <div style="margin-top:4px;font-size:0.86em;color:#a16207">
+    This study references a composite that doesn't resolve — it may not declare a
+    real, registered composite. Add a <code>.composite.yaml</code> and register it
+    in <code>core.py</code>, or fix the ref.
+  </div>
+</div>
+
 
 
 
@@ -561,24 +575,24 @@
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="spatio_flux.composites.fig03a-process-graph" data-model-overrides='{}'>
+    <div class="cond-block" data-model-composite="spatio_flux.composites.fig03a-store" data-model-overrides='{}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <strong>3a-process-graph</strong>
+        <strong>3a-store</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig03a-process-graph</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig03a-store</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('spatio_flux.composites.fig03a-process-graph')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('spatio_flux.composites.fig03a-store')">🧬 explore &amp; run ↗</button>
         
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
-        <input type="text" class="baseline-composite-input" data-baseline-name="3a-process-graph"
-               value="spatio_flux.composites.fig03a-process-graph" placeholder="pkg.composites.name"
+        <input type="text" class="baseline-composite-input" data-baseline-name="3a-store"
+               value="spatio_flux.composites.fig03a-store" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
-                data-baseline-name="3a-process-graph">Set composite</button>
+                data-baseline-name="3a-store">Set composite</button>
       </div>
-      <div class="baseline-composite-status muted" data-baseline-name="3a-process-graph" style="font-size:0.8em;margin-top:2px"></div>
+      <div class="baseline-composite-status muted" data-baseline-name="3a-store" style="font-size:0.8em;margin-top:2px"></div>
       
       
       
@@ -596,24 +610,24 @@
       
     </div>
     
-    <div class="cond-block" data-model-composite="spatio_flux.composites.fig03b-composite-process" data-model-overrides='{}'>
+    <div class="cond-block" data-model-composite="spatio_flux.composites.fig03b-place-graph" data-model-overrides='{}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <strong>3b-composite-process</strong>
+        <strong>3b-place-graph</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig03b-composite-process</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig03b-place-graph</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('spatio_flux.composites.fig03b-composite-process')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('spatio_flux.composites.fig03b-place-graph')">🧬 explore &amp; run ↗</button>
         
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
-        <input type="text" class="baseline-composite-input" data-baseline-name="3b-composite-process"
-               value="spatio_flux.composites.fig03b-composite-process" placeholder="pkg.composites.name"
+        <input type="text" class="baseline-composite-input" data-baseline-name="3b-place-graph"
+               value="spatio_flux.composites.fig03b-place-graph" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
-                data-baseline-name="3b-composite-process">Set composite</button>
+                data-baseline-name="3b-place-graph">Set composite</button>
       </div>
-      <div class="baseline-composite-status muted" data-baseline-name="3b-composite-process" style="font-size:0.8em;margin-top:2px"></div>
+      <div class="baseline-composite-status muted" data-baseline-name="3b-place-graph" style="font-size:0.8em;margin-top:2px"></div>
       
       
       
@@ -965,7 +979,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "ea41633bf6102188fa336be2f068357b6a349ce4", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/ea41633bf6102188fa336be2f068357b6a349ce4", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-10 03:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "432b6050fa2e95aa67366f434a0b6895d5f35ca5", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/432b6050fa2e95aa67366f434a0b6895d5f35ca5", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-10 19:32 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "fig-03";

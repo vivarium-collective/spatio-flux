@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Ymk8tbE7": {
+    "eoO4BdlB": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -82,12 +82,12 @@
           "amendments": []
         }
       },
-      "id": "Ymk8tbE7",
+      "id": "eoO4BdlB",
       "position": [
-        41.245639012391095,
-        24.854156941371336
+        29.276832724027415,
+        15.256304343147582
       ],
-      "mass": 8.055475406886,
+      "mass": 4.719571143886746,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -1161,20 +1161,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     },
     "outputs": {
@@ -1197,8 +1197,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "particles": "node",
-          "fields": "node"
+          "fields": "node",
+          "particles": "node"
         },
         "outputs": {
           "results": "node"
