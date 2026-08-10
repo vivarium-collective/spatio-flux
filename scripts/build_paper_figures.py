@@ -127,6 +127,31 @@ def build_figure(study: str) -> Path | None:
     return out
 
 
+def _write_gallery(built: list[tuple[str, Path]]) -> Path:
+    """Emit a self-contained gallery page linking every stitched figure — the
+    investigation's 'Figures' view."""
+    cards = []
+    for study, out in built:
+        n = _fig_num(study)
+        cards.append(
+            f'<section style="margin:0 0 48px"><h2 style="font:600 20px system-ui;color:#111827;margin:0 0 10px">'
+            f'Figure {n}</h2>'
+            f'<img src="{out.name}" alt="Figure {n}" '
+            f'style="max-width:100%;border:1px solid #e5e7eb;border-radius:8px"/></section>'
+        )
+    html = (
+        '<!doctype html><meta charset="utf-8"><title>Paper figures</title>'
+        '<body style="max-width:1200px;margin:32px auto;padding:0 20px;background:#fff">'
+        '<h1 style="font:700 28px Georgia,serif;color:#111827">Process Bigraph paper — figures</h1>'
+        '<p style="color:#6b7280;font:14px system-ui">Publication-ready figures, each stitched from its '
+        'study\'s subpanels (see <code>scripts/build_paper_figures.py</code>).</p>'
+        + "".join(cards) + "</body>"
+    )
+    page = OUT / "index.html"
+    page.write_text(html, encoding="utf-8")
+    return page
+
+
 def main() -> None:
     inv = yaml.safe_load((INV / "investigation.yaml").read_text()) or {}
     studies = inv.get("studies") or []
@@ -138,10 +163,11 @@ def main() -> None:
         out = build_figure(s)
         if out:
             print(f"  OK  Figure {_fig_num(s)} -> {out.relative_to(WS)}")
-            built.append(out)
+            built.append((s, out))
         else:
             print(f"  skip {s}: no panels")
-    print(f"built {len(built)}/{len(studies)} figures into {OUT.relative_to(WS)}")
+    gallery = _write_gallery(built)
+    print(f"built {len(built)}/{len(studies)} figures + gallery {gallery.relative_to(WS)}")
 
 
 if __name__ == "__main__":
