@@ -246,25 +246,34 @@ def register_stitched_viz(study: str) -> bool:
     return True
 
 
-# Studies whose figure is composed from a hand-designed SVG scaffold (headers +
-# fixed panels kept, loom panels swapped in) rather than the default shelf-stitch.
-SCAFFOLD_STUDIES = {"fig-01": "build_figure1"}
+# Studies whose figure is composed from a hand-designed layout (fixed regions,
+# panels placed by a dedicated module) rather than the default shelf-stitch.
+# Fig 1 keeps a scaffold SVG (rasterized via node); Fig 7 places its panels into
+# the paper's fixed 4-region grid and emits both SVG + PNG itself.
+SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-07": "build_figure7"}
 
 
 def _build_scaffold_figure(study: str) -> bool:
-    """Compose a scaffold-based figure (e.g. Figure 1) via its dedicated module,
-    then rasterize the PNG twin (best-effort — the SVG is the source of truth)."""
+    """Compose a scaffold/hand-laid figure via its dedicated module. If the module
+    exposes a `build_figure<N>_png` twin it emits the PNG itself; otherwise the SVG
+    is rasterized via node (best-effort — the SVG is the source of truth)."""
     import importlib
     import subprocess
     mod = importlib.import_module(SCAFFOLD_STUDIES[study])
-    out = mod.build_figure1()  # writes studies/<study>/visualizations/figure_<N>.svg
-    png = out.with_suffix(".png")
-    try:
-        subprocess.run(
-            ["node", str(Path(__file__).resolve().parent / "rasterize_svg.mjs"), str(out), str(png), "2"],
-            check=True, capture_output=True, timeout=240)
-    except Exception as exc:  # node/playwright missing → keep the SVG, warn
-        print(f"     (figure PNG not rasterized: {exc}; run scripts/rasterize_svg.mjs)")
+    n = _fig_num(study)
+    build = getattr(mod, f"build_figure{n}")
+    out = build()  # writes studies/<study>/visualizations/figure_<N>.svg
+    png_builder = getattr(mod, f"build_figure{n}_png", None)
+    if png_builder is not None:
+        png_builder()  # module composites its own PNG twin
+    else:
+        png = out.with_suffix(".png")
+        try:
+            subprocess.run(
+                ["node", str(Path(__file__).resolve().parent / "rasterize_svg.mjs"), str(out), str(png), "2"],
+                check=True, capture_output=True, timeout=240)
+        except Exception as exc:  # node/playwright missing → keep the SVG, warn
+            print(f"     (figure PNG not rasterized: {exc}; run scripts/rasterize_svg.mjs)")
     return out.is_file()
 
 
