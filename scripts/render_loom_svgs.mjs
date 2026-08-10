@@ -6,12 +6,13 @@
 // `import 'playwright'` resolves:
 //   cd <loom-worktree>/vivarium_workbench/loom && node <abs>/render_loom_svgs.mjs
 import { createRequire } from 'module';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
-// playwright lives in the loom worktree's node_modules; resolve from there.
+// playwright + lz-string live in the loom worktree's node_modules; resolve there.
 const require = createRequire(
   '/Users/eranagmon/code/vivarium-workbench--loom-polish/vivarium_workbench/loom/package.json');
 const { chromium } = require('playwright');
+const LZ = require('lz-string');  // encode committed default views into ?view=
 
 // Override for a dashboard on a different port / a worktree: VW_BASE / VW_WS.
 const BASE = process.env.VW_BASE || 'http://127.0.0.1:8099';
@@ -54,6 +55,17 @@ for (const [slug, id, name, flags = {}] of JOBS) {
   // positions + detail + collapse) is applied on load; the render captures it.
   // Then the per-panel flags below are applied on top (they override the view).
   const params = ['tabs=explore,document', 'nopersist=1'];
+  // Embed the composite's COMMITTED default view (positions + saved detail mix)
+  // if one exists — this makes the render REPRODUCIBLE anywhere, independent of
+  // the machine-local .pbg/loom-views. Loaded via ?view= (highest priority); the
+  // per-panel flags below still override it (they apply after the view).
+  const viewFile = `${WS}/investigations/paper-figures/loom-views/${id}.json`;
+  if (existsSync(viewFile)) {
+    try {
+      const view = JSON.parse(readFileSync(viewFile, 'utf-8'));
+      params.push('view=' + LZ.compressToEncodedURIComponent(JSON.stringify(view)));
+    } catch { /* corrupt view file → fall back to the server default */ }
+  }
   if (flags.detail) params.push(`detail=${flags.detail}`);
   if (flags.collapse) params.push('collapse=1');
   if (flags.hyperedges) params.push('hyperedges=1');
