@@ -347,7 +347,9 @@ class AnalysisViz(DraftProcess):
     inputs={"in_1": "species", "in_2": "params"},
     outputs={"out_1": "ss_species", "out_2": "rates"},
     contract={
-        "summary": "process — (in_1, in_2) → (out_1, out_2)",
+        # Prose headline — NOT the update-function notation (that's the `math`
+        # block below), so the two don't read as duplicated.
+        "summary": "A process — typed input/output ports + an update function",
         "description": "A process is a rectangle with typed ports on its boundary: "
                        "inputs on the left, outputs on the right, each carrying a data "
                        "type. The update function maps inputs to outputs, informed by "
@@ -500,11 +502,12 @@ def fig02_bigraph_state() -> dict:
 
 
 def fig3a_store_state() -> dict:
-    """Fig 3a (store diagram, panel a): a SINGLE store shown in full detail — the
-    store ``cell`` holding an ``ecoli`` data type. A store holds any data type and
-    shows its name + the type it holds."""
+    """Fig 3a (store diagram, panel a): a SINGLE store shown in full detail, with
+    its three parts labelled literally so the diagram is self-documenting — the
+    store's NAME is ``name``, its VALUE is ``value``, and its TYPE is ``type``.
+    (The loom reads a typed store's display value from ``_default``.)"""
     return {
-        "cell": _v("ecoli", 0.0),
+        "name": {"_type": "type", "_default": "value"},
     }
 
 
