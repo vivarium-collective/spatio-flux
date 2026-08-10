@@ -18,13 +18,15 @@ const BASE = process.env.VW_BASE || 'http://127.0.0.1:8099';
 const WS = process.env.VW_WS || '/Users/eranagmon/code/spatio-flux';
 
 // [studySlug, compositeId, svgStem, flags?]
-//   flags: { detail: '<tier>', collapse: true, hyperedges: true }
+//   flags: { detail: '<tier>', collapse: true, hyperedges: true,
+//            ports: 'none'|'plain'|'types', config: 'on'|'off', contract: 'on'|'off' }
 // nopersist=1 always loads the composite's saved default view for POSITIONS;
 // these per-panel flags are applied ON TOP and OVERRIDE the saved view — so a
 // panel saved in one mode still renders collapsed / as hyperedges when flagged
 // (e.g. Fig 2a is the process-bigraph view saved in process mode, re-read as
 // hyperedges; fig07e collapses its 16 per-bin dFBA processes). `detail` pins the
-// loom detail tier ('' = Auto); layout is always computed at the `full` tier.
+// whole loom detail tier ('' = Auto); ports/config/contract force individual
+// Detail-menu features. Layout is always computed at the `full` tier.
 const JOBS = [
   ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes'],
   ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite', 'fig01b-multiscale-composite'],
@@ -55,6 +57,9 @@ for (const [slug, id, name, flags = {}] of JOBS) {
   if (flags.detail) params.push(`detail=${flags.detail}`);
   if (flags.collapse) params.push('collapse=1');
   if (flags.hyperedges) params.push('hyperedges=1');
+  if (flags.ports) params.push(`ports=${flags.ports}`);
+  if (flags.config) params.push(`config=${flags.config}`);
+  if (flags.contract) params.push(`contract=${flags.contract}`);
   const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&${params.join('&')}`;
   const outPng = `${WS}/studies/${slug}/visualizations/${name}.png`;
   try {
