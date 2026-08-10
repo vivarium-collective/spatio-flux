@@ -42,7 +42,9 @@ const JOBS = [
   // Fig 4 = a single process schematic (typed ports + update function), full detail.
   ['fig-04', 'spatio_flux.composites.fig04-process', 'fig04-process', { detail: 'full' }],
   // Fig 7 is one study with three panels (7.1/7.2/7.3).
-  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba'],
+  // 7a: hub-and-spoke — fields hub over a species-store row over a dFBA-process
+  // row (committed view positions it; ports tier keeps the process boxes compact).
+  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports' }],
   // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.
   ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { collapse: true }],
   ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles'],
