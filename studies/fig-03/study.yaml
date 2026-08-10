@@ -7,8 +7,11 @@ status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 3 — process graph + composite process depict, and does its bigraph-loom image generate?
-  mechanism: A process graph (metabolism + gene expression over metab/enzymes/DNA) and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport), rendered in bigraph-loom.
+  question: What does Fig 3 — process graph + composite process depict, and does its
+    bigraph-loom image generate?
+  mechanism: A process graph (metabolism + gene expression over metab/enzymes/DNA)
+    and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport),
+    rendered in bigraph-loom.
   expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
 baseline:
 - name: 3a-process-graph
@@ -25,6 +28,9 @@ visualizations:
   chart: image
 - name: fig03b-composite-process.svg
   address: image:visualizations/fig03b-composite-process.svg
+  chart: image
+- name: Figure 3 (composite)
+  address: image:visualizations/figure_3.svg
   chart: image
 variants: []
 interventions: []
