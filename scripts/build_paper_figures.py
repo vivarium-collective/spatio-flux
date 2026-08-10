@@ -246,6 +246,28 @@ def register_stitched_viz(study: str) -> bool:
     return True
 
 
+# Studies whose figure is composed from a hand-designed SVG scaffold (headers +
+# fixed panels kept, loom panels swapped in) rather than the default shelf-stitch.
+SCAFFOLD_STUDIES = {"fig-01": "build_figure1"}
+
+
+def _build_scaffold_figure(study: str) -> bool:
+    """Compose a scaffold-based figure (e.g. Figure 1) via its dedicated module,
+    then rasterize the PNG twin (best-effort — the SVG is the source of truth)."""
+    import importlib
+    import subprocess
+    mod = importlib.import_module(SCAFFOLD_STUDIES[study])
+    out = mod.build_figure1()  # writes studies/<study>/visualizations/figure_<N>.svg
+    png = out.with_suffix(".png")
+    try:
+        subprocess.run(
+            ["node", str(Path(__file__).resolve().parent / "rasterize_svg.mjs"), str(out), str(png), "2"],
+            check=True, capture_output=True, timeout=240)
+    except Exception as exc:  # node/playwright missing → keep the SVG, warn
+        print(f"     (figure PNG not rasterized: {exc}; run scripts/rasterize_svg.mjs)")
+    return out.is_file()
+
+
 def main() -> None:
     inv = yaml.safe_load((INV / "investigation.yaml").read_text()) or {}
     studies = inv.get("studies") or []
@@ -254,6 +276,14 @@ def main() -> None:
         sys.exit(1)
     built = 0
     for s in studies:
+        if s in SCAFFOLD_STUDIES:
+            if _build_scaffold_figure(s):
+                register_stitched_viz(s)
+                print(f"  OK  Figure {_fig_num(s)} -> scaffold-composed ({SCAFFOLD_STUDIES[s]}.py)")
+                built += 1
+            else:
+                print(f"  skip {s}: scaffold compose failed")
+            continue
         svg = build_figure(s)
         png = build_figure_png(s)
         if svg and png:
