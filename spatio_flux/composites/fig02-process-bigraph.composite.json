@@ -1,145 +1,175 @@
 {
   "name": "fig02-process-bigraph",
-  "description": "Fig 2 \u2014 Process bigraph (Fig 2b): the same metabolism + gene-expression process graph used in Fig 3a \u2014 a metabolism process and a gene-expression process over shared metab / enzymes / DNA stores \u2014 contrasted with a static Milner bigraph (Fig 2a).",
+  "description": "Fig 2 \u2014 Process bigraph (Fig 2b): place-graph nodes n1..n6 with processes p1, p2, p3 connecting them through typed ports \u2014 the process-graph replacement for the Milner link graph's hyperedges (Fig 2a).",
   "tags": [
     "paper-figure",
     "draft",
     "fig-2"
   ],
   "state": {
-    "metab": {
-      "_type": "concentration",
-      "_value": 5.0
+    "n1": {
+      "n3": {
+        "_type": "node",
+        "_value": 0.0
+      },
+      "n4": {
+        "n6": {
+          "_type": "node",
+          "_value": 0.0
+        }
+      }
     },
-    "enzymes": {
-      "_type": "concentration",
-      "_value": 1.0
+    "n2": {
+      "n5": {
+        "_type": "node",
+        "_value": 0.0
+      }
     },
-    "DNA": {
-      "_type": "concentration",
-      "_value": 1.0
-    },
-    "metabolism": {
+    "p1": {
       "_type": "process",
-      "address": "local:MetabolismGraph",
+      "address": "local:BigraphLink",
       "_draft": true,
       "config": {
         "interval": 1.0,
-        "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
         "contract": {
-          "status": "draft - no update dynamics yet",
-          "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
-          "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
-          "math": [
-            "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
-          ],
-          "symbols": {
-            "k_cat": "turnover number",
-            "K_m": "Michaelis constant"
-          },
+          "status": "draft - no update",
+          "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+          "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
           "ports": {
-            "substrates": "substrate pool",
-            "enzymes": "enzyme levels",
-            "products": "product pool"
+            "in": "a node this process reads",
+            "out": "a node this process writes"
           }
         }
       },
       "_inputs": {
-        "substrates": "concentration",
-        "enzymes": "concentration"
+        "in": "node"
       },
       "_outputs": {
-        "products": "concentration"
+        "out": "node"
       },
       "_contract": {
-        "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
-        "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
-        "status": "draft - no update dynamics yet",
-        "math": [
-          "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
-        ],
-        "symbols": {
-          "k_cat": "turnover number",
-          "K_m": "Michaelis constant"
-        },
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+        "status": "draft - no update",
+        "math": [],
+        "symbols": {},
         "inputs": {
-          "substrates": "substrate pool",
-          "enzymes": "enzyme levels"
+          "in": "a node this process reads"
         },
         "outputs": {
-          "products": "product pool"
+          "out": "a node this process writes"
         }
       },
       "inputs": {
-        "substrates": [
-          "metab"
-        ],
-        "enzymes": [
-          "enzymes"
+        "in": [
+          "n1"
         ]
       },
       "outputs": {
-        "products": [
-          "metab"
+        "out": [
+          "n1",
+          "n3"
         ]
       }
     },
-    "gene_expression": {
+    "p2": {
       "_type": "process",
-      "address": "local:GeneExpressionGraph",
+      "address": "local:BigraphLink",
       "_draft": true,
       "config": {
         "interval": 1.0,
-        "summary": "Gene expression \u2014 genes \u2192 enzymes",
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
         "contract": {
-          "status": "draft - no update dynamics yet",
-          "summary": "Gene expression \u2014 genes \u2192 enzymes",
-          "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
-          "math": [
-            "\\frac{d[\\text{enzymes}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{enzymes}]"
-          ],
-          "symbols": {
-            "k_expr": "expression rate",
-            "\u03b3": "enzyme turnover"
-          },
+          "status": "draft - no update",
+          "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+          "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
           "ports": {
-            "genes": "gene / DNA template",
-            "enzymes": "produced enzymes"
+            "in": "a node this process reads",
+            "out": "a node this process writes"
           }
         }
       },
       "_inputs": {
-        "genes": "concentration"
+        "in": "node"
       },
       "_outputs": {
-        "enzymes": "concentration"
+        "out": "node"
       },
       "_contract": {
-        "summary": "Gene expression \u2014 genes \u2192 enzymes",
-        "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
-        "status": "draft - no update dynamics yet",
-        "math": [
-          "\\frac{d[\\text{enzymes}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{enzymes}]"
-        ],
-        "symbols": {
-          "k_expr": "expression rate",
-          "\u03b3": "enzyme turnover"
-        },
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+        "status": "draft - no update",
+        "math": [],
+        "symbols": {},
         "inputs": {
-          "genes": "gene / DNA template"
+          "in": "a node this process reads"
         },
         "outputs": {
-          "enzymes": "produced enzymes"
+          "out": "a node this process writes"
         }
       },
       "inputs": {
-        "genes": [
-          "DNA"
+        "in": [
+          "n1",
+          "n3"
         ]
       },
       "outputs": {
-        "enzymes": [
-          "enzymes"
+        "out": [
+          "n1",
+          "n4",
+          "n6"
+        ]
+      }
+    },
+    "p3": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+          "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+          "ports": {
+            "in": "a node this process reads",
+            "out": "a node this process writes"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "node"
+      },
+      "_outputs": {
+        "out": "node"
+      },
+      "_contract": {
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+        "status": "draft - no update",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "a node this process reads"
+        },
+        "outputs": {
+          "out": "a node this process writes"
+        }
+      },
+      "inputs": {
+        "in": [
+          "n2",
+          "n5"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "n1",
+          "n4",
+          "n6"
         ]
       }
     },

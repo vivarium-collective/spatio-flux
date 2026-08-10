@@ -26,6 +26,7 @@ _EXTRA_TYPES = {
     "volume":     {"_inherit": "float"},
     "cell_count": {"_inherit": "float"},
     "phase":      {"_inherit": "float"},
+    "node":       {"_inherit": "float"},   # abstract bigraph node (Fig 2)
 }
 
 
@@ -286,6 +287,23 @@ class Transport(DraftProcess):
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
+@draft_process(
+    name="BigraphLink",
+    inputs={"in": "node"},
+    outputs={"out": "node"},
+    contract={
+        "summary": "Process p — connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the "
+                       "place graph through its typed ports, replacing a Milner "
+                       "hyperedge in the link graph.",
+        "status": "draft - no update",
+        "ports": {"in": "a node this process reads", "out": "a node this process writes"},
+    },
+)
+class BigraphLink(DraftProcess):
+    pass
+
+
 def _v(type_name: str, value: float) -> dict:
     return {"_type": type_name, "_value": float(value)}
 
@@ -356,6 +374,24 @@ def fig1b_multiscale_state() -> dict:
             "diffusion": _proc(Diffusion, {"field": ["fields"]}, {"field": ["fields"]}),
             "abm": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
         },
+    }
+
+
+def fig02_bigraph_state() -> dict:
+    """Fig 2b: the process bigraph of the paper's composition-framework diagram.
+
+    Place graph (solid nesting): n1 ⊃ {n3, n4}, n4 ⊃ {n6}, n2 ⊃ {n5}.
+    Processes p1, p2, p3 replace the Milner link graph's hyperedges, connecting
+    the nodes through their typed ports (dashed wires in the figure).
+    """
+    return {
+        # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
+        "n1": {"n3": _v("node", 0.0), "n4": {"n6": _v("node", 0.0)}},
+        "n2": {"n5": _v("node", 0.0)},
+        # Processes wired across the place graph (paths into the nesting).
+        "p1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"]}),
+        "p2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
+        "p3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"]}),
     }
 
 

@@ -29,12 +29,12 @@ SPECS = [
      "The multiscale draft composite: tissue ⊃ {fields, cell_population, cells ⊃ "
      "cell ⊃ molecules}. Molecular ODEs, FBA metabolism, structural packing, "
      "growth/division, and tissue-scale diffusion + ABM — all draft processes."),
-    # Fig 2b (the process bigraph) IS the process graph — same generator as Fig 3a,
-    # exported under its own fig02 name so the study links coherently by figure.
-    ("fig02-process-bigraph", "Fig 2", pf.fig3a_process_graph_state, True,
-     "Process bigraph (Fig 2b): the same metabolism + gene-expression process graph "
-     "used in Fig 3a — a metabolism process and a gene-expression process over shared "
-     "metab / enzymes / DNA stores — contrasted with a static Milner bigraph (Fig 2a)."),
+    # Fig 2b: the paper's process-bigraph diagram — abstract nodes n1..n6 (place
+    # graph) with processes p1,p2,p3 replacing the Milner hyperedges.
+    ("fig02-process-bigraph", "Fig 2", pf.fig02_bigraph_state, True,
+     "Process bigraph (Fig 2b): place-graph nodes n1..n6 with processes p1, p2, p3 "
+     "connecting them through typed ports — the process-graph replacement for the "
+     "Milner link graph's hyperedges (Fig 2a)."),
     ("fig03a-process-graph", "Fig 3a", pf.fig3a_process_graph_state, True,
      "Process graph: a metabolism process (substrates + enzymes → products) and a "
      "gene-expression process (genes → enzymes) over shared metab / enzymes / DNA "
@@ -64,7 +64,7 @@ def main() -> None:
     # types can be left unresolved on the core; a DIRECT register_type resolves
     # them. Force-register so Composite validation finds them. (The dashboard
     # renders the written static spec verbatim, so this only affects validation.)
-    for _name in ("energy", "volume", "cell_count", "phase"):
+    for _name in ("energy", "volume", "cell_count", "phase", "node"):
         try:
             core.register_type(_name, {"_inherit": "float"})
         except Exception:
