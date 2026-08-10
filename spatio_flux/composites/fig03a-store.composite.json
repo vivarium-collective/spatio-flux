@@ -7,9 +7,9 @@
     "fig-3a"
   ],
   "state": {
-    "cell": {
-      "_type": "ecoli",
-      "_value": 0.0
+    "name": {
+      "_type": "type",
+      "_default": "value"
     }
   }
 }
