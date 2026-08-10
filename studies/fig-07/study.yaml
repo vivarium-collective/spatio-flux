@@ -52,6 +52,9 @@ visualizations:
 - name: 7h-brownian-traces.png
   address: image:visualizations/fig07h-brownian-traces.png
   chart: image
+- name: Figure 7 (composite)
+  address: image:visualizations/figure_7.svg
+  chart: image
 variants: []
 interventions: []
 runs:

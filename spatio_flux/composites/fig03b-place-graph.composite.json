@@ -1,0 +1,31 @@
+{
+  "name": "fig03b-place-graph",
+  "description": "Fig 3b \u2014 Store diagram (b): a place graph of nested stores \u2014 cell \u2283 {nuc, cyto \u2283 ribo, mucin}, with EPS a sibling of cell (outer stores connect to inner stores).",
+  "tags": [
+    "paper-figure",
+    "draft",
+    "fig-3b"
+  ],
+  "state": {
+    "cell": {
+      "nuc": {
+        "_type": "concentration",
+        "_value": 0.0
+      },
+      "cyto": {
+        "ribo": {
+          "_type": "concentration",
+          "_value": 0.0
+        }
+      },
+      "mucin": {
+        "_type": "concentration",
+        "_value": 0.0
+      }
+    },
+    "EPS": {
+      "_type": "concentration",
+      "_value": 0.0
+    }
+  }
+}

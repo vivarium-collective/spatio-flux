@@ -6,43 +6,82 @@
 // `import 'playwright'` resolves:
 //   cd <loom-worktree>/vivarium_workbench/loom && node <abs>/render_loom_svgs.mjs
 import { createRequire } from 'module';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
-// playwright lives in the loom worktree's node_modules; resolve from there.
+// playwright + lz-string live in the loom worktree's node_modules; resolve there.
 const require = createRequire(
   '/Users/eranagmon/code/vivarium-workbench--loom-polish/vivarium_workbench/loom/package.json');
 const { chromium } = require('playwright');
+const LZ = require('lz-string');  // encode committed default views into ?view=
 
-const BASE = 'http://127.0.0.1:8099';
-const WS = '/Users/eranagmon/code/spatio-flux';
+// Override for a dashboard on a different port / a worktree: VW_BASE / VW_WS.
+const BASE = process.env.VW_BASE || 'http://127.0.0.1:8099';
+const WS = process.env.VW_WS || '/Users/eranagmon/code/spatio-flux';
 
-// [studySlug, compositeId, svgStem, detail?]  — detail pins the loom detail
-// tier for the render ('' = Auto). Layout is always computed at the `full` tier,
-// so detail only changes card content, not spacing — compactness comes from the
-// composite's own size (see fig-08's schematic 4x4 grid in the export script).
+// [studySlug, compositeId, svgStem, flags?]
+//   flags: { detail: '<tier>', collapse: true, hyperedges: true,
+//            ports: 'none'|'plain'|'types', config: 'on'|'off', contract: 'on'|'off' }
+// nopersist=1 always loads the composite's saved default view for POSITIONS;
+// these per-panel flags are applied ON TOP and OVERRIDE the saved view — so a
+// panel saved in one mode still renders collapsed / as hyperedges when flagged
+// (e.g. Fig 2a is the process-bigraph view saved in process mode, re-read as
+// hyperedges; fig07e collapses its 16 per-bin dFBA processes). `detail` pins the
+// whole loom detail tier ('' = Auto); ports/config/contract force individual
+// Detail-menu features. Layout is always computed at the `full` tier.
 const JOBS = [
-  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',        'fig01a-draft-processes'],
-  ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite',    'fig01b-multiscale-composite'],
-  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',          'fig02-process-bigraph'],
-  ['fig-03', 'spatio_flux.composites.fig03a-process-graph',           'fig03a-process-graph'],
-  ['fig-03', 'spatio_flux.composites.fig03b-composite-process',       'fig03b-composite-process'],
-  // Fig 7 is one study with three panels/runs (7.1/7.2/7.3).
-  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',     'fig07-1-community-dfba'],
-  ['fig-07', 'spatio_flux.composites.fig07-2-comets',            'fig07-2-comets'],
+  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes'],
+  ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite', 'fig01b-multiscale-composite'],
+  // 1c: served as a GENERATOR (not the static spec) so each simulation resolves
+  // as a drillable sub-composite — the loom flags the sim nodes is_composite_process
+  // and renders their inner-composite previews. Full tier shows the previews.
+  ['fig-01', 'spatio_flux.composites.figures.fig01c-study-workflow', 'fig01c-study-workflow', { detail: 'full' }],
+  // Fig 2: one composite rendered two ways — 2a Milner hyperedges, 2b processes.
+  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02a-hyperedges', { hyperedges: true }],
+  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes'],
+  // Fig 3 = store diagrams: 3a a single store in full detail (name + type),
+  // 3b a place graph of nested stores.
+  ['fig-03', 'spatio_flux.composites.fig03a-store',       'fig03a-store', { detail: 'full', stores: 'type' }],
+  ['fig-03', 'spatio_flux.composites.fig03b-place-graph', 'fig03b-place-graph'],
+  // Fig 4 = a single process schematic (typed ports + update function), full detail.
+  ['fig-04', 'spatio_flux.composites.fig04-process', 'fig04-process', { detail: 'full' }],
+  // Fig 7 is one study with three panels (7.1/7.2/7.3).
+  // 7a: hub-and-spoke — fields hub over a species-store row over a dFBA-process
+  // row (committed view positions it; ports tier keeps the process boxes compact).
+  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports' }],
+  // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.
+  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { collapse: true }],
   ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles'],
-  ['fig-08',   'spatio_flux.composites.fig08-reference-model',      'fig08-reference-model'],
+  ['fig-08', 'spatio_flux.composites.fig08-reference-model',       'fig08-reference-model'],
 ];
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1700, height: 1200 }, deviceScaleFactor: 2 });
 let ok = 0;
-for (const [slug, id, name, detail] of JOBS) {
+for (const [slug, id, name, flags = {}] of JOBS) {
   const out = `${WS}/studies/${slug}/visualizations/${name}.svg`;
   // nopersist=1 → the render never writes layouts back (so it can't clobber the
   // user's saved default view). The composite's workspace default view (mode +
   // positions + detail + collapse) is applied on load; the render captures it.
-  const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&tabs=explore,document&nopersist=1`
-    + (detail ? `&detail=${detail}` : '');
+  // Then the per-panel flags below are applied on top (they override the view).
+  const params = ['tabs=explore,document', 'nopersist=1'];
+  // Embed the composite's COMMITTED default view (positions + saved detail mix)
+  // if one exists — this makes the render REPRODUCIBLE anywhere, independent of
+  // the machine-local .pbg/loom-views. Loaded via ?view= (highest priority); the
+  // per-panel flags below still override it (they apply after the view).
+  const viewFile = `${WS}/investigations/paper-figures/loom-views/${id}.json`;
+  if (existsSync(viewFile)) {
+    try {
+      const view = JSON.parse(readFileSync(viewFile, 'utf-8'));
+      params.push('view=' + LZ.compressToEncodedURIComponent(JSON.stringify(view)));
+    } catch { /* corrupt view file → fall back to the server default */ }
+  }
+  if (flags.detail) params.push(`detail=${flags.detail}`);
+  if (flags.collapse) params.push('collapse=1');
+  if (flags.hyperedges) params.push('hyperedges=1');
+  if (flags.ports) params.push(`ports=${flags.ports}`);
+  if (flags.config) params.push(`config=${flags.config}`);
+  if (flags.contract) params.push(`contract=${flags.contract}`);
+  const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&${params.join('&')}`;
   const outPng = `${WS}/studies/${slug}/visualizations/${name}.png`;
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });

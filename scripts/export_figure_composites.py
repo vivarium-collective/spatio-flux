@@ -56,6 +56,73 @@ def _sanitize(node):
     return node
 
 
+def _resolve_defaults(node):
+    """Unwrap `make_default(type, value)` → value. Composition schemas wrap every
+    process field as `{"_type": t, "_default": v}`; the loom (and the fig07 exports)
+    expect the resolved plain values (address="local:X", inputs={...}). A dict whose
+    keys are EXACTLY {_type, _default} is such a wrapper; anything else (e.g. a
+    process node `{_type: process, address, ...}`) is real state — recurse into it."""
+    if isinstance(node, dict):
+        if set(node.keys()) == {"_type", "_default"}:
+            return _resolve_defaults(node["_default"])
+        return {k: _resolve_defaults(v) for k, v in node.items()}
+    if isinstance(node, list):
+        return [_resolve_defaults(v) for v in node]
+    return node
+
+
+def _materialize_map_compositions(state, schema):
+    """Inject a composition schema's per-entry processes into the exported state so
+    they render as explicit loom nodes.
+
+    A composition like `get_community_dfba_particle_composition` declares
+    `{"particles": {"_type": "map", "_value": {<per-particle processes>}}}` — the
+    per-submass dFBA processes + aggregate_mass step live in the particle *type*
+    (`_value`), not in the state tree, so a state-only snapshot drops them. Here we
+    copy that `_value` composition into every entry of `state[store]` (resolving the
+    make_default wrappers), which is exactly the structure each entry is given at
+    runtime — keeping Fig 8a's schematic identical to the model that runs 8b."""
+    import copy
+    if not isinstance(schema, dict):
+        return state
+    for store, sch in schema.items():
+        if not (isinstance(sch, dict) and sch.get("_type") == "map"):
+            continue
+        value_t = _resolve_defaults(sch.get("_value"))
+        entries = state.get(store)
+        if not (isinstance(value_t, dict) and isinstance(entries, dict)):
+            continue
+        for entry in entries.values():
+            if not isinstance(entry, dict):
+                continue
+            for key, node in value_t.items():
+                if key not in entry:  # never clobber instance data (e.g. sub_masses values)
+                    entry[key] = copy.deepcopy(node)
+            _backfill_wire_targets(entry, value_t)
+    return state
+
+
+def _backfill_wire_targets(entry, processes):
+    """Ensure sibling stores referenced by the injected processes exist, so the
+    materialized dFBA/aggregate nodes don't render with dangling edges. A wire path
+    like `["local"]` or `["exchange"]` names a store the composition would provide at
+    runtime (empty substrate stores); add any missing single-hop target as `{}`."""
+    def wire_heads(wires):
+        heads = []
+        if isinstance(wires, dict):
+            for w in wires.values():
+                heads += wire_heads(w)
+        elif isinstance(wires, list) and wires and all(isinstance(x, str) for x in wires):
+            heads.append(wires[0])
+        return heads
+    for node in processes.values():
+        if not (isinstance(node, dict) and node.get("_type") in ("process", "step")):
+            continue
+        for head in wire_heads(node.get("inputs")) + wire_heads(node.get("outputs")):
+            if head not in entry:
+                entry[head] = {}
+
+
 def main() -> None:
     for gen_name, (stem, figure, desc, overrides) in TARGETS.items():
         core = allocate_core()
@@ -69,6 +136,11 @@ def main() -> None:
             state = doc.get("state", doc) if isinstance(doc, dict) else doc
             schema = doc.get("schema") if isinstance(doc, dict) else None
             Composite({"state": state, **({"composition": schema} if schema else {})}, core=core)
+            # Materialize any map-store composition (e.g. the reference model's
+            # per-particle dFBA processes + aggregate_mass) into the exported state
+            # so they render as explicit loom nodes rather than being lost with the
+            # discarded schema.
+            state = _materialize_map_compositions(state, schema)
             spec = {
                 "name": stem,
                 "description": f"{figure} — {desc}",

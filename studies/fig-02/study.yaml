@@ -7,8 +7,11 @@ status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 2 — Milner bigraph (a) + process bigraph (b) depict, and does its bigraph-loom image generate?
-  mechanism: Contrasts a Milner bigraph (a) with a process bigraph (b). The process-bigraph panel is illustrated by the process graph (metabolism + gene expression over shared stores), rendered in bigraph-loom.
+  question: What does Fig 2 — Milner bigraph (a) + process bigraph (b) depict, and
+    does its bigraph-loom image generate?
+  mechanism: Contrasts a Milner bigraph (a) with a process bigraph (b). The process-bigraph
+    panel is illustrated by the process graph (metabolism + gene expression over shared
+    stores), rendered in bigraph-loom.
   expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
 baseline:
 - name: 2b-process-bigraph
@@ -17,8 +20,14 @@ baseline:
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
-- name: fig02-process-bigraph.svg
-  address: image:visualizations/fig02-process-bigraph.svg
+- name: 2a — Milner hyperedges
+  address: image:visualizations/fig02a-hyperedges.svg
+  chart: image
+- name: 2b — process bigraph
+  address: image:visualizations/fig02b-processes.svg
+  chart: image
+- name: Figure 2 (composite)
+  address: image:visualizations/figure_2.svg
   chart: image
 variants: []
 interventions: []

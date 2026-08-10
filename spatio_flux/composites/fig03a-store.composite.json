@@ -1,0 +1,15 @@
+{
+  "name": "fig03a-store",
+  "description": "Fig 3a \u2014 Store diagram (a): a single store `cell` holding an `ecoli` data type, shown in full detail \u2014 a store holds any data type and shows its name + type.",
+  "tags": [
+    "paper-figure",
+    "draft",
+    "fig-3a"
+  ],
+  "state": {
+    "cell": {
+      "_type": "ecoli",
+      "_value": 0.0
+    }
+  }
+}

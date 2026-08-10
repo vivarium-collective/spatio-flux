@@ -7,8 +7,11 @@ status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 1 — draft processes + multiscale composite depict, and does its bigraph-loom image generate?
-  mechanism: Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen Gradient, Multicellular Interactions) and the multiscale draft composite (tissue > cells > cell > molecules), rendered in bigraph-loom.
+  question: What does Fig 1 — draft processes + multiscale composite depict, and does
+    its bigraph-loom image generate?
+  mechanism: Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen
+    Gradient, Multicellular Interactions) and the multiscale draft composite (tissue
+    > cells > cell > molecules), rendered in bigraph-loom.
   expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
 baseline:
 - name: 1a-draft-processes
@@ -25,6 +28,12 @@ visualizations:
   chart: image
 - name: fig01b-multiscale-composite.svg
   address: image:visualizations/fig01b-multiscale-composite.svg
+  chart: image
+- name: 1c — study workflow
+  address: image:visualizations/fig01c-study-workflow.svg
+  chart: image
+- name: Figure 1 (composite)
+  address: image:visualizations/figure_1.svg
   chart: image
 variants: []
 interventions: []

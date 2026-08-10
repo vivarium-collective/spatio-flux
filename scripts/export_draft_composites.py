@@ -29,19 +29,27 @@ SPECS = [
      "The multiscale draft composite: tissue ⊃ {fields, cell_population, cells ⊃ "
      "cell ⊃ molecules}. Molecular ODEs, FBA metabolism, structural packing, "
      "growth/division, and tissue-scale diffusion + ABM — all draft processes."),
+    ("fig01c-study-workflow", "Fig 1c", pf.fig1c_study_workflow_state, False,
+     "A study workflow: a draft Preprocess step feeds three parallel community-dFBA "
+     "simulations (real, zoomable composites — the same real study template ×3); "
+     "their outputs feed a draft Analysis + Visualization step. Pre/post are draft; "
+     "the parallel simulations are a real composite."),
     # Fig 2b: the paper's process-bigraph diagram — abstract nodes n1..n6 (place
     # graph) with processes p1,p2,p3 replacing the Milner hyperedges.
     ("fig02-process-bigraph", "Fig 2", pf.fig02_bigraph_state, True,
      "Process bigraph (Fig 2b): place-graph nodes n1..n6 with processes p1, p2, p3 "
      "connecting them through typed ports — the process-graph replacement for the "
      "Milner link graph's hyperedges (Fig 2a)."),
-    ("fig03a-process-graph", "Fig 3a", pf.fig3a_process_graph_state, True,
-     "Process graph: a metabolism process (substrates + enzymes → products) and a "
-     "gene-expression process (genes → enzymes) over shared metab / enzymes / DNA "
-     "stores."),
-    ("fig03b-composite-process", "Fig 3b", pf.fig3b_composite_process_state, True,
-     "Composite process — the `cell`: cyto ⊃ {rib, nuc ⊃ DNA}, mem ⊃ chnl, with "
-     "grow / express / transport processes and nutrient/signal inputs + shape output."),
+    ("fig03a-store", "Fig 3a", pf.fig3a_store_state, False,
+     "Store diagram (a): a single store `cell` holding an `ecoli` data type, shown "
+     "in full detail — a store holds any data type and shows its name + type."),
+    ("fig03b-place-graph", "Fig 3b", pf.fig3b_place_graph_state, False,
+     "Store diagram (b): a place graph of nested stores — cell ⊃ {nuc, cyto ⊃ ribo, "
+     "mucin}, with EPS a sibling of cell (outer stores connect to inner stores)."),
+    ("fig04-process", "Fig 4", pf.fig04_process_state, False,
+     "Process diagram: one process as a rectangle with typed ports on its boundary — "
+     "inputs in_1 (species), in_2 (params) left; outputs out_1 (ss_species), out_2 "
+     "(rates) right; config type steady_state; update (in_1, in_2) → (out_1, out_2)."),
 ]
 
 
@@ -64,7 +72,8 @@ def main() -> None:
     # types can be left unresolved on the core; a DIRECT register_type resolves
     # them. Force-register so Composite validation finds them. (The dashboard
     # renders the written static spec verbatim, so this only affects validation.)
-    for _name in ("energy", "volume", "cell_count", "phase", "place_node"):
+    for _name in ("energy", "volume", "cell_count", "phase", "place_node", "ecoli",
+                  "species", "params", "ss_species", "rates", "steady_state"):
         try:
             core.register_type(_name, {"_inherit": "float"})
         except Exception:

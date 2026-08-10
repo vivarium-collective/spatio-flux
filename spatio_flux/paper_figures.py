@@ -12,6 +12,9 @@ biological/physical types the drafts use are available on every core.
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from process_bigraph import DraftProcess, draft_process
 
 
@@ -304,6 +307,61 @@ class BigraphLink(DraftProcess):
     pass
 
 
+# ── Fig 1c: study-workflow steps (draft pre/post around real simulations) ─────
+@draft_process(
+    name="Preprocess",
+    inputs={"raw": "concentration"},
+    outputs={"conditions": "concentration"},
+    contract={
+        "summary": "Pre-processing — prepare the simulation conditions",
+        "description": "The workflow's pre-step: reads the raw study inputs and "
+                       "derives the initial conditions / parameters shared by the "
+                       "parallel simulation ensemble.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"raw": "raw study inputs", "conditions": "prepared simulation conditions"},
+    },
+)
+class Preprocess(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="AnalysisViz",
+    inputs={"runs": "concentration"},
+    outputs={"figure": "concentration"},
+    contract={
+        "summary": "Analysis + visualization of the simulation ensemble",
+        "description": "The workflow's post-step: aggregates the outputs of the "
+                       "parallel simulations and renders the analysis + figure.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"runs": "the parallel simulation outputs", "figure": "analysis + visualization"},
+    },
+)
+class AnalysisViz(DraftProcess):
+    pass
+
+
+# ── Fig 4: the process schematic (typed ports + update function) ──────────────
+@draft_process(
+    name="ProcessSchematic",
+    inputs={"in_1": "species", "in_2": "params"},
+    outputs={"out_1": "ss_species", "out_2": "rates"},
+    contract={
+        "summary": "process — (in_1, in_2) → (out_1, out_2)",
+        "description": "A process is a rectangle with typed ports on its boundary: "
+                       "inputs on the left, outputs on the right, each carrying a data "
+                       "type. The update function maps inputs to outputs, informed by "
+                       "its config (type steady_state).",
+        "status": "draft - no update dynamics yet",
+        "math": [r"(\mathrm{in}_1,\ \mathrm{in}_2)\ \rightarrow\ (\mathrm{out}_1,\ \mathrm{out}_2)"],
+        "ports": {"in_1": "species", "in_2": "params",
+                  "out_1": "steady-state species", "out_2": "rates"},
+    },
+)
+class ProcessSchematic(DraftProcess):
+    pass
+
+
 def _v(type_name: str, value: float) -> dict:
     return {"_type": type_name, "_value": float(value)}
 
@@ -377,6 +435,52 @@ def fig1b_multiscale_state() -> dict:
     }
 
 
+def _community_dfba_sim() -> dict:
+    """One parallel run as a genuine sub-composite: a `local:Composite` PROCESS
+    whose inner document is the real community-dFBA composite (loaded from its
+    committed spec, minus the top-level clock).
+
+    Nesting it as a Composite process — rather than inlining the community-dFBA
+    stores at the top level — is what makes each simulation a *drillable*
+    sub-composite: its live instance IS a `Composite`, so the workbench flags it
+    `is_composite_process` and the loom renders it as one collapsed node with an
+    inner-composite preview + drill affordance (⤢). `is_composite_process` is set
+    explicitly too so the STATIC export renders the same way without a live build."""
+    spec = json.loads(
+        (Path(__file__).resolve().parent / "composites"
+         / "fig07-1-community-dfba.composite.json").read_text(encoding="utf-8"))
+    inner = dict(spec.get("state") or {})
+    inner.pop("global_time", None)
+    return {
+        "_type": "process",
+        "address": "local:Composite",
+        "is_composite_process": True,
+        "config": {"state": inner},
+        "inputs": {},
+        "outputs": {},
+    }
+
+
+def fig1c_study_workflow_state() -> dict:
+    """Fig 1c: a study workflow. A draft Preprocess step feeds three PARALLEL
+    community-dFBA simulations (real, zoomable composites — the same real study
+    template ×3), whose outputs feed a draft Analysis + Visualization step. The
+    pre/post steps are draft; the parallel simulations are a real composite."""
+    return {
+        "raw_data": _v("concentration", 0.0),
+        "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
+        # Three parallel runs of the SAME real composite (an ensemble); each is a
+        # full community-dFBA composite you can zoom into.
+        "simulations": {
+            "sim_0": _community_dfba_sim(),
+            "sim_1": _community_dfba_sim(),
+            "sim_2": _community_dfba_sim(),
+        },
+        "results": _v("concentration", 0.0),
+        "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
+    }
+
+
 def fig02_bigraph_state() -> dict:
     """Fig 2b: the process bigraph of the paper's composition-framework diagram.
 
@@ -395,30 +499,34 @@ def fig02_bigraph_state() -> dict:
     }
 
 
-def fig3a_process_graph_state() -> dict:
-    """Fig 3a: process graph — metabolism + gene expression over metab/enzymes/DNA."""
+def fig3a_store_state() -> dict:
+    """Fig 3a (store diagram, panel a): a SINGLE store shown in full detail — the
+    store ``cell`` holding an ``ecoli`` data type. A store holds any data type and
+    shows its name + the type it holds."""
     return {
-        "metab": _v("concentration", 5.0),
-        "enzymes": _v("concentration", 1.0),
-        "DNA": _v("concentration", 1.0),
-        "metabolism": _proc(MetabolismGraph, {"substrates": ["metab"], "enzymes": ["enzymes"]}, {"products": ["metab"]}),
-        "gene_expression": _proc(GeneExpressionGraph, {"genes": ["DNA"]}, {"enzymes": ["enzymes"]}),
+        "cell": _v("ecoli", 0.0),
     }
 
 
-def fig3b_composite_process_state() -> dict:
-    """Fig 3b: composite process — the `cell` (cyto ⊃ rib,nuc⊃DNA; mem ⊃ chnl)."""
+def fig3b_place_graph_state() -> dict:
+    """Fig 3b (store diagram, panel b): a PLACE GRAPH of nested stores —
+    cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell. Outer stores
+    connect to inner stores by the place-graph nesting."""
     return {
+        # cell is a BRANCH containing nuc / cyto(⊃ribo) / mucin; EPS is a sibling.
         "cell": {
-            "nutrients": _v("concentration", 10.0),
-            "signals": _v("concentration", 1.0),
-            "shape": _v("concentration", 0.0),
-            # plain nested branches = the place graph (cyto ⊃ rib, nuc ⊃ DNA; mem ⊃ chnl)
-            "cyto": {"rib": _v("concentration", 1.0),
-                     "nuc": {"DNA": _v("concentration", 1.0)}},
-            "mem": {"chnl": _v("concentration", 1.0)},
-            "grow": _proc(Grow, {"ribosomes": ["cyto", "rib"], "nutrients": ["nutrients"], "signals": ["signals"]}, {"membrane": ["mem", "chnl"]}),
-            "express": _proc(Express, {"genes": ["cyto", "nuc", "DNA"]}, {"ribosomes": ["cyto", "rib"]}),
-            "transport": _proc(Transport, {"channels": ["mem", "chnl"], "nutrients": ["nutrients"]}, {"shape": ["shape"]}),
+            "nuc": _v("concentration", 0.0),
+            "cyto": {"ribo": _v("concentration", 0.0)},
+            "mucin": _v("concentration", 0.0),
         },
+        "EPS": _v("concentration", 0.0),
+    }
+
+
+def fig04_process_state() -> dict:
+    """Fig 4: a single process schematic — a rectangle with typed input ports
+    (in_1: species, in_2: params) and output ports (out_1: ss_species, out_2:
+    rates), config type steady_state, and update function (in_1,in_2)→(out_1,out_2)."""
+    return {
+        "process": _proc(ProcessSchematic, {}, {}),
     }

@@ -1,0 +1,37 @@
+{
+  "v": 1,
+  "positions": {
+    "gene_expression": {
+      "x": -65.77932279220539,
+      "y": -163.07844098631068,
+      "w": 760
+    },
+    "metabolism": {
+      "x": -66.89429004478598,
+      "y": 168.68923790052946,
+      "w": 760
+    },
+    "morphogen_gradient": {
+      "x": -67.73476643576032,
+      "y": 498.6483458819346,
+      "w": 760
+    },
+    "multicellular_interactions": {
+      "x": -70.54467894338802,
+      "y": 835.419060695292,
+      "w": 760
+    }
+  },
+  "collapsed": [],
+  "hidden": [],
+  "mode": "hierarchy",
+  "detail": "contract",
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "auto",
+    "stores": "auto",
+    "config": "off",
+    "contract": "on"
+  }
+}

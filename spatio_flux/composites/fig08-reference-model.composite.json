@@ -1117,28 +1117,28 @@
       ],
       "dissolved biomass": [
         [
-          0.14481621346821527,
-          0.18235751129288247,
-          0.12537924825383615,
-          0.16913796914871027
+          0.14699999701917962,
+          0.11273797559499611,
+          0.10211236166702621,
+          0.19975256012394207
         ],
         [
-          0.11963475219467676,
-          0.16060176975538454,
-          0.15362590952240748,
-          0.18494380477050185
+          0.12746025036659078,
+          0.17352520255326426,
+          0.198584730996321,
+          0.15021356367445982
         ],
         [
-          0.12925721316586605,
-          0.1830719225173918,
-          0.19011530198711257,
-          0.1456367964787215
+          0.19378469366509044,
+          0.14260471555115084,
+          0.1360752516657013,
+          0.12789644619465615
         ],
         [
-          0.12220207516890852,
-          0.14006823217772107,
-          0.18778465451576942,
-          0.11261852371927136
+          0.11686915201669551,
+          0.15307731466603522,
+          0.14392642355883917,
+          0.12227445070005077
         ]
       ]
     },
@@ -1210,23 +1210,138 @@
       }
     },
     "particles": {
-      "p_6e1a38": {
+      "p_060453": {
         "shape": "circle",
-        "mass": 0.015382826504741853,
-        "radius": 0.5713437817350355,
+        "mass": 0.01424451576616028,
+        "radius": 0.5497981564337765,
         "position": [
-          15.18208662084199,
-          8.358377574792026
+          17.2448201296369,
+          31.279856002892338
         ],
         "velocity": [
-          0.0,
-          -0.0
+          -0.0,
+          0.0
         ],
         "elasticity": 0.0,
         "sub_masses": {
           "ecoli_1": 0.1,
           "ecoli_2": 0.1
-        }
+        },
+        "ecoli_1 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
+            },
+            "kinetic_params": {
+              "glucose": [
+                0.1,
+                2
+              ],
+              "acetate": [
+                1.0,
+                0.1
+              ]
+            },
+            "model_file": "textbook",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          }
+        },
+        "ecoli_2 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
+            },
+            "kinetic_params": {
+              "glucose": [
+                1.0,
+                0.1
+              ],
+              "acetate": [
+                0.01,
+                1
+              ]
+            },
+            "model_file": "textbook",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          }
+        },
+        "aggregate_mass": {
+          "_type": "step",
+          "address": "local:ParticleTotalMass",
+          "config": {},
+          "inputs": {
+            "sub_masses": [
+              "sub_masses"
+            ]
+          },
+          "outputs": {
+            "total_mass": [
+              "mass"
+            ]
+          }
+        },
+        "local": {},
+        "exchange": {}
       }
     },
     "particle_exchange": {

@@ -1,16 +1,26 @@
 #!/usr/bin/env python
-"""Stitch the paper-figures investigation's per-study visualization panels into
-publication-ready, subpanel-labeled figures.
+"""Stitch each paper-figure study's panels into one publication-ready,
+subpanel-labeled figure — added back as a visualization ON that study.
 
-For each member study of the ``paper-figures`` investigation, grabs its declared
-``visualizations`` (the panel images under ``studies/<slug>/visualizations/``)
-and composites them into one figure — a shelf/masonry layout with bold "a.",
-"b.", … subpanel labels — written to
-``investigations/paper-figures/figures/figure_<N>.svg`` (+ a rasterized .png).
+This is the paper-figures investigation's stitch-together step: it runs AFTER
+the figure studies and turns each study's per-panel visualizations (the images
+under ``studies/<slug>/visualizations/``) into one composited figure — a
+shelf/masonry layout with bold "a.", "b.", … subpanel labels. For each figure
+study it emits two files into that study's own ``visualizations/`` dir:
 
-Panels are embedded as high-res PNGs (reliable in any SVG rasterizer; loom's
-foreignObject SVGs don't render when referenced via <image>), while the layout
-and labels stay vector.
+  - ``figure_<N>.svg`` — full-vector (panels embedded as high-res PNGs; layout +
+    labels vector), and
+  - ``figure_<N>.png`` — a PIL-composited raster (loom's foreignObject SVGs
+    balloon to megabytes; the raster is an order of magnitude smaller and is
+    what the Visualizations tab / snapshot embeds).
+
+It then registers the composite as a ``visualizations:`` entry on the study
+(``image:visualizations/figure_<N>.svg``, idempotently). That rides the existing
+study-viz pipeline with NO workbench change: the composite shows in the study's
+Visualizations tab, is downloadable via the Runs "Viz" button, flows into the
+SPA-composed investigation report, and is staged into the read-only snapshot —
+downloadable both live and read-only. The stitch step skips any panel named
+``figure_*`` so re-running never composites its own output.
 
 Run:  python scripts/build_paper_figures.py
 """
@@ -22,11 +32,10 @@ import sys
 from pathlib import Path
 
 import yaml
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 WS = Path(__file__).resolve().parents[1]
 INV = WS / "investigations" / "paper-figures"
-OUT = INV / "figures"
 
 # study slug -> figure number (fig-01 -> 1, fig-07 -> 7, …)
 def _fig_num(slug: str) -> str:
@@ -42,12 +51,17 @@ PAD = 26
 
 def _panel_png(study_dir: Path, viz: dict) -> Path | None:
     """Resolve a visualization entry to its PNG panel (prefer a .png sibling of
-    the declared image, since loom SVGs don't embed reliably)."""
+    the declared image, since loom SVGs don't embed reliably).
+
+    Returns None for the stitched composite itself (``figure_*``) so re-running
+    the step never feeds a figure back in as one of its own panels."""
     addr = str(viz.get("address", ""))
     if not addr.startswith("image:"):
         return None
     rel = addr[len("image:"):]
     p = study_dir / rel
+    if p.name.startswith("figure_"):
+        return None
     png = p.with_suffix(".png")
     if png.exists():
         return png
@@ -58,7 +72,15 @@ def _data_uri(path: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode("ascii")
 
 
-def build_figure(study: str) -> Path | None:
+def _viz_dir(study: str) -> Path:
+    return WS / "studies" / study / "visualizations"
+
+
+def _shelf(study: str):
+    """Resolve a study's panels and pack them into shelf-layout rows.
+
+    Returns (rows, fig_w, fig_h) where rows is a list of rows, each a list of
+    (path, scaled_w, scaled_h). Returns None when the study has no panels."""
     sdir = WS / "studies" / study
     spec_f = sdir / "study.yaml"
     if not spec_f.is_file():
@@ -94,6 +116,16 @@ def build_figure(study: str) -> Path | None:
 
     fig_w = max(sum(sw + GAP for _, sw, _ in row) - GAP for row in rows) + 2 * PAD
     fig_h = len(rows) * (ROW_H + LABEL_H + GAP) - GAP + 2 * PAD
+    return rows, fig_w, fig_h
+
+
+def build_figure(study: str) -> Path | None:
+    """Vector figure — publication-ready SVG (panels embedded as PNGs, layout +
+    labels vector). Written into the study's own visualizations/ dir."""
+    shelf = _shelf(study)
+    if shelf is None:
+        return None
+    rows, fig_w, fig_h = shelf
 
     title = f"Figure {_fig_num(study)}"
     parts = [
@@ -121,35 +153,128 @@ def build_figure(study: str) -> Path | None:
     parts.append(f'<!-- {title}: {li} panels from studies/{study} -->')
     parts.append("</svg>")
 
-    OUT.mkdir(parents=True, exist_ok=True)
-    out = OUT / f"figure_{_fig_num(study)}.svg"
+    vd = _viz_dir(study)
+    vd.mkdir(parents=True, exist_ok=True)
+    out = vd / f"figure_{_fig_num(study)}.svg"
     out.write_text("\n".join(parts), encoding="utf-8")
     return out
 
 
-def _write_gallery(built: list[tuple[str, Path]]) -> Path:
-    """Emit a self-contained gallery page linking every stitched figure — the
-    investigation's 'Figures' view."""
-    cards = []
-    for study, out in built:
-        n = _fig_num(study)
-        cards.append(
-            f'<section style="margin:0 0 48px"><h2 style="font:600 20px system-ui;color:#111827;margin:0 0 10px">'
-            f'Figure {n}</h2>'
-            f'<img src="{out.name}" alt="Figure {n}" '
-            f'style="max-width:100%;border:1px solid #e5e7eb;border-radius:8px"/></section>'
-        )
-    html = (
-        '<!doctype html><meta charset="utf-8"><title>Paper figures</title>'
-        '<body style="max-width:1200px;margin:32px auto;padding:0 20px;background:#fff">'
-        '<h1 style="font:700 28px Georgia,serif;color:#111827">Process Bigraph paper — figures</h1>'
-        '<p style="color:#6b7280;font:14px system-ui">Publication-ready figures, each stitched from its '
-        'study\'s subpanels (see <code>scripts/build_paper_figures.py</code>).</p>'
-        + "".join(cards) + "</body>"
+_LABEL_FONTS = (
+    "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
+    "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
+    "/Library/Fonts/Georgia Bold.ttf",
+    "DejaVuSans-Bold.ttf",
+)
+
+
+def _label_font(size: int):
+    for name in _LABEL_FONTS:
+        try:
+            return ImageFont.truetype(name, size)
+        except Exception:
+            continue
+    return ImageFont.load_default()
+
+
+def build_figure_png(study: str) -> Path | None:
+    """Raster figure — same shelf layout as build_figure, composited with PIL.
+
+    This is what the Visualizations tab / snapshot embeds: loom's per-panel SVGs
+    balloon to megabytes each (foreignObject + inlined computed styles), so the
+    composite's PNG sibling keeps the study-viz payload small. The panels are
+    already raster, so a composited PNG loses nothing visible and is an order of
+    magnitude smaller — practical to serve live and bundle into the snapshot."""
+    shelf = _shelf(study)
+    if shelf is None:
+        return None
+    rows, fig_w, fig_h = shelf
+
+    canvas = Image.new("RGB", (round(fig_w), round(fig_h)), "#ffffff")
+    draw = ImageDraw.Draw(canvas)
+    font = _label_font(30)
+    li = 0
+    y = float(PAD)
+    for row in rows:
+        x = float(PAD)
+        for p, sw, sh in row:
+            label = f"{chr(ord('a') + li)}."
+            li += 1
+            draw.text((round(x), round(y)), label, fill="#111827", font=font)
+            with Image.open(p) as im:
+                panel = im.convert("RGBA").resize((round(sw), round(sh)), Image.LANCZOS)
+                canvas.paste(panel, (round(x), round(y + LABEL_H)), panel)
+            x += sw + GAP
+        y += ROW_H + LABEL_H + GAP
+
+    vd = _viz_dir(study)
+    vd.mkdir(parents=True, exist_ok=True)
+    out = vd / f"figure_{_fig_num(study)}.png"
+    canvas.save(out, "PNG", optimize=True)
+    return out
+
+
+def register_stitched_viz(study: str) -> bool:
+    """Add (idempotently) the stitched composite as a ``visualizations:`` entry on
+    the study, so it rides the existing study-viz pipeline. Addresses the SVG
+    (with its PNG sibling), matching the study's existing loom-image entries.
+
+    Returns True if study.yaml was written (added or moved-to-end)."""
+    n = _fig_num(study)
+    spec_f = WS / "studies" / study / "study.yaml"
+    spec = yaml.safe_load(spec_f.read_text()) or {}
+    viz = list(spec.get("visualizations") or [])
+    entry = {
+        "name": f"Figure {n} (composite)",
+        "address": f"image:visualizations/figure_{n}.svg",
+        "chart": "image",
+    }
+    # Idempotent: drop any prior composite entry, then append a fresh one last so
+    # the full figure reads as the study's culminating visualization.
+    kept = [
+        v for v in viz
+        if not (isinstance(v, dict) and str(v.get("address", "")).endswith(f"figure_{n}.svg"))
+    ]
+    new = kept + [entry]
+    if new == viz:
+        return False  # already present + last; nothing to do
+    spec["visualizations"] = new
+    spec_f.write_text(
+        yaml.safe_dump(spec, default_flow_style=False, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
     )
-    page = OUT / "index.html"
-    page.write_text(html, encoding="utf-8")
-    return page
+    return True
+
+
+# Studies whose figure is composed from a hand-designed layout (fixed regions,
+# panels placed by a dedicated module) rather than the default shelf-stitch.
+# Fig 1 keeps a scaffold SVG (rasterized via node); Fig 7 places its panels into
+# the paper's fixed 4-region grid and emits both SVG + PNG itself.
+SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-07": "build_figure7"}
+
+
+def _build_scaffold_figure(study: str) -> bool:
+    """Compose a scaffold/hand-laid figure via its dedicated module. If the module
+    exposes a `build_figure<N>_png` twin it emits the PNG itself; otherwise the SVG
+    is rasterized via node (best-effort — the SVG is the source of truth)."""
+    import importlib
+    import subprocess
+    mod = importlib.import_module(SCAFFOLD_STUDIES[study])
+    n = _fig_num(study)
+    build = getattr(mod, f"build_figure{n}")
+    out = build()  # writes studies/<study>/visualizations/figure_<N>.svg
+    png_builder = getattr(mod, f"build_figure{n}_png", None)
+    if png_builder is not None:
+        png_builder()  # module composites its own PNG twin
+    else:
+        png = out.with_suffix(".png")
+        try:
+            subprocess.run(
+                ["node", str(Path(__file__).resolve().parent / "rasterize_svg.mjs"), str(out), str(png), "2"],
+                check=True, capture_output=True, timeout=240)
+        except Exception as exc:  # node/playwright missing → keep the SVG, warn
+            print(f"     (figure PNG not rasterized: {exc}; run scripts/rasterize_svg.mjs)")
+    return out.is_file()
 
 
 def main() -> None:
@@ -158,16 +283,26 @@ def main() -> None:
     if not studies:
         print("no member studies in paper-figures investigation")
         sys.exit(1)
-    built = []
+    built = 0
     for s in studies:
-        out = build_figure(s)
-        if out:
-            print(f"  OK  Figure {_fig_num(s)} -> {out.relative_to(WS)}")
-            built.append((s, out))
+        if s in SCAFFOLD_STUDIES:
+            if _build_scaffold_figure(s):
+                register_stitched_viz(s)
+                print(f"  OK  Figure {_fig_num(s)} -> scaffold-composed ({SCAFFOLD_STUDIES[s]}.py)")
+                built += 1
+            else:
+                print(f"  skip {s}: scaffold compose failed")
+            continue
+        svg = build_figure(s)
+        png = build_figure_png(s)
+        if svg and png:
+            wrote = register_stitched_viz(s)
+            print(f"  OK  Figure {_fig_num(s)} -> {svg.relative_to(WS)} + {png.name}"
+                  f"{'  (+viz entry)' if wrote else ''}")
+            built += 1
         else:
             print(f"  skip {s}: no panels")
-    gallery = _write_gallery(built)
-    print(f"built {len(built)}/{len(studies)} figures + gallery {gallery.relative_to(WS)}")
+    print(f"stitched {built}/{len(studies)} figures into their studies' visualizations")
 
 
 if __name__ == "__main__":
