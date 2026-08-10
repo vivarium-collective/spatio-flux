@@ -341,6 +341,27 @@ class AnalysisViz(DraftProcess):
     pass
 
 
+# ── Fig 4: the process schematic (typed ports + update function) ──────────────
+@draft_process(
+    name="ProcessSchematic",
+    inputs={"in_1": "species", "in_2": "params"},
+    outputs={"out_1": "ss_species", "out_2": "rates"},
+    contract={
+        "summary": "process — (in_1, in_2) → (out_1, out_2)",
+        "description": "A process is a rectangle with typed ports on its boundary: "
+                       "inputs on the left, outputs on the right, each carrying a data "
+                       "type. The update function maps inputs to outputs, informed by "
+                       "its config (type steady_state).",
+        "status": "draft - no update dynamics yet",
+        "math": [r"(\mathrm{in}_1,\ \mathrm{in}_2)\ \rightarrow\ (\mathrm{out}_1,\ \mathrm{out}_2)"],
+        "ports": {"in_1": "species", "in_2": "params",
+                  "out_1": "steady-state species", "out_2": "rates"},
+    },
+)
+class ProcessSchematic(DraftProcess):
+    pass
+
+
 def _v(type_name: str, value: float) -> dict:
     return {"_type": type_name, "_value": float(value)}
 
@@ -484,4 +505,13 @@ def fig3b_place_graph_state() -> dict:
             "mucin": _v("concentration", 0.0),
         },
         "EPS": _v("concentration", 0.0),
+    }
+
+
+def fig04_process_state() -> dict:
+    """Fig 4: a single process schematic — a rectangle with typed input ports
+    (in_1: species, in_2: params) and output ports (out_1: ss_species, out_2:
+    rates), config type steady_state, and update function (in_1,in_2)→(out_1,out_2)."""
+    return {
+        "process": _proc(ProcessSchematic, {}, {}),
     }

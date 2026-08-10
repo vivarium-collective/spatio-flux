@@ -39,6 +39,8 @@ const JOBS = [
   // 3b a place graph of nested stores.
   ['fig-03', 'spatio_flux.composites.fig03a-store',       'fig03a-store', { detail: 'full', stores: 'type' }],
   ['fig-03', 'spatio_flux.composites.fig03b-place-graph', 'fig03b-place-graph'],
+  // Fig 4 = a single process schematic (typed ports + update function), full detail.
+  ['fig-04', 'spatio_flux.composites.fig04-process', 'fig04-process', { detail: 'full' }],
   // Fig 7 is one study with three panels (7.1/7.2/7.3).
   ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba'],
   // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.

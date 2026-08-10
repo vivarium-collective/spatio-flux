@@ -1,0 +1,39 @@
+schema_version: 3
+name: fig-04
+title: Fig 4 — process diagram
+investigation: paper-figures
+created: '2026-08-10'
+status: complete
+confidence: Accepted
+claim: image generated
+purpose:
+  question: What does Fig 4 depict, and does its bigraph-loom image generate?
+  mechanism: 'A single process shown as a rectangle with typed ports on its boundary
+    — inputs in_1 (species), in_2 (params) on the left; outputs out_1 (ss_species),
+    out_2 (rates) on the right; config type steady_state; the update function maps
+    (in_1, in_2) → (out_1, out_2).'
+  expected_outcome: The process schematic's bigraph-loom SVG generates and appears
+    under Visualizations.
+baseline:
+- name: 4-process
+  composite: spatio_flux.composites.fig04-process
+  params: {}
+expected_behavior:
+- bigraph-loom image generated correctly
+visualizations:
+- name: 4 — process schematic
+  address: image:visualizations/fig04-process.svg
+  chart: image
+- name: Figure 4 (composite)
+  address: image:visualizations/figure_4.svg
+  chart: image
+variants: []
+interventions: []
+runs: []
+simulation_set: []
+pipeline_gate:
+  gate_evaluator:
+    result: not_started
+    blocked_by: []
+    evaluated_by: code
+    diverges_from_authored: false

@@ -96,6 +96,12 @@ _PAPER_FIGURE_SCALARS = {
     "phase":      {"_inherit": "float"},
     "place_node": {"_inherit": "float"},
     "ecoli":      {"_inherit": "float"},   # Fig 3a — a store holding an 'ecoli' data type
+    # Fig 4 — the process-schematic port/config types (shown as port superscripts).
+    "species":      {"_inherit": "float"},
+    "params":       {"_inherit": "float"},
+    "ss_species":   {"_inherit": "float"},
+    "rates":        {"_inherit": "float"},
+    "steady_state": {"_inherit": "float"},
 }
 
 TYPES_DICT = {

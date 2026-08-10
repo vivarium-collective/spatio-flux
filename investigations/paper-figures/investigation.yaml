@@ -6,11 +6,12 @@ status: running
 executive: One study per figure of the Process Bigraph paper. Each study describes the figure and checks
   that its bigraph-loom image is generated (shown under Visualizations as an SVG). Fig 2 is conceptual
   (no composite). Figs 7.1–7.3 and Fig 8 are the runnable spatio-flux composites; some paper figures
-  (e.g. Figs 4–6) live elsewhere and are not built here.
+  (e.g. Figs 5–6) live elsewhere and are not built here.
 studies:
 - fig-01
 - fig-02
 - fig-03
+- fig-04
 - fig-07
 - fig-08
 # Captions + numbering for the stitched figures (the ↓ figures download + the
