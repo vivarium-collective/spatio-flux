@@ -436,14 +436,29 @@ def fig1b_multiscale_state() -> dict:
 
 
 def _community_dfba_sim() -> dict:
-    """A real, zoomable simulation composite (community dFBA) to nest as one
-    parallel run — loaded from its committed spec, minus the top-level clock."""
+    """One parallel run as a genuine sub-composite: a `local:Composite` PROCESS
+    whose inner document is the real community-dFBA composite (loaded from its
+    committed spec, minus the top-level clock).
+
+    Nesting it as a Composite process — rather than inlining the community-dFBA
+    stores at the top level — is what makes each simulation a *drillable*
+    sub-composite: its live instance IS a `Composite`, so the workbench flags it
+    `is_composite_process` and the loom renders it as one collapsed node with an
+    inner-composite preview + drill affordance (⤢). `is_composite_process` is set
+    explicitly too so the STATIC export renders the same way without a live build."""
     spec = json.loads(
         (Path(__file__).resolve().parent / "composites"
          / "fig07-1-community-dfba.composite.json").read_text(encoding="utf-8"))
-    state = dict(spec.get("state") or {})
-    state.pop("global_time", None)
-    return state
+    inner = dict(spec.get("state") or {})
+    inner.pop("global_time", None)
+    return {
+        "_type": "process",
+        "address": "local:Composite",
+        "is_composite_process": True,
+        "config": {"state": inner},
+        "inputs": {},
+        "outputs": {},
+    }
 
 
 def fig1c_study_workflow_state() -> dict:

@@ -31,7 +31,10 @@ const WS = process.env.VW_WS || '/Users/eranagmon/code/spatio-flux';
 const JOBS = [
   ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes'],
   ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite', 'fig01b-multiscale-composite'],
-  ['fig-01', 'spatio_flux.composites.fig01c-study-workflow',       'fig01c-study-workflow'],
+  // 1c: served as a GENERATOR (not the static spec) so each simulation resolves
+  // as a drillable sub-composite — the loom flags the sim nodes is_composite_process
+  // and renders their inner-composite previews. Full tier shows the previews.
+  ['fig-01', 'spatio_flux.composites.figures.fig01c-study-workflow', 'fig01c-study-workflow', { detail: 'full' }],
   // Fig 2: one composite rendered two ways — 2a Milner hyperedges, 2b processes.
   ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02a-hyperedges', { hyperedges: true }],
   ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes'],

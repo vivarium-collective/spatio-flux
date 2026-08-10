@@ -12,5 +12,6 @@ from . import spatial     # noqa: F401
 from . import particles   # noqa: F401
 from . import comets      # noqa: F401
 from . import reference   # noqa: F401
+from . import figures     # noqa: F401
 
 __all__ = ["REGISTRY"]

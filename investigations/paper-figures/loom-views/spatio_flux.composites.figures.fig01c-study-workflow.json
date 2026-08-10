@@ -1,0 +1,45 @@
+{
+  "v": 1,
+  "positions": {
+    "raw_data": {
+      "x": 360,
+      "y": 60
+    },
+    "preprocess": {
+      "x": 120,
+      "y": 360
+    },
+    "simulations": {
+      "x": 360,
+      "y": 1040
+    },
+    "simulations.sim_0": {
+      "x": 1160,
+      "y": 60
+    },
+    "simulations.sim_1": {
+      "x": 1160,
+      "y": 760
+    },
+    "simulations.sim_2": {
+      "x": 1160,
+      "y": 1460
+    },
+    "analysis": {
+      "x": 120,
+      "y": 1360
+    },
+    "results": {
+      "x": 360,
+      "y": 2040
+    }
+  },
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "hierarchy",
+  "detail": "full",
+  "collapse": false,
+  "hyperedges": false
+}
