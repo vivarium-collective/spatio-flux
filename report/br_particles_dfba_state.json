@@ -1,6 +1,6 @@
 {
   "particles": {
-    "AUYXNSrQ": {
+    "IHsQUWob": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -83,12 +83,12 @@
           "amendments": []
         }
       },
-      "id": "AUYXNSrQ",
+      "id": "IHsQUWob",
       "position": [
-        0.885367972745621,
-        24.74971396840202
+        18.831116051369,
+        14.089536269786601
       ],
-      "mass": 0.5561458772468553,
+      "mass": 0.18620948100734677,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -596,20 +596,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -632,8 +632,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "eoO4BdlB": {
+    "Chv7qzoH": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -82,12 +82,12 @@
           "amendments": []
         }
       },
-      "id": "eoO4BdlB",
+      "id": "Chv7qzoH",
       "position": [
-        29.276832724027415,
-        15.256304343147582
+        2.506912057338723,
+        9.596754572448058
       ],
-      "mass": 4.719571143886746,
+      "mass": 2.174733140921245,
       "local": {},
       "exchange": {},
       "sub_masses": {},

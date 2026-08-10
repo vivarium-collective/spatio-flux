@@ -28,15 +28,15 @@ digraph bigraph {
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('dFBA[0,0]',)" {
 		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
 		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {
