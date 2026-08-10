@@ -20,8 +20,11 @@ baseline:
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
-- name: fig02-process-bigraph.svg
-  address: image:visualizations/fig02-process-bigraph.svg
+- name: 2a — Milner hyperedges
+  address: image:visualizations/fig02a-hyperedges.svg
+  chart: image
+- name: 2b — process bigraph
+  address: image:visualizations/fig02b-processes.svg
   chart: image
 - name: Figure 2 (composite)
   address: image:visualizations/figure_2.svg
