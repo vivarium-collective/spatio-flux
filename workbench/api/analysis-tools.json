@@ -1,1 +1,1 @@
-{"tools": [{"id": "data-explorer", "title": "Data Explorer", "description": "Interactively explore a run: timeseries, scatter, allocation, and flux maps.", "kind": "embed-explorer", "requires": ["observables"], "matched": [], "unmatched_reason": "No compatible runs \u2014 needs observables."}, {"id": "parsimony-viewer", "title": "Parsimony Viewer", "description": "3D molecular packing of a cell \u2014 saved views at declared times.", "kind": "embed-3d", "requires": ["3d_pack"], "matched": [], "unmatched_reason": "No compatible runs \u2014 needs 3d_pack."}]}
+{"tools": []}

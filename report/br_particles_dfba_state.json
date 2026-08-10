@@ -1,6 +1,6 @@
 {
   "particles": {
-    "SCiEKpkh": {
+    "1W-MrP-G": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -60,15 +60,35 @@
           "math": [],
           "symbols": {},
           "assumptions": [],
-          "references": []
+          "references": [],
+          "face": {
+            "inputs": {
+              "substrates": {
+                "_type": "map",
+                "_value": {
+                  "_type": "concentration",
+                  "_units": "mM"
+                }
+              },
+              "biomass": {
+                "_type": "mass",
+                "_units": "gDW"
+              }
+            },
+            "outputs": {
+              "substrates": "map[concentration_delta]",
+              "biomass": "mass_delta"
+            }
+          },
+          "amendments": []
         }
       },
-      "id": "SCiEKpkh",
+      "id": "1W-MrP-G",
       "position": [
-        40.00464717053164,
-        24.912804423774148
+        4.920551644455706,
+        36.61197957987829
       ],
-      "mass": 0.9501527376426213,
+      "mass": 0.4360704641229541,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -372,7 +392,16 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]"
+        },
+        "outputs": {
+          "particles": "map[particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "enforce_boundaries": {
@@ -424,7 +453,20 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]",
+          "process_interval": {
+            "_type": "float",
+            "_default": 1.0
+          }
+        },
+        "outputs": {
+          "particles": "map[particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "particle_exchange": {
@@ -470,7 +512,38 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]",
+          "fields": {
+            "_type": "map",
+            "_value": {
+              "_type": "array",
+              "_shape": [
+                10,
+                10
+              ],
+              "_data": "float"
+            }
+          }
+        },
+        "outputs": {
+          "particles": "map[particle]",
+          "fields": {
+            "_type": "map",
+            "_value": {
+              "_type": "array",
+              "_shape": [
+                10,
+                10
+              ],
+              "_data": "float"
+            }
+          }
+        }
+      },
+      "amendments": []
     }
   },
   "particle_division": {
@@ -505,7 +578,16 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]"
+        },
+        "outputs": {
+          "particles": "map[particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "emitter": {
@@ -518,7 +600,7 @@
       "subsample": 1
     },
     "_inputs": "global_time:node|particles:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
@@ -528,6 +610,11 @@
       ],
       "fields": [
         "fields"
+      ]
+    },
+    "outputs": {
+      "results": [
+        "results"
       ]
     },
     "_contract": {
@@ -541,7 +628,19 @@
       ],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "global_time": "node",
+          "particles": "node",
+          "fields": "node"
+        },
+        "outputs": {
+          "results": "node"
+        }
+      },
+      "amendments": []
     }
-  }
+  },
+  "results": {}
 }

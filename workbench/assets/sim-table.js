@@ -62,8 +62,11 @@
     var norm = String(loc).replace(/\\/g, "/");
     var parts = norm.split("/");
     var tail = parts.length > 2 ? "…/" + parts.slice(-2).join("/") : norm;
-    return '<code style="font-size:11px;color:#6b7280;display:block;overflow:hidden;' +
-      'text-overflow:ellipsis;white-space:nowrap;" title="' + esc(loc) + '">' + esc(tail) + "</code>";
+    // Clickable: reveals the full path (wraps) and copies it to the clipboard —
+    // wired in renderTable(). Truncated by default to keep the row compact.
+    return '<code class="sim-loc" data-loc="' + esc(loc) + '" role="button" tabindex="0" ' +
+      'style="font-size:11px;color:#6b7280;display:block;overflow:hidden;text-overflow:ellipsis;' +
+      'white-space:nowrap;cursor:pointer;" title="Click to show the full path &amp; copy">' + esc(tail) + "</code>";
   }
 
   // Composite cell — enforcement: every simulation must map to exactly one
@@ -108,11 +111,14 @@
       }
       return esc(k) + "=" + esc(String(v));
     });
-    var shown = parts.slice(0, 3).join(" · ");
-    var more = parts.length > 3 ? " +" + (parts.length - 3) : "";
+    var shown = parts.slice(0, 4).join(" · ");
+    var more = parts.length > 4 ? " +" + (parts.length - 4) : "";
     var full = JSON.stringify(c, null, 2);
-    return '<code style="font-size:11px;color:#6b7280;display:block;overflow:hidden;' +
-      'text-overflow:ellipsis;white-space:nowrap;" title="' + esc(full) + '">' +
+    // Clickable: opens a popover with the full config + "Copy JSON" — wired in
+    // renderTable() and the #simulations delegated handler.
+    return '<code class="sim-config" data-config="' + esc(full) + '" role="button" tabindex="0" ' +
+      'style="font-size:11px;color:#6b7280;display:block;overflow:hidden;text-overflow:ellipsis;' +
+      'white-space:nowrap;cursor:pointer;" title="Click to show the full config &amp; copy JSON">' +
       shown + esc(more) + "</code>";
   }
 
@@ -129,6 +135,7 @@
   function toolsCell(row) {
     var tools = (row && row.matched_tools) || [];
     if (!tools.length) return "";
+    var BP = window.__BASE_PATH__ || "";
     return tools.map(function (t) {
       var label = esc(t.label || t.id || "Tool");
       var url = t.launch_url || "";
@@ -136,8 +143,12 @@
         return '<button type="button" class="action-btn js-authoring tool-launch-btn" ' +
           'data-launch-url="' + esc(url) + '" title="Launch ' + label + '">' + label + " &#8599;</button>";
       }
+      // Direct deep-link (embed-explorer, embed-3d, static viewer page). It's
+      // plain markup the base-path shim never sees, so prefix the workspace-root
+      // absolute URL with __BASE_PATH__ so it resolves under a hosting prefix.
+      var href = /^https?:|^\/\//.test(url) ? url : (BP + url);
       return '<a class="action-btn js-authoring" title="Open ' + label + '" target="_blank" ' +
-        'rel="noopener" href="' + esc(url) + '" style="text-decoration:none;">' + label + " &#8599;</a>";
+        'rel="noopener" href="' + esc(href) + '" style="text-decoration:none;">' + label + " &#8599;</a>";
     }).join(" ");
   }
 
@@ -183,44 +194,82 @@
   function _actions(row) {
     var runIdEnc = encodeURIComponent(row.run_id || "");
     var studySlug = study(row);
+    // Per-run output retrieval — Visualizations / Report card / Analyses /
+    // Results — for ANY completed run, including the ad-hoc composite-test-runs
+    // (ecoli_colony, ecoli_baseline) that have no study. Every run writes these
+    // under .pbg/runs/<run_id>/ (viz.json / report.html / analyses.json / the
+    // emitter store); the artifact endpoint serves them by name.
+    var completed = String(row.status || "").toLowerCase() === "completed";
+    var hasRun = !!row.run_id;
+    // href/download attributes are plain markup, not fetch/XHR/EventSource, so
+    // the base-path shim (report.py's _base_path_shim) never sees them — prefix
+    // explicitly with window.__BASE_PATH__ (same idiom as branch-source.js).
+    var BP = window.__BASE_PATH__ || "";
+    function _art(name, label, title, download) {
+      return '<a class="action-btn js-authoring" title="' + title + '" ' +
+        (download ? 'download ' : 'target="_blank" rel="noopener" ') +
+        'href="' + BP + '/api/composite-run/' + runIdEnc + '/artifact/' + name +
+        '" style="text-decoration:none;">' + label + '</a>';
+    }
+    var viz    = (completed && hasRun) ? _art("viz",    "📊 Viz",      "Open this run's visualizations (GIF + plots)", false) : "";
+    var report = (completed && hasRun) ? _art("report", "📋 Report",   "Open this run's report card", false) : "";
+    var analyses = (completed && hasRun) ? _art("analyses", "⬇ Analyses",   "Download this run's analyses (JSON)", true) : "";
     var data = (row.run_id && (row.store_path || row.db_path))
-      ? '<a class="action-btn js-authoring" title="Download this run\'s raw emitter data (.zip)" ' +
-        'href="/api/simulation-run-download?run_id=' + runIdEnc + '" download style="text-decoration:none;">⬇ Data</a>' : "";
-    var analysis = studySlug
-      ? '<a class="action-btn js-authoring" title="Download the analysis-flush output for this run\'s study (.zip)" ' +
-        'href="/api/study-analysis-zip?study=' + encodeURIComponent(studySlug) + '" download style="text-decoration:none;">⬇ Analysis</a>' : "";
-    // Rerun — replays this run as a brand-new one via POST /api/run-rerun.
-    // Not available against a published read-only snapshot (no live backend
-    // to launch against). No run_id is interpolated into markup/attributes
-    // here: embedding it in an inline onclick= JS string would need JS
-    // escaping, not esc()'s HTML-entity escaping (the browser HTML-decodes
-    // the attribute before compiling it as JS, so a literal `'` in run_id
-    // would decode back and terminate the string early). Instead the button
-    // carries no id at all — the document-level delegated listener below
-    // resolves run_id from the enclosing <tr data-run-id> (already safely
-    // HTML-escaped there), and calls stopPropagation itself so the row's own
-    // click-to-open handler (the <tr> is clickable) never fires.
+      ? '<a class="action-btn js-authoring" title="Download this run\'s results / raw emitter data (.zip)" ' +
+        'href="' + BP + '/api/simulation-run-download?run_id=' + runIdEnc + '" download style="text-decoration:none;">⬇ Results</a>' : "";
+    // "Run analysis" — fires the analysis phase (cd1_*/ptools_*) on an existing,
+    // already-completed REMOTE simulation, via POST /api/remote-run-analysis ->
+    // viva-api POST /simulations/{id}/analysis. Remote-only and completed-only:
+    // a local run's analyses already ran in-process, and there is nothing to
+    // analyse before the sweep exists. viva-api auto-runs this as the dispatch
+    // DAG's last node, so the button is for RE-running it (a failed analysis, a
+    // study whose `analyses` changed since the run, or a simulation dispatched
+    // before the auto-trigger existed) — hence the label. No id is interpolated
+    // into markup: the delegated handler reads it back from the enclosing
+    // <tr data-remote-sim-id>, same idiom as ↻ Rerun below.
     var isSnapshot = (window.__DASH_CONFIG__ || {}).mode === "snapshot";
+    var remoteSimId = row && row.remote_origin && row.remote_origin.simulation_id;
+    var analysis = (remoteSimId != null && completed && !isSnapshot)
+      ? '<button type="button" class="action-btn js-authoring run-analysis-btn" ' +
+        'title="Re-run this simulation\'s analysis phase (cd1_*/ptools_*) on the remote deployment">' +
+        '🧪 Analysis</button>' : "";
+    // Rerun — REPRODUCES this run (replays its recorded manifest verbatim —
+    // params/seed/emitter/emit_paths/runtime exactly as launched, ignoring
+    // whatever the study's spec currently says) via POST /api/study-reproduce
+    // (reproducible-rerun-spine Task 4; distinct from "Run current spec",
+    // which re-derives from the live study.yaml — see study-detail.html's
+    // header buttons). Not available against a published read-only snapshot
+    // (no live backend to launch against). No run_id is interpolated into
+    // markup/attributes here: embedding it in an inline onclick= JS string
+    // would need JS escaping, not esc()'s HTML-entity escaping (the browser
+    // HTML-decodes the attribute before compiling it as JS, so a literal `'`
+    // in run_id would decode back and terminate the string early). Instead
+    // the button carries no id at all — the document-level delegated
+    // listener below resolves run_id (+ study, for the request body) from
+    // the enclosing <tr data-run-id data-study> (already safely HTML-escaped
+    // there), and calls stopPropagation itself so the row's own
+    // click-to-open handler (the <tr> is clickable) never fires.
     var rerun = (row.run_id && !isSnapshot)
       ? '<button type="button" class="action-btn js-authoring rerun-btn" ' +
-        'title="Re-run this simulation as a brand-new run">↻ Rerun</button>' : "";
-    var parts = [data, analysis, rerun].filter(function (h) { return !!h; });
+        'title="Reproduce this run — replays its recorded manifest exactly, as a brand-new run">↻ Rerun</button>' : "";
+    var parts = [viz, report, analyses, data, analysis, rerun].filter(function (h) { return !!h; });
     return parts.join(" ");
   }
 
   // Global handler for the ⬇/↻ action buttons rendered above (sim-table.js is
   // an IIFE, so expose on window like the other row helpers). One-click
-  // rerun: POST /api/run-rerun, then refresh whichever Simulations table is
-  // mounted (global Sim-DB page and/or per-study tab — both expose a
-  // refresh hook when present).
-  function _rerunSim(runId, btnEl) {
+  // reproduce: POST /api/study-reproduce (reproducible-rerun-spine Task 4 —
+  // replays the run's recorded manifest, never the study's current spec),
+  // then refresh whichever Simulations table is mounted (global Sim-DB page
+  // and/or per-study tab — both expose a refresh hook when present).
+  function _rerunSim(runId, btnEl, studySlug) {
     if (!runId) return;
     var origLabel = btnEl ? btnEl.textContent : "";
     if (btnEl) { btnEl.disabled = true; btnEl.textContent = "… rerunning"; }
-    fetch("/api/run-rerun", {
+    fetch("/api/study-reproduce", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ run_id: runId }),
+      body: JSON.stringify({ run_id: runId, study: studySlug || "" }),
     }).then(function (r) {
       return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; })
         .catch(function () { return { ok: r.ok, status: r.status, body: {} }; });
@@ -278,14 +327,100 @@
     var tr = btn.closest("tr[data-run-id]");
     var runId = tr ? tr.getAttribute("data-run-id") : "";
     if (!runId) return;
-    _rerunSim(runId, btn);
+    var studySlug = tr ? tr.getAttribute("data-study") : "";
+    _rerunSim(runId, btn, studySlug);
   }
   document.addEventListener("click", _onRerunButtonClick, true);
 
+  // One-click analysis re-run for a completed REMOTE simulation:
+  // POST /api/remote-run-analysis -> viva-api POST /simulations/{id}/analysis.
+  // Then poll /api/remote-run-poll?analysis_id=… so the operator gets a real
+  // terminal signal (the analysis job pulls a multi-GB image before it runs, so
+  // "launched" alone is not useful feedback). Polling is a courtesy: giving up
+  // never means the analysis failed, and the toast says so.
+  var ANALYSIS_POLL_MS = 10000;
+  var ANALYSIS_POLL_MAX = 30;  // ~5 min ceiling, matching lib/remote_run_views.py
+
+  function _toast(msg) {
+    if (typeof _showToast === "function") _showToast(msg); else alert(msg);
+  }
+
+  function _pollAnalysis(analysisId, attempt) {
+    if (attempt >= ANALYSIS_POLL_MAX) {
+      _toast("Analysis " + analysisId + " still running — check back shortly.");
+      return;
+    }
+    fetch("/api/remote-run-poll?analysis_id=" + encodeURIComponent(analysisId))
+      .then(function (r) { return r.json(); })
+      .then(function (body) {
+        var phase = body && body.phase;
+        if (phase === "done") {
+          _toast("Analysis " + analysisId + " completed.");
+          if (typeof window._initSimulations === "function") window._initSimulations(true);
+          if (typeof window._loadStudySims === "function") window._loadStudySims(true);
+          return;
+        }
+        if (phase === "failed") {
+          _toast("Analysis " + analysisId + " failed: " + (body.error || "see viva-api logs"));
+          return;
+        }
+        setTimeout(function () { _pollAnalysis(analysisId, attempt + 1); }, ANALYSIS_POLL_MS);
+      })
+      .catch(function () {
+        setTimeout(function () { _pollAnalysis(analysisId, attempt + 1); }, ANALYSIS_POLL_MS);
+      });
+  }
+
+  function _runSimAnalysis(simulationId, btnEl, studySlug) {
+    if (!simulationId) return;
+    var origLabel = btnEl ? btnEl.textContent : "";
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = "… analyzing"; }
+    fetch("/api/remote-run-analysis", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ simulation_id: Number(simulationId), study: studySlug || "" }),
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; })
+        .catch(function () { return { ok: r.ok, status: r.status, body: {} }; });
+    }).then(function (res) {
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = origLabel || "🧪 Analysis"; }
+      var body = res.body || {};
+      if (!res.ok) {
+        _toast("Analysis failed to start: " + (body.error || res.status));
+        return;
+      }
+      _toast("Analysis launched for simulation " + simulationId +
+        (body.analysis_id ? " — analysis " + body.analysis_id : ""));
+      if (body.analysis_id) _pollAnalysis(body.analysis_id, 0);
+    }).catch(function (err) {
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = origLabel || "🧪 Analysis"; }
+      _toast("Analysis failed to start: network error — " + err);
+    });
+  }
+  window._runSimAnalysis = _runSimAnalysis;
+
+  // Same delegation/capture-phase rationale as _onRerunButtonClick above.
+  function _onRunAnalysisButtonClick(e) {
+    var btn = e.target.closest(".run-analysis-btn");
+    if (!btn) return;
+    e.stopPropagation();
+    var tr = btn.closest("tr[data-remote-sim-id]");
+    var simId = tr ? tr.getAttribute("data-remote-sim-id") : "";
+    if (!simId) return;
+    _runSimAnalysis(simId, btn, tr ? tr.getAttribute("data-study") : "");
+  }
+  document.addEventListener("click", _onRunAnalysisButtonClick, true);
+
   // Render one <tr>. opts.scope === 'study' drops Investigation + Study columns.
+  // opts.dropIds (set by renderTable() after dropEmptyColumns()) skips the
+  // STUDY_COLS cells that were determined dead across the whole table; global
+  // Sim-DB callers that build rows via renderRow() directly (not renderTable())
+  // never pass it, so their columns are unaffected.
   function renderRow(row, opts) {
     opts = opts || {};
     var studyScope = opts.scope === "study";
+    var dropIds = opts.dropIds || null;
+    var keep = function (id) { return !dropIds || dropIds.indexOf(id) === -1; };
     var runId = row.run_id || "";
     var runLabel = row.sim_name || row.label || runId;
     var td = function (h, extra) { return '<td style="padding:6px 8px;' + (extra || "") + '">' + h + "</td>"; };
@@ -295,30 +430,64 @@
       cells += td(inv ? '<code style="font-size:12px;color:#374151;">' + esc(inv) + "</code>" : '<span style="color:#9ca3af;">—</span>', "overflow-wrap:anywhere;");
       cells += td(st ? '<code style="font-size:12px;color:#374151;">' + esc(st) + "</code>" : '<span style="color:#9ca3af;">—</span>', "overflow-wrap:anywhere;");
     }
-    cells += td('<code style="font-size:11px;color:#6b7280;display:block;overflow:hidden;' +
+    if (keep("run")) cells += td('<code style="font-size:11px;color:#6b7280;display:block;overflow:hidden;' +
       'text-overflow:ellipsis;white-space:nowrap;" title="' + esc(runId + (row.db_path ? "\n" + row.db_path : "")) +
       '">' + esc(runLabel) + "</code>", "overflow:hidden;");
-    cells += td(composite(row), "overflow:hidden;");
-    cells += td(config(row), "overflow:hidden;max-width:220px;");
-    cells += td(location(row), "overflow:hidden;");
-    cells += td(originPill(row));
-    cells += td(emitterPill(row.emitter_type));
-    cells += td(esc(fmtTime(row.completed_at || row.started_at)), "color:#6b7280;");
-    cells += td(statusChip(row.status));
-    cells += td(toolsCell(row), "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;");
-    cells += td(_actions(row), "text-align:center;white-space:nowrap;");
-    return '<tr data-run-id="' + esc(runId) + '" style="border-bottom:1px solid #f3f4f6;cursor:pointer;" ' +
+    if (keep("composite")) cells += td(composite(row), "overflow:hidden;");
+    if (keep("config")) cells += td(config(row), "overflow:hidden;max-width:320px;");
+    if (keep("location")) cells += td(location(row), "overflow:hidden;");
+    if (keep("origin")) cells += td(originPill(row));
+    if (keep("emitter")) cells += td(emitterPill(row.emitter_type));
+    if (keep("time")) cells += td(esc(fmtTime(row.completed_at || row.started_at)), "color:#6b7280;");
+    if (keep("status")) cells += td(statusChip(row.status));
+    if (keep("tools")) cells += td(toolsCell(row), "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;");
+    if (keep("actions")) cells += td('<div class="run-actions">' + _actions(row) + '</div>', "vertical-align:middle;");
+    // data-remote-sim-id: the remote deployment's simulation database id, present
+    // only for remote rows. The 🧪 Analysis handler reads it back from here rather
+    // than having it interpolated into an inline onclick= string (same reason as
+    // data-run-id — see _actions).
+    var remoteSimId = row.remote_origin && row.remote_origin.simulation_id;
+    var remoteAttr = remoteSimId != null ? ' data-remote-sim-id="' + esc(remoteSimId) + '"' : "";
+    return '<tr data-run-id="' + esc(runId) + '" data-study="' + esc(study(row)) + '"' + remoteAttr + " " +
+      'style="border-bottom:1px solid #f3f4f6;cursor:pointer;" ' +
       'title="Click to open this run — its study, or the Composite Explorer">' + cells + "</tr>";
   }
 
   var STUDY_COLS = [
-    { label: "Run", key: "run" }, { label: "Composite", key: "composite" },
-    { label: "Config", key: "config" },
-    { label: "Location", key: "location" },
-    { label: "Origin", key: "origin" }, { label: "Emitter", key: "emitter" },
-    { label: "Time", key: "time" }, { label: "Status", key: "status" },
-    { label: "Tools", key: null }, { label: "", key: null },
+    { label: "Run", key: "run", id: "run" }, { label: "Composite", key: "composite", id: "composite" },
+    { label: "Config", key: "config", id: "config" },
+    // `html` = the same render fn used for the cell. dropEmptyColumns() only
+    // considers columns that carry one (see below) — Location/Emitter render
+    // a plain "—" when unset, so an all-"—" column is genuinely dead; other
+    // columns (e.g. Composite's "⚠ none") render meaningful content even
+    // when the underlying value is missing, so they're left unmarked and
+    // always kept.
+    { label: "Location", key: "location", id: "location", html: function (row) { return location(row); } },
+    { label: "Origin", key: "origin", id: "origin" },
+    { label: "Emitter", key: "emitter", id: "emitter", html: function (row) { return emitterPill(row.emitter_type); } },
+    { label: "Time", key: "time", id: "time" }, { label: "Status", key: "status", id: "status" },
+    { label: "Tools", key: "tools", id: "tools" }, { label: "", key: null, id: "actions" },
   ];
+
+  // Generic pre-render pass (Fable A #2 / study-design-fable-pass spec R3):
+  // a table column whose rendered content is empty/"—" for EVERY row is
+  // dropped rather than shown as a column of dashes. Only columns that carry
+  // an `html(row)` accessor participate — columns without one (blank header,
+  // interactive controls, or a warning-style empty state) always stay.
+  // Shared by this module's Simulations runs table and study-detail.js's
+  // Readouts table (window.SimTable.dropEmptyColumns).
+  function _cellTextEmpty(html) {
+    var text = String(html == null ? "" : html).replace(/<[^>]*>/g, "").trim();
+    return text === "" || text === "—" || text === "-";
+  }
+  function dropEmptyColumns(rows, cols) {
+    rows = rows || [];
+    if (!rows.length) return cols;
+    return cols.filter(function (c) {
+      if (typeof c.html !== "function") return true;
+      return rows.some(function (r) { return !_cellTextEmpty(c.html(r)); });
+    });
+  }
 
   function sortValue(row, key) {
     if (key === "time") return row.completed_at || row.started_at || 0;
@@ -328,6 +497,17 @@
     if (key === "status") return String(row.status || "").toLowerCase();
     if (key === "location") return String(row.store_path || row.db_path || "").toLowerCase();
     if (key === "run") return String(row.sim_name || row.label || row.run_id || "").toLowerCase();
+    if (key === "config") {
+      var c = row.config || {};
+      return Object.keys(c).length ? JSON.stringify(c).toLowerCase() : "";
+    }
+    // Tools: matched-tool label, tool-less rows to the end (see walkthrough.js's
+    // _simSortValue for the same convention) so clicking Tools groups the
+    // tool-linked runs and floats them up on the first (ascending) click.
+    if (key === "tools") {
+      var mt = row.matched_tools || [];
+      return mt.length ? String(mt[0].label || mt[0].id || "").toLowerCase() : "\uffff";
+    }
     return "";
   }
 
@@ -338,7 +518,7 @@
     opts = opts || { scope: "study" };
     if (!mount) return;
     if (!rows || !rows.length) {
-      mount.innerHTML = '<p class="empty-state muted" style="margin:0">No simulations recorded for this study yet. Launch one from Configure &amp; Run below.</p>';
+      mount.innerHTML = '<p class="empty-state muted" style="margin:0">No simulations recorded for this study yet.</p>';
       return;
     }
     mount._simRows = rows;
@@ -349,7 +529,14 @@
       var c = av < bv ? -1 : av > bv ? 1 : 0;
       return sort.dir === "asc" ? c : -c;
     });
-    var head = "<thead><tr>" + STUDY_COLS.map(function (c) {
+    // R3 — no dead columns: drop any STUDY_COLS entry whose cell is empty
+    // across every row in this table (see dropEmptyColumns above).
+    var cols = dropEmptyColumns(rows, STUDY_COLS);
+    var dropIds = cols.length === STUDY_COLS.length ? null : STUDY_COLS
+      .filter(function (c) { return cols.indexOf(c) === -1; })
+      .map(function (c) { return c.id; });
+    var rowOpts = dropIds ? { scope: opts.scope, onRowClick: opts.onRowClick, dropIds: dropIds } : opts;
+    var head = "<thead><tr>" + cols.map(function (c) {
       var arrow = (c.key && c.key === sort.key) ? (sort.dir === "asc" ? " ▲" : " ▼") : "";
       var cursor = c.key ? "cursor:pointer;" : "";
       return '<th data-sort-key="' + (c.key || "") + '" style="text-align:left;padding:6px 8px;' +
@@ -357,7 +544,7 @@
         '">' + esc(c.label) + arrow + "</th>";
     }).join("") + "</tr></thead>";
     mount.innerHTML = '<table style="width:100%;border-collapse:collapse;">' + head +
-      "<tbody>" + sorted.map(function (r) { return renderRow(r, opts); }).join("") + "</tbody></table>";
+      "<tbody>" + sorted.map(function (r) { return renderRow(r, rowOpts); }).join("") + "</tbody></table>";
     mount.querySelectorAll("th[data-sort-key]").forEach(function (th) {
       var key = th.getAttribute("data-sort-key");
       if (!key) return;
@@ -388,12 +575,50 @@
         if (row && window._openCompositeFromRun) window._openCompositeFromRun(row);
       });
     });
+    // Config cell: click to open a popover with the full config + Copy JSON.
+    mount.querySelectorAll(".sim-config").forEach(function (el) {
+      el.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (window._showConfigPopover) window._showConfigPopover(el);
+      });
+    });
+    // Location cell: click to reveal the full path (wrap) and copy it.
+    mount.querySelectorAll(".sim-loc").forEach(function (el) {
+      el.addEventListener("click", function (e) {
+        e.stopPropagation();  // don't trigger the row's open handler
+        var full = el.getAttribute("data-loc") || "";
+        if (!full) return;
+        el.textContent = full;               // reveal the full path in place
+        el.style.whiteSpace = "normal";
+        el.style.wordBreak = "break-all";
+        el.style.overflow = "visible";
+        el.style.textOverflow = "clip";
+        el.title = full;
+        var done = function (ok) {
+          var badge = document.createElement("span");
+          badge.textContent = ok ? "  ✓ copied" : "  (copy failed)";
+          badge.style.cssText = "color:" + (ok ? "#16a34a" : "#b91c1c") + ";font-size:10px;white-space:nowrap";
+          el.appendChild(badge);
+          setTimeout(function () { if (badge.parentNode) badge.parentNode.removeChild(badge); }, 1800);
+        };
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(full).then(function () { done(true); }, function () { done(false); });
+          } else {
+            var ta = document.createElement("textarea");
+            ta.value = full; document.body.appendChild(ta); ta.select();
+            var ok = false; try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+            document.body.removeChild(ta); done(ok);
+          }
+        } catch (e3) { done(false); }
+      });
+    });
   }
 
   window.SimTable = {
     esc: esc, statusChip: statusChip, emitterPill: emitterPill, originPill: originPill,
     originLabel: originLabel, fmtTime: fmtTime, location: location, study: study,
     investigation: investigation, composite: composite, toolsCell: toolsCell,
-    renderRow: renderRow, renderTable: renderTable,
+    renderRow: renderRow, renderTable: renderTable, dropEmptyColumns: dropEmptyColumns,
   };
 })();

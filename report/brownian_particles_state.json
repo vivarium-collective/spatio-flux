@@ -1,13 +1,13 @@
 {
   "global_time": 0.0,
   "particles": {
-    "J9-1mJSg": {
-      "id": "J9-1mJSg",
+    "UeWJWQaU": {
+      "id": "UeWJWQaU",
       "position": [
-        2.04021547367369,
-        19.54887722737691
+        5.780495630590254,
+        29.90241699286691
       ],
-      "mass": 0.8650492000472437,
+      "mass": 0.05517382407045318,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -64,7 +64,16 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]"
+        },
+        "outputs": {
+          "particles": "map[particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "enforce_boundaries": {
@@ -116,7 +125,20 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]",
+          "process_interval": {
+            "_type": "float",
+            "_default": 1.0
+          }
+        },
+        "outputs": {
+          "particles": "map[particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "emitter": {
@@ -129,13 +151,18 @@
       "subsample": 1
     },
     "_inputs": "global_time:node|particles:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
       "particles": [
         "particles"
+      ]
+    },
+    "outputs": {
+      "results": [
+        "results"
       ]
     },
     "_contract": {
@@ -149,7 +176,18 @@
       ],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "global_time": "node",
+          "particles": "node"
+        },
+        "outputs": {
+          "results": "node"
+        }
+      },
+      "amendments": []
     }
-  }
+  },
+  "results": {}
 }

@@ -2,116 +2,84 @@
   "global_time": "float",
   "ecoli core dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "ecoli dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "cdiff dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "pputida dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "yeast dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "llactis dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "monod_kinetics": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:MonodKinetics",
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
     "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "fields": "glucose:concentration|acetate:concentration|ecoli core:mass|ecoli:mass|cdiff:mass|pputida:mass|yeast:mass|llactis:mass|monod biomass:mass|formate:concentration|ammonium:concentration|glycolate:concentration|glutamate:concentration|serine:concentration",
   "emitter": {
     "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:RAMEmitter",
     "config": "node",
     "_inputs": "global_time:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  }
+    "priority": 0.0
+  },
+  "results": "node"
 }

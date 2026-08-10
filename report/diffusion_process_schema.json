@@ -3,31 +3,23 @@
   "fields": "map[positive_array]",
   "diffusion": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DiffusionAdvection",
     "config": "node",
     "_inputs": "fields:map[positive_array]",
     "_outputs": "fields:map[positive_array]",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "emitter": {
     "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:RAMEmitter",
     "config": "node",
     "_inputs": "global_time:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  }
+    "priority": 0.0
+  },
+  "results": "node"
 }

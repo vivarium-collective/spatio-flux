@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_aa1670": {
+    "p_b90e85": {
       "id": "",
       "position": [
-        20.655997049679065,
-        9.34883056056313
+        6.39459981803004,
+        25.48364983871599
       ],
-      "mass": 0.03057492158596569,
+      "mass": 0.07460585175099398,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
         -0.0,
-        -0.0
+        0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 0.8054936296088697
+      "radius": 1.258246933356185
     }
   },
   "newtonian_particles": {
@@ -88,7 +88,16 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[complex_particle]"
+        },
+        "outputs": {
+          "particles": "map[complex_particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "enforce_boundaries": {
@@ -140,7 +149,20 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "particles": "map[particle]",
+          "process_interval": {
+            "_type": "float",
+            "_default": 1.0
+          }
+        },
+        "outputs": {
+          "particles": "map[particle]"
+        }
+      },
+      "amendments": []
     }
   },
   "emitter": {
@@ -153,13 +175,18 @@
       "subsample": 1
     },
     "_inputs": "global_time:node|particles:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
       "particles": [
         "particles"
+      ]
+    },
+    "outputs": {
+      "results": [
+        "results"
       ]
     },
     "_contract": {
@@ -173,7 +200,18 @@
       ],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "global_time": "node",
+          "particles": "node"
+        },
+        "outputs": {
+          "results": "node"
+        }
+      },
+      "amendments": []
     }
-  }
+  },
+  "results": {}
 }

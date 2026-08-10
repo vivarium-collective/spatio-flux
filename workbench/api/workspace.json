@@ -1,1 +1,1 @@
-{"name": "spatio_flux", "description": "", "imports": {}, "investigations": [{"name": "spatio-flux-test-suite", "title": "Spatio-Flux Test Suite \u2014 compositional multiscale scenarios", "status": "running", "description": ""}]}
+{"name": "spatio_flux", "description": "", "imports": {}, "investigations": [{"name": "paper-figures", "title": "Process Bigraph paper \u2014 figures", "status": "running", "description": ""}, {"name": "spatio-flux-test-suite", "title": "Spatio-Flux Test Suite \u2014 compositional multiscale scenarios", "status": "running", "description": ""}]}

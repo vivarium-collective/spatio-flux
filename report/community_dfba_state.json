@@ -78,7 +78,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          },
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          }
+        },
+        "outputs": {
+          "substrates": "map[concentration_delta]",
+          "biomass": "mass_delta"
+        }
+      },
+      "amendments": []
     }
   },
   "ecoli dFBA": {
@@ -150,7 +170,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          },
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          }
+        },
+        "outputs": {
+          "substrates": "map[concentration_delta]",
+          "biomass": "mass_delta"
+        }
+      },
+      "amendments": []
     }
   },
   "cdiff dFBA": {
@@ -222,7 +262,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          },
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          }
+        },
+        "outputs": {
+          "substrates": "map[concentration_delta]",
+          "biomass": "mass_delta"
+        }
+      },
+      "amendments": []
     }
   },
   "pputida dFBA": {
@@ -307,7 +367,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          },
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          }
+        },
+        "outputs": {
+          "substrates": "map[concentration_delta]",
+          "biomass": "mass_delta"
+        }
+      },
+      "amendments": []
     }
   },
   "yeast dFBA": {
@@ -379,7 +459,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          },
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          }
+        },
+        "outputs": {
+          "substrates": "map[concentration_delta]",
+          "biomass": "mass_delta"
+        }
+      },
+      "amendments": []
     }
   },
   "llactis dFBA": {
@@ -464,7 +564,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          },
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          }
+        },
+        "outputs": {
+          "substrates": "map[concentration_delta]",
+          "biomass": "mass_delta"
+        }
+      },
+      "amendments": []
     }
   },
   "monod_kinetics": {
@@ -519,7 +639,27 @@
       "math": [],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "biomass": {
+            "_type": "mass",
+            "_units": "gDW"
+          },
+          "substrates": {
+            "_type": "map",
+            "_value": {
+              "_type": "concentration",
+              "_units": "mM"
+            }
+          }
+        },
+        "outputs": {
+          "biomass": "mass_delta",
+          "substrates": "map[concentration_delta]"
+        }
+      },
+      "amendments": []
     }
   },
   "fields": {
@@ -548,13 +688,18 @@
       "subsample": 1
     },
     "_inputs": "global_time:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
       "fields": [
         "fields"
+      ]
+    },
+    "outputs": {
+      "results": [
+        "results"
       ]
     },
     "_contract": {
@@ -568,7 +713,18 @@
       ],
       "symbols": {},
       "assumptions": [],
-      "references": []
+      "references": [],
+      "face": {
+        "inputs": {
+          "global_time": "node",
+          "fields": "node"
+        },
+        "outputs": {
+          "results": "node"
+        }
+      },
+      "amendments": []
     }
-  }
+  },
+  "results": {}
 }

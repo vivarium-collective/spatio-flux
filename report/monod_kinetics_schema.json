@@ -2,32 +2,24 @@
   "global_time": "float",
   "monod_kinetics": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:MonodKinetics",
     "config": "node",
     "_inputs": "biomass:mass|substrates:map[concentration]",
     "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 0.1
   },
   "fields": "glucose:concentration|acetate:concentration|biomass:mass",
   "emitter": {
     "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:RAMEmitter",
     "config": "node",
     "_inputs": "global_time:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  }
+    "priority": 0.0
+  },
+  "results": "node"
 }

@@ -15,6 +15,8 @@ digraph bigraph {
 	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.01  0.01  0.01 …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'acetate')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>acetate</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0. 0. 0. 0. 0. 0. …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('results',)" [label=<results>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
 	"('dFBA[0,0]',)" [label=<dFBA[*]<BR/>(x100)>]
 	"('diffusion',)" [label=<diffusion>]
@@ -26,15 +28,15 @@ digraph bigraph {
 	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
 		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
 		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {

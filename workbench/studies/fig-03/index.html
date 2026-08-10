@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Study: fig-03</title>
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/style.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/progress-track.css">
+<!-- Inherit the workbench light/dark theme (this page loads in an iframe;
+     same-origin, so it shares the parent's localStorage 'viv.theme'). -->
+<script>(function(){try{var t=localStorage.getItem('viv.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+<main class="study-page">
+<header class="study-header">
+  <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
+  <h1 class="study-title">
+    <span class="study-name" id="study-name" data-slug="fig-03" title="fig-03">Fig 3 — process graph + composite process</span>
+    
+    <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
+    
+  </h1>
+  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
+    <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
+    <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
+  </span>
+  </div>
+  <div class="study-status-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
+    
+    
+    <span class="status-pill status-complete" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">complete</span>
+    
+
+    
+    <div id="readiness-panel" data-slug="fig-03"></div>
+
+    
+    
+    
+    
+    
+    
+    <details class="status-detail-panel" aria-label="Six-gate lifecycle status">
+      <summary>
+        <span class="status-stepper-more">status</span>
+        
+        <span class="status-stepper">
+          
+          <span class="status-step gate-step axis-design_status gate-state-not-assessed" title="Gate 1 · Plan">
+            <span class="dot"></span>1&nbsp;·&nbsp;Plan
+          </span>
+          
+          <span class="status-step gate-step axis-simulation_status gate-state-passed set" title="Gate 2 · Execution">
+            <span class="dot"></span>2&nbsp;·&nbsp;Execution
+          </span>
+          
+          <span class="status-step gate-step axis-evaluation_status gate-state-passed-with-conditions set" title="Gate 3 · Evidence">
+            <span class="dot"></span>3&nbsp;·&nbsp;Evidence
+          </span>
+          
+          <span class="status-step gate-step axis-evaluation_status gate-state-not-assessed set" title="Gate 4 · Quality">
+            <span class="dot"></span>4&nbsp;·&nbsp;Quality
+          </span>
+          
+          <span class="status-step gate-step axis-gate_status gate-state-not-assessed set" title="Gate 5 · Decision">
+            <span class="dot"></span>5&nbsp;·&nbsp;Decision
+          </span>
+          
+          <span class="status-step gate-step axis-expert_review_status gate-state-not-assessed" title="Gate 6 · Release">
+            <span class="dot"></span>6&nbsp;·&nbsp;Release
+          </span>
+          
+          
+        </span>
+      </summary>
+      <div class="status-stepper-body">
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">1 · Plan</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed">
+          <span class="status-detail-axis">2 · Execution</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-passed" title="4 completed run(s)">◆ computed: ran</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
+          <span class="status-detail-axis">3 · Evidence</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-passed-with-conditions" title="no verdicts recorded yet + visualization readiness gate (V4)">◆ computed: not_evaluated</span>
+          
+          
+          
+          <span class="gate-viz-gap-note" style="font-size:0.86em;color:#92400e">visualization gap: no interactive figure (only static images)</span>
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">4 · Quality</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-not-assessed" title="no verdicts recorded yet">◆ computed: not_evaluated</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">5 · Decision</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-not-assessed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: not_started</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">6 · Release</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          
+        </div>
+        
+        
+      </div>
+    </details>
+    
+  </div>
+</header>
+
+
+
+
+
+
+
+
+
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> What does Fig 3 — process graph + composite process depict, and does its bigraph-loom image generate?</p>
+
+<nav class="study-tabs" aria-label="Study sections">
+  
+  <div class="act-cluster" data-act="study">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="study" data-gate-state="passed-with-conditions"></span>
+      <span class="act-label">The Study</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar active" data-kind="overview" onclick="_setStudyTab('overview')">Overview</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="design">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="design" data-gate-state="not-assessed"></span>
+      <span class="act-label">Design</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="compose"  onclick="_setStudyTab('compose')">Model</button>
+      <button class="study-pillar" data-kind="readouts" onclick="_setStudyTab('readouts')">Readouts</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="evidence">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed-with-conditions"></span>
+      <span class="act-label">Evidence</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="simulate"  onclick="_setStudyTab('simulate')">Simulations</button>
+      <button class="study-pillar" data-kind="visualize" onclick="_setStudyTab('visualize')">Visualizations</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="assurance">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="assurance" data-gate-state="not-assessed"></span>
+      <span class="act-label">Assurance</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="tests" onclick="_setStudyTab('tests')">Tests</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="decision">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="not-assessed"></span>
+      <span class="act-label">Decision</span>
+    </div>
+    <div class="act-tabs">
+      
+      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Decide</button>
+    </div>
+  </div>
+</nav>
+<style>
+/* Task 4: header restructure — kind tag, promoted question, tightened status row.
+   The 6-axis stepper + gate-status colors below are carried over verbatim from
+   the pre-restructure Pass A styling (the <details> markup was repositioned,
+   not rebuilt). */
+.study-kind-tag{display:inline-block;font-size:0.5em;font-weight:600;padding:3px 9px;border-radius:9999px;vertical-align:middle;margin-left:8px;background:#f1f5f9;color:#475569;text-transform:capitalize}
+.study-kind-tag.study-kind-biological{background:#ecfdf5;color:#065f46}
+.study-kind-tag.study-kind-computational{background:#eff6ff;color:#1e40af}
+.study-kind-tag.study-kind-theoretical{background:#faf5ff;color:#6b21a8}
+.study-question-headline{margin:6px 0 0 0;font-size:1.05em;line-height:1.5;color:#1e293b;font-family:Georgia,"Times New Roman",serif}
+.study-question-headline .q-glyph{display:inline-block;font-size:0.78em;font-weight:700;font-family:ui-monospace,monospace;color:#64748b;background:#f1f5f9;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.study-status-row{font-size:0.95em}
+.status-detail-panel{margin:0;padding:2px 0;background:transparent;border:none;border-radius:0;font-size:0.92em}
+.status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
+.status-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;background:#e2e8f0;color:#334155;font-family:ui-monospace,monospace}
+/* gate_status colors per Pass A spec: blocked=gray, needs_calibration=amber, passed=green, failed=red, stale=purple */
+.gate-status-blocked          { background:#e5e7eb; color:#374151 }
+.gate-status-needs_calibration{ background:#fef3c7; color:#92400e }
+.gate-status-passed           { background:#d1fae5; color:#065f46 }
+.gate-status-failed           { background:#fee2e2; color:#991b1b }
+.gate-status-stale            { background:#ede9fe; color:#5b21b6 }
+.status-pill.gate-status{font-weight:500}
+/* Compact one-line lifecycle stepper; full per-axis rows behind the "status ▾" expander. */
+.status-detail-panel > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-detail-panel > summary::-webkit-details-marker{display:none}
+.status-stepper{display:flex;gap:13px;flex-wrap:wrap;align-items:center;flex:1}
+.status-step{display:inline-flex;align-items:center;gap:5px;font-size:0.82em;color:#94a3b8;white-space:nowrap}
+.status-step .dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.set{color:#334155}
+.status-step.set .dot{background:#10b981;box-shadow:none}
+.status-step .step-val{font-family:ui-monospace,monospace;font-size:0.92em;color:#64748b}
+.status-step.gate-status-blocked .dot{background:#9ca3af;box-shadow:none}
+.status-step.gate-status-needs_calibration .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
+/* Fable G2 (§13.2 gate-state vocab; §9.3 palette: grey/green/amber/red/violet).
+   One palette for the gate-ladder stepper dots + detail rows AND (via the
+   [data-gate-state] selectors below) the act-rail dots, so "how urgent is
+   this gate" reads identically in both places. Rules below `.status-step.set
+   .dot` on purpose so a "set" gate's real state wins over the generic green. */
+.status-step.gate-state-not-assessed .dot{background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.gate-state-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-state-passed-with-conditions .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-state-blocked .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-state-waived .dot{background:#8b5cf6;box-shadow:none}
+.status-chip.gate-state-not-assessed{background:#e2e8f0;color:#334155}
+.status-chip.gate-state-passed{background:#d1fae5;color:#065f46}
+.status-chip.gate-state-passed-with-conditions{background:#fef3c7;color:#92400e}
+.status-chip.gate-state-blocked{background:#fee2e2;color:#991b1b}
+.status-chip.gate-state-waived{background:#ede9fe;color:#5b21b6}
+.gate-computed-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-left:6px;font-family:ui-monospace,monospace;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.gate-divergence-chip-inline{display:inline-block;font-size:0.78em;font-weight:700;padding:2px 9px;border-radius:9999px;margin-left:6px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e}
+.act-gate-dot[data-gate-state="passed"]{background:#10b981;box-shadow:none}
+.act-gate-dot[data-gate-state="passed-with-conditions"]{background:#f59e0b;box-shadow:none}
+.act-gate-dot[data-gate-state="blocked"]{background:#ef4444;box-shadow:none}
+.act-gate-dot[data-gate-state="waived"]{background:#8b5cf6;box-shadow:none}
+.status-stepper-more{font-size:0.82em;font-weight:600;color:#475569;white-space:nowrap}
+.status-detail-panel[open] .status-stepper-more::after{content:" \25be"}
+.status-detail-panel:not([open]) .status-stepper-more::after{content:" \25b8"}
+.status-stepper-body{margin-top:6px;padding-top:6px;border-top:1px solid #eef2f6}
+.phase-pill{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-right:6px;font-weight:500;background:#e0e7ff;color:#3730a3}
+.phase-design   { background:#e0e7ff; color:#3730a3 }
+.phase-build    { background:#fef3c7; color:#92400e }
+.phase-simulate { background:#dbeafe; color:#1e40af }
+.phase-evaluate { background:#fce7f3; color:#9d174d }
+.phase-decide   { background:#d1fae5; color:#065f46 }
+.classification-pill{display:inline-block;font-size:0.7em;padding:1px 8px;border-radius:9999px;margin-right:4px;font-weight:500}
+.classification-primary    { background:#fee2e2; color:#991b1b }
+.classification-supporting { background:#dbeafe; color:#1e40af }
+.classification-diagnostic { background:#fef3c7; color:#92400e }
+.classification-regression { background:#e5e7eb; color:#374151 }
+.sim-status-pill{display:inline-block;font-size:0.72em;padding:1px 8px;border-radius:9999px;margin-left:4px}
+.sim-status-ready  { background:#d1fae5; color:#065f46 }
+.sim-status-gated  { background:#fef3c7; color:#92400e }
+.sim-status-running{ background:#dbeafe; color:#1e40af }
+.sim-status-ran    { background:#d1fae5; color:#065f46 }
+.purpose-callout{margin-bottom:10px;padding:10px 14px;border-radius:4px;line-height:1.55}
+.purpose-callout strong{margin-right:6px}
+.followup-list{display:flex;flex-direction:column;gap:10px}
+.followup-card{padding:10px 14px;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.93em}
+.followup-card.followup-kind-existing{border-left-color:#3b82f6;background:#eff6ff}
+.followup-card.followup-kind-infrastructure_fix{border-left-color:#dc2626;background:#fef2f2}
+.followup-card.followup-kind-calibration_task{border-left-color:#f59e0b;background:#fefce8}
+.followup-card.followup-kind-expert_question{border-left-color:#a855f7;background:#faf5ff}
+.followup-card.followup-kind-new{border-left-color:#10b981;background:#f0fdf4}
+.followup-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.followup-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+.followup-effort{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-family:ui-monospace,monospace}
+.followup-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+.followup-status.status-blocked{background:#fef3c7;color:#92400e}
+.followup-status.status-done{background:#d1fae5;color:#065f46}
+.followup-title{flex:1;font-size:1em}
+.followup-why,.followup-unblocks,.followup-acceptance,.followup-hypothesis{margin:4px 0 0 0;font-size:0.92em;line-height:1.45}
+.followup-hypothesis{padding:6px 10px;background:#fff;border-radius:3px;border:1px dashed #cbd5e1}
+.btn-seed-followup{font-size:0.85em;padding:4px 12px;border:1px solid #3b82f6;background:#fff;color:#3b82f6;border-radius:4px;cursor:pointer}
+.btn-seed-followup:hover{background:#3b82f6;color:#fff}
+/* ── One flowing figure gallery (Fable §4.5, Task V2) ──────────────────
+   The native gallery, embedded-HTML previews, and latest-run charts all
+   render as the same `.figure-card`: a bordered figure container + a muted
+   caption-row footer (source chip + title + optional run link), instead of
+   three differently-chrome'd sections under their own headings. The three
+   async mounts stay separate (`#native-gallery-panel`, the embed cards,
+   `#viz-charts-panel`) but each is a flex column with the same gap, so they
+   read as one continuous gallery. */
+.figure-gallery{display:flex;flex-direction:column;gap:16px}
+.figure-mount{display:flex;flex-direction:column;gap:16px}
+.charts-panel{display:flex;flex-direction:column;gap:16px}
+.figure-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
+.figure-media-frame{display:block;width:100%;border:0;background:#fff}
+.figure-media-frame--native{height:480px}
+.figure-media-frame--embed{min-height:200px}
+/* SVGs/PNGs scale to fit their card; preserves aspect ratio so a 1400×484
+   chart shrinks instead of overflowing horizontally + clipping. */
+.figure-card svg,.figure-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}
+.figure-desc{margin:8px 12px 0;font-size:0.85em;color:#475569}
+.figure-caption-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;font-size:0.85em;color:#475569;border-top:1px solid #f1f5f9;background:#f8fafc}
+.figure-source-chip{font-size:0.68em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#64748b;flex-shrink:0}
+.figure-title{font-weight:600;color:#334155;flex:1;min-width:100px}
+.figure-run-link,.figure-open-link{font-size:0.85em;color:#2563eb;text-decoration:none;white-space:nowrap;cursor:pointer}
+.figure-run-link:hover,.figure-open-link:hover{text-decoration:underline}
+.chart-caption{font-size:0.83em;color:#475569;margin:8px 12px 0;line-height:1.4}
+/* findings */
+.findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
+.finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
+.finding-card.finding-status-confirms{border-left-color:#10b981}
+.finding-card.finding-status-partial{border-left-color:#f59e0b}
+.finding-card.finding-status-contradicts{border-left-color:#dc2626}
+.finding-card.finding-status-novel{border-left-color:#8b5cf6}
+/* C2: compact ledger row (<summary>) + native <details> evidence drawer */
+.finding-details{border:none}
+.finding-details>summary{list-style:none;cursor:pointer}
+.finding-details>summary::-webkit-details-marker{display:none}
+.finding-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.finding-chip{font-size:0.78em;color:#475569;background:#f1f5f9;padding:2px 8px;border-radius:9999px;white-space:nowrap}
+.finding-drawer{margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0}
+.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.finding-status-glyph{font-size:1.2em;width:24px;text-align:center}
+.finding-status-confirms .finding-status-glyph{color:#10b981}
+.finding-status-partial .finding-status-glyph{color:#f59e0b}
+.finding-status-contradicts .finding-status-glyph{color:#dc2626}
+.finding-status-novel .finding-status-glyph{color:#8b5cf6}
+.finding-id{font-family:ui-monospace,monospace;font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px}
+.finding-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-weight:500}
+.finding-status-text{font-size:0.78em;color:#64748b;margin-left:auto;font-style:italic}
+.finding-statement{font-size:1em;line-height:1.5;font-weight:500;color:#0f172a;margin:4px 0 8px 0}
+.finding-claim{flex:1;min-width:200px;margin:0}
+.finding-evidence,.finding-expected{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}
+.finding-exp-summary{font-size:0.9em;color:#475569;padding:6px 10px;background:#fafbff;border-left:3px solid #6366f1;border-radius:3px;margin:6px 0;line-height:1.5}
+.finding-explanation{font-size:0.92em;color:#1e293b;margin:6px 0;line-height:1.5}
+.finding-explanation em{color:#475569;font-style:normal;font-weight:600}
+.finding-expert{margin:6px 0;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}
+.finding-expert summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}
+.finding-expert-quote{border-left:3px solid #6366f1;margin:6px 0 4px 0;padding:6px 10px;background:#fafbff;font-style:italic;color:#1e1b4b;font-size:0.92em;line-height:1.5}
+.finding-expert-note{font-size:0.88em;color:#475569;margin-top:4px;font-style:italic}
+.finding-next{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.9em;margin-top:8px;line-height:1.5}
+.finding-next strong{color:#065f46}
+/* discovery implications */
+.di-group{margin:14px 0}
+.di-group h3{margin:0 0 6px 0;font-size:0.95em}
+.di-uncertainties{display:flex;flex-wrap:wrap;gap:16px;margin:8px 0}
+.di-unc{flex:1;min-width:220px}
+.di-unc h4{margin:0 0 4px 0;font-size:0.88em}
+.di-unc-resolved h4{color:#065f46}
+.di-unc-remaining h4{color:#92400e}
+.di-unc ul{margin:0 0 0 18px;padding:0;font-size:0.9em;line-height:1.45}
+.di-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.92em}
+.di-card-stmt{font-size:0.98em;line-height:1.5}
+.di-card-why{margin:4px 0 0 0;color:#475569;line-height:1.45}
+.di-card-line{margin:4px 0 0 0;font-size:0.88em;color:#475569;line-height:1.4}
+.di-lbl{color:#475569;font-weight:600;font-size:0.85em}
+.di-mech-card{border-left-color:#a855f7;background:#faf5ff}
+.di-mech-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.di-update-chip{font-size:0.7em;text-transform:uppercase;letter-spacing:0.04em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}
+.di-conf-change{font-size:0.78em;color:#475569;font-family:ui-monospace,monospace}
+.di-approval-badge{font-size:0.68em;text-transform:uppercase;letter-spacing:0.04em;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e}
+.di-fup-card{border-left-color:#10b981;background:#f0fdf4}
+.di-gain-high{background:#d1fae5;color:#065f46}
+.di-gain-medium{background:#fef3c7;color:#92400e}
+.di-gain-low{background:#e5e7eb;color:#374151}
+.di-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+</style>
+
+<style>
+/* ── Study Overview redesign: narrative order + progressive disclosure ── */
+.is-hidden{display:none !important}
+.narrative-field{margin:6px 0}
+.add-field-btn{background:none;border:1px dashed #cbd5e1;color:#64748b;font-size:0.82em;
+  padding:4px 12px;border-radius:6px;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+.add-field-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.conclusion-block{border-top:2px solid #e2e8f0;padding-top:14px;margin-top:22px}
+/* Markdown-rendered conclusion blob: flows full-width (reflows authored hard-wraps), keeps paragraphs + ordered list. */
+.conclusion-md{color:#1e293b}
+.conclusion-md > :first-child{margin-top:0}
+.conclusion-md > :last-child{margin-bottom:0}
+.conclusion-md p{margin:0 0 10px}
+.conclusion-md ol,.conclusion-md ul{margin:0 0 10px;padding-left:22px}
+.conclusion-md li{margin:2px 0}
+.conclusion-md code{background:#eef2f7;padding:1px 4px;border-radius:3px;font-size:0.92em}
+.conclusion-md pre{background:#eef2f7;padding:8px 10px;border-radius:4px;overflow-x:auto;white-space:pre-wrap}
+.conclusion-insight{font-size:1.02em;line-height:1.55;color:#1e293b;margin:2px 0 12px;font-weight:500}
+.computed-tag{display:inline-block;font-size:0.68em;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.04em;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;
+  padding:1px 7px;border-radius:9999px;margin-left:8px;vertical-align:middle}
+.conclusion-tags{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.tag-control{display:inline-flex;align-items:center;gap:6px}
+.tag-k{font-size:0.72em;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;font-weight:600}
+.tag-select,.tag-input{font-size:0.85em;padding:3px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.tag-input{min-width:220px}
+</style>
+<section class="study-tab-panel active" data-kind="overview" id="panel-overview">
+  <div class="study-overview">
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    <h2 class="overview-label">Question &amp; approach</h2>
+    
+    <div class="overview-section">
+      
+      <div class="purpose-callout" style="background:#eff6ff;border-left:4px solid #3b82f6">
+        <strong>Question.</strong> What does Fig 3 — process graph + composite process depict, and does its bigraph-loom image generate?
+      </div>
+      
+      
+      <div class="purpose-callout" style="background:#f0fdf4;border-left:4px solid #10b981">
+        <strong>Hypothesis / Expected outcome.</strong> The figure&#39;s bigraph-loom SVG(s) generate and appear under Visualizations.
+      </div>
+      
+      
+      <div class="purpose-callout" style="background:#fefce8;border-left:4px solid #facc15">
+        <strong>Mechanism / Model change.</strong> A process graph (metabolism + gene expression over metab/enzymes/DNA) and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport), rendered in bigraph-loom.
+      </div>
+      
+    </div>
+    
+
+    
+
+    
+    
+    
+
+    
+    
+    <div class="overview-section" id="epistemic-debts-panel">
+      <h2 class="overview-label">🧾 Open epistemic debts
+        <span class="narrative-card-hint">(what this study has not yet established)</span>
+      </h2>
+      <div style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden">
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <div>
+            <strong style="color:#1e293b">alternative-not-excluded</strong>
+            <code style="font-size:0.82em">alternatives</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no alternative hypotheses declared</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">falsifiability</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">criteria read as tailored-to-succeed — add a falsifiability note (study.falsifiability)</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+    
+    
+    <div class="overview-section conclusion-block">
+      <h2 class="overview-label">Conclusion</h2>
+      
+      
+    <div class="narrative-field">
+      <button type="button" class="add-field-btn" data-reveal-field="report.conclusion">+ Add conclusion</button>
+      <label class="narrative-row narrative-row-wide is-hidden" data-field-editor="report.conclusion">
+        <span class="narrative-label">Conclusion</span>
+        <textarea class="narrative-input narrative-textarea" rows="3"
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated."></textarea>
+      </label>
+    </div>
+    
+      
+    <div class="narrative-field">
+      <button type="button" class="add-field-btn" data-reveal-field="report.caveat">+ Add caveat</button>
+      <label class="narrative-row narrative-row-wide is-hidden" data-field-editor="report.caveat">
+        <span class="narrative-label">Caveat</span>
+        <textarea class="narrative-input narrative-textarea" rows="2"
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know."></textarea>
+      </label>
+    </div>
+    
+      <div class="conclusion-tags">
+        <label class="tag-control"><span class="tag-k">confidence</span>
+          <select class="narrative-input tag-select" data-narrative-path="report.confidence">
+            <option value="">—</option>
+            <option value="high" >high</option>
+            <option value="medium" >medium</option>
+            <option value="low" >low</option>
+          </select></label>
+        <label class="tag-control"><span class="tag-k">evidence</span>
+          <input type="text" class="narrative-input tag-input" data-narrative-path="report.evidence_quality"
+                 value="" placeholder="calibrated | literature-matched | …"></label>
+      </div>
+    </div>
+
+    
+
+    
+    <div id="feedback-tracked-panel"></div>
+
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="compose" id="panel-compose" hidden>
+  <h2 class="overview-label" style="margin-bottom:8px">Model composition</h2>
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  <div class="overview-section" id="model-section">
+    <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
+    
+    <div class="cond-block" data-model-composite="spatio_flux.composites.fig03a-process-graph" data-model-overrides='{}'>
+      <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <strong>3a-process-graph</strong>
+        
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig03a-process-graph</code>
+        <button type="button" class="action-btn" style="font-size:0.8em"
+                onclick="_openCompositeLoom('spatio_flux.composites.fig03a-process-graph')">🧬 explore &amp; run ↗</button>
+        
+      </div>
+      
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="3a-process-graph"
+               value="spatio_flux.composites.fig03a-process-graph" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="3a-process-graph">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="3a-process-graph" style="font-size:0.8em;margin-top:2px"></div>
+      
+      
+      
+      <div class="model-config-mount" style="margin-top:8px">
+        <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
+      
+      
+      
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
+        
+        
+        
+        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
+      </div>
+      
+    </div>
+    
+    <div class="cond-block" data-model-composite="spatio_flux.composites.fig03b-composite-process" data-model-overrides='{}'>
+      <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <strong>3b-composite-process</strong>
+        
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig03b-composite-process</code>
+        <button type="button" class="action-btn" style="font-size:0.8em"
+                onclick="_openCompositeLoom('spatio_flux.composites.fig03b-composite-process')">🧬 explore &amp; run ↗</button>
+        
+      </div>
+      
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="3b-composite-process"
+               value="spatio_flux.composites.fig03b-composite-process" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="3b-composite-process">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="3b-composite-process" style="font-size:0.8em;margin-top:2px"></div>
+      
+      
+      
+      <div class="model-config-mount" style="margin-top:8px">
+        <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
+      
+      
+      
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
+        
+        
+        
+        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
+      </div>
+      
+    </div>
+    
+    
+  </div>
+  
+
+  
+  
+
+  
+
+  
+  
+  
+  
+
+  
+  <div class="overview-section" id="analyses-section" style="margin-top:22px">
+    <h3 class="section-title">Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
+
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="simulate" id="panel-simulate" hidden>
+
+<div class="overview-section" id="simulations-section">
+  <h2>Simulations</h2>
+  <div id="study-sim-table" style="overflow-x:auto"><p class="muted" style="margin:0">Loading simulations…</p></div>
+  <div id="study-run-detail" style="margin-top:14px"></div>
+</div>
+
+
+<div class="overview-section" id="study-artifacts-section" style="margin-top:18px">
+  <h3 class="section-title" style="margin:0 0 10px 0">Study artifacts</h3>
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
+    <a id="data-download-all" class="btn-mini" style="display:none"
+       href="/api/study-analysis-zip?study=fig-03">Download all (.zip)</a>
+  </div>
+  <div id="data-files" data-study="fig-03">
+    <p class="empty-message">Loading result files…</p>
+  </div>
+
+  
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:18px">
+    <span class="muted" id="exports-downloads" style="margin-right:auto;font-weight:600">Raw simulation data</span>
+    <button type="button" id="raw-data-download-all" class="btn-mini" style="display:none"
+            onclick="_downloadAllRawExports()">⬇ Download all raw data</button>
+  </div>
+  <div id="raw-data-list"><p class="empty-message">Loading runs…</p></div>
+</div>
+
+</section>
+
+<section class="study-tab-panel" data-kind="readouts" id="panel-readouts" hidden>
+  <div class="observables-section">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 class="section-title" style="margin-right:auto">Readouts</h3>
+    </div>
+    <p class="muted">Quantities collected from each simulation run. Each row is an emitter <code>store_path</code> the composite will save; authored entries in <code>study.yaml</code> add names, descriptions, and units on top.</p>
+
+    
+    <div id="readouts-download" style="margin:0 0 16px 0"></div>
+
+    <div id="readouts-table" data-study="fig-03">
+      <p class="empty-message">Loading readouts from the composite emit plan…</p>
+    </div>
+
+    
+    <details style="margin-top: 1.4em;">
+      <summary class="muted">How observables tie to Expected Behavior</summary>
+      <p style="font-size: 0.9em;">Observables can be referenced by name in an
+      <code>expected_behavior[i].measure</code> block (e.g. <code>kind: bulk_count, id:
+      "MONOMER0-160[c]"</code>). When the dashboard validates a study, it cross-checks
+      that every <code>measure</code> resolves to a declared observable, or to a
+      built-in helper.</p>
+    </details>
+    
+  </div>
+</section>
+
+<section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
+
+  <div class="overview-section study-figures figure-gallery" id="visualize-section">
+
+    <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
+
+    
+    
+
+    <div id="viz-charts-panel" class="charts-panel figure-mount"></div>
+
+    
+    <p id="figures-empty-message" class="empty-message" style="display:none">No figures yet.</p>
+  </div>
+</section>
+
+<section class="study-tab-panel" data-kind="tests" id="panel-tests" hidden>
+  <h2>Tests</h2>
+  <p class="muted" style="margin:0 0 12px 0">Audit — does this study pass its own bar (report cards + behavioral gates).</p>
+
+  
+  
+
+  
+  
+  
+
+  
+  <div class="tests-gate-summary" id="tests-gate-summary"><p class="empty-message">Loading gate summary…</p></div>
+
+  
+  <div class="checks-band" style="margin-top:22px">
+    <h3 class="section-title" style="margin-bottom:8px">Checks</h3>
+
+    
+    <div class="check-group check-group-quality" id="check-group-quality" data-check-group="quality">
+      <p class="empty-message">Loading quality checks…</p>
+    </div>
+
+    
+    <div class="check-group check-group-reproducibility" id="check-group-reproducibility" data-check-group="reproducibility" style="margin-top:16px">
+      <p class="empty-message">Loading reproducibility checks…</p>
+    </div>
+  </div>
+
+  
+  
+
+  <div class="behavioral-tests-section" style="margin-top:22px">
+    <h3 class="section-title">Behavioral tests</h3>
+    <div class="tests-header">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <button id="run-tests-btn" class="btn-primary">Run tests</button>
+        <div class="tests-summary muted" id="tests-summary">— no test results yet —</div>
+      </div>
+      <div class="tests-config" style="margin-top: 6px;">
+        <span class="badge">auto_discover: <code id="tests-auto-discover">true</code></span>
+        <span class="badge">data_source: <code id="tests-data-source">latest_run</code></span>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-0"
+        data-test-kind="behavioral"
+        
+        data-pytest-node=""
+        data-classification="unclassified"
+        data-result="pending"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #f1f5f9; color: #475569">⏳ pending</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">(unnamed)</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;"></div>
+      
+      
+      
+      
+      
+    </li>
+    
+  </ul>
+  
+  </div>
+</section>
+
+<section class="study-tab-panel" data-kind="conclusions" id="panel-conclusions" hidden>
+
+  
+  
+  
+  
+  
+
+  
+  <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
+    
+    <p class="muted small verdict-attribution" style="margin:0 0 8px 0" title="actor kind: unattributed">
+      <span class="actor-glyph">○</span> unattributed
+    </p>
+
+    
+    
+    
+
+    <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
+      <h3 class="overview-label">⚖️ Verdicts — three-track outcome
+        <span class="narrative-card-hint">(regression / empirical / explanatory)</span>
+      </h3>
+      <div class="narrative-grid">
+        <label class="narrative-row">
+          <span class="narrative-label">Regression compatibility</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="regression_compatibility"
+                title="Computed from run status (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from run status</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Regression basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Empirical validation</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="biological_validation"
+                title="Computed from the gate evaluator (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Empirical basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.biological_validation.basis"
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Explanatory gain</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="explanatory_gain"
+                title="Computed from interpretation-tier findings (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from interpretation-tier findings</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Explanatory basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+        </label>
+      </div>
+    </div>
+
+    
+    
+    
+
+    
+    
+    
+
+  </div>
+
+  
+  
+  <div class="overview-section"><h2 class="overview-label">Plan &amp; assumptions</h2>
+
+    
+    <div class="overview-section">
+      <h3 class="overview-label">Pipeline gate</h3>
+      <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
+        Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
+      </p>
+      
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="overview-section"><h2 class="overview-label">Evidence</h2>
+
+    
+    
+    
+    
+    <div class="decide-section">
+      <h3 class="overview-label">Latest run outcomes</h3>
+      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
+        baseline · seed ? ·
+        ?s simulated ·
+        ? history rows ·
+        started ?
+      </div>
+      
+      
+      
+    </div>
+    
+    
+
+  </div>
+
+  
+  <div class="overview-section"><h2 class="overview-label">Follow-ups &amp; decisions</h2>
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+  </div>
+
+  
+  
+
+</section>
+
+</main>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "ea41633bf6102188fa336be2f068357b6a349ce4", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/ea41633bf6102188fa336be2f068357b6a349ce4", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-10 03:44 UTC"} };</script>
+<script src="/spatio-flux/workbench/assets/data-source.js"></script>
+<script>
+window._studyName = "fig-03";
+window._study = null;  // populated by _bootstrapStudy() in study-detail.js
+
+// Save handler for the Conditions → Model settings editable rows.
+// POSTs to /api/study-expert-input-set (route kept for back-compat)
+// which patches study.yaml in place.
+// On success: flashes "saved" + updates the row's data-current attribute.
+// On failure: flashes the error (HTTP body) for ~5s.
+function _saveExpertInput(studyName, eiName, btn) {
+  var row = btn.closest('tr');
+  var input = row && row.querySelector('.cond-ei-input');
+  var flash = row && row.querySelector('.cond-ei-flash');
+  if (!input || !flash) return;
+  var raw = (input.value || '').trim();
+  // Coerce numeric inputs so yaml carries the right type
+  var val = raw;
+  if (input.type === 'number' && raw !== '') {
+    var n = Number(raw);
+    if (!isNaN(n)) val = n;
+  } else if (raw === '') {
+    val = null;
+  }
+  btn.disabled = true;
+  flash.className = 'cond-ei-flash';
+  flash.style.display = '';
+  flash.textContent = 'saving…';
+  fetch('/api/study-expert-input-set', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({study: studyName, name: eiName, current: val}),
+  }).then(function(r) {
+    return r.text().then(function(t) { return {ok: r.ok, status: r.status, body: t}; });
+  }).then(function(res) {
+    if (res.ok) {
+      flash.className = 'cond-ei-flash saved';
+      flash.textContent = '✓ saved';
+      setTimeout(function() { flash.style.display = 'none'; }, 2500);
+    } else {
+      flash.className = 'cond-ei-flash error';
+      flash.textContent = '✗ ' + (res.body || ('HTTP ' + res.status));
+    }
+  }).catch(function(err) {
+    flash.className = 'cond-ei-flash error';
+    flash.textContent = '✗ ' + String(err);
+  }).finally(function() {
+    btn.disabled = false;
+  });
+}
+
+// ── Seed a child study from this study's discovery_implications /
+//    follow_up_studies and make it appear in the investigation graph ──────
+// Both POST /api/study-seed-followup. On success they flash an inline
+// confirmation on the clicked button, then refresh the surface the user is
+// in: when embedded inside the investigation iframe, ask the parent to
+// re-render the investigation detail (and reload as a fallback); standalone,
+// reload the page so the seeded child is reflected.
+//
+// NOTE: these are defined AFTER /study-detail.js loads (see the script order
+// below) so they take precedence over the legacy _seedFollowupStudy there,
+// which navigates away instead of refreshing the embedded investigation.
+function _flashSeedBtn(btn, text, ok) {
+  if (!btn) return;
+  btn.textContent = text;
+  btn.style.borderColor = ok ? '#10b981' : '#dc2626';
+  btn.style.color = ok ? '#065f46' : '#991b1b';
+}
+function _afterSeedRefresh() {
+  // Embedded inside the investigation iframe → refresh the parent's graph.
+  if (window.parent && window.parent !== window) {
+    try {
+      if (window.parent._refreshInvestigationDetail) {
+        window.parent._refreshInvestigationDetail();
+        return;
+      }
+    } catch (e) { /* cross-origin or missing — fall through to reload */ }
+    try { window.parent.location.reload(); return; } catch (e) { /* fall through */ }
+  }
+  location.reload();
+}
+function _seedFollowup(payload, btn) {
+  var orig = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; _flashSeedBtn(btn, '… seeding', true); }
+  fetch('/api/study-seed-followup', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  }).then(function(r) {
+    return r.json().then(function(d) { return {ok: r.ok, status: r.status, body: d}; })
+      .catch(function() { return {ok: r.ok, status: r.status, body: {}}; });
+  }).then(function(res) {
+    if (!res.ok || (res.body && res.body.error)) {
+      _flashSeedBtn(btn, '✗ ' + ((res.body && res.body.error) || ('HTTP ' + res.status)), false);
+      if (btn) btn.disabled = false;
+      return;
+    }
+    _flashSeedBtn(btn, '✓ added', true);
+    setTimeout(_afterSeedRefresh, 600);
+  }).catch(function(err) {
+    _flashSeedBtn(btn, '✗ ' + String(err), false);
+    if (btn) btn.disabled = false;
+  });
+}
+function _seedFollowupStudy(parent, idx) {
+  _seedFollowup({parent: parent, followup_idx: idx}, window.event && window.event.target);
+}
+function _seedFollowupProposal(parent, proposalId) {
+  _seedFollowup({parent: parent, proposal_id: proposalId}, window.event && window.event.target);
+}
+window._seedFollowupStudy = _seedFollowupStudy;
+window._seedFollowupProposal = _seedFollowupProposal;
+</script>
+<script src="/spatio-flux/workbench/assets/configure-run.js"></script>
+<script src="/spatio-flux/workbench/assets/sim-table.js"></script>
+<script src="/spatio-flux/workbench/assets/study-detail.js"></script>
+<script>
+// Re-assert the refresh-aware seed handlers AFTER study-detail.js (which
+// defines its own navigate-away _seedFollowupStudy). The embedded
+// investigation view prefers staying in place over a full navigation.
+window._seedFollowupStudy = _seedFollowupStudy;
+window._seedFollowupProposal = _seedFollowupProposal;
+</script>
+<script>
+(function () {
+  // Task 8: the Configure & Run mount and the remote-run (smsvpctest) panel
+  // were both removed from the Simulate tab — launching now lives entirely
+  // in the header buttons (Reproduce / Run current spec). This block used
+  // to also mount ConfigureRun into the (now-deleted) mount div and, in an
+  // else-if, relabel the remote-run card via window._initRemoteRunPinned()
+  // if pinned mode was enabled; Fable A #7 deleted that now-fully-dormant
+  // remote-run subsystem from study-detail.js (its DOM anchors — the
+  // #remote-run-panel/-btn/-progress mounts — never existed in this
+  // template to begin with), so the else-if branch is gone too. Only the
+  // still-relevant header-button snapshot handling remains below, now
+  // unconditional (it used to be gated behind a lookup of that deleted div).
+  //
+  // Read-only bundle: there's no live backend to run on — hide the header
+  // run buttons in a published read-only snapshot (reproducible-rerun-spine
+  // Task 4 / G2: both equally inert with no live backend to launch against).
+  if (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.mode === "snapshot") {
+    var reproduceBtn = document.getElementById("study-reproduce");
+    if (reproduceBtn) reproduceBtn.style.display = "none";
+    var runCurrentBtn = document.getElementById("study-run-current-spec");
+    if (runCurrentBtn) runCurrentBtn.style.display = "none";
+  }
+})();
+</script>
+</body>
+</html>

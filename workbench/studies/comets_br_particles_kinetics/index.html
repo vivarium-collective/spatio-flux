@@ -5,6 +5,9 @@
 <title>Study: comets_br_particles_kinetics</title>
 <link rel="stylesheet" href="/spatio-flux/workbench/assets/style.css">
 <link rel="stylesheet" href="/spatio-flux/workbench/assets/progress-track.css">
+<!-- Inherit the workbench light/dark theme (this page loads in an iframe;
+     same-origin, so it shares the parent's localStorage 'viv.theme'). -->
+<script>(function(){try{var t=localStorage.getItem('viv.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 <body>
 <main class="study-page">
@@ -13,19 +16,133 @@
   <h1 class="study-title">
     <span class="study-name" id="study-name" data-slug="comets_br_particles_kinetics" title="comets_br_particles_kinetics">comets_br_particles_kinetics</span>
     
+    <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
+    
     <span class="phase-pill phase-evaluate" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Evaluate</span>
     
+  </h1>
+  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
+    <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
+    <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
+  </span>
+  </div>
+  <div class="study-status-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
     
     
     <span class="status-pill gate-status gate-status-passed" title="Pipeline gate verdict (Pass A multi-axis status). Drives downstream unblocking.">gate: passed</span>
     
+
+    
+    <div id="readiness-panel" data-slug="comets_br_particles_kinetics"></div>
+
     
     
     
-  </h1>
-  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
-    <button type="button" id="study-rerun" class="btn-mini" title="Re-run this study's baseline (POST /api/study-run-baseline) as a brand-new run">↻ Rerun study</button>
-  </span>
+    
+    
+    
+    <details class="status-detail-panel" aria-label="Six-gate lifecycle status">
+      <summary>
+        <span class="status-stepper-more">status</span>
+        
+        <span class="status-stepper">
+          
+          <span class="status-step gate-step axis-design_status gate-state-passed set" title="Gate 1 · Plan">
+            <span class="dot"></span>1&nbsp;·&nbsp;Plan<span class="step-val">complete</span>
+          </span>
+          
+          <span class="status-step gate-step axis-simulation_status gate-state-passed set" title="Gate 2 · Execution">
+            <span class="dot"></span>2&nbsp;·&nbsp;Execution<span class="step-val">ran</span>
+          </span>
+          
+          <span class="status-step gate-step axis-evaluation_status gate-state-passed set" title="Gate 3 · Evidence">
+            <span class="dot"></span>3&nbsp;·&nbsp;Evidence<span class="step-val">evaluated</span>
+          </span>
+          
+          <span class="status-step gate-step axis-evaluation_status gate-state-passed set" title="Gate 4 · Quality">
+            <span class="dot"></span>4&nbsp;·&nbsp;Quality<span class="step-val">evaluated</span>
+          </span>
+          
+          <span class="status-step gate-step axis-gate_status gate-state-passed set" title="Gate 5 · Decision">
+            <span class="dot"></span>5&nbsp;·&nbsp;Decision<span class="step-val">passed</span>
+          </span>
+          
+          <span class="status-step gate-step axis-expert_review_status gate-state-not-assessed" title="Gate 6 · Release">
+            <span class="dot"></span>6&nbsp;·&nbsp;Release
+          </span>
+          
+          
+          <span class="status-step axis-implementation_status set">
+            <span class="dot"></span>Implementation<span class="step-val">complete</span>
+          </span>
+          
+        </span>
+      </summary>
+      <div class="status-stepper-body">
+        
+        <div class="status-detail-row gate-row gate-state-passed">
+          <span class="status-detail-axis">1 · Plan</span>
+          <span class="status-chip gate-state-passed">complete</span>
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed">
+          <span class="status-detail-axis">2 · Execution</span>
+          <span class="status-chip gate-state-passed">ran</span>
+          
+          <span class="gate-computed-chip gate-state-passed" title="1 completed run(s)">◆ computed: ran</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed">
+          <span class="status-detail-axis">3 · Evidence</span>
+          <span class="status-chip gate-state-passed">evaluated</span>
+          
+          <span class="gate-computed-chip gate-state-passed" title="completed run + recorded verdicts">◆ computed: evaluated</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed">
+          <span class="status-detail-axis">4 · Quality</span>
+          <span class="status-chip gate-state-passed">evaluated</span>
+          
+          <span class="gate-computed-chip gate-state-passed" title="completed run + recorded verdicts">◆ computed: evaluated</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed">
+          <span class="status-detail-axis">5 · Decision</span>
+          <span class="status-chip gate-state-passed">passed</span>
+          
+          <span class="gate-computed-chip gate-state-passed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: passed</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">6 · Release</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          
+        </div>
+        
+        
+        <div class="status-detail-row">
+          <span class="status-detail-axis">Implementation</span>
+          <span class="status-chip">complete</span>
+        </div>
+        
+      </div>
+    </details>
+    
   </div>
 </header>
 
@@ -33,16 +150,76 @@
 
 
 
-<div id="readiness-panel" data-slug="comets_br_particles_kinetics"></div>
 
 
 
 
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Three-way coupling: spatial dFBA fields + Brownian particle agents that run Monod kinetics locally + diffusion. End-to-end smoke test of the COMETS-style composite stack with kinetic agents.</p>
 
-
+<nav class="study-tabs" aria-label="Study sections">
+  
+  <div class="act-cluster" data-act="study">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="study" data-gate-state="passed"></span>
+      <span class="act-label">The Study</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar active" data-kind="overview" onclick="_setStudyTab('overview')">Overview</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="design">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="design" data-gate-state="passed"></span>
+      <span class="act-label">Design</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="compose"  onclick="_setStudyTab('compose')">Model</button>
+      <button class="study-pillar" data-kind="readouts" onclick="_setStudyTab('readouts')">Readouts</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="evidence">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed"></span>
+      <span class="act-label">Evidence</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="simulate"  onclick="_setStudyTab('simulate')">Simulations</button>
+      <button class="study-pillar" data-kind="visualize" onclick="_setStudyTab('visualize')">Visualizations</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="assurance">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="assurance" data-gate-state="passed"></span>
+      <span class="act-label">Assurance</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="tests" onclick="_setStudyTab('tests')">Tests</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="decision">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed"></span>
+      <span class="act-label">Decision</span>
+    </div>
+    <div class="act-tabs">
+      
+      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Decide</button>
+    </div>
+  </div>
+</nav>
 <style>
-.status-detail-panel{margin:8px 0 14px 0;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:0.88em}
-.status-detail-panel h2{margin:0 0 6px 0;font-size:0.82em;text-transform:uppercase;letter-spacing:0.05em;color:#475569;font-weight:600}
+/* Task 4: header restructure — kind tag, promoted question, tightened status row.
+   The 6-axis stepper + gate-status colors below are carried over verbatim from
+   the pre-restructure Pass A styling (the <details> markup was repositioned,
+   not rebuilt). */
+.study-kind-tag{display:inline-block;font-size:0.5em;font-weight:600;padding:3px 9px;border-radius:9999px;vertical-align:middle;margin-left:8px;background:#f1f5f9;color:#475569;text-transform:capitalize}
+.study-kind-tag.study-kind-biological{background:#ecfdf5;color:#065f46}
+.study-kind-tag.study-kind-computational{background:#eff6ff;color:#1e40af}
+.study-kind-tag.study-kind-theoretical{background:#faf5ff;color:#6b21a8}
+.study-question-headline{margin:6px 0 0 0;font-size:1.05em;line-height:1.5;color:#1e293b;font-family:Georgia,"Times New Roman",serif}
+.study-question-headline .q-glyph{display:inline-block;font-size:0.78em;font-weight:700;font-family:ui-monospace,monospace;color:#64748b;background:#f1f5f9;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.study-status-row{font-size:0.95em}
+.status-detail-panel{margin:0;padding:2px 0;background:transparent;border:none;border-radius:0;font-size:0.92em}
 .status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
 .status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
 .status-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;background:#e2e8f0;color:#334155;font-family:ui-monospace,monospace}
@@ -53,96 +230,45 @@
 .gate-status-failed           { background:#fee2e2; color:#991b1b }
 .gate-status-stale            { background:#ede9fe; color:#5b21b6 }
 .status-pill.gate-status{font-weight:500}
-</style>
-<details class="status-detail-panel" aria-label="Multi-axis status detail" open>
-  <summary class="study-fold-summary">Status detail (Pass A multi-axis)</summary>
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Design</span>
-    <span class="status-chip ">complete</span>
-  </div>
-  
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Implementation</span>
-    <span class="status-chip ">complete</span>
-  </div>
-  
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Simulation</span>
-    <span class="status-chip ">ran</span>
-  </div>
-  
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Evaluation</span>
-    <span class="status-chip ">evaluated</span>
-  </div>
-  
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Gate</span>
-    <span class="status-chip gate-status-passed">passed</span>
-  </div>
-  
-  
-  
-  
-</details>
-
-
-
-
-
-
-<style>
-.spine-summary{margin:8px 0 0 0;border:1px solid #cbd5e1;border-left-width:5px;border-bottom:none;border-radius:6px 6px 0 0;background:#f8fafc;font-size:0.9em}
-.spine-summary:empty{display:none}
-.spine-summary-head{padding:7px 14px 4px 14px;font-size:0.78em;text-transform:uppercase;letter-spacing:0.05em;color:#475569;font-weight:700}
-.spine-row{display:flex;align-items:baseline;gap:10px;padding:4px 14px;border-top:1px solid #eef2f6}
-.spine-key{min-width:92px;color:#475569;font-weight:600;font-size:0.85em;text-transform:uppercase;letter-spacing:0.03em}
-.spine-val{flex:1;color:#1e293b}
-.spine-jump{white-space:nowrap}
-.spine-jump a,.spine-val a{color:#3b82f6;text-decoration:none}
-.spine-jump a:hover,.spine-val a:hover{text-decoration:underline}
-.spine-label{font-size:0.8em;color:#64748b;font-weight:500}
-.spine-chip-warn{display:inline-block;font-size:0.82em;font-weight:600;padding:1px 8px;border-radius:9999px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;margin-left:6px}
-.spine-div{font-weight:600;color:#92400e}
-</style>
-<div id="spine-summary" class="spine-summary" data-slug="comets_br_particles_kinetics"></div>
-
-<nav class="study-tabs" aria-label="Study sections">
-  <div class="study-pillars">
-    <button class="study-pillar active" data-pillar="understand" onclick="_setStudyPillar('understand')">Overview</button>
-    <button class="study-pillar"        data-pillar="compose"    onclick="_setStudyPillar('compose')">Model</button>
-    <button class="study-pillar"        data-pillar="simulate"   onclick="_setStudyPillar('simulate')">Simulations</button>
-    <button class="study-pillar"        data-pillar="readouts"   onclick="_setStudyPillar('readouts')">Readouts</button>
-    <button class="study-pillar"        data-pillar="visualize"  onclick="_setStudyPillar('visualize')">Visualizations</button>
-    <button class="study-pillar"        data-pillar="tests"      onclick="_setStudyPillar('tests')">Tests</button>
-    <button class="study-pillar"        data-pillar="decide"     onclick="_setStudyPillar('decide')">Decide</button>
-    <button class="study-pillar"        data-pillar="data"       onclick="_setStudyPillar('data')">Exports</button>
-  </div>
-  <div class="study-subnav" id="study-subnav">
-    <button class="study-tab active" data-kind="overview" data-pillar="understand" onclick="_setStudyTab('overview')">Overview</button>
-    <button class="study-tab" data-kind="compose" data-pillar="compose" onclick="_setStudyTab('compose')">Model</button>
-    <button class="study-tab" data-kind="simulate" data-pillar="simulate" onclick="_setStudyTab('simulate')">Simulations</button>
-    <button class="study-tab" data-kind="readouts" data-pillar="readouts" onclick="_setStudyTab('readouts')">Readouts</button>
-    <button class="study-tab" data-kind="visualize" data-pillar="visualize" onclick="_setStudyTab('visualize')">Visualizations</button>
-    
-    <button class="study-tab" data-kind="report-cards" data-pillar="tests" onclick="_setStudyTab('report-cards')">Report Cards</button>
-    <button class="study-tab" data-kind="tests" data-pillar="tests" onclick="_setStudyTab('tests')">Behavioral Tests</button>
-    
-    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Decide</button>
-    <button class="study-tab" data-kind="data" data-pillar="data" onclick="_setStudyTab('data')">Exports</button>
-  </div>
-</nav>
-<style>
+/* Compact one-line lifecycle stepper; full per-axis rows behind the "status ▾" expander. */
+.status-detail-panel > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-detail-panel > summary::-webkit-details-marker{display:none}
+.status-stepper{display:flex;gap:13px;flex-wrap:wrap;align-items:center;flex:1}
+.status-step{display:inline-flex;align-items:center;gap:5px;font-size:0.82em;color:#94a3b8;white-space:nowrap}
+.status-step .dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.set{color:#334155}
+.status-step.set .dot{background:#10b981;box-shadow:none}
+.status-step .step-val{font-family:ui-monospace,monospace;font-size:0.92em;color:#64748b}
+.status-step.gate-status-blocked .dot{background:#9ca3af;box-shadow:none}
+.status-step.gate-status-needs_calibration .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
+/* Fable G2 (§13.2 gate-state vocab; §9.3 palette: grey/green/amber/red/violet).
+   One palette for the gate-ladder stepper dots + detail rows AND (via the
+   [data-gate-state] selectors below) the act-rail dots, so "how urgent is
+   this gate" reads identically in both places. Rules below `.status-step.set
+   .dot` on purpose so a "set" gate's real state wins over the generic green. */
+.status-step.gate-state-not-assessed .dot{background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.gate-state-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-state-passed-with-conditions .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-state-blocked .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-state-waived .dot{background:#8b5cf6;box-shadow:none}
+.status-chip.gate-state-not-assessed{background:#e2e8f0;color:#334155}
+.status-chip.gate-state-passed{background:#d1fae5;color:#065f46}
+.status-chip.gate-state-passed-with-conditions{background:#fef3c7;color:#92400e}
+.status-chip.gate-state-blocked{background:#fee2e2;color:#991b1b}
+.status-chip.gate-state-waived{background:#ede9fe;color:#5b21b6}
+.gate-computed-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-left:6px;font-family:ui-monospace,monospace;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.gate-divergence-chip-inline{display:inline-block;font-size:0.78em;font-weight:700;padding:2px 9px;border-radius:9999px;margin-left:6px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e}
+.act-gate-dot[data-gate-state="passed"]{background:#10b981;box-shadow:none}
+.act-gate-dot[data-gate-state="passed-with-conditions"]{background:#f59e0b;box-shadow:none}
+.act-gate-dot[data-gate-state="blocked"]{background:#ef4444;box-shadow:none}
+.act-gate-dot[data-gate-state="waived"]{background:#8b5cf6;box-shadow:none}
+.status-stepper-more{font-size:0.82em;font-weight:600;color:#475569;white-space:nowrap}
+.status-detail-panel[open] .status-stepper-more::after{content:" \25be"}
+.status-detail-panel:not([open]) .status-stepper-more::after{content:" \25b8"}
+.status-stepper-body{margin-top:6px;padding-top:6px;border-top:1px solid #eef2f6}
 .phase-pill{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-right:6px;font-weight:500;background:#e0e7ff;color:#3730a3}
 .phase-design   { background:#e0e7ff; color:#3730a3 }
 .phase-build    { background:#fef3c7; color:#92400e }
@@ -179,12 +305,31 @@
 .followup-hypothesis{padding:6px 10px;background:#fff;border-radius:3px;border:1px dashed #cbd5e1}
 .btn-seed-followup{font-size:0.85em;padding:4px 12px;border:1px solid #3b82f6;background:#fff;color:#3b82f6;border-radius:4px;cursor:pointer}
 .btn-seed-followup:hover{background:#3b82f6;color:#fff}
-.charts-panel{margin-top:18px;display:flex;flex-direction:column;gap:18px}
-.chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px 12px 12px}
-/* SVGs scale to fit their card; preserves aspect ratio so a 1400×484
+/* ── One flowing figure gallery (Fable §4.5, Task V2) ──────────────────
+   The native gallery, embedded-HTML previews, and latest-run charts all
+   render as the same `.figure-card`: a bordered figure container + a muted
+   caption-row footer (source chip + title + optional run link), instead of
+   three differently-chrome'd sections under their own headings. The three
+   async mounts stay separate (`#native-gallery-panel`, the embed cards,
+   `#viz-charts-panel`) but each is a flex column with the same gap, so they
+   read as one continuous gallery. */
+.figure-gallery{display:flex;flex-direction:column;gap:16px}
+.figure-mount{display:flex;flex-direction:column;gap:16px}
+.charts-panel{display:flex;flex-direction:column;gap:16px}
+.figure-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
+.figure-media-frame{display:block;width:100%;border:0;background:#fff}
+.figure-media-frame--native{height:480px}
+.figure-media-frame--embed{min-height:200px}
+/* SVGs/PNGs scale to fit their card; preserves aspect ratio so a 1400×484
    chart shrinks instead of overflowing horizontally + clipping. */
-.chart-card svg,.chart-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}
-.chart-caption{font-size:0.83em;color:#475569;margin-top:4px;line-height:1.4}
+.figure-card svg,.figure-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}
+.figure-desc{margin:8px 12px 0;font-size:0.85em;color:#475569}
+.figure-caption-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;font-size:0.85em;color:#475569;border-top:1px solid #f1f5f9;background:#f8fafc}
+.figure-source-chip{font-size:0.68em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#64748b;flex-shrink:0}
+.figure-title{font-weight:600;color:#334155;flex:1;min-width:100px}
+.figure-run-link,.figure-open-link{font-size:0.85em;color:#2563eb;text-decoration:none;white-space:nowrap;cursor:pointer}
+.figure-run-link:hover,.figure-open-link:hover{text-decoration:underline}
+.chart-caption{font-size:0.83em;color:#475569;margin:8px 12px 0;line-height:1.4}
 /* findings */
 .findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
 .finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
@@ -192,6 +337,13 @@
 .finding-card.finding-status-partial{border-left-color:#f59e0b}
 .finding-card.finding-status-contradicts{border-left-color:#dc2626}
 .finding-card.finding-status-novel{border-left-color:#8b5cf6}
+/* C2: compact ledger row (<summary>) + native <details> evidence drawer */
+.finding-details{border:none}
+.finding-details>summary{list-style:none;cursor:pointer}
+.finding-details>summary::-webkit-details-marker{display:none}
+.finding-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.finding-chip{font-size:0.78em;color:#475569;background:#f1f5f9;padding:2px 8px;border-radius:9999px;white-space:nowrap}
+.finding-drawer{margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0}
 .finding-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
 .finding-status-glyph{font-size:1.2em;width:24px;text-align:center}
 .finding-status-confirms .finding-status-glyph{color:#10b981}
@@ -202,6 +354,7 @@
 .finding-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-weight:500}
 .finding-status-text{font-size:0.78em;color:#64748b;margin-left:auto;font-style:italic}
 .finding-statement{font-size:1em;line-height:1.5;font-weight:500;color:#0f172a;margin:4px 0 8px 0}
+.finding-claim{flex:1;min-width:200px;margin:0}
 .finding-evidence,.finding-expected{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}
 .finding-exp-summary{font-size:0.9em;color:#475569;padding:6px 10px;background:#fafbff;border-left:3px solid #6366f1;border-radius:3px;margin:6px 0;line-height:1.5}
 .finding-explanation{font-size:0.92em;color:#1e293b;margin:6px 0;line-height:1.5}
@@ -238,76 +391,46 @@
 .di-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
 </style>
 
+<style>
+/* ── Study Overview redesign: narrative order + progressive disclosure ── */
+.is-hidden{display:none !important}
+.narrative-field{margin:6px 0}
+.add-field-btn{background:none;border:1px dashed #cbd5e1;color:#64748b;font-size:0.82em;
+  padding:4px 12px;border-radius:6px;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+.add-field-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.conclusion-block{border-top:2px solid #e2e8f0;padding-top:14px;margin-top:22px}
+/* Markdown-rendered conclusion blob: flows full-width (reflows authored hard-wraps), keeps paragraphs + ordered list. */
+.conclusion-md{color:#1e293b}
+.conclusion-md > :first-child{margin-top:0}
+.conclusion-md > :last-child{margin-bottom:0}
+.conclusion-md p{margin:0 0 10px}
+.conclusion-md ol,.conclusion-md ul{margin:0 0 10px;padding-left:22px}
+.conclusion-md li{margin:2px 0}
+.conclusion-md code{background:#eef2f7;padding:1px 4px;border-radius:3px;font-size:0.92em}
+.conclusion-md pre{background:#eef2f7;padding:8px 10px;border-radius:4px;overflow-x:auto;white-space:pre-wrap}
+.conclusion-insight{font-size:1.02em;line-height:1.55;color:#1e293b;margin:2px 0 12px;font-weight:500}
+.computed-tag{display:inline-block;font-size:0.68em;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.04em;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;
+  padding:1px 7px;border-radius:9999px;margin-left:8px;vertical-align:middle}
+.conclusion-tags{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.tag-control{display:inline-flex;align-items:center;gap:6px}
+.tag-k{font-size:0.72em;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;font-weight:600}
+.tag-select,.tag-input{font-size:0.85em;padding:3px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.tag-input{min-width:220px}
+</style>
 <section class="study-tab-panel active" data-kind="overview" id="panel-overview">
   <div class="study-overview">
 
     
     
     
-    <div class="overview-section narrative-card" data-narrative-card="report">
-      <h2 class="overview-label">📋 Summary</h2>
-      <div class="narrative-grid">
-        
-        <label class="narrative-row">
-          <span class="narrative-label">Verdict</span>
-          <span class="narrative-input verdict-badge-computed"
-                title="Computed from the gate evaluator (read-only)"
-                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">passed</span>
-          <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
-        </label>
-        <label class="narrative-row">
-          <span class="narrative-label">Confidence</span>
-          <select class="narrative-input" data-narrative-path="report.confidence">
-            <option value="">(unset)</option>
-            <option value="high" >high</option>
-            <option value="medium" >medium</option>
-            <option value="low" >low</option>
-          </select>
-        </label>
-        <label class="narrative-row">
-          <span class="narrative-label">Evidence quality</span>
-          <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
-                 placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
-        </label>
-        <div class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Main insight</span>
-          <span class="narrative-input" style="background:transparent;border:0;color:#334155">spatio_flux reproduces the comets_br_particles_kinetics test-suite report artifacts via the post-run analysis flush.
-            <span class="muted small">— computed from findings</span></span>
-        </div>
-        <label class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Caveat</span>
-          <textarea class="narrative-input narrative-textarea" rows="2"
-                    data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
-        </label>
-        <label class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Conclusion</span>
-          <textarea class="narrative-input narrative-textarea" rows="3"
-                    data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
-        </label>
-      </div>
-    </div>
 
     
-    <div class="overview-section biology-summary-callout">
-      <h2 class="biology-glance-label">Biology — what this study is about</h2>
-      <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
-                data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
-      
-      <div class="biology-derived-preview muted small" style="margin-top:6px;padding:8px 12px;background:#f8fafc;border-left:3px solid #cbd5e1;border-radius:4px">
-        <em>Derived from findings (shown in the report when no override is set):</em>
-        <p style="margin:4px 0 0">spatio_flux reproduces the comets_br_particles_kinetics test-suite report artifacts via the post-run analysis flush.</p>
-      </div>
-      
-    </div>
+    
 
+    
     
     <h2 class="overview-label">Question &amp; approach</h2>
-
-    
     
     <div class="overview-section">
       
@@ -329,48 +452,61 @@
     
 
     
+
+    
+    
     
     <div class="overview-section findings-section">
       <h2 class="overview-label">🔬 Findings — what this study taught us</h2>
       
       
       
+      
+      
       <div class="finding-card finding-kind-computational finding-status-passed">
-        <div class="finding-header">
-          <span class="finding-status-glyph">◆</span>
-          <span class="finding-id">F1</span>
-          <span class="finding-kind">computational</span>
-          <span class="finding-status-text">passed literature</span>
-        </div>
-        <div class="finding-statement">spatio_flux reproduces the comets_br_particles_kinetics test-suite report artifacts via the post-run analysis flush.</div>
-        
-        
-        
-        
-        <div class="finding-evidence">
-          
-          via test <a href="#bt-COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT"><code>COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT</code></a> · 
-          
-          
-          
-        </div>
-        
-        
-        <div class="finding-traceability" style="font-size:0.84em;color:#475569;padding:4px 10px;margin:4px 0">
-          
-          
-          runs: <a href="#run-comets_br_particles_kinetics-reproduce"><code>comets_br_particles_kinetics-reproduce</code></a>
-        </div>
-        
-        
-        
-        <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</code></div>
-        
-        
-        
-        
-        
-        
+        <details class="finding-details">
+          <summary class="finding-row">
+            <span class="finding-status-glyph">◆</span>
+            <span class="finding-claim finding-statement">spatio_flux reproduces the comets_br_particles_kinetics test-suite report artifacts via the post-run analysis flush.</span>
+            
+            <span class="finding-chip">via <code>COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT</code></span>
+            
+          </summary>
+          <div class="finding-drawer">
+            <div class="finding-header">
+              <span class="finding-id">F1</span>
+              <span class="finding-kind">computational</span>
+              <span class="finding-status-text">passed literature</span>
+            </div>
+            
+            
+            <div class="finding-evidence">
+              
+              
+              via test <a href="#bt-COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT" onclick="_gotoStudyTab('tests','bt-COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT');return false;"><code>COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT</code></a> · 
+              
+              
+              
+            </div>
+            
+            
+            <div class="finding-traceability" style="font-size:0.84em;color:#475569;padding:4px 10px;margin:4px 0">
+              
+              
+              runs: <a href="#run-comets_br_particles_kinetics-reproduce"><code>comets_br_particles_kinetics-reproduce</code></a>
+            </div>
+            
+            
+            
+            <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: op: all_exist_and_match · tolerance: 0.02</code></div>
+            
+            
+            
+            
+            
+            
+          </div>
+        </details>
       </div>
       
     </div>
@@ -437,94 +573,47 @@
     
 
     
-    <details class="overview-section">
-      <summary class="overview-label">Plan &amp; provenance</summary>
-
+    
+    <div class="overview-section conclusion-block">
+      <h2 class="overview-label">Conclusion</h2>
       
-      <div class="overview-section">
-        <h3 class="overview-label">Pipeline gate</h3>
-        <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
-          Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
-        </p>
-        
-        <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
-          <code>comets_diffusion</code> · <code>br_particles_kinetics</code>
-        </div>
-        
-        
-        
-        <div><strong>Proceed when:</strong> <span class="muted">Composition ordering only; this study runs independently.</span></div>
-        
+      <p class="conclusion-insight">spatio_flux reproduces the comets_br_particles_kinetics test-suite report artifacts via the post-run analysis flush.<span class="computed-tag">computed from findings</span></p>
+      
+      
+    <div class="narrative-field">
+      <button type="button" class="add-field-btn" data-reveal-field="report.conclusion">+ Add conclusion</button>
+      <label class="narrative-row narrative-row-wide is-hidden" data-field-editor="report.conclusion">
+        <span class="narrative-label">Conclusion</span>
+        <textarea class="narrative-input narrative-textarea" rows="3"
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated."></textarea>
+      </label>
+    </div>
+    
+      
+    <div class="narrative-field">
+      <button type="button" class="add-field-btn" data-reveal-field="report.caveat">+ Add caveat</button>
+      <label class="narrative-row narrative-row-wide is-hidden" data-field-editor="report.caveat">
+        <span class="narrative-label">Caveat</span>
+        <textarea class="narrative-input narrative-textarea" rows="2"
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know."></textarea>
+      </label>
+    </div>
+    
+      <div class="conclusion-tags">
+        <label class="tag-control"><span class="tag-k">confidence</span>
+          <select class="narrative-input tag-select" data-narrative-path="report.confidence">
+            <option value="">—</option>
+            <option value="high" >high</option>
+            <option value="medium" >medium</option>
+            <option value="low" >low</option>
+          </select></label>
+        <label class="tag-control"><span class="tag-k">evidence</span>
+          <input type="text" class="narrative-input tag-input" data-narrative-path="report.evidence_quality"
+                 value="" placeholder="calibrated | literature-matched | …"></label>
       </div>
-      
+    </div>
 
-      
-
-      
-      
-      <div class="overview-section">
-        <h2 class="overview-label">Behavioral tests</h2>
-        
-        
-        
-        
-        
-        <p style="margin:0">
-          <strong>1</strong> tests defined
-            <span class="classification-pill classification-regression">1 regression</span>
-          <a onclick="_setStudyTab('tests')" style="cursor:pointer;color:#3b82f6;text-decoration:underline;margin-left:6px">View on Tests tab →</a>
-        </p>
-      </div>
-      
-
-      
-
-      
-      <div class="overview-section">
-        <h2 class="overview-label">Limitations</h2>
-        <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
-        <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-          <li style="margin:2px 0">Faithful reproduction of an existing scenario; no new biology.</li><li style="margin:2px 0">Graph edges document composition, they do not gate execution.</li>
-        </ul>
-      </div>
-      
-
-      
-      
-
-      
-      
-
-      <div class="overview-section">
-        <h3 class="overview-label">Status</h3>
-        
-        
-
-        
-        <p class="muted" style="margin:6px 0 0 0;font-size:0.85em">Lifecycle phase: <strong>Evaluate</strong> (Design → Build → Simulate → Evaluate → Decide).</p>
-        
-      </div>
-
-      <div class="study-counts-strip">
-        <div class="count-cell">
-          <strong>0</strong>
-          <span class="count-label">variants</span>
-        </div>
-        <div class="count-cell">
-          <strong>0</strong>
-          <span class="count-label">readouts</span>
-        </div>
-        <div class="count-cell">
-          <strong>0</strong>
-          <span class="count-label">requirements</span>
-        </div>
-        <div class="count-cell">
-          <strong>1</strong>
-          <span class="count-label">runs</span>
-        </div>
-      </div>
-
-    </details>
+    
 
     
     <div id="feedback-tracked-panel"></div>
@@ -542,9 +631,13 @@
 
   
   
+  
+  
+  
+  
+  
   <div class="overview-section" id="model-section">
-    <h3>Model <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
-    <p class="muted" style="font-size:0.88em">Each row runs one composite. Below it: the composite address (open it in the bigraph-loom explorer), the resolved configuration that actually executes, and the run settings.</p>
+    <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
     <div class="cond-block" data-model-composite="spatio_flux.composites.comets.comets_br_particles_kinetics" data-model-overrides='{}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -556,6 +649,17 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="spatio_flux.composites.comets.comets_br_particles_kinetics" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
+      
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -564,11 +668,12 @@
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
         
         
-        <span class="cond-pill"><span class="cond-pill-k">emitter</span>={&#39;kind&#39;: &#39;xarray&#39;, &#39;store&#39;: &#39;studies/comets_br_particles_kinetics/runs.comets_br_particles_kinetics-reproduce.zarr&#39;}</span>
+        
         <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
       </div>
       
     </div>
+    
     
   </div>
   
@@ -582,46 +687,48 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section" style="margin-top:22px">
+    <h3 class="section-title">Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
+
 </section>
 
 
 
 <section class="study-tab-panel" data-kind="simulate" id="panel-simulate" hidden>
 
-  <div id="reproduce-card" class="reproduce-card"
-       style="margin:0 0 14px 0;padding:10px 12px;background:#f8fafc;
-              border:1px solid #e2e8f0;border-radius:6px;font-size:0.9em"></div>
-
-
 <div class="overview-section" id="simulations-section">
-  <h3 style="display:flex;align-items:center;gap:8px">Simulations
-    <span class="muted" style="font-size:0.85em;font-weight:normal">— this study's runs</span>
-    <button type="button" class="btn-mini" title="Reload this study's runs"
-            onclick="_loadStudySims(true)" style="margin-left:auto;font-size:0.8em">↻ Refresh</button>
-  </h3>
-  <p class="muted" style="font-size:0.88em">Every run recorded for this study (the same view as the Simulations DB, scoped here) — data location, origin, emitter, time, status, and downloads. Click a run to open its results; launch new runs below.</p>
+  <h2>Simulations</h2>
   <div id="study-sim-table" style="overflow-x:auto"><p class="muted" style="margin:0">Loading simulations…</p></div>
   <div id="study-run-detail" style="margin-top:14px"></div>
 </div>
 
-  
-  
-  <!-- Configure & Run widget (SP-C) — native run launcher for this study -->
-  <div id="study-configure-run" style="margin-bottom:18px"></div>
-  <div class="panel" id="remote-run-panel" style="margin-bottom:18px">
-    <h3 style="margin-top:0">Run on remote (smsvpctest)</h3>
-    <p class="muted" style="font-size:0.9em">
-      Pushes the workspace's current branch, builds a simulator from that commit, and runs
-      it on the Ray backend. Results land as a run on this study. Requires GitHub login.
-    </p>
-    <form id="remote-run-form" onsubmit="return _submitRemoteRun(event)">
-      <label>Generations: <input name="num_generations" type="number" min="1" value="1" required></label>
-      <label>Seeds: <input name="num_seeds" type="number" min="1" value="1" required></label>
-      <label><input type="checkbox" name="run_parca" checked> Run ParCa</label>
-      <button type="submit" class="btn-mini" id="remote-run-btn">▶ Run on remote</button>
-    </form>
-    <div id="remote-run-progress" hidden></div>
+
+<div class="overview-section" id="study-artifacts-section" style="margin-top:18px">
+  <h3 class="section-title" style="margin:0 0 10px 0">Study artifacts</h3>
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
+    <a id="data-download-all" class="btn-mini" style="display:none"
+       href="/api/study-analysis-zip?study=comets_br_particles_kinetics">Download all (.zip)</a>
   </div>
+  <div id="data-files" data-study="comets_br_particles_kinetics">
+    <p class="empty-message">Loading result files…</p>
+  </div>
+
+  
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:18px">
+    <span class="muted" id="exports-downloads" style="margin-right:auto;font-weight:600">Raw simulation data</span>
+    <button type="button" id="raw-data-download-all" class="btn-mini" style="display:none"
+            onclick="_downloadAllRawExports()">⬇ Download all raw data</button>
+  </div>
+  <div id="raw-data-list"><p class="empty-message">Loading runs…</p></div>
+</div>
 
 </section>
 
@@ -645,81 +752,64 @@
 
 <section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
 
-  <div class="viz-section">
+  <div class="overview-section study-figures figure-gallery" id="visualize-section">
 
-    <h3 class="section-title">Visualizations</h3>
-    <p class="muted" style="margin:0 0 12px 0;font-size:0.88em">Figures for this study: the native analysis gallery from its latest run, any embedded HTML artefacts, and charts auto-rendered from <code>runs.db</code>.</p>
-    <div class="native-gallery-section" style="margin-bottom:22px">
-      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Baseline analysis gallery <span style="font-weight:normal">— latest completed run</span></h4>
-      <div id="native-gallery-panel"><p class="empty-message">Loading baseline figures…</p></div>
-    </div>
+    <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
 
     
     
 
-    <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>
-    <div id="viz-charts-panel" class="charts-panel"></div>
-  </div>
-</section>
-
-<section class="study-tab-panel" data-kind="report-cards" id="panel-report-cards" hidden>
-  <div class="report-cards-section">
-    <h3 class="section-title">Report cards</h3>
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.9em">
-      Graded comparison scorecards for this study (v2ecoli vs vEcoli / literature).
-      Each card's verdict summarises whether the compared observables fall within
-      tolerance. Cards are produced during the post-sim flush from the study's
-      <code>report_cards:</code> declaration into <code>viz/report_card/</code>.
-    </p>
-    <div id="report-cards-panel"><p class="empty-message">Loading report cards…</p></div>
-  </div>
-</section>
-
-<section class="study-tab-panel" data-kind="data" id="panel-data" hidden>
-  <div class="data-section">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-      <h3 class="section-title" style="margin-right:auto">Analysis result files</h3>
-      <a id="data-download-all" class="btn-mini" style="display:none"
-         href="/api/study-analysis-zip?study=comets_br_particles_kinetics">Download all (.zip)</a>
-    </div>
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">
-      Tabular outputs (<code>.csv</code> / <code>.tsv</code>) written by this study's
-      Analysis steps — e.g. per-run analysis tables and exports. Click a file to
-      download it.
-    </p>
-    <div id="data-files" data-study="comets_br_particles_kinetics">
-      <p class="empty-message">Loading result files…</p>
-    </div>
+    <div id="viz-charts-panel" class="charts-panel figure-mount"></div>
 
     
-    <h3 class="section-title" style="margin-top:22px">Raw simulation data</h3>
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">
-      Each run's raw emitter store (zarr / parquet / <code>runs.db</code>) — the full
-      per-step trajectory. Analysis outputs above are derived from these.
-    </p>
-    <div id="raw-data-list"><p class="empty-message">Loading runs…</p></div>
+    <p id="figures-empty-message" class="empty-message" style="display:none">No figures yet.</p>
   </div>
 </section>
 
 <section class="study-tab-panel" data-kind="tests" id="panel-tests" hidden>
-  <div class="tests-header">
-    <h3>Behavioral Tests</h3>
-    <p class="muted" style="margin: 0 0 8px 0;">
-      Each prediction below is paired with a precise <code>given / measure / expect</code>
-      rule so one English sentence auto-generates one pytest assertion. The
-      generic evaluator in <code>tests/_behaviors.py</code> dispatches on
-      <code>measure.kind</code> + <code>expect.op</code> to compute pass/fail
-      against the latest simulation run.
-    </p>
-    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-      <button id="run-tests-btn" class="btn-primary">Run tests</button>
-      <div class="tests-summary muted" id="tests-summary">— no test results yet —</div>
+  <h2>Tests</h2>
+  <p class="muted" style="margin:0 0 12px 0">Audit — does this study pass its own bar (report cards + behavioral gates).</p>
+
+  
+  
+
+  
+  
+  
+
+  
+  <div class="tests-gate-summary" id="tests-gate-summary"><p class="empty-message">Loading gate summary…</p></div>
+
+  
+  <div class="checks-band" style="margin-top:22px">
+    <h3 class="section-title" style="margin-bottom:8px">Checks</h3>
+
+    
+    <div class="check-group check-group-quality" id="check-group-quality" data-check-group="quality">
+      <p class="empty-message">Loading quality checks…</p>
     </div>
-    <div class="tests-config" style="margin-top: 6px;">
-      <span class="badge">auto_discover: <code id="tests-auto-discover">true</code></span>
-      <span class="badge">data_source: <code id="tests-data-source">latest_run</code></span>
+
+    
+    <div class="check-group check-group-reproducibility" id="check-group-reproducibility" data-check-group="reproducibility" style="margin-top:16px">
+      <p class="empty-message">Loading reproducibility checks…</p>
     </div>
   </div>
+
+  
+  
+
+  <div class="behavioral-tests-section" style="margin-top:22px">
+    <h3 class="section-title">Behavioral tests</h3>
+    <div class="tests-header">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <button id="run-tests-btn" class="btn-primary">Run tests</button>
+        <div class="tests-summary muted" id="tests-summary">— no test results yet —</div>
+      </div>
+      <div class="tests-config" style="margin-top: 6px;">
+        <span class="badge">auto_discover: <code id="tests-auto-discover">true</code></span>
+        <span class="badge">data_source: <code id="tests-data-source">latest_run</code></span>
+      </div>
+    </div>
 
   
   
@@ -763,6 +853,7 @@
       
       <details style="margin-top: 6px; font-size: 0.82em;">
         <summary class="muted" style="cursor: pointer;">Assertion</summary>
+        
         <pre style="background:#fff; padding:8px; margin:4px 0 0 0; border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto;">measure: {"expected": ["comets_br_particles_kinetics_timeseries.png", "comets_br_particles_kinetics_mass.png", "comets_br_particles_kinetics_snapshots.png", "comets_br_particles_kinetics_video.gif", "comets_br_particles_kinetics_viz.png", "comets_br_particles_kinetics_schema.json", "comets_br_particles_kinetics_state.json"], "kind": "artifacts_present"}
 pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
       </details>
@@ -774,6 +865,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
     
   </ul>
   
+  </div>
 </section>
 
 <section class="study-tab-panel" data-kind="conclusions" id="panel-conclusions" hidden>
@@ -786,27 +878,19 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
 
   
   <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
+    
+    <p class="muted small verdict-attribution" style="margin:0 0 8px 0" title="actor kind: unattributed">
+      <span class="actor-glyph">○</span> unattributed
+    </p>
 
     
-    <p class="muted" style="margin:0 0 16px 0;font-size:0.9em">
-      Synthesises the latest run's outcomes against the pre-stated
-      <code>conclusion_logic</code>, then surfaces concrete follow-up actions
-      you can either review (existing studies) or seed (new ones).
-    </p>
+    
     
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
       <h3 class="overview-label">⚖️ Verdicts — three-track outcome
-        <span class="narrative-card-hint">(regression / biological / explanatory)</span>
+        <span class="narrative-card-hint">(regression / empirical / explanatory)</span>
       </h3>
-      <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">
-        Each track is independent. <em>Regression</em> answers "does the code
-        still build and run cleanly?", <em>biological</em> answers "does the
-        model match the literature?", <em>explanatory</em> answers "did we
-        learn something new?". Each <strong>result is computed</strong> from
-        canonical fields (gate evaluator, run status, finding tiers) — author
-        only the <em>basis</em> (the rationale) for each track.
-      </p>
       <div class="narrative-grid">
         <label class="narrative-row">
           <span class="narrative-label">Regression compatibility</span>
@@ -822,14 +906,14 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
                     placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
         </label>
         <label class="narrative-row">
-          <span class="narrative-label">Biological validation</span>
+          <span class="narrative-label">Empirical validation</span>
           <span class="narrative-input verdict-badge-computed" data-verdict-track="biological_validation"
                 title="Computed from the gate evaluator (read-only)"
                 style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
           <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
         </label>
         <label class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Biological basis</span>
+          <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
                     placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
@@ -863,7 +947,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
         <div style="margin-top:4px"><em>Implementation:</em> The comets_br_particles_kinetics scenario is faithfully reproduced by the investigation&#39;s post-run analysis flush.</div>
         
         
-        <div style="margin-top:4px"><em>Biological validation:</em> Validates that the composition reproduces the reference test-suite artifacts; it does not add new biological claims beyond the original scenario.</div>
+        <div style="margin-top:4px"><em>Empirical validation:</em> Validates that the composition reproduces the reference test-suite artifacts; it does not add new biological claims beyond the original scenario.</div>
         
         
       </div>
@@ -889,6 +973,43 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
     
 
   </div>
+
+  
+  
+  <div class="overview-section"><h2 class="overview-label">Plan &amp; assumptions</h2>
+
+    
+    <div class="overview-section">
+      <h3 class="overview-label">Pipeline gate</h3>
+      <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
+        Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
+      </p>
+      
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>comets_diffusion</code> · <code>br_particles_kinetics</code>
+      </div>
+      
+      
+      
+      <div><strong>Proceed when:</strong> <span class="muted">Composition ordering only; this study runs independently.</span></div>
+      
+    </div>
+    
+
+    
+
+    
+    <div class="overview-section">
+      <h3 class="overview-label">Limitations</h3>
+      <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
+      <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
+        <li style="margin:2px 0">Faithful reproduction of an existing scenario; no new biology.</li><li style="margin:2px 0">Graph edges document composition, they do not gate execution.</li>
+      </ul>
+    </div>
+    
+
+  </div>
+  
 
   
   <div class="overview-section"><h2 class="overview-label">Evidence</h2>
@@ -930,6 +1051,9 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
 
     
     
+
+    
+    
     
     
 
@@ -941,7 +1065,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.02}</pre>
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main" };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "ea41633bf6102188fa336be2f068357b6a349ce4", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/ea41633bf6102188fa336be2f068357b6a349ce4", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-10 03:44 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "comets_br_particles_kinetics";
@@ -1056,9 +1180,6 @@ window._seedFollowupStudy = _seedFollowupStudy;
 window._seedFollowupProposal = _seedFollowupProposal;
 </script>
 <script src="/spatio-flux/workbench/assets/configure-run.js"></script>
-<!-- ProgressTrack must load BEFORE study-detail.js: _renderRemoteRunProgress
-     (the pinned-build run card's progress adapter) depends on window.ProgressTrack. -->
-<script src="/spatio-flux/workbench/assets/progress-track.js"></script>
 <script src="/spatio-flux/workbench/assets/sim-table.js"></script>
 <script src="/spatio-flux/workbench/assets/study-detail.js"></script>
 <script>
@@ -1070,29 +1191,26 @@ window._seedFollowupProposal = _seedFollowupProposal;
 </script>
 <script>
 (function () {
-  var el = document.getElementById("study-configure-run");
-  if (!el || !window.ConfigureRun) return;
-  
-  var compositeRef = "spatio_flux.composites.comets.comets_br_particles_kinetics";
-  
-  var slug = window._studyName || "comets_br_particles_kinetics";
-  ConfigureRun.mount(el, { composite: compositeRef, target: "study", study: slug });
-  // Read-only bundle: there's no live backend to run on — hide the remote-run
-  // launcher (the Configure & Run widget already renders a disabled preview).
-  // The ProgressTrack progress bar (progress-track.js) is inert here by
-  // construction: it makes ZERO network calls and only ever renders via
-  // _renderRemoteRunProgress, which is reachable only from the run button
-  // inside this now-hidden panel — so snapshots never invoke it.
+  // Task 8: the Configure & Run mount and the remote-run (smsvpctest) panel
+  // were both removed from the Simulate tab — launching now lives entirely
+  // in the header buttons (Reproduce / Run current spec). This block used
+  // to also mount ConfigureRun into the (now-deleted) mount div and, in an
+  // else-if, relabel the remote-run card via window._initRemoteRunPinned()
+  // if pinned mode was enabled; Fable A #7 deleted that now-fully-dormant
+  // remote-run subsystem from study-detail.js (its DOM anchors — the
+  // #remote-run-panel/-btn/-progress mounts — never existed in this
+  // template to begin with), so the else-if branch is gone too. Only the
+  // still-relevant header-button snapshot handling remains below, now
+  // unconditional (it used to be gated behind a lookup of that deleted div).
+  //
+  // Read-only bundle: there's no live backend to run on — hide the header
+  // run buttons in a published read-only snapshot (reproducible-rerun-spine
+  // Task 4 / G2: both equally inert with no live backend to launch against).
   if (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.mode === "snapshot") {
-    var rp = document.getElementById("remote-run-panel");
-    if (rp) rp.style.display = "none";
-    // "Rerun study" POSTs to a live-only endpoint — hide it alongside the
-    // remote-run launcher in a published read-only snapshot.
-    var rerunBtn = document.getElementById("study-rerun");
-    if (rerunBtn) rerunBtn.style.display = "none";
-  } else if (window._initRemoteRunPinned) {
-    // Live backend: relabel the remote-run card if pinned mode is enabled.
-    window._initRemoteRunPinned();
+    var reproduceBtn = document.getElementById("study-reproduce");
+    if (reproduceBtn) reproduceBtn.style.display = "none";
+    var runCurrentBtn = document.getElementById("study-run-current-spec");
+    if (runCurrentBtn) runCurrentBtn.style.display = "none";
   }
 })();
 </script>

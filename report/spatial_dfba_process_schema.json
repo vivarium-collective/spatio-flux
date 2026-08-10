@@ -3,31 +3,23 @@
   "fields": "glucose:positive_array|acetate:positive_array|glycolate:positive_array|ammonium:positive_array|formate:positive_array|glutamate:positive_array|serine:positive_array|dissolved biomass:array[6|5,float]",
   "spatial_dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:SpatialDFBA",
     "config": "node",
     "_inputs": "fields:map[positive_array]|biomass:array[6|5,float]",
     "_outputs": "fields:map[array[6|5,float]]|biomass:array[6|5,float]",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "emitter": {
     "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:RAMEmitter",
     "config": "node",
     "_inputs": "global_time:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  }
+    "priority": 0.0
+  },
+  "results": "node"
 }

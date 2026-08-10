@@ -2,32 +2,24 @@
   "global_time": "float",
   "yeast dFBA": {
     "_type": "process",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:DynamicFBA",
     "config": "node",
     "_inputs": "substrates:map[concentration]|biomass:mass",
     "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
     "inputs": "wires",
     "outputs": "wires",
-    "interval": "float"
+    "interval": 1.0
   },
   "fields": "glucose:concentration|biomass:mass|ammonium:concentration",
   "emitter": {
     "_type": "step",
-    "address": {
-      "_type": "protocol",
-      "protocol": "string",
-      "data": "node"
-    },
+    "address": "local:RAMEmitter",
     "config": "node",
     "_inputs": "global_time:node|fields:node",
-    "_outputs": "node",
+    "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",
-    "priority": "float",
-    "_triggers": "node"
-  }
+    "priority": 0.0
+  },
+  "results": "node"
 }
