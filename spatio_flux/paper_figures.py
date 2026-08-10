@@ -12,6 +12,9 @@ biological/physical types the drafts use are available on every core.
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from process_bigraph import DraftProcess, draft_process
 
 
@@ -304,6 +307,40 @@ class BigraphLink(DraftProcess):
     pass
 
 
+# ── Fig 1c: study-workflow steps (draft pre/post around real simulations) ─────
+@draft_process(
+    name="Preprocess",
+    inputs={"raw": "concentration"},
+    outputs={"conditions": "concentration"},
+    contract={
+        "summary": "Pre-processing — prepare the simulation conditions",
+        "description": "The workflow's pre-step: reads the raw study inputs and "
+                       "derives the initial conditions / parameters shared by the "
+                       "parallel simulation ensemble.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"raw": "raw study inputs", "conditions": "prepared simulation conditions"},
+    },
+)
+class Preprocess(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="AnalysisViz",
+    inputs={"runs": "concentration"},
+    outputs={"figure": "concentration"},
+    contract={
+        "summary": "Analysis + visualization of the simulation ensemble",
+        "description": "The workflow's post-step: aggregates the outputs of the "
+                       "parallel simulations and renders the analysis + figure.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"runs": "the parallel simulation outputs", "figure": "analysis + visualization"},
+    },
+)
+class AnalysisViz(DraftProcess):
+    pass
+
+
 def _v(type_name: str, value: float) -> dict:
     return {"_type": type_name, "_value": float(value)}
 
@@ -374,6 +411,37 @@ def fig1b_multiscale_state() -> dict:
             "diffusion": _proc(Diffusion, {"field": ["fields"]}, {"field": ["fields"]}),
             "abm": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
         },
+    }
+
+
+def _community_dfba_sim() -> dict:
+    """A real, zoomable simulation composite (community dFBA) to nest as one
+    parallel run — loaded from its committed spec, minus the top-level clock."""
+    spec = json.loads(
+        (Path(__file__).resolve().parent / "composites"
+         / "fig07-1-community-dfba.composite.json").read_text(encoding="utf-8"))
+    state = dict(spec.get("state") or {})
+    state.pop("global_time", None)
+    return state
+
+
+def fig1c_study_workflow_state() -> dict:
+    """Fig 1c: a study workflow. A draft Preprocess step feeds three PARALLEL
+    community-dFBA simulations (real, zoomable composites — the same real study
+    template ×3), whose outputs feed a draft Analysis + Visualization step. The
+    pre/post steps are draft; the parallel simulations are a real composite."""
+    return {
+        "raw_data": _v("concentration", 0.0),
+        "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
+        # Three parallel runs of the SAME real composite (an ensemble); each is a
+        # full community-dFBA composite you can zoom into.
+        "simulations": {
+            "sim_0": _community_dfba_sim(),
+            "sim_1": _community_dfba_sim(),
+            "sim_2": _community_dfba_sim(),
+        },
+        "results": _v("concentration", 0.0),
+        "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
     }
 
 

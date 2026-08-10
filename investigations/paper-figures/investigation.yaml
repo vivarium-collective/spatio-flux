@@ -20,9 +20,12 @@ figures:
 - study: fig-01
   number: 1
   caption: >-
-    The panel-B multiscale composite, assembled from draft-process building blocks —
-    gene expression, metabolism, a morphogen gradient, and multicellular interactions —
-    wired into a nested place graph spanning molecular to multicellular scales.
+    Composition, three ways. 1a: the draft-process building blocks — gene expression,
+    metabolism, a morphogen gradient, and multicellular interactions. 1b: their
+    multiscale composite, wired into a nested place graph from molecular to
+    multicellular scales. 1c: a study workflow — a draft preprocess step feeding three
+    parallel community-dFBA simulations (real, zoomable composites) and a draft
+    analysis + visualization step.
 - study: fig-02
   number: 2
   caption: >-

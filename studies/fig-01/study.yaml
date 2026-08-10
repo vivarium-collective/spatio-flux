@@ -29,6 +29,9 @@ visualizations:
 - name: fig01b-multiscale-composite.svg
   address: image:visualizations/fig01b-multiscale-composite.svg
   chart: image
+- name: 1c — study workflow
+  address: image:visualizations/fig01c-study-workflow.svg
+  chart: image
 - name: Figure 1 (composite)
   address: image:visualizations/figure_1.svg
   chart: image

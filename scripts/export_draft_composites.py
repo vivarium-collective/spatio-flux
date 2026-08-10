@@ -29,6 +29,11 @@ SPECS = [
      "The multiscale draft composite: tissue ⊃ {fields, cell_population, cells ⊃ "
      "cell ⊃ molecules}. Molecular ODEs, FBA metabolism, structural packing, "
      "growth/division, and tissue-scale diffusion + ABM — all draft processes."),
+    ("fig01c-study-workflow", "Fig 1c", pf.fig1c_study_workflow_state, False,
+     "A study workflow: a draft Preprocess step feeds three parallel community-dFBA "
+     "simulations (real, zoomable composites — the same real study template ×3); "
+     "their outputs feed a draft Analysis + Visualization step. Pre/post are draft; "
+     "the parallel simulations are a real composite."),
     # Fig 2b: the paper's process-bigraph diagram — abstract nodes n1..n6 (place
     # graph) with processes p1,p2,p3 replacing the Milner hyperedges.
     ("fig02-process-bigraph", "Fig 2", pf.fig02_bigraph_state, True,
