@@ -40,13 +40,12 @@ SPECS = [
      "Process bigraph (Fig 2b): place-graph nodes n1..n6 with processes p1, p2, p3 "
      "connecting them through typed ports — the process-graph replacement for the "
      "Milner link graph's hyperedges (Fig 2a)."),
-    ("fig03a-process-graph", "Fig 3a", pf.fig3a_process_graph_state, True,
-     "Process graph: a metabolism process (substrates + enzymes → products) and a "
-     "gene-expression process (genes → enzymes) over shared metab / enzymes / DNA "
-     "stores."),
-    ("fig03b-composite-process", "Fig 3b", pf.fig3b_composite_process_state, True,
-     "Composite process — the `cell`: cyto ⊃ {rib, nuc ⊃ DNA}, mem ⊃ chnl, with "
-     "grow / express / transport processes and nutrient/signal inputs + shape output."),
+    ("fig03a-store", "Fig 3a", pf.fig3a_store_state, False,
+     "Store diagram (a): a single store `cell` holding an `ecoli` data type, shown "
+     "in full detail — a store holds any data type and shows its name + type."),
+    ("fig03b-place-graph", "Fig 3b", pf.fig3b_place_graph_state, False,
+     "Store diagram (b): a place graph of nested stores — cell ⊃ {nuc, cyto ⊃ ribo, "
+     "mucin}, with EPS a sibling of cell (outer stores connect to inner stores)."),
 ]
 
 
@@ -69,7 +68,7 @@ def main() -> None:
     # types can be left unresolved on the core; a DIRECT register_type resolves
     # them. Force-register so Composite validation finds them. (The dashboard
     # renders the written static spec verbatim, so this only affects validation.)
-    for _name in ("energy", "volume", "cell_count", "phase", "place_node"):
+    for _name in ("energy", "volume", "cell_count", "phase", "place_node", "ecoli"):
         try:
             core.register_type(_name, {"_inherit": "float"})
         except Exception:

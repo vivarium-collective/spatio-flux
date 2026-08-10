@@ -35,8 +35,10 @@ const JOBS = [
   // Fig 2: one composite rendered two ways — 2a Milner hyperedges, 2b processes.
   ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02a-hyperedges', { hyperedges: true }],
   ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes'],
-  ['fig-03', 'spatio_flux.composites.fig03a-process-graph',        'fig03a-process-graph'],
-  ['fig-03', 'spatio_flux.composites.fig03b-composite-process',    'fig03b-composite-process'],
+  // Fig 3 = store diagrams: 3a a single store in full detail (name + type),
+  // 3b a place graph of nested stores.
+  ['fig-03', 'spatio_flux.composites.fig03a-store',       'fig03a-store', { detail: 'full', stores: 'type' }],
+  ['fig-03', 'spatio_flux.composites.fig03b-place-graph', 'fig03b-place-graph'],
   // Fig 7 is one study with three panels (7.1/7.2/7.3).
   ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba'],
   // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.

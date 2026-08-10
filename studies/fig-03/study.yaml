@@ -14,20 +14,20 @@ purpose:
     rendered in bigraph-loom.
   expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
 baseline:
-- name: 3a-process-graph
-  composite: spatio_flux.composites.fig03a-process-graph
+- name: 3a-store
+  composite: spatio_flux.composites.fig03a-store
   params: {}
-- name: 3b-composite-process
-  composite: spatio_flux.composites.fig03b-composite-process
+- name: 3b-place-graph
+  composite: spatio_flux.composites.fig03b-place-graph
   params: {}
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
-- name: fig03a-process-graph.svg
-  address: image:visualizations/fig03a-process-graph.svg
+- name: 3a — store (full detail)
+  address: image:visualizations/fig03a-store.svg
   chart: image
-- name: fig03b-composite-process.svg
-  address: image:visualizations/fig03b-composite-process.svg
+- name: 3b — place graph
+  address: image:visualizations/fig03b-place-graph.svg
   chart: image
 - name: Figure 3 (composite)
   address: image:visualizations/figure_3.svg

@@ -463,30 +463,25 @@ def fig02_bigraph_state() -> dict:
     }
 
 
-def fig3a_process_graph_state() -> dict:
-    """Fig 3a: process graph — metabolism + gene expression over metab/enzymes/DNA."""
+def fig3a_store_state() -> dict:
+    """Fig 3a (store diagram, panel a): a SINGLE store shown in full detail — the
+    store ``cell`` holding an ``ecoli`` data type. A store holds any data type and
+    shows its name + the type it holds."""
     return {
-        "metab": _v("concentration", 5.0),
-        "enzymes": _v("concentration", 1.0),
-        "DNA": _v("concentration", 1.0),
-        "metabolism": _proc(MetabolismGraph, {"substrates": ["metab"], "enzymes": ["enzymes"]}, {"products": ["metab"]}),
-        "gene_expression": _proc(GeneExpressionGraph, {"genes": ["DNA"]}, {"enzymes": ["enzymes"]}),
+        "cell": _v("ecoli", 0.0),
     }
 
 
-def fig3b_composite_process_state() -> dict:
-    """Fig 3b: composite process — the `cell` (cyto ⊃ rib,nuc⊃DNA; mem ⊃ chnl)."""
+def fig3b_place_graph_state() -> dict:
+    """Fig 3b (store diagram, panel b): a PLACE GRAPH of nested stores —
+    cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell. Outer stores
+    connect to inner stores by the place-graph nesting."""
     return {
+        # cell is a BRANCH containing nuc / cyto(⊃ribo) / mucin; EPS is a sibling.
         "cell": {
-            "nutrients": _v("concentration", 10.0),
-            "signals": _v("concentration", 1.0),
-            "shape": _v("concentration", 0.0),
-            # plain nested branches = the place graph (cyto ⊃ rib, nuc ⊃ DNA; mem ⊃ chnl)
-            "cyto": {"rib": _v("concentration", 1.0),
-                     "nuc": {"DNA": _v("concentration", 1.0)}},
-            "mem": {"chnl": _v("concentration", 1.0)},
-            "grow": _proc(Grow, {"ribosomes": ["cyto", "rib"], "nutrients": ["nutrients"], "signals": ["signals"]}, {"membrane": ["mem", "chnl"]}),
-            "express": _proc(Express, {"genes": ["cyto", "nuc", "DNA"]}, {"ribosomes": ["cyto", "rib"]}),
-            "transport": _proc(Transport, {"channels": ["mem", "chnl"], "nutrients": ["nutrients"]}, {"shape": ["shape"]}),
+            "nuc": _v("concentration", 0.0),
+            "cyto": {"ribo": _v("concentration", 0.0)},
+            "mucin": _v("concentration", 0.0),
         },
+        "EPS": _v("concentration", 0.0),
     }

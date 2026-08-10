@@ -95,6 +95,7 @@ _PAPER_FIGURE_SCALARS = {
     "cell_count": {"_inherit": "float"},
     "phase":      {"_inherit": "float"},
     "place_node": {"_inherit": "float"},
+    "ecoli":      {"_inherit": "float"},   # Fig 3a — a store holding an 'ecoli' data type
 }
 
 TYPES_DICT = {
