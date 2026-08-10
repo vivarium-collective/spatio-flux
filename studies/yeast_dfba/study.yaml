@@ -36,6 +36,9 @@ canonical_runs:
   label: reproduce yeast_dfba figures
   default: true
 visualizations:
+- name: yeast_dfba.svg
+  address: image:visualizations/yeast_dfba.svg
+  chart: image
 - name: yeast_dfba.png
   address: image:charts/yeast_dfba.png
   chart: image

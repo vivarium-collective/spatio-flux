@@ -38,6 +38,9 @@ canonical_runs:
   label: reproduce ecoli_dfba figures
   default: true
 visualizations:
+- name: ecoli_dfba.svg
+  address: image:visualizations/ecoli_dfba.svg
+  chart: image
 - name: ecoli_dfba.png
   address: image:charts/ecoli_dfba.png
   chart: image

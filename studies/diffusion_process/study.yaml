@@ -34,6 +34,9 @@ canonical_runs:
   label: reproduce diffusion_process figures
   default: true
 visualizations:
+- name: diffusion_process.svg
+  address: image:visualizations/diffusion_process.svg
+  chart: image
 - name: diffusion_process_video.gif
   address: image:charts/diffusion_process_video.gif
   chart: image

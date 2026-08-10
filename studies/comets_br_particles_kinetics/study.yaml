@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce comets_br_particles_kinetics figures
   default: true
 visualizations:
+- name: comets_br_particles_kinetics.svg
+  address: image:visualizations/comets_br_particles_kinetics.svg
+  chart: image
 - name: comets_br_particles_kinetics_timeseries.png
   address: image:charts/comets_br_particles_kinetics_timeseries.png
   chart: image

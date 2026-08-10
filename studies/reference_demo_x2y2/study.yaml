@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce reference_demo_x2y2 figures
   default: true
 visualizations:
+- name: reference_demo_x2y2.svg
+  address: image:visualizations/reference_demo_x2y2.svg
+  chart: image
 - name: reference_demo_x2y2_timeseries.png
   address: image:charts/reference_demo_x2y2_timeseries.png
   chart: image

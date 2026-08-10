@@ -13,9 +13,9 @@ baseline:
   composite: spatio_flux.composites.particles.br_particles_kinetics
   params: {}
 purpose:
-  question: "Particle\u2013field coupling (kinetics): Brownian agents sample local\
-    \ lattice concentrations and apply Monod-style exchange, modifying both particle\
-    \ mass and fields."
+  question: 'Particle–field coupling (kinetics): Brownian agents sample local lattice
+    concentrations and apply Monod-style exchange, modifying both particle mass and
+    fields.'
   mechanism: Runs the spatio_flux.composites.particles.br_particles_kinetics composite
     (pair composition).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce br_particles_kinetics figures
   default: true
 visualizations:
+- name: br_particles_kinetics.svg
+  address: image:visualizations/br_particles_kinetics.svg
+  chart: image
 - name: br_particles_kinetics_video.gif
   address: image:charts/br_particles_kinetics_video.gif
   chart: image

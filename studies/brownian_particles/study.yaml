@@ -34,6 +34,9 @@ canonical_runs:
   label: reproduce brownian_particles figures
   default: true
 visualizations:
+- name: brownian_particles.svg
+  address: image:visualizations/brownian_particles.svg
+  chart: image
 - name: brownian_particles_video.gif
   address: image:charts/brownian_particles_video.gif
   chart: image

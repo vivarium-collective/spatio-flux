@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce comets_nt_particles_dfba figures
   default: true
 visualizations:
+- name: comets_nt_particles_dfba.svg
+  address: image:visualizations/comets_nt_particles_dfba.svg
+  chart: image
 - name: comets_nt_particles_dfba_timeseries.png
   address: image:charts/comets_nt_particles_dfba_timeseries.png
   chart: image

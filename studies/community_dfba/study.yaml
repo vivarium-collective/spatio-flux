@@ -36,6 +36,9 @@ canonical_runs:
   label: reproduce community_dfba figures
   default: true
 visualizations:
+- name: community_dfba.svg
+  address: image:visualizations/community_dfba.svg
+  chart: image
 - name: community_dfba.png
   address: image:charts/community_dfba.png
   chart: image

@@ -13,8 +13,8 @@ baseline:
   composite: spatio_flux.composites.comets.comets_diffusion
   params: {}
 purpose:
-  question: "Two-phase coupling (no particles): spatial dFBA on a lattice with advection\u2013\
-    diffusion of substrates + biomass. The classic COMETS field-only scenario."
+  question: 'Two-phase coupling (no particles): spatial dFBA on a lattice with advection–diffusion
+    of substrates + biomass. The classic COMETS field-only scenario.'
   mechanism: Runs the spatio_flux.composites.comets.comets_diffusion composite (pair
     composition).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
@@ -36,6 +36,9 @@ canonical_runs:
   label: reproduce comets_diffusion figures
   default: true
 visualizations:
+- name: comets_diffusion.svg
+  address: image:visualizations/comets_diffusion.svg
+  chart: image
 - name: comets_diffusion_timeseries.png
   address: image:charts/comets_diffusion_timeseries.png
   chart: image

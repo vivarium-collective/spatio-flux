@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce dfba_kinetics_community figures
   default: true
 visualizations:
+- name: dfba_kinetics_community.svg
+  address: image:visualizations/dfba_kinetics_community.svg
+  chart: image
 - name: dfba_kinetics_community.png
   address: image:charts/dfba_kinetics_community.png
   chart: image

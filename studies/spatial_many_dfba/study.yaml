@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce spatial_many_dfba figures
   default: true
 visualizations:
+- name: spatial_many_dfba.svg
+  address: image:visualizations/spatial_many_dfba.svg
+  chart: image
 - name: spatial_many_dfba_timeseries.png
   address: image:charts/spatial_many_dfba_timeseries.png
   chart: image

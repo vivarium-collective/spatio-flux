@@ -16,9 +16,9 @@ baseline:
     - 10
     - 10
 purpose:
-  question: "SpatioFlux demonstration reference composite: Newtonian motile particles\
-    \ + particle\u2013field exchange + internal multi-dFBA + Monod/diffusion fields\
-    \ + mass-aggregated division."
+  question: 'SpatioFlux demonstration reference composite: Newtonian motile particles
+    + particle–field exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated
+    division.'
   mechanism: Runs the spatio_flux.composites.reference.spatioflux_reference_demo composite
     (reference demo).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
@@ -39,6 +39,9 @@ canonical_runs:
   label: reproduce spatioflux_reference_demo figures
   default: true
 visualizations:
+- name: spatioflux_reference_demo.svg
+  address: image:visualizations/spatioflux_reference_demo.svg
+  chart: image
 - name: spatioflux_reference_demo_timeseries.png
   address: image:charts/spatioflux_reference_demo_timeseries.png
   chart: image

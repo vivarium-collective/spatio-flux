@@ -34,6 +34,9 @@ canonical_runs:
   label: reproduce newtonian_particles figures
   default: true
 visualizations:
+- name: newtonian_particles.svg
+  address: image:visualizations/newtonian_particles.svg
+  chart: image
 - name: newtonian_particles_mass.png
   address: image:charts/newtonian_particles_mass.png
   chart: image

@@ -13,8 +13,8 @@ baseline:
   composite: spatio_flux.composites.comets.comets_br_particles_dfba
   params: {}
 purpose:
-  question: "Full COMETS-style spatial composite: lattice dFBA + advection\u2013diffusion\
-    \ + Brownian particles with internal dFBA + division. End-to-end coupled scenario."
+  question: 'Full COMETS-style spatial composite: lattice dFBA + advection–diffusion
+    + Brownian particles with internal dFBA + division. End-to-end coupled scenario.'
   mechanism: Runs the spatio_flux.composites.comets.comets_br_particles_dfba composite
     (triple composition).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
@@ -36,6 +36,9 @@ canonical_runs:
   label: reproduce comets_br_particles_dfba figures
   default: true
 visualizations:
+- name: comets_br_particles_dfba.svg
+  address: image:visualizations/comets_br_particles_dfba.svg
+  chart: image
 - name: comets_br_particles_dfba_timeseries.png
   address: image:charts/comets_br_particles_dfba_timeseries.png
   chart: image

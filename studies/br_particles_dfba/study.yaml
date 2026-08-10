@@ -37,6 +37,9 @@ canonical_runs:
   label: reproduce br_particles_dfba figures
   default: true
 visualizations:
+- name: br_particles_dfba.svg
+  address: image:visualizations/br_particles_dfba.svg
+  chart: image
 - name: br_particles_dfba_video.gif
   address: image:charts/br_particles_dfba_video.gif
   chart: image
