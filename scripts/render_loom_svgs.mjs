@@ -13,36 +13,49 @@ const require = createRequire(
   '/Users/eranagmon/code/vivarium-workbench--loom-polish/vivarium_workbench/loom/package.json');
 const { chromium } = require('playwright');
 
-const BASE = 'http://127.0.0.1:8099';
-const WS = '/Users/eranagmon/code/spatio-flux';
+// Override for a dashboard on a different port / a worktree: VW_BASE / VW_WS.
+const BASE = process.env.VW_BASE || 'http://127.0.0.1:8099';
+const WS = process.env.VW_WS || '/Users/eranagmon/code/spatio-flux';
 
-// [studySlug, compositeId, svgStem, detail?]  — detail pins the loom detail
-// tier for the render ('' = Auto). Layout is always computed at the `full` tier,
-// so detail only changes card content, not spacing — compactness comes from the
-// composite's own size (see fig-08's schematic 4x4 grid in the export script).
+// [studySlug, compositeId, svgStem, flags?]
+//   flags: { detail: '<tier>', collapse: true, hyperedges: true }
+// nopersist=1 always loads the composite's saved default view for POSITIONS;
+// these per-panel flags are applied ON TOP and OVERRIDE the saved view — so a
+// panel saved in one mode still renders collapsed / as hyperedges when flagged
+// (e.g. Fig 2a is the process-bigraph view saved in process mode, re-read as
+// hyperedges; fig07e collapses its 16 per-bin dFBA processes). `detail` pins the
+// loom detail tier ('' = Auto); layout is always computed at the `full` tier.
 const JOBS = [
-  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',        'fig01a-draft-processes'],
-  ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite',    'fig01b-multiscale-composite'],
-  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',          'fig02-process-bigraph'],
-  ['fig-03', 'spatio_flux.composites.fig03a-process-graph',           'fig03a-process-graph'],
-  ['fig-03', 'spatio_flux.composites.fig03b-composite-process',       'fig03b-composite-process'],
-  // Fig 7 is one study with three panels/runs (7.1/7.2/7.3).
-  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',     'fig07-1-community-dfba'],
-  ['fig-07', 'spatio_flux.composites.fig07-2-comets',            'fig07-2-comets'],
+  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes'],
+  ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite', 'fig01b-multiscale-composite'],
+  ['fig-01', 'spatio_flux.composites.fig01c-study-workflow',       'fig01c-study-workflow'],
+  // Fig 2: one composite rendered two ways — 2a Milner hyperedges, 2b processes.
+  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02a-hyperedges', { hyperedges: true }],
+  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes'],
+  ['fig-03', 'spatio_flux.composites.fig03a-process-graph',        'fig03a-process-graph'],
+  ['fig-03', 'spatio_flux.composites.fig03b-composite-process',    'fig03b-composite-process'],
+  // Fig 7 is one study with three panels (7.1/7.2/7.3).
+  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba'],
+  // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.
+  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { collapse: true }],
   ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles'],
-  ['fig-08',   'spatio_flux.composites.fig08-reference-model',      'fig08-reference-model'],
+  ['fig-08', 'spatio_flux.composites.fig08-reference-model',       'fig08-reference-model'],
 ];
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1700, height: 1200 }, deviceScaleFactor: 2 });
 let ok = 0;
-for (const [slug, id, name, detail] of JOBS) {
+for (const [slug, id, name, flags = {}] of JOBS) {
   const out = `${WS}/studies/${slug}/visualizations/${name}.svg`;
   // nopersist=1 → the render never writes layouts back (so it can't clobber the
   // user's saved default view). The composite's workspace default view (mode +
   // positions + detail + collapse) is applied on load; the render captures it.
-  const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&tabs=explore,document&nopersist=1`
-    + (detail ? `&detail=${detail}` : '');
+  // Then the per-panel flags below are applied on top (they override the view).
+  const params = ['tabs=explore,document', 'nopersist=1'];
+  if (flags.detail) params.push(`detail=${flags.detail}`);
+  if (flags.collapse) params.push('collapse=1');
+  if (flags.hyperedges) params.push('hyperedges=1');
+  const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&${params.join('&')}`;
   const outPng = `${WS}/studies/${slug}/visualizations/${name}.png`;
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
