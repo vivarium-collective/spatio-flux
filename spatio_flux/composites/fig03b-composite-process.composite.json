@@ -1,0 +1,249 @@
+{
+  "name": "fig03b-composite-process",
+  "description": "Fig 3b \u2014 Composite process \u2014 the `cell`: cyto \u2283 {rib, nuc \u2283 DNA}, mem \u2283 chnl, with grow / express / transport processes and nutrient/signal inputs + shape output.",
+  "tags": [
+    "paper-figure",
+    "draft",
+    "fig-3b"
+  ],
+  "state": {
+    "cell": {
+      "nutrients": {
+        "_type": "concentration",
+        "_value": 10.0
+      },
+      "signals": {
+        "_type": "concentration",
+        "_value": 1.0
+      },
+      "shape": {
+        "_type": "concentration",
+        "_value": 0.0
+      },
+      "cyto": {
+        "rib": {
+          "_type": "concentration",
+          "_value": 1.0
+        },
+        "nuc": {
+          "DNA": {
+            "_type": "concentration",
+            "_value": 1.0
+          }
+        }
+      },
+      "mem": {
+        "chnl": {
+          "_type": "concentration",
+          "_value": 1.0
+        }
+      },
+      "grow": {
+        "_type": "process",
+        "address": "local:Grow",
+        "_draft": true,
+        "config": {
+          "interval": 1.0,
+          "summary": "Cell growth \u2014 ribosomes + nutrients + signals \u2192 membrane",
+          "contract": {
+            "status": "draft - no update dynamics yet",
+            "summary": "Cell growth \u2014 ribosomes + nutrients + signals \u2192 membrane",
+            "description": "Growth reads cytoplasmic ribosomes, external nutrients, and signals to expand the cell (membrane synthesis).",
+            "math": [
+              "\\frac{dm}{dt} = \\mu\\,[\\text{rib}]\\,\\frac{[\\text{nutrients}]}{K + [\\text{nutrients}]}"
+            ],
+            "symbols": {
+              "m": "membrane / biomass",
+              "\u03bc": "growth rate",
+              "[rib]": "ribosome level"
+            },
+            "ports": {
+              "ribosomes": "cytoplasmic ribosomes",
+              "nutrients": "external nutrients",
+              "signals": "external signals",
+              "membrane": "membrane channels / growth"
+            }
+          }
+        },
+        "_inputs": {
+          "ribosomes": "concentration",
+          "nutrients": "concentration",
+          "signals": "concentration"
+        },
+        "_outputs": {
+          "membrane": "concentration"
+        },
+        "_contract": {
+          "summary": "Cell growth \u2014 ribosomes + nutrients + signals \u2192 membrane",
+          "description": "Growth reads cytoplasmic ribosomes, external nutrients, and signals to expand the cell (membrane synthesis).",
+          "status": "draft - no update dynamics yet",
+          "math": [
+            "\\frac{dm}{dt} = \\mu\\,[\\text{rib}]\\,\\frac{[\\text{nutrients}]}{K + [\\text{nutrients}]}"
+          ],
+          "symbols": {
+            "m": "membrane / biomass",
+            "\u03bc": "growth rate",
+            "[rib]": "ribosome level"
+          },
+          "inputs": {
+            "ribosomes": "cytoplasmic ribosomes",
+            "nutrients": "external nutrients",
+            "signals": "external signals"
+          },
+          "outputs": {
+            "membrane": "membrane channels / growth"
+          }
+        },
+        "inputs": {
+          "ribosomes": [
+            "cyto",
+            "rib"
+          ],
+          "nutrients": [
+            "nutrients"
+          ],
+          "signals": [
+            "signals"
+          ]
+        },
+        "outputs": {
+          "membrane": [
+            "mem",
+            "chnl"
+          ]
+        }
+      },
+      "express": {
+        "_type": "process",
+        "address": "local:Express",
+        "_draft": true,
+        "config": {
+          "interval": 1.0,
+          "summary": "Gene expression \u2192 ribosomes",
+          "contract": {
+            "status": "draft - no update dynamics yet",
+            "summary": "Gene expression \u2192 ribosomes",
+            "description": "Reads the nuclear DNA and produces ribosomes into the cytoplasm.",
+            "math": [
+              "\\frac{d[\\text{rib}]}{dt} = k\\,[\\text{DNA}] - \\gamma\\,[\\text{rib}]"
+            ],
+            "symbols": {
+              "k": "expression rate",
+              "\u03b3": "ribosome turnover"
+            },
+            "ports": {
+              "genes": "nuclear DNA",
+              "ribosomes": "cytoplasmic ribosomes"
+            }
+          }
+        },
+        "_inputs": {
+          "genes": "concentration"
+        },
+        "_outputs": {
+          "ribosomes": "concentration"
+        },
+        "_contract": {
+          "summary": "Gene expression \u2192 ribosomes",
+          "description": "Reads the nuclear DNA and produces ribosomes into the cytoplasm.",
+          "status": "draft - no update dynamics yet",
+          "math": [
+            "\\frac{d[\\text{rib}]}{dt} = k\\,[\\text{DNA}] - \\gamma\\,[\\text{rib}]"
+          ],
+          "symbols": {
+            "k": "expression rate",
+            "\u03b3": "ribosome turnover"
+          },
+          "inputs": {
+            "genes": "nuclear DNA"
+          },
+          "outputs": {
+            "ribosomes": "cytoplasmic ribosomes"
+          }
+        },
+        "inputs": {
+          "genes": [
+            "cyto",
+            "nuc",
+            "DNA"
+          ]
+        },
+        "outputs": {
+          "ribosomes": [
+            "cyto",
+            "rib"
+          ]
+        }
+      },
+      "transport": {
+        "_type": "process",
+        "address": "local:Transport",
+        "_draft": true,
+        "config": {
+          "interval": 1.0,
+          "summary": "Membrane transport \u2192 cell shape",
+          "contract": {
+            "status": "draft - no update dynamics yet",
+            "summary": "Membrane transport \u2192 cell shape",
+            "description": "Membrane channels import nutrients and set the cell's boundary shape.",
+            "math": [
+              "J = P\\,(c_{\\text{out}} - c_{\\text{in}})"
+            ],
+            "symbols": {
+              "J": "transport flux",
+              "P": "channel permeability",
+              "c": "concentration in/out"
+            },
+            "ports": {
+              "channels": "membrane channels",
+              "nutrients": "external nutrients",
+              "shape": "cell shape (boundary output)"
+            }
+          }
+        },
+        "_inputs": {
+          "channels": "concentration",
+          "nutrients": "concentration"
+        },
+        "_outputs": {
+          "shape": "concentration"
+        },
+        "_contract": {
+          "summary": "Membrane transport \u2192 cell shape",
+          "description": "Membrane channels import nutrients and set the cell's boundary shape.",
+          "status": "draft - no update dynamics yet",
+          "math": [
+            "J = P\\,(c_{\\text{out}} - c_{\\text{in}})"
+          ],
+          "symbols": {
+            "J": "transport flux",
+            "P": "channel permeability",
+            "c": "concentration in/out"
+          },
+          "inputs": {
+            "channels": "membrane channels",
+            "nutrients": "external nutrients"
+          },
+          "outputs": {
+            "shape": "cell shape (boundary output)"
+          }
+        },
+        "inputs": {
+          "channels": [
+            "mem",
+            "chnl"
+          ],
+          "nutrients": [
+            "nutrients"
+          ]
+        },
+        "outputs": {
+          "shape": [
+            "shape"
+          ]
+        }
+      }
+    },
+    "global_time": 0.0
+  }
+}

@@ -1,0 +1,76 @@
+schema_version: 3
+name: fig-03
+title: Fig 3 — process graph + composite process
+investigation: paper-figures
+created: '2026-08-09'
+status: complete
+confidence: Accepted
+claim: image generated
+purpose:
+  question: What does Fig 3 — process graph + composite process depict, and does its bigraph-loom image generate?
+  mechanism: A process graph (metabolism + gene expression over metab/enzymes/DNA) and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport), rendered in bigraph-loom.
+  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
+baseline:
+- name: 3a-process-graph
+  composite: spatio_flux.composites.fig03a-process-graph
+  params: {}
+- name: 3b-composite-process
+  composite: spatio_flux.composites.fig03b-composite-process
+  params: {}
+expected_behavior:
+- bigraph-loom image generated correctly
+visualizations:
+- name: fig03a-process-graph.svg
+  address: image:visualizations/fig03a-process-graph.svg
+  chart: image
+- name: fig03b-composite-process.svg
+  address: image:visualizations/fig03b-composite-process.svg
+  chart: image
+variants: []
+interventions: []
+runs:
+- name: spatio_flux.composites.fig03a-process-graph__1786323952__30c709
+  status: completed
+  timestamp: 1786323954.576271
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+- name: spatio_flux.composites.fig03b-composite-process__1786323954__987b6b
+  status: completed
+  timestamp: 1786323957.0641248
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+simulation_set:
+- name: 3a-process-graph-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig03a-process-graph
+  is_baseline: true
+  status: ran
+- name: 3b-composite-process-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig03b-composite-process
+  is_baseline: true
+  status: ran
+pipeline_gate:
+  gate_evaluator:
+    result: not_started
+    blocked_by: []
+    evaluated_by: code
+    diverges_from_authored: false

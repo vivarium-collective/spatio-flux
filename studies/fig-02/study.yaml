@@ -1,0 +1,51 @@
+schema_version: 3
+name: fig-02
+title: Fig 2 — Milner bigraph (a) + process bigraph (b)
+investigation: paper-figures
+created: '2026-08-09'
+status: complete
+confidence: Accepted
+claim: image generated
+purpose:
+  question: What does Fig 2 — Milner bigraph (a) + process bigraph (b) depict, and does its bigraph-loom image generate?
+  mechanism: Contrasts a Milner bigraph (a) with a process bigraph (b). The process-bigraph panel is illustrated by the process graph (metabolism + gene expression over shared stores), rendered in bigraph-loom.
+  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
+baseline:
+- name: 2b-process-bigraph
+  composite: spatio_flux.composites.fig02-process-bigraph
+  params: {}
+expected_behavior:
+- bigraph-loom image generated correctly
+visualizations:
+- name: fig02-process-bigraph.svg
+  address: image:visualizations/fig02-process-bigraph.svg
+  chart: image
+variants: []
+interventions: []
+runs:
+- name: spatio_flux.composites.fig02-process-bigraph__1786323949__f20dd1
+  status: completed
+  timestamp: 1786323952.109799
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+simulation_set:
+- name: 2b-process-bigraph-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig02-process-bigraph
+  is_baseline: true
+  status: ran
+pipeline_gate:
+  gate_evaluator:
+    result: not_started
+    blocked_by: []
+    evaluated_by: code
+    diverges_from_authored: false

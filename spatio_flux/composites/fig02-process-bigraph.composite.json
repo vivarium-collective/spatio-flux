@@ -1,0 +1,148 @@
+{
+  "name": "fig02-process-bigraph",
+  "description": "Fig 2 \u2014 Process bigraph (Fig 2b): the same metabolism + gene-expression process graph used in Fig 3a \u2014 a metabolism process and a gene-expression process over shared metab / enzymes / DNA stores \u2014 contrasted with a static Milner bigraph (Fig 2a).",
+  "tags": [
+    "paper-figure",
+    "draft",
+    "fig-2"
+  ],
+  "state": {
+    "metab": {
+      "_type": "concentration",
+      "_value": 5.0
+    },
+    "enzymes": {
+      "_type": "concentration",
+      "_value": 1.0
+    },
+    "DNA": {
+      "_type": "concentration",
+      "_value": 1.0
+    },
+    "metabolism": {
+      "_type": "process",
+      "address": "local:MetabolismGraph",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
+        "contract": {
+          "status": "draft - no update dynamics yet",
+          "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
+          "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
+          "math": [
+            "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
+          ],
+          "symbols": {
+            "k_cat": "turnover number",
+            "K_m": "Michaelis constant"
+          },
+          "ports": {
+            "substrates": "substrate pool",
+            "enzymes": "enzyme levels",
+            "products": "product pool"
+          }
+        }
+      },
+      "_inputs": {
+        "substrates": "concentration",
+        "enzymes": "concentration"
+      },
+      "_outputs": {
+        "products": "concentration"
+      },
+      "_contract": {
+        "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
+        "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
+        "status": "draft - no update dynamics yet",
+        "math": [
+          "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
+        ],
+        "symbols": {
+          "k_cat": "turnover number",
+          "K_m": "Michaelis constant"
+        },
+        "inputs": {
+          "substrates": "substrate pool",
+          "enzymes": "enzyme levels"
+        },
+        "outputs": {
+          "products": "product pool"
+        }
+      },
+      "inputs": {
+        "substrates": [
+          "metab"
+        ],
+        "enzymes": [
+          "enzymes"
+        ]
+      },
+      "outputs": {
+        "products": [
+          "metab"
+        ]
+      }
+    },
+    "gene_expression": {
+      "_type": "process",
+      "address": "local:GeneExpressionGraph",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Gene expression \u2014 genes \u2192 enzymes",
+        "contract": {
+          "status": "draft - no update dynamics yet",
+          "summary": "Gene expression \u2014 genes \u2192 enzymes",
+          "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
+          "math": [
+            "\\frac{d[\\text{enzymes}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{enzymes}]"
+          ],
+          "symbols": {
+            "k_expr": "expression rate",
+            "\u03b3": "enzyme turnover"
+          },
+          "ports": {
+            "genes": "gene / DNA template",
+            "enzymes": "produced enzymes"
+          }
+        }
+      },
+      "_inputs": {
+        "genes": "concentration"
+      },
+      "_outputs": {
+        "enzymes": "concentration"
+      },
+      "_contract": {
+        "summary": "Gene expression \u2014 genes \u2192 enzymes",
+        "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
+        "status": "draft - no update dynamics yet",
+        "math": [
+          "\\frac{d[\\text{enzymes}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{enzymes}]"
+        ],
+        "symbols": {
+          "k_expr": "expression rate",
+          "\u03b3": "enzyme turnover"
+        },
+        "inputs": {
+          "genes": "gene / DNA template"
+        },
+        "outputs": {
+          "enzymes": "produced enzymes"
+        }
+      },
+      "inputs": {
+        "genes": [
+          "DNA"
+        ]
+      },
+      "outputs": {
+        "enzymes": [
+          "enzymes"
+        ]
+      }
+    },
+    "global_time": 0.0
+  }
+}

@@ -1,0 +1,101 @@
+schema_version: 3
+name: fig-07
+title: Fig 7 — spatio-flux example composites
+investigation: paper-figures
+created: '2026-08-09'
+status: complete
+confidence: Accepted
+claim: image generated
+purpose:
+  question: What does Fig 7 depict, and do its three panels' bigraph-loom images generate?
+  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in bigraph-loom.'
+  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under Visualizations, one run per panel.
+baseline:
+- name: 7-1-community-dfba
+  composite: spatio_flux.composites.fig07-1-community-dfba
+  params: {}
+- name: 7-2-comets
+  composite: spatio_flux.composites.fig07-2-comets
+  params: {}
+- name: 7-3-brownian-particles
+  composite: spatio_flux.composites.fig07-3-brownian-particles
+  params: {}
+expected_behavior:
+- bigraph-loom image generated correctly
+visualizations:
+- name: fig07-1-community-dfba.svg
+  address: image:visualizations/fig07-1-community-dfba.svg
+  chart: image
+- name: fig07-2-comets.svg
+  address: image:visualizations/fig07-2-comets.svg
+  chart: image
+- name: fig07-3-brownian-particles.svg
+  address: image:visualizations/fig07-3-brownian-particles.svg
+  chart: image
+variants: []
+interventions: []
+runs:
+- name: spatio_flux.composites.fig07-1-community-dfba__1786323957__36c785
+  status: completed
+  timestamp: 1786323963.910493
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+- name: spatio_flux.composites.fig07-2-comets__1786323964__0ad900
+  status: completed
+  timestamp: 1786323966.718219
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+- name: spatio_flux.composites.fig07-3-brownian-particles__1786323966__f8c97f
+  status: completed
+  timestamp: 1786323969.322881
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+simulation_set:
+- name: 7-1-community-dfba-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig07-1-community-dfba
+  is_baseline: true
+  status: ran
+- name: 7-2-comets-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig07-2-comets
+  is_baseline: true
+  status: ran
+- name: 7-3-brownian-particles-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig07-3-brownian-particles
+  is_baseline: true
+  status: ran
+pipeline_gate:
+  gate_evaluator:
+    result: not_started
+    blocked_by: []
+    evaluated_by: code
+    diverges_from_authored: false

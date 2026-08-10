@@ -1,0 +1,62 @@
+schema_version: 3
+name: fig-01
+title: Fig 1 — draft processes + multiscale composite
+investigation: paper-figures
+created: '2026-08-09'
+status: complete
+confidence: Accepted
+claim: image generated
+purpose:
+  question: What does Fig 1 — draft processes + multiscale composite depict, and does its bigraph-loom image generate?
+  mechanism: Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen Gradient, Multicellular Interactions) and the multiscale draft composite (tissue > cells > cell > molecules), rendered in bigraph-loom.
+  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
+baseline:
+- name: 1a-draft-processes
+  composite: spatio_flux.composites.fig01a-draft-processes
+  params: {}
+- name: 1b-multiscale
+  composite: spatio_flux.composites.fig01b-multiscale-composite
+  params: {}
+expected_behavior:
+- bigraph-loom image generated correctly
+visualizations:
+- name: fig01a-draft-processes.svg
+  address: image:visualizations/fig01a-draft-processes.svg
+  chart: image
+- name: fig01b-multiscale-composite.svg
+  address: image:visualizations/fig01b-multiscale-composite.svg
+  chart: image
+variants: []
+interventions: []
+runs:
+- name: spatio_flux.composites.fig01a-draft-processes__1786323944__20b26c
+  status: completed
+  timestamp: 1786323947.918352
+  emitter:
+    kind: unknown
+  env_id: ae8421ed6816b163
+  params: '{}'
+  provenance:
+    params:
+      n_steps:
+        value: 2
+        source: resolved
+    params_captured_at: '2026-08-09'
+    params_source: dashboard-runner
+simulation_set:
+- name: 1a-draft-processes-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig01a-draft-processes
+  is_baseline: true
+  status: ran
+- name: 1b-multiscale-baseline
+  kind: single
+  base_model: spatio_flux.composites.fig01b-multiscale-composite
+  is_baseline: true
+  status: ran
+pipeline_gate:
+  gate_evaluator:
+    result: not_started
+    blocked_by: []
+    evaluated_by: code
+    diverges_from_authored: false
