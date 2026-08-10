@@ -13,5 +13,38 @@ studies:
 - fig-03
 - fig-07
 - fig-08
+# Captions + numbering for the stitched figures (the ↓ figures download + the
+# Figures surfaces). Optional overrides on top of the auto-discovered composites;
+# `caption` describes what each figure shows.
+figures:
+- study: fig-01
+  number: 1
+  caption: >-
+    The panel-B multiscale composite, assembled from draft-process building blocks —
+    gene expression, metabolism, a morphogen gradient, and multicellular interactions —
+    wired into a nested place graph spanning molecular to multicellular scales.
+- study: fig-02
+  number: 2
+  caption: >-
+    One abstract bigraph, two readings. 2a: the Milner form, with each process collapsed
+    to a hyperedge point-vertex over the stores it touches. 2b: the process bigraph, with
+    processes p1–p3 linking place-graph nodes n1–n6 through typed input/output ports.
+- study: fig-03
+  number: 3
+  caption: >-
+    A process graph and the composite process it defines — the same wiring seen as a graph
+    of processes and as a single encapsulated composite.
+- study: fig-07
+  number: 7
+  caption: >-
+    Three spatio-flux example composites with their simulation output: community dynamic FBA
+    (shared fields + a dFBA process per species with Monod kinetics), COMETS-style spatial
+    dFBA (fields on a grid with diffusion–advection and a dFBA process per bin), and Brownian
+    particles (a particles store driven by brownian motion with boundary enforcement).
+- study: fig-08
+  number: 8
+  caption: >-
+    The spatio-flux reference model — the combined spatial composite (particles, fields,
+    diffusion–advection, and dynamic FBA) used as the reference simulation.
 expert_docs: []
 acceptance_criteria: []
