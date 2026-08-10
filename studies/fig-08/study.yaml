@@ -7,8 +7,11 @@ status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 8 — the spatio-flux reference model depict, and does its bigraph-loom image generate?
-  mechanism: 'spatio-flux reference model (spatioflux_reference_demo): fields + diffusion + a Monod-kinetics array with Newtonian particles carrying per-particle dFBA (ecoli_1, ecoli_2) aggregated into particle mass, rendered in bigraph-loom.'
+  question: What does Fig 8 — the spatio-flux reference model depict, and does its
+    bigraph-loom image generate?
+  mechanism: 'spatio-flux reference model (spatioflux_reference_demo): fields + diffusion
+    + a Monod-kinetics array with Newtonian particles carrying per-particle dFBA (ecoli_1,
+    ecoli_2) aggregated into particle mass, rendered in bigraph-loom.'
   expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
 baseline:
 - name: reference
@@ -17,8 +20,11 @@ baseline:
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
-- name: fig08-reference-model.svg
+- name: 8a-reference-model.svg
   address: image:visualizations/fig08-reference-model.svg
+  chart: image
+- name: 8b-reference-snapshots.png
+  address: image:visualizations/fig08b-reference-snapshots.png
   chart: image
 variants: []
 interventions: []

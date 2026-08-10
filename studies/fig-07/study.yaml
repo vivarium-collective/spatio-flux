@@ -8,8 +8,13 @@ confidence: Accepted
 claim: image generated
 purpose:
   question: What does Fig 7 depict, and do its three panels' bigraph-loom images generate?
-  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in bigraph-loom.'
-  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under Visualizations, one run per panel.
+  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community
+    dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics);
+    7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA
+    process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement
+    + enforce-boundaries). Each rendered in bigraph-loom.'
+  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under
+    Visualizations, one run per panel.
 baseline:
 - name: 7-1-community-dfba
   composite: spatio_flux.composites.fig07-1-community-dfba
@@ -23,14 +28,29 @@ baseline:
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
-- name: fig07-1-community-dfba.svg
+- name: 7a-community-dfba.svg
   address: image:visualizations/fig07-1-community-dfba.svg
   chart: image
-- name: fig07-2-comets.svg
+- name: 7b-monod-kinetics.png
+  address: image:visualizations/fig07b-monod-kinetics.png
+  chart: image
+- name: 7c-dfba.png
+  address: image:visualizations/fig07c-dfba.png
+  chart: image
+- name: 7d-hybrid-community.png
+  address: image:visualizations/fig07d-hybrid-community.png
+  chart: image
+- name: 7e-comets.svg
   address: image:visualizations/fig07-2-comets.svg
   chart: image
-- name: fig07-3-brownian-particles.svg
+- name: 7f-comets-snapshots.png
+  address: image:visualizations/fig07f-comets-snapshots.png
+  chart: image
+- name: 7g-brownian-particles.svg
   address: image:visualizations/fig07-3-brownian-particles.svg
+  chart: image
+- name: 7h-brownian-traces.png
+  address: image:visualizations/fig07h-brownian-traces.png
   chart: image
 variants: []
 interventions: []
