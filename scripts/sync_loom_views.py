@@ -38,6 +38,7 @@ from pathlib import Path
 WS = Path(__file__).resolve().parents[1]
 PBG_VIEWS = WS / ".pbg" / "loom-views"
 PBG_LAYOUTS = WS / ".pbg" / "loom-layouts"
+RENDER_JOBS = WS / "scripts" / "render_loom_svgs.mjs"
 
 
 def _safe(cid: str) -> str:
@@ -149,16 +150,29 @@ def _committed_safes() -> set[str]:
     return seen
 
 
+def _figure_safes() -> set[str]:
+    """Composite ids rendered as FIGURES (parsed from render_loom_svgs.mjs JOBS).
+    A saved view for any of these is a figure view worth capturing to git — even
+    the FIRST time it's saved, before it has a committed view. Closes the hole
+    where a figure the user carefully arranged (e.g. fig3b) was silently dropped
+    because it had no committed view yet."""
+    try:
+        txt = RENDER_JOBS.read_text()
+    except OSError:
+        return set()
+    # JOBS rows look like: ['fig-03', 'spatio_flux.composites.fig03b-...', 'name', {...}]
+    return {_safe(m.group(1)) for m in re.finditer(r"\[\s*'[^']+'\s*,\s*'([^']+)'\s*,", txt)}
+
+
 def _all_safes(direction: str) -> list[str]:
     """The set of composite ids to act on, by direction's source."""
     committed = _committed_safes()
     if direction == "promote":
-        # Only promote composites that ALREADY have a committed view — so
-        # browsing an unrelated composite in the dashboard never spawns a stray
-        # git file. Use --id to promote a brand-new figure view the first time.
-        # Alias-aware: a committed generator id counts as saved if its static
-        # alias has a .pbg view.
-        return sorted(s for s in committed if _pbg_view_path(s) is not None)
+        # Promote composites that already have a committed view OR are a known
+        # figure (so a brand-new figure view is captured the first time it's
+        # saved) — but never an unrelated composite the user merely browsed.
+        candidates = committed | _figure_safes()
+        return sorted(s for s in candidates if _pbg_view_path(s) is not None)
     return sorted(committed)
 
 

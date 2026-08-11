@@ -1,0 +1,57 @@
+{
+  "v": 1,
+  "positions": {
+    "cell": {
+      "x": 404,
+      "y": 12
+    },
+    "cell.nucleus": {
+      "x": 812,
+      "y": 210
+    },
+    "cell.nucleus.chromatin": {
+      "x": 812,
+      "y": 408
+    },
+    "cell.nucleus.mRNA": {
+      "x": 1016,
+      "y": 408
+    },
+    "cell.cytoplasm": {
+      "x": 404,
+      "y": 210
+    },
+    "cell.cytoplasm.ribosome": {
+      "x": 200,
+      "y": 408
+    },
+    "cell.cytoplasm.ATP": {
+      "x": 404,
+      "y": 408
+    },
+    "cell.membrane": {
+      "x": 608,
+      "y": 210
+    },
+    "cell.membrane.receptor": {
+      "x": 608,
+      "y": 408
+    },
+    "medium": {
+      "x": 715.5873684210528,
+      "y": 5.722105263157928
+    }
+  },
+  "collapsed": [],
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "auto",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "auto"
+  }
+}
