@@ -53,11 +53,11 @@ const JOBS = [
   // Fig 7 is one study with three panels (7.1/7.2/7.3).
   // 7a: hub-and-spoke — fields hub over a species-store row over a dFBA-process
   // row (committed view positions it; ports tier keeps the process boxes compact).
-  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports' }],
+  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports', contract: 'on' }],
   // 7e (COMETS): single vectorized spatial_dFBA over the fields branch — show the
   // named field children (glucose / acetate / biomass), so NOT collapsed.
-  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { detail: 'ports' }],
-  ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles', { detail: 'ports' }],
+  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { detail: 'ports', contract: 'on' }],
+  ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles', { detail: 'ports', contract: 'on' }],
   ['fig-08', 'spatio_flux.composites.fig08-reference-model',       'fig08-reference-model'],
 ];
 
