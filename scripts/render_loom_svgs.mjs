@@ -50,16 +50,24 @@ const JOBS = [
   // 7a: hub-and-spoke — fields hub over a species-store row over a dFBA-process
   // row (committed view positions it; ports tier keeps the process boxes compact).
   ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports' }],
-  // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.
-  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { collapse: true }],
+  // 7e (COMETS): single vectorized spatial_dFBA over the fields branch — show the
+  // named field children (glucose / acetate / biomass), so NOT collapsed.
+  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { detail: 'ports' }],
   ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles', { detail: 'ports' }],
   ['fig-08', 'spatio_flux.composites.fig08-reference-model',       'fig08-reference-model'],
 ];
 
+// Optional argv filter: `node render_loom_svgs.mjs fig04` renders only jobs whose
+// slug/composite-id/name contains the substring — fast targeted re-renders.
+const FILTER = process.argv[2] || '';
+const RUN_JOBS = FILTER
+  ? JOBS.filter(([slug, id, name]) => (slug + id + name).includes(FILTER))
+  : JOBS;
+
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1700, height: 1200 }, deviceScaleFactor: 2 });
 let ok = 0;
-for (const [slug, id, name, flags = {}] of JOBS) {
+for (const [slug, id, name, flags = {}] of RUN_JOBS) {
   const out = `${WS}/studies/${slug}/visualizations/${name}.svg`;
   // nopersist=1 → the render never writes layouts back (so it can't clobber the
   // user's saved default view). The composite's workspace default view (mode +
@@ -120,4 +128,4 @@ for (const [slug, id, name, flags = {}] of JOBS) {
   }
 }
 await browser.close();
-console.log(`rendered ${ok}/${JOBS.length} loom figures (svg + png)`);
+console.log(`rendered ${ok}/${RUN_JOBS.length} loom figures (svg + png)`);

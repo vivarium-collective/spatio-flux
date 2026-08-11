@@ -7,13 +7,13 @@
   ],
   "state": {
     "particles": {
-      "wI5R4d8P": {
-        "id": "wI5R4d8P",
+      "particle": {
+        "id": "particle",
         "position": [
-          7.863234292568865,
-          38.80687714753995
+          7.9,
+          38.8
         ],
-        "mass": 0.05891923202730228
+        "mass": 0.059
       }
     },
     "brownian_movement": {

@@ -354,13 +354,17 @@ class AnalysisViz(DraftProcess):
             "updates); the update method maps config + inputs to a delta Δ — the "
             "tree of changes to apply, branched by output port."),
         "status": "draft - no update dynamics yet",
-        # Single-line contract: a typed process maps its typed inputs to a delta.
+        # Single-line contract, concrete: every symbol here IS a real port with
+        # its exact type — config interval:integer, inputs in_1:species /
+        # in_2:params, and Δ branches into out_1:ss_species / out_2:rates.
         "math": [
-            r"p_{\text{proc}}[\text{config}{:}\tau_c]\ :\ "
-            r"\text{in}_1^{\tau_1},\ \text{in}_2^{\tau_2}\ \longrightarrow\ \Delta",
+            r"p_{\text{proc}}\big[\text{interval}{:}\text{integer}\big]\ :\ "
+            r"\text{in}_1^{\text{species}},\ \text{in}_2^{\text{params}}\ "
+            r"\longrightarrow\ \Delta{=}\{\text{out}_1^{\text{ss\_species}},\ "
+            r"\text{out}_2^{\text{rates}}\}",
         ],
         "ports": {"in_1": "species", "in_2": "params",
-                  "out_1": "steady-state species", "out_2": "rates"},
+                  "out_1": "ss_species", "out_2": "rates"},
     },
 )
 class ProcessSchematic(DraftProcess):

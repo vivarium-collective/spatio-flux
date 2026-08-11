@@ -1,47 +1,47 @@
 {
-  "v": 1,
-  "positions": {
-    "fields": {
-      "x": 620,
-      "y": 60
-    },
-    "fields.glucose": {
-      "x": 360,
-      "y": 300
-    },
-    "fields.acetate": {
-      "x": 620,
-      "y": 300
-    },
-    "fields.dissolved biomass": {
-      "x": 900,
-      "y": 300
-    },
-    "spatial_dFBA": {
-      "x": 180,
-      "y": 580,
-      "w": 720,
-      "h": 150
-    },
-    "diffusion": {
-      "x": 900,
-      "y": 580,
-      "w": 600,
-      "h": 150
-    }
+ "v": 1,
+ "positions": {
+  "fields": {
+   "x": 620,
+   "y": 60
   },
-  "collapsed": [],
-  "hidden": [
-    "global_time"
-  ],
-  "mode": "flow-down",
-  "detail": "ports",
-  "collapse": false,
-  "hyperedges": false,
-  "detailOverrides": {
-    "ports": "plain",
-    "stores": "type",
-    "config": "off",
-    "contract": "off"
+  "fields.glucose": {
+   "x": 360,
+   "y": 300
+  },
+  "fields.acetate": {
+   "x": 620,
+   "y": 300
+  },
+  "spatial_dFBA": {
+   "x": 180,
+   "y": 580,
+   "w": 720,
+   "h": 150
+  },
+  "diffusion": {
+   "x": 900,
+   "y": 580,
+   "w": 600,
+   "h": 150
+  },
+  "fields.biomass": {
+   "x": 900,
+   "y": 300
   }
+ },
+ "collapsed": [],
+ "hidden": [
+  "global_time"
+ ],
+ "mode": "flow-down",
+ "detail": "ports",
+ "collapse": false,
+ "hyperedges": false,
+ "detailOverrides": {
+  "ports": "plain",
+  "stores": "type",
+  "config": "off",
+  "contract": "off"
+ }
 }

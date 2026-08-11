@@ -44,7 +44,14 @@ CONTENT_W = 2200   # target content width every row justifies to
 PAD = 28           # outer margin
 GAP = 22           # gap between panels and between rows
 LABEL_H = 34       # space above each row for its panel letters
-ROW1_MAX_H = 560   # cap the full-width loom (panel a) so it doesn't dominate
+# Per-row height caps (row index -> max px). A capped row is centered in the
+# content width instead of stretched. Row 0 = panel a (full-width loom); row 1 =
+# the b/c/d simulation plots, capped short so they don't tower over a and can sit
+# close beneath it. Uncapped rows justify to fill CONTENT_W.
+ROW_MAX_H = {0: 560, 1: 360}
+# Tighter label band above a given row (pulls b/c/d up toward a). Must stay big
+# enough to clear the panel-letter (~36px for the 34px bold serif).
+ROW_GAP_ABOVE = {1: 24}
 
 _LABEL_FONTS = (
     "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
@@ -80,8 +87,9 @@ def _layout():
     """Compute per-panel placement (path, x, y, w, h) + total canvas size.
 
     Justified rows: at a common row height h, panel i has width aspect_i * h, so
-    to fill CONTENT_W we solve h = (CONTENT_W - gaps) / sum(aspect). Row 1 is
-    height-capped and centered when the justified height would exceed ROW1_MAX_H."""
+    to fill CONTENT_W we solve h = (CONTENT_W - gaps) / sum(aspect). A row listed
+    in ROW_MAX_H is height-capped and centered when the justified height would
+    exceed its cap (keeps panel a from dominating and b/c/d from towering)."""
     sizes = _sizes()
     placements = []  # (path, x, y, w, h)
     y = float(PAD)
@@ -91,12 +99,13 @@ def _layout():
         h = (CONTENT_W - gaps) / sum(aspects)
         widths = [a * h for a in aspects]
         row_w = sum(widths) + gaps
-        if ri == 0 and h > ROW1_MAX_H:  # cap the full-width loom; center it
-            h = float(ROW1_MAX_H)
+        cap = ROW_MAX_H.get(ri)
+        if cap is not None and h > cap:  # cap this row's height; center it
+            h = float(cap)
             widths = [a * h for a in aspects]
             row_w = sum(widths) + gaps
         x = PAD + (CONTENT_W - row_w) / 2.0  # center (row_w == CONTENT_W unless capped)
-        y += LABEL_H
+        y += ROW_GAP_ABOVE.get(ri, LABEL_H)
         for f, w in zip(row, widths):
             placements.append((VIZ / f, x, y, w, h))
             x += w + GAP
