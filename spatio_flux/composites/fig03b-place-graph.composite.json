@@ -8,22 +8,34 @@
   ],
   "state": {
     "cell": {
-      "nuc": {
-        "_type": "concentration",
-        "_value": 0.0
-      },
-      "cyto": {
-        "ribo": {
-          "_type": "concentration",
+      "nucleus": {
+        "chromatin": {
+          "_type": "genome",
+          "_value": 0.0
+        },
+        "mRNA": {
+          "_type": "transcript",
           "_value": 0.0
         }
       },
-      "mucin": {
-        "_type": "concentration",
-        "_value": 0.0
+      "cytoplasm": {
+        "ribosome": {
+          "_type": "count",
+          "_value": 0.0
+        },
+        "ATP": {
+          "_type": "energy",
+          "_value": 0.0
+        }
+      },
+      "membrane": {
+        "receptor": {
+          "_type": "count",
+          "_value": 0.0
+        }
       }
     },
-    "EPS": {
+    "medium": {
       "_type": "concentration",
       "_value": 0.0
     }

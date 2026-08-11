@@ -347,15 +347,26 @@ class AnalysisViz(DraftProcess):
     inputs={"in_1": "species", "in_2": "params"},
     outputs={"out_1": "ss_species", "out_2": "rates"},
     contract={
-        # Prose headline — NOT the update-function notation (that's the `math`
-        # block below), so the two don't read as duplicated.
-        "summary": "A process — typed input/output ports + an update function",
-        "description": "A process is a rectangle with typed ports on its boundary: "
-                       "inputs on the left, outputs on the right, each carrying a data "
-                       "type. The update function maps inputs to outputs, informed by "
-                       "its config (type steady_state).",
+        # Punchy headline capturing the formal basis (not the notation — that's math).
+        "summary": "A typed function signature whose update method emits a delta Δ",
+        "description": (
+            "Formally, a process's interface is a typed function signature: the "
+            "typed values it may READ (its input ports) and the typed values it may "
+            "UPDATE (its output ports), parameterized by a typed config. At runtime "
+            "the instantiated handler realizes this contract through an update method "
+            "— a delta generator: given config + inputs it returns a delta Δ, a "
+            "tree-structured object whose top-level branches are the output ports, "
+            "each branch carrying the increment to apply to that value."),
         "status": "draft - no update dynamics yet",
-        "math": [r"(\mathrm{in}_1,\ \mathrm{in}_2)\ \rightarrow\ (\mathrm{out}_1,\ \mathrm{out}_2)"],
+        "math": [
+            # 1. The typed interface as a function signature (ports carry types).
+            r"p_{\text{proc}}[\text{config}{:}\tau_c]\ :\ "
+            r"\text{in}_1^{\tau_1},\ \text{in}_2^{\tau_2}\ \longrightarrow\ "
+            r"\text{out}_1^{\sigma_1},\ \text{out}_2^{\sigma_2}",
+            # 2. The runtime handler as a delta generator.
+            r"\text{update}\,(\text{config},\ \text{in}_1,\ \text{in}_2)\ "
+            r"\longrightarrow\ \Delta",
+        ],
         "ports": {"in_1": "species", "in_2": "params",
                   "out_1": "steady-state species", "out_2": "rates"},
     },
@@ -494,10 +505,11 @@ def fig02_bigraph_state() -> dict:
         # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
         "n1": {"n3": _v("place_node", 0.0), "n4": {"n6": _v("place_node", 0.0)}},
         "n2": {"n5": _v("place_node", 0.0)},
-        # Processes wired across the place graph (paths into the nesting).
-        "p1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"]}),
+        # Processes wired across the place graph (paths into the nesting). p1 and
+        # p3 also link to n2 (extra hyperedge spoke / process wire).
+        "p1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
         "p2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
-        "p3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"]}),
+        "p3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
     }
 
 
@@ -512,17 +524,29 @@ def fig3a_store_state() -> dict:
 
 
 def fig3b_place_graph_state() -> dict:
-    """Fig 3b (store diagram, panel b): a PLACE GRAPH of nested stores —
-    cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell. Outer stores
-    connect to inner stores by the place-graph nesting."""
+    """Fig 3b (store diagram, panel b): a PLACE GRAPH of nested stores — a cell
+    and its compartments, each holding a biologically meaningful quantity with a
+    DISTINCT data type, so the place graph reads as real cell biology:
+
+        cell ⊃ { nucleus  ⊃ {chromatin: genome,   mRNA: transcript},
+                 cytoplasm ⊃ {ribosome: count,     ATP:  energy},
+                 membrane  ⊃ {receptor: count} }
+        + medium (extracellular sibling): concentration
+
+    Outer stores connect to inner stores by the place-graph nesting."""
     return {
-        # cell is a BRANCH containing nuc / cyto(⊃ribo) / mucin; EPS is a sibling.
         "cell": {
-            "nuc": _v("concentration", 0.0),
-            "cyto": {"ribo": _v("concentration", 0.0)},
-            "mucin": _v("concentration", 0.0),
+            "nucleus": {
+                "chromatin": _v("genome", 0.0),
+                "mRNA": _v("transcript", 0.0),
+            },
+            "cytoplasm": {
+                "ribosome": _v("count", 0.0),
+                "ATP": _v("energy", 0.0),
+            },
+            "membrane": {"receptor": _v("count", 0.0)},
         },
-        "EPS": _v("concentration", 0.0),
+        "medium": _v("concentration", 0.0),  # extracellular sibling
     }
 
 

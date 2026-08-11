@@ -13,13 +13,14 @@
       "_draft": true,
       "config": {
         "interval": 1.0,
-        "summary": "A process \u2014 typed input/output ports + an update function",
+        "summary": "A typed function signature whose update method emits a delta \u0394",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "A process \u2014 typed input/output ports + an update function",
-          "description": "A process is a rectangle with typed ports on its boundary: inputs on the left, outputs on the right, each carrying a data type. The update function maps inputs to outputs, informed by its config (type steady_state).",
+          "summary": "A typed function signature whose update method emits a delta \u0394",
+          "description": "Formally, a process's interface is a typed function signature: the typed values it may READ (its input ports) and the typed values it may UPDATE (its output ports), parameterized by a typed config. At runtime the instantiated handler realizes this contract through an update method \u2014 a delta generator: given config + inputs it returns a delta \u0394, a tree-structured object whose top-level branches are the output ports, each branch carrying the increment to apply to that value.",
           "math": [
-            "(\\mathrm{in}_1,\\ \\mathrm{in}_2)\\ \\rightarrow\\ (\\mathrm{out}_1,\\ \\mathrm{out}_2)"
+            "p_{\\text{proc}}[\\text{config}{:}\\tau_c]\\ :\\ \\text{in}_1^{\\tau_1},\\ \\text{in}_2^{\\tau_2}\\ \\longrightarrow\\ \\text{out}_1^{\\sigma_1},\\ \\text{out}_2^{\\sigma_2}",
+            "\\text{update}\\,(\\text{config},\\ \\text{in}_1,\\ \\text{in}_2)\\ \\longrightarrow\\ \\Delta"
           ],
           "ports": {
             "in_1": "species",
@@ -38,11 +39,12 @@
         "out_2": "rates"
       },
       "_contract": {
-        "summary": "A process \u2014 typed input/output ports + an update function",
-        "description": "A process is a rectangle with typed ports on its boundary: inputs on the left, outputs on the right, each carrying a data type. The update function maps inputs to outputs, informed by its config (type steady_state).",
+        "summary": "A typed function signature whose update method emits a delta \u0394",
+        "description": "Formally, a process's interface is a typed function signature: the typed values it may READ (its input ports) and the typed values it may UPDATE (its output ports), parameterized by a typed config. At runtime the instantiated handler realizes this contract through an update method \u2014 a delta generator: given config + inputs it returns a delta \u0394, a tree-structured object whose top-level branches are the output ports, each branch carrying the increment to apply to that value.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "(\\mathrm{in}_1,\\ \\mathrm{in}_2)\\ \\rightarrow\\ (\\mathrm{out}_1,\\ \\mathrm{out}_2)"
+          "p_{\\text{proc}}[\\text{config}{:}\\tau_c]\\ :\\ \\text{in}_1^{\\tau_1},\\ \\text{in}_2^{\\tau_2}\\ \\longrightarrow\\ \\text{out}_1^{\\sigma_1},\\ \\text{out}_2^{\\sigma_2}",
+          "\\text{update}\\,(\\text{config},\\ \\text{in}_1,\\ \\text{in}_2)\\ \\longrightarrow\\ \\Delta"
         ],
         "symbols": {},
         "inputs": {
