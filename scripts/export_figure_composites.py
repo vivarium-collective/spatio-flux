@@ -182,6 +182,18 @@ def _backfill_wire_targets(entry, processes):
 STOCHASTIC = {"fig08-reference-model"}
 
 
+def _rename_everywhere(obj, old, new):
+    """Recursively rename a dict KEY / string VALUE `old` -> `new` (used to keep a
+    renamed field consistent across the fields branch AND the process wiring)."""
+    if isinstance(obj, dict):
+        return {(new if k == old else k): _rename_everywhere(v, old, new) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):  # wiring paths arrive as tuples
+        return [_rename_everywhere(x, old, new) for x in obj]
+    if isinstance(obj, str):
+        return new if obj == old else obj
+    return obj  # numpy field arrays / numbers — never `== old`-compare (ambiguous)
+
+
 def _figure_transforms(stem: str, state: dict) -> dict:
     """Figure-only PRESENTATION transforms, DECLARED here so a re-export is
     deterministic and can never clobber a hand-edit. These shape the figure's
@@ -190,6 +202,9 @@ def _figure_transforms(stem: str, state: dict) -> dict:
     map-of-arrays + stochastic particles). Idempotent + deterministic — `--check`
     verifies committed == fresh export."""
     if stem == "fig07-2-comets":
+        # Rename "dissolved biomass" -> "biomass" EVERYWHERE (the field child AND
+        # the process wiring that targets it) so the branch + wires stay consistent.
+        state = _rename_everywhere(state, "dissolved biomass", "biomass")
         # fields: opaque map-of-arrays -> an explicit branch of named, typed child
         # stores so the loom shows the field structure (glucose/acetate/biomass).
         f = state.get("fields", {})
