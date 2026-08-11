@@ -1,105 +1,95 @@
 {
- "v": 1,
- "positions": {
-  "ecoli core dFBA": {
-   "x": 1280,
-   "y": 1320,
-   "w": 760,
-   "h": 360
+  "v": 1,
+  "positions": {
+    "ecoli core dFBA": {
+      "x": 2826.8281579501013,
+      "y": 326.2533204249046
+    },
+    "ecoli dFBA": {
+      "x": 2823.919054342178,
+      "y": 521.112338240283
+    },
+    "cdiff dFBA": {
+      "x": 2168.3624452951344,
+      "y": 701.1581404710687,
+      "w": 532,
+      "h": 180
+    },
+    "pputida dFBA": {
+      "x": 2834.028528415488,
+      "y": 128.92601974614175
+    },
+    "yeast dFBA": {
+      "x": 2161.197541755408,
+      "y": 502.0377648511127
+    },
+    "llactis dFBA": {
+      "x": 2142.55002275789,
+      "y": 310.67448422783553
+    },
+    "monod_kinetics": {
+      "x": 2138.710108190069,
+      "y": 115.32672000171755,
+      "w": 665,
+      "h": 185
+    },
+    "fields": {
+      "x": 1708.7101081900696,
+      "y": 35.15632505807223
+    },
+    "fields.glucose": {
+      "x": 1360.6398235362608,
+      "y": 322.81890690054655
+    },
+    "fields.acetate": {
+      "x": 1344.2531283922012,
+      "y": 475.54302020213186
+    },
+    "fields.ecoli core": {
+      "x": 1888.316669586479,
+      "y": 444.61155421700073
+    },
+    "fields.ecoli": {
+      "x": 1888.4864719894797,
+      "y": 585.3970581606508
+    },
+    "fields.cdiff": {
+      "x": 1575.3181611291911,
+      "y": 755.8594306923833
+    },
+    "fields.pputida": {
+      "x": 1885.645075453079,
+      "y": 299.6203074116981
+    },
+    "fields.yeast": {
+      "x": 1578.1942983844217,
+      "y": 614.2822043172079
+    },
+    "fields.llactis": {
+      "x": 1581.9474808318146,
+      "y": 471.6765869539903
+    },
+    "fields.monod biomass": {
+      "x": 1582.9223348203552,
+      "y": 318.50006083439075
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
+    }
   },
-  "ecoli dFBA": {
-   "x": 2140,
-   "y": 1320,
-   "w": 760,
-   "h": 360
-  },
-  "cdiff dFBA": {
-   "x": 420,
-   "y": 820,
-   "w": 760,
-   "h": 360
-  },
-  "pputida dFBA": {
-   "x": 1280,
-   "y": 820,
-   "w": 760,
-   "h": 360
-  },
-  "yeast dFBA": {
-   "x": 420,
-   "y": 1820,
-   "w": 760,
-   "h": 360
-  },
-  "llactis dFBA": {
-   "x": 420,
-   "y": 1320,
-   "w": 760,
-   "h": 360
-  },
-  "monod_kinetics": {
-   "x": 2140,
-   "y": 820,
-   "w": 760,
-   "h": 360
-  },
-  "fields": {
-   "x": 1500,
-   "y": 40
-  },
-  "fields.glucose": {
-   "x": 300,
-   "y": 300
-  },
-  "fields.acetate": {
-   "x": 620,
-   "y": 300
-  },
-  "fields.ecoli core": {
-   "x": 940,
-   "y": 300
-  },
-  "fields.ecoli": {
-   "x": 1260,
-   "y": 300
-  },
-  "fields.cdiff": {
-   "x": 1580,
-   "y": 300
-  },
-  "fields.pputida": {
-   "x": 1900,
-   "y": 300
-  },
-  "fields.yeast": {
-   "x": 2220,
-   "y": 300
-  },
-  "fields.llactis": {
-   "x": 2540,
-   "y": 300
-  },
-  "fields.monod biomass": {
-   "x": 2860,
-   "y": 300
-  },
-  "global_time": {
-   "x": 12,
-   "y": 12
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "on"
   }
- },
- "collapsed": [],
- "hidden": [
-  "global_time"
- ],
- "mode": "flow-down",
- "detail": null,
- "collapse": false,
- "hyperedges": false,
- "detailOverrides": {
-  "ports": "auto",
-  "stores": "auto",
-  "config": "auto",
-  "contract": "auto"
- }
 }
