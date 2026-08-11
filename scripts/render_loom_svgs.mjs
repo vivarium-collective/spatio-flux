@@ -50,7 +50,7 @@ const JOBS = [
   ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports' }],
   // 7e (COMETS): collapse the 16 per-bin dFBA[i,j] into a single dFBA[*] ×16.
   ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { collapse: true }],
-  ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles'],
+  ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles', { detail: 'ports' }],
   ['fig-08', 'spatio_flux.composites.fig08-reference-model',       'fig08-reference-model'],
 ];
 
