@@ -277,31 +277,40 @@ def _build_scaffold_figure(study: str) -> bool:
     return out.is_file()
 
 
+def _stitch_one(s: str) -> bool:
+    """Stitch a single study's panels into figure_<N>. Returns True on success."""
+    if s in SCAFFOLD_STUDIES:
+        if _build_scaffold_figure(s):
+            register_stitched_viz(s)
+            print(f"  OK  Figure {_fig_num(s)} -> scaffold-composed ({SCAFFOLD_STUDIES[s]}.py)")
+            return True
+        print(f"  skip {s}: scaffold compose failed")
+        return False
+    svg = build_figure(s)
+    png = build_figure_png(s)
+    if svg and png:
+        wrote = register_stitched_viz(s)
+        print(f"  OK  Figure {_fig_num(s)} -> {svg.relative_to(WS)} + {png.name}"
+              f"{'  (+viz entry)' if wrote else ''}")
+        return True
+    print(f"  skip {s}: no panels")
+    return False
+
+
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser(description="Stitch paper-figure panels into figure_<N>.")
+    ap.add_argument("--study", help="stitch only this study (its final step); default = all")
+    args = ap.parse_args()
+
     inv = yaml.safe_load((INV / "investigation.yaml").read_text()) or {}
     studies = inv.get("studies") or []
+    if args.study:
+        studies = [args.study]
     if not studies:
         print("no member studies in paper-figures investigation")
         sys.exit(1)
-    built = 0
-    for s in studies:
-        if s in SCAFFOLD_STUDIES:
-            if _build_scaffold_figure(s):
-                register_stitched_viz(s)
-                print(f"  OK  Figure {_fig_num(s)} -> scaffold-composed ({SCAFFOLD_STUDIES[s]}.py)")
-                built += 1
-            else:
-                print(f"  skip {s}: scaffold compose failed")
-            continue
-        svg = build_figure(s)
-        png = build_figure_png(s)
-        if svg and png:
-            wrote = register_stitched_viz(s)
-            print(f"  OK  Figure {_fig_num(s)} -> {svg.relative_to(WS)} + {png.name}"
-                  f"{'  (+viz entry)' if wrote else ''}")
-            built += 1
-        else:
-            print(f"  skip {s}: no panels")
+    built = sum(1 for s in studies if _stitch_one(s))
     print(f"stitched {built}/{len(studies)} figures into their studies' visualizations")
 
 

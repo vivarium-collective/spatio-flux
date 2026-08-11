@@ -38,7 +38,7 @@ from pathlib import Path
 WS = Path(__file__).resolve().parents[1]
 PBG_VIEWS = WS / ".pbg" / "loom-views"
 PBG_LAYOUTS = WS / ".pbg" / "loom-layouts"
-RENDER_JOBS = WS / "scripts" / "render_loom_svgs.mjs"
+PIPELINE = WS / "investigations" / "paper-figures" / "figures-pipeline.yaml"
 
 
 def _safe(cid: str) -> str:
@@ -151,17 +151,17 @@ def _committed_safes() -> set[str]:
 
 
 def _figure_safes() -> set[str]:
-    """Composite ids rendered as FIGURES (parsed from render_loom_svgs.mjs JOBS).
-    A saved view for any of these is a figure view worth capturing to git — even
-    the FIRST time it's saved, before it has a committed view. Closes the hole
-    where a figure the user carefully arranged (e.g. fig3b) was silently dropped
-    because it had no committed view yet."""
+    """Composite ids rendered as FIGURES — read from the declared figure graph
+    (`figures-pipeline.yaml` panels' `loom:` ids). A saved view for any of these
+    is a figure view worth capturing to git even the FIRST time it's saved, before
+    it has a committed view (closes the hole where a figure the user arranged —
+    e.g. fig3b — was silently dropped for lacking a committed view)."""
     try:
-        txt = RENDER_JOBS.read_text()
-    except OSError:
+        import yaml
+        spec = yaml.safe_load(PIPELINE.read_text()) or {}
+    except (OSError, ImportError, ValueError):
         return set()
-    # JOBS rows look like: ['fig-03', 'spatio_flux.composites.fig03b-...', 'name', {...}]
-    return {_safe(m.group(1)) for m in re.finditer(r"\[\s*'[^']+'\s*,\s*'([^']+)'\s*,", txt)}
+    return {_safe(p["loom"]) for p in spec.get("panels", []) if p.get("loom")}
 
 
 def _all_safes(direction: str) -> list[str]:

@@ -1,0 +1,59 @@
+# figures-pipeline.yaml — the DECLARED figure build graph for the paper-figures
+# investigation. Single source of truth for what panels exist, how each is
+# produced, and what inputs it depends on — so `build_all_figures --changed`
+# rebuilds ONLY the panels whose inputs changed (a saved loom view, a composite
+# spec, a sim script) and re-stitches ONLY the affected figures.
+#
+# This replaces the JOBS table that used to live inside render_loom_svgs.mjs
+# (which sync_loom_views.py had to regex back out). The renderer is now a jobless
+# executor driven by this file.
+#
+# Node kinds:
+#   loom  — rendered by bigraph-loom (headless). inputs auto-resolved =
+#           [committed loom-view for the composite, the composite spec/generator
+#           source]. `flags` are folded into the content hash.
+#   command — produced by a script (sim panels). inputs = the declared list.
+#   external — a panel produced outside this pipeline (e.g. a study sim plot);
+#           not built here, but its file hash feeds the stitch that consumes it.
+#   stitch — composes a study's panels into figure_<N>.{svg,png}. inputs =
+#           the outputs of every panel of that study (derived automatically).
+
+panels:
+  # ── fig-01 ──────────────────────────────────────────────────────────────
+  - {study: fig-01, output: fig01a-draft-processes,      loom: spatio_flux.composites.fig01a-draft-processes,      flags: {contract: on}}
+  - {study: fig-01, output: fig01b-multiscale-composite, loom: spatio_flux.composites.fig01b-multiscale-composite}
+  # 1c is served as a GENERATOR (drillable sub-composites); its spec input is the
+  # generator source, not a static composite json.
+  - {study: fig-01, output: fig01c-study-workflow,       loom: spatio_flux.composites.figures.fig01c-study-workflow, flags: {detail: full}}
+  # ── fig-02 (one composite, two readings) ────────────────────────────────
+  - {study: fig-02, output: fig02a-hyperedges, loom: spatio_flux.composites.fig02-process-bigraph, flags: {hyperedges: true}}
+  - {study: fig-02, output: fig02b-processes,  loom: spatio_flux.composites.fig02-process-bigraph, flags: {ports: none, config: off, contract: off}}
+  # ── fig-03 (store diagrams) ─────────────────────────────────────────────
+  - {study: fig-03, output: fig03a-store,       loom: spatio_flux.composites.fig03a-store,       flags: {detail: full, stores: type}}
+  - {study: fig-03, output: fig03b-place-graph, loom: spatio_flux.composites.fig03b-place-graph}
+  # ── fig-04 (process schematic) ──────────────────────────────────────────
+  - {study: fig-04, output: fig04-process, loom: spatio_flux.composites.fig04-process, flags: {detail: full}}
+  # ── fig-07 (three example composites + sim panels) ──────────────────────
+  - {study: fig-07, output: fig07-1-community-dfba,     loom: spatio_flux.composites.fig07-1-community-dfba,     flags: {detail: ports, contract: on, stores: type}}
+  - {study: fig-07, output: fig07-2-comets,             loom: spatio_flux.composites.fig07-2-comets,             flags: {detail: ports, contract: on, stores: type}}
+  - {study: fig-07, output: fig07-3-brownian-particles, loom: spatio_flux.composites.fig07-3-brownian-particles, flags: {detail: ports, contract: on}}
+  - {study: fig-07, output: fig07f-comets-snapshots, command: "python scripts/build_fig07f_snapshots.py", inputs: [scripts/build_fig07f_snapshots.py]}
+  - {study: fig-07, output: fig07h-brownian-traces,  command: "python scripts/build_fig07h_traces.py",  inputs: [scripts/build_fig07h_traces.py]}
+  # sim plots produced by the study's runs (no standalone script here yet) — the
+  # stitch depends on them, but the pipeline doesn't (re)build them.
+  - {study: fig-07, output: fig07b-monod-kinetics,  external: true}
+  - {study: fig-07, output: fig07c-dfba,            external: true}
+  - {study: fig-07, output: fig07d-hybrid-community, external: true}
+  # ── fig-08 (reference model) ────────────────────────────────────────────
+  - {study: fig-08, output: fig08-reference-model, loom: spatio_flux.composites.fig08-reference-model}
+
+# Each study's final step: compose its panels into figure_<N>.{svg,png}.
+# `module` = a hand-laid scaffold (build_figure1 / build_figure7); omitted = the
+# default shelf-pack in build_paper_figures.
+stitch:
+  - {study: fig-01, module: build_figure1}
+  - {study: fig-02}
+  - {study: fig-03}
+  - {study: fig-04}
+  - {study: fig-07, module: build_figure7}
+  - {study: fig-08}

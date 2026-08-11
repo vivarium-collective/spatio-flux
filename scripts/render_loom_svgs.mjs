@@ -8,9 +8,17 @@
 import { createRequire } from 'module';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
-// playwright + lz-string live in the loom worktree's node_modules; resolve there.
-const require = createRequire(
-  '/Users/eranagmon/code/vivarium-workbench--loom-polish/vivarium_workbench/loom/package.json');
+// playwright + lz-string live in the serving workbench's loom node_modules.
+// VW_LOOM (set by build_all_figures, discovered from the running dashboard) points
+// at that loom dir; no hardcoded machine path.
+const loomDir = process.env.VW_LOOM;
+if (!loomDir || !existsSync(`${loomDir}/package.json`)) {
+  console.error('render_loom_svgs: set VW_LOOM to the workbench loom dir '
+    + '(…/vivarium_workbench/loom, with node_modules). '
+    + 'Run figures via: python scripts/build_all_figures.py');
+  process.exit(2);
+}
+const require = createRequire(`${loomDir}/package.json`);
 const { chromium } = require('playwright');
 const LZ = require('lz-string');  // encode committed default views into ?view=
 
@@ -28,45 +36,26 @@ const WS = process.env.VW_WS || '/Users/eranagmon/code/spatio-flux';
 // hyperedges; fig07e collapses its 16 per-bin dFBA processes). `detail` pins the
 // whole loom detail tier ('' = Auto); ports/config/contract force individual
 // Detail-menu features. Layout is always computed at the `full` tier.
-const JOBS = [
-  // 1a: gallery of draft-process cards — pin contract=on (NOT full) so every
-  // card shows the same tier (summary + governing-equation math + address) and
-  // none reveals its long prose description (that only appears at the `full`
-  // tier, which fired inconsistently by card height).
-  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes', { contract: 'on' }],
-  ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite', 'fig01b-multiscale-composite'],
-  // 1c: served as a GENERATOR (not the static spec) so each simulation resolves
-  // as a drillable sub-composite — the loom flags the sim nodes is_composite_process
-  // and renders their inner-composite previews. Full tier shows the previews.
-  ['fig-01', 'spatio_flux.composites.figures.fig01c-study-workflow', 'fig01c-study-workflow', { detail: 'full' }],
-  // Fig 2: one composite rendered two ways — 2a Milner hyperedges, 2b processes.
-  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02a-hyperedges', { hyperedges: true }],
-  // 2b: the process bigraph — processes show JUST their names (no ports / config /
-  // contract); the wires still link them to the place-graph nodes.
-  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes', { ports: 'none', config: 'off', contract: 'off' }],
-  // Fig 3 = store diagrams: 3a a single store in full detail (name + type),
-  // 3b a place graph of nested stores.
-  ['fig-03', 'spatio_flux.composites.fig03a-store',       'fig03a-store', { detail: 'full', stores: 'type' }],
-  ['fig-03', 'spatio_flux.composites.fig03b-place-graph', 'fig03b-place-graph'],
-  // Fig 4 = a single process schematic (typed ports + update function), full detail.
-  ['fig-04', 'spatio_flux.composites.fig04-process', 'fig04-process', { detail: 'full' }],
-  // Fig 7 is one study with three panels (7.1/7.2/7.3).
-  // 7a: hub-and-spoke — fields hub over a species-store row over a dFBA-process
-  // row (committed view positions it; ports tier keeps the process boxes compact).
-  ['fig-07', 'spatio_flux.composites.fig07-1-community-dfba',      'fig07-1-community-dfba', { detail: 'ports', contract: 'on', stores: 'type' }],
-  // 7e (COMETS): single vectorized spatial_dFBA over the fields branch — show the
-  // named field children (glucose / acetate / biomass), so NOT collapsed.
-  ['fig-07', 'spatio_flux.composites.fig07-2-comets',             'fig07-2-comets', { detail: 'ports', contract: 'on', stores: 'type' }],
-  ['fig-07', 'spatio_flux.composites.fig07-3-brownian-particles', 'fig07-3-brownian-particles', { detail: 'ports', contract: 'on' }],
-  ['fig-08', 'spatio_flux.composites.fig08-reference-model',       'fig08-reference-model'],
-];
-
-// Optional argv filter: `node render_loom_svgs.mjs fig04` renders only jobs whose
-// slug/composite-id/name contains the substring — fast targeted re-renders.
-const FILTER = process.argv[2] || '';
-const RUN_JOBS = FILTER
-  ? JOBS.filter(([slug, id, name]) => (slug + id + name).includes(FILTER))
-  : JOBS;
+// Jobless executor: the panel graph lives in figures-pipeline.yaml and is driven
+// by build_all_figures.py, which writes the jobs to render for THIS run to a JSON
+// file and passes it here. No embedded JOBS table (it used to be duplicated + the
+// sync tool regex-parsed it back out). Job shape: [studySlug, compositeId, stem, flags].
+//   node render_loom_svgs.mjs --jobs <path-to-json>
+const jobsFlagIdx = process.argv.indexOf('--jobs');
+if (jobsFlagIdx === -1 || !process.argv[jobsFlagIdx + 1]) {
+  console.error('render_loom_svgs: --jobs <file.json> is required '
+    + '(a JSON array of [studySlug, compositeId, stem, flags]). '
+    + 'Run figures via: python scripts/build_all_figures.py');
+  process.exit(2);
+}
+let RUN_JOBS;
+try {
+  RUN_JOBS = JSON.parse(readFileSync(process.argv[jobsFlagIdx + 1], 'utf-8'));
+  if (!Array.isArray(RUN_JOBS)) throw new Error('jobs file is not an array');
+} catch (e) {
+  console.error('render_loom_svgs: could not read --jobs file:', String(e).split('\n')[0]);
+  process.exit(2);
+}
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1700, height: 1200 }, deviceScaleFactor: 2 });
@@ -136,3 +125,6 @@ for (const [slug, id, name, flags = {}] of RUN_JOBS) {
 }
 await browser.close();
 console.log(`rendered ${ok}/${RUN_JOBS.length} loom figures (svg + png)`);
+// Non-zero exit on ANY panel failure — a silent exit 0 let stale/missing panels
+// slip into the stitched figure + the download.
+if (ok < RUN_JOBS.length) process.exit(1);
