@@ -13,13 +13,13 @@
       "_draft": true,
       "config": {
         "interval": 1.0,
-        "summary": "A process \u2014 typed input/output ports + an update function",
+        "summary": "A typed function signature whose update method emits a delta \u0394",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "A process \u2014 typed input/output ports + an update function",
-          "description": "A process is a rectangle with typed ports on its boundary: inputs on the left, outputs on the right, each carrying a data type. The update function maps inputs to outputs, informed by its config (type steady_state).",
+          "summary": "A typed function signature whose update method emits a delta \u0394",
+          "description": "Typed input ports (what it reads) and typed output ports (what it updates); the update method maps config + inputs to a delta \u0394 \u2014 the tree of changes to apply, branched by output port.",
           "math": [
-            "(\\mathrm{in}_1,\\ \\mathrm{in}_2)\\ \\rightarrow\\ (\\mathrm{out}_1,\\ \\mathrm{out}_2)"
+            "p_{\\text{proc}}[\\text{config}{:}\\tau_c]\\ :\\ \\text{in}_1^{\\tau_1},\\ \\text{in}_2^{\\tau_2}\\ \\longrightarrow\\ \\Delta"
           ],
           "ports": {
             "in_1": "species",
@@ -38,11 +38,11 @@
         "out_2": "rates"
       },
       "_contract": {
-        "summary": "A process \u2014 typed input/output ports + an update function",
-        "description": "A process is a rectangle with typed ports on its boundary: inputs on the left, outputs on the right, each carrying a data type. The update function maps inputs to outputs, informed by its config (type steady_state).",
+        "summary": "A typed function signature whose update method emits a delta \u0394",
+        "description": "Typed input ports (what it reads) and typed output ports (what it updates); the update method maps config + inputs to a delta \u0394 \u2014 the tree of changes to apply, branched by output port.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "(\\mathrm{in}_1,\\ \\mathrm{in}_2)\\ \\rightarrow\\ (\\mathrm{out}_1,\\ \\mathrm{out}_2)"
+          "p_{\\text{proc}}[\\text{config}{:}\\tau_c]\\ :\\ \\text{in}_1^{\\tau_1},\\ \\text{in}_2^{\\tau_2}\\ \\longrightarrow\\ \\Delta"
         ],
         "symbols": {},
         "inputs": {

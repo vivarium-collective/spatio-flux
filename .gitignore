@@ -19,6 +19,8 @@ studies/*/viz/
 .pbg/
 .venv-serve/
 studies/*/*_timing.json
-reports/
+reports/*
+!reports/composite-inner-state/
 
 studies/*/*.zarr
+

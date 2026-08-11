@@ -1,1 +1,47 @@
-{"v": 1, "positions": {"particles": {"x": 246.031914893617, "y": 418.43404255319155}, "particles.wI5R4d8P": {"x": 148.72340425531914, "y": 680.2063829787234}, "particles.wI5R4d8P.id": {"x": 8.927659574468095, "y": 918.2297872340425}, "particles.wI5R4d8P.position": {"x": 198.45106382978724, "y": 921.4468085106383}, "particles.wI5R4d8P.mass": {"x": 384.7574468085107, "y": 926.2723404255319}, "brownian_movement": {"x": 435.70212765957444, "y": 549.2425531914894}, "enforce_boundaries": {"x": 433.14893617021266, "y": 730.6382978723404}}, "collapsed": [], "hidden": ["global_time"], "mode": "flow-down", "detail": "glyph", "collapse": false, "hyperedges": false, "detailOverrides": {"ports": "plain", "stores": "type", "config": "off", "contract": "off"}}
+{
+  "v": 1,
+  "positions": {
+    "particles": {
+      "x": 246.031914893617,
+      "y": 418.43404255319155
+    },
+    "particles.wI5R4d8P": {
+      "x": 148.72340425531914,
+      "y": 680.2063829787234
+    },
+    "particles.wI5R4d8P.id": {
+      "x": 8.927659574468095,
+      "y": 918.2297872340425
+    },
+    "particles.wI5R4d8P.position": {
+      "x": 198.45106382978724,
+      "y": 921.4468085106383
+    },
+    "particles.wI5R4d8P.mass": {
+      "x": 384.7574468085107,
+      "y": 926.2723404255319
+    },
+    "brownian_movement": {
+      "x": 435.70212765957444,
+      "y": 549.2425531914894
+    },
+    "enforce_boundaries": {
+      "x": 433.14893617021266,
+      "y": 730.6382978723404
+    }
+  },
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "flow-down",
+  "detail": "ports",
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "plain",
+    "stores": "type",
+    "config": "off",
+    "contract": "off"
+  }
+}

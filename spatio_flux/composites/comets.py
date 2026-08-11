@@ -71,6 +71,61 @@ def comets_diffusion(core=None, *, dissolved_model_id="ecoli core",
 
 
 @composite_generator(
+    name="comets_spatial_dfba",
+    description=(
+        "COMETS with a SINGLE vectorized SpatialDFBA process: one process "
+        "updates every lattice site as a batched structured state — instead of "
+        "one dFBA process per bin — so the field-only COMETS scenario scales to "
+        "much larger grids. Coupled to advection-diffusion of substrates + biomass."
+    ),
+    parameters={
+        "model_id":       {"type": "string", "default": "ecoli core"},
+        "n_bins":         {"type": "object", "default": [20, 20]},
+        "bounds":         {"type": "object", "default": list(SQUARE_BOUNDS)},
+        "advection_rate": {"type": "object", "default": list(DEFAULT_ADVECTION)},
+    },
+)
+def comets_spatial_dfba(core=None, *, model_id="ecoli core",
+                        n_bins=[20, 20], bounds=list(SQUARE_BOUNDS),
+                        advection_rate=list(DEFAULT_ADVECTION)):
+    mol_ids = ["glucose", "acetate", "dissolved biomass"]
+    n_bins_t, bounds_t = tuple(n_bins), tuple(bounds)
+    advection_rate_t = tuple(advection_rate)
+    diffusion_coeffs = {"glucose": 0.0, "acetate": 1e-1, "dissolved biomass": 1e-2}
+    advection_coeffs = {"dissolved biomass": advection_rate_t}
+    nx, ny = n_bins_t
+    shape = (ny, nx)
+    acetate_field = np.zeros(shape, dtype=float)
+    glc_y = np.linspace(0.01, 10.0, ny, dtype=float)[:, None]
+    glc_field = np.repeat(glc_y, nx, axis=1)
+    biomass_field = np.zeros(shape, dtype=float)
+    x0 = nx // 2
+    biomass_field[0:1, x0 - 1:x0 + 1] = 0.1
+    initial_fields = {
+        "dissolved biomass": biomass_field,
+        "glucose": glc_field, "acetate": acetate_field,
+    }
+    return {
+        # ONE spatial dFBA process over the whole lattice (batched execution):
+        # `models` supplies the FBA model configs, `model_grid` assigns one per site.
+        "spatial_dFBA": get_spatial_dFBA_process(
+            config={
+                "n_bins": n_bins_t,
+                "mol_ids": mol_ids,
+                "models": MODEL_REGISTRY_DFBA,
+                "model_grid": [[model_id for _ in range(nx)] for _ in range(ny)],
+            },
+            path=["fields"]),
+        "fields": get_fields_with_schema(
+            n_bins=n_bins_t, mol_ids=mol_ids, initial_fields=initial_fields),
+        "diffusion": get_diffusion_advection_process(
+            bounds=bounds_t, n_bins=n_bins_t, mol_ids=mol_ids,
+            advection_coeffs=advection_coeffs,
+            diffusion_coeffs=diffusion_coeffs),
+    }
+
+
+@composite_generator(
     name="comets_br_particles_kinetics",
     description=(
         "Three-way coupling: spatial dFBA fields + Brownian particle "

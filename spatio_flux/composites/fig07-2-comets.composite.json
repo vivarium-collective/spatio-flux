@@ -1,1257 +1,1069 @@
 {
   "name": "fig07-2-comets",
-  "description": "Fig 7.2 \u2014 COMETS-style spatial dFBA: fields {glucose, acetate, dissolved biomass} on a grid + diffusion-advection + a dynamic-FBA process per grid bin.",
+  "description": "Fig 7.2 \u2014 COMETS-style spatial dFBA: fields {glucose, acetate, dissolved biomass} on a grid + advection-diffusion, driven by a SINGLE vectorized SpatialDFBA process that updates every lattice site as one batched structured state \u2014 so it scales to much larger grids than a dFBA process per bin.",
   "tags": [
     "paper-figure",
     "fig-7.2"
   ],
   "state": {
-    "dFBA[0,0]": {
+    "spatial_dFBA": {
       "_type": "process",
-      "address": "local:DynamicFBA",
+      "address": "local:SpatialDFBA",
       "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
+        "n_bins": [
+          20,
+          20
+        ],
+        "mol_ids": [
+          "glucose",
+          "acetate"
+        ],
+        "models": {
+          "ecoli core": {
+            "model_file": "textbook",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "kinetic_params": {
+              "glucose": [
+                0.5,
+                1
+              ],
+              "acetate": [
+                0.5,
+                2
+              ]
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
+            }
           },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
+          "ecoli": {
+            "model_file": "iAF1260.xml",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "formate": "EX_for_e"
+            },
+            "kinetic_params": {
+              "glucose": [
+                0.5,
+                1
+              ],
+              "formate": [
+                0.5,
+                2
+              ]
+            }
+          },
+          "cdiff": {
+            "model_file": "iCN900.xml",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "kinetic_params": {
+              "glucose": [
+                0.5,
+                1
+              ],
+              "acetate": [
+                0.5,
+                2
+              ]
+            }
+          },
+          "pputida": {
+            "model_file": "iJN746.xml",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "ammonium": "EX_nh4_e",
+              "glycolate": "EX_glyclt_e"
+            },
+            "kinetic_params": {
+              "glucose": [
+                1,
+                2
+              ],
+              "ammonium": [
+                2,
+                4
+              ],
+              "glycolate": [
+                0.5,
+                1
+              ]
+            }
+          },
+          "yeast": {
+            "model_file": "iMM904.xml",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "ammonium": "EX_nh4_e"
+            },
+            "kinetic_params": {
+              "glucose": [
+                0.5,
+                1
+              ],
+              "ammonium": [
+                0.5,
+                1
+              ]
+            }
+          },
+          "llactis": {
+            "model_file": "iNF517.xml",
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "glutamate": "EX_glu__L_e",
+              "serine": "EX_ser__L_e"
+            },
+            "kinetic_params": {
+              "glucose": [
+                0.5,
+                1.25
+              ],
+              "glutamate": [
+                0.05,
+                0.1
+              ],
+              "serine": [
+                0.05,
+                0.1
+              ]
+            }
           }
-        }
+        },
+        "model_grid": [
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ],
+          [
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core",
+            "ecoli core"
+          ]
+        ]
       },
       "inputs": {
-        "substrates": {
+        "fields": {
           "glucose": [
             "fields",
-            "glucose",
-            0,
-            0
+            "glucose"
           ],
           "acetate": [
             "fields",
-            "acetate",
-            0,
-            0
+            "acetate"
           ]
         },
         "biomass": [
           "fields",
-          "dissolved biomass",
-          0,
-          0
+          "dissolved biomass"
         ]
       },
       "outputs": {
-        "substrates": {
+        "fields": {
           "glucose": [
             "fields",
-            "glucose",
-            0,
-            0
+            "glucose"
           ],
           "acetate": [
             "fields",
-            "acetate",
-            0,
-            0
+            "acetate"
           ]
         },
         "biomass": [
           "fields",
-          "dissolved biomass",
-          0,
-          0
+          "dissolved biomass"
         ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[1,0]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            0,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            0,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          0,
-          1
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            0,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            0,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          0,
-          1
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[2,0]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            0,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            0,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          0,
-          2
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            0,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            0,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          0,
-          2
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[3,0]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            0,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            0,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          0,
-          3
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            0,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            0,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          0,
-          3
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[0,1]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            0
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            0
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          0
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            0
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            0
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          0
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[1,1]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          1
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          1
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[2,1]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          2
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          2
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[3,1]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          3
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            1,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            1,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          1,
-          3
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[0,2]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            0
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            0
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          0
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            0
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            0
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          0
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[1,2]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          1
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          1
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[2,2]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          2
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          2
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[3,2]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          3
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            2,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            2,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          2,
-          3
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[0,3]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            0
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            0
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          0
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            0
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            0
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          0
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[1,3]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          1
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            1
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            1
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          1
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[2,3]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          2
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            2
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            2
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          2
-        ]
-      },
-      "interval": 1.0
-    },
-    "dFBA[3,3]": {
-      "_type": "process",
-      "address": "local:DynamicFBA",
-      "config": {
-        "model_file": "textbook",
-        "substrate_update_reactions": {
-          "glucose": "EX_glc__D_e",
-          "acetate": "EX_ac_e"
-        },
-        "kinetic_params": {
-          "glucose": [
-            0.5,
-            1
-          ],
-          "acetate": [
-            0.5,
-            2
-          ]
-        },
-        "bounds": {
-          "EX_o2_e": {
-            "lower": -2,
-            "upper": null
-          },
-          "ATPM": {
-            "lower": 1,
-            "upper": 1
-          }
-        }
-      },
-      "inputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          3
-        ]
-      },
-      "outputs": {
-        "substrates": {
-          "glucose": [
-            "fields",
-            "glucose",
-            3,
-            3
-          ],
-          "acetate": [
-            "fields",
-            "acetate",
-            3,
-            3
-          ]
-        },
-        "biomass": [
-          "fields",
-          "dissolved biomass",
-          3,
-          3
-        ]
-      },
-      "interval": 1.0
+      }
     },
     "fields": {
       "_type": "map",
       "_value": {
         "_type": "array",
         "_shape": [
-          4,
-          4
+          20,
+          20
         ],
         "_data": "float"
       },
       "dissolved biomass": [
         [
           0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           0.1,
           0.1,
-          0.0
-        ],
-        [
           0.0,
           0.0,
           0.0,
-          0.0
-        ],
-        [
+          0.0,
+          0.0,
           0.0,
           0.0,
           0.0,
           0.0
         ],
         [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0,
           0.0,
           0.0,
@@ -1263,21 +1075,437 @@
           0.01,
           0.01,
           0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
           0.01
         ],
         [
-          3.34,
-          3.34,
-          3.34,
-          3.34
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106,
+          0.5357894736842106
         ],
         [
-          6.67,
-          6.67,
-          6.67,
-          6.67
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212,
+          1.0615789473684212
         ],
         [
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318,
+          1.5873684210526318
+        ],
+        [
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842,
+          2.113157894736842
+        ],
+        [
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527,
+          2.6389473684210527
+        ],
+        [
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633,
+          3.1647368421052633
+        ],
+        [
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474,
+          3.690526315789474
+        ],
+        [
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845,
+          4.2163157894736845
+        ],
+        [
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895,
+          4.742105263157895
+        ],
+        [
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106,
+          5.267894736842106
+        ],
+        [
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316,
+          5.793684210526316
+        ],
+        [
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527,
+          6.319473684210527
+        ],
+        [
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737,
+          6.845263157894737
+        ],
+        [
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948,
+          7.371052631578948
+        ],
+        [
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586,
+          7.8968421052631586
+        ],
+        [
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737,
+          8.42263157894737
+        ],
+        [
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579,
+          8.948421052631579
+        ],
+        [
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579,
+          9.47421052631579
+        ],
+        [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
           10.0,
           10.0,
           10.0,
@@ -1289,21 +1517,437 @@
           0.0,
           0.0,
           0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0
         ],
         [
           0.0,
           0.0,
           0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0
         ],
         [
           0.0,
           0.0,
           0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0
         ],
         [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0,
           0.0,
           0.0,
@@ -1316,8 +1960,8 @@
       "address": "local:DiffusionAdvection",
       "config": {
         "n_bins": [
-          4,
-          4
+          20,
+          20
         ],
         "bounds": [
           50.0,
@@ -1327,8 +1971,7 @@
         "default_diffusion_dt": 0.1,
         "diffusion_coeffs": {
           "glucose": 0.0,
-          "acetate": 0.1,
-          "dissolved biomass": 0.01
+          "acetate": 0.1
         },
         "advection_coeffs": {
           "glucose": [
@@ -1338,10 +1981,6 @@
           "acetate": [
             0,
             0
-          ],
-          "dissolved biomass": [
-            0.0,
-            0.2
           ]
         },
         "boundary_conditions": null

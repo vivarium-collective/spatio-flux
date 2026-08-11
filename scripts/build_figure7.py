@@ -41,10 +41,10 @@ ROWS = [
 ]
 
 CONTENT_W = 2200   # target content width every row justifies to
-PAD = 34           # outer margin
-GAP = 34           # gap between panels and between rows
-LABEL_H = 46       # space above each row for its panel letters
-ROW1_MAX_H = 900   # cap the full-width loom (panel a) so it doesn't dominate
+PAD = 28           # outer margin
+GAP = 22           # gap between panels and between rows
+LABEL_H = 34       # space above each row for its panel letters
+ROW1_MAX_H = 560   # cap the full-width loom (panel a) so it doesn't dominate
 
 _LABEL_FONTS = (
     "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",

@@ -20,13 +20,16 @@ from spatio_flux.library.tools import get_standard_emitter
 
 core = allocate_core()
 entry = next(e for e in REGISTRY.values() if e.name == "brownian_particles")
-# Dense field: many particles + a healthy add-rate so the domain fills like the paper's panel h.
-doc = build_generator(entry, overrides={"n_particles": 22, "add_rate": 0.06,
+# A moderate population of DISTINCT particles exploring the domain — rich but
+# legible. (Too many particles over too long a run + time-darkened traces turned
+# the panel into a muddy blob; keep it colourful and readable.)
+doc = build_generator(entry, overrides={"n_particles": 16, "add_rate": 0.0,
                                         "diffusion_rate": 1.0}, core=core)
 state = doc["state"]
-state["emitter"] = get_standard_emitter(state_keys=list(state.keys()), subsample=1)
+# subsample=2 → fewer frames (thinner traces); the walk still fills the domain.
+state["emitter"] = get_standard_emitter(state_keys=list(state.keys()), subsample=2)
 sim = Composite({"state": state}, core=core)
-sim.run(120.0)
+sim.run(80.0)
 results = gather_emitter_results(sim)[("emitter",)]
 history = [ {pid: dict(p) for pid, p in (fr.get("particles") or {}).items() if isinstance(p, dict)}
             for fr in results ]
@@ -35,5 +38,8 @@ print("frames:", len(history), "| max particles:", max((len(h) for h in history)
 out = Path("studies/fig-07/visualizations")
 plot_particle_traces(history=list(history), bounds=SQUARE_BOUNDS,
                      out_dir=str(out), filename="fig07h-brownian-traces.png",
-                     units="µm", legend=False, trace_alpha=0.35, dpi=200)
+                     # brighter (high min_brightness) so late trace points don't
+                     # darken to mud; thin, semi-transparent traces stay distinct.
+                     units="µm", legend=False, trace_alpha=0.28,
+                     min_brightness=0.45, max_brightness=1.0, dpi=200)
 print("wrote", out / "fig07h-brownian-traces.png")
