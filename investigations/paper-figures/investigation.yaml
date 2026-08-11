@@ -52,3 +52,6 @@ figures:
     diffusion–advection, and dynamic FBA) used as the reference simulation.
 expert_docs: []
 acceptance_criteria: []
+# Investigation-level builder (analog of a study canonical_run): the workbench
+# figures-build endpoint runs this so the download reflects the current saved views.
+figures_build: python scripts/build_all_figures.py
