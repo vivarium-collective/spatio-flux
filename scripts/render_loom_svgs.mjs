@@ -37,7 +37,9 @@ const JOBS = [
   ['fig-01', 'spatio_flux.composites.figures.fig01c-study-workflow', 'fig01c-study-workflow', { detail: 'full' }],
   // Fig 2: one composite rendered two ways — 2a Milner hyperedges, 2b processes.
   ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02a-hyperedges', { hyperedges: true }],
-  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes'],
+  // 2b: the process bigraph — processes show JUST their names (no ports / config /
+  // contract); the wires still link them to the place-graph nodes.
+  ['fig-02', 'spatio_flux.composites.fig02-process-bigraph',       'fig02b-processes', { ports: 'none', config: 'off', contract: 'off' }],
   // Fig 3 = store diagrams: 3a a single store in full detail (name + type),
   // 3b a place graph of nested stores.
   ['fig-03', 'spatio_flux.composites.fig03a-store',       'fig03a-store', { detail: 'full', stores: 'type' }],
