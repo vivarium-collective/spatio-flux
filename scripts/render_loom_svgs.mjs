@@ -77,7 +77,9 @@ for (const [slug, id, name, flags = {}] of RUN_JOBS) {
   // user's saved default view). The composite's workspace default view (mode +
   // positions + detail + collapse) is applied on load; the render captures it.
   // Then the per-panel flags below are applied on top (they override the view).
-  const params = ['tabs=explore,document', 'nopersist=1'];
+  // bg=transparent → the loom exports SVG/PNG with NO white backdrop, so a panel
+  // composited onto a colored figure background lets that background show through.
+  const params = ['tabs=explore,document', 'nopersist=1', 'bg=transparent'];
   // Embed the composite's COMMITTED default view (positions + saved detail mix)
   // if one exists — this makes the render REPRODUCIBLE anywhere, independent of
   // the machine-local .pbg/loom-views. Loaded via ?view= (highest priority); the

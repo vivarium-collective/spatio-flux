@@ -107,9 +107,14 @@ class RNADegradation(DraftProcess):
     contract={
         "summary": "Metabolism — Flux Balance Analysis (FBA)",
         "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
-        "math": [r"\text{maximize}\quad Z = c^{\mathsf{T}} v", r"\text{s.t.}\quad S\,v = 0", r"v_{\min} \le v \le v_{\max}"],
-        "symbols": {"Z": "objective (biomass flux)", "c": "objective coefficients", "v": "reaction flux vector", "S": "stoichiometric matrix", "v_min, v_max": "flux bounds"},
-        "ports": {"enzymes": "enzyme (protein) levels — set flux bounds", "energy": "available energy — sets flux bounds", "metabolites": "produced metabolites"},
+        # enzymes + energy set the flux bounds; metabolites are the exchange fluxes out.
+        "math": [r"\text{maximize}\quad Z = c^{\mathsf{T}} v \quad\text{s.t.}\quad S\,v = 0",
+                 r"v_{\min} \le v \le v_{\max}(\text{enzymes},\,\text{energy})",
+                 r"\Delta\,\text{metabolites} = S_{\text{ex}}\,v"],
+        "symbols": {"enzymes": "enzyme levels — set flux bounds (in)", "energy": "available energy — sets bounds (in)",
+                    "metabolites": "produced metabolites (out)", "Z": "biomass objective",
+                    "v": "reaction fluxes", "S": "stoichiometric matrix"},
+        "ports": {"enzymes": "enzyme (protein) levels", "energy": "available energy", "metabolites": "produced metabolites"},
     },
 )
 class Metabolism(DraftProcess):
@@ -165,8 +170,10 @@ class Division(DraftProcess):
     contract={
         "summary": "Morphogen gradient — reaction–diffusion PDE",
         "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
-        "math": [r"\frac{\partial C(x,t)}{\partial t} = D\,\frac{\partial^2 C}{\partial x^2} + S(x) - \lambda C"],
-        "symbols": {"C": "morphogen concentration", "D": "diffusion coefficient", "S(x)": "local source", "λ": "decay rate"},
+        # The `field` port IS the state variable in the PDE.
+        "math": [r"\frac{\partial\,\text{field}}{\partial t} = D\,\nabla^2\,\text{field} + S(x) - \lambda\,\text{field}"],
+        "symbols": {"field": "morphogen concentration (in + out)", "D": "diffusion coefficient",
+                    "S(x)": "local source", "λ": "decay rate"},
         "ports": {"field": "morphogen concentration field"},
     },
 )
@@ -181,9 +188,11 @@ class Diffusion(DraftProcess):
     contract={
         "summary": "Multicellular interactions — Agent-Based Model",
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
-        "math": [r"\vec{x}_i(t{+}\Delta t) = \vec{x}_i + \mu\, f_{\text{int}} + \chi\, \nabla C + \eta\, \xi(t)", r"P_{\text{kill}} = \text{Prob(kill)} \cdot \mathbf{1}_{\lVert \vec{x}_i - \vec{x}_j \rVert < d}"],
-        "symbols": {"x⃗ᵢ": "position of cell i", "μ": "mobility", "f_int": "interaction force", "χ": "chemotactic coefficient", "∇C": "morphogen gradient", "η·ξ(t)": "noise", "P_kill": "kill probability", "d": "interaction radius"},
-        "ports": {"population": "cell population", "field": "local morphogen field"},
+        # `population` is the set of cells {x⃗ᵢ}; `field` is the morphogen that
+        # drives the chemotactic gradient ∇field.
+        "math": [r"\vec{x}_i(t{+}\Delta t) = \vec{x}_i + \mu\, f_{\text{int}} + \chi\, \nabla\text{field} + \eta\, \xi(t)", r"P_{\text{kill}} = \text{Prob(kill)} \cdot \mathbf{1}_{\lVert \vec{x}_i - \vec{x}_j \rVert < d}"],
+        "symbols": {"population": "cells {x⃗ᵢ} (in + out)", "field": "morphogen — drives ∇field (in)", "x⃗ᵢ": "position of cell i", "μ": "mobility", "f_int": "interaction force", "χ": "chemotactic coefficient", "η·ξ(t)": "noise", "P_kill": "kill probability", "d": "interaction radius"},
+        "ports": {"population": "cell population {x⃗ᵢ}", "field": "local morphogen field"},
     },
 )
 class ABM(DraftProcess):
@@ -200,8 +209,13 @@ class ABM(DraftProcess):
     contract={
         "summary": "Gene expression — ordinary differential equations",
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
-        "math": [r"\frac{dr}{dt} = \alpha - \gamma_r\, r", r"\frac{dp}{dt} = \beta\, r - \gamma_p\, p"],
-        "symbols": {"r": "mRNA", "p": "protein", "α": "transcription rate", "β": "translation rate", "γ_r": "mRNA decay", "γ_p": "protein decay"},
+        # Every port appears in the equations: dna templates mrna, mrna templates
+        # protein, both decay; energy powers the rates (α, β).
+        "math": [r"\frac{d\,\text{mrna}}{dt} = \alpha\,\text{dna} - \gamma\,\text{mrna}",
+                 r"\frac{d\,\text{protein}}{dt} = \beta\,\text{mrna} - \gamma\,\text{protein}"],
+        "symbols": {"dna": "DNA template (in)", "energy": "ATP/GTP — powers α, β (in)",
+                    "mrna": "mRNA (out)", "protein": "protein (out)",
+                    "α": "transcription rate", "β": "translation rate", "γ": "turnover rate"},
         "ports": {"dna": "DNA template", "energy": "ATP / GTP", "mrna": "mRNA", "protein": "protein"},
     },
 )
@@ -476,7 +490,7 @@ def fig1c_study_workflow_state() -> dict:
     template ×3), whose outputs feed a draft Analysis + Visualization step. The
     pre/post steps are draft; the parallel simulations are a real composite."""
     return {
-        "raw_data": _v("concentration", 0.0),
+        "raw_data": _v("dataset", 0.0),
         "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
         # Three parallel runs of the SAME real composite (an ensemble); each is a
         # full community-dFBA composite you can zoom into.
@@ -485,7 +499,7 @@ def fig1c_study_workflow_state() -> dict:
             "sim_1": _community_dfba_sim(),
             "sim_2": _community_dfba_sim(),
         },
-        "results": _v("concentration", 0.0),
+        "results": _v("figure", 0.0),
         "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
     }
 
