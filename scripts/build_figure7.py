@@ -45,10 +45,11 @@ PAD = 28           # outer margin
 GAP = 22           # gap between panels and between rows
 LABEL_H = 34       # space above each row for its panel letters
 # Per-row height caps (row index -> max px). A capped row is centered in the
-# content width instead of stretched. Row 0 = panel a (full-width loom); row 1 =
-# the b/c/d simulation plots, capped short so they don't tower over a and can sit
-# close beneath it. Uncapped rows justify to fill CONTENT_W.
-ROW_MAX_H = {0: 560, 1: 360}
+# content width instead of stretched; an uncapped (or generously-capped) row
+# justifies to fill CONTENT_W. Row 0 = panel a (full-width loom), given a tall cap
+# so it fills the top row; row 1 = the b/c/d simulation plots, cap raised past
+# their natural justified height so they stretch to the full content width.
+ROW_MAX_H = {0: 840, 1: 640}
 # Tighter label band above a given row (pulls b/c/d up toward a). Must stay big
 # enough to clear the panel-letter (~36px for the 34px bold serif).
 ROW_GAP_ABOVE = {1: 24}

@@ -1631,6 +1631,20 @@
             "total_mass": [
               "mass"
             ]
+          },
+          "_contract": {
+            "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "description": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "status": "",
+            "math": [
+              "m = \\sum_i m_i"
+            ],
+            "symbols": {
+              "m": "aggregate particle mass",
+              "m_i": "sub-mass i (per-strain dFBA biomass)"
+            },
+            "inputs": {},
+            "outputs": {}
           }
         },
         "local": {},
@@ -1668,6 +1682,23 @@
         "fields": [
           "fields"
         ]
+      },
+      "_contract": {
+        "summary": "Particle\u2013field exchange \u2014 local uptake/secretion in the occupied bin",
+        "description": "Particle\u2013field exchange \u2014 local uptake/secretion in the occupied bin",
+        "status": "",
+        "math": [
+          "\\dot{s}_p = q_p\\!\\left(c_{b(p)}\\right),\\qquad \\partial_t c_b = -\\tfrac{1}{V_b}\\sum_{p\\,\\in\\,b} q_p"
+        ],
+        "symbols": {
+          "q_p": "particle p's exchange flux",
+          "b(p)": "bin containing particle p",
+          "c_b": "field concentration in bin b",
+          "V_b": "bin volume",
+          "s_p": "particle substrate"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "particle_division": {
@@ -1687,6 +1718,23 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Division \u2014 split a particle above the mass threshold into two daughters",
+        "description": "Division \u2014 split a particle above the mass threshold into two daughters",
+        "status": "",
+        "math": [
+          "m \\ge m_{\\mathrm{div}} \\;\\Rightarrow\\; m_{1,2}=\\tfrac{m}{2}(1\\pm\\epsilon),\\quad x_{1,2}=x\\pm\\delta"
+        ],
+        "symbols": {
+          "m": "parent mass",
+          "m_div": "division threshold",
+          "\u03b5": "mass-partition jitter",
+          "\u03b4": "daughter offset",
+          "x": "position"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "enforce_boundaries": {
@@ -1764,6 +1812,28 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Newtonian motion \u2014 rigid-body dynamics with collisions (pymunk)",
+        "description": "Newtonian motion \u2014 rigid-body dynamics with collisions (pymunk)",
+        "status": "",
+        "math": [
+          "m\\dot{\\mathbf v}=\\mathbf F_c+m\\mathbf g-\\gamma\\mathbf v+\\boldsymbol\\eta,\\qquad \\dot{\\mathbf x}=\\mathbf v",
+          "m=\\rho\\,\\pi r^2"
+        ],
+        "symbols": {
+          "m": "particle mass",
+          "x": "position",
+          "v": "velocity",
+          "F_c": "contact forces (friction, elasticity e)",
+          "g": "gravity",
+          "\u03b3": "damping",
+          "\u03b7": "random jitter impulse",
+          "r": "radius",
+          "\u03c1": "2D density"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "global_time": 0.0

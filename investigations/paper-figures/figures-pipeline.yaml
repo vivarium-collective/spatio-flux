@@ -36,7 +36,7 @@ panels:
   # ── fig-07 (three example composites + sim panels) ──────────────────────
   - {study: fig-07, output: fig07-1-community-dfba,     loom: spatio_flux.composites.fig07-1-community-dfba,     flags: {detail: ports, contract: on, stores: type}}
   - {study: fig-07, output: fig07-2-comets,             loom: spatio_flux.composites.fig07-2-comets,             flags: {detail: ports, contract: on, stores: type}}
-  - {study: fig-07, output: fig07-3-brownian-particles, loom: spatio_flux.composites.fig07-3-brownian-particles, flags: {detail: ports, contract: on}}
+  - {study: fig-07, output: fig07-3-brownian-particles, loom: spatio_flux.composites.fig07-3-brownian-particles, flags: {detail: ports, contract: on, collapse: true}}
   - {study: fig-07, output: fig07f-comets-snapshots, command: "python scripts/build_fig07f_snapshots.py", inputs: [scripts/build_fig07f_snapshots.py]}
   - {study: fig-07, output: fig07h-brownian-traces,  command: "python scripts/build_fig07h_traces.py",  inputs: [scripts/build_fig07h_traces.py]}
   # sim plots produced by the study's runs (no standalone script here yet) — the
@@ -46,6 +46,7 @@ panels:
   - {study: fig-07, output: fig07d-hybrid-community, external: true}
   # ── fig-08 (reference model) ────────────────────────────────────────────
   - {study: fig-08, output: fig08-reference-model, loom: spatio_flux.composites.fig08-reference-model}
+  - {study: fig-08, output: fig08b-reference-snapshots, command: "python scripts/build_fig08b_snapshots.py", inputs: [scripts/build_fig08b_snapshots.py]}
 
 # Each study's final step: compose its panels into figure_<N>.{svg,png}.
 # `module` = a hand-laid scaffold (build_figure1 / build_figure7); omitted = the
@@ -56,4 +57,4 @@ stitch:
   - {study: fig-03}
   - {study: fig-04}
   - {study: fig-07, module: build_figure7}
-  - {study: fig-08}
+  - {study: fig-08, module: build_figure8}

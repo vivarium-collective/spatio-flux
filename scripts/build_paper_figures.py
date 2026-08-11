@@ -250,7 +250,7 @@ def register_stitched_viz(study: str) -> bool:
 # panels placed by a dedicated module) rather than the default shelf-stitch.
 # Fig 1 keeps a scaffold SVG (rasterized via node); Fig 7 places its panels into
 # the paper's fixed 4-region grid and emits both SVG + PNG itself.
-SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-07": "build_figure7"}
+SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-07": "build_figure7", "fig-08": "build_figure8"}
 
 
 def _build_scaffold_figure(study: str) -> bool:

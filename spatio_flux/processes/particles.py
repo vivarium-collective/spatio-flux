@@ -813,3 +813,22 @@ ParticleTotalMass.description = (
     "Total-mass reducer: sums a particle's sub-masses into its aggregate mass each "
     "interval."
 )
+ParticleExchange.contract = {
+    "summary": "Particle–field exchange — local uptake/secretion in the occupied bin",
+    "math": [r"\dot{s}_p = q_p\!\left(c_{b(p)}\right),\qquad "
+             r"\partial_t c_b = -\tfrac{1}{V_b}\sum_{p\,\in\,b} q_p"],
+    "symbols": {"q_p": "particle p's exchange flux", "b(p)": "bin containing particle p",
+                "c_b": "field concentration in bin b", "V_b": "bin volume", "s_p": "particle substrate"},
+}
+ParticleDivision.contract = {
+    "summary": "Division — split a particle above the mass threshold into two daughters",
+    "math": [r"m \ge m_{\mathrm{div}} \;\Rightarrow\; "
+             r"m_{1,2}=\tfrac{m}{2}(1\pm\epsilon),\quad x_{1,2}=x\pm\delta"],
+    "symbols": {"m": "parent mass", "m_div": "division threshold", "ε": "mass-partition jitter",
+                "δ": "daughter offset", "x": "position"},
+}
+ParticleTotalMass.contract = {
+    "summary": "Aggregate mass — sum a particle's sub-masses into its total",
+    "math": [r"m = \sum_i m_i"],
+    "symbols": {"m": "aggregate particle mass", "m_i": "sub-mass i (per-strain dFBA biomass)"},
+}

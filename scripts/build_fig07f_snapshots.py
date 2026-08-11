@@ -21,7 +21,7 @@ from spatio_flux.composites import REGISTRY
 from spatio_flux.library.tools import get_standard_emitter
 
 N_BINS = [20, 20]
-RUNTIME = 60.0
+RUNTIME = 120.0   # longer run → more of COMETS' long-term spatial behaviour
 FIELDS = ["glucose", "acetate", "dissolved biomass"]
 N_SNAP = 5
 
@@ -41,7 +41,12 @@ idxs = np.linspace(0, n - 1, N_SNAP).astype(int)
 times = [r.get("global_time", 0.0) for r in results]
 labels = [f"t = {int(round(times[i]))} min" for i in idxs]
 
-fig, axes = plt.subplots(len(FIELDS), N_SNAP, figsize=(N_SNAP * 1.9, len(FIELDS) * 1.9))
+fig, axes = plt.subplots(
+    len(FIELDS), N_SNAP, figsize=(N_SNAP * 2.4, len(FIELDS) * 2.4),
+    # Tighten the grid: near-zero gaps between the square field tiles so the
+    # panel reads as a filmstrip, not scattered thumbnails.
+    gridspec_kw={"wspace": 0.06, "hspace": 0.10},
+)
 for r, fname in enumerate(FIELDS):
     frames = [np.array(results[i]["fields"][fname], dtype=float) for i in idxs]
     vmax = max((f.max() for f in frames), default=1.0) or 1.0
@@ -51,10 +56,11 @@ for r, fname in enumerate(FIELDS):
         im = ax.imshow(fr, origin="lower", cmap="viridis", vmin=0.0, vmax=vmax, aspect="equal")
         ax.set_xticks([]); ax.set_yticks([])
         if c == 0:
-            ax.set_ylabel(fname, fontsize=9)
+            ax.set_ylabel(fname, fontsize=16)
         if r == len(FIELDS) - 1:
-            ax.set_xlabel(labels[c], fontsize=8)
-    fig.colorbar(im, ax=list(axes[r]), fraction=0.025, pad=0.02)
+            ax.set_xlabel(labels[c], fontsize=15)
+    cb = fig.colorbar(im, ax=list(axes[r]), fraction=0.025, pad=0.02)
+    cb.ax.tick_params(labelsize=13)
 
 out = Path("studies/fig-07/visualizations/fig07f-comets-snapshots.png")
 fig.savefig(out, dpi=150, bbox_inches="tight")

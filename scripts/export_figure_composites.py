@@ -219,14 +219,21 @@ def _figure_transforms(stem: str, state: dict) -> dict:
                 if not k.startswith("_") and isinstance(v, (int, float)):
                     f[k] = {"_type": "concentration", "_value": float(v)}
     elif stem == "fig07-3-brownian-particles":
-        # the ensemble's ONE stochastic particle -> a fixed, clean representative
-        # (deterministic id/position/mass) so the schematic + its content hash are
-        # stable across exports.
+        # the ensemble's stochastic particles (random ids) -> a fixed set of clean,
+        # GENERIC siblings (particle_1..particle_5), each carrying the same
+        # {id, position, mass} subtree. They render collapsed (loom ?collapse=1) as
+        # ONE `particle_*` representative — the store-side dual of the dFBA[*]
+        # process collapse — so the schematic reads "a map of many identical
+        # particles" without drawing five redundant boxes. The id is the generic
+        # type "particle" (not a specific value). Deterministic → stable hash.
         parts = state.get("particles")
         if isinstance(parts, dict):
             for k in [k for k in parts if not k.startswith("_")]:
                 parts.pop(k)
-            parts["particle"] = {"id": "particle", "position": [7.9, 38.8], "mass": 0.059}
+            seeds = [[7.9, 38.8], [12.4, 25.1], [31.0, 9.6], [22.7, 41.3], [4.2, 17.8]]
+            masses = [0.059, 0.061, 0.057, 0.063, 0.060]
+            for i, (pos, m) in enumerate(zip(seeds, masses), start=1):
+                parts[f"particle_{i}"] = {"id": "particle", "position": pos, "mass": m}
     return state
 
 
@@ -272,11 +279,28 @@ def main() -> None:
         # byte-reproduced, so they're neither drift-checked nor regenerated over an
         # existing committed sample (that would churn the figure for no reason).
         if stem in STOCHASTIC:
-            if args.check:
-                print(f"  skip  {stem} (stochastic particles — not drift-checked)")
-            elif target.exists():
-                print(f"  keep  {stem} (stochastic — kept committed sample)")
-            else:
+            if target.exists():
+                # Keep the frozen (un-reproducible) stochastic STATE, but refresh
+                # contract annotations from the live process classes — so a newly
+                # added `.contract` classvar appears on the figure WITHOUT churning
+                # the particle sample. `_inject_contracts` only fills nodes that
+                # lack `_contract`, so this is idempotent + touches nothing else.
+                spec = json.loads(target.read_text())
+                before = json.dumps(spec, sort_keys=True)
+                _inject_contracts(spec.get("state", {}))
+                changed = json.dumps(spec, sort_keys=True) != before
+                if args.check:
+                    if changed:
+                        drift.append(stem)
+                        print(f"  DRIFT {stem}: contract annotations stale — re-run export")
+                    else:
+                        print(f"  ok    {stem} (stochastic — state frozen, contracts current)")
+                elif changed:
+                    target.write_text(json.dumps(spec, indent=2, default=str) + "\n")
+                    print(f"  OK  {stem} (stochastic — refreshed contracts, kept sample)")
+                else:
+                    print(f"  keep  {stem} (stochastic — sample + contracts current)")
+            elif not args.check:
                 c = _build_spec(gen_name, stem, figure, desc, overrides)
                 if c:
                     target.write_text(c)
