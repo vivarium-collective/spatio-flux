@@ -1,101 +1,93 @@
 {
   "v": 1,
   "positions": {
-    "fields": {
-      "x": 1200.0,
-      "y": 40
-    },
-    "fields.glucose": {
-      "x": 200.0,
-      "y": 250.0
-    },
-    "fields.acetate": {
-      "x": 450.0,
-      "y": 250.0
-    },
-    "fields.ecoli core": {
-      "x": 700.0,
-      "y": 250.0
-    },
     "ecoli core dFBA": {
-      "x": 700.0,
-      "y": 540.0,
-      "w": 360,
-      "h": 120
-    },
-    "fields.ecoli": {
-      "x": 950.0,
-      "y": 250.0
+      "x": 1100.465712654967,
+      "y": 1056.5259001676113
     },
     "ecoli dFBA": {
-      "x": 950.0,
-      "y": 780.0,
-      "w": 360,
-      "h": 120
-    },
-    "fields.cdiff": {
-      "x": 1200.0,
-      "y": 250.0
+      "x": 1762.5831277273637,
+      "y": 1069.662555320344
     },
     "cdiff dFBA": {
-      "x": 1200.0,
-      "y": 540.0,
-      "w": 360,
-      "h": 120
-    },
-    "fields.pputida": {
-      "x": 1450.0,
-      "y": 250.0
+      "x": 442,
+      "y": 836
     },
     "pputida dFBA": {
-      "x": 1450.0,
-      "y": 780.0,
-      "w": 360,
-      "h": 120
-    },
-    "fields.yeast": {
-      "x": 1700.0,
-      "y": 250.0
+      "x": 1098,
+      "y": 836
     },
     "yeast dFBA": {
-      "x": 1700.0,
-      "y": 540.0,
-      "w": 360,
-      "h": 120
-    },
-    "fields.llactis": {
-      "x": 1950.0,
-      "y": 250.0
+      "x": 438.701529708415,
+      "y": 1253.5757274585972
     },
     "llactis dFBA": {
-      "x": 1950.0,
-      "y": 780.0,
-      "w": 360,
-      "h": 120
-    },
-    "fields.monod biomass": {
-      "x": 2200.0,
-      "y": 250.0
+      "x": 427.7868772071797,
+      "y": 1060.2792302112493
     },
     "monod_kinetics": {
-      "x": 2200.0,
-      "y": 540.0,
-      "w": 360,
-      "h": 120
+      "x": 1754,
+      "y": 834,
+      "w": 665,
+      "h": 185
+    },
+    "fields": {
+      "x": 1324,
+      "y": 416
+    },
+    "fields.glucose": {
+      "x": 916,
+      "y": 636
+    },
+    "fields.acetate": {
+      "x": 1120,
+      "y": 636
+    },
+    "fields.ecoli core": {
+      "x": 508,
+      "y": 636
+    },
+    "fields.ecoli": {
+      "x": 1716.4301924471877,
+      "y": 647.2599901309134
+    },
+    "fields.cdiff": {
+      "x": 1324,
+      "y": 636
+    },
+    "fields.pputida": {
+      "x": 1528,
+      "y": 636
+    },
+    "fields.yeast": {
+      "x": 1922.3068574690067,
+      "y": 651.0133201745513
+    },
+    "fields.llactis": {
+      "x": 712,
+      "y": 636
+    },
+    "fields.monod biomass": {
+      "x": 2124.2229895601513,
+      "y": 651.0133201745513
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
     }
   },
   "collapsed": [],
   "hidden": [
     "global_time"
   ],
-  "mode": "hierarchy",
-  "detail": "types",
+  "mode": "flow-down",
+  "detail": null,
   "collapse": false,
   "hyperedges": false,
   "detailOverrides": {
-    "ports": "none",
-    "stores": "type",
-    "config": "off",
-    "contract": "off"
+    "ports": "auto",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "auto"
   }
 }

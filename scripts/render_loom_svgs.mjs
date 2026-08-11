@@ -29,7 +29,11 @@ const WS = process.env.VW_WS || '/Users/eranagmon/code/spatio-flux';
 // whole loom detail tier ('' = Auto); ports/config/contract force individual
 // Detail-menu features. Layout is always computed at the `full` tier.
 const JOBS = [
-  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes'],
+  // 1a: gallery of draft-process cards — pin contract=on (NOT full) so every
+  // card shows the same tier (summary + governing-equation math + address) and
+  // none reveals its long prose description (that only appears at the `full`
+  // tier, which fired inconsistently by card height).
+  ['fig-01', 'spatio_flux.composites.fig01a-draft-processes',      'fig01a-draft-processes', { contract: 'on' }],
   ['fig-01', 'spatio_flux.composites.fig01b-multiscale-composite', 'fig01b-multiscale-composite'],
   // 1c: served as a GENERATOR (not the static spec) so each simulation resolves
   // as a drillable sub-composite — the loom flags the sim nodes is_composite_process

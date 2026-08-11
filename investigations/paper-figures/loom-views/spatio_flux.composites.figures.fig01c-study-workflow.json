@@ -2,44 +2,68 @@
   "v": 1,
   "positions": {
     "raw_data": {
-      "x": 360,
-      "y": 60
+      "x": 4039.009506955641,
+      "y": -86.38859165323159
     },
     "preprocess": {
-      "x": 120,
-      "y": 360
+      "x": 3954.476562429827,
+      "y": 53.54372288111196,
+      "w": 297,
+      "h": 147
     },
     "simulations": {
-      "x": 360,
-      "y": 1040
+      "x": 4004.5485260992655,
+      "y": 244.40237556068348,
+      "w": 225,
+      "h": 128
     },
     "simulations.sim_0": {
-      "x": 1160,
-      "y": 60
+      "x": 3594.5817111141123,
+      "y": 421.24154022855396,
+      "w": 343,
+      "h": 264
     },
     "simulations.sim_1": {
-      "x": 1160,
-      "y": 760
+      "x": 3969.565643332253,
+      "y": 420.738805557744,
+      "w": 319,
+      "h": 264
     },
     "simulations.sim_2": {
-      "x": 1160,
-      "y": 1460
-    },
-    "analysis": {
-      "x": 120,
-      "y": 1360
+      "x": 4325.3326758626035,
+      "y": 412.95309201443916,
+      "w": 336,
+      "h": 278
     },
     "results": {
-      "x": 360,
-      "y": 2040
+      "x": 4002.091957407579,
+      "y": 948.8392933806228,
+      "w": 214,
+      "h": 120
+    },
+    "analysis": {
+      "x": 3979.565516456584,
+      "y": 747.1526534999098,
+      "w": 271,
+      "h": 132
     }
   },
-  "collapsed": [],
-  "hidden": [
-    "global_time"
+  "collapsed": [
+    "simulations.sim_1.fields",
+    "simulations.sim_2.fields",
+    "simulations.sim_1",
+    "simulations.sim_2",
+    "simulations.sim_0.fields"
   ],
-  "mode": "hierarchy",
-  "detail": "full",
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
   "collapse": false,
-  "hyperedges": false
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "off",
+    "contract": "auto"
+  }
 }
