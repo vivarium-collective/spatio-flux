@@ -616,6 +616,21 @@
           "fields",
           "biomass"
         ]
+      },
+      "_contract": {
+        "summary": "Spatial dFBA \u2014 one batched FBA solve per lattice site",
+        "description": "Spatial dFBA \u2014 one batched FBA solve per lattice site",
+        "status": "",
+        "math": [
+          "\\forall\\ \\text{site } i:\\ \\ \\mu_i=\\max\\ c^{\\mathsf T}v_i\\ \\ \\text{s.t.}\\ \\ Sv_i=0,\\ v_i\\le v_{\\max}(s_i)"
+        ],
+        "symbols": {
+          "i": "lattice site",
+          "\u03bc_i": "local growth rate",
+          "s_i": "local substrate"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "fields": {
@@ -683,6 +698,21 @@
         "fields": [
           "fields"
         ]
+      },
+      "_contract": {
+        "summary": "Advection\u2013diffusion transport of the fields",
+        "description": "Advection\u2013diffusion transport of the fields",
+        "status": "",
+        "math": [
+          "\\partial_t\\phi = D\\,\\nabla^2\\phi \\;-\\; \\mathbf{u}\\cdot\\nabla\\phi"
+        ],
+        "symbols": {
+          "\u03c6": "field",
+          "D": "diffusion coefficient",
+          "u": "advection velocity"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "global_time": 0.0

@@ -788,6 +788,18 @@ ManageBoundaries.description = (
     "Boundary manager: adds particles at configured inflow boundaries and removes "
     "particles crossing configured outflow boundaries each interval."
 )
+# Structured contracts (summary + governing equation); see dfba.py for the convention.
+BrownianMovement.contract = {
+    "summary": "Brownian motion — overdamped diffusive steps",
+    "math": [r"\Delta x=\sqrt{2D\,\Delta t}\;\xi\;+\;\mathbf{u}\,\Delta t,\qquad \xi\sim\mathcal{N}(0,1)"],
+    "symbols": {"D": "diffusion coefficient", "Δt": "time step", "u": "advection velocity",
+                "ξ": "unit Gaussian noise"},
+}
+ManageBoundaries.contract = {
+    "summary": "Keep particles inside the domain (inflow/outflow)",
+    "math": [r"x \;\leftarrow\; \operatorname{clamp}(x,\ 0,\ L)"],
+    "symbols": {"x": "particle position", "L": "domain size"},
+}
 ParticleExchange.description = (
     "Particle-field exchange: couples each particle's local uptake/secretion to the "
     "lattice field bin it occupies, converting between per-cell counts and field "

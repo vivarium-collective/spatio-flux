@@ -372,3 +372,9 @@ DiffusionAdvection.description = (
     "finite-difference diffusion (CFL-limited sub-stepping) plus advection at the "
     "configured coefficients."
 )
+# Structured contract (summary + governing equation); see dfba.py for the convention.
+DiffusionAdvection.contract = {
+    "summary": "Advection–diffusion transport of the fields",
+    "math": [r"\partial_t\phi = D\,\nabla^2\phi \;-\; \mathbf{u}\cdot\nabla\phi"],
+    "symbols": {"φ": "field", "D": "diffusion coefficient", "u": "advection velocity"},
+}

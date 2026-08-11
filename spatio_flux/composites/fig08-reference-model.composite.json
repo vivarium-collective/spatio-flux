@@ -70,6 +70,21 @@
           0,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[0,1]": {
@@ -136,6 +151,21 @@
           1,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[0,2]": {
@@ -202,6 +232,21 @@
           2,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[0,3]": {
@@ -268,6 +313,21 @@
           3,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,0]": {
@@ -334,6 +394,21 @@
           0,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,1]": {
@@ -400,6 +475,21 @@
           1,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,2]": {
@@ -466,6 +556,21 @@
           2,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,3]": {
@@ -532,6 +637,21 @@
           3,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,0]": {
@@ -598,6 +718,21 @@
           0,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,1]": {
@@ -664,6 +799,21 @@
           1,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,2]": {
@@ -730,6 +880,21 @@
           2,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,3]": {
@@ -796,6 +961,21 @@
           3,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,0]": {
@@ -862,6 +1042,21 @@
           0,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,1]": {
@@ -928,6 +1123,21 @@
           1,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,2]": {
@@ -994,6 +1204,21 @@
           2,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,3]": {
@@ -1060,6 +1285,21 @@
           3,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "fields": {
@@ -1117,28 +1357,28 @@
       ],
       "dissolved biomass": [
         [
-          0.14699999701917962,
-          0.11273797559499611,
-          0.10211236166702621,
-          0.19975256012394207
+          0.1897492035921419,
+          0.13675930238457018,
+          0.1409449843423305,
+          0.10678483170458898
         ],
         [
-          0.12746025036659078,
-          0.17352520255326426,
-          0.198584730996321,
-          0.15021356367445982
+          0.10848464118146343,
+          0.13746916321682795,
+          0.1355454219922431,
+          0.11620887390528606
         ],
         [
-          0.19378469366509044,
-          0.14260471555115084,
-          0.1360752516657013,
-          0.12789644619465615
+          0.19671818808768143,
+          0.1477753655729505,
+          0.17200683033814781,
+          0.11114372798333791
         ],
         [
-          0.11686915201669551,
-          0.15307731466603522,
-          0.14392642355883917,
-          0.12227445070005077
+          0.14806350571236074,
+          0.16500610843302355,
+          0.16654598476471297,
+          0.19956452554306242
         ]
       ]
     },
@@ -1207,20 +1447,35 @@
         "fields": [
           "fields"
         ]
+      },
+      "_contract": {
+        "summary": "Advection\u2013diffusion transport of the fields",
+        "description": "Advection\u2013diffusion transport of the fields",
+        "status": "",
+        "math": [
+          "\\partial_t\\phi = D\\,\\nabla^2\\phi \\;-\\; \\mathbf{u}\\cdot\\nabla\\phi"
+        ],
+        "symbols": {
+          "\u03c6": "field",
+          "D": "diffusion coefficient",
+          "u": "advection velocity"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "particles": {
-      "p_060453": {
+      "p_4bd003": {
         "shape": "circle",
-        "mass": 0.01424451576616028,
-        "radius": 0.5497981564337765,
+        "mass": 0.17928235215513988,
+        "radius": 1.9505101060878898,
         "position": [
-          17.2448201296369,
-          31.279856002892338
+          34.33303468982371,
+          18.576329072921514
         ],
         "velocity": [
-          -0.0,
-          0.0
+          0.0,
+          -0.0
         ],
         "elasticity": 0.0,
         "sub_masses": {
@@ -1241,6 +1496,7 @@
                 "upper": 3
               }
             },
+            "model_file": "textbook",
             "kinetic_params": {
               "glucose": [
                 0.1,
@@ -1251,7 +1507,6 @@
                 0.1
               ]
             },
-            "model_file": "textbook",
             "substrate_update_reactions": {
               "glucose": "EX_glc__D_e",
               "acetate": "EX_ac_e"
@@ -1274,6 +1529,25 @@
               "sub_masses",
               "ecoli_1"
             ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
           }
         },
         "ecoli_2 dFBA": {
@@ -1290,6 +1564,7 @@
                 "upper": 1
               }
             },
+            "model_file": "textbook",
             "kinetic_params": {
               "glucose": [
                 1.0,
@@ -1300,7 +1575,6 @@
                 1
               ]
             },
-            "model_file": "textbook",
             "substrate_update_reactions": {
               "glucose": "EX_glc__D_e",
               "acetate": "EX_ac_e"
@@ -1323,6 +1597,25 @@
               "sub_masses",
               "ecoli_2"
             ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
           }
         },
         "aggregate_mass": {
@@ -1432,6 +1725,20 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Keep particles inside the domain (inflow/outflow)",
+        "description": "Keep particles inside the domain (inflow/outflow)",
+        "status": "",
+        "math": [
+          "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+        ],
+        "symbols": {
+          "x": "particle position",
+          "L": "domain size"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "newtonian_particles": {

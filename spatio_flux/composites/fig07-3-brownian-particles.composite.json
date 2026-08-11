@@ -41,7 +41,23 @@
           "particles"
         ]
       },
-      "interval": 0.1
+      "interval": 0.1,
+      "_contract": {
+        "summary": "Brownian motion \u2014 overdamped diffusive steps",
+        "description": "Brownian motion \u2014 overdamped diffusive steps",
+        "status": "",
+        "math": [
+          "\\Delta x=\\sqrt{2D\\,\\Delta t}\\;\\xi\\;+\\;\\mathbf{u}\\,\\Delta t,\\qquad \\xi\\sim\\mathcal{N}(0,1)"
+        ],
+        "symbols": {
+          "D": "diffusion coefficient",
+          "\u0394t": "time step",
+          "u": "advection velocity",
+          "\u03be": "unit Gaussian noise"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "enforce_boundaries": {
       "_type": "step",
@@ -79,6 +95,20 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Keep particles inside the domain (inflow/outflow)",
+        "description": "Keep particles inside the domain (inflow/outflow)",
+        "status": "",
+        "math": [
+          "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+        ],
+        "symbols": {
+          "x": "particle position",
+          "L": "domain size"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "global_time": 0.0

@@ -484,3 +484,9 @@ MonodKinetics.description = (
     "of local substrate concentration (mM); returns substrate concentration and "
     "biomass (gDW) deltas."
 )
+# Structured contract (summary + governing equation); see dfba.py for the convention.
+MonodKinetics.contract = {
+    "summary": "Monod kinetics — substrate-saturating growth",
+    "math": [r"\mu=\mu_{\max}\,\frac{s}{K_s+s},\qquad \dot X=\mu X,\ \ \dot s=-\mu X/Y"],
+    "symbols": {"μ_max": "max growth rate", "K_s": "half-saturation const", "Y": "biomass yield"},
+}

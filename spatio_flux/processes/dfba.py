@@ -981,3 +981,24 @@ ShardedDFBA.description = (
     "Sharded spatial dynamic FBA: partitions the lattice across shards and solves "
     "the per-bin FBA problems in parallel for large grids."
 )
+
+# --- Structured contracts (summary + governing equations) ---
+# `.contract` is the canonical, machine-readable contract a process advertises:
+# a one-line summary + the governing equation(s) + a symbol key. The bigraph-loom
+# card renders it, and the figure export bakes it in (see scripts/export_figure_
+# composites.py). Keeping it ON the class means every surface — dashboard, static
+# figure, docs — shows the same accurate contract from one source.
+DynamicFBA.contract = {
+    "summary": "Dynamic FBA — FBA growth integrated over time",
+    "math": [
+        r"\mu=\max\ c^{\mathsf T}v\quad\text{s.t.}\ \ Sv=0,\ \ v\le v_{\max}(s)",
+        r"\dot X=\mu X,\qquad \dot s=-q(s)\,X",
+    ],
+    "symbols": {"μ": "growth rate", "v": "reaction fluxes", "S": "stoichiometry",
+                "X": "biomass", "s": "substrate", "q": "uptake rate"},
+}
+SpatialDFBA.contract = {
+    "summary": "Spatial dFBA — one batched FBA solve per lattice site",
+    "math": [r"\forall\ \text{site } i:\ \ \mu_i=\max\ c^{\mathsf T}v_i\ \ \text{s.t.}\ \ Sv_i=0,\ v_i\le v_{\max}(s_i)"],
+    "symbols": {"i": "lattice site", "μ_i": "local growth rate", "s_i": "local substrate"},
+}

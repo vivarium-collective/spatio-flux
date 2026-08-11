@@ -44,6 +44,57 @@ TARGETS = {
         {"n_bins": [4, 4]}),
 }
 
+def _class_contracts() -> dict:
+    """Map ``local:<ClassName>`` -> the structured ``.contract`` declared ON the
+    process class (single source of truth, see spatio_flux/processes/*.py). Read
+    from every process class that advertises a contract — so ANY figure using a
+    contract-bearing process picks it up automatically, and adding a contract to a
+    new process needs no change here."""
+    import importlib
+    import inspect
+
+    out: dict = {}
+    # Scan the process package's submodules; guard optional-dep imports.
+    import spatio_flux.processes as _procs
+    modnames = getattr(_procs, "__all__", None) or [
+        "dfba", "monod_kinetics", "diffusion_advection", "particles", "pymunk_particles",
+    ]
+    for modname in modnames:
+        try:
+            mod = importlib.import_module(f"spatio_flux.processes.{modname}")
+        except Exception:
+            continue
+        for _name, cls in inspect.getmembers(mod, inspect.isclass):
+            c = getattr(cls, "contract", None)
+            if isinstance(c, dict) and c.get("summary"):
+                out[f"local:{cls.__name__}"] = c
+    return out
+
+
+def _inject_contracts(state: dict, contracts: dict | None = None) -> dict:
+    """Attach `_contract` (from the process class's `.contract`) to every
+    process/step node, so the loom card shows the process's own governing
+    equations. Recurses into nested stores (fields, particles, …)."""
+    if contracts is None:
+        contracts = _class_contracts()
+    for v in state.values():
+        if not isinstance(v, dict):
+            continue
+        if v.get("_type") in ("process", "step"):
+            c = contracts.get(str(v.get("address", "")))
+            if c and "_contract" not in v:
+                v["_contract"] = {
+                    "summary": c["summary"],
+                    "description": c.get("description", c["summary"]),
+                    "status": "",
+                    "math": list(c.get("math", [])),
+                    "symbols": dict(c.get("symbols", {})),
+                    "inputs": {}, "outputs": {},
+                }
+        else:
+            _inject_contracts(v, contracts)
+    return state
+
 
 def _sanitize(node):
     import numpy as np
@@ -143,6 +194,7 @@ def main() -> None:
             # so they render as explicit loom nodes rather than being lost with the
             # discarded schema.
             state = _materialize_map_compositions(state, schema)
+            state = _inject_contracts(state)
             spec = {
                 "name": stem,
                 "description": f"{figure} — {desc}",
