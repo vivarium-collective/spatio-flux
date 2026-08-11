@@ -350,22 +350,14 @@ class AnalysisViz(DraftProcess):
         # Punchy headline capturing the formal basis (not the notation — that's math).
         "summary": "A typed function signature whose update method emits a delta Δ",
         "description": (
-            "Formally, a process's interface is a typed function signature: the "
-            "typed values it may READ (its input ports) and the typed values it may "
-            "UPDATE (its output ports), parameterized by a typed config. At runtime "
-            "the instantiated handler realizes this contract through an update method "
-            "— a delta generator: given config + inputs it returns a delta Δ, a "
-            "tree-structured object whose top-level branches are the output ports, "
-            "each branch carrying the increment to apply to that value."),
+            "Typed input ports (what it reads) and typed output ports (what it "
+            "updates); the update method maps config + inputs to a delta Δ — the "
+            "tree of changes to apply, branched by output port."),
         "status": "draft - no update dynamics yet",
+        # Single-line contract: a typed process maps its typed inputs to a delta.
         "math": [
-            # 1. The typed interface as a function signature (ports carry types).
             r"p_{\text{proc}}[\text{config}{:}\tau_c]\ :\ "
-            r"\text{in}_1^{\tau_1},\ \text{in}_2^{\tau_2}\ \longrightarrow\ "
-            r"\text{out}_1^{\sigma_1},\ \text{out}_2^{\sigma_2}",
-            # 2. The runtime handler as a delta generator.
-            r"\text{update}\,(\text{config},\ \text{in}_1,\ \text{in}_2)\ "
-            r"\longrightarrow\ \Delta",
+            r"\text{in}_1^{\tau_1},\ \text{in}_2^{\tau_2}\ \longrightarrow\ \Delta",
         ],
         "ports": {"in_1": "species", "in_2": "params",
                   "out_1": "steady-state species", "out_2": "rates"},
