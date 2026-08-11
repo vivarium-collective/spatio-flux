@@ -25,9 +25,11 @@ TARGETS = {
     "community_dfba": ("fig07-1-community-dfba", "Fig 7.1",
         "Hybrid microbial community: a shared `fields` store + a dynamic-FBA process per "
         "species (ecoli, ecoli core, cdiff, pputida, yeast, llactis) + Monod kinetics.", {}),
-    "comets_diffusion": ("fig07-2-comets", "Fig 7.2",
+    "comets_spatial_dfba": ("fig07-2-comets", "Fig 7.2",
         "COMETS-style spatial dFBA: fields {glucose, acetate, dissolved biomass} on a grid "
-        "+ diffusion-advection + a dynamic-FBA process per grid bin.", {"n_bins": [4, 4]}),
+        "+ advection-diffusion, driven by a SINGLE vectorized SpatialDFBA process that updates "
+        "every lattice site as one batched structured state — so it scales to much larger grids "
+        "than a dFBA process per bin.", {"n_bins": [20, 20]}),
     "brownian_particles": ("fig07-3-brownian-particles", "Fig 7.3",
         "Brownian particles: a `particles` store driven by brownian_movement with an "
         "enforce-boundaries step.", {}),
