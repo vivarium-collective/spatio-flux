@@ -56,7 +56,7 @@ panels:
 # default shelf-pack in build_paper_figures.
 stitch:
   - {study: fig-01, module: build_figure1}
-  - {study: fig-02}
+  - {study: fig-02, module: build_figure2}
   - {study: fig-03}
   - {study: fig-04}
   - {study: fig-05}

@@ -224,18 +224,28 @@ def register_stitched_viz(study: str) -> bool:
     spec_f = WS / "studies" / study / "study.yaml"
     spec = yaml.safe_load(spec_f.read_text()) or {}
     viz = list(spec.get("visualizations") or [])
-    entry = {
-        "name": f"Figure {n} (composite)",
-        "address": f"image:visualizations/figure_{n}.svg",
-        "chart": "image",
-    }
-    # Idempotent: drop any prior composite entry, then append a fresh one last so
-    # the full figure reads as the study's culminating visualization.
+    # A scaffold module may emit SEVERAL stitched figures (e.g. fig-02 → 2a + 2b)
+    # instead of one figure_<N>; it declares them via STITCHED_OUTPUTS
+    # [(stem, name), …]. Default: the single figure_<N> composite.
+    outputs = [(f"figure_{n}", f"Figure {n} (composite)")]
+    mod_name = SCAFFOLD_STUDIES.get(study)
+    if mod_name:
+        try:
+            import importlib
+            declared = getattr(importlib.import_module(mod_name), "STITCHED_OUTPUTS", None)
+            if declared:
+                outputs = list(declared)
+        except Exception:
+            pass
+    stems = {stem for stem, _ in outputs}
+    # Idempotent: drop any prior entry for these stems, then append fresh ones last.
     kept = [
         v for v in viz
-        if not (isinstance(v, dict) and str(v.get("address", "")).endswith(f"figure_{n}.svg"))
+        if not (isinstance(v, dict)
+                and any(str(v.get("address", "")).endswith(f"{stem}.svg") for stem in stems))
     ]
-    new = kept + [entry]
+    new = kept + [{"name": name, "address": f"image:visualizations/{stem}.svg", "chart": "image"}
+                  for stem, name in outputs]
     if new == viz:
         return False  # already present + last; nothing to do
     spec["visualizations"] = new
@@ -250,7 +260,7 @@ def register_stitched_viz(study: str) -> bool:
 # panels placed by a dedicated module) rather than the default shelf-stitch.
 # Fig 1 keeps a scaffold SVG (rasterized via node); Fig 7 places its panels into
 # the paper's fixed 4-region grid and emits both SVG + PNG itself.
-SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-07": "build_figure7", "fig-08": "build_figure8"}
+SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-02": "build_figure2", "fig-07": "build_figure7", "fig-08": "build_figure8"}
 
 
 def _build_scaffold_figure(study: str) -> bool:
