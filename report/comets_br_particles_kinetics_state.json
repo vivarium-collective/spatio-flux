@@ -1,6 +1,6 @@
 {
   "particles": {
-    "erk97VCE": {
+    "WGGguBU-": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "erk97VCE",
+      "id": "WGGguBU-",
       "position": [
-        9.558173816250509,
-        28.199085255402185
+        34.568110295519915,
+        43.40332473647533
       ],
-      "mass": 1.8278920431624393,
+      "mass": 3.4952804633284726,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -1207,20 +1207,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -1243,8 +1243,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

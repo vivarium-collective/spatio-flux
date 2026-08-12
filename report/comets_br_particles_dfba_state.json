@@ -1,6 +1,6 @@
 {
   "particles": {
-    "hC3zGz7u": {
+    "u322H0kq": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "hC3zGz7u",
+      "id": "u322H0kq",
       "position": [
-        38.16071371738027,
-        31.54055949253601
+        19.563967589864866,
+        22.331683113862592
       ],
-      "mass": 0.5379211321958308,
+      "mass": 0.5328647975057327,
       "local": {},
       "exchange": {},
       "sub_masses": {},
