@@ -125,10 +125,25 @@ def load_graph() -> list[Node]:
 
     for s in spec.get("stitch", []):
         study = s["study"]
-        n = Node(key=f"{study}/figure_{_fig_num(study)}", study=study,
-                 output_stem=f"figure_{_fig_num(study)}", kind="stitch",
-                 module=s.get("module"))
-        n.config = {"module": s.get("module") or "shelf"}
+        module = s.get("module")
+        # Default stitched output is figure_<N>; a module that emits several
+        # figures (e.g. build_figure2 → figure_2a/2b) declares STITCHED_OUTPUTS,
+        # and the node tracks the FIRST as its primary output/hand-edit guard.
+        stem = f"figure_{_fig_num(study)}"
+        if module:
+            try:
+                import importlib
+                import sys as _sys
+                if str(WS / "scripts") not in _sys.path:
+                    _sys.path.insert(0, str(WS / "scripts"))
+                declared = getattr(importlib.import_module(module), "STITCHED_OUTPUTS", None)
+                if declared:
+                    stem = declared[0][0]
+            except Exception:
+                pass
+        n = Node(key=f"{study}/{stem}", study=study, output_stem=stem, kind="stitch",
+                 module=module)
+        n.config = {"module": module or "shelf"}
         # depends on every panel of this study (their primary png outputs)
         n.inputs = [pn.primary_output() for pn in panels_by_study.get(study, [])]
         nodes.append(n)
