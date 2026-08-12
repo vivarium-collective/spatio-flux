@@ -303,6 +303,40 @@ class Transport(DraftProcess):
     pass
 
 
+# ── Fig 5b: the tissue-scale environment the cell lives in ───────────────────
+@draft_process(
+    name="TissueDiffusion",
+    inputs={"fields": "array[concentration]"},
+    outputs={"fields": "array[concentration]"},
+    contract={
+        "summary": "Tissue-scale diffusion — spatial transport of the molecular fields",
+        "description": "Diffuses the tissue's molecular fields across the lattice — the higher-scale environment the cell is embedded in.",
+        "math": [r"\partial_t\,c = D\,\nabla^2 c"],
+        "symbols": {"c": "field concentration (per lattice site)", "D": "diffusion coefficient"},
+        "ports": {"fields": "tissue molecular fields — array[concentration]"},
+    },
+)
+class TissueDiffusion(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="CellExchange",
+    inputs={"fields": "array[concentration]", "local": "concentration"},
+    outputs={"fields": "array[concentration]", "local": "concentration"},
+    contract={
+        "summary": "Scale bridge — couples the tissue field to the cell's local bin",
+        "description": "The typed tissue↔cell interface: samples the tissue field array[concentration] at the cell's location to set the cell's LOCAL concentration, and returns the cell's secreted products to that same field bin. Concentration in the cell; array[concentration] in the tissue.",
+        "math": [r"c_{\text{local}} = c\!\left[b(\text{cell})\right],\qquad c\!\left[b\right] \mathrel{+}= s_{\text{cell}}"],
+        "symbols": {"c": "tissue field (array[concentration])", "c_local": "cell-local concentration",
+                    "b(cell)": "lattice bin at the cell", "s_cell": "cell secretion"},
+        "ports": {"fields": "tissue field — array[concentration]", "local": "cell-local concentration"},
+    },
+)
+class CellExchange(DraftProcess):
+    pass
+
+
 # ── helpers ──────────────────────────────────────────────────────────────────
 @draft_process(
     name="BigraphLink",
@@ -571,18 +605,19 @@ def fig04_process_state() -> dict:
 
 
 def fig05a_process_graph_state() -> dict:
-    """Fig 5a: a PROCESS GRAPH — processes connected to shared stores through typed
-    ports. gene_expression reads DNA → enzymes; metabolism reads substrates +
-    enzymes → products (the enzymes store is the shared coupling). Arrow directions
-    in the figure show the input/output wiring — the process-graph reading of a
-    composition."""
+    """Fig 5a: a PROCESS GRAPH — processes connected to stores through typed ports.
+    gene_expression reads DNA → enzymes; metabolism reads nutrients + enzymes →
+    products (enzymes is the shared coupling). ``nutrients`` (in) and ``products``
+    (out) are the ENVIRONMENT-FACING boundary stores — in Fig 5b this same graph is
+    nested inside the cell and those two couple to the tissue field."""
     return {
-        "metab":   _v("concentration", 5.0),   # substrate + product pool
-        "enzymes": _v("concentration", 1.0),   # shared: gene_expression writes, metabolism reads
-        "DNA":     _v("concentration", 1.0),
+        "nutrients": _v("concentration", 5.0),   # substrate pool (environment-facing)
+        "products":  _v("concentration", 0.0),   # product pool  (environment-facing)
+        "enzymes":   _v("concentration", 1.0),   # shared: gene_expression writes, metabolism reads
+        "DNA":       _v("concentration", 1.0),
         "metabolism": _proc(
             MetabolismGraph,
-            {"substrates": ["metab"], "enzymes": ["enzymes"]}, {"products": ["metab"]}),
+            {"substrates": ["nutrients"], "enzymes": ["enzymes"]}, {"products": ["products"]}),
         "gene_expression": _proc(
             GeneExpressionGraph,
             {"genes": ["DNA"]}, {"enzymes": ["enzymes"]}),
@@ -590,58 +625,58 @@ def fig05a_process_graph_state() -> dict:
 
 
 def fig05b_composite_process_state() -> dict:
-    """Fig 5b: a COMPOSITE PROCESS — a `cell` process whose inner document is a real
-    process bigraph. The cell exposes external ports (nutrients, signals → in;
-    shape → out) that bridge to its internal composition:
+    """Fig 5b: the SAME process graph as Fig 5a, nested as a `cell` COMPOSITE
+    PROCESS inside a TISSUE — a multiscale composition, connected with types.
 
-        cyto ⊃ { rib, nuc ⊃ { DNA } },  mem ⊃ { chnl }
-        + processes  express (DNA→rib),  grow (rib+nutrients+signals→mem),
-                     transport (chnl+nutrients→shape)
+        tissue
+          fields      : array[concentration]  (glucose, acetate)   — spatial
+          diffusion   : TissueDiffusion   (fields → fields)        — higher scale
+          exchange    : CellExchange      (fields ⇄ local)         — the scale bridge
+          local       : concentration     (glucose, acetate)       — the cell's bin
+          cell        : Composite process, inner = the Fig 5a graph, wired
+                        nutrients ← local.glucose, products → local.acetate
 
-    Nested as a `local:Composite` process with is_composite_process, so the loom
-    renders it as one node with a drillable inner-composite preview."""
-    inner = {
-        # the cell's external interface, as inner stores the outer ports bridge to
-        "nutrients": _v("concentration", 5.0),
-        "signals":   _v("concentration", 1.0),
-        "shape":     _v("concentration", 0.0),
-        # inner place graph
-        "cyto": {"rib": _v("concentration", 1.0),
-                 "nuc": {"DNA": _v("concentration", 1.0)}},
-        "mem":  {"chnl": _v("concentration", 1.0)},
-        # inner processes (the cell's own bigraph)
-        "express": _proc(
-            Express, {"genes": ["cyto", "nuc", "DNA"]}, {"ribosomes": ["cyto", "rib"]}),
-        "grow": _proc(
-            Grow,
-            {"ribosomes": ["cyto", "rib"], "nutrients": ["nutrients"], "signals": ["signals"]},
-            {"membrane": ["mem"]}),
-        "transport": _proc(
-            Transport,
-            {"channels": ["mem", "chnl"], "nutrients": ["nutrients"]}, {"shape": ["shape"]}),
-    }
+    Types are respected across scales: the tissue carries array[concentration]
+    fields, diffusion transports them, CellExchange samples the field bin at the
+    cell into a scalar `concentration`, and the cell (whose inner is Fig 5a) reads
+    that local concentration as its `nutrients` and returns `products` to it."""
+    inner = fig05a_process_graph_state()   # the cell's inner IS the Fig 5a graph
     cell = {
         "_type": "process",
         "address": "local:Composite",
         "is_composite_process": True,
         "config": {"state": inner},
-        "_inputs": {"nutrients": "concentration", "signals": "concentration"},
-        "_outputs": {"shape": "concentration"},
+        "_inputs": {"nutrients": "concentration"},
+        "_outputs": {"products": "concentration"},
         "_contract": {
-            "summary": "cell — a composite process orchestrating an internal bigraph",
-            "description": ("The cell exposes external ports (nutrients, signals in; shape out) "
-                            "that link to an internal process bigraph of express / grow / transport "
-                            "over cyto / mem / nuc stores."),
+            "summary": "cell — a composite process embedded in the tissue",
+            "description": ("The cell's inner model is the Fig 5a process graph. Its boundary "
+                            "stores nutrients / products couple to the tissue field (via the "
+                            "CellExchange scale bridge) — the cell consumes local nutrients and "
+                            "secretes products back into the tissue."),
             "status": "", "math": [], "symbols": {},
-            "inputs": {"nutrients": "external nutrients", "signals": "external signals"},
-            "outputs": {"shape": "cell shape (boundary output)"},
+            "inputs": {"nutrients": "local nutrient concentration (from the tissue field)"},
+            "outputs": {"products": "secreted products (to the tissue field)"},
         },
-        "inputs": {"nutrients": ["nutrients"], "signals": ["signals"]},
-        "outputs": {"shape": ["shape"]},
+        # relative to tissue: the cell reads/writes the LOCAL bin
+        "inputs": {"nutrients": ["local", "glucose"]},
+        "outputs": {"products": ["local", "acetate"]},
     }
+    arr = lambda: {"_type": "array", "_shape": [8, 8], "_data": "concentration"}
     return {
-        "nutrients": _v("concentration", 5.0),
-        "signals":   _v("concentration", 1.0),
-        "shape":     _v("concentration", 0.0),
-        "cell": cell,
+        "tissue": {
+            # tissue-scale spatial fields (array[concentration])
+            "fields": {"glucose": arr(), "acetate": arr()},
+            # higher-scale transport across the tissue
+            "diffusion": _proc(TissueDiffusion, {"fields": ["fields"]}, {"fields": ["fields"]}),
+            # the scale bridge: array fields ⇄ the cell's local concentrations
+            "exchange": _proc(
+                CellExchange,
+                {"fields": ["fields"], "local": ["local"]},
+                {"fields": ["fields"], "local": ["local"]}),
+            # the cell's LOCAL environment — a bin of scalar concentrations
+            "local": {"glucose": _v("concentration", 5.0), "acetate": _v("concentration", 0.0)},
+            # the cell: a composite process whose inner is the Fig 5a graph
+            "cell": cell,
+        },
     }

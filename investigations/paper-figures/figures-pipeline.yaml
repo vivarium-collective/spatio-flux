@@ -35,7 +35,7 @@ panels:
   - {study: fig-04, output: fig04-process, loom: spatio_flux.composites.fig04-process, flags: {detail: full}}
   # ── fig-05 (process graph & composite process) ──────────────────────────
   - {study: fig-05, output: fig05a-process-graph,     loom: spatio_flux.composites.fig05a-process-graph,     flags: {ports: types, config: off, contract: off}}
-  - {study: fig-05, output: fig05b-composite-process, loom: spatio_flux.composites.fig05b-composite-process, flags: {detail: full}}
+  - {study: fig-05, output: fig05b-composite-process, loom: spatio_flux.composites.fig05b-composite-process, flags: {detail: contract}}
   # ── fig-07 (three example composites + sim panels) ──────────────────────
   - {study: fig-07, output: fig07-1-community-dfba,     loom: spatio_flux.composites.fig07-1-community-dfba,     flags: {detail: ports, contract: on, stores: type}}
   - {study: fig-07, output: fig07-2-comets,             loom: spatio_flux.composites.fig07-2-comets,             flags: {detail: ports, contract: on, stores: type}}

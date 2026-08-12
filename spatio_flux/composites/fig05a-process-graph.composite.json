@@ -7,9 +7,13 @@
     "fig-5a"
   ],
   "state": {
-    "metab": {
+    "nutrients": {
       "_type": "concentration",
       "_value": 5.0
+    },
+    "products": {
+      "_type": "concentration",
+      "_value": 0.0
     },
     "enzymes": {
       "_type": "concentration",
@@ -72,7 +76,7 @@
       },
       "inputs": {
         "substrates": [
-          "metab"
+          "nutrients"
         ],
         "enzymes": [
           "enzymes"
@@ -80,7 +84,7 @@
       },
       "outputs": {
         "products": [
-          "metab"
+          "products"
         ]
       }
     },
