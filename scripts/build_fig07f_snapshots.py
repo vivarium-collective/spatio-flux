@@ -21,7 +21,7 @@ from spatio_flux.composites import REGISTRY
 from spatio_flux.library.tools import get_standard_emitter
 
 N_BINS = [20, 20]
-RUNTIME = 120.0   # longer run → more of COMETS' long-term spatial behaviour
+RUNTIME = 240.0   # longer run → the full long-term COMETS trajectory
 FIELDS = ["glucose", "acetate", "dissolved biomass"]
 N_SNAP = 5
 
