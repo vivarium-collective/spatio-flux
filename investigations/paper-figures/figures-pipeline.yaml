@@ -45,7 +45,7 @@ panels:
   - {study: fig-07, output: fig07c-dfba,            external: true}
   - {study: fig-07, output: fig07d-hybrid-community, external: true}
   # ── fig-08 (reference model) ────────────────────────────────────────────
-  - {study: fig-08, output: fig08-reference-model, loom: spatio_flux.composites.fig08-reference-model}
+  - {study: fig-08, output: fig08-reference-model, loom: spatio_flux.composites.fig08-reference-model, flags: {collapse: true}}
   - {study: fig-08, output: fig08b-reference-snapshots, command: "python scripts/build_fig08b_snapshots.py", inputs: [scripts/build_fig08b_snapshots.py]}
 
 # Each study's final step: compose its panels into figure_<N>.{svg,png}.

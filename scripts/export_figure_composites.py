@@ -39,9 +39,9 @@ TARGETS = {
         "particle mass.",
         # Schematic grid: the model defaults to n_bins=[10,10] (100 kinetics cells).
         # A 4x4 grid depicts the same structure with far fewer nodes, matching the
-        # COMETS figure. (Layout width is driven by the shared field stores, not the
-        # grid count — a compact figure needs a hand-arranged view.)
-        {"n_bins": [4, 4]}),
+        # COMETS figure. A few particles (n_particles=3) render as redundant sibling
+        # stores that collapse to `particle_*` in the loom (?collapse=1).
+        {"n_bins": [4, 4], "n_particles": 3}),
 }
 
 def _class_contracts() -> dict:

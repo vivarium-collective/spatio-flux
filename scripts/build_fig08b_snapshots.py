@@ -20,14 +20,17 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.patches import Circle
+from matplotlib.collections import PatchCollection
 from process_bigraph import Composite, gather_emitter_results, allocate_core
 from process_bigraph.composite_generator import build_generator
 from spatio_flux.composites import REGISTRY
 from spatio_flux.library.tools import get_standard_emitter
+from spatio_flux.plots.plot import plot_snapshots_grid
 
 RUNTIME = 120.0            # longer run → more of the reference model's behaviour
 BOUNDS = (50.0, 50.0)
-N_PARTICLES = 1            # start with one, like the original reference figure
+N_PARTICLES = 3            # a few initial particles; the colony grows via inflow + division
 # The reference composite ships with add_rate=0.0 (no inflow), so a lone particle
 # just falls and the row looks empty. The ORIGINAL reference figure grew a settling
 # colony because particles were seeded from the top boundary over time; re-enable
@@ -41,29 +44,35 @@ ADD_BOUNDARY = ["top"]
 GRAVITY = -9.81
 JITTER = 1e-3
 DAMPING = 0.90
+COLLISION_R = 1.8          # domain-unit render radius (slightly > contact so disks touch, no gaps)
 FIELDS = ["glucose", "acetate", "dissolved biomass"]
 STRAINS = ["ecoli_1", "ecoli_2"]
-STRAIN_COLORS = {"ecoli_1": "#2563eb", "ecoli_2": "#dc2626"}  # blue / red
 N_SNAP = 6
 
 
-def _particles(frame):
-    """(xs, ys, colors, sizes) for every particle in an emitted frame."""
+def _strain_color(sub):
+    """Blue = ecoli_1-dominant, red = ecoli_2-dominant, purple = 50/50."""
+    e1 = float((sub or {}).get("ecoli_1", 0.0) or 0.0)
+    e2 = float((sub or {}).get("ecoli_2", 0.0) or 0.0)
+    tot = e1 + e2
+    f = 0.5 if tot <= 0 else e1 / tot
+    return plt.cm.coolwarm_r(f)
+
+
+def _particle_circles(frame):
+    """(circles, colors) drawn at the TRUE collision radius so a settled colony
+    reads as touching disks — not scattered dots."""
     parts = frame.get("particles")
     if not isinstance(parts, dict):
-        return [], [], [], []
-    xs, ys, cols, sizes = [], [], [], []
+        return [], []
+    circles, colors = [], []
     for pid, p in parts.items():
         if pid.startswith("_") or not isinstance(p, dict) or "position" not in p:
             continue
         pos = p["position"]
-        xs.append(float(pos[0])); ys.append(float(pos[1]))
-        sub = p.get("sub_masses") or {}
-        m = {s: float(sub.get(s, 0.0) or 0.0) for s in STRAINS}
-        dom = max(m, key=m.get) if any(m.values()) else STRAINS[0]
-        cols.append(STRAIN_COLORS[dom])
-        sizes.append(12.0 + 70.0 * float(p.get("mass", 0.0) or 0.0))
-    return xs, ys, cols, sizes
+        circles.append(Circle((float(pos[0]), float(pos[1])), COLLISION_R))
+        colors.append(_strain_color(p.get("sub_masses")))
+    return circles, colors
 
 
 def main() -> None:
@@ -90,54 +99,37 @@ def main() -> None:
     n = len(results)
     print(f"ran spatioflux_reference_demo — {n} emitted frames over {RUNTIME:.0f} min")
 
-    idxs = np.linspace(0, n - 1, N_SNAP).astype(int)
-    times = [r.get("global_time", 0.0) for r in results]
-    labels = [f"t = {int(round(times[i]))} min" for i in idxs]
-
-    rows = FIELDS + ["particles"]
-    fig, axes = plt.subplots(
-        len(rows), N_SNAP, figsize=(N_SNAP * 2.4, len(rows) * 2.4),
-        gridspec_kw={"wspace": 0.06, "hspace": 0.10},
+    # Give every particle a FIXED render radius = the pymunk contact radius, so the
+    # settled colony reads as touching disks (the bogus mass-derived `radius` field
+    # is way out of domain scale). Then render with the existing spatio-flux grid,
+    # which draws each particle as a PIE of its sub_masses (ecoli_1 / ecoli_2).
+    for r in results:
+        for p in (r.get("particles") or {}).values():
+            if isinstance(p, dict) and "position" in p:
+                p["radius"] = COLLISION_R
+    viz = Path("studies/fig-08/visualizations"); viz.mkdir(parents=True, exist_ok=True)
+    plot_snapshots_grid(
+        results,
+        field_names=FIELDS,
+        n_snapshots=N_SNAP,
+        bounds=BOUNDS,
+        particles_row="separate",
+        particle_radius_key="radius",
+        radius_fallback_from_mass=False,
+        show_particle_submasses=True,
+        submasses_key="sub_masses",
+        submass_color_map={"ecoli_1": "#2563eb", "ecoli_2": "#dc2626"},  # blue / red
+        submass_draw_legend=True,
+        submass_legend_fontsize=12,
+        particle_edgecolor="#1e293b",
+        particle_linewidth=0.35,
+        row_label_fontsize=16,
+        time_label_fontsize=15,
+        wspace=0.06, hspace=0.10,
+        out_dir=str(viz),
+        filename="fig08b-reference-snapshots.png",
     )
-
-    # Field rows — heatmaps, one shared vmax per field.
-    for r, fname in enumerate(FIELDS):
-        frames = [np.array(results[i]["fields"][fname], dtype=float) for i in idxs]
-        vmax = max((f.max() for f in frames), default=1.0) or 1.0
-        im = None
-        for c, fr in enumerate(frames):
-            ax = axes[r][c]
-            im = ax.imshow(fr, origin="lower", cmap="viridis", vmin=0.0, vmax=vmax, aspect="equal")
-            ax.set_xticks([]); ax.set_yticks([])
-            if c == 0:
-                ax.set_ylabel(fname, fontsize=16)
-        cb = fig.colorbar(im, ax=list(axes[r]), fraction=0.025, pad=0.02)
-        cb.ax.tick_params(labelsize=13)
-
-    # Particles row — scatter positions colored by dominant strain, sized by mass.
-    pr = len(FIELDS)
-    for c, i in enumerate(idxs):
-        ax = axes[pr][c]
-        xs, ys, cols, sizes = _particles(results[i])
-        if xs:
-            ax.scatter(xs, ys, s=sizes, c=cols, alpha=0.85,
-                       edgecolors="#33415580", linewidths=0.3)
-        ax.set_xlim(0, BOUNDS[0]); ax.set_ylim(0, BOUNDS[1])
-        ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
-        ax.set_xlabel(labels[c], fontsize=15)
-        if c == 0:
-            ax.set_ylabel("particles", fontsize=16)
-    # Strain legend on the particles row.
-    handles = [Line2D([0], [0], marker="o", linestyle="", markersize=9,
-                      markerfacecolor=STRAIN_COLORS[s], markeredgecolor="none", label=s)
-               for s in STRAINS]
-    axes[pr][-1].legend(handles=handles, loc="lower right", fontsize=11,
-                        framealpha=0.85, handletextpad=0.3, borderpad=0.3)
-
-    out = Path("studies/fig-08/visualizations/fig08b-reference-snapshots.png")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, dpi=150, bbox_inches="tight")
-    print("wrote", out)
+    print("wrote", viz / "fig08b-reference-snapshots.png")
 
 
 if __name__ == "__main__":

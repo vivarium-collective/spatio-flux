@@ -33,67 +33,67 @@
       "x": 1594.6608840440933,
       "y": -92.91301812523508
     },
-    "particles.p_4bd003": {
+    "particles.p_2411e1": {
       "x": 1479.9169598508943,
       "y": 100.72442019766768
     },
-    "particles.p_4bd003.shape": {
+    "particles.p_2411e1.shape": {
       "x": 2056.0697673244194,
       "y": 522.9687920271764
     },
-    "particles.p_4bd003.mass": {
+    "particles.p_2411e1.mass": {
       "x": 1679.250587576805,
       "y": 352.5128512020792
     },
-    "particles.p_4bd003.radius": {
+    "particles.p_2411e1.radius": {
       "x": 2057.1870805831995,
       "y": 341.25663620715204
     },
-    "particles.p_4bd003.position": {
+    "particles.p_2411e1.position": {
       "x": 1869.4339290835921,
       "y": 345.10063819066835
     },
-    "particles.p_4bd003.velocity": {
+    "particles.p_2411e1.velocity": {
       "x": 2249.6937159011895,
       "y": 340.2138774551715
     },
-    "particles.p_4bd003.elasticity": {
+    "particles.p_2411e1.elasticity": {
       "x": 2256.3572321398037,
       "y": 516.9974798399506
     },
-    "particles.p_4bd003.sub_masses": {
+    "particles.p_2411e1.sub_masses": {
       "x": 1149.3316509011322,
       "y": 314.60723234499505,
       "w": 252,
       "h": 106
     },
-    "particles.p_4bd003.sub_masses.ecoli_1": {
+    "particles.p_2411e1.sub_masses.ecoli_1": {
       "x": 1101.1271841136304,
       "y": 487.7792748424016
     },
-    "particles.p_4bd003.sub_masses.ecoli_2": {
+    "particles.p_2411e1.sub_masses.ecoli_2": {
       "x": 1224.2734353134306,
       "y": 633.2756624032464
     },
-    "particles.p_4bd003.ecoli_1 dFBA": {
+    "particles.p_2411e1.ecoli_1 dFBA": {
       "x": 445.0226791149414,
       "y": 439.3332056929196
     },
-    "particles.p_4bd003.ecoli_2 dFBA": {
+    "particles.p_2411e1.ecoli_2 dFBA": {
       "x": 428.95694585228523,
       "y": 628.6853571697274
     },
-    "particles.p_4bd003.aggregate_mass": {
+    "particles.p_2411e1.aggregate_mass": {
       "x": 1464.1391563786,
       "y": 548.1196229039134,
       "w": 481,
       "h": 204
     },
-    "particles.p_4bd003.local": {
+    "particles.p_2411e1.local": {
       "x": 928.8908321306843,
       "y": 298.8331648028454
     },
-    "particles.p_4bd003.exchange": {
+    "particles.p_2411e1.exchange": {
       "x": 1443.9785774084346,
       "y": 304.93056731985916
     },

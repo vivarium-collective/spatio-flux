@@ -1357,28 +1357,28 @@
       ],
       "dissolved biomass": [
         [
-          0.1897492035921419,
-          0.13675930238457018,
-          0.1409449843423305,
-          0.10678483170458898
+          0.1551490097682759,
+          0.16892659785940187,
+          0.1404076399518705,
+          0.13180206008138334
         ],
         [
-          0.10848464118146343,
-          0.13746916321682795,
-          0.1355454219922431,
-          0.11620887390528606
+          0.1711204566601262,
+          0.18416342468465793,
+          0.1624556688735323,
+          0.11550874631773132
         ],
         [
-          0.19671818808768143,
-          0.1477753655729505,
-          0.17200683033814781,
-          0.11114372798333791
+          0.18632045275082193,
+          0.11650552280479326,
+          0.15511766751722988,
+          0.17804366263957383
         ],
         [
-          0.14806350571236074,
-          0.16500610843302355,
-          0.16654598476471297,
-          0.19956452554306242
+          0.11970012692507531,
+          0.1482678930314528,
+          0.11075375424962808,
+          0.1427402247851822
         ]
       ]
     },
@@ -1465,17 +1465,17 @@
       }
     },
     "particles": {
-      "p_4bd003": {
+      "p_2411e1": {
         "shape": "circle",
-        "mass": 0.17928235215513988,
-        "radius": 1.9505101060878898,
+        "mass": 0.042497093211190856,
+        "radius": 0.9496401038707982,
         "position": [
-          34.33303468982371,
-          18.576329072921514
+          12.994825000274659,
+          23.951927983499328
         ],
         "velocity": [
-          0.0,
-          -0.0
+          -0.0,
+          0.0
         ],
         "elasticity": 0.0,
         "sub_masses": {
@@ -1486,16 +1486,6 @@
           "_type": "process",
           "address": "local:DynamicFBA",
           "config": {
-            "bounds": {
-              "EX_o2_e": {
-                "lower": -2,
-                "upper": null
-              },
-              "ATPM": {
-                "lower": 3,
-                "upper": 3
-              }
-            },
             "model_file": "textbook",
             "kinetic_params": {
               "glucose": [
@@ -1510,6 +1500,16 @@
             "substrate_update_reactions": {
               "glucose": "EX_glc__D_e",
               "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
             }
           },
           "inputs": {
@@ -1554,16 +1554,6 @@
           "_type": "process",
           "address": "local:DynamicFBA",
           "config": {
-            "bounds": {
-              "EX_o2_e": {
-                "lower": -2,
-                "upper": null
-              },
-              "ATPM": {
-                "lower": 1,
-                "upper": 1
-              }
-            },
             "model_file": "textbook",
             "kinetic_params": {
               "glucose": [
@@ -1578,6 +1568,386 @@
             "substrate_update_reactions": {
               "glucose": "EX_glc__D_e",
               "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "aggregate_mass": {
+          "_type": "step",
+          "address": "local:ParticleTotalMass",
+          "config": {},
+          "inputs": {
+            "sub_masses": [
+              "sub_masses"
+            ]
+          },
+          "outputs": {
+            "total_mass": [
+              "mass"
+            ]
+          },
+          "_contract": {
+            "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "description": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "status": "",
+            "math": [
+              "m = \\sum_i m_i"
+            ],
+            "symbols": {
+              "m": "aggregate particle mass",
+              "m_i": "sub-mass i (per-strain dFBA biomass)"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "local": {},
+        "exchange": {}
+      },
+      "p_13267f": {
+        "shape": "circle",
+        "mass": 0.1561141805240467,
+        "radius": 1.8201224690348918,
+        "position": [
+          36.16541269259215,
+          21.52828304175773
+        ],
+        "velocity": [
+          0.0,
+          -0.0
+        ],
+        "elasticity": 0.0,
+        "sub_masses": {
+          "ecoli_1": 0.1,
+          "ecoli_2": 0.1
+        },
+        "ecoli_1 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                0.1,
+                2
+              ],
+              "acetate": [
+                1.0,
+                0.1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "ecoli_2 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                1.0,
+                0.1
+              ],
+              "acetate": [
+                0.01,
+                1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "aggregate_mass": {
+          "_type": "step",
+          "address": "local:ParticleTotalMass",
+          "config": {},
+          "inputs": {
+            "sub_masses": [
+              "sub_masses"
+            ]
+          },
+          "outputs": {
+            "total_mass": [
+              "mass"
+            ]
+          },
+          "_contract": {
+            "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "description": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "status": "",
+            "math": [
+              "m = \\sum_i m_i"
+            ],
+            "symbols": {
+              "m": "aggregate particle mass",
+              "m_i": "sub-mass i (per-strain dFBA biomass)"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "local": {},
+        "exchange": {}
+      },
+      "p_b03250": {
+        "shape": "circle",
+        "mass": 0.14429382743203298,
+        "radius": 1.7498600284387311,
+        "position": [
+          23.39991537783657,
+          40.936011264745204
+        ],
+        "velocity": [
+          0.0,
+          0.0
+        ],
+        "elasticity": 0.0,
+        "sub_masses": {
+          "ecoli_1": 0.1,
+          "ecoli_2": 0.1
+        },
+        "ecoli_1 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                0.1,
+                2
+              ],
+              "acetate": [
+                1.0,
+                0.1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "ecoli_2 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                1.0,
+                0.1
+              ],
+              "acetate": [
+                0.01,
+                1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
             }
           },
           "inputs": {
