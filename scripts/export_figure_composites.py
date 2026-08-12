@@ -39,10 +39,61 @@ TARGETS = {
         "particle mass.",
         # Schematic grid: the model defaults to n_bins=[10,10] (100 kinetics cells).
         # A 4x4 grid depicts the same structure with far fewer nodes, matching the
-        # COMETS figure. (Layout width is driven by the shared field stores, not the
-        # grid count — a compact figure needs a hand-arranged view.)
-        {"n_bins": [4, 4]}),
+        # COMETS figure. A few particles (n_particles=3) render as redundant sibling
+        # stores that collapse to `particle_*` in the loom (?collapse=1).
+        {"n_bins": [4, 4], "n_particles": 3}),
 }
+
+def _class_contracts() -> dict:
+    """Map ``local:<ClassName>`` -> the structured ``.contract`` declared ON the
+    process class (single source of truth, see spatio_flux/processes/*.py). Read
+    from every process class that advertises a contract — so ANY figure using a
+    contract-bearing process picks it up automatically, and adding a contract to a
+    new process needs no change here."""
+    import importlib
+    import inspect
+
+    out: dict = {}
+    # Scan the process package's submodules; guard optional-dep imports.
+    import spatio_flux.processes as _procs
+    modnames = getattr(_procs, "__all__", None) or [
+        "dfba", "monod_kinetics", "diffusion_advection", "particles", "pymunk_particles",
+    ]
+    for modname in modnames:
+        try:
+            mod = importlib.import_module(f"spatio_flux.processes.{modname}")
+        except Exception:
+            continue
+        for _name, cls in inspect.getmembers(mod, inspect.isclass):
+            c = getattr(cls, "contract", None)
+            if isinstance(c, dict) and c.get("summary"):
+                out[f"local:{cls.__name__}"] = c
+    return out
+
+
+def _inject_contracts(state: dict, contracts: dict | None = None) -> dict:
+    """Attach `_contract` (from the process class's `.contract`) to every
+    process/step node, so the loom card shows the process's own governing
+    equations. Recurses into nested stores (fields, particles, …)."""
+    if contracts is None:
+        contracts = _class_contracts()
+    for v in state.values():
+        if not isinstance(v, dict):
+            continue
+        if v.get("_type") in ("process", "step"):
+            c = contracts.get(str(v.get("address", "")))
+            if c and "_contract" not in v:
+                v["_contract"] = {
+                    "summary": c["summary"],
+                    "description": c.get("description", c["summary"]),
+                    "status": "",
+                    "math": list(c.get("math", [])),
+                    "symbols": dict(c.get("symbols", {})),
+                    "inputs": {}, "outputs": {},
+                }
+        else:
+            _inject_contracts(v, contracts)
+    return state
 
 
 def _sanitize(node):
@@ -125,34 +176,154 @@ def _backfill_wire_targets(entry, processes):
                 entry[head] = {}
 
 
+# Composites whose exported state is genuinely non-deterministic (random
+# Newtonian-particle ids) — kept as a committed sample, not regenerated or
+# drift-checked. Making these reproducible (a fixed-seed generator) is a follow-up.
+STOCHASTIC = {"fig08-reference-model"}
+
+
+def _rename_everywhere(obj, old, new):
+    """Recursively rename a dict KEY / string VALUE `old` -> `new` (used to keep a
+    renamed field consistent across the fields branch AND the process wiring)."""
+    if isinstance(obj, dict):
+        return {(new if k == old else k): _rename_everywhere(v, old, new) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):  # wiring paths arrive as tuples
+        return [_rename_everywhere(x, old, new) for x in obj]
+    if isinstance(obj, str):
+        return new if obj == old else obj
+    return obj  # numpy field arrays / numbers — never `== old`-compare (ambiguous)
+
+
+def _figure_transforms(stem: str, state: dict) -> dict:
+    """Figure-only PRESENTATION transforms, DECLARED here so a re-export is
+    deterministic and can never clobber a hand-edit. These shape the figure's
+    picture (a named field branch, typed fields, a clean particle) WITHOUT
+    touching the real model the generator produces (which keeps its efficient
+    map-of-arrays + stochastic particles). Idempotent + deterministic — `--check`
+    verifies committed == fresh export."""
+    if stem == "fig07-2-comets":
+        # Rename "dissolved biomass" -> "biomass" EVERYWHERE (the field child AND
+        # the process wiring that targets it) so the branch + wires stay consistent.
+        state = _rename_everywhere(state, "dissolved biomass", "biomass")
+        # fields: opaque map-of-arrays -> an explicit branch of named, typed child
+        # stores so the loom shows the field structure (glucose/acetate/biomass).
+        f = state.get("fields", {})
+        shape = (f.get("_value") or {}).get("_shape", [20, 20]) if isinstance(f, dict) else [20, 20]
+        arr = lambda: {"_type": "array", "_shape": list(shape), "_data": "concentration"}
+        state["fields"] = {"glucose": arr(), "acetate": arr(), "biomass": arr()}
+    elif stem == "fig07-1-community-dfba":
+        # scalar field children -> typed `concentration` stores (not bare `number`).
+        f = state.get("fields")
+        if isinstance(f, dict):
+            for k, v in list(f.items()):
+                if not k.startswith("_") and isinstance(v, (int, float)):
+                    f[k] = {"_type": "concentration", "_value": float(v)}
+    elif stem == "fig07-3-brownian-particles":
+        # the ensemble's stochastic particles (random ids) -> a fixed set of clean,
+        # GENERIC siblings (particle_1..particle_5), each carrying the same
+        # {id, position, mass} subtree. They render collapsed (loom ?collapse=1) as
+        # ONE `particle_*` representative — the store-side dual of the dFBA[*]
+        # process collapse — so the schematic reads "a map of many identical
+        # particles" without drawing five redundant boxes. The id is the generic
+        # type "particle" (not a specific value). Deterministic → stable hash.
+        parts = state.get("particles")
+        if isinstance(parts, dict):
+            for k in [k for k in parts if not k.startswith("_")]:
+                parts.pop(k)
+            seeds = [[7.9, 38.8], [12.4, 25.1], [31.0, 9.6], [22.7, 41.3], [4.2, 17.8]]
+            masses = [0.059, 0.061, 0.057, 0.063, 0.060]
+            for i, (pos, m) in enumerate(zip(seeds, masses), start=1):
+                parts[f"particle_{i}"] = {"id": "particle", "position": pos, "mass": m}
+    return state
+
+
+def _build_spec(gen_name, stem, figure, desc, overrides) -> str | None:
+    """Export one figure composite to its JSON string (or None on failure)."""
+    core = allocate_core()
+    try:
+        entry = next(e for e in REGISTRY.values() if e.name == gen_name)
+    except StopIteration:
+        print(f"  SKIP {gen_name}: not in REGISTRY")
+        return None
+    try:
+        doc = build_generator(entry, overrides=overrides, core=core)
+        state = doc.get("state", doc) if isinstance(doc, dict) else doc
+        schema = doc.get("schema") if isinstance(doc, dict) else None
+        Composite({"state": state, **({"composition": schema} if schema else {})}, core=core)
+        state = _materialize_map_compositions(state, schema)
+        state = _inject_contracts(state)
+        state = _figure_transforms(stem, state)
+        spec = {
+            "name": stem,
+            "description": f"{figure} — {desc}",
+            "tags": ["paper-figure", figure.replace(" ", "-").lower()],
+            "state": _sanitize(state),
+        }
+        return json.dumps(spec, indent=2, default=str)
+    except Exception as e:  # noqa: BLE001
+        print(f"  FAIL {gen_name}: {type(e).__name__}: {str(e)[:150]}")
+        return None
+
+
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser(description="Export the figure composites (or --check for drift).")
+    ap.add_argument("--check", action="store_true",
+                    help="verify each committed spec matches a fresh export; exit 1 on drift (CI gate)")
+    args = ap.parse_args()
+
+    drift = []
     for gen_name, (stem, figure, desc, overrides) in TARGETS.items():
-        core = allocate_core()
-        try:
-            entry = next(e for e in REGISTRY.values() if e.name == gen_name)
-        except StopIteration:
-            print(f"  SKIP {gen_name}: not in REGISTRY")
+        target = OUT / f"{stem}.composite.json"
+        # Stochastic composites (random Newtonian-particle ids) can't be
+        # byte-reproduced, so they're neither drift-checked nor regenerated over an
+        # existing committed sample (that would churn the figure for no reason).
+        if stem in STOCHASTIC:
+            if target.exists():
+                # Keep the frozen (un-reproducible) stochastic STATE, but refresh
+                # contract annotations from the live process classes — so a newly
+                # added `.contract` classvar appears on the figure WITHOUT churning
+                # the particle sample. `_inject_contracts` only fills nodes that
+                # lack `_contract`, so this is idempotent + touches nothing else.
+                spec = json.loads(target.read_text())
+                before = json.dumps(spec, sort_keys=True)
+                _inject_contracts(spec.get("state", {}))
+                changed = json.dumps(spec, sort_keys=True) != before
+                if args.check:
+                    if changed:
+                        drift.append(stem)
+                        print(f"  DRIFT {stem}: contract annotations stale — re-run export")
+                    else:
+                        print(f"  ok    {stem} (stochastic — state frozen, contracts current)")
+                elif changed:
+                    target.write_text(json.dumps(spec, indent=2, default=str) + "\n")
+                    print(f"  OK  {stem} (stochastic — refreshed contracts, kept sample)")
+                else:
+                    print(f"  keep  {stem} (stochastic — sample + contracts current)")
+            elif not args.check:
+                c = _build_spec(gen_name, stem, figure, desc, overrides)
+                if c:
+                    target.write_text(c)
+                    print(f"  OK  {gen_name} -> {stem}.composite.json ({figure})")
             continue
-        try:
-            doc = build_generator(entry, overrides=overrides, core=core)
-            state = doc.get("state", doc) if isinstance(doc, dict) else doc
-            schema = doc.get("schema") if isinstance(doc, dict) else None
-            Composite({"state": state, **({"composition": schema} if schema else {})}, core=core)
-            # Materialize any map-store composition (e.g. the reference model's
-            # per-particle dFBA processes + aggregate_mass) into the exported state
-            # so they render as explicit loom nodes rather than being lost with the
-            # discarded schema.
-            state = _materialize_map_compositions(state, schema)
-            spec = {
-                "name": stem,
-                "description": f"{figure} — {desc}",
-                "tags": ["paper-figure", figure.replace(" ", "-").lower()],
-                "state": _sanitize(state),
-            }
-            (OUT / f"{stem}.composite.json").write_text(json.dumps(spec, indent=2, default=str))
+        content = _build_spec(gen_name, stem, figure, desc, overrides)
+        if content is None:
+            if args.check:
+                drift.append(stem)
+            continue
+        if args.check:
+            cur = target.read_text() if target.exists() else ""
+            if cur.rstrip() == content.rstrip():
+                print(f"  ok    {stem}")
+            else:
+                drift.append(stem)
+                print(f"  DRIFT {stem}: committed spec differs from a fresh export")
+        else:
+            target.write_text(content)
             print(f"  OK  {gen_name} -> {stem}.composite.json  ({figure})")
-        except Exception as e:  # noqa: BLE001
-            print(f"  FAIL {gen_name}: {type(e).__name__}: {str(e)[:150]}")
+    if args.check and drift:
+        raise SystemExit(f"[export --check] {len(drift)} composite(s) drifted: {', '.join(drift)} "
+                         "— re-run `export_figure_composites.py` and commit.")
 
 
 if __name__ == "__main__":

@@ -7,13 +7,45 @@
   ],
   "state": {
     "particles": {
-      "wI5R4d8P": {
-        "id": "wI5R4d8P",
+      "particle_1": {
+        "id": "particle",
         "position": [
-          7.863234292568865,
-          38.80687714753995
+          7.9,
+          38.8
         ],
-        "mass": 0.05891923202730228
+        "mass": 0.059
+      },
+      "particle_2": {
+        "id": "particle",
+        "position": [
+          12.4,
+          25.1
+        ],
+        "mass": 0.061
+      },
+      "particle_3": {
+        "id": "particle",
+        "position": [
+          31.0,
+          9.6
+        ],
+        "mass": 0.057
+      },
+      "particle_4": {
+        "id": "particle",
+        "position": [
+          22.7,
+          41.3
+        ],
+        "mass": 0.063
+      },
+      "particle_5": {
+        "id": "particle",
+        "position": [
+          4.2,
+          17.8
+        ],
+        "mass": 0.06
       }
     },
     "brownian_movement": {
@@ -41,7 +73,23 @@
           "particles"
         ]
       },
-      "interval": 0.1
+      "interval": 0.1,
+      "_contract": {
+        "summary": "Brownian motion \u2014 overdamped diffusive steps",
+        "description": "Brownian motion \u2014 overdamped diffusive steps",
+        "status": "",
+        "math": [
+          "\\Delta x=\\sqrt{2D\\,\\Delta t}\\;\\xi\\;+\\;\\mathbf{u}\\,\\Delta t,\\qquad \\xi\\sim\\mathcal{N}(0,1)"
+        ],
+        "symbols": {
+          "D": "diffusion coefficient",
+          "\u0394t": "time step",
+          "u": "advection velocity",
+          "\u03be": "unit Gaussian noise"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "enforce_boundaries": {
       "_type": "step",
@@ -79,6 +127,20 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Keep particles inside the domain (inflow/outflow)",
+        "description": "Keep particles inside the domain (inflow/outflow)",
+        "status": "",
+        "math": [
+          "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+        ],
+        "symbols": {
+          "x": "particle position",
+          "L": "domain size"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "global_time": 0.0

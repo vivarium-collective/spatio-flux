@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="800" viewBox="0 0 1440 800" font-family="Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="680" viewBox="0 0 1440 680" font-family="Helvetica, Arial, sans-serif">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#666"/></marker>
     <marker id="arrowk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222"/></marker>
@@ -10,7 +10,7 @@
 
   <!-- ============ PANEL A ============ -->
   <g id="Panel A - Different formalisms" transform="translate(20,20)">
-    <rect width="320" height="740" rx="14" fill="#fdecea" stroke="#e6a8a0" stroke-width="1.5"/>
+    <rect width="320" height="630" rx="14" fill="#fdecea" stroke="#e6a8a0" stroke-width="1.5"/>
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#d33a2c"/><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">a</text>
     <g text-anchor="middle" fill="#222"><text x="180" y="28" font-size="13" font-weight="700">Biological systems are modeled</text><text x="180" y="43" font-size="13" font-weight="700">using diverse mathematical formalisms</text></g>
     <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Existing biological models span diverse</text><text x="168" y="74">methods, data types, and assumptions.</text></g>
@@ -59,7 +59,7 @@
 
   <!-- ============ PANEL B ============ -->
   <g id="Panel B - Composition interfaces" transform="translate(380,20)">
-    <rect width="320" height="740" rx="14" fill="#e8f0fe" stroke="#a9c4f5" stroke-width="1.5"/>
+    <rect width="320" height="630" rx="14" fill="#e8f0fe" stroke="#a9c4f5" stroke-width="1.5"/>
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#2b5bd0"/><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">b</text>
     <g text-anchor="middle" fill="#2b5bd0"><text x="180" y="28" font-size="13" font-weight="700">Composition starts with interfaces</text><text x="180" y="43" font-size="13" font-weight="700">and explicit coupling</text></g>
     <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Mechanistic processes expose typed interfaces and are</text><text x="168" y="74">composed through explicit variable coupling.</text></g>
@@ -138,7 +138,7 @@
 
   <!-- ============ PANEL C ============ -->
   <g id="Panel C - Process Bigraph" transform="translate(740,20)">
-    <rect width="320" height="740" rx="14" fill="#fef7e0" stroke="#e6d9a8" stroke-width="1.5"/>
+    <rect width="320" height="630" rx="14" fill="#fef7e0" stroke="#e6d9a8" stroke-width="1.5"/>
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#2f6b3f"/><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">c</text>
     <g text-anchor="middle" fill="#222"><text x="180" y="28" font-size="13" font-weight="700">Process Bigraph enables</text><text x="180" y="43" font-size="13" font-weight="700">executable composite models</text></g>
     <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Declarative specifications of interfaces and couplings</text><text x="168" y="74">are executed as composite models by a unified engine.</text></g>
@@ -249,7 +249,7 @@
 
   <!-- ============ PANEL D ============ -->
   <g id="Panel D - Community" transform="translate(1100,20)">
-    <rect width="320" height="740" rx="14" fill="#f3e8fd" stroke="#d0b3ec" stroke-width="1.5"/>
+    <rect width="320" height="630" rx="14" fill="#f3e8fd" stroke="#d0b3ec" stroke-width="1.5"/>
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#e0892b"/><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">d</text>
     <g text-anchor="middle" fill="#d33a2c"><text x="180" y="28" font-size="13" font-weight="700">From executable models to</text><text x="180" y="43" font-size="13" font-weight="700">reusable model ecosystems</text></g>
     <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Shared standards and registries enable reusable,</text><text x="168" y="74">composable, community-scale model ecosystems.</text></g>
@@ -331,5 +331,5 @@
     </g>
   </g>
 
-  <text x="20" y="793" font-size="9" fill="#aaa">Icons: Tabler Icons (MIT). Liver &amp; person by Delapouite / game-icons.net (CC BY 3.0).</text>
+  <text x="20" y="668" font-size="9" fill="#aaa">Icons: Tabler Icons (MIT). Liver &amp; person by Delapouite / game-icons.net (CC BY 3.0).</text>
 </svg>

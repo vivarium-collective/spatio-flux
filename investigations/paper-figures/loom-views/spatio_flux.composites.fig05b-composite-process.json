@@ -1,0 +1,52 @@
+{
+  "v": 1,
+  "collapsed": [],
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {},
+  "positions": {
+    "tissue": {
+      "x": 1000,
+      "y": 40
+    },
+    "tissue.diffusion": {
+      "x": 60,
+      "y": 300
+    },
+    "tissue.fields": {
+      "x": 820,
+      "y": 300
+    },
+    "tissue.exchange": {
+      "x": 1360,
+      "y": 300
+    },
+    "tissue.fields.glucose": {
+      "x": 660,
+      "y": 560
+    },
+    "tissue.fields.acetate": {
+      "x": 900,
+      "y": 560
+    },
+    "tissue.local": {
+      "x": 1420,
+      "y": 820
+    },
+    "tissue.local.glucose": {
+      "x": 1320,
+      "y": 1060
+    },
+    "tissue.local.acetate": {
+      "x": 1600,
+      "y": 1060
+    },
+    "tissue.cell": {
+      "x": 380,
+      "y": 900
+    }
+  }
+}

@@ -68,7 +68,26 @@
           "ecoli core"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "status": "",
+        "math": [
+          "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+          "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+        ],
+        "symbols": {
+          "\u03bc": "growth rate",
+          "v": "reaction fluxes",
+          "S": "stoichiometry",
+          "X": "biomass",
+          "s": "substrate",
+          "q": "uptake rate"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "ecoli dFBA": {
       "_type": "process",
@@ -122,7 +141,26 @@
           "ecoli"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "status": "",
+        "math": [
+          "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+          "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+        ],
+        "symbols": {
+          "\u03bc": "growth rate",
+          "v": "reaction fluxes",
+          "S": "stoichiometry",
+          "X": "biomass",
+          "s": "substrate",
+          "q": "uptake rate"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "cdiff dFBA": {
       "_type": "process",
@@ -176,7 +214,26 @@
           "cdiff"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "status": "",
+        "math": [
+          "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+          "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+        ],
+        "symbols": {
+          "\u03bc": "growth rate",
+          "v": "reaction fluxes",
+          "S": "stoichiometry",
+          "X": "biomass",
+          "s": "substrate",
+          "q": "uptake rate"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "pputida dFBA": {
       "_type": "process",
@@ -243,7 +300,26 @@
           "pputida"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "status": "",
+        "math": [
+          "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+          "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+        ],
+        "symbols": {
+          "\u03bc": "growth rate",
+          "v": "reaction fluxes",
+          "S": "stoichiometry",
+          "X": "biomass",
+          "s": "substrate",
+          "q": "uptake rate"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "yeast dFBA": {
       "_type": "process",
@@ -297,7 +373,26 @@
           "yeast"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "status": "",
+        "math": [
+          "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+          "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+        ],
+        "symbols": {
+          "\u03bc": "growth rate",
+          "v": "reaction fluxes",
+          "S": "stoichiometry",
+          "X": "biomass",
+          "s": "substrate",
+          "q": "uptake rate"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "llactis dFBA": {
       "_type": "process",
@@ -364,7 +459,26 @@
           "llactis"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+        "status": "",
+        "math": [
+          "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+          "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+        ],
+        "symbols": {
+          "\u03bc": "growth rate",
+          "v": "reaction fluxes",
+          "S": "stoichiometry",
+          "X": "biomass",
+          "s": "substrate",
+          "q": "uptake rate"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "monod_kinetics": {
       "_type": "process",
@@ -404,18 +518,60 @@
           "monod biomass"
         ]
       },
-      "interval": 1.0
+      "interval": 1.0,
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
+      }
     },
     "fields": {
-      "glucose": 10.0,
-      "acetate": 0.0,
-      "ecoli core": 0.1,
-      "ecoli": 0.1,
-      "cdiff": 0.1,
-      "pputida": 0.1,
-      "yeast": 0.1,
-      "llactis": 0.1,
-      "monod biomass": 0.1
+      "glucose": {
+        "_type": "concentration",
+        "_value": 10.0
+      },
+      "acetate": {
+        "_type": "concentration",
+        "_value": 0.0
+      },
+      "ecoli core": {
+        "_type": "concentration",
+        "_value": 0.1
+      },
+      "ecoli": {
+        "_type": "concentration",
+        "_value": 0.1
+      },
+      "cdiff": {
+        "_type": "concentration",
+        "_value": 0.1
+      },
+      "pputida": {
+        "_type": "concentration",
+        "_value": 0.1
+      },
+      "yeast": {
+        "_type": "concentration",
+        "_value": 0.1
+      },
+      "llactis": {
+        "_type": "concentration",
+        "_value": 0.1
+      },
+      "monod biomass": {
+        "_type": "concentration",
+        "_value": 0.1
+      }
     },
     "global_time": 0.0
   }

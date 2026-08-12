@@ -224,18 +224,28 @@ def register_stitched_viz(study: str) -> bool:
     spec_f = WS / "studies" / study / "study.yaml"
     spec = yaml.safe_load(spec_f.read_text()) or {}
     viz = list(spec.get("visualizations") or [])
-    entry = {
-        "name": f"Figure {n} (composite)",
-        "address": f"image:visualizations/figure_{n}.svg",
-        "chart": "image",
-    }
-    # Idempotent: drop any prior composite entry, then append a fresh one last so
-    # the full figure reads as the study's culminating visualization.
+    # A scaffold module may emit SEVERAL stitched figures (e.g. fig-02 → 2a + 2b)
+    # instead of one figure_<N>; it declares them via STITCHED_OUTPUTS
+    # [(stem, name), …]. Default: the single figure_<N> composite.
+    outputs = [(f"figure_{n}", f"Figure {n} (composite)")]
+    mod_name = SCAFFOLD_STUDIES.get(study)
+    if mod_name:
+        try:
+            import importlib
+            declared = getattr(importlib.import_module(mod_name), "STITCHED_OUTPUTS", None)
+            if declared:
+                outputs = list(declared)
+        except Exception:
+            pass
+    stems = {stem for stem, _ in outputs}
+    # Idempotent: drop any prior entry for these stems, then append fresh ones last.
     kept = [
         v for v in viz
-        if not (isinstance(v, dict) and str(v.get("address", "")).endswith(f"figure_{n}.svg"))
+        if not (isinstance(v, dict)
+                and any(str(v.get("address", "")).endswith(f"{stem}.svg") for stem in stems))
     ]
-    new = kept + [entry]
+    new = kept + [{"name": name, "address": f"image:visualizations/{stem}.svg", "chart": "image"}
+                  for stem, name in outputs]
     if new == viz:
         return False  # already present + last; nothing to do
     spec["visualizations"] = new
@@ -250,7 +260,7 @@ def register_stitched_viz(study: str) -> bool:
 # panels placed by a dedicated module) rather than the default shelf-stitch.
 # Fig 1 keeps a scaffold SVG (rasterized via node); Fig 7 places its panels into
 # the paper's fixed 4-region grid and emits both SVG + PNG itself.
-SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-07": "build_figure7"}
+SCAFFOLD_STUDIES = {"fig-01": "build_figure1", "fig-02": "build_figure2", "fig-07": "build_figure7", "fig-08": "build_figure8"}
 
 
 def _build_scaffold_figure(study: str) -> bool:
@@ -277,31 +287,40 @@ def _build_scaffold_figure(study: str) -> bool:
     return out.is_file()
 
 
+def _stitch_one(s: str) -> bool:
+    """Stitch a single study's panels into figure_<N>. Returns True on success."""
+    if s in SCAFFOLD_STUDIES:
+        if _build_scaffold_figure(s):
+            register_stitched_viz(s)
+            print(f"  OK  Figure {_fig_num(s)} -> scaffold-composed ({SCAFFOLD_STUDIES[s]}.py)")
+            return True
+        print(f"  skip {s}: scaffold compose failed")
+        return False
+    svg = build_figure(s)
+    png = build_figure_png(s)
+    if svg and png:
+        wrote = register_stitched_viz(s)
+        print(f"  OK  Figure {_fig_num(s)} -> {svg.relative_to(WS)} + {png.name}"
+              f"{'  (+viz entry)' if wrote else ''}")
+        return True
+    print(f"  skip {s}: no panels")
+    return False
+
+
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser(description="Stitch paper-figure panels into figure_<N>.")
+    ap.add_argument("--study", help="stitch only this study (its final step); default = all")
+    args = ap.parse_args()
+
     inv = yaml.safe_load((INV / "investigation.yaml").read_text()) or {}
     studies = inv.get("studies") or []
+    if args.study:
+        studies = [args.study]
     if not studies:
         print("no member studies in paper-figures investigation")
         sys.exit(1)
-    built = 0
-    for s in studies:
-        if s in SCAFFOLD_STUDIES:
-            if _build_scaffold_figure(s):
-                register_stitched_viz(s)
-                print(f"  OK  Figure {_fig_num(s)} -> scaffold-composed ({SCAFFOLD_STUDIES[s]}.py)")
-                built += 1
-            else:
-                print(f"  skip {s}: scaffold compose failed")
-            continue
-        svg = build_figure(s)
-        png = build_figure_png(s)
-        if svg and png:
-            wrote = register_stitched_viz(s)
-            print(f"  OK  Figure {_fig_num(s)} -> {svg.relative_to(WS)} + {png.name}"
-                  f"{'  (+viz entry)' if wrote else ''}")
-            built += 1
-        else:
-            print(f"  skip {s}: no panels")
+    built = sum(1 for s in studies if _stitch_one(s))
     print(f"stitched {built}/{len(studies)} figures into their studies' visualizations")
 
 

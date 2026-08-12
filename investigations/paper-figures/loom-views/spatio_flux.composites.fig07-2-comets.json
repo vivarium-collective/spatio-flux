@@ -1,33 +1,37 @@
 {
   "v": 1,
   "positions": {
+    "spatial_dFBA": {
+      "x": 670.1521827009328,
+      "y": 251.53696443083942,
+      "w": 339,
+      "h": 171
+    },
     "fields": {
-      "x": 620,
-      "y": 60
+      "x": 346.8033930483958,
+      "y": 204.3551825385485
     },
     "fields.glucose": {
-      "x": 360,
-      "y": 300
+      "x": 404,
+      "y": 466
     },
     "fields.acetate": {
-      "x": 620,
-      "y": 300
+      "x": 608,
+      "y": 466
     },
-    "fields.dissolved biomass": {
-      "x": 900,
-      "y": 300
-    },
-    "spatial_dFBA": {
-      "x": 180,
-      "y": 580,
-      "w": 720,
-      "h": 150
+    "fields.biomass": {
+      "x": 200,
+      "y": 466
     },
     "diffusion": {
-      "x": 900,
-      "y": 580,
-      "w": 600,
-      "h": 150
+      "x": 672.6247500354079,
+      "y": 69.2590395414419,
+      "w": 238,
+      "h": 161
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
     }
   },
   "collapsed": [],
@@ -35,13 +39,13 @@
     "global_time"
   ],
   "mode": "flow-down",
-  "detail": "ports",
+  "detail": null,
   "collapse": false,
   "hyperedges": false,
   "detailOverrides": {
-    "ports": "plain",
-    "stores": "type",
+    "ports": "none",
+    "stores": "auto",
     "config": "off",
-    "contract": "off"
+    "contract": "on"
   }
 }

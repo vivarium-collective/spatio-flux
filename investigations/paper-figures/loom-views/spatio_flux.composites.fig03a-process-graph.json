@@ -1,0 +1,43 @@
+{
+  "v": 1,
+  "positions": {
+    "metab": {
+      "x": 740.8370158243189,
+      "y": 357.4330092017533
+    },
+    "enzymes": {
+      "x": 739.9299610344999,
+      "y": 148.07692210238594
+    },
+    "DNA": {
+      "x": 735.110082402721,
+      "y": -5.70305395769374
+    },
+    "metabolism": {
+      "x": 73.95165707622482,
+      "y": 321.6041487929037
+    },
+    "gene_expression": {
+      "x": 77.49429793524735,
+      "y": -32.133744979093024
+    },
+    "global_time": {
+      "x": 946.5266569666184,
+      "y": 0
+    }
+  },
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "hierarchy",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "auto",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "auto"
+  }
+}

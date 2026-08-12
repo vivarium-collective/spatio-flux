@@ -25,7 +25,7 @@
         "_value": 0.0
       }
     },
-    "p1": {
+    "e1": {
       "_type": "process",
       "address": "local:BigraphLink",
       "_draft": true,
@@ -76,7 +76,7 @@
         ]
       }
     },
-    "p2": {
+    "e2": {
       "_type": "process",
       "address": "local:BigraphLink",
       "_draft": true,
@@ -126,7 +126,7 @@
         ]
       }
     },
-    "p3": {
+    "e3": {
       "_type": "process",
       "address": "local:BigraphLink",
       "_draft": true,

@@ -42,9 +42,11 @@ PANEL_LOOM = {
 #   [3] title <g> (2 lines) [4] caption <g> (2 lines)
 # …then the illustration. Keep the header, drop the rest.
 HEADER_KEEP = 5
-# Content region inside a 320×740 panel, below the ~88px header (matches where
-# the scaffold's own illustration sat: translate(14,96), 292 wide).
-CX, CY, CW, CH = 14, 90, 292, 636
+# Content region inside a 320×630 panel (shortened from 740 to use the vertical
+# space better), below the ~88px header. Images are TOP-aligned (see
+# preserveAspectRatio below) so they sit up near the header instead of floating in
+# the middle of a tall box.
+CX, CY, CW, CH = 14, 90, 292, 525
 
 
 def _q(tag: str) -> str:
@@ -72,7 +74,7 @@ def build_figure1() -> Path:
         img.set("href", _data_uri(png))
         img.set("x", str(CX)); img.set("y", str(CY))
         img.set("width", str(CW)); img.set("height", str(CH))
-        img.set("preserveAspectRatio", "xMidYMid meet")
+        img.set("preserveAspectRatio", "xMidYMin meet")  # top-align → images move up
         swapped += 1
     out = VIZ / "figure_1.svg"
     tree.write(out, encoding="utf-8", xml_declaration=True)

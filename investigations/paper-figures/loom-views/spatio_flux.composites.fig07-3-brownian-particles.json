@@ -2,32 +2,40 @@
   "v": 1,
   "positions": {
     "particles": {
-      "x": 246.031914893617,
-      "y": 418.43404255319155
+      "x": 250.64235677376143,
+      "y": 419.97085651323965
     },
-    "particles.wI5R4d8P": {
-      "x": 148.72340425531914,
-      "y": 680.2063829787234
+    "particles.particle": {
+      "x": 155.63622210690193,
+      "y": 624.8813440581215
     },
-    "particles.wI5R4d8P.id": {
-      "x": 8.927659574468095,
-      "y": 918.2297872340425
+    "particles.particle.id": {
+      "x": -3.3413734902545116,
+      "y": 878.4658598353782
     },
-    "particles.wI5R4d8P.position": {
-      "x": 198.45106382978724,
-      "y": 921.4468085106383
+    "particles.particle.position": {
+      "x": 200.6586265097455,
+      "y": 878.4658598353782
     },
-    "particles.wI5R4d8P.mass": {
-      "x": 384.7574468085107,
-      "y": 926.2723404255319
+    "particles.particle.mass": {
+      "x": 404.65862650974555,
+      "y": 878.4658598353782
     },
     "brownian_movement": {
-      "x": 435.70212765957444,
-      "y": 549.2425531914894
+      "x": 494.1657680437237,
+      "y": 514.9342532444347,
+      "w": 492,
+      "h": 153
     },
     "enforce_boundaries": {
-      "x": 433.14893617021266,
-      "y": 730.6382978723404
+      "x": 482.2972200342898,
+      "y": 706.5392688021641,
+      "w": 485,
+      "h": 140
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
     }
   },
   "collapsed": [],
@@ -35,13 +43,13 @@
     "global_time"
   ],
   "mode": "flow-down",
-  "detail": "ports",
+  "detail": "glyph",
   "collapse": false,
   "hyperedges": false,
   "detailOverrides": {
-    "ports": "plain",
+    "ports": "none",
     "stores": "type",
     "config": "off",
-    "contract": "off"
+    "contract": "on"
   }
 }

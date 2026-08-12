@@ -2,44 +2,72 @@
   "v": 1,
   "positions": {
     "raw_data": {
-      "x": 360,
-      "y": 60
+      "x": 4020.565025573859,
+      "y": -460.09737957131216,
+      "w": 208,
+      "h": 116
     },
     "preprocess": {
-      "x": 120,
-      "y": 360
+      "x": 3978.0135263021866,
+      "y": -280.16327241484,
+      "w": 297,
+      "h": 245
     },
     "simulations": {
-      "x": 360,
-      "y": 1040
+      "x": 4030.1802405130866,
+      "y": 10.8,
+      "w": 225,
+      "h": 128
     },
     "simulations.sim_0": {
-      "x": 1160,
-      "y": 60
+      "x": 3460.121178791652,
+      "y": 232.8,
+      "w": 565,
+      "h": 489
     },
     "simulations.sim_1": {
-      "x": 1160,
-      "y": 760
+      "x": 4164.713083373617,
+      "y": 233.3,
+      "w": 651,
+      "h": 503
     },
     "simulations.sim_2": {
-      "x": 1160,
-      "y": 1460
-    },
-    "analysis": {
-      "x": 120,
-      "y": 1360
+      "x": 3466.670242999573,
+      "y": 632.7,
+      "w": 480,
+      "h": 453
     },
     "results": {
-      "x": 360,
-      "y": 2040
+      "x": 4044.8666937890384,
+      "y": 1044.4,
+      "w": 214,
+      "h": 120
+    },
+    "analysis": {
+      "x": 3989.1907687446073,
+      "y": 803.2,
+      "w": 361,
+      "h": 200
     }
   },
-  "collapsed": [],
-  "hidden": [
-    "global_time"
+  "collapsed": [
+    "simulations.sim_1.fields",
+    "simulations.sim_2.fields",
+    "simulations.sim_1",
+    "simulations.sim_2",
+    "simulations.sim_0.fields"
   ],
-  "mode": "hierarchy",
-  "detail": "full",
+  "hidden": [
+    "simulations.sim_2"
+  ],
+  "mode": "flow-down",
+  "detail": null,
   "collapse": false,
-  "hyperedges": false
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "type",
+    "config": "off",
+    "contract": "on"
+  }
 }

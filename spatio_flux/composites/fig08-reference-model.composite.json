@@ -70,6 +70,21 @@
           0,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[0,1]": {
@@ -136,6 +151,21 @@
           1,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[0,2]": {
@@ -202,6 +232,21 @@
           2,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[0,3]": {
@@ -268,6 +313,21 @@
           3,
           0
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,0]": {
@@ -334,6 +394,21 @@
           0,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,1]": {
@@ -400,6 +475,21 @@
           1,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,2]": {
@@ -466,6 +556,21 @@
           2,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[1,3]": {
@@ -532,6 +637,21 @@
           3,
           1
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,0]": {
@@ -598,6 +718,21 @@
           0,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,1]": {
@@ -664,6 +799,21 @@
           1,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,2]": {
@@ -730,6 +880,21 @@
           2,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[2,3]": {
@@ -796,6 +961,21 @@
           3,
           2
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,0]": {
@@ -862,6 +1042,21 @@
           0,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,1]": {
@@ -928,6 +1123,21 @@
           1,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,2]": {
@@ -994,6 +1204,21 @@
           2,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "monod_kinetics[3,3]": {
@@ -1060,6 +1285,21 @@
           3,
           3
         ]
+      },
+      "_contract": {
+        "summary": "Monod kinetics \u2014 substrate-saturating growth",
+        "description": "Monod kinetics \u2014 substrate-saturating growth",
+        "status": "",
+        "math": [
+          "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+        ],
+        "symbols": {
+          "\u03bc_max": "max growth rate",
+          "K_s": "half-saturation const",
+          "Y": "biomass yield"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "fields": {
@@ -1117,28 +1357,28 @@
       ],
       "dissolved biomass": [
         [
-          0.14699999701917962,
-          0.11273797559499611,
-          0.10211236166702621,
-          0.19975256012394207
+          0.1551490097682759,
+          0.16892659785940187,
+          0.1404076399518705,
+          0.13180206008138334
         ],
         [
-          0.12746025036659078,
-          0.17352520255326426,
-          0.198584730996321,
-          0.15021356367445982
+          0.1711204566601262,
+          0.18416342468465793,
+          0.1624556688735323,
+          0.11550874631773132
         ],
         [
-          0.19378469366509044,
-          0.14260471555115084,
-          0.1360752516657013,
-          0.12789644619465615
+          0.18632045275082193,
+          0.11650552280479326,
+          0.15511766751722988,
+          0.17804366263957383
         ],
         [
-          0.11686915201669551,
-          0.15307731466603522,
-          0.14392642355883917,
-          0.12227445070005077
+          0.11970012692507531,
+          0.1482678930314528,
+          0.11075375424962808,
+          0.1427402247851822
         ]
       ]
     },
@@ -1207,16 +1447,31 @@
         "fields": [
           "fields"
         ]
+      },
+      "_contract": {
+        "summary": "Advection\u2013diffusion transport of the fields",
+        "description": "Advection\u2013diffusion transport of the fields",
+        "status": "",
+        "math": [
+          "\\partial_t\\phi = D\\,\\nabla^2\\phi \\;-\\; \\mathbf{u}\\cdot\\nabla\\phi"
+        ],
+        "symbols": {
+          "\u03c6": "field",
+          "D": "diffusion coefficient",
+          "u": "advection velocity"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "particles": {
-      "p_060453": {
+      "p_2411e1": {
         "shape": "circle",
-        "mass": 0.01424451576616028,
-        "radius": 0.5497981564337765,
+        "mass": 0.042497093211190856,
+        "radius": 0.9496401038707982,
         "position": [
-          17.2448201296369,
-          31.279856002892338
+          12.994825000274659,
+          23.951927983499328
         ],
         "velocity": [
           -0.0,
@@ -1231,16 +1486,7 @@
           "_type": "process",
           "address": "local:DynamicFBA",
           "config": {
-            "bounds": {
-              "EX_o2_e": {
-                "lower": -2,
-                "upper": null
-              },
-              "ATPM": {
-                "lower": 3,
-                "upper": 3
-              }
-            },
+            "model_file": "textbook",
             "kinetic_params": {
               "glucose": [
                 0.1,
@@ -1251,10 +1497,19 @@
                 0.1
               ]
             },
-            "model_file": "textbook",
             "substrate_update_reactions": {
               "glucose": "EX_glc__D_e",
               "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
             }
           },
           "inputs": {
@@ -1274,22 +1529,32 @@
               "sub_masses",
               "ecoli_1"
             ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
           }
         },
         "ecoli_2 dFBA": {
           "_type": "process",
           "address": "local:DynamicFBA",
           "config": {
-            "bounds": {
-              "EX_o2_e": {
-                "lower": -2,
-                "upper": null
-              },
-              "ATPM": {
-                "lower": 1,
-                "upper": 1
-              }
-            },
+            "model_file": "textbook",
             "kinetic_params": {
               "glucose": [
                 1.0,
@@ -1300,10 +1565,19 @@
                 1
               ]
             },
-            "model_file": "textbook",
             "substrate_update_reactions": {
               "glucose": "EX_glc__D_e",
               "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
             }
           },
           "inputs": {
@@ -1323,6 +1597,25 @@
               "sub_masses",
               "ecoli_2"
             ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
           }
         },
         "aggregate_mass": {
@@ -1338,6 +1631,390 @@
             "total_mass": [
               "mass"
             ]
+          },
+          "_contract": {
+            "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "description": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "status": "",
+            "math": [
+              "m = \\sum_i m_i"
+            ],
+            "symbols": {
+              "m": "aggregate particle mass",
+              "m_i": "sub-mass i (per-strain dFBA biomass)"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "local": {},
+        "exchange": {}
+      },
+      "p_13267f": {
+        "shape": "circle",
+        "mass": 0.1561141805240467,
+        "radius": 1.8201224690348918,
+        "position": [
+          36.16541269259215,
+          21.52828304175773
+        ],
+        "velocity": [
+          0.0,
+          -0.0
+        ],
+        "elasticity": 0.0,
+        "sub_masses": {
+          "ecoli_1": 0.1,
+          "ecoli_2": 0.1
+        },
+        "ecoli_1 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                0.1,
+                2
+              ],
+              "acetate": [
+                1.0,
+                0.1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "ecoli_2 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                1.0,
+                0.1
+              ],
+              "acetate": [
+                0.01,
+                1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "aggregate_mass": {
+          "_type": "step",
+          "address": "local:ParticleTotalMass",
+          "config": {},
+          "inputs": {
+            "sub_masses": [
+              "sub_masses"
+            ]
+          },
+          "outputs": {
+            "total_mass": [
+              "mass"
+            ]
+          },
+          "_contract": {
+            "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "description": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "status": "",
+            "math": [
+              "m = \\sum_i m_i"
+            ],
+            "symbols": {
+              "m": "aggregate particle mass",
+              "m_i": "sub-mass i (per-strain dFBA biomass)"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "local": {},
+        "exchange": {}
+      },
+      "p_b03250": {
+        "shape": "circle",
+        "mass": 0.14429382743203298,
+        "radius": 1.7498600284387311,
+        "position": [
+          23.39991537783657,
+          40.936011264745204
+        ],
+        "velocity": [
+          0.0,
+          0.0
+        ],
+        "elasticity": 0.0,
+        "sub_masses": {
+          "ecoli_1": 0.1,
+          "ecoli_2": 0.1
+        },
+        "ecoli_1 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                0.1,
+                2
+              ],
+              "acetate": [
+                1.0,
+                0.1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 3,
+                "upper": 3
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_1"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "ecoli_2 dFBA": {
+          "_type": "process",
+          "address": "local:DynamicFBA",
+          "config": {
+            "model_file": "textbook",
+            "kinetic_params": {
+              "glucose": [
+                1.0,
+                0.1
+              ],
+              "acetate": [
+                0.01,
+                1
+              ]
+            },
+            "substrate_update_reactions": {
+              "glucose": "EX_glc__D_e",
+              "acetate": "EX_ac_e"
+            },
+            "bounds": {
+              "EX_o2_e": {
+                "lower": -2,
+                "upper": null
+              },
+              "ATPM": {
+                "lower": 1,
+                "upper": 1
+              }
+            }
+          },
+          "inputs": {
+            "substrates": [
+              "local"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "outputs": {
+            "substrates": [
+              "exchange"
+            ],
+            "biomass": [
+              "sub_masses",
+              "ecoli_2"
+            ]
+          },
+          "_contract": {
+            "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "description": "Dynamic FBA \u2014 FBA growth integrated over time",
+            "status": "",
+            "math": [
+              "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+              "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+            ],
+            "symbols": {
+              "\u03bc": "growth rate",
+              "v": "reaction fluxes",
+              "S": "stoichiometry",
+              "X": "biomass",
+              "s": "substrate",
+              "q": "uptake rate"
+            },
+            "inputs": {},
+            "outputs": {}
+          }
+        },
+        "aggregate_mass": {
+          "_type": "step",
+          "address": "local:ParticleTotalMass",
+          "config": {},
+          "inputs": {
+            "sub_masses": [
+              "sub_masses"
+            ]
+          },
+          "outputs": {
+            "total_mass": [
+              "mass"
+            ]
+          },
+          "_contract": {
+            "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "description": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
+            "status": "",
+            "math": [
+              "m = \\sum_i m_i"
+            ],
+            "symbols": {
+              "m": "aggregate particle mass",
+              "m_i": "sub-mass i (per-strain dFBA biomass)"
+            },
+            "inputs": {},
+            "outputs": {}
           }
         },
         "local": {},
@@ -1375,6 +2052,23 @@
         "fields": [
           "fields"
         ]
+      },
+      "_contract": {
+        "summary": "Particle\u2013field exchange \u2014 local uptake/secretion in the occupied bin",
+        "description": "Particle\u2013field exchange \u2014 local uptake/secretion in the occupied bin",
+        "status": "",
+        "math": [
+          "\\dot{s}_p = q_p\\!\\left(c_{b(p)}\\right),\\qquad \\partial_t c_b = -\\tfrac{1}{V_b}\\sum_{p\\,\\in\\,b} q_p"
+        ],
+        "symbols": {
+          "q_p": "particle p's exchange flux",
+          "b(p)": "bin containing particle p",
+          "c_b": "field concentration in bin b",
+          "V_b": "bin volume",
+          "s_p": "particle substrate"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "particle_division": {
@@ -1394,6 +2088,23 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Division \u2014 split a particle above the mass threshold into two daughters",
+        "description": "Division \u2014 split a particle above the mass threshold into two daughters",
+        "status": "",
+        "math": [
+          "m \\ge m_{\\mathrm{div}} \\;\\Rightarrow\\; m_{1,2}=\\tfrac{m}{2}(1\\pm\\epsilon),\\quad x_{1,2}=x\\pm\\delta"
+        ],
+        "symbols": {
+          "m": "parent mass",
+          "m_div": "division threshold",
+          "\u03b5": "mass-partition jitter",
+          "\u03b4": "daughter offset",
+          "x": "position"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "enforce_boundaries": {
@@ -1432,6 +2143,20 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Keep particles inside the domain (inflow/outflow)",
+        "description": "Keep particles inside the domain (inflow/outflow)",
+        "status": "",
+        "math": [
+          "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+        ],
+        "symbols": {
+          "x": "particle position",
+          "L": "domain size"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "newtonian_particles": {
@@ -1457,6 +2182,28 @@
         "particles": [
           "particles"
         ]
+      },
+      "_contract": {
+        "summary": "Newtonian motion \u2014 rigid-body dynamics with collisions (pymunk)",
+        "description": "Newtonian motion \u2014 rigid-body dynamics with collisions (pymunk)",
+        "status": "",
+        "math": [
+          "m\\dot{\\mathbf v}=\\mathbf F_c+m\\mathbf g-\\gamma\\mathbf v+\\boldsymbol\\eta,\\qquad \\dot{\\mathbf x}=\\mathbf v",
+          "m=\\rho\\,\\pi r^2"
+        ],
+        "symbols": {
+          "m": "particle mass",
+          "x": "position",
+          "v": "velocity",
+          "F_c": "contact forces (friction, elasticity e)",
+          "g": "gravity",
+          "\u03b3": "damping",
+          "\u03b7": "random jitter impulse",
+          "r": "radius",
+          "\u03c1": "2D density"
+        },
+        "inputs": {},
+        "outputs": {}
       }
     },
     "global_time": 0.0

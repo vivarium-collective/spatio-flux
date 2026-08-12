@@ -107,9 +107,14 @@ class RNADegradation(DraftProcess):
     contract={
         "summary": "Metabolism — Flux Balance Analysis (FBA)",
         "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
-        "math": [r"\text{maximize}\quad Z = c^{\mathsf{T}} v", r"\text{s.t.}\quad S\,v = 0", r"v_{\min} \le v \le v_{\max}"],
-        "symbols": {"Z": "objective (biomass flux)", "c": "objective coefficients", "v": "reaction flux vector", "S": "stoichiometric matrix", "v_min, v_max": "flux bounds"},
-        "ports": {"enzymes": "enzyme (protein) levels — set flux bounds", "energy": "available energy — sets flux bounds", "metabolites": "produced metabolites"},
+        # enzymes + energy set the flux bounds; metabolites are the exchange fluxes out.
+        "math": [r"\text{maximize}\quad Z = c^{\mathsf{T}} v \quad\text{s.t.}\quad S\,v = 0",
+                 r"v_{\min} \le v \le v_{\max}(\text{enzymes},\,\text{energy})",
+                 r"\Delta\,\text{metabolites} = S_{\text{ex}}\,v"],
+        "symbols": {"enzymes": "enzyme levels — set flux bounds (in)", "energy": "available energy — sets bounds (in)",
+                    "metabolites": "produced metabolites (out)", "Z": "biomass objective",
+                    "v": "reaction fluxes", "S": "stoichiometric matrix"},
+        "ports": {"enzymes": "enzyme (protein) levels", "energy": "available energy", "metabolites": "produced metabolites"},
     },
 )
 class Metabolism(DraftProcess):
@@ -165,8 +170,10 @@ class Division(DraftProcess):
     contract={
         "summary": "Morphogen gradient — reaction–diffusion PDE",
         "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
-        "math": [r"\frac{\partial C(x,t)}{\partial t} = D\,\frac{\partial^2 C}{\partial x^2} + S(x) - \lambda C"],
-        "symbols": {"C": "morphogen concentration", "D": "diffusion coefficient", "S(x)": "local source", "λ": "decay rate"},
+        # The `field` port IS the state variable in the PDE.
+        "math": [r"\frac{\partial\,\text{field}}{\partial t} = D\,\nabla^2\,\text{field} + S(x) - \lambda\,\text{field}"],
+        "symbols": {"field": "morphogen concentration (in + out)", "D": "diffusion coefficient",
+                    "S(x)": "local source", "λ": "decay rate"},
         "ports": {"field": "morphogen concentration field"},
     },
 )
@@ -181,9 +188,11 @@ class Diffusion(DraftProcess):
     contract={
         "summary": "Multicellular interactions — Agent-Based Model",
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
-        "math": [r"\vec{x}_i(t{+}\Delta t) = \vec{x}_i + \mu\, f_{\text{int}} + \chi\, \nabla C + \eta\, \xi(t)", r"P_{\text{kill}} = \text{Prob(kill)} \cdot \mathbf{1}_{\lVert \vec{x}_i - \vec{x}_j \rVert < d}"],
-        "symbols": {"x⃗ᵢ": "position of cell i", "μ": "mobility", "f_int": "interaction force", "χ": "chemotactic coefficient", "∇C": "morphogen gradient", "η·ξ(t)": "noise", "P_kill": "kill probability", "d": "interaction radius"},
-        "ports": {"population": "cell population", "field": "local morphogen field"},
+        # `population` is the set of cells {x⃗ᵢ}; `field` is the morphogen that
+        # drives the chemotactic gradient ∇field.
+        "math": [r"\vec{x}_i(t{+}\Delta t) = \vec{x}_i + \mu\, f_{\text{int}} + \chi\, \nabla\text{field} + \eta\, \xi(t)", r"P_{\text{kill}} = \text{Prob(kill)} \cdot \mathbf{1}_{\lVert \vec{x}_i - \vec{x}_j \rVert < d}"],
+        "symbols": {"population": "cells {x⃗ᵢ} (in + out)", "field": "morphogen — drives ∇field (in)", "x⃗ᵢ": "position of cell i", "μ": "mobility", "f_int": "interaction force", "χ": "chemotactic coefficient", "η·ξ(t)": "noise", "P_kill": "kill probability", "d": "interaction radius"},
+        "ports": {"population": "cell population {x⃗ᵢ}", "field": "local morphogen field"},
     },
 )
 class ABM(DraftProcess):
@@ -200,8 +209,13 @@ class ABM(DraftProcess):
     contract={
         "summary": "Gene expression — ordinary differential equations",
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
-        "math": [r"\frac{dr}{dt} = \alpha - \gamma_r\, r", r"\frac{dp}{dt} = \beta\, r - \gamma_p\, p"],
-        "symbols": {"r": "mRNA", "p": "protein", "α": "transcription rate", "β": "translation rate", "γ_r": "mRNA decay", "γ_p": "protein decay"},
+        # Every port appears in the equations: dna templates mrna, mrna templates
+        # protein, both decay; energy powers the rates (α, β).
+        "math": [r"\frac{d\,\text{mrna}}{dt} = \alpha\,\text{dna} - \gamma\,\text{mrna}",
+                 r"\frac{d\,\text{protein}}{dt} = \beta\,\text{mrna} - \gamma\,\text{protein}"],
+        "symbols": {"dna": "DNA template (in)", "energy": "ATP/GTP — powers α, β (in)",
+                    "mrna": "mRNA (out)", "protein": "protein (out)",
+                    "α": "transcription rate", "β": "translation rate", "γ": "turnover rate"},
         "ports": {"dna": "DNA template", "energy": "ATP / GTP", "mrna": "mRNA", "protein": "protein"},
     },
 )
@@ -289,6 +303,40 @@ class Transport(DraftProcess):
     pass
 
 
+# ── Fig 5b: the tissue-scale environment the cell lives in ───────────────────
+@draft_process(
+    name="TissueDiffusion",
+    inputs={"fields": "array[concentration]"},
+    outputs={"fields": "array[concentration]"},
+    contract={
+        "summary": "Tissue-scale diffusion — spatial transport of the molecular fields",
+        "description": "Diffuses the tissue's molecular fields across the lattice — the higher-scale environment the cell is embedded in.",
+        "math": [r"\partial_t\,c = D\,\nabla^2 c"],
+        "symbols": {"c": "field concentration (per lattice site)", "D": "diffusion coefficient"},
+        "ports": {"fields": "tissue molecular fields — array[concentration]"},
+    },
+)
+class TissueDiffusion(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="CellExchange",
+    inputs={"fields": "array[concentration]", "local": "concentration"},
+    outputs={"fields": "array[concentration]", "local": "concentration"},
+    contract={
+        "summary": "Scale bridge — couples the tissue field to the cell's local bin",
+        "description": "The typed tissue↔cell interface: samples the tissue field array[concentration] at the cell's location to set the cell's LOCAL concentration, and returns the cell's secreted products to that same field bin. Concentration in the cell; array[concentration] in the tissue.",
+        "math": [r"c_{\text{local}} = c\!\left[b(\text{cell})\right],\qquad c\!\left[b\right] \mathrel{+}= s_{\text{cell}}"],
+        "symbols": {"c": "tissue field (array[concentration])", "c_local": "cell-local concentration",
+                    "b(cell)": "lattice bin at the cell", "s_cell": "cell secretion"},
+        "ports": {"fields": "tissue field — array[concentration]", "local": "cell-local concentration"},
+    },
+)
+class CellExchange(DraftProcess):
+    pass
+
+
 # ── helpers ──────────────────────────────────────────────────────────────────
 @draft_process(
     name="BigraphLink",
@@ -354,13 +402,17 @@ class AnalysisViz(DraftProcess):
             "updates); the update method maps config + inputs to a delta Δ — the "
             "tree of changes to apply, branched by output port."),
         "status": "draft - no update dynamics yet",
-        # Single-line contract: a typed process maps its typed inputs to a delta.
+        # Single-line contract, concrete: every symbol here IS a real port with
+        # its exact type — config interval:integer, inputs in_1:species /
+        # in_2:params, and Δ branches into out_1:ss_species / out_2:rates.
         "math": [
-            r"p_{\text{proc}}[\text{config}{:}\tau_c]\ :\ "
-            r"\text{in}_1^{\tau_1},\ \text{in}_2^{\tau_2}\ \longrightarrow\ \Delta",
+            r"p_{\text{proc}}\big[\text{interval}{:}\text{integer}\big]\ :\ "
+            r"\text{in}_1^{\text{species}},\ \text{in}_2^{\text{params}}\ "
+            r"\longrightarrow\ \Delta{=}\{\text{out}_1^{\text{ss\_species}},\ "
+            r"\text{out}_2^{\text{rates}}\}",
         ],
         "ports": {"in_1": "species", "in_2": "params",
-                  "out_1": "steady-state species", "out_2": "rates"},
+                  "out_1": "ss_species", "out_2": "rates"},
     },
 )
 class ProcessSchematic(DraftProcess):
@@ -472,7 +524,7 @@ def fig1c_study_workflow_state() -> dict:
     template ×3), whose outputs feed a draft Analysis + Visualization step. The
     pre/post steps are draft; the parallel simulations are a real composite."""
     return {
-        "raw_data": _v("concentration", 0.0),
+        "raw_data": _v("dataset", 0.0),
         "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
         # Three parallel runs of the SAME real composite (an ensemble); each is a
         # full community-dFBA composite you can zoom into.
@@ -481,7 +533,7 @@ def fig1c_study_workflow_state() -> dict:
             "sim_1": _community_dfba_sim(),
             "sim_2": _community_dfba_sim(),
         },
-        "results": _v("concentration", 0.0),
+        "results": _v("figure", 0.0),
         "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
     }
 
@@ -490,18 +542,19 @@ def fig02_bigraph_state() -> dict:
     """Fig 2b: the process bigraph of the paper's composition-framework diagram.
 
     Place graph (solid nesting): n1 ⊃ {n3, n4}, n4 ⊃ {n6}, n2 ⊃ {n5}.
-    Processes p1, p2, p3 replace the Milner link graph's hyperedges, connecting
-    the nodes through their typed ports (dashed wires in the figure).
+    Processes e1, e2, e3 replace the Milner link graph's hyperedges (named `e`
+    for edge), connecting the nodes through their typed ports (dashed wires in the
+    figure). Fig 2a reads them as hyperedges; Fig 2b as process boxes.
     """
     return {
         # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
         "n1": {"n3": _v("place_node", 0.0), "n4": {"n6": _v("place_node", 0.0)}},
         "n2": {"n5": _v("place_node", 0.0)},
-        # Processes wired across the place graph (paths into the nesting). p1 and
-        # p3 also link to n2 (extra hyperedge spoke / process wire).
-        "p1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
-        "p2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
-        "p3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
+        # Hyperedges wired across the place graph (paths into the nesting). e1 and
+        # e3 also link to n2 (extra hyperedge spoke / process wire).
+        "e1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
+        "e2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
+        "e3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
     }
 
 
@@ -548,4 +601,103 @@ def fig04_process_state() -> dict:
     rates), config type steady_state, and update function (in_1,in_2)→(out_1,out_2)."""
     return {
         "process": _proc(ProcessSchematic, {}, {}),
+    }
+
+
+def _committed_view_positions(composite_id: str) -> dict:
+    """Load a committed loom-view's node positions for a composite id, searching
+    the workspace's paper-figures loom-views dir (CWD during export, else relative
+    to this package). Best-effort — returns {} if not found."""
+    import json as _json
+    rel = Path("investigations") / "paper-figures" / "loom-views" / f"{composite_id}.json"
+    for base in (Path.cwd(), Path(__file__).resolve().parents[2]):
+        p = base / rel
+        if p.is_file():
+            try:
+                return _json.loads(p.read_text(encoding="utf-8")).get("positions", {}) or {}
+            except Exception:
+                return {}
+    return {}
+
+
+def fig05a_process_graph_state() -> dict:
+    """Fig 5a: a PROCESS GRAPH — processes connected to stores through typed ports.
+    gene_expression reads DNA → enzymes; metabolism reads nutrients + enzymes →
+    products (enzymes is the shared coupling). ``nutrients`` (in) and ``products``
+    (out) are the ENVIRONMENT-FACING boundary stores — in Fig 5b this same graph is
+    nested inside the cell and those two couple to the tissue field."""
+    return {
+        "nutrients": _v("concentration", 5.0),   # substrate pool (environment-facing)
+        "products":  _v("concentration", 0.0),   # product pool  (environment-facing)
+        "enzymes":   _v("concentration", 1.0),   # shared: gene_expression writes, metabolism reads
+        "DNA":       _v("concentration", 1.0),
+        "metabolism": _proc(
+            MetabolismGraph,
+            {"substrates": ["nutrients"], "enzymes": ["enzymes"]}, {"products": ["products"]}),
+        "gene_expression": _proc(
+            GeneExpressionGraph,
+            {"genes": ["DNA"]}, {"enzymes": ["enzymes"]}),
+    }
+
+
+def fig05b_composite_process_state() -> dict:
+    """Fig 5b: the SAME process graph as Fig 5a, nested as a `cell` COMPOSITE
+    PROCESS inside a TISSUE — a multiscale composition, connected with types.
+
+        tissue
+          fields      : array[concentration]  (glucose, acetate)   — spatial
+          diffusion   : TissueDiffusion   (fields → fields)        — higher scale
+          exchange    : CellExchange      (fields ⇄ local)         — the scale bridge
+          local       : concentration     (glucose, acetate)       — the cell's bin
+          cell        : Composite process, inner = the Fig 5a graph, wired
+                        nutrients ← local.glucose, products → local.acetate
+
+    Types are respected across scales: the tissue carries array[concentration]
+    fields, diffusion transports them, CellExchange samples the field bin at the
+    cell into a scalar `concentration`, and the cell (whose inner is Fig 5a) reads
+    that local concentration as its `nutrients` and returns `products` to it."""
+    inner = fig05a_process_graph_state()   # the cell's inner IS the Fig 5a graph
+    # The Fig 5a composite's SAVED loom view — carried on the cell's CONFIG (not in
+    # the inner state, which would render the positions as nodes) so the inner-
+    # composite preview lays out with that hand-tuned layout, not a generic grid.
+    _inner_view = {"positions": _committed_view_positions(
+        "spatio_flux.composites.fig05a-process-graph")}
+    cell = {
+        "_type": "process",
+        "address": "local:Composite",
+        "is_composite_process": True,
+        "config": {"state": inner, "_inner_view": _inner_view},
+        "_inputs": {"nutrients": "concentration"},
+        "_outputs": {"products": "concentration"},
+        "_contract": {
+            "summary": "cell — a composite process embedded in the tissue",
+            "description": ("The cell's inner model is the Fig 5a process graph. Its boundary "
+                            "stores nutrients / products couple to the tissue field (via the "
+                            "CellExchange scale bridge) — the cell consumes local nutrients and "
+                            "secretes products back into the tissue."),
+            "status": "", "math": [], "symbols": {},
+            "inputs": {"nutrients": "local nutrient concentration (from the tissue field)"},
+            "outputs": {"products": "secreted products (to the tissue field)"},
+        },
+        # relative to tissue: the cell reads/writes the LOCAL bin
+        "inputs": {"nutrients": ["local", "glucose"]},
+        "outputs": {"products": ["local", "acetate"]},
+    }
+    arr = lambda: {"_type": "array", "_shape": [8, 8], "_data": "concentration"}
+    return {
+        "tissue": {
+            # tissue-scale spatial fields (array[concentration])
+            "fields": {"glucose": arr(), "acetate": arr()},
+            # higher-scale transport across the tissue
+            "diffusion": _proc(TissueDiffusion, {"fields": ["fields"]}, {"fields": ["fields"]}),
+            # the scale bridge: array fields ⇄ the cell's local concentrations
+            "exchange": _proc(
+                CellExchange,
+                {"fields": ["fields"], "local": ["local"]},
+                {"fields": ["fields"], "local": ["local"]}),
+            # the cell's LOCAL environment — a bin of scalar concentrations
+            "local": {"glucose": _v("concentration", 5.0), "acetate": _v("concentration", 0.0)},
+            # the cell: a composite process whose inner is the Fig 5a graph
+            "cell": cell,
+        },
     }

@@ -791,6 +791,20 @@ def place_microbes(
     return out
 
 
+# Structured contract (summary + governing equation); see dfba.py for the convention.
+PymunkParticleMovement.contract = {
+    "summary": "Newtonian motion — rigid-body dynamics with collisions (pymunk)",
+    "math": [
+        r"m\dot{\mathbf v}=\mathbf F_c+m\mathbf g-\gamma\mathbf v+\boldsymbol\eta,"
+        r"\qquad \dot{\mathbf x}=\mathbf v",
+        r"m=\rho\,\pi r^2",
+    ],
+    "symbols": {"m": "particle mass", "x": "position", "v": "velocity",
+                "F_c": "contact forces (friction, elasticity e)", "g": "gravity",
+                "γ": "damping", "η": "random jitter impulse", "r": "radius", "ρ": "2D density"},
+}
+
+
 # -------------------------
 # High-level initializer
 # -------------------------

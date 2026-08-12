@@ -19,16 +19,17 @@
           "summary": "Gene expression \u2014 ordinary differential equations",
           "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
           "math": [
-            "\\frac{dr}{dt} = \\alpha - \\gamma_r\\, r",
-            "\\frac{dp}{dt} = \\beta\\, r - \\gamma_p\\, p"
+            "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma\\,\\text{mrna}",
+            "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma\\,\\text{protein}"
           ],
           "symbols": {
-            "r": "mRNA",
-            "p": "protein",
+            "dna": "DNA template (in)",
+            "energy": "ATP/GTP \u2014 powers \u03b1, \u03b2 (in)",
+            "mrna": "mRNA (out)",
+            "protein": "protein (out)",
             "\u03b1": "transcription rate",
             "\u03b2": "translation rate",
-            "\u03b3_r": "mRNA decay",
-            "\u03b3_p": "protein decay"
+            "\u03b3": "turnover rate"
           },
           "ports": {
             "dna": "DNA template",
@@ -51,16 +52,17 @@
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\frac{dr}{dt} = \\alpha - \\gamma_r\\, r",
-          "\\frac{dp}{dt} = \\beta\\, r - \\gamma_p\\, p"
+          "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma\\,\\text{mrna}",
+          "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma\\,\\text{protein}"
         ],
         "symbols": {
-          "r": "mRNA",
-          "p": "protein",
+          "dna": "DNA template (in)",
+          "energy": "ATP/GTP \u2014 powers \u03b1, \u03b2 (in)",
+          "mrna": "mRNA (out)",
+          "protein": "protein (out)",
           "\u03b1": "transcription rate",
           "\u03b2": "translation rate",
-          "\u03b3_r": "mRNA decay",
-          "\u03b3_p": "protein decay"
+          "\u03b3": "turnover rate"
         },
         "inputs": {
           "dna": "DNA template",
@@ -86,20 +88,21 @@
           "summary": "Metabolism \u2014 Flux Balance Analysis (FBA)",
           "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
           "math": [
-            "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v",
-            "\\text{s.t.}\\quad S\\,v = 0",
-            "v_{\\min} \\le v \\le v_{\\max}"
+            "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
+            "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
+            "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v"
           ],
           "symbols": {
-            "Z": "objective (biomass flux)",
-            "c": "objective coefficients",
-            "v": "reaction flux vector",
-            "S": "stoichiometric matrix",
-            "v_min, v_max": "flux bounds"
+            "enzymes": "enzyme levels \u2014 set flux bounds (in)",
+            "energy": "available energy \u2014 sets bounds (in)",
+            "metabolites": "produced metabolites (out)",
+            "Z": "biomass objective",
+            "v": "reaction fluxes",
+            "S": "stoichiometric matrix"
           },
           "ports": {
-            "enzymes": "enzyme (protein) levels \u2014 set flux bounds",
-            "energy": "available energy \u2014 sets flux bounds",
+            "enzymes": "enzyme (protein) levels",
+            "energy": "available energy",
             "metabolites": "produced metabolites"
           }
         }
@@ -116,20 +119,21 @@
         "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v",
-          "\\text{s.t.}\\quad S\\,v = 0",
-          "v_{\\min} \\le v \\le v_{\\max}"
+          "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
+          "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
+          "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v"
         ],
         "symbols": {
-          "Z": "objective (biomass flux)",
-          "c": "objective coefficients",
-          "v": "reaction flux vector",
-          "S": "stoichiometric matrix",
-          "v_min, v_max": "flux bounds"
+          "enzymes": "enzyme levels \u2014 set flux bounds (in)",
+          "energy": "available energy \u2014 sets bounds (in)",
+          "metabolites": "produced metabolites (out)",
+          "Z": "biomass objective",
+          "v": "reaction fluxes",
+          "S": "stoichiometric matrix"
         },
         "inputs": {
-          "enzymes": "enzyme (protein) levels \u2014 set flux bounds",
-          "energy": "available energy \u2014 sets flux bounds"
+          "enzymes": "enzyme (protein) levels",
+          "energy": "available energy"
         },
         "outputs": {
           "metabolites": "produced metabolites"
@@ -150,10 +154,10 @@
           "summary": "Morphogen gradient \u2014 reaction\u2013diffusion PDE",
           "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
           "math": [
-            "\\frac{\\partial C(x,t)}{\\partial t} = D\\,\\frac{\\partial^2 C}{\\partial x^2} + S(x) - \\lambda C"
+            "\\frac{\\partial\\,\\text{field}}{\\partial t} = D\\,\\nabla^2\\,\\text{field} + S(x) - \\lambda\\,\\text{field}"
           ],
           "symbols": {
-            "C": "morphogen concentration",
+            "field": "morphogen concentration (in + out)",
             "D": "diffusion coefficient",
             "S(x)": "local source",
             "\u03bb": "decay rate"
@@ -174,10 +178,10 @@
         "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\frac{\\partial C(x,t)}{\\partial t} = D\\,\\frac{\\partial^2 C}{\\partial x^2} + S(x) - \\lambda C"
+          "\\frac{\\partial\\,\\text{field}}{\\partial t} = D\\,\\nabla^2\\,\\text{field} + S(x) - \\lambda\\,\\text{field}"
         ],
         "symbols": {
-          "C": "morphogen concentration",
+          "field": "morphogen concentration (in + out)",
           "D": "diffusion coefficient",
           "S(x)": "local source",
           "\u03bb": "decay rate"
@@ -204,21 +208,22 @@
           "summary": "Multicellular interactions \u2014 Agent-Based Model",
           "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
           "math": [
-            "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla C + \\eta\\, \\xi(t)",
+            "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)",
             "P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
           ],
           "symbols": {
+            "population": "cells {x\u20d7\u1d62} (in + out)",
+            "field": "morphogen \u2014 drives \u2207field (in)",
             "x\u20d7\u1d62": "position of cell i",
             "\u03bc": "mobility",
             "f_int": "interaction force",
             "\u03c7": "chemotactic coefficient",
-            "\u2207C": "morphogen gradient",
             "\u03b7\u00b7\u03be(t)": "noise",
             "P_kill": "kill probability",
             "d": "interaction radius"
           },
           "ports": {
-            "population": "cell population",
+            "population": "cell population {x\u20d7\u1d62}",
             "field": "local morphogen field"
           }
         }
@@ -235,25 +240,26 @@
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla C + \\eta\\, \\xi(t)",
+          "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)",
           "P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
         ],
         "symbols": {
+          "population": "cells {x\u20d7\u1d62} (in + out)",
+          "field": "morphogen \u2014 drives \u2207field (in)",
           "x\u20d7\u1d62": "position of cell i",
           "\u03bc": "mobility",
           "f_int": "interaction force",
           "\u03c7": "chemotactic coefficient",
-          "\u2207C": "morphogen gradient",
           "\u03b7\u00b7\u03be(t)": "noise",
           "P_kill": "kill probability",
           "d": "interaction radius"
         },
         "inputs": {
-          "population": "cell population",
+          "population": "cell population {x\u20d7\u1d62}",
           "field": "local morphogen field"
         },
         "outputs": {
-          "population": "cell population"
+          "population": "cell population {x\u20d7\u1d62}"
         }
       },
       "inputs": {},

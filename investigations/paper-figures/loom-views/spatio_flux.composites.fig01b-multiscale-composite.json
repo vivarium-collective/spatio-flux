@@ -2,124 +2,132 @@
   "v": 1,
   "positions": {
     "tissue": {
-      "x": 660,
-      "y": 40
+      "x": 884.2434381661526,
+      "y": 29.8
     },
     "tissue.fields": {
-      "x": 330,
-      "y": 250
+      "x": 578.5,
+      "y": 292.0
     },
     "tissue.cell_population": {
-      "x": 620,
-      "y": 245,
-      "w": 270,
-      "h": 150
+      "x": 767.5,
+      "y": 292.0,
+      "w": 248,
+      "h": 115
     },
     "tissue.cells": {
-      "x": 980,
-      "y": 250
+      "x": 1033.5282352941176,
+      "y": 304.4
     },
-    "tissue.diffusion": {
-      "x": 320,
-      "y": 470,
-      "w": 240,
-      "h": 95
-    },
-    "tissue.abm": {
-      "x": 1010,
-      "y": 470,
-      "w": 160,
-      "h": 95
-    },
-    "tissue.cells.cell.cell": {
-      "x": 660,
-      "y": 700
-    },
-    "tissue.cells.cell.mass": {
-      "x": 450,
-      "y": 900
-    },
-    "tissue.cells.cell.volume": {
-      "x": 660,
-      "y": 900
-    },
-    "tissue.cells.cell.phase": {
-      "x": 870,
-      "y": 900
-    },
-    "tissue.cells.cell.growth": {
-      "x": 430,
-      "y": 1100,
-      "w": 190,
-      "h": 95
-    },
-    "tissue.cells.cell.division": {
-      "x": 820,
-      "y": 1100,
-      "w": 210,
-      "h": 95
+    "tissue.cells.cell": {
+      "x": 1190.6788235294118,
+      "y": 610.3
     },
     "tissue.cells.cell.molecules": {
-      "x": 660,
-      "y": 1320
-    },
-    "tissue.cells.cell.reg_signals": {
-      "x": 150,
-      "y": 1520
+      "x": 962.620681475375,
+      "y": 1384.7
     },
     "tissue.cells.cell.molecules.DNA": {
-      "x": 380,
-      "y": 1520
+      "x": 645.3444538346984,
+      "y": 2180.2
     },
     "tissue.cells.cell.molecules.mRNA": {
-      "x": 570,
-      "y": 1520
+      "x": 791.6293085522819,
+      "y": 1882.3
     },
     "tissue.cells.cell.molecules.protein": {
-      "x": 775,
-      "y": 1520
+      "x": 829.5686122433783,
+      "y": 2187.7
     },
     "tissue.cells.cell.molecules.metabolites": {
-      "x": 990,
-      "y": 1520
+      "x": 810.9975324380385,
+      "y": 2447.2,
+      "w": 194,
+      "h": 94
+    },
+    "tissue.cells.cell.reg_signals": {
+      "x": 447.0908083714497,
+      "y": 1368.0,
+      "w": 226,
+      "h": 123
     },
     "tissue.cells.cell.energy": {
-      "x": 150,
-      "y": 1750
-    },
-    "tissue.cells.cell.transcription": {
-      "x": 340,
-      "y": 1750,
-      "w": 300,
-      "h": 95
-    },
-    "tissue.cells.cell.translation": {
-      "x": 700,
-      "y": 1750,
-      "w": 260,
-      "h": 95
-    },
-    "tissue.cells.cell.metabolism": {
-      "x": 1010,
-      "y": 1750,
-      "w": 250,
-      "h": 95
-    },
-    "tissue.cells.cell.rna_degradation": {
-      "x": 360,
-      "y": 1920,
-      "w": 350,
-      "h": 95
-    },
-    "tissue.cells.cell.structural_packing": {
-      "x": 950,
-      "y": 1920,
-      "w": 420,
-      "h": 95
+      "x": 984.6216754547393,
+      "y": 1895.0
     },
     "tissue.cells.cell.structure": {
-      "x": 1250,
-      "y": 2110
+      "x": 1350.479711429636,
+      "y": 1390.4
+    },
+    "tissue.cells.cell.mass": {
+      "x": 766.1192232900756,
+      "y": 871.6
+    },
+    "tissue.cells.cell.volume": {
+      "x": 774.432668466121,
+      "y": 1373.6
+    },
+    "tissue.cells.cell.phase": {
+      "x": 499.00200061695597,
+      "y": 871.4
+    },
+    "tissue.cells.cell.transcription": {
+      "x": 315.4427178332095,
+      "y": 1558.8,
+      "w": 546,
+      "h": 210
+    },
+    "tissue.cells.cell.translation": {
+      "x": 213.8118265237744,
+      "y": 1865.3,
+      "w": 549,
+      "h": 216
+    },
+    "tissue.cells.cell.rna_degradation": {
+      "x": 1018.77129651101,
+      "y": 2107.0,
+      "w": 622,
+      "h": 200
+    },
+    "tissue.cells.cell.metabolism": {
+      "x": 230.47708116157878,
+      "y": 2367.8,
+      "w": 536,
+      "h": 202
+    },
+    "tissue.cells.cell.structural_packing": {
+      "x": 981.907763110308,
+      "y": 1579.2,
+      "w": 655,
+      "h": 192
+    },
+    "tissue.cells.cell.growth": {
+      "x": 358.8830723486863,
+      "y": 1057.6,
+      "w": 463,
+      "h": 209
+    },
+    "tissue.cells.cell.division": {
+      "x": 950.7823450962667,
+      "y": 1084.6,
+      "w": 536,
+      "h": 205
+    },
+    "tissue.diffusion": {
+      "x": 223.80844189447924,
+      "y": 522.0,
+      "w": 487,
+      "h": 208
+    },
+    "tissue.abm": {
+      "x": 742.6937392405063,
+      "y": 521.4,
+      "w": 421,
+      "h": 195
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12.0
     }
   },
   "collapsed": [],
@@ -127,13 +135,13 @@
     "global_time"
   ],
   "mode": "flow-down",
-  "detail": "types",
+  "detail": null,
   "collapse": false,
   "hyperedges": false,
   "detailOverrides": {
-    "ports": "none",
-    "stores": "type",
-    "config": "off",
-    "contract": "off"
+    "ports": "types",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "auto"
   }
 }
