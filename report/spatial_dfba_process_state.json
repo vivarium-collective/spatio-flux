@@ -616,13 +616,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Spatial dynamic FBA: runs an independent dynamic-FBA model per lattice bin over the molecular field arrays, coupling metabolism to the spatial substrate distribution.",
+      "summary": "Spatial dFBA \u2014 one batched FBA solve per lattice site",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\forall\\ \\text{site } i:\\ \\ \\mu_i=\\max\\ c^{\\mathsf T}v_i\\ \\ \\text{s.t.}\\ \\ Sv_i=0,\\ v_i\\le v_{\\max}(s_i)"
+      ],
+      "symbols": {
+        "i": "lattice site",
+        "\u03bc_i": "local growth rate",
+        "s_i": "local substrate"
+      },
       "assumptions": [],
       "references": [],
       "face": {

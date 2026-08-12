@@ -1,13 +1,13 @@
 {
   "global_time": 0.0,
   "particles": {
-    "qp7123yV": {
-      "id": "qp7123yV",
+    "MYi1CSmx": {
+      "id": "MYi1CSmx",
       "position": [
-        3.0434787303653787,
-        7.716372999921317
+        45.38519956099234,
+        19.289143034733
       ],
-      "mass": 0.9822473583115919,
+      "mass": 0.6697570648730565,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -56,13 +56,20 @@
     },
     "interval": 0.1,
     "_contract": {
-      "summary": "Brownian particle motion: displaces each particle by a diffusion-scaled random walk plus advection, confined to the domain bounds.",
+      "summary": "Brownian motion \u2014 overdamped diffusive steps",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\Delta x=\\sqrt{2D\\,\\Delta t}\\;\\xi\\;+\\;\\mathbf{u}\\,\\Delta t,\\qquad \\xi\\sim\\mathcal{N}(0,1)"
+      ],
+      "symbols": {
+        "D": "diffusion coefficient",
+        "\u0394t": "time step",
+        "u": "advection velocity",
+        "\u03be": "unit Gaussian noise"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -117,13 +124,18 @@
       ]
     },
     "_contract": {
-      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "summary": "Keep particles inside the domain (inflow/outflow)",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+      ],
+      "symbols": {
+        "x": "particle position",
+        "L": "domain size"
+      },
       "assumptions": [],
       "references": [],
       "face": {

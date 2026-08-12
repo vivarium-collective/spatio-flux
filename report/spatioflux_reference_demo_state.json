@@ -1,6 +1,6 @@
 {
   "particles": {
-    "p_50eb2b": {
+    "p_515506": {
       "ecoli_1 dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -54,13 +54,23 @@
         },
         "interval": 1.0,
         "_contract": {
-          "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+          "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
           "description": "",
           "inputs": {},
           "outputs": {},
           "config": {},
-          "math": [],
-          "symbols": {},
+          "math": [
+            "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+            "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+          ],
+          "symbols": {
+            "\u03bc": "growth rate",
+            "v": "reaction fluxes",
+            "S": "stoichiometry",
+            "X": "biomass",
+            "s": "substrate",
+            "q": "uptake rate"
+          },
           "assumptions": [],
           "references": [],
           "face": {
@@ -138,13 +148,23 @@
         },
         "interval": 1.0,
         "_contract": {
-          "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+          "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
           "description": "",
           "inputs": {},
           "outputs": {},
           "config": {},
-          "math": [],
-          "symbols": {},
+          "math": [
+            "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+            "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+          ],
+          "symbols": {
+            "\u03bc": "growth rate",
+            "v": "reaction fluxes",
+            "S": "stoichiometry",
+            "X": "biomass",
+            "s": "substrate",
+            "q": "uptake rate"
+          },
           "assumptions": [],
           "references": [],
           "face": {
@@ -185,13 +205,18 @@
           ]
         },
         "_contract": {
-          "summary": "Total-mass reducer: sums a particle's sub-masses into its aggregate mass each interval.",
+          "summary": "Aggregate mass \u2014 sum a particle's sub-masses into its total",
           "description": "",
           "inputs": {},
           "outputs": {},
           "config": {},
-          "math": [],
-          "symbols": {},
+          "math": [
+            "m = \\sum_i m_i"
+          ],
+          "symbols": {
+            "m": "aggregate particle mass",
+            "m_i": "sub-mass i (per-strain dFBA biomass)"
+          },
           "assumptions": [],
           "references": [],
           "face": {
@@ -210,11 +235,11 @@
         "ecoli_2": 0.1
       },
       "shape": "circle",
-      "mass": 0.13041422236351705,
-      "radius": 1.6635731879958209,
+      "mass": 0.061433296182172394,
+      "radius": 1.141777138664179,
       "position": [
-        9.984850367917478,
-        18.391311716893952
+        6.870779917505036,
+        28.055673055781384
       ],
       "velocity": [
         -0.0,
@@ -300,13 +325,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -402,13 +433,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -504,13 +541,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -606,13 +649,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -708,13 +757,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -810,13 +865,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -912,13 +973,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1014,13 +1081,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1116,13 +1189,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1218,13 +1297,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1320,13 +1405,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1422,13 +1513,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1524,13 +1621,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1626,13 +1729,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1728,13 +1837,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1830,13 +1945,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1932,13 +2053,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2034,13 +2161,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2136,13 +2269,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2238,13 +2377,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2340,13 +2485,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2442,13 +2593,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2544,13 +2701,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2646,13 +2809,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2748,13 +2917,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2850,13 +3025,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -2952,13 +3133,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3054,13 +3241,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3156,13 +3349,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3258,13 +3457,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3360,13 +3565,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3462,13 +3673,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3564,13 +3781,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3666,13 +3889,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3768,13 +3997,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3870,13 +4105,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -3972,13 +4213,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4074,13 +4321,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4176,13 +4429,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4278,13 +4537,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4380,13 +4645,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4482,13 +4753,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4584,13 +4861,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4686,13 +4969,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4788,13 +5077,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4890,13 +5185,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -4992,13 +5293,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5094,13 +5401,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5196,13 +5509,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5298,13 +5617,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5400,13 +5725,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5502,13 +5833,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5604,13 +5941,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5706,13 +6049,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5808,13 +6157,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -5910,13 +6265,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6012,13 +6373,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6114,13 +6481,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6216,13 +6589,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6318,13 +6697,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6420,13 +6805,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6522,13 +6913,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6624,13 +7021,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6726,13 +7129,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6828,13 +7237,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -6930,13 +7345,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7032,13 +7453,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7134,13 +7561,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7236,13 +7669,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7338,13 +7777,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7440,13 +7885,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7542,13 +7993,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7644,13 +8101,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7746,13 +8209,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7848,13 +8317,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -7950,13 +8425,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8052,13 +8533,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8154,13 +8641,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8256,13 +8749,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8358,13 +8857,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8460,13 +8965,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8562,13 +9073,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8664,13 +9181,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8766,13 +9289,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8868,13 +9397,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -8970,13 +9505,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9072,13 +9613,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9174,13 +9721,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9276,13 +9829,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9378,13 +9937,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9480,13 +10045,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9582,13 +10153,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9684,13 +10261,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9786,13 +10369,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9888,13 +10477,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -9990,13 +10585,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10092,13 +10693,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10194,13 +10801,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10296,13 +10909,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10398,13 +11017,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+      "summary": "Monod kinetics \u2014 substrate-saturating growth",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+      ],
+      "symbols": {
+        "\u03bc_max": "max growth rate",
+        "K_s": "half-saturation const",
+        "Y": "biomass yield"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10676,124 +11301,124 @@
     ],
     "dissolved biomass": [
       [
-        0.18290470969911582,
-        0.1024122774472005,
-        0.19295070009731027,
-        0.16966149694976285,
-        0.14807495376689053,
-        0.18676890282255976,
-        0.16275081691745677,
-        0.1895621824270137,
-        0.16595077568691047,
-        0.15178032585693318
+        0.15131494544989718,
+        0.18997452092103054,
+        0.10247170698857594,
+        0.169216426154568,
+        0.1967234437218405,
+        0.11514116525835806,
+        0.1979265067347447,
+        0.18121223916577667,
+        0.11005768999422402,
+        0.11479648078136698
       ],
       [
-        0.17377907577808327,
-        0.18476342189599007,
-        0.12670356152750673,
-        0.10614944870383579,
-        0.10936246320444709,
-        0.14797633843355876,
-        0.14366615042652797,
-        0.14077647649195413,
-        0.16705466034198524,
-        0.12768608536528758
+        0.12030701033417462,
+        0.12586027161401278,
+        0.11609803289739859,
+        0.17607607650699791,
+        0.11053070536992138,
+        0.13275307405491488,
+        0.11524874876382904,
+        0.1584978683742879,
+        0.10359555132356035,
+        0.15603910327559434
       ],
       [
-        0.16416087716239958,
-        0.15892591706213352,
-        0.18476291779613238,
-        0.1838394053588961,
-        0.12093585524765342,
-        0.14984593062325666,
-        0.14907833544546778,
-        0.1481479616020565,
-        0.16558120549790878,
-        0.18986287284659042
+        0.1275437246547872,
+        0.12421870098221353,
+        0.1793038354774699,
+        0.10073468940974953,
+        0.12508648728017183,
+        0.14199653682900373,
+        0.1593859754398756,
+        0.1593421725431283,
+        0.17503473281723192,
+        0.14346482344272682
       ],
       [
-        0.15029243512831614,
-        0.14490007200859437,
-        0.11826109353626788,
-        0.1453561568098865,
-        0.18008196400932008,
-        0.1123835779369651,
-        0.10863367644330574,
-        0.16963508009155553,
-        0.1857880072646252,
-        0.11154128719884615
+        0.1558606871544638,
+        0.16242289644329824,
+        0.11914512323303915,
+        0.1874285458402901,
+        0.16502471474301783,
+        0.19618208143824073,
+        0.10677974054839012,
+        0.1393157551368103,
+        0.17858593298542647,
+        0.1453080382490427
       ],
       [
-        0.13977691247680527,
-        0.14524045638878552,
-        0.11835522827356179,
-        0.11093729018012918,
-        0.11161064229683648,
-        0.1626129492225692,
-        0.1973898513489673,
-        0.12929797430278941,
-        0.14900098747825807,
-        0.15301958587064282
+        0.19121228920084374,
+        0.14104084928628852,
+        0.16361677977057887,
+        0.10069145706352867,
+        0.11787571363326177,
+        0.12375581982759123,
+        0.1499704973438915,
+        0.15052863930826788,
+        0.10946221749369625,
+        0.19939843679360328
       ],
       [
-        0.13918588062562992,
-        0.16396492745514485,
-        0.1470302027720839,
-        0.19950448119000472,
-        0.16312731965160066,
-        0.10806533822363446,
-        0.19761469902127307,
-        0.13662830951459126,
-        0.11523223961461501,
-        0.12980833785803803
+        0.125813635232163,
+        0.18900428892046559,
+        0.1425468555865468,
+        0.11501750351410811,
+        0.16349153768050417,
+        0.12445056018350734,
+        0.16978243300956514,
+        0.1782969229806408,
+        0.10263932445246698,
+        0.1641171314358934
       ],
       [
-        0.17244247577629784,
-        0.12716711503147682,
-        0.10568193762225948,
-        0.1404099881656771,
-        0.1854841814952331,
-        0.13038110472080014,
-        0.13909893933183629,
-        0.1371941012294028,
-        0.16183229256549447,
-        0.1149189024014747
+        0.13195751317347293,
+        0.1907020113526814,
+        0.1007987975949648,
+        0.1840424556778869,
+        0.11559885163269576,
+        0.13449007265751312,
+        0.12665627848928962,
+        0.18347527377752865,
+        0.18295086718031703,
+        0.18439065153594258
       ],
       [
-        0.11953133442610149,
-        0.11427284684484004,
-        0.16090536710291814,
-        0.17512530090271777,
-        0.14333727303951138,
-        0.11329763345821953,
-        0.12202284334369169,
-        0.11692686065983647,
-        0.10658623712879499,
-        0.1347213192153561
+        0.19979577024151446,
+        0.17027673049001474,
+        0.16156125595364265,
+        0.11789504057814984,
+        0.166185226450917,
+        0.15264944164987285,
+        0.19305269848759377,
+        0.15470320917989117,
+        0.1039159769574037,
+        0.11130193473887762
       ],
       [
-        0.1460576830879725,
-        0.1426697493279349,
-        0.16276131738373142,
-        0.17710862310909642,
-        0.13166304061673395,
-        0.187322993703805,
-        0.11124023818873392,
-        0.13863628952513515,
-        0.10316978761126609,
-        0.17948264604753042
+        0.12283503533544333,
+        0.16348730668582173,
+        0.139167494574093,
+        0.14438629562311886,
+        0.1584855986389918,
+        0.12036004374903886,
+        0.16917541862378843,
+        0.1056881939819323,
+        0.16504266902571782,
+        0.1192488843412455
       ],
       [
-        0.1923552033474421,
-        0.14770000017609633,
-        0.14683610046371207,
-        0.10805402095599649,
-        0.10154756976042495,
-        0.18397636759922983,
-        0.17339385174003832,
-        0.11107869712621053,
-        0.1384557732981705,
-        0.1481745040605815
+        0.1400469837844338,
+        0.1910545326994102,
+        0.1556139678036435,
+        0.1269120767111863,
+        0.17451231792165917,
+        0.11826630045293195,
+        0.1411875627953248,
+        0.12950426990290237,
+        0.1314148203641743,
+        0.1337927772903186
       ]
     ]
   },
@@ -10854,13 +11479,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Diffusion-advection transport: evolves each molecular field on the lattice by finite-difference diffusion (CFL-limited sub-stepping) plus advection at the configured coefficients.",
+      "summary": "Advection\u2013diffusion transport of the fields",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\partial_t\\phi = D\\,\\nabla^2\\phi \\;-\\; \\mathbf{u}\\cdot\\nabla\\phi"
+      ],
+      "symbols": {
+        "\u03c6": "field",
+        "D": "diffusion coefficient",
+        "u": "advection velocity"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10929,13 +11560,21 @@
       ]
     },
     "_contract": {
-      "summary": "Particle-field exchange: couples each particle's local uptake/secretion to the lattice field bin it occupies, converting between per-cell counts and field concentrations.",
+      "summary": "Particle\u2013field exchange \u2014 local uptake/secretion in the occupied bin",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\dot{s}_p = q_p\\!\\left(c_{b(p)}\\right),\\qquad \\partial_t c_b = -\\tfrac{1}{V_b}\\sum_{p\\,\\in\\,b} q_p"
+      ],
+      "symbols": {
+        "q_p": "particle p's exchange flux",
+        "b(p)": "bin containing particle p",
+        "c_b": "field concentration in bin b",
+        "V_b": "bin volume",
+        "s_p": "particle substrate"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -10995,13 +11634,21 @@
       ]
     },
     "_contract": {
-      "summary": "Particle division: splits any particle whose mass exceeds the division threshold into two daughters, partitioning mass and sub-masses with jitter.",
+      "summary": "Division \u2014 split a particle above the mass threshold into two daughters",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "m \\ge m_{\\mathrm{div}} \\;\\Rightarrow\\; m_{1,2}=\\tfrac{m}{2}(1\\pm\\epsilon),\\quad x_{1,2}=x\\pm\\delta"
+      ],
+      "symbols": {
+        "m": "parent mass",
+        "m_div": "division threshold",
+        "\u03b5": "mass-partition jitter",
+        "\u03b4": "daughter offset",
+        "x": "position"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -11056,13 +11703,18 @@
       ]
     },
     "_contract": {
-      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "summary": "Keep particles inside the domain (inflow/outflow)",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+      ],
+      "symbols": {
+        "x": "particle position",
+        "L": "domain size"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -11138,13 +11790,26 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Newtonian particle physics (Pymunk): integrates rigid-body dynamics - forces, collisions, friction, elasticity - for motile particles within the domain.",
+      "summary": "Newtonian motion \u2014 rigid-body dynamics with collisions (pymunk)",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "m\\dot{\\mathbf v}=\\mathbf F_c+m\\mathbf g-\\gamma\\mathbf v+\\boldsymbol\\eta,\\qquad \\dot{\\mathbf x}=\\mathbf v",
+        "m=\\rho\\,\\pi r^2"
+      ],
+      "symbols": {
+        "m": "particle mass",
+        "x": "position",
+        "v": "velocity",
+        "F_c": "contact forces (friction, elasticity e)",
+        "g": "gravity",
+        "\u03b3": "damping",
+        "\u03b7": "random jitter impulse",
+        "r": "radius",
+        "\u03c1": "2D density"
+      },
       "assumptions": [],
       "references": [],
       "face": {

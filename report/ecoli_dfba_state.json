@@ -61,13 +61,23 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Dynamic FBA: each interval, constrains exchange-flux bounds from local substrate concentrations (mM) and biomass (gDW), maximizes the biomass objective by linear programming, and returns substrate count deltas and biomass growth (gDW).",
+      "summary": "Dynamic FBA \u2014 FBA growth integrated over time",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\mu=\\max\\ c^{\\mathsf T}v\\quad\\text{s.t.}\\ \\ Sv=0,\\ \\ v\\le v_{\\max}(s)",
+        "\\dot X=\\mu X,\\qquad \\dot s=-q(s)\\,X"
+      ],
+      "symbols": {
+        "\u03bc": "growth rate",
+        "v": "reaction fluxes",
+        "S": "stoichiometry",
+        "X": "biomass",
+        "s": "substrate",
+        "q": "uptake rate"
+      },
       "assumptions": [],
       "references": [],
       "face": {

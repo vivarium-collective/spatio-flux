@@ -1,6 +1,6 @@
 {
   "particles": {
-    "DHZ2mWT1": {
+    "erk97VCE": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -51,13 +51,19 @@
         },
         "interval": 1.0,
         "_contract": {
-          "summary": "Monod growth kinetics: uptake and growth as saturating (vmax, km) functions of local substrate concentration (mM); returns substrate concentration and biomass (gDW) deltas.",
+          "summary": "Monod kinetics \u2014 substrate-saturating growth",
           "description": "",
           "inputs": {},
           "outputs": {},
           "config": {},
-          "math": [],
-          "symbols": {},
+          "math": [
+            "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
+          ],
+          "symbols": {
+            "\u03bc_max": "max growth rate",
+            "K_s": "half-saturation const",
+            "Y": "biomass yield"
+          },
           "assumptions": [],
           "references": [],
           "face": {
@@ -82,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "DHZ2mWT1",
+      "id": "erk97VCE",
       "position": [
-        20.109686831034697,
-        4.376323731398902
+        9.558173816250509,
+        28.199085255402185
       ],
-      "mass": 5.369398721195602,
+      "mass": 1.8278920431624393,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -771,13 +777,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Spatial dynamic FBA: runs an independent dynamic-FBA model per lattice bin over the molecular field arrays, coupling metabolism to the spatial substrate distribution.",
+      "summary": "Spatial dFBA \u2014 one batched FBA solve per lattice site",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\forall\\ \\text{site } i:\\ \\ \\mu_i=\\max\\ c^{\\mathsf T}v_i\\ \\ \\text{s.t.}\\ \\ Sv_i=0,\\ v_i\\le v_{\\max}(s_i)"
+      ],
+      "symbols": {
+        "i": "lattice site",
+        "\u03bc_i": "local growth rate",
+        "s_i": "local substrate"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -875,13 +887,19 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Diffusion-advection transport: evolves each molecular field on the lattice by finite-difference diffusion (CFL-limited sub-stepping) plus advection at the configured coefficients.",
+      "summary": "Advection\u2013diffusion transport of the fields",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\partial_t\\phi = D\\,\\nabla^2\\phi \\;-\\; \\mathbf{u}\\cdot\\nabla\\phi"
+      ],
+      "symbols": {
+        "\u03c6": "field",
+        "D": "diffusion coefficient",
+        "u": "advection velocity"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -949,13 +967,20 @@
     },
     "interval": 1.0,
     "_contract": {
-      "summary": "Brownian particle motion: displaces each particle by a diffusion-scaled random walk plus advection, confined to the domain bounds.",
+      "summary": "Brownian motion \u2014 overdamped diffusive steps",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\Delta x=\\sqrt{2D\\,\\Delta t}\\;\\xi\\;+\\;\\mathbf{u}\\,\\Delta t,\\qquad \\xi\\sim\\mathcal{N}(0,1)"
+      ],
+      "symbols": {
+        "D": "diffusion coefficient",
+        "\u0394t": "time step",
+        "u": "advection velocity",
+        "\u03be": "unit Gaussian noise"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1010,13 +1035,18 @@
       ]
     },
     "_contract": {
-      "summary": "Boundary manager: adds particles at configured inflow boundaries and removes particles crossing configured outflow boundaries each interval.",
+      "summary": "Keep particles inside the domain (inflow/outflow)",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "x \\;\\leftarrow\\; \\operatorname{clamp}(x,\\ 0,\\ L)"
+      ],
+      "symbols": {
+        "x": "particle position",
+        "L": "domain size"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1069,13 +1099,21 @@
       ]
     },
     "_contract": {
-      "summary": "Particle-field exchange: couples each particle's local uptake/secretion to the lattice field bin it occupies, converting between per-cell counts and field concentrations.",
+      "summary": "Particle\u2013field exchange \u2014 local uptake/secretion in the occupied bin",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "\\dot{s}_p = q_p\\!\\left(c_{b(p)}\\right),\\qquad \\partial_t c_b = -\\tfrac{1}{V_b}\\sum_{p\\,\\in\\,b} q_p"
+      ],
+      "symbols": {
+        "q_p": "particle p's exchange flux",
+        "b(p)": "bin containing particle p",
+        "c_b": "field concentration in bin b",
+        "V_b": "bin volume",
+        "s_p": "particle substrate"
+      },
       "assumptions": [],
       "references": [],
       "face": {
@@ -1135,13 +1173,21 @@
       ]
     },
     "_contract": {
-      "summary": "Particle division: splits any particle whose mass exceeds the division threshold into two daughters, partitioning mass and sub-masses with jitter.",
+      "summary": "Division \u2014 split a particle above the mass threshold into two daughters",
       "description": "",
       "inputs": {},
       "outputs": {},
       "config": {},
-      "math": [],
-      "symbols": {},
+      "math": [
+        "m \\ge m_{\\mathrm{div}} \\;\\Rightarrow\\; m_{1,2}=\\tfrac{m}{2}(1\\pm\\epsilon),\\quad x_{1,2}=x\\pm\\delta"
+      ],
+      "symbols": {
+        "m": "parent mass",
+        "m_div": "division threshold",
+        "\u03b5": "mass-partition jitter",
+        "\u03b4": "daughter offset",
+        "x": "position"
+      },
       "assumptions": [],
       "references": [],
       "face": {
