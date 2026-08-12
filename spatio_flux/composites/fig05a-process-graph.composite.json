@@ -8,19 +8,19 @@
   ],
   "state": {
     "nutrients": {
-      "_type": "concentration",
+      "_type": "metabolites",
       "_value": 5.0
     },
     "products": {
-      "_type": "concentration",
+      "_type": "metabolites",
       "_value": 0.0
     },
     "enzymes": {
-      "_type": "concentration",
+      "_type": "protein",
       "_value": 1.0
     },
     "DNA": {
-      "_type": "concentration",
+      "_type": "DNA",
       "_value": 1.0
     },
     "metabolism": {
@@ -33,7 +33,7 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
-          "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
+          "description": "The process-graph view of metabolism: consumes substrate metabolites under enzyme (protein) catalysis to make product metabolites.",
           "math": [
             "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
           ],
@@ -42,22 +42,22 @@
             "K_m": "Michaelis constant"
           },
           "ports": {
-            "substrates": "substrate pool",
-            "enzymes": "enzyme levels",
-            "products": "product pool"
+            "substrates": "substrate metabolites",
+            "enzymes": "enzymes (protein)",
+            "products": "product metabolites"
           }
         }
       },
       "_inputs": {
-        "substrates": "concentration",
-        "enzymes": "concentration"
+        "substrates": "metabolites",
+        "enzymes": "protein"
       },
       "_outputs": {
-        "products": "concentration"
+        "products": "metabolites"
       },
       "_contract": {
         "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
-        "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
+        "description": "The process-graph view of metabolism: consumes substrate metabolites under enzyme (protein) catalysis to make product metabolites.",
         "status": "draft - no update dynamics yet",
         "math": [
           "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
@@ -67,11 +67,11 @@
           "K_m": "Michaelis constant"
         },
         "inputs": {
-          "substrates": "substrate pool",
-          "enzymes": "enzyme levels"
+          "substrates": "substrate metabolites",
+          "enzymes": "enzymes (protein)"
         },
         "outputs": {
-          "products": "product pool"
+          "products": "product metabolites"
         }
       },
       "inputs": {
@@ -94,46 +94,46 @@
       "_draft": true,
       "config": {
         "interval": 1.0,
-        "summary": "Gene expression \u2014 genes \u2192 enzymes",
+        "summary": "Gene expression \u2014 genes \u2192 protein",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Gene expression \u2014 genes \u2192 enzymes",
-          "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
+          "summary": "Gene expression \u2014 genes \u2192 protein",
+          "description": "The process-graph view of gene expression: reads the gene (DNA) template and produces protein (the enzymes metabolism uses).",
           "math": [
-            "\\frac{d[\\text{enzymes}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{enzymes}]"
+            "\\frac{d[\\text{protein}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{protein}]"
           ],
           "symbols": {
             "k_expr": "expression rate",
-            "\u03b3": "enzyme turnover"
+            "\u03b3": "protein turnover"
           },
           "ports": {
-            "genes": "gene / DNA template",
-            "enzymes": "produced enzymes"
+            "genes": "gene template (DNA)",
+            "protein": "produced protein (enzymes)"
           }
         }
       },
       "_inputs": {
-        "genes": "concentration"
+        "genes": "DNA"
       },
       "_outputs": {
-        "enzymes": "concentration"
+        "protein": "protein"
       },
       "_contract": {
-        "summary": "Gene expression \u2014 genes \u2192 enzymes",
-        "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
+        "summary": "Gene expression \u2014 genes \u2192 protein",
+        "description": "The process-graph view of gene expression: reads the gene (DNA) template and produces protein (the enzymes metabolism uses).",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\frac{d[\\text{enzymes}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{enzymes}]"
+          "\\frac{d[\\text{protein}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{protein}]"
         ],
         "symbols": {
           "k_expr": "expression rate",
-          "\u03b3": "enzyme turnover"
+          "\u03b3": "protein turnover"
         },
         "inputs": {
-          "genes": "gene / DNA template"
+          "genes": "gene template (DNA)"
         },
         "outputs": {
-          "enzymes": "produced enzymes"
+          "protein": "produced protein (enzymes)"
         }
       },
       "inputs": {
@@ -142,7 +142,7 @@
         ]
       },
       "outputs": {
-        "enzymes": [
+        "protein": [
           "enzymes"
         ]
       }

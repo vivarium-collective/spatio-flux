@@ -84,22 +84,32 @@ jobs:
             --base-path /spatio-flux/workbench \
             --interactive-url ""
 
-      - name: Publish report/ and workbench/ to gh-pages
+      - name: Build the paper-figures page
+        # The static paper figures aren't captured by the workbench snapshot
+        # (it only re-renders runtime viz from runs.db). Publish them directly:
+        # a gallery + the downloadable figures.zip, from the committed figure files.
+        run: |
+          source .venv/bin/activate
+          python scripts/build_figures_site.py . figures-site
+
+      - name: Publish report/, workbench/ and figures/ to gh-pages
         run: |
           set -euo pipefail
           test -f report/index.html || { echo "::error::no report/index.html"; exit 1; }
           test -f workbench-site/index.html || { echo "::error::no workbench snapshot"; exit 1; }
+          test -f figures-site/index.html || { echo "::error::no figures page"; exit 1; }
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin gh-pages || true
           git worktree add /tmp/ghp gh-pages 2>/dev/null || {
             git checkout --orphan gh-pages-tmp && git worktree add /tmp/ghp gh-pages-tmp; }
-          rm -rf /tmp/ghp/report /tmp/ghp/workbench
-          mkdir -p /tmp/ghp/report /tmp/ghp/workbench
+          rm -rf /tmp/ghp/report /tmp/ghp/workbench /tmp/ghp/figures
+          mkdir -p /tmp/ghp/report /tmp/ghp/workbench /tmp/ghp/figures
           cp -R report/. /tmp/ghp/report/
           cp -R workbench-site/. /tmp/ghp/workbench/
+          cp -R figures-site/. /tmp/ghp/figures/
           cd /tmp/ghp
-          git add report workbench
+          git add report workbench figures
           if git diff --cached --quiet; then
             echo "no changes to publish"
           else

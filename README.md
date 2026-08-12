@@ -2,6 +2,7 @@
 
 [![▶ live test report](https://img.shields.io/badge/▶%20live%20report-test%20suite-1b9e77?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/report/index.html)
 [![▶ read-only workbench](https://img.shields.io/badge/▶%20read--only-workbench-3a5b8f?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/workbench/index.html)
+[![▶ paper figures](https://img.shields.io/badge/▶%20paper-figures-8f5b3a?style=for-the-badge)](https://vivarium-collective.github.io/spatio-flux/figures/index.html)
 [![paper](https://img.shields.io/badge/paper-arXiv%3A2512.23754-3a5b3a?style=flat-square)](https://arxiv.org/abs/2512.23754)
 [![ecosystem](https://img.shields.io/badge/part%20of-vivarium--collective-1c4a78?style=flat-square)](https://github.com/vivarium-collective)
 

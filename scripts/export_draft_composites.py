@@ -83,7 +83,8 @@ def main() -> None:
     # them. Force-register so Composite validation finds them. (The dashboard
     # renders the written static spec verbatim, so this only affects validation.)
     for _name in ("energy", "volume", "cell_count", "phase", "place_node", "ecoli",
-                  "species", "params", "ss_species", "rates", "steady_state"):
+                  "species", "params", "ss_species", "rates", "steady_state",
+                  "metabolites", "protein", "DNA"):
         try:
             core.register_type(_name, {"_inherit": "float"})
         except Exception:
