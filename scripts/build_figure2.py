@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-"""Compose Figure 2 as TWO SEPARATE figures — figure_2a and figure_2b — rather
-than one combined a/b panel.
+"""Compose Figure 2 as ONE combined figure — panel (a) on the left, panel (b) on
+the right — from the paper's two readings of the SAME place graph (nodes n1..n6):
 
-Both read the SAME process-bigraph composite (n1..n6 + hyperedges e1/e2/e3):
-  - figure_2a  ← fig02a-hyperedges.png  (the Milner link-graph / hypergraph reading)
-  - figure_2b  ← fig02b-processes.png   (the process-graph reading)
+  - (a) ← fig02a-hyperedges.png  (Milner link graph — hyperedges e1, e2, e3)
+  - (b) ← fig02b-processes.png   (process graph — processes p1, p2, p3)
 
-Each is emitted standalone (its own SVG + PNG, letter label top-left) so they can
-be placed as independent Fig 2a / Fig 2b in the paper.
+Both panels are scaled to a common content height so they sit level side by side,
+each carrying its own letter label. A single `figure_2` SVG + PNG is emitted.
 
 Panels must already be rendered (loom PNGs via scripts/render_loom_svgs.mjs).
 
@@ -23,20 +22,20 @@ from PIL import Image, ImageDraw, ImageFont
 WS = Path(__file__).resolve().parents[1]
 VIZ = WS / "studies" / "fig-02" / "visualizations"
 
-# (panel png, letter, output stem)
+# (panel png, letter) — laid out left→right in this order.
 PANELS = [
-    ("fig02a-hyperedges.png", "a", "figure_2a"),
-    ("fig02b-processes.png",  "b", "figure_2b"),
+    ("fig02a-hyperedges.png", "a"),
+    ("fig02b-processes.png",  "b"),
 ]
-# Declared so the stitch step registers BOTH figures as the study's culminating
-# visualizations (instead of the default single figure_<N>).
+# One combined culminating visualization for the study (was two separate 2a/2b).
 STITCHED_OUTPUTS = [
-    ("figure_2a", "Figure 2a (hypergraph)"),
-    ("figure_2b", "Figure 2b (process bigraph)"),
+    ("figure_2", "Figure 2 (hypergraph + process bigraph)"),
 ]
-CONTENT_W = 900    # target panel width
+OUTPUT_STEM = "figure_2"
+PANEL_H = 620      # common content height both panels are scaled to
 PAD = 28
-LABEL_H = 52       # space above the panel for its letter
+GAP = 64           # horizontal gap between the two panels
+LABEL_H = 52       # space above the panels for their letters
 
 _LABEL_FONTS = (
     "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
@@ -59,66 +58,70 @@ def _data_uri(path: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode("ascii")
 
 
-def _dims(png: Path):
+def _panel_size(png: Path) -> tuple[float, float]:
+    """Width, height when scaled to the common PANEL_H."""
     with Image.open(png) as im:
         w, h = im.size
-    scale = CONTENT_W / w
-    return CONTENT_W, h * scale
+    scale = PANEL_H / h
+    return w * scale, float(PANEL_H)
 
 
-def _emit_svg(png: Path, letter: str, stem: str) -> Path:
-    cw, ch = _dims(png)
-    fig_w = cw + 2 * PAD
-    fig_h = ch + LABEL_H + PAD
-    parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{fig_w:.0f}" height="{fig_h:.0f}" '
-        f'viewBox="0 0 {fig_w:.0f} {fig_h:.0f}">',
-        '<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{PAD:.0f}" y="{PAD + 34:.0f}" font-family="Georgia, \'Times New Roman\', serif" '
-        f'font-size="34" font-weight="bold" fill="#111827">{letter}.</text>',
-        f'<image href="{_data_uri(png)}" x="{PAD:.0f}" y="{LABEL_H:.0f}" '
-        f'width="{cw:.0f}" height="{ch:.0f}" preserveAspectRatio="xMidYMid meet"/>',
-        "</svg>",
-    ]
-    out = VIZ / f"{stem}.svg"
-    out.write_text("\n".join(parts), encoding="utf-8")
-    return out
-
-
-def _emit_png(png: Path, letter: str, stem: str) -> Path:
-    cw, ch = _dims(png)
-    fig_w = round(cw + 2 * PAD)
-    fig_h = round(ch + LABEL_H + PAD)
-    canvas = Image.new("RGB", (fig_w, fig_h), "#ffffff")
-    draw = ImageDraw.Draw(canvas)
-    draw.text((PAD, PAD - 4), f"{letter}.", fill="#111827", font=_label_font(34))
-    with Image.open(png) as im:
-        panel = im.convert("RGBA").resize((round(cw), round(ch)), Image.LANCZOS)
-        canvas.paste(panel, (PAD, LABEL_H), panel)
-    out = VIZ / f"{stem}.png"
-    canvas.save(out, "PNG", optimize=True)
-    return out
+def _layout() -> tuple[list[tuple[Path, str, float, float, float]], float, float]:
+    """Return (placements, fig_w, fig_h). Each placement is
+    (png, letter, x, width, height)."""
+    placements: list[tuple[Path, str, float, float, float]] = []
+    x = float(PAD)
+    for i, (panel, letter) in enumerate(PANELS):
+        png = VIZ / panel
+        if not png.is_file():
+            raise SystemExit(f"missing Figure 2 panel: {png} — render the panels first")
+        w, h = _panel_size(png)
+        placements.append((png, letter, x, w, h))
+        x += w + (GAP if i < len(PANELS) - 1 else 0)
+    fig_w = x + PAD
+    fig_h = PANEL_H + LABEL_H + PAD
+    return placements, fig_w, fig_h
 
 
 def build_figure2() -> Path:
     VIZ.mkdir(parents=True, exist_ok=True)
-    first = None
-    for panel, letter, stem in PANELS:
-        png = VIZ / panel
-        if not png.is_file():
-            raise SystemExit(f"missing Figure 2 panel: {png} — render the panels first")
-        out = _emit_svg(png, letter, stem)
-        print(f"composed {out.relative_to(WS)}")
-        first = first or out
-    return first  # framework checks a returned Path exists
+    placements, fig_w, fig_h = _layout()
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{fig_w:.0f}" height="{fig_h:.0f}" '
+        f'viewBox="0 0 {fig_w:.0f} {fig_h:.0f}">',
+        '<rect width="100%" height="100%" fill="#ffffff"/>',
+    ]
+    for png, letter, x, w, h in placements:
+        parts.append(
+            f'<text x="{x:.0f}" y="{PAD + 34:.0f}" '
+            f'font-family="Georgia, \'Times New Roman\', serif" '
+            f'font-size="34" font-weight="bold" fill="#111827">{letter}.</text>'
+        )
+        parts.append(
+            f'<image href="{_data_uri(png)}" x="{x:.0f}" y="{LABEL_H:.0f}" '
+            f'width="{w:.0f}" height="{h:.0f}" preserveAspectRatio="xMidYMid meet"/>'
+        )
+    parts.append("</svg>")
+    out = VIZ / f"{OUTPUT_STEM}.svg"
+    out.write_text("\n".join(parts), encoding="utf-8")
+    print(f"composed {out.relative_to(WS)}")
+    return out
 
 
 def build_figure2_png() -> Path:
-    first = None
-    for panel, letter, stem in PANELS:
-        out = _emit_png(VIZ / panel, letter, stem)
-        first = first or out
-    return first
+    placements, fig_w, fig_h = _layout()
+    canvas = Image.new("RGB", (round(fig_w), round(fig_h)), "#ffffff")
+    draw = ImageDraw.Draw(canvas)
+    font = _label_font(34)
+    for png, letter, x, w, h in placements:
+        draw.text((x, PAD - 4), f"{letter}.", fill="#111827", font=font)
+        with Image.open(png) as im:
+            panel = im.convert("RGBA").resize((round(w), round(h)), Image.LANCZOS)
+            canvas.paste(panel, (round(x), LABEL_H), panel)
+    out = VIZ / f"{OUTPUT_STEM}.png"
+    canvas.save(out, "PNG", optimize=True)
+    print(f"composed {out.relative_to(WS)}")
+    return out
 
 
 if __name__ == "__main__":

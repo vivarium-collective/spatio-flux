@@ -34,12 +34,16 @@ SPECS = [
      "simulations (real, zoomable composites — the same real study template ×3); "
      "their outputs feed a draft Analysis + Visualization step. Pre/post are draft; "
      "the parallel simulations are a real composite."),
-    # Fig 2b: the paper's process-bigraph diagram — abstract nodes n1..n6 (place
-    # graph) with processes p1,p2,p3 replacing the Milner hyperedges.
-    ("fig02-process-bigraph", "Fig 2", pf.fig02_bigraph_state, True,
-     "Process bigraph (Fig 2b): place-graph nodes n1..n6 with processes p1, p2, p3 "
-     "connecting them through typed ports — the process-graph replacement for the "
-     "Milner link graph's hyperedges (Fig 2a)."),
+    # Fig 2: the SAME place graph (nodes n1..n6) read two ways — as a Milner link
+    # graph (2a, hyperedges e1/e2/e3) and as a process graph (2b, processes
+    # p1/p2/p3). Two composites so each panel carries its own labels.
+    ("fig02a-hyperedges", "Fig 2a", pf.fig02a_bigraph_state, True,
+     "Hypergraph reading (Fig 2a): place-graph nodes n1..n6 with hyperedges e1, e2, "
+     "e3 — the Milner link graph, edges spanning the nodes they connect."),
+    ("fig02b-processes", "Fig 2b", pf.fig02b_bigraph_state, True,
+     "Process graph (Fig 2b): the same place-graph nodes n1..n6 with processes p1, "
+     "p2, p3 connecting them through typed ports — the process-graph replacement for "
+     "the link graph's hyperedges."),
     ("fig03a-store", "Fig 3a", pf.fig3a_store_state, False,
      "Store diagram (a): a single store `cell` holding an `ecoli` data type, shown "
      "in full detail — a store holds any data type and shows its name + type."),

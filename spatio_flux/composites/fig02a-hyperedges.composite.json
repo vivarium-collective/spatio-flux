@@ -1,10 +1,10 @@
 {
-  "name": "fig02-process-bigraph",
-  "description": "Fig 2 \u2014 Process bigraph (Fig 2b): place-graph nodes n1..n6 with processes p1, p2, p3 connecting them through typed ports \u2014 the process-graph replacement for the Milner link graph's hyperedges (Fig 2a).",
+  "name": "fig02a-hyperedges",
+  "description": "Fig 2a \u2014 Hypergraph reading (Fig 2a): place-graph nodes n1..n6 with hyperedges e1, e2, e3 \u2014 the Milner link graph, edges spanning the nodes they connect.",
   "tags": [
     "paper-figure",
     "draft",
-    "fig-2"
+    "fig-2a"
   ],
   "state": {
     "n1": {
