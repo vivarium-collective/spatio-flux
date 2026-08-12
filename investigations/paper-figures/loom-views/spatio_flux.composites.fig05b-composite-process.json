@@ -1,0 +1,28 @@
+{
+  "v": 1,
+  "collapsed": [],
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {},
+  "positions": {
+    "nutrients": {
+      "x": 40,
+      "y": 420
+    },
+    "signals": {
+      "x": 40,
+      "y": 760
+    },
+    "cell": {
+      "x": 480,
+      "y": 120
+    },
+    "shape": {
+      "x": 1720,
+      "y": 560
+    }
+  }
+}

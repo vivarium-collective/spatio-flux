@@ -1,0 +1,32 @@
+{
+  "v": 1,
+  "collapsed": [],
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {},
+  "positions": {
+    "metabolism": {
+      "x": 80,
+      "y": 140
+    },
+    "gene_expression": {
+      "x": 80,
+      "y": 600
+    },
+    "metab": {
+      "x": 860,
+      "y": 60
+    },
+    "enzymes": {
+      "x": 860,
+      "y": 380
+    },
+    "DNA": {
+      "x": 860,
+      "y": 700
+    }
+  }
+}
