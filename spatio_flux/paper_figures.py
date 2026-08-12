@@ -604,6 +604,22 @@ def fig04_process_state() -> dict:
     }
 
 
+def _committed_view_positions(composite_id: str) -> dict:
+    """Load a committed loom-view's node positions for a composite id, searching
+    the workspace's paper-figures loom-views dir (CWD during export, else relative
+    to this package). Best-effort — returns {} if not found."""
+    import json as _json
+    rel = Path("investigations") / "paper-figures" / "loom-views" / f"{composite_id}.json"
+    for base in (Path.cwd(), Path(__file__).resolve().parents[2]):
+        p = base / rel
+        if p.is_file():
+            try:
+                return _json.loads(p.read_text(encoding="utf-8")).get("positions", {}) or {}
+            except Exception:
+                return {}
+    return {}
+
+
 def fig05a_process_graph_state() -> dict:
     """Fig 5a: a PROCESS GRAPH — processes connected to stores through typed ports.
     gene_expression reads DNA → enzymes; metabolism reads nutrients + enzymes →
@@ -641,11 +657,16 @@ def fig05b_composite_process_state() -> dict:
     cell into a scalar `concentration`, and the cell (whose inner is Fig 5a) reads
     that local concentration as its `nutrients` and returns `products` to it."""
     inner = fig05a_process_graph_state()   # the cell's inner IS the Fig 5a graph
+    # The Fig 5a composite's SAVED loom view — carried on the cell's CONFIG (not in
+    # the inner state, which would render the positions as nodes) so the inner-
+    # composite preview lays out with that hand-tuned layout, not a generic grid.
+    _inner_view = {"positions": _committed_view_positions(
+        "spatio_flux.composites.fig05a-process-graph")}
     cell = {
         "_type": "process",
         "address": "local:Composite",
         "is_composite_process": True,
-        "config": {"state": inner},
+        "config": {"state": inner, "_inner_view": _inner_view},
         "_inputs": {"nutrients": "concentration"},
         "_outputs": {"products": "concentration"},
         "_contract": {

@@ -313,6 +313,34 @@
                 ]
               }
             }
+          },
+          "_inner_view": {
+            "positions": {
+              "metabolism": {
+                "x": 80,
+                "y": 140
+              },
+              "gene_expression": {
+                "x": 80,
+                "y": 620
+              },
+              "nutrients": {
+                "x": 900,
+                "y": 40
+              },
+              "products": {
+                "x": 900,
+                "y": 300
+              },
+              "enzymes": {
+                "x": 900,
+                "y": 560
+              },
+              "DNA": {
+                "x": 900,
+                "y": 820
+              }
+            }
           }
         },
         "_inputs": {
