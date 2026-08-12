@@ -50,6 +50,16 @@ SPECS = [
      "Process diagram: one process as a rectangle with typed ports on its boundary — "
      "inputs in_1 (species), in_2 (params) left; outputs out_1 (ss_species), out_2 "
      "(rates) right; config type steady_state; update (in_1, in_2) → (out_1, out_2)."),
+    # Fig 5a: a process graph — processes wired to shared stores via typed ports.
+    ("fig05a-process-graph", "Fig 5a", pf.fig05a_process_graph_state, False,
+     "Process graph (Fig 5a): metabolism + gene_expression processes connected to "
+     "shared stores (metab, enzymes, DNA) through typed ports — arrow directions "
+     "show the input/output wiring."),
+    # Fig 5b: a composite process — a `cell` with a real drillable inner bigraph.
+    ("fig05b-composite-process", "Fig 5b", pf.fig05b_composite_process_state, False,
+     "Composite process (Fig 5b): a `cell` process exposing external ports "
+     "(nutrients, signals in; shape out) that bridge to an internal process bigraph "
+     "(express / grow / transport over cyto / mem / nuc) — a drillable sub-composite."),
 ]
 
 

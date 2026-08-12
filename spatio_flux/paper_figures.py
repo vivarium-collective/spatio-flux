@@ -568,3 +568,80 @@ def fig04_process_state() -> dict:
     return {
         "process": _proc(ProcessSchematic, {}, {}),
     }
+
+
+def fig05a_process_graph_state() -> dict:
+    """Fig 5a: a PROCESS GRAPH — processes connected to shared stores through typed
+    ports. gene_expression reads DNA → enzymes; metabolism reads substrates +
+    enzymes → products (the enzymes store is the shared coupling). Arrow directions
+    in the figure show the input/output wiring — the process-graph reading of a
+    composition."""
+    return {
+        "metab":   _v("concentration", 5.0),   # substrate + product pool
+        "enzymes": _v("concentration", 1.0),   # shared: gene_expression writes, metabolism reads
+        "DNA":     _v("concentration", 1.0),
+        "metabolism": _proc(
+            MetabolismGraph,
+            {"substrates": ["metab"], "enzymes": ["enzymes"]}, {"products": ["metab"]}),
+        "gene_expression": _proc(
+            GeneExpressionGraph,
+            {"genes": ["DNA"]}, {"enzymes": ["enzymes"]}),
+    }
+
+
+def fig05b_composite_process_state() -> dict:
+    """Fig 5b: a COMPOSITE PROCESS — a `cell` process whose inner document is a real
+    process bigraph. The cell exposes external ports (nutrients, signals → in;
+    shape → out) that bridge to its internal composition:
+
+        cyto ⊃ { rib, nuc ⊃ { DNA } },  mem ⊃ { chnl }
+        + processes  express (DNA→rib),  grow (rib+nutrients+signals→mem),
+                     transport (chnl+nutrients→shape)
+
+    Nested as a `local:Composite` process with is_composite_process, so the loom
+    renders it as one node with a drillable inner-composite preview."""
+    inner = {
+        # the cell's external interface, as inner stores the outer ports bridge to
+        "nutrients": _v("concentration", 5.0),
+        "signals":   _v("concentration", 1.0),
+        "shape":     _v("concentration", 0.0),
+        # inner place graph
+        "cyto": {"rib": _v("concentration", 1.0),
+                 "nuc": {"DNA": _v("concentration", 1.0)}},
+        "mem":  {"chnl": _v("concentration", 1.0)},
+        # inner processes (the cell's own bigraph)
+        "express": _proc(
+            Express, {"genes": ["cyto", "nuc", "DNA"]}, {"ribosomes": ["cyto", "rib"]}),
+        "grow": _proc(
+            Grow,
+            {"ribosomes": ["cyto", "rib"], "nutrients": ["nutrients"], "signals": ["signals"]},
+            {"membrane": ["mem"]}),
+        "transport": _proc(
+            Transport,
+            {"channels": ["mem", "chnl"], "nutrients": ["nutrients"]}, {"shape": ["shape"]}),
+    }
+    cell = {
+        "_type": "process",
+        "address": "local:Composite",
+        "is_composite_process": True,
+        "config": {"state": inner},
+        "_inputs": {"nutrients": "concentration", "signals": "concentration"},
+        "_outputs": {"shape": "concentration"},
+        "_contract": {
+            "summary": "cell — a composite process orchestrating an internal bigraph",
+            "description": ("The cell exposes external ports (nutrients, signals in; shape out) "
+                            "that link to an internal process bigraph of express / grow / transport "
+                            "over cyto / mem / nuc stores."),
+            "status": "", "math": [], "symbols": {},
+            "inputs": {"nutrients": "external nutrients", "signals": "external signals"},
+            "outputs": {"shape": "cell shape (boundary output)"},
+        },
+        "inputs": {"nutrients": ["nutrients"], "signals": ["signals"]},
+        "outputs": {"shape": ["shape"]},
+    }
+    return {
+        "nutrients": _v("concentration", 5.0),
+        "signals":   _v("concentration", 1.0),
+        "shape":     _v("concentration", 0.0),
+        "cell": cell,
+    }
