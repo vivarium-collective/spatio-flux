@@ -508,18 +508,19 @@ def fig02_bigraph_state() -> dict:
     """Fig 2b: the process bigraph of the paper's composition-framework diagram.
 
     Place graph (solid nesting): n1 ⊃ {n3, n4}, n4 ⊃ {n6}, n2 ⊃ {n5}.
-    Processes p1, p2, p3 replace the Milner link graph's hyperedges, connecting
-    the nodes through their typed ports (dashed wires in the figure).
+    Processes e1, e2, e3 replace the Milner link graph's hyperedges (named `e`
+    for edge), connecting the nodes through their typed ports (dashed wires in the
+    figure). Fig 2a reads them as hyperedges; Fig 2b as process boxes.
     """
     return {
         # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
         "n1": {"n3": _v("place_node", 0.0), "n4": {"n6": _v("place_node", 0.0)}},
         "n2": {"n5": _v("place_node", 0.0)},
-        # Processes wired across the place graph (paths into the nesting). p1 and
-        # p3 also link to n2 (extra hyperedge spoke / process wire).
-        "p1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
-        "p2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
-        "p3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
+        # Hyperedges wired across the place graph (paths into the nesting). e1 and
+        # e3 also link to n2 (extra hyperedge spoke / process wire).
+        "e1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
+        "e2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
+        "e3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
     }
 
 
