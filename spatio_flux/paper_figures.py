@@ -226,14 +226,14 @@ class GeneExpression(DraftProcess):
 # ── Fig 3a: process graph (metabolism + gene expression over shared stores) ──
 @draft_process(
     name="MetabolismGraph",
-    inputs={"substrates": "concentration", "enzymes": "concentration"},
-    outputs={"products": "concentration"},
+    inputs={"substrates": "metabolites", "enzymes": "protein"},
+    outputs={"products": "metabolites"},
     contract={
         "summary": "Metabolism — substrates + enzymes → products",
-        "description": "The process-graph view of metabolism: consumes substrates under enzyme catalysis to make products.",
+        "description": "The process-graph view of metabolism: consumes substrate metabolites under enzyme (protein) catalysis to make product metabolites.",
         "math": [r"\frac{d[\text{products}]}{dt} = k_{\text{cat}}\,[\text{enzymes}]\,\frac{[\text{substrates}]}{K_m + [\text{substrates}]}"],
         "symbols": {"k_cat": "turnover number", "K_m": "Michaelis constant"},
-        "ports": {"substrates": "substrate pool", "enzymes": "enzyme levels", "products": "product pool"},
+        "ports": {"substrates": "substrate metabolites", "enzymes": "enzymes (protein)", "products": "product metabolites"},
     },
 )
 class MetabolismGraph(DraftProcess):
@@ -242,13 +242,13 @@ class MetabolismGraph(DraftProcess):
 
 @draft_process(
     name="GeneExpressionGraph",
-    inputs={"genes": "concentration"}, outputs={"enzymes": "concentration"},
+    inputs={"genes": "DNA"}, outputs={"protein": "protein"},
     contract={
-        "summary": "Gene expression — genes → enzymes",
-        "description": "The process-graph view of gene expression: reads genes (DNA) and produces the enzymes that metabolism uses.",
-        "math": [r"\frac{d[\text{enzymes}]}{dt} = k_{\text{expr}}\,[\text{genes}] - \gamma\,[\text{enzymes}]"],
-        "symbols": {"k_expr": "expression rate", "γ": "enzyme turnover"},
-        "ports": {"genes": "gene / DNA template", "enzymes": "produced enzymes"},
+        "summary": "Gene expression — genes → protein",
+        "description": "The process-graph view of gene expression: reads the gene (DNA) template and produces protein (the enzymes metabolism uses).",
+        "math": [r"\frac{d[\text{protein}]}{dt} = k_{\text{expr}}\,[\text{genes}] - \gamma\,[\text{protein}]"],
+        "symbols": {"k_expr": "expression rate", "γ": "protein turnover"},
+        "ports": {"genes": "gene template (DNA)", "protein": "produced protein (enzymes)"},
     },
 )
 class GeneExpressionGraph(DraftProcess):
@@ -627,16 +627,16 @@ def fig05a_process_graph_state() -> dict:
     (out) are the ENVIRONMENT-FACING boundary stores — in Fig 5b this same graph is
     nested inside the cell and those two couple to the tissue field."""
     return {
-        "nutrients": _v("concentration", 5.0),   # substrate pool (environment-facing)
-        "products":  _v("concentration", 0.0),   # product pool  (environment-facing)
-        "enzymes":   _v("concentration", 1.0),   # shared: gene_expression writes, metabolism reads
-        "DNA":       _v("concentration", 1.0),
+        "nutrients": _v("metabolites", 5.0),   # substrate pool (environment-facing)
+        "products":  _v("metabolites", 0.0),   # product pool  (environment-facing)
+        "enzymes":   _v("protein", 1.0),       # protein — gene_expression writes, metabolism reads
+        "DNA":       _v("DNA", 1.0),           # gene template
         "metabolism": _proc(
             MetabolismGraph,
             {"substrates": ["nutrients"], "enzymes": ["enzymes"]}, {"products": ["products"]}),
         "gene_expression": _proc(
             GeneExpressionGraph,
-            {"genes": ["DNA"]}, {"enzymes": ["enzymes"]}),
+            {"genes": ["DNA"]}, {"protein": ["enzymes"]}),
     }
 
 
