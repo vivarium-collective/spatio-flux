@@ -87,6 +87,8 @@ for (const [slug, id, name, flags = {}] of RUN_JOBS) {
   if (flags.stores) params.push(`stores=${flags.stores}`);
   if (flags.config) params.push(`config=${flags.config}`);
   if (flags.contract) params.push(`contract=${flags.contract}`);
+  if (flags.figures) params.push(`figures=${flags.figures}`);
+  if (flags.font) params.push(`font=${flags.font}`);
   const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&${params.join('&')}`;
   const outPng = `${WS}/studies/${slug}/visualizations/${name}.png`;
   try {

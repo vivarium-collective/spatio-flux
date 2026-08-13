@@ -1,0 +1,193 @@
+{
+  "name": "fig02b-processes",
+  "description": "Fig 2b \u2014 Process graph (Fig 2b): the same place-graph nodes n1..n6 with processes p1, p2, p3 connecting them through typed ports \u2014 the process-graph replacement for the link graph's hyperedges.",
+  "tags": [
+    "paper-figure",
+    "draft",
+    "fig-2b"
+  ],
+  "state": {
+    "n1": {
+      "n3": {
+        "_type": "place_node",
+        "_value": 0.0
+      },
+      "n4": {
+        "n6": {
+          "_type": "place_node",
+          "_value": 0.0
+        }
+      }
+    },
+    "n2": {
+      "n5": {
+        "_type": "place_node",
+        "_value": 0.0
+      }
+    },
+    "p1": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+          "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+          "ports": {
+            "in": "a node this process reads",
+            "out": "a node this process writes",
+            "out_b": "a second node this process writes"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "place_node"
+      },
+      "_outputs": {
+        "out": "place_node",
+        "out_b": "place_node"
+      },
+      "_contract": {
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+        "status": "draft - no update",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "a node this process reads"
+        },
+        "outputs": {
+          "out": "a node this process writes",
+          "out_b": "a second node this process writes"
+        }
+      },
+      "inputs": {
+        "in": [
+          "n1"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "n2"
+        ],
+        "out_b": [
+          "n1",
+          "n3"
+        ]
+      }
+    },
+    "p2": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+          "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+          "ports": {
+            "in": "a node this process reads",
+            "out": "a node this process writes",
+            "out_b": "a second node this process writes"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "place_node"
+      },
+      "_outputs": {
+        "out": "place_node",
+        "out_b": "place_node"
+      },
+      "_contract": {
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+        "status": "draft - no update",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "a node this process reads"
+        },
+        "outputs": {
+          "out": "a node this process writes",
+          "out_b": "a second node this process writes"
+        }
+      },
+      "inputs": {
+        "in": [
+          "n1",
+          "n3"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "n1",
+          "n4",
+          "n6"
+        ]
+      }
+    },
+    "p3": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+          "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+          "ports": {
+            "in": "a node this process reads",
+            "out": "a node this process writes",
+            "out_b": "a second node this process writes"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "place_node"
+      },
+      "_outputs": {
+        "out": "place_node",
+        "out_b": "place_node"
+      },
+      "_contract": {
+        "summary": "Process p \u2014 connects place-graph nodes via typed ports",
+        "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
+        "status": "draft - no update",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "a node this process reads"
+        },
+        "outputs": {
+          "out": "a node this process writes",
+          "out_b": "a second node this process writes"
+        }
+      },
+      "inputs": {
+        "in": [
+          "n1",
+          "n4",
+          "n6"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "n2"
+        ],
+        "out_b": [
+          "n2",
+          "n5"
+        ]
+      }
+    },
+    "global_time": 0.0
+  }
+}

@@ -7,9 +7,15 @@
     "fig-1c"
   ],
   "state": {
-    "raw_data": {
+    "datasets": {
       "_type": "dataset",
-      "_value": 0.0
+      "_value": 0.0,
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"16\" y=\"9\" width=\"40\" height=\"30\" rx=\"3\" fill=\"#f8fafc\" stroke=\"#3b82f6\" stroke-width=\"1.9\"/><rect x=\"17.5\" y=\"10.5\" width=\"37\" height=\"7.5\" fill=\"#3b82f6\" opacity=\"0.22\"/><path d=\"M16 18 H56 M16 28.5 H56 M29.3 18 V39 M42.7 18 V39\" stroke=\"#3b82f6\" stroke-width=\"1.2\" opacity=\"0.55\"/><g fill=\"#3b82f6\"><rect x=\"20\" y=\"12.5\" width=\"6\" height=\"3\" rx=\"1\"/><rect x=\"33\" y=\"12.5\" width=\"6\" height=\"3\" rx=\"1\"/><rect x=\"46\" y=\"12.5\" width=\"5\" height=\"3\" rx=\"1\"/></g></g></svg>"
+    },
+    "model_specification": {
+      "_type": "json",
+      "_value": 0.0,
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"18\" y=\"7\" width=\"36\" height=\"34\" rx=\"4\" fill=\"#f8fafc\" stroke=\"#334155\" stroke-width=\"1.9\"/><path d=\"M30 13 q-4 0 -4 5 q0 5 -4 6 q4 1 4 6 q0 5 4 5\" fill=\"none\" stroke=\"#7c3aed\" stroke-width=\"2\"/><path d=\"M42 13 q4 0 4 5 q0 5 4 6 q-4 1 -4 6 q0 5 -4 5\" fill=\"none\" stroke=\"#7c3aed\" stroke-width=\"2\"/></g></svg>"
     },
     "preprocess": {
       "_type": "process",
@@ -21,42 +27,49 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Pre-processing \u2014 prepare the simulation conditions",
-          "description": "The workflow's pre-step: reads the raw study inputs and derives the initial conditions / parameters shared by the parallel simulation ensemble.",
+          "description": "The workflow's pre-step: reads the experimental datasets and the model specification (JSON) and derives the initial conditions / parameters shared by the parallel simulation ensemble.",
           "ports": {
-            "raw": "raw study inputs",
+            "datasets": "experimental datasets",
+            "spec": "model specification (JSON)",
             "conditions": "prepared simulation conditions"
           }
         }
       },
       "_inputs": {
-        "raw": "concentration"
+        "datasets": "dataset",
+        "spec": "json"
       },
       "_outputs": {
         "conditions": "concentration"
       },
       "_contract": {
         "summary": "Pre-processing \u2014 prepare the simulation conditions",
-        "description": "The workflow's pre-step: reads the raw study inputs and derives the initial conditions / parameters shared by the parallel simulation ensemble.",
+        "description": "The workflow's pre-step: reads the experimental datasets and the model specification (JSON) and derives the initial conditions / parameters shared by the parallel simulation ensemble.",
         "status": "draft - no update dynamics yet",
         "math": [],
         "symbols": {},
         "inputs": {
-          "raw": "raw study inputs"
+          "datasets": "experimental datasets",
+          "spec": "model specification (JSON)"
         },
         "outputs": {
           "conditions": "prepared simulation conditions"
         }
       },
       "inputs": {
-        "raw": [
-          "raw_data"
+        "datasets": [
+          "datasets"
+        ],
+        "spec": [
+          "model_specification"
         ]
       },
       "outputs": {
         "conditions": [
           "simulations"
         ]
-      }
+      },
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 7 H44 L52 15 V41 H20 Z\" fill=\"#f8fafc\" stroke=\"#16a34a\" stroke-width=\"1.9\"/><path d=\"M44 7 V15 H52\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"1.6\"/><g stroke=\"#16a34a\" stroke-width=\"2\"><path d=\"M25 21 l2.4 2.4 4.2 -5.2\"/><path d=\"M25 30 l2.4 2.4 4.2 -5.2\"/></g><g stroke=\"#334155\" stroke-width=\"1.8\" opacity=\"0.4\"><line x1=\"34\" y1=\"21\" x2=\"47\" y2=\"21\"/><line x1=\"34\" y1=\"30\" x2=\"47\" y2=\"30\"/></g></g></svg>"
     },
     "simulations": {
       "sim_0": {
@@ -596,39 +609,39 @@
             },
             "fields": {
               "glucose": {
-                "_type": "concentration",
+                "_type": "mM",
                 "_value": 10.0
               },
               "acetate": {
-                "_type": "concentration",
+                "_type": "mM",
                 "_value": 0.0
               },
               "ecoli core": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "ecoli": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "cdiff": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "pputida": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "yeast": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "llactis": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "monod biomass": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               }
             }
@@ -1174,39 +1187,39 @@
             },
             "fields": {
               "glucose": {
-                "_type": "concentration",
+                "_type": "mM",
                 "_value": 10.0
               },
               "acetate": {
-                "_type": "concentration",
+                "_type": "mM",
                 "_value": 0.0
               },
               "ecoli core": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "ecoli": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "cdiff": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "pputida": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "yeast": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "llactis": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "monod biomass": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               }
             }
@@ -1752,39 +1765,39 @@
             },
             "fields": {
               "glucose": {
-                "_type": "concentration",
+                "_type": "mM",
                 "_value": 10.0
               },
               "acetate": {
-                "_type": "concentration",
+                "_type": "mM",
                 "_value": 0.0
               },
               "ecoli core": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "ecoli": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "cdiff": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "pputida": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "yeast": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "llactis": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               },
               "monod biomass": {
-                "_type": "concentration",
+                "_type": "gDW",
                 "_value": 0.1
               }
             }
@@ -1794,24 +1807,20 @@
         "outputs": {}
       }
     },
-    "results": {
-      "_type": "figure",
-      "_value": 0.0
-    },
-    "analysis": {
+    "analyses": {
       "_type": "process",
-      "address": "local:AnalysisViz",
+      "address": "local:Analyses",
       "_draft": true,
       "config": {
         "interval": 1.0,
-        "summary": "Analysis + visualization of the simulation ensemble",
+        "summary": "Analyses \u2014 quantify the simulation ensemble",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Analysis + visualization of the simulation ensemble",
-          "description": "The workflow's post-step: aggregates the outputs of the parallel simulations and renders the analysis + figure.",
+          "summary": "Analyses \u2014 quantify the simulation ensemble",
+          "description": "A workflow post-step: aggregates the parallel simulation outputs into quantitative analysis results (summary statistics, derived observables).",
           "ports": {
             "runs": "the parallel simulation outputs",
-            "figure": "analysis + visualization"
+            "results": "analysis results"
           }
         }
       },
@@ -1819,11 +1828,11 @@
         "runs": "concentration"
       },
       "_outputs": {
-        "figure": "concentration"
+        "results": "results"
       },
       "_contract": {
-        "summary": "Analysis + visualization of the simulation ensemble",
-        "description": "The workflow's post-step: aggregates the outputs of the parallel simulations and renders the analysis + figure.",
+        "summary": "Analyses \u2014 quantify the simulation ensemble",
+        "description": "A workflow post-step: aggregates the parallel simulation outputs into quantitative analysis results (summary statistics, derived observables).",
         "status": "draft - no update dynamics yet",
         "math": [],
         "symbols": {},
@@ -1831,7 +1840,7 @@
           "runs": "the parallel simulation outputs"
         },
         "outputs": {
-          "figure": "analysis + visualization"
+          "results": "analysis results"
         }
       },
       "inputs": {
@@ -1840,10 +1849,122 @@
         ]
       },
       "outputs": {
-        "figure": [
-          "results"
+        "results": [
+          "analysis_results"
         ]
-      }
+      },
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"12\" y1=\"40\" x2=\"60\" y2=\"40\" stroke=\"#334155\" stroke-width=\"1.8\" opacity=\"0.6\"/><g stroke-width=\"0\"><rect x=\"14\" y=\"27\" width=\"8\" height=\"13\" rx=\"2\" fill=\"#3b82f6\"/><rect x=\"26\" y=\"18\" width=\"8\" height=\"22\" rx=\"2\" fill=\"#16a34a\"/><rect x=\"38\" y=\"23\" width=\"8\" height=\"17\" rx=\"2\" fill=\"#f59e0b\"/><rect x=\"50\" y=\"12\" width=\"8\" height=\"28\" rx=\"2\" fill=\"#db2777\"/></g></g></svg>"
+    },
+    "visualizations": {
+      "_type": "process",
+      "address": "local:Visualizations",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Visualizations \u2014 render figures from the results",
+        "contract": {
+          "status": "draft - no update dynamics yet",
+          "summary": "Visualizations \u2014 render figures from the results",
+          "description": "A workflow post-step: reads the simulation outputs and renders the figures (plots, snapshots, animations).",
+          "ports": {
+            "runs": "the parallel simulation outputs",
+            "figures": "rendered figures"
+          }
+        }
+      },
+      "_inputs": {
+        "runs": "concentration"
+      },
+      "_outputs": {
+        "figures": "figure"
+      },
+      "_contract": {
+        "summary": "Visualizations \u2014 render figures from the results",
+        "description": "A workflow post-step: reads the simulation outputs and renders the figures (plots, snapshots, animations).",
+        "status": "draft - no update dynamics yet",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "runs": "the parallel simulation outputs"
+        },
+        "outputs": {
+          "figures": "rendered figures"
+        }
+      },
+      "inputs": {
+        "runs": [
+          "simulations"
+        ]
+      },
+      "outputs": {
+        "figures": [
+          "figures"
+        ]
+      },
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"14\" y=\"10\" width=\"44\" height=\"28\" rx=\"3\" fill=\"#f8fafc\" stroke=\"#3b82f6\" stroke-width=\"1.9\"/><rect x=\"18\" y=\"25\" width=\"15\" height=\"10\" rx=\"1.5\" fill=\"#16a34a\" opacity=\"0.45\"/><path d=\"M40 17 L48 22 L43 31 Z\" fill=\"none\" stroke=\"#db2777\" stroke-width=\"1.4\" opacity=\"0.7\"/><g fill=\"#db2777\"><circle cx=\"40\" cy=\"17\" r=\"2.2\"/><circle cx=\"48\" cy=\"22\" r=\"2.2\"/><circle cx=\"43\" cy=\"31\" r=\"2.2\"/></g><circle cx=\"24\" cy=\"17\" r=\"2\" fill=\"#f59e0b\"/></g></svg>"
+    },
+    "tests": {
+      "_type": "process",
+      "address": "local:Tests",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Tests \u2014 check results against expected behavior",
+        "contract": {
+          "status": "draft - no update dynamics yet",
+          "summary": "Tests \u2014 check results against expected behavior",
+          "description": "A workflow post-step: evaluates the simulation outputs against the study's acceptance criteria and emits a pass / fail report.",
+          "ports": {
+            "runs": "the parallel simulation outputs",
+            "report": "test report (pass / fail)"
+          }
+        }
+      },
+      "_inputs": {
+        "runs": "concentration"
+      },
+      "_outputs": {
+        "report": "report"
+      },
+      "_contract": {
+        "summary": "Tests \u2014 check results against expected behavior",
+        "description": "A workflow post-step: evaluates the simulation outputs against the study's acceptance criteria and emits a pass / fail report.",
+        "status": "draft - no update dynamics yet",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "runs": "the parallel simulation outputs"
+        },
+        "outputs": {
+          "report": "test report (pass / fail)"
+        }
+      },
+      "inputs": {
+        "runs": [
+          "simulations"
+        ]
+      },
+      "outputs": {
+        "report": [
+          "test_report"
+        ]
+      },
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"36\" cy=\"24\" r=\"15\" fill=\"#f0fdf4\" stroke=\"#16a34a\" stroke-width=\"2.4\"/><path d=\"M28 24 l5.5 5.5 11 -13\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"2.8\"/></g></svg>"
+    },
+    "analysis_results": {
+      "_type": "results",
+      "_value": 0.0,
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 7 H44 L52 15 V41 H22 Z\" fill=\"#f8fafc\" stroke=\"#16a34a\" stroke-width=\"1.9\"/><path d=\"M44 7 V15 H52\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"1.6\"/><g stroke=\"#16a34a\" stroke-width=\"1.8\" opacity=\"0.75\"><line x1=\"29\" y1=\"22\" x2=\"47\" y2=\"22\"/><line x1=\"29\" y1=\"29\" x2=\"47\" y2=\"29\"/><line x1=\"29\" y1=\"36\" x2=\"42\" y2=\"36\"/></g><g fill=\"#16a34a\"><circle cx=\"26\" cy=\"22\" r=\"1.4\"/><circle cx=\"26\" cy=\"29\" r=\"1.4\"/><circle cx=\"26\" cy=\"36\" r=\"1.4\"/></g></g></svg>"
+    },
+    "figures": {
+      "_type": "figure",
+      "_value": 0.0,
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"16\" y1=\"38\" x2=\"57\" y2=\"38\" stroke=\"#334155\" stroke-width=\"1.6\" opacity=\"0.5\"/><g stroke-width=\"0\"><rect x=\"19\" y=\"26\" width=\"7.5\" height=\"12\" rx=\"1.5\" fill=\"#3b82f6\"/><rect x=\"30.5\" y=\"17\" width=\"7.5\" height=\"21\" rx=\"1.5\" fill=\"#3b82f6\"/><rect x=\"42\" y=\"22\" width=\"7.5\" height=\"16\" rx=\"1.5\" fill=\"#3b82f6\"/></g></g></svg>"
+    },
+    "test_report": {
+      "_type": "report",
+      "_value": 0.0,
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 7 H42 L50 15 V41 H20 Z\" fill=\"#f8fafc\" stroke=\"#16a34a\" stroke-width=\"1.9\"/><path d=\"M42 7 V15 H50\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"1.6\"/><g stroke=\"#334155\" stroke-width=\"1.7\" opacity=\"0.4\"><line x1=\"25\" y1=\"20\" x2=\"40\" y2=\"20\"/><line x1=\"25\" y1=\"26\" x2=\"40\" y2=\"26\"/></g><circle cx=\"41\" cy=\"34\" r=\"6.5\" fill=\"#f0fdf4\" stroke=\"#16a34a\" stroke-width=\"1.8\"/><path d=\"M37.5 34 l2.4 2.4 4 -4.8\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"2\"/></g></svg>"
     }
   }
 }

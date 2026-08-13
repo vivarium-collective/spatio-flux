@@ -21,7 +21,7 @@ from spatio_flux.core import build_core
 from spatio_flux.library.tools import run_composite_document
 from spatio_flux.plots.plot import plot_snapshots_grid
 
-RUNTIME = 120.0
+RUNTIME = 600.0
 GENERATOR = "reference_demo_x2y2"                 # finer grid → richer division (test-suite scenario)
 FIELDS = ["glucose", "acetate", "dissolved biomass"]
 # The test-suite submass palette (flush_spec._SUBMASS_COLORS): ecoli_1 blue, ecoli_2 red.

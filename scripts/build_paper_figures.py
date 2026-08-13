@@ -47,6 +47,10 @@ GAP = 34          # gap between panels / rows
 MAX_W = 2000      # wrap to a new row past this width
 LABEL_H = 40      # space above each panel for its "a." label
 PAD = 26
+# Per-panel size overrides — a fraction of ROW_H for a specific panel (by
+# filename stem), so a schematic that would otherwise dominate its row can be
+# scaled down. Shorter panels are centered vertically within the row band.
+PANEL_SCALE = {"fig03a-store": 0.6, "fig05a-process-graph": 0.52}
 
 
 def _panel_png(study_dir: Path, viz: dict) -> Path | None:
@@ -100,7 +104,8 @@ def _shelf(study: str):
     for p in panels:
         with Image.open(p) as im:
             w, h = im.size
-        scaled.append((p, w * ROW_H / h, float(ROW_H)))
+        rh = ROW_H * PANEL_SCALE.get(p.stem, 1.0)
+        scaled.append((p, w * rh / h, rh))
     rows: list[list] = []
     cur: list = []
     cur_w = 0.0
@@ -144,8 +149,9 @@ def build_figure(study: str) -> Path | None:
                 f'<text x="{x:.0f}" y="{y + 26:.0f}" font-family="Georgia, \'Times New Roman\', serif" '
                 f'font-size="30" font-weight="bold" fill="#111827">{label}.</text>'
             )
+            img_y = y + LABEL_H + (ROW_H - sh) / 2   # center shorter panels in the row band
             parts.append(
-                f'<image href="{_data_uri(p)}" x="{x:.0f}" y="{y + LABEL_H:.0f}" '
+                f'<image href="{_data_uri(p)}" x="{x:.0f}" y="{img_y:.0f}" '
                 f'width="{sw:.0f}" height="{sh:.0f}" preserveAspectRatio="xMidYMid meet"/>'
             )
             x += sw + GAP
@@ -203,7 +209,7 @@ def build_figure_png(study: str) -> Path | None:
             draw.text((round(x), round(y)), label, fill="#111827", font=font)
             with Image.open(p) as im:
                 panel = im.convert("RGBA").resize((round(sw), round(sh)), Image.LANCZOS)
-                canvas.paste(panel, (round(x), round(y + LABEL_H)), panel)
+                canvas.paste(panel, (round(x), round(y + LABEL_H + (ROW_H - sh) / 2)), panel)
             x += sw + GAP
         y += ROW_H + LABEL_H + GAP
 

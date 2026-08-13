@@ -1,0 +1,27 @@
+schema_version: 3
+name: fig-06
+title: Fig 6 — orchestration patterns
+investigation: paper-figures
+created: '2026-08-13'
+status: complete
+confidence: Accepted
+claim: image present
+purpose:
+  question: What orchestration patterns does Fig 6 depict?
+  mechanism: 'Three orchestration patterns drawn in bigraph-loom style — (a) multi-timestepping:
+    temporal processes each updating at their own time interval, reading/writing a shared
+    store at their update ticks; (b) workflow: a DAG of step processes over intermediate
+    stores; (c) event-driven graph rewrite: divide / engulf / burst events restructuring
+    environ + agent subgraphs.'
+  expected_outcome: The orchestration-patterns figure appears under Visualizations and in the figures download.
+baseline: []
+expected_behavior:
+- orchestration-patterns figure present
+visualizations:
+- name: Figure 6 (orchestration patterns)
+  address: image:visualizations/figure_6.svg
+  chart: image
+variants: []
+interventions: []
+runs: []
+simulation_set: []

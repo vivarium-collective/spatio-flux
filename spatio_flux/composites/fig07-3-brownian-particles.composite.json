@@ -9,43 +9,58 @@
     "particles": {
       "particle_1": {
         "id": "particle",
-        "position": [
-          7.9,
-          38.8
-        ],
-        "mass": 0.059
+        "position": {
+          "_type": "(\u00b5m, \u00b5m)",
+          "_default": "(7.9, 38.8)"
+        },
+        "mass": {
+          "_type": "pg",
+          "_default": 0.059
+        }
       },
       "particle_2": {
         "id": "particle",
-        "position": [
-          12.4,
-          25.1
-        ],
-        "mass": 0.061
+        "position": {
+          "_type": "(\u00b5m, \u00b5m)",
+          "_default": "(12.4, 25.1)"
+        },
+        "mass": {
+          "_type": "pg",
+          "_default": 0.061
+        }
       },
       "particle_3": {
         "id": "particle",
-        "position": [
-          31.0,
-          9.6
-        ],
-        "mass": 0.057
+        "position": {
+          "_type": "(\u00b5m, \u00b5m)",
+          "_default": "(31.0, 9.6)"
+        },
+        "mass": {
+          "_type": "pg",
+          "_default": 0.057
+        }
       },
       "particle_4": {
         "id": "particle",
-        "position": [
-          22.7,
-          41.3
-        ],
-        "mass": 0.063
+        "position": {
+          "_type": "(\u00b5m, \u00b5m)",
+          "_default": "(22.7, 41.3)"
+        },
+        "mass": {
+          "_type": "pg",
+          "_default": 0.063
+        }
       },
       "particle_5": {
         "id": "particle",
-        "position": [
-          4.2,
-          17.8
-        ],
-        "mass": 0.06
+        "position": {
+          "_type": "(\u00b5m, \u00b5m)",
+          "_default": "(4.2, 17.8)"
+        },
+        "mass": {
+          "_type": "pg",
+          "_default": 0.06
+        }
       }
     },
     "brownian_movement": {

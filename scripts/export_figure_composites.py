@@ -212,12 +212,16 @@ def _figure_transforms(stem: str, state: dict) -> dict:
         arr = lambda: {"_type": "array", "_shape": list(shape), "_data": "concentration"}
         state["fields"] = {"glucose": arr(), "acetate": arr(), "biomass": arr()}
     elif stem == "fig07-1-community-dfba":
-        # scalar field children -> typed `concentration` stores (not bare `number`).
+        # scalar field children -> typed UNIT stores whose types match the 7b/7c
+        # plot legends: the shared metabolites (glucose, acetate) in `mM`, every
+        # per-organism biomass field (monod biomass + the six species) in `gDW`.
+        # (Was a flat `concentration`, which read wrong against 7b/7c's mM/gDW.)
         f = state.get("fields")
         if isinstance(f, dict):
+            _mM = {"glucose", "acetate"}
             for k, v in list(f.items()):
                 if not k.startswith("_") and isinstance(v, (int, float)):
-                    f[k] = {"_type": "concentration", "_value": float(v)}
+                    f[k] = {"_type": ("mM" if k in _mM else "gDW"), "_value": float(v)}
     elif stem == "fig07-3-brownian-particles":
         # the ensemble's stochastic particles (random ids) -> a fixed set of clean,
         # GENERIC siblings (particle_1..particle_5), each carrying the same
@@ -233,7 +237,14 @@ def _figure_transforms(stem: str, state: dict) -> dict:
             seeds = [[7.9, 38.8], [12.4, 25.1], [31.0, 9.6], [22.7, 41.3], [4.2, 17.8]]
             masses = [0.059, 0.061, 0.057, 0.063, 0.060]
             for i, (pos, m) in enumerate(zip(seeds, masses), start=1):
-                parts[f"particle_{i}"] = {"id": "particle", "position": pos, "mass": m}
+                # Type the leaves with UNITS so the card reads them (not a bare
+                # `array`/`number`): the 2-D position in microns shown as an
+                # explicit (x, y) value with type (µm, µm); the mass in picograms.
+                parts[f"particle_{i}"] = {
+                    "id": "particle",
+                    "position": {"_type": "(µm, µm)", "_default": f"({pos[0]}, {pos[1]})"},
+                    "mass": {"_type": "pg", "_default": m},
+                }
     return state
 
 

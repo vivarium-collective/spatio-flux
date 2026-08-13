@@ -17,6 +17,10 @@ from pathlib import Path
 
 from process_bigraph import DraftProcess, draft_process
 
+from spatio_flux._node_figures import attach as _attach_figures
+from spatio_flux._node_figures import FIG1A_ICONS as _FIG1A_ICONS
+from spatio_flux._node_figures import FIG1B_ICONS as _FIG1B_ICONS
+
 
 # Extra biological/physical scalar types (spatio-flux already provides
 # concentration/mass/count). NOTE: process-bigraph 1.8.3 does not resolve a
@@ -223,6 +227,28 @@ class GeneExpression(DraftProcess):
     pass
 
 
+@draft_process(
+    name="NeuralDynamics",
+    inputs={"state": "concentration"},
+    outputs={"state": "concentration"},
+    contract={
+        "summary": "Learned dynamics — neural-network surrogate",
+        "description": "A machine-learning formalism: a neural network f_θ, trained on "
+                       "trajectory data, predicts the state's time-derivative (a neural ODE) — "
+                       "a fast, differentiable stand-in for an unknown or expensive mechanism.",
+        # state is the port; f_θ (a neural net) IS the learned vector field, θ fit
+        # to data by minimizing trajectory error.
+        "math": [r"\frac{d\,\text{state}}{dt} = f_\theta(\text{state}),\quad f_\theta = \mathrm{NN}(\theta)",
+                 r"\theta^\ast = \arg\min_\theta \sum_k \lVert \hat{x}(t_k) - x_k \rVert^2"],
+        "symbols": {"state": "system state (in + out)", "f_θ": "neural network — learned vector field",
+                    "θ": "network weights", "NN": "neural network", "x_k": "observed data at t_k"},
+        "ports": {"state": "system state"},
+    },
+)
+class NeuralDynamics(DraftProcess):
+    pass
+
+
 # ── Fig 3a: process graph (metabolism + gene expression over shared stores) ──
 @draft_process(
     name="MetabolismGraph",
@@ -341,14 +367,16 @@ class CellExchange(DraftProcess):
 @draft_process(
     name="BigraphLink",
     inputs={"in": "place_node"},
-    outputs={"out": "place_node"},
+    outputs={"out": "place_node", "out_b": "place_node"},
     contract={
         "summary": "Process p — connects place-graph nodes via typed ports",
         "description": "A process in the process bigraph: it connects nodes of the "
                        "place graph through its typed ports, replacing a Milner "
                        "hyperedge in the link graph.",
         "status": "draft - no update",
-        "ports": {"in": "a node this process reads", "out": "a node this process writes"},
+        "ports": {"in": "a node this process reads",
+                  "out": "a node this process writes",
+                  "out_b": "a second node this process writes"},
     },
 )
 class BigraphLink(DraftProcess):
@@ -358,15 +386,16 @@ class BigraphLink(DraftProcess):
 # ── Fig 1c: study-workflow steps (draft pre/post around real simulations) ─────
 @draft_process(
     name="Preprocess",
-    inputs={"raw": "concentration"},
+    inputs={"datasets": "dataset", "spec": "json"},
     outputs={"conditions": "concentration"},
     contract={
         "summary": "Pre-processing — prepare the simulation conditions",
-        "description": "The workflow's pre-step: reads the raw study inputs and "
-                       "derives the initial conditions / parameters shared by the "
-                       "parallel simulation ensemble.",
+        "description": "The workflow's pre-step: reads the experimental datasets and the "
+                       "model specification (JSON) and derives the initial conditions / "
+                       "parameters shared by the parallel simulation ensemble.",
         "status": "draft - no update dynamics yet",
-        "ports": {"raw": "raw study inputs", "conditions": "prepared simulation conditions"},
+        "ports": {"datasets": "experimental datasets", "spec": "model specification (JSON)",
+                  "conditions": "prepared simulation conditions"},
     },
 )
 class Preprocess(DraftProcess):
@@ -374,18 +403,50 @@ class Preprocess(DraftProcess):
 
 
 @draft_process(
-    name="AnalysisViz",
+    name="Analyses",
     inputs={"runs": "concentration"},
-    outputs={"figure": "concentration"},
+    outputs={"results": "results"},
     contract={
-        "summary": "Analysis + visualization of the simulation ensemble",
-        "description": "The workflow's post-step: aggregates the outputs of the "
-                       "parallel simulations and renders the analysis + figure.",
+        "summary": "Analyses — quantify the simulation ensemble",
+        "description": "A workflow post-step: aggregates the parallel simulation outputs into "
+                       "quantitative analysis results (summary statistics, derived observables).",
         "status": "draft - no update dynamics yet",
-        "ports": {"runs": "the parallel simulation outputs", "figure": "analysis + visualization"},
+        "ports": {"runs": "the parallel simulation outputs", "results": "analysis results"},
     },
 )
-class AnalysisViz(DraftProcess):
+class Analyses(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="Visualizations",
+    inputs={"runs": "concentration"},
+    outputs={"figures": "figure"},
+    contract={
+        "summary": "Visualizations — render figures from the results",
+        "description": "A workflow post-step: reads the simulation outputs and renders the "
+                       "figures (plots, snapshots, animations).",
+        "status": "draft - no update dynamics yet",
+        "ports": {"runs": "the parallel simulation outputs", "figures": "rendered figures"},
+    },
+)
+class Visualizations(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="Tests",
+    inputs={"runs": "concentration"},
+    outputs={"report": "report"},
+    contract={
+        "summary": "Tests — check results against expected behavior",
+        "description": "A workflow post-step: evaluates the simulation outputs against the "
+                       "study's acceptance criteria and emits a pass / fail report.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"runs": "the parallel simulation outputs", "report": "test report (pass / fail)"},
+    },
+)
+class Tests(DraftProcess):
     pass
 
 
@@ -450,13 +511,15 @@ def _proc(cls, inputs: dict, outputs: dict) -> dict:
 
 # ── composite states ─────────────────────────────────────────────────────────
 def fig1a_processes_state() -> dict:
-    """Fig 1a: four unwired draft-process cards — no stores, no wiring."""
-    return {
+    """Fig 1a: five unwired draft-process cards — no stores, no wiring. Uses the
+    RED-themed panel-A icon set (see _node_figures.FIG1A_ICONS)."""
+    return _attach_figures({
         "gene_expression": _proc(GeneExpression, {}, {}),
         "metabolism": _proc(Metabolism, {}, {}),
         "morphogen_gradient": _proc(Diffusion, {}, {}),
         "multicellular_interactions": _proc(ABM, {}, {}),
-    }
+        "neural_dynamics": _proc(NeuralDynamics, {}, {}),
+    }, icons=_FIG1A_ICONS)
 
 
 def _cell() -> dict:
@@ -480,8 +543,9 @@ def _cell() -> dict:
 
 
 def fig1b_multiscale_state() -> dict:
-    """Fig 1b: the multiscale draft composite (tissue ⊃ cells ⊃ cell ⊃ molecules)."""
-    return {
+    """Fig 1b: the multiscale draft composite (tissue ⊃ cells ⊃ cell ⊃ molecules).
+    Uses the BLUE-themed panel-B icon set (see _node_figures.FIG1B_ICONS)."""
+    return _attach_figures({
         "tissue": {
             "fields": _v("concentration", 0.0),
             "cell_population": _v("cell_count", 1.0),
@@ -489,7 +553,7 @@ def fig1b_multiscale_state() -> dict:
             "diffusion": _proc(Diffusion, {"field": ["fields"]}, {"field": ["fields"]}),
             "abm": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
         },
-    }
+    }, icons=_FIG1B_ICONS)
 
 
 def _community_dfba_sim() -> dict:
@@ -519,13 +583,17 @@ def _community_dfba_sim() -> dict:
 
 
 def fig1c_study_workflow_state() -> dict:
-    """Fig 1c: a study workflow. A draft Preprocess step feeds three PARALLEL
+    """Fig 1c: a study workflow. Two inputs (experimental datasets + a model
+    specification JSON) feed a draft Preprocess step, which sets up three PARALLEL
     community-dFBA simulations (real, zoomable composites — the same real study
-    template ×3), whose outputs feed a draft Analysis + Visualization step. The
-    pre/post steps are draft; the parallel simulations are a real composite."""
-    return {
-        "raw_data": _v("dataset", 0.0),
-        "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
+    template ×3). The simulation results are then read by three draft post-steps —
+    Analyses, Visualizations, and Tests — each writing its own output store."""
+    return _attach_figures({
+        # two inputs at the top
+        "datasets": _v("dataset", 0.0),
+        "model_specification": {"_type": "json", "_value": 0.0},
+        "preprocess": _proc(Preprocess, {"datasets": ["datasets"], "spec": ["model_specification"]},
+                            {"conditions": ["simulations"]}),
         # Three parallel runs of the SAME real composite (an ensemble); each is a
         # full community-dFBA composite you can zoom into.
         "simulations": {
@@ -533,29 +601,54 @@ def fig1c_study_workflow_state() -> dict:
             "sim_1": _community_dfba_sim(),
             "sim_2": _community_dfba_sim(),
         },
-        "results": _v("figure", 0.0),
-        "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
-    }
+        # three post-steps, each READING the simulation results into its own store
+        "analyses": _proc(Analyses, {"runs": ["simulations"]}, {"results": ["analysis_results"]}),
+        "visualizations": _proc(Visualizations, {"runs": ["simulations"]}, {"figures": ["figures"]}),
+        "tests": _proc(Tests, {"runs": ["simulations"]}, {"report": ["test_report"]}),
+        "analysis_results": _v("results", 0.0),
+        "figures": _v("figure", 0.0),
+        "test_report": _v("report", 0.0),
+    })
 
 
-def fig02_bigraph_state() -> dict:
-    """Fig 2b: the process bigraph of the paper's composition-framework diagram.
+def _fig02_bigraph_state(prefix: str) -> dict:
+    """Shared builder for the two Fig 2 readings of the SAME place graph +
+    wiring; only the three connector nodes are named by ``prefix``:
 
-    Place graph (solid nesting): n1 ⊃ {n3, n4}, n4 ⊃ {n6}, n2 ⊃ {n5}.
-    Processes e1, e2, e3 replace the Milner link graph's hyperedges (named `e`
-    for edge), connecting the nodes through their typed ports (dashed wires in the
-    figure). Fig 2a reads them as hyperedges; Fig 2b as process boxes.
+      - ``"e"`` → e1/e2/e3, the Milner link-graph reading (Fig 2a, hyperedges).
+      - ``"p"`` → p1/p2/p3, the process-graph reading (Fig 2b, process boxes).
+
+    Place graph (solid nesting): n1 ⊃ {n3, n4}, n4 ⊃ {n6}, n2 ⊃ {n5}. The three
+    connectors link the nodes through their typed ports (dashed wires).
     """
     return {
         # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
         "n1": {"n3": _v("place_node", 0.0), "n4": {"n6": _v("place_node", 0.0)}},
         "n2": {"n5": _v("place_node", 0.0)},
-        # Hyperedges wired across the place graph (paths into the nesting). e1 and
-        # e3 also link to n2 (extra hyperedge spoke / process wire).
-        "e1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
-        "e2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
-        "e3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
+        # Connectors wired across the place graph (paths into the nesting).
+        # Ports are laid out to keep the wires untangled: each process's two
+        # outputs fan to non-crossing targets.
+        #   #1: in←n1 ; out→n2 (top), out_b→n3 (bottom)
+        #   #2: in←n3 ; out→n6
+        #   #3: in←n6 ; out→n2, out_b→n5
+        f"{prefix}1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n2"], "out_b": ["n1", "n3"]}),
+        f"{prefix}2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
+        f"{prefix}3": _proc(BigraphLink, {"in": ["n1", "n4", "n6"]}, {"out": ["n2"], "out_b": ["n2", "n5"]}),
     }
+
+
+def fig02a_bigraph_state() -> dict:
+    """Fig 2a: the Milner link-graph / hypergraph reading — hyperedges e1, e2, e3."""
+    return _fig02_bigraph_state("e")
+
+
+def fig02b_bigraph_state() -> dict:
+    """Fig 2b: the process-graph reading — processes p1, p2, p3."""
+    return _fig02_bigraph_state("p")
+
+
+# Back-compat: the canonical single-composite name is the (a) hyperedge reading.
+fig02_bigraph_state = fig02a_bigraph_state
 
 
 def fig3a_store_state() -> dict:
@@ -570,28 +663,34 @@ def fig3a_store_state() -> dict:
 
 def fig3b_place_graph_state() -> dict:
     """Fig 3b (store diagram, panel b): a PLACE GRAPH of nested stores — a cell
-    and its compartments, each holding a biologically meaningful quantity with a
-    DISTINCT data type, so the place graph reads as real cell biology:
+    and its compartments, each leaf store holding a biologically REASONABLE value
+    of a matching data type, so the place graph reads as real cell biology:
 
-        cell ⊃ { nucleus  ⊃ {chromatin: genome,   mRNA: transcript},
-                 cytoplasm ⊃ {ribosome: count,     ATP:  energy},
-                 membrane  ⊃ {receptor: count} }
-        + medium (extracellular sibling): concentration
+        cell ⊃ { nucleus  ⊃ {chromatin: DNA=2,        mRNA: transcript=12000},
+                 cytoplasm ⊃ {ribosome: count=200000, ATP:  concentration=3.5},
+                 membrane  ⊃ {receptor: count=5000} }
+        + medium (extracellular sibling): concentration=10.0
 
-    Outer stores connect to inner stores by the place-graph nesting."""
+    The container stores (cell / nucleus / cytoplasm / membrane) are place-graph
+    branches — they nest children rather than hold a scalar. Each leaf shows its
+    name, its type, and its value. The loom reads a store's display value from
+    ``_default`` (``_v`` writes ``_value``, which the viewer does not show), so
+    these leaves are authored with ``_default`` directly."""
+    def sv(type_name: str, default) -> dict:
+        return {"_type": type_name, "_default": default}
     return {
         "cell": {
             "nucleus": {
-                "chromatin": _v("genome", 0.0),
-                "mRNA": _v("transcript", 0.0),
+                "chromatin": sv("DNA", 2),            # genome copies (diploid)
+                "mRNA": sv("transcript", 12000),      # mRNA molecules
             },
             "cytoplasm": {
-                "ribosome": _v("count", 0.0),
-                "ATP": _v("energy", 0.0),
+                "ribosome": sv("count", 200000),      # ribosomes
+                "ATP": sv("concentration", 3.5),      # ATP, mM
             },
-            "membrane": {"receptor": _v("count", 0.0)},
+            "membrane": {"receptor": sv("count", 5000)},  # surface receptors
         },
-        "medium": _v("concentration", 0.0),  # extracellular sibling
+        "medium": sv("concentration", 10.0),  # extracellular glucose, mM
     }
 
 
