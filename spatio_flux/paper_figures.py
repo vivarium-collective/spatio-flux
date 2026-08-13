@@ -114,7 +114,7 @@ class RNADegradation(DraftProcess):
         # enzymes + energy set the flux bounds; metabolites are the exchange fluxes out.
         "math": [r"\text{maximize}\quad Z = c^{\mathsf{T}} v \quad\text{s.t.}\quad S\,v = 0",
                  r"v_{\min} \le v \le v_{\max}(\text{enzymes},\,\text{energy})",
-                 r"\Delta\,\text{metabolites} = S_{\text{ex}}\,v"],
+                 r"\Delta\,\text{metabolites} = S_{\text{ex}}\,v\,\Delta t"],
         "symbols": {"enzymes": "enzyme levels — set flux bounds (in)", "energy": "available energy — sets bounds (in)",
                     "metabolites": "produced metabolites (out)", "Z": "biomass objective",
                     "v": "reaction fluxes", "S": "stoichiometric matrix"},
@@ -194,8 +194,9 @@ class Diffusion(DraftProcess):
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
         # `population` is the set of cells {x⃗ᵢ}; `field` is the morphogen that
         # drives the chemotactic gradient ∇field.
-        "math": [r"\vec{x}_i(t{+}\Delta t) = \vec{x}_i + \mu\, f_{\text{int}} + \chi\, \nabla\text{field} + \eta\, \xi(t)", r"P_{\text{kill}} = \text{Prob(kill)} \cdot \mathbf{1}_{\lVert \vec{x}_i - \vec{x}_j \rVert < d}"],
-        "symbols": {"population": "cells {x⃗ᵢ} (in + out)", "field": "morphogen — drives ∇field (in)", "x⃗ᵢ": "position of cell i", "μ": "mobility", "f_int": "interaction force", "χ": "chemotactic coefficient", "η·ξ(t)": "noise", "P_kill": "kill probability", "d": "interaction radius"},
+        "math": [r"\vec{x}_i(t{+}\Delta t) = \vec{x}_i + \left[\mu\, f_{\text{int}} + \chi\, \nabla\text{field}\right]\Delta t + \sqrt{2 D_m\,\Delta t}\;\xi_i",
+                 r"P_{\text{kill}} = \left(1 - e^{-k_{\text{kill}}\,\Delta t}\right)\mathbf{1}_{\lVert \vec{x}_i - \vec{x}_j \rVert < d}"],
+        "symbols": {"population": "cells {x⃗ᵢ} (in + out)", "field": "morphogen — drives ∇field (in)", "x⃗ᵢ": "position of cell i", "μ": "mobility", "f_int": "interaction force", "χ": "chemotactic coefficient", "D_m": "motility diffusion", "ξᵢ": "unit Gaussian noise", "k_kill": "kill rate", "d": "interaction radius"},
         "ports": {"population": "cell population {x⃗ᵢ}", "field": "local morphogen field"},
     },
 )
@@ -215,11 +216,12 @@ class ABM(DraftProcess):
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
         # Every port appears in the equations: dna templates mrna, mrna templates
         # protein, both decay; energy powers the rates (α, β).
-        "math": [r"\frac{d\,\text{mrna}}{dt} = \alpha\,\text{dna} - \gamma\,\text{mrna}",
-                 r"\frac{d\,\text{protein}}{dt} = \beta\,\text{mrna} - \gamma\,\text{protein}"],
+        "math": [r"\frac{d\,\text{mrna}}{dt} = \alpha\,\text{dna} - \gamma_m\,\text{mrna}",
+                 r"\frac{d\,\text{protein}}{dt} = \beta\,\text{mrna} - \gamma_p\,\text{protein}"],
         "symbols": {"dna": "DNA template (in)", "energy": "ATP/GTP — powers α, β (in)",
                     "mrna": "mRNA (out)", "protein": "protein (out)",
-                    "α": "transcription rate", "β": "translation rate", "γ": "turnover rate"},
+                    "α": "transcription rate", "β": "translation rate",
+                    "γ_m, γ_p": "mRNA / protein turnover rates"},
         "ports": {"dna": "DNA template", "energy": "ATP / GTP", "mrna": "mRNA", "protein": "protein"},
     },
 )
@@ -239,9 +241,10 @@ class GeneExpression(DraftProcess):
         # state is the port; f_θ (a neural net) IS the learned vector field, θ fit
         # to data by minimizing trajectory error.
         "math": [r"\frac{d\,\text{state}}{dt} = f_\theta(\text{state}),\quad f_\theta = \mathrm{NN}(\theta)",
-                 r"\theta^\ast = \arg\min_\theta \sum_k \lVert \hat{x}(t_k) - x_k \rVert^2"],
+                 r"\theta^\ast = \arg\min_\theta \sum_k \lVert \widehat{\text{state}}_\theta(t_k) - \text{state}_k \rVert^2"],
         "symbols": {"state": "system state (in + out)", "f_θ": "neural network — learned vector field",
-                    "θ": "network weights", "NN": "neural network", "x_k": "observed data at t_k"},
+                    "θ": "network weights", "NN": "neural network",
+                    "ŝtate_θ(t_k)": "model prediction", "state_k": "observed state at t_k"},
         "ports": {"state": "system state"},
     },
 )

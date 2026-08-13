@@ -19,8 +19,8 @@
           "summary": "Gene expression \u2014 ordinary differential equations",
           "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
           "math": [
-            "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma\\,\\text{mrna}",
-            "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma\\,\\text{protein}"
+            "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma_m\\,\\text{mrna}",
+            "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma_p\\,\\text{protein}"
           ],
           "symbols": {
             "dna": "DNA template (in)",
@@ -29,7 +29,7 @@
             "protein": "protein (out)",
             "\u03b1": "transcription rate",
             "\u03b2": "translation rate",
-            "\u03b3": "turnover rate"
+            "\u03b3_m, \u03b3_p": "mRNA / protein turnover rates"
           },
           "ports": {
             "dna": "DNA template",
@@ -52,8 +52,8 @@
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma\\,\\text{mrna}",
-          "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma\\,\\text{protein}"
+          "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma_m\\,\\text{mrna}",
+          "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma_p\\,\\text{protein}"
         ],
         "symbols": {
           "dna": "DNA template (in)",
@@ -62,7 +62,7 @@
           "protein": "protein (out)",
           "\u03b1": "transcription rate",
           "\u03b2": "translation rate",
-          "\u03b3": "turnover rate"
+          "\u03b3_m, \u03b3_p": "mRNA / protein turnover rates"
         },
         "inputs": {
           "dna": "DNA template",
@@ -91,7 +91,7 @@
           "math": [
             "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
             "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
-            "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v"
+            "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v\\,\\Delta t"
           ],
           "symbols": {
             "enzymes": "enzyme levels \u2014 set flux bounds (in)",
@@ -122,7 +122,7 @@
         "math": [
           "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
           "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
-          "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v"
+          "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v\\,\\Delta t"
         ],
         "symbols": {
           "enzymes": "enzyme levels \u2014 set flux bounds (in)",
@@ -211,8 +211,8 @@
           "summary": "Multicellular interactions \u2014 Agent-Based Model",
           "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
           "math": [
-            "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)",
-            "P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
+            "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i",
+            "P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
           ],
           "symbols": {
             "population": "cells {x\u20d7\u1d62} (in + out)",
@@ -221,8 +221,9 @@
             "\u03bc": "mobility",
             "f_int": "interaction force",
             "\u03c7": "chemotactic coefficient",
-            "\u03b7\u00b7\u03be(t)": "noise",
-            "P_kill": "kill probability",
+            "D_m": "motility diffusion",
+            "\u03be\u1d62": "unit Gaussian noise",
+            "k_kill": "kill rate",
             "d": "interaction radius"
           },
           "ports": {
@@ -243,8 +244,8 @@
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
         "status": "draft - no update dynamics yet",
         "math": [
-          "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)",
-          "P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
+          "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i",
+          "P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
         ],
         "symbols": {
           "population": "cells {x\u20d7\u1d62} (in + out)",
@@ -253,8 +254,9 @@
           "\u03bc": "mobility",
           "f_int": "interaction force",
           "\u03c7": "chemotactic coefficient",
-          "\u03b7\u00b7\u03be(t)": "noise",
-          "P_kill": "kill probability",
+          "D_m": "motility diffusion",
+          "\u03be\u1d62": "unit Gaussian noise",
+          "k_kill": "kill rate",
           "d": "interaction radius"
         },
         "inputs": {
@@ -282,14 +284,15 @@
           "description": "A machine-learning formalism: a neural network f_\u03b8, trained on trajectory data, predicts the state's time-derivative (a neural ODE) \u2014 a fast, differentiable stand-in for an unknown or expensive mechanism.",
           "math": [
             "\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)",
-            "\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\hat{x}(t_k) - x_k \\rVert^2"
+            "\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\widehat{\\text{state}}_\\theta(t_k) - \\text{state}_k \\rVert^2"
           ],
           "symbols": {
             "state": "system state (in + out)",
             "f_\u03b8": "neural network \u2014 learned vector field",
             "\u03b8": "network weights",
             "NN": "neural network",
-            "x_k": "observed data at t_k"
+            "\u015dtate_\u03b8(t_k)": "model prediction",
+            "state_k": "observed state at t_k"
           },
           "ports": {
             "state": "system state"
@@ -308,14 +311,15 @@
         "status": "draft - no update dynamics yet",
         "math": [
           "\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)",
-          "\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\hat{x}(t_k) - x_k \\rVert^2"
+          "\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\widehat{\\text{state}}_\\theta(t_k) - \\text{state}_k \\rVert^2"
         ],
         "symbols": {
           "state": "system state (in + out)",
           "f_\u03b8": "neural network \u2014 learned vector field",
           "\u03b8": "network weights",
           "NN": "neural network",
-          "x_k": "observed data at t_k"
+          "\u015dtate_\u03b8(t_k)": "model prediction",
+          "state_k": "observed state at t_k"
         },
         "inputs": {
           "state": "system state"
