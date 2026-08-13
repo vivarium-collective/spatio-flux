@@ -109,9 +109,11 @@ ICONS: dict[str, str] = {
         f'<line x1="36" y1="12" x2="36" y2="36" stroke="{_CELL}" stroke-width="1.7" stroke-dasharray="3 3"/>'
         f'<g fill="{_CELL}"><circle cx="25" cy="24" r="2.6"/><circle cx="47" cy="24" r="2.6"/></g>'),
     "preprocess": _svg(
-        f'<defs><linearGradient id="g_fun" x1="0" y1="0" x2="0" y2="1">'
-        f'<stop offset="0%" stop-color="{_FIELD_T}"/><stop offset="100%" stop-color="#eef2ff"/></linearGradient></defs>'
-        f'<path d="M13 11 H59 L41 30 V39 L31 44 V30 Z" fill="url(#g_fun)" stroke="{_INK}" stroke-width="2.2"/>'),
+        # a checklist document — validate / map / check (green ticks + rule lines)
+        f'<path d="M20 7 H44 L52 15 V41 H20 Z" fill="#f8fafc" stroke="{_GREEN}" stroke-width="1.9"/>'
+        f'<path d="M44 7 V15 H52" fill="none" stroke="{_GREEN}" stroke-width="1.6"/>'
+        f'<g stroke="{_GREEN}" stroke-width="2"><path d="M25 21 l2.4 2.4 4.2 -5.2"/><path d="M25 30 l2.4 2.4 4.2 -5.2"/></g>'
+        f'<g stroke="{_INK}" stroke-width="1.8" opacity="0.4"><line x1="34" y1="21" x2="47" y2="21"/><line x1="34" y1="30" x2="47" y2="30"/></g>'),
     "analysis": _svg(
         f'<line x1="12" y1="40" x2="60" y2="40" stroke="{_INK}" stroke-width="1.8" opacity="0.6"/>'
         f'<g stroke-width="0">'
@@ -136,24 +138,48 @@ ICONS: dict[str, str] = {
         f'<rect x="38" y="23" width="8" height="17" rx="2" fill="{_ENE}"/>'
         f'<rect x="50" y="12" width="8" height="28" rx="2" fill="{_CELL}"/></g>'),
     "visualizations": _svg(
-        f'<path d="M16 10 V38 H58" stroke="{_INK}" stroke-width="1.9" opacity="0.55"/>'
-        f'<path d="M18 32 C26 20 32 34 40 22 C47 13 52 20 57 13" stroke="{_FIELD}" stroke-width="2.8"/>'
-        f'<circle cx="57" cy="13" r="2.8" fill="{_GREEN}"/>'),
+        # a framed spatial view: a heatmap patch + a small scatter/network
+        f'<rect x="14" y="10" width="44" height="28" rx="3" fill="#f8fafc" stroke="{_FIELD}" stroke-width="1.9"/>'
+        f'<rect x="18" y="25" width="15" height="10" rx="1.5" fill="{_GREEN}" opacity="0.45"/>'
+        f'<path d="M40 17 L48 22 L43 31 Z" fill="none" stroke="{_CELL}" stroke-width="1.4" opacity="0.7"/>'
+        f'<g fill="{_CELL}"><circle cx="40" cy="17" r="2.2"/><circle cx="48" cy="22" r="2.2"/><circle cx="43" cy="31" r="2.2"/></g>'
+        f'<circle cx="24" cy="17" r="2" fill="{_ENE}"/>'),
     "tests": _svg(
-        f'<rect x="18" y="9" width="36" height="33" rx="5" fill="#f8fafc" stroke="{_INK}" stroke-width="1.9"/>'
-        f'<rect x="28" y="5" width="16" height="8" rx="2.5" fill="#ffffff" stroke="{_INK}" stroke-width="1.7"/>'
-        f'<path d="M25 24 l5 5 11 -13" stroke="{_GREEN}" stroke-width="2.8"/>'),
+        # a green check inside a ring (pass)
+        f'<circle cx="36" cy="24" r="15" fill="#f0fdf4" stroke="{_GREEN}" stroke-width="2.4"/>'
+        f'<path d="M28 24 l5.5 5.5 11 -13" fill="none" stroke="{_GREEN}" stroke-width="2.8"/>'),
 
     # ── stores ─────────────────────────────────────────────────────────────
     "datasets": _svg(
-        f'<rect x="20" y="8" width="38" height="24" rx="4" fill="#eff6ff" stroke="{_FIELD}" stroke-width="1.8"/>'
-        f'<rect x="12" y="16" width="38" height="24" rx="4" fill="#f8fafc" stroke="{_FIELD}" stroke-width="1.9"/>'
-        f'<g fill="{_FIELD}"><circle cx="20" cy="24" r="1.7"/><circle cx="28" cy="24" r="1.7"/><circle cx="36" cy="24" r="1.7"/>'
-        f'<circle cx="20" cy="32" r="1.7"/><circle cx="28" cy="32" r="1.7"/><circle cx="36" cy="32" r="1.7"/></g>'),
+        # a spreadsheet / table (header row + grid of cells)
+        f'<rect x="16" y="9" width="40" height="30" rx="3" fill="#f8fafc" stroke="{_FIELD}" stroke-width="1.9"/>'
+        f'<rect x="17.5" y="10.5" width="37" height="7.5" fill="{_FIELD}" opacity="0.22"/>'
+        f'<path d="M16 18 H56 M16 28.5 H56 M29.3 18 V39 M42.7 18 V39" stroke="{_FIELD}" stroke-width="1.2" opacity="0.55"/>'
+        f'<g fill="{_FIELD}"><rect x="20" y="12.5" width="6" height="3" rx="1"/><rect x="33" y="12.5" width="6" height="3" rx="1"/><rect x="46" y="12.5" width="5" height="3" rx="1"/></g>'),
     "model_specification": _svg(
         f'<rect x="18" y="7" width="36" height="34" rx="4" fill="#f8fafc" stroke="{_INK}" stroke-width="1.9"/>'
         f'<path d="M30 13 q-4 0 -4 5 q0 5 -4 6 q4 1 4 6 q0 5 4 5" fill="none" stroke="{_PROT}" stroke-width="2"/>'
         f'<path d="M42 13 q4 0 4 5 q0 5 4 6 q-4 1 -4 6 q0 5 -4 5" fill="none" stroke="{_PROT}" stroke-width="2"/>'),
+    "analysis_results": _svg(
+        # a data document: rule lines with leading dots (tables / metrics)
+        f'<path d="M22 7 H44 L52 15 V41 H22 Z" fill="#f8fafc" stroke="{_GREEN}" stroke-width="1.9"/>'
+        f'<path d="M44 7 V15 H52" fill="none" stroke="{_GREEN}" stroke-width="1.6"/>'
+        f'<g stroke="{_GREEN}" stroke-width="1.8" opacity="0.75"><line x1="29" y1="22" x2="47" y2="22"/><line x1="29" y1="29" x2="47" y2="29"/><line x1="29" y1="36" x2="42" y2="36"/></g>'
+        f'<g fill="{_GREEN}"><circle cx="26" cy="22" r="1.4"/><circle cx="26" cy="29" r="1.4"/><circle cx="26" cy="36" r="1.4"/></g>'),
+    "figures": _svg(
+        # a bar chart (plots / diagrams)
+        f'<line x1="16" y1="38" x2="57" y2="38" stroke="{_INK}" stroke-width="1.6" opacity="0.5"/>'
+        f'<g stroke-width="0">'
+        f'<rect x="19" y="26" width="7.5" height="12" rx="1.5" fill="{_FIELD}"/>'
+        f'<rect x="30.5" y="17" width="7.5" height="21" rx="1.5" fill="{_FIELD}"/>'
+        f'<rect x="42" y="22" width="7.5" height="16" rx="1.5" fill="{_FIELD}"/></g>'),
+    "test_report": _svg(
+        # a report document with a pass badge (HTML / PDF / notebooks)
+        f'<path d="M20 7 H42 L50 15 V41 H20 Z" fill="#f8fafc" stroke="{_GREEN}" stroke-width="1.9"/>'
+        f'<path d="M42 7 V15 H50" fill="none" stroke="{_GREEN}" stroke-width="1.6"/>'
+        f'<g stroke="{_INK}" stroke-width="1.7" opacity="0.4"><line x1="25" y1="20" x2="40" y2="20"/><line x1="25" y1="26" x2="40" y2="26"/></g>'
+        f'<circle cx="41" cy="34" r="6.5" fill="#f0fdf4" stroke="{_GREEN}" stroke-width="1.8"/>'
+        f'<path d="M37.5 34 l2.4 2.4 4 -4.8" fill="none" stroke="{_GREEN}" stroke-width="2"/>'),
     "DNA": _svg(_helix(36, _DNA)),
     "mRNA": _svg(
         f'<path d="M7 24 Q17 11 27 24 Q37 37 47 24 Q57 11 65 22" stroke="{_RNA}" stroke-width="2.8"/>'

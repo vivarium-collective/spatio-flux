@@ -70,6 +70,63 @@ def _aspect(png: Path) -> float:
     return w / h
 
 
+# ── Share & Reuse section (appended below panel C) ───────────────────────────
+# A small loom-styled block: three rounded green "store" cards — a Process
+# Registry, Schema Registry, and Model Repository — under a "Share & Reuse"
+# heading, with publish / discover arrows. Drawn as an SVG <g> so it composites
+# straight into the scaffold's panel-C group.
+SHARE_PANEL = "Panel C - Process Bigraph"
+SHARE_H = 158  # height of the appended section
+
+
+def _sr_icon_process(cx: float) -> str:  # a small process/component network
+    return (f'<g stroke="#16a34a" stroke-width="1.5">'
+            f'<line x1="{cx}" y1="60" x2="{cx-9}" y2="71"/><line x1="{cx}" y1="60" x2="{cx+9}" y2="71"/>'
+            f'<line x1="{cx-9}" y1="71" x2="{cx+9}" y2="71"/><line x1="{cx}" y1="60" x2="{cx}" y2="76"/></g>'
+            f'<g fill="#16a34a"><circle cx="{cx}" cy="60" r="2.8"/><circle cx="{cx-9}" cy="71" r="2.8"/>'
+            f'<circle cx="{cx+9}" cy="71" r="2.8"/><circle cx="{cx}" cy="76" r="2.8"/></g>')
+
+
+def _sr_icon_schema(cx: float) -> str:  # a 2×2 grid of interface/type tiles
+    return (f'<g fill="none" stroke="#3b82f6" stroke-width="1.5">'
+            f'<rect x="{cx-9}" y="59" width="8" height="8" rx="1.5"/><rect x="{cx+1}" y="59" width="8" height="8" rx="1.5"/>'
+            f'<rect x="{cx-9}" y="69" width="8" height="8" rx="1.5"/><rect x="{cx+1}" y="69" width="8" height="8" rx="1.5"/></g>')
+
+
+def _sr_icon_repo(cx: float) -> str:  # a database cylinder
+    return (f'<g fill="#dcfce7" stroke="#16a34a" stroke-width="1.6">'
+            f'<path d="M{cx-9} 61 v11 a9 3.4 0 0 0 18 0 v-11"/><ellipse cx="{cx}" cy="61" rx="9" ry="3.4"/></g>'
+            f'<path d="M{cx-9} 67.5 a9 3.4 0 0 0 18 0" fill="none" stroke="#16a34a" stroke-width="1.2" opacity="0.6"/>')
+
+
+def _share_reuse_group(w: int):
+    bw, y = 94, 47
+    boxes = [(4, _sr_icon_process, "Process Registry", "Components"),
+             (107, _sr_icon_schema, "Schema Registry", "Interfaces &amp; types"),
+             (210, _sr_icon_repo, "Model Repository", "Composites")]
+    parts = [
+        f'<defs><marker id="sr_ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" '
+        f'orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker></defs>',
+        f'<rect x="1" y="2" width="{w - 2}" height="152" rx="12" fill="#f6fdfa" stroke="#bbf7d0" '
+        f'stroke-width="1.5" stroke-dasharray="5 4"/>',
+        f'<text x="{w / 2:.0f}" y="24" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" '
+        f'font-size="15" font-weight="700" fill="#16a34a">Share &amp; Reuse</text>',
+        f'<text x="{w / 2:.0f}" y="39" text-anchor="middle" font-size="8.5" fill="#64748b">'
+        f'Publish reusable components and discover those from others.</text>',
+    ]
+    for x, icon, name, sub in boxes:
+        cx = x + bw / 2
+        parts.append(f'<rect x="{x}" y="{y}" width="{bw}" height="66" rx="9" fill="#ffffff" stroke="#22c55e" stroke-width="1.8"/>')
+        parts.append(icon(cx))
+        parts.append(f'<text x="{cx:.0f}" y="97" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1e293b">{name}</text>')
+        parts.append(f'<text x="{cx:.0f}" y="108" text-anchor="middle" font-size="7" fill="#64748b">{sub}</text>')
+    for lx, lbl in ((78, "publish"), (228, "discover &amp; reuse")):
+        parts.append(f'<path d="M{lx} 141 V127" fill="none" stroke="#94a3b8" stroke-width="1.4" '
+                     f'stroke-dasharray="4 3" marker-end="url(#sr_ar)"/>')
+        parts.append(f'<text x="{lx}" y="150" text-anchor="middle" font-size="8" font-style="italic" fill="#64748b">{lbl}</text>')
+    return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
+
+
 def build_figure1() -> Path:
     tree = ET.parse(SCAFFOLD)
     root = tree.getroot()
@@ -92,7 +149,9 @@ def build_figure1() -> Path:
         # the card grows/shrinks to fit → the image fills it with only SIDE/TOP/BOTTOM
         # margins. Cards are top-aligned (ragged bottoms) so none carries dead space.
         ch = round(cw / _aspect(png))
-        panel_h = TOP + ch + BOTTOM
+        is_share = panel.get("id", "") == SHARE_PANEL
+        share_y = TOP + ch + 14  # the Share & Reuse block sits below the image
+        panel_h = (share_y + SHARE_H + BOTTOM) if is_share else (TOP + ch + BOTTOM)
         panel.find(_q("rect")).set("height", str(panel_h))  # background rect = first <rect>
         for extra in list(panel)[HEADER_KEEP:]:
             panel.remove(extra)  # drop the scaffold's placeholder illustration
@@ -101,6 +160,10 @@ def build_figure1() -> Path:
         img.set("x", str(SIDE)); img.set("y", str(TOP))
         img.set("width", str(cw)); img.set("height", str(ch))
         img.set("preserveAspectRatio", "none")  # box == image aspect → fills, no distortion
+        if is_share:  # append the loom-styled Share & Reuse block under the image
+            grp = _share_reuse_group(cw)
+            grp.set("transform", f"translate({SIDE},{share_y})")
+            panel.append(grp)
         panel.set("transform", f"translate({x},{MARGIN})")  # pull the cards together
         x += PANEL_W + GAP
         max_h = max(max_h, panel_h)
