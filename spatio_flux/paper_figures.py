@@ -17,6 +17,8 @@ from pathlib import Path
 
 from process_bigraph import DraftProcess, draft_process
 
+from spatio_flux._node_figures import attach as _attach_figures
+
 
 # Extra biological/physical scalar types (spatio-flux already provides
 # concentration/mass/count). NOTE: process-bigraph 1.8.3 does not resolve a
@@ -453,12 +455,12 @@ def _proc(cls, inputs: dict, outputs: dict) -> dict:
 # ── composite states ─────────────────────────────────────────────────────────
 def fig1a_processes_state() -> dict:
     """Fig 1a: four unwired draft-process cards — no stores, no wiring."""
-    return {
+    return _attach_figures({
         "gene_expression": _proc(GeneExpression, {}, {}),
         "metabolism": _proc(Metabolism, {}, {}),
         "morphogen_gradient": _proc(Diffusion, {}, {}),
         "multicellular_interactions": _proc(ABM, {}, {}),
-    }
+    })
 
 
 def _cell() -> dict:
@@ -483,7 +485,7 @@ def _cell() -> dict:
 
 def fig1b_multiscale_state() -> dict:
     """Fig 1b: the multiscale draft composite (tissue ⊃ cells ⊃ cell ⊃ molecules)."""
-    return {
+    return _attach_figures({
         "tissue": {
             "fields": _v("concentration", 0.0),
             "cell_population": _v("cell_count", 1.0),
@@ -491,7 +493,7 @@ def fig1b_multiscale_state() -> dict:
             "diffusion": _proc(Diffusion, {"field": ["fields"]}, {"field": ["fields"]}),
             "abm": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
         },
-    }
+    })
 
 
 def _community_dfba_sim() -> dict:
@@ -525,7 +527,7 @@ def fig1c_study_workflow_state() -> dict:
     community-dFBA simulations (real, zoomable composites — the same real study
     template ×3), whose outputs feed a draft Analysis + Visualization step. The
     pre/post steps are draft; the parallel simulations are a real composite."""
-    return {
+    return _attach_figures({
         "raw_data": _v("dataset", 0.0),
         "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
         # Three parallel runs of the SAME real composite (an ensemble); each is a
@@ -537,7 +539,7 @@ def fig1c_study_workflow_state() -> dict:
         },
         "results": _v("figure", 0.0),
         "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
-    }
+    })
 
 
 def _fig02_bigraph_state(prefix: str) -> dict:
