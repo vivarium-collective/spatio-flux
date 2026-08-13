@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1320" height="400" viewBox="0 0 1320 400" font-family="Inter, Helvetica, Arial, sans-serif">
   <defs>
-    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
     </marker>
     <marker id="arD" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
@@ -147,12 +147,12 @@
     <!-- one arrow INTO each event (from the prior state) + one OUT (to the next
          state). Dashed = the rewrite event. They attach to the event boxes and
          to the whitespace ABOVE each state — never to the store nodes. -->
-    <path class="pwire" d="M734,150 C762,132 786,120 806,110" marker-end="url(#arD)"/>
-    <path class="pwire" d="M868,110 C892,120 916,132 940,150" marker-end="url(#arD)"/>
-    <path class="pwire" d="M940,150 C960,134 978,122 993,110" marker-end="url(#arD)"/>
-    <path class="pwire" d="M1055,110 C1074,122 1092,134 1108,150" marker-end="url(#arD)"/>
-    <path class="pwire" d="M1108,150 C1124,134 1140,122 1152,110" marker-end="url(#arD)"/>
-    <path class="pwire" d="M1214,110 C1230,122 1244,134 1258,150" marker-end="url(#arD)"/>
+    <path class="pwire" d="M786,138 C795,128 801,120 807,112" marker-end="url(#arD)"/>
+    <path class="pwire" d="M867,112 C873,120 879,128 888,138" marker-end="url(#arD)"/>
+    <path class="pwire" d="M973,138 C982,128 988,120 994,112" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1054,112 C1060,120 1066,128 1075,138" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1132,138 C1141,128 1147,120 1153,112" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1213,112 C1219,120 1225,128 1234,138" marker-end="url(#arD)"/>
 
     <!-- place-graph containment (solid): environ -> agent(s); the agent₂ ▸ agent₃
          nesting chain in state 3. -->
