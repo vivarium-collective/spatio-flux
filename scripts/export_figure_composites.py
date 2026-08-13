@@ -237,7 +237,14 @@ def _figure_transforms(stem: str, state: dict) -> dict:
             seeds = [[7.9, 38.8], [12.4, 25.1], [31.0, 9.6], [22.7, 41.3], [4.2, 17.8]]
             masses = [0.059, 0.061, 0.057, 0.063, 0.060]
             for i, (pos, m) in enumerate(zip(seeds, masses), start=1):
-                parts[f"particle_{i}"] = {"id": "particle", "position": pos, "mass": m}
+                # Type the leaves with UNITS so the card reads them (not a bare
+                # `array`/`number`): the 2-D position in microns shown as an
+                # explicit (x, y) value with type (µm, µm); the mass in picograms.
+                parts[f"particle_{i}"] = {
+                    "id": "particle",
+                    "position": {"_type": "(µm, µm)", "_default": f"({pos[0]}, {pos[1]})"},
+                    "mass": {"_type": "pg", "_default": m},
+                }
     return state
 
 
