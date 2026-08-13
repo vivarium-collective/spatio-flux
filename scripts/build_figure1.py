@@ -115,7 +115,7 @@ def _share_reuse_group(w: int):
     ]
     for x, icon, name, sub in boxes:
         cx = x + bw / 2
-        parts.append(f'<rect x="{x}" y="{y}" width="{bw}" height="66" rx="9" fill="#ffffff" stroke="#2f6b3f" stroke-width="1.8"/>')
+        # No per-item card box — icon + labels sit directly on the yellow panel.
         parts.append(icon(cx))
         parts.append(f'<text x="{cx:.0f}" y="97" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">{name}</text>')
         parts.append(f'<text x="{cx:.0f}" y="109" text-anchor="middle" font-size="8" fill="#64748b">{sub}</text>')
