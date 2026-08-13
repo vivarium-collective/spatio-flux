@@ -1,6 +1,6 @@
 {
   "particles": {
-    "WGGguBU-": {
+    "hOB4sNy_": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "WGGguBU-",
+      "id": "hOB4sNy_",
       "position": [
-        34.568110295519915,
-        43.40332473647533
+        49.92069022168779,
+        6.9663331042970515
       ],
-      "mass": 3.4952804633284726,
+      "mass": 1.8921341970000287,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -1207,20 +1207,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     },
     "outputs": {
@@ -1243,8 +1243,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "particles": "node",
-          "fields": "node"
+          "fields": "node",
+          "particles": "node"
         },
         "outputs": {
           "results": "node"

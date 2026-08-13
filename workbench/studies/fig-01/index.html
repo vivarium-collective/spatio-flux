@@ -21,12 +21,6 @@
   </h1>
   <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
     
-    
-    <button type="button" class="btn-mini" onclick="window._vivStudyFiguresFromCard(event, 'fig-01')" title="Download this study's figures (panels + its composite) as a zip">↓ figures</button>
-    
-    
-    <button type="button" class="btn-mini" onclick="window._vivNotebookFromCard(event, 'paper-figures')" title="Download this study's investigation runnable notebook (includes this study)">↓ notebook</button>
-    
     <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
     <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
   </span>
@@ -565,7 +559,11 @@
 
 
 <section class="study-tab-panel" data-kind="compose" id="panel-compose" hidden>
-  <h2 class="overview-label" style="margin-bottom:8px">Model composition</h2>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+    <h2 class="overview-label" style="margin:0">Model composition</h2>
+    
+    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'fig-01', 'paper-figures')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
+  </div>
   
   
   
@@ -738,6 +736,13 @@
 <section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
 
   <div class="overview-section study-figures figure-gallery" id="visualize-section">
+
+    
+    
+    <div class="viz-actions-row" style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+      <button type="button" class="btn-mini" onclick="window._vivStudyFiguresFromCard(event, 'fig-01')" title="Download this study's visualizations (figure panels + its composite) as a zip">↓ visualizations</button>
+    </div>
+    
 
     <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
 
@@ -984,7 +989,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "512f45b24bacd88ca4435630eaff1fba96bd24cb", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/512f45b24bacd88ca4435630eaff1fba96bd24cb", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-12 14:09 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "6b1339b26e863981baa07724dd8cf395d77ee238", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/6b1339b26e863981baa07724dd8cf395d77ee238", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-13 18:00 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "fig-01";

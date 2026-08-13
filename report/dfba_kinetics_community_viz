@@ -34,7 +34,7 @@ digraph bigraph {
 	"('fields',)" -> "('fields', 'kinetic biomass')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA',)" {
-		"('fields', 'glucose')" -> "('dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'acetate')" -> "('dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA',)" {
@@ -42,15 +42,15 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA',)" {
-		"('fields', 'acetate')" -> "('dFBA',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('monod_kinetics',)" {
-		"('fields', 'acetate')" -> "('monod_kinetics',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glucose')" -> "('dFBA',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('monod_kinetics',)" {
 		"('fields', 'kinetic biomass')" -> "('monod_kinetics',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics',)" {
+		"('fields', 'acetate')" -> "('monod_kinetics',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	"('fields',)" [color="#bdb48b"]
 	"('dFBA',)" [color="#8b3935"]

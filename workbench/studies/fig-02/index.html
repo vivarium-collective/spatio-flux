@@ -21,12 +21,6 @@
   </h1>
   <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
     
-    
-    <button type="button" class="btn-mini" onclick="window._vivStudyFiguresFromCard(event, 'fig-02')" title="Download this study's figures (panels + its composite) as a zip">↓ figures</button>
-    
-    
-    <button type="button" class="btn-mini" onclick="window._vivNotebookFromCard(event, 'paper-figures')" title="Download this study's investigation runnable notebook (includes this study)">↓ notebook</button>
-    
     <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
     <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
   </span>
@@ -565,7 +559,11 @@
 
 
 <section class="study-tab-panel" data-kind="compose" id="panel-compose" hidden>
-  <h2 class="overview-label" style="margin-bottom:8px">Model composition</h2>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+    <h2 class="overview-label" style="margin:0">Model composition</h2>
+    
+    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'fig-02', 'paper-figures')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
+  </div>
   
   
   
@@ -580,19 +578,19 @@
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="spatio_flux.composites.fig02-process-bigraph" data-model-overrides='{}'>
+    <div class="cond-block" data-model-composite="spatio_flux.composites.fig02b-processes" data-model-overrides='{}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>2b-process-bigraph</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig02-process-bigraph</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig02b-processes</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('spatio_flux.composites.fig02-process-bigraph')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('spatio_flux.composites.fig02b-processes')">🧬 explore &amp; run ↗</button>
         
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
         <input type="text" class="baseline-composite-input" data-baseline-name="2b-process-bigraph"
-               value="spatio_flux.composites.fig02-process-bigraph" placeholder="pkg.composites.name"
+               value="spatio_flux.composites.fig02b-processes" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
                 data-baseline-name="2b-process-bigraph">Set composite</button>
@@ -703,6 +701,13 @@
 <section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
 
   <div class="overview-section study-figures figure-gallery" id="visualize-section">
+
+    
+    
+    <div class="viz-actions-row" style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+      <button type="button" class="btn-mini" onclick="window._vivStudyFiguresFromCard(event, 'fig-02')" title="Download this study's visualizations (figure panels + its composite) as a zip">↓ visualizations</button>
+    </div>
+    
 
     <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
 
@@ -949,7 +954,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "512f45b24bacd88ca4435630eaff1fba96bd24cb", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/512f45b24bacd88ca4435630eaff1fba96bd24cb", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-12 14:09 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "6b1339b26e863981baa07724dd8cf395d77ee238", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/6b1339b26e863981baa07724dd8cf395d77ee238", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-13 18:00 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "fig-02";

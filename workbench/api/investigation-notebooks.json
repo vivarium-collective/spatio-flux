@@ -1,1 +1,1 @@
-{"notebooks": []}
+{"notebooks": [{"slug": "paper-figures", "ipynb": "investigation-notebooks/paper-figures.ipynb", "py": "investigation-notebooks/paper-figures.py"}, {"slug": "spatio-flux-test-suite", "ipynb": "investigation-notebooks/spatio-flux-test-suite.ipynb", "py": "investigation-notebooks/spatio-flux-test-suite.py"}]}
