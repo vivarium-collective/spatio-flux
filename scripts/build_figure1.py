@@ -76,9 +76,17 @@ def build_figure1() -> Path:
         img.set("width", str(CW)); img.set("height", str(CH))
         img.set("preserveAspectRatio", "xMidYMin meet")  # top-align → images move up
         swapped += 1
+    # Drop panel D (the community drawing): Figure 1 is now just A / B / C. Remove
+    # its group and crop the canvas to the 3-panel width (C ends at x=1060, +20
+    # right margin = 1080) so no empty column is left behind.
+    for panel in root.findall(_q("g")):
+        if panel.get("id", "") == "Panel D - Community":
+            root.remove(panel)
+    root.set("width", "1080")
+    root.set("viewBox", "0 0 1080 680")
     out = VIZ / "figure_1.svg"
     tree.write(out, encoding="utf-8", xml_declaration=True)
-    print(f"composed {out.relative_to(WS)} — swapped {swapped}/3 loom panels, kept panel d")
+    print(f"composed {out.relative_to(WS)} — swapped {swapped}/3 loom panels (A/B/C), dropped panel D")
     return out
 
 
