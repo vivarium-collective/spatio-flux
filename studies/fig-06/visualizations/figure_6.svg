@@ -34,11 +34,11 @@
     <rect class="proc" x="32" y="78" width="126" height="58" rx="0"/>
     <text class="nm2" x="95" y="103">temporal</text>
     <text class="nm2" x="95" y="121">process</text>
-    <line class="axis" x1="158" y1="107" x2="360" y2="107" marker-end="url(#ar)"/>
+    <line class="axis" x1="158" y1="107" x2="372" y2="107" marker-end="url(#ar)"/>
     <g stroke="#334155" stroke-width="2">
-      <line x1="182" y1="100" x2="182" y2="114"/><line x1="214" y1="100" x2="214" y2="114"/>
-      <line x1="246" y1="100" x2="246" y2="114"/><line x1="278" y1="100" x2="278" y2="114"/>
-      <line x1="310" y1="100" x2="310" y2="114"/>
+      <line x1="182" y1="100" x2="182" y2="114"/><line x1="222" y1="100" x2="222" y2="114"/>
+      <line x1="262" y1="100" x2="262" y2="114"/><line x1="302" y1="100" x2="302" y2="114"/>
+      <line x1="342" y1="100" x2="342" y2="114"/>
     </g>
 
     <!-- shared store hub -->
@@ -50,24 +50,40 @@
     <rect class="proc" x="32" y="300" width="126" height="58" rx="0"/>
     <text class="nm2" x="95" y="325">temporal</text>
     <text class="nm2" x="95" y="343">process</text>
-    <line class="axis" x1="158" y1="329" x2="360" y2="329" marker-end="url(#ar)"/>
+    <line class="axis" x1="158" y1="329" x2="372" y2="329" marker-end="url(#ar)"/>
     <g stroke="#334155" stroke-width="2">
       <line x1="176" y1="322" x2="176" y2="336"/><line x1="194" y1="322" x2="194" y2="336"/>
       <line x1="212" y1="322" x2="212" y2="336"/><line x1="230" y1="322" x2="230" y2="336"/>
       <line x1="248" y1="322" x2="248" y2="336"/><line x1="266" y1="322" x2="266" y2="336"/>
       <line x1="284" y1="322" x2="284" y2="336"/><line x1="302" y1="322" x2="302" y2="336"/>
-      <line x1="320" y1="322" x2="320" y2="336"/>
+      <line x1="320" y1="322" x2="320" y2="336"/><line x1="338" y1="322" x2="338" y2="336"/>
+      <line x1="356" y1="322" x2="356" y2="336"/>
     </g>
-    <text class="lbl" x="360" y="349" text-anchor="end">time</text>
+    <text class="lbl" x="372" y="349" text-anchor="end">time</text>
 
-    <!-- read/write arrows anchored at each process's UPDATE TICKS along its
-         timeline (coarse ticks up top, fine ticks below) <-> the shared store -->
-    <path class="pwire" d="M214,110 L238,186" marker-end="url(#arD)"/>
-    <path class="pwire" d="M278,186 L246,110" marker-end="url(#arD)"/>
-    <path class="pwire" d="M278,110 L302,186" marker-end="url(#arD)"/>
-    <path class="pwire" d="M212,326 L238,250" marker-end="url(#arD)"/>
-    <path class="pwire" d="M278,250 L248,326" marker-end="url(#arD)"/>
-    <path class="pwire" d="M284,326 L302,250" marker-end="url(#arD)"/>
+    <!-- read/write coupling at EACH update tick along the whole timeline: one
+         dashed arrow per timestep, fanning from the shared-store hub. Coarse dt
+         up top (5 ticks), a finer dt below (11 ticks) → more, tighter arrows. -->
+    <g>
+      <path class="pwire" d="M274,188 L182,116" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,188 L222,116" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,188 L262,116" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,188 L302,116" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,188 L342,116" marker-end="url(#arD)"/>
+    </g>
+    <g>
+      <path class="pwire" d="M274,248 L176,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L194,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L212,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L230,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L248,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L266,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L284,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L302,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L320,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L338,320" marker-end="url(#arD)"/>
+      <path class="pwire" d="M274,248 L356,320" marker-end="url(#arD)"/>
+    </g>
   </g>
 
   <!-- ================================ b. workflow ================================= -->
@@ -107,38 +123,45 @@
   <g id="panel-c">
     <text class="title" x="676" y="42">c.  event-driven graph rewrite</text>
 
-    <!-- events (processes) -->
-    <rect class="proc" x="700" y="76" width="86" height="34" rx="0"/><text class="name" x="743" y="98">divide</text>
-    <rect class="proc" x="1020" y="76" width="86" height="34" rx="0"/><text class="name" x="1063" y="98">engulf</text>
-    <rect class="proc" x="1200" y="76" width="86" height="34" rx="0"/><text class="name" x="1243" y="98">burst</text>
+    <!-- three events (processes), each in the gap between the two graph states
+         it rewrites: divide 1->2, engulf 2->3, burst 3->4. -->
+    <rect class="proc" x="796" y="76" width="82" height="34" rx="0"/><text class="name" x="837" y="98">divide</text>
+    <rect class="proc" x="983" y="76" width="82" height="34" rx="0"/><text class="name" x="1024" y="98">engulf</text>
+    <rect class="proc" x="1142" y="76" width="82" height="34" rx="0"/><text class="name" x="1183" y="98">burst</text>
 
-    <!-- environ stores -->
-    <rect class="store" x="694" y="158" width="92" height="42" rx="10"/><text class="name" x="740" y="184">environ</text>
-    <rect class="store" x="816" y="158" width="92" height="42" rx="10"/><text class="name" x="862" y="184">environ</text>
-    <rect class="store" x="1018" y="158" width="92" height="42" rx="10"/><text class="name" x="1064" y="184">environ</text>
-    <rect class="store" x="1198" y="158" width="92" height="42" rx="10"/><text class="name" x="1244" y="184">environ</text>
+    <!-- state 1: environ + agent₁ -->
+    <rect class="store" x="690" y="158" width="88" height="42" rx="10"/><text class="name" x="734" y="184">environ</text>
+    <rect class="store" x="702" y="256" width="64" height="40" rx="10"/><text class="name" x="734" y="281">agent₁</text>
+    <!-- state 2: environ + agent₂ + agent₃ (divided) -->
+    <rect class="store" x="882" y="158" width="116" height="42" rx="10"/><text class="name" x="940" y="184">environ</text>
+    <rect class="store" x="884" y="256" width="56" height="40" rx="10"/><text class="nm2" x="912" y="281">agent₂</text>
+    <rect class="store" x="942" y="256" width="56" height="40" rx="10"/><text class="nm2" x="970" y="281">agent₃</text>
+    <!-- state 3: environ + agent₂ ▸ agent₃ (engulfed / nested) -->
+    <rect class="store" x="1064" y="158" width="88" height="42" rx="10"/><text class="name" x="1108" y="184">environ</text>
+    <rect class="store" x="1076" y="256" width="64" height="40" rx="10"/><text class="name" x="1108" y="281">agent₂</text>
+    <rect class="store" x="1076" y="336" width="64" height="40" rx="10"/><text class="name" x="1108" y="361">agent₃</text>
+    <!-- state 4: environ + agent₂ (burst) -->
+    <rect class="store" x="1214" y="158" width="88" height="42" rx="10"/><text class="name" x="1258" y="184">environ</text>
+    <rect class="store" x="1226" y="256" width="64" height="40" rx="10"/><text class="name" x="1258" y="281">agent₂</text>
 
-    <!-- agent stores -->
-    <rect class="store" x="702" y="256" width="76" height="40" rx="10"/><text class="name" x="740" y="281">agent₁</text>
-    <rect class="store" x="812" y="256" width="76" height="40" rx="10"/><text class="name" x="850" y="281">agent₂</text>
-    <rect class="store" x="898" y="256" width="76" height="40" rx="10"/><text class="name" x="936" y="281">agent₃</text>
-    <rect class="store" x="1026" y="256" width="76" height="40" rx="10"/><text class="name" x="1064" y="281">agent₂</text>
-    <rect class="store" x="1026" y="336" width="76" height="40" rx="10"/><text class="name" x="1064" y="361">agent₃</text>
-    <rect class="store" x="1206" y="256" width="76" height="40" rx="10"/><text class="name" x="1244" y="281">agent₂</text>
+    <!-- one arrow INTO each event (from the prior state) + one OUT (to the next
+         state). Dashed = the rewrite event. They attach to the event boxes and
+         to the whitespace ABOVE each state — never to the store nodes. -->
+    <path class="pwire" d="M734,150 C762,132 786,120 806,110" marker-end="url(#arD)"/>
+    <path class="pwire" d="M868,110 C892,120 916,132 940,150" marker-end="url(#arD)"/>
+    <path class="pwire" d="M940,150 C960,134 978,122 993,110" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1055,110 C1074,122 1092,134 1108,150" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1108,150 C1124,134 1140,122 1152,110" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1214,110 C1230,122 1244,134 1258,150" marker-end="url(#arD)"/>
 
-    <!-- event -> environ (dashed, rewrite target) -->
-    <path class="pwire" d="M726,110 C712,128 706,140 730,156" marker-end="url(#arD)"/>
-    <path class="pwire" d="M760,110 C800,128 830,138 852,156" marker-end="url(#arD)"/>
-    <path class="pwire" d="M1063,110 L1064,156" marker-end="url(#arD)"/>
-    <path class="pwire" d="M1243,110 L1244,156" marker-end="url(#arD)"/>
-
-    <!-- environ -> agent (place-graph containment, solid) -->
-    <path class="wire" d="M740,200 L740,254"/>
-    <path class="wireT" d="M856,200 C850,224 852,238 850,254"/>
-    <path class="wireT" d="M868,200 C896,224 918,240 936,254"/>
-    <path class="wire" d="M1064,200 L1064,254"/>
-    <path class="wire" d="M1064,296 L1064,334"/>
-    <path class="wire" d="M1244,200 L1244,254"/>
+    <!-- place-graph containment (solid): environ -> agent(s); the agent₂ ▸ agent₃
+         nesting chain in state 3. -->
+    <path class="wire" d="M734,200 L734,254"/>
+    <path class="wireT" d="M926,200 C918,224 916,238 912,254"/>
+    <path class="wireT" d="M954,200 C962,224 966,238 970,254"/>
+    <path class="wire" d="M1108,200 L1108,254"/>
+    <path class="wire" d="M1108,296 L1108,334"/>
+    <path class="wire" d="M1258,200 L1258,254"/>
   </g>
 
 </svg>
