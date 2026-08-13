@@ -212,12 +212,16 @@ def _figure_transforms(stem: str, state: dict) -> dict:
         arr = lambda: {"_type": "array", "_shape": list(shape), "_data": "concentration"}
         state["fields"] = {"glucose": arr(), "acetate": arr(), "biomass": arr()}
     elif stem == "fig07-1-community-dfba":
-        # scalar field children -> typed `concentration` stores (not bare `number`).
+        # scalar field children -> typed UNIT stores whose types match the 7b/7c
+        # plot legends: the shared metabolites (glucose, acetate) in `mM`, every
+        # per-organism biomass field (monod biomass + the six species) in `gDW`.
+        # (Was a flat `concentration`, which read wrong against 7b/7c's mM/gDW.)
         f = state.get("fields")
         if isinstance(f, dict):
+            _mM = {"glucose", "acetate"}
             for k, v in list(f.items()):
                 if not k.startswith("_") and isinstance(v, (int, float)):
-                    f[k] = {"_type": "concentration", "_value": float(v)}
+                    f[k] = {"_type": ("mM" if k in _mM else "gDW"), "_value": float(v)}
     elif stem == "fig07-3-brownian-particles":
         # the ensemble's stochastic particles (random ids) -> a fixed set of clean,
         # GENERIC siblings (particle_1..particle_5), each carrying the same
