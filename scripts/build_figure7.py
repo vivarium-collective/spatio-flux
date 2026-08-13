@@ -53,6 +53,19 @@ ROW_MAX_H = {0: 840, 1: 640}
 # Tighter label band above a given row (pulls b/c/d up toward a). Must stay big
 # enough to clear the panel-letter (~36px for the 34px bold serif).
 ROW_GAP_ABOVE = {1: 24}
+# Panels rendered at a WIDER target aspect (width/height) than their source — the
+# b / c / d timeseries plots, which read too tall. Their box is stretched to this
+# aspect (preserveAspectRatio=none), so the plots come out a bit shorter + wider
+# and the whole b/c/d row is shorter — the main lever for fitting Figure 7 on the
+# page. Timeseries tolerate a modest horizontal stretch.
+WIDEN_ASPECT = {
+    "fig07b-monod-kinetics.png": 1.6,
+    "fig07c-dfba.png": 1.6,
+    "fig07d-hybrid-community.png": 1.6,
+}
+# Whole-row scale applied AFTER justification (row is centered at the reduced
+# size). Row 3 = g / h (Brownian loom + traces) at 90%, per request.
+ROW_SCALE = {3: 0.9}
 
 _LABEL_FONTS = (
     "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
@@ -95,7 +108,9 @@ def _layout():
     placements = []  # (path, x, y, w, h)
     y = float(PAD)
     for ri, row in enumerate(ROWS):
-        aspects = [sizes[f][0] / sizes[f][1] for f in row]
+        # A widened panel justifies at its OVERRIDE aspect (so the row is shorter);
+        # its box is later stretched to fill (preserveAspectRatio=none).
+        aspects = [WIDEN_ASPECT.get(f, sizes[f][0] / sizes[f][1]) for f in row]
         gaps = (len(row) - 1) * GAP
         h = (CONTENT_W - gaps) / sum(aspects)
         widths = [a * h for a in aspects]
@@ -105,7 +120,12 @@ def _layout():
             h = float(cap)
             widths = [a * h for a in aspects]
             row_w = sum(widths) + gaps
-        x = PAD + (CONTENT_W - row_w) / 2.0  # center (row_w == CONTENT_W unless capped)
+        scale = ROW_SCALE.get(ri, 1.0)
+        if scale != 1.0:  # shrink the whole row (both panels) and re-center it
+            h *= scale
+            widths = [w * scale for w in widths]
+            row_w = sum(widths) + gaps
+        x = PAD + (CONTENT_W - row_w) / 2.0  # center (row_w == CONTENT_W unless capped/scaled)
         y += ROW_GAP_ABOVE.get(ri, LABEL_H)
         for f, w in zip(row, widths):
             placements.append((VIZ / f, x, y, w, h))
@@ -133,9 +153,11 @@ def build_figure7() -> Path:
             f'<text x="{x:.0f}" y="{y - 12:.0f}" font-family="Georgia, \'Times New Roman\', serif" '
             f'font-size="34" font-weight="bold" fill="#111827">{label}.</text>'
         )
+        # Widened panels stretch to fill their (wider) box; the rest letterbox-fit.
+        par = "none" if p.name in WIDEN_ASPECT else "xMidYMid meet"
         parts.append(
             f'<image href="{_data_uri(p)}" x="{x:.0f}" y="{y:.0f}" '
-            f'width="{w:.0f}" height="{h:.0f}" preserveAspectRatio="xMidYMid meet"/>'
+            f'width="{w:.0f}" height="{h:.0f}" preserveAspectRatio="{par}"/>'
         )
     parts.append("</svg>")
     VIZ.mkdir(parents=True, exist_ok=True)
