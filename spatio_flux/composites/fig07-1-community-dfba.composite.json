@@ -537,39 +537,39 @@
     },
     "fields": {
       "glucose": {
-        "_type": "concentration",
+        "_type": "mM",
         "_value": 10.0
       },
       "acetate": {
-        "_type": "concentration",
+        "_type": "mM",
         "_value": 0.0
       },
       "ecoli core": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       },
       "ecoli": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       },
       "cdiff": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       },
       "pputida": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       },
       "yeast": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       },
       "llactis": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       },
       "monod biomass": {
-        "_type": "concentration",
+        "_type": "gDW",
         "_value": 0.1
       }
     },
