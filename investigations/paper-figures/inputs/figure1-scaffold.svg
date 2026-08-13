@@ -13,8 +13,8 @@
   <g id="Panel A - Different formalisms" transform="translate(20,20)">
     <rect width="320" height="630" rx="14" fill="#fdecea" stroke="#e6a8a0" stroke-width="1.5" />
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#d33a2c" /><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">a</text>
-    <g text-anchor="middle" fill="#222"><text x="180" y="28" font-size="13" font-weight="700">Biological systems are modeled</text><text x="180" y="43" font-size="13" font-weight="700">using diverse mathematical formalisms</text></g>
-    <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Existing biological models span diverse</text><text x="168" y="74">methods, data types, and assumptions.</text></g>
+    <g text-anchor="middle" fill="#222"><text x="180" y="28" font-size="13" font-weight="700">Biological models use diverse</text><text x="180" y="43" font-size="13" font-weight="700">mathematical formalisms</text></g>
+    <g text-anchor="middle" fill="#555" font-size="9"><text x="168" y="59">Different biological processes are represented using</text><text x="168" y="70">specialized models with distinct variables, scales,</text><text x="168" y="81">assumptions, and mathematical formalisms.</text></g>
 
     <g transform="translate(14,96)">
       <rect width="292" height="148" fill="#ffffff" stroke="#e6a8a0" stroke-width="1.2" />
@@ -62,8 +62,8 @@
   <g id="Panel B - Composition interfaces" transform="translate(380,20)">
     <rect width="320" height="630" rx="14" fill="#e8f0fe" stroke="#a9c4f5" stroke-width="1.5" />
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#2b5bd0" /><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">b</text>
-    <g text-anchor="middle" fill="#2b5bd0"><text x="180" y="28" font-size="13" font-weight="700">Composition starts with interfaces</text><text x="180" y="43" font-size="13" font-weight="700">and explicit coupling</text></g>
-    <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Mechanistic processes expose typed interfaces and are</text><text x="168" y="74">composed through explicit variable coupling.</text></g>
+    <g text-anchor="middle" fill="#2b5bd0"><text x="180" y="28" font-size="13" font-weight="700">Process interfaces enable</text><text x="180" y="43" font-size="13" font-weight="700">models to be composed</text></g>
+    <g text-anchor="middle" fill="#555" font-size="9"><text x="168" y="59">Models expose typed variables through explicit</text><text x="168" y="70">interfaces, allowing independently developed processes</text><text x="168" y="81">to be coupled across scales and formalisms.</text></g>
     
     <g stroke="#7e5cae" stroke-width="2.4" fill="none">
       <line x1="160" y1="356" x2="160" y2="316" marker-end="url(#arrow)" />
@@ -141,8 +141,8 @@
   <g id="Panel C - Process Bigraph" transform="translate(740,20)">
     <rect width="320" height="630" rx="14" fill="#fef7e0" stroke="#e6d9a8" stroke-width="1.5" />
     <rect x="14" y="12" width="28" height="28" rx="7" fill="#2f6b3f" /><text x="28" y="32" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">c</text>
-    <g text-anchor="middle" fill="#222"><text x="180" y="28" font-size="13" font-weight="700">Process Bigraph enables</text><text x="180" y="43" font-size="13" font-weight="700">executable composite models</text></g>
-    <g text-anchor="middle" fill="#555" font-size="9.5"><text x="168" y="62">Declarative specifications of interfaces and couplings</text><text x="168" y="74">are executed as composite models by a unified engine.</text></g>
+    <g text-anchor="middle" fill="#222"><text x="180" y="28" font-size="12.5" font-weight="700">Process Bigraph turns compositions</text><text x="180" y="43" font-size="12.5" font-weight="700">into executable, reusable models</text></g>
+    <g text-anchor="middle" fill="#555" font-size="9"><text x="168" y="59">Declarative specifications define components and their</text><text x="168" y="70">couplings, enabling unified execution, analysis,</text><text x="168" y="81">testing, and community reuse.</text></g>
 
     
     <rect x="12" y="88" width="296" height="542" rx="10" fill="#fbfbff" stroke="#c4c4d8" stroke-width="1.6" />

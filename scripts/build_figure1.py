@@ -18,6 +18,7 @@ per-panel one-offs) — this only stitches. Run:
 from __future__ import annotations
 
 import base64
+import math
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -50,10 +51,11 @@ HEADER_KEEP = 5
 # the small inner margins, GAP the space between cards, MARGIN the outer border.
 PANEL_W = 320
 SIDE = 6      # inner left/right margin around the image
-TOP = 78      # image top (just below the ~74px header block)
+TOP = 92      # image top (just below the header: 2-line title + 3-line caption)
 BOTTOM = 8    # inner margin below the image
 GAP = 16      # between A / B / C  (was 40)
 MARGIN = 20   # outer figure margin
+CALLOUT_H = 66  # height of the A / B bottom callout strip
 
 
 def _q(tag: str) -> str:
@@ -121,6 +123,88 @@ def _share_reuse_group(w: int):
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 
+# ── A / B bottom callout strips (icon-left, three items) ─────────────────────
+def _ic_cluster(x, y, c):   # multi-scale — a cluster of cells
+    return (f'<g fill="none" stroke="{c}" stroke-width="1.3">'
+            f'<circle cx="{x}" cy="{y-4}" r="3.4"/><circle cx="{x-5}" cy="{y+2}" r="3.4"/>'
+            f'<circle cx="{x+5}" cy="{y+2}" r="3.4"/><circle cx="{x}" cy="{y+6}" r="2.8"/></g>'
+            f'<g fill="{c}"><circle cx="{x}" cy="{y-4}" r="1"/><circle cx="{x-5}" cy="{y+2}" r="1"/><circle cx="{x+5}" cy="{y+2}" r="1"/></g>')
+
+
+def _ic_paradigm(x, y, c):  # multi-paradigm — a cell with mixed inner marks
+    return (f'<circle cx="{x}" cy="{y}" r="8" fill="none" stroke="{c}" stroke-width="1.3" stroke-dasharray="2 1.6"/>'
+            f'<g fill="{c}"><circle cx="{x-3}" cy="{y-2}" r="1.4"/><circle cx="{x+3}" cy="{y-1}" r="1.4"/>'
+            f'<circle cx="{x}" cy="{y+3}" r="1.4"/><circle cx="{x-2}" cy="{y+2}" r="1"/></g>')
+
+
+def _ic_gear(x, y, c):      # data-informed — a gear
+    teeth = "".join(
+        f'<line x1="{x + 5 * math.cos(math.radians(a)):.1f}" y1="{y + 5 * math.sin(math.radians(a)):.1f}" '
+        f'x2="{x + 8 * math.cos(math.radians(a)):.1f}" y2="{y + 8 * math.sin(math.radians(a)):.1f}"/>'
+        for a in range(0, 360, 45))
+    return (f'<g stroke="{c}" stroke-width="1.3">{teeth}</g>'
+            f'<circle cx="{x}" cy="{y}" r="4.5" fill="none" stroke="{c}" stroke-width="1.3"/>'
+            f'<circle cx="{x}" cy="{y}" r="1.6" fill="{c}"/>')
+
+
+def _ic_chip(x, y, c):      # typed interfaces — a node with typed ports
+    return (f'<circle cx="{x}" cy="{y}" r="6" fill="none" stroke="{c}" stroke-width="1.3"/>'
+            f'<g stroke="{c}" stroke-width="1.3"><line x1="{x-6}" y1="{y}" x2="{x-10}" y2="{y}"/>'
+            f'<line x1="{x+6}" y1="{y}" x2="{x+10}" y2="{y}"/><line x1="{x}" y1="{y-6}" x2="{x}" y2="{y-10}"/></g>'
+            f'<g fill="{c}"><circle cx="{x-10}" cy="{y}" r="1.6"/><circle cx="{x+10}" cy="{y}" r="1.6"/>'
+            f'<circle cx="{x}" cy="{y-10}" r="1.6"/></g>')
+
+
+def _ic_link(x, y, c):      # explicit coupling — two ports linked
+    return (f'<line x1="{x-6}" y1="{y}" x2="{x+6}" y2="{y}" stroke="{c}" stroke-width="1.6"/>'
+            f'<g fill="none" stroke="{c}" stroke-width="1.3"><circle cx="{x-8}" cy="{y}" r="2.6"/><circle cx="{x+8}" cy="{y}" r="2.6"/></g>')
+
+
+def _ic_tree(x, y, c):      # hierarchical composition — parts → whole
+    return (f'<g stroke="{c}" stroke-width="1.3"><line x1="{x}" y1="{y-7}" x2="{x-6}" y2="{y+5}"/>'
+            f'<line x1="{x}" y1="{y-7}" x2="{x+6}" y2="{y+5}"/></g>'
+            f'<g fill="{c}"><circle cx="{x}" cy="{y-7}" r="2.4"/><circle cx="{x-6}" cy="{y+5}" r="2.4"/>'
+            f'<circle cx="{x+6}" cy="{y+5}" r="2.4"/></g>')
+
+
+CALLOUT_A = [(_ic_cluster, ["Multi-scale"], ["Molecules →", "Cells → Organs"]),
+             (_ic_paradigm, ["Multi-paradigm"], ["ODE, FBA, PDE,", "ABM, ML…"]),
+             (_ic_gear, ["Data-informed"], ["Parameters,", "structure, …"])]
+CALLOUT_B = [(_ic_chip, ["Typed interfaces"], ["Explicit ports", "&amp; data types"]),
+             (_ic_link, ["Explicit coupling"], ["Connect variables,", "not code"]),
+             (_ic_tree, ["Hierarchical", "composition"], ["parts → whole"])]
+
+
+def _callout_group(w, items, fill, border, accent):
+    n = len(items)
+    col = w / n
+    parts = [f'<rect x="1" y="2" width="{w - 2}" height="{CALLOUT_H - 4}" rx="10" '
+             f'fill="{fill}" stroke="{border}" stroke-width="1.3"/>']
+    for i, (icon, names, subs) in enumerate(items):
+        cx0 = col * i
+        parts.append(icon(cx0 + 15, CALLOUT_H / 2, accent))
+        tx, y = cx0 + 27, 20
+        for nm in names:
+            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="8" font-weight="700" fill="{accent}">{nm}</text>')
+            y += 10
+        for s in subs:
+            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="6.8" fill="#64748b">{s}</text>')
+            y += 8.5
+    return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
+
+
+# Per-panel bottom block: (SVG <g>, height). A/B get a callout strip; C the
+# Share & Reuse block; anything else none.
+def _bottom_block(panel_id: str, w: int):
+    if panel_id == "Panel A - Different formalisms":
+        return _callout_group(w, CALLOUT_A, "#fdecea", "#e6a8a0", "#c0392b"), CALLOUT_H
+    if panel_id == "Panel B - Composition interfaces":
+        return _callout_group(w, CALLOUT_B, "#e8f0fe", "#a9c4f5", "#2b5bd0"), CALLOUT_H
+    if panel_id == SHARE_PANEL:
+        return _share_reuse_group(w), SHARE_H
+    return None, 0
+
+
 def build_figure1() -> Path:
     tree = ET.parse(SCAFFOLD)
     root = tree.getroot()
@@ -140,12 +224,12 @@ def build_figure1() -> Path:
         if not png.is_file():
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
         ch = round(cw / _aspect(png))
-        is_share = panel.get("id", "") == SHARE_PANEL
-        natural_h = (TOP + ch + 14 + SHARE_H + BOTTOM) if is_share else (TOP + ch + BOTTOM)
-        info.append((panel, png, ch, is_share, natural_h))
+        block, block_h = _bottom_block(panel.get("id", ""), cw)  # A/B callout, C Share & Reuse
+        natural_h = TOP + ch + (14 + block_h if block is not None else 0) + BOTTOM
+        info.append((panel, png, ch, block, natural_h))
     panel_h = max(n for *_, n in info)  # common height for all three cards
     x = MARGIN
-    for panel, png, ch, is_share, _ in info:
+    for panel, png, ch, block, _ in info:
         panel.find(_q("rect")).set("height", str(panel_h))  # background rect = first <rect>
         for extra in list(panel)[HEADER_KEEP:]:
             panel.remove(extra)  # drop the scaffold's placeholder illustration
@@ -154,10 +238,9 @@ def build_figure1() -> Path:
         img.set("x", str(SIDE)); img.set("y", str(TOP))
         img.set("width", str(cw)); img.set("height", str(ch))
         img.set("preserveAspectRatio", "none")  # box == image aspect → fills, no distortion
-        if is_share:  # append the loom-styled Share & Reuse block under the image
-            grp = _share_reuse_group(cw)
-            grp.set("transform", f"translate({SIDE},{TOP + ch + 14})")
-            panel.append(grp)
+        if block is not None:  # append the panel's bottom block under the image
+            block.set("transform", f"translate({SIDE},{TOP + ch + 14})")
+            panel.append(block)
         panel.set("transform", f"translate({x},{MARGIN})")  # pull the cards together
         x += PANEL_W + GAP
     max_h = panel_h
