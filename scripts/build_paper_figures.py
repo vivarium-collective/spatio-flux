@@ -50,7 +50,7 @@ PAD = 26
 # Per-panel size overrides — a fraction of ROW_H for a specific panel (by
 # filename stem), so a schematic that would otherwise dominate its row can be
 # scaled down. Shorter panels are centered vertically within the row band.
-PANEL_SCALE = {"fig03a-store": 0.6}
+PANEL_SCALE = {"fig03a-store": 0.6, "fig05a-process-graph": 0.52}
 
 
 def _panel_png(study_dir: Path, viz: dict) -> Path | None:
