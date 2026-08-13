@@ -570,28 +570,34 @@ def fig3a_store_state() -> dict:
 
 def fig3b_place_graph_state() -> dict:
     """Fig 3b (store diagram, panel b): a PLACE GRAPH of nested stores — a cell
-    and its compartments, each holding a biologically meaningful quantity with a
-    DISTINCT data type, so the place graph reads as real cell biology:
+    and its compartments, each leaf store holding a biologically REASONABLE value
+    of a matching data type, so the place graph reads as real cell biology:
 
-        cell ⊃ { nucleus  ⊃ {chromatin: genome,   mRNA: transcript},
-                 cytoplasm ⊃ {ribosome: count,     ATP:  energy},
-                 membrane  ⊃ {receptor: count} }
-        + medium (extracellular sibling): concentration
+        cell ⊃ { nucleus  ⊃ {chromatin: DNA=2,        mRNA: transcript=12000},
+                 cytoplasm ⊃ {ribosome: count=200000, ATP:  concentration=3.5},
+                 membrane  ⊃ {receptor: count=5000} }
+        + medium (extracellular sibling): concentration=10.0
 
-    Outer stores connect to inner stores by the place-graph nesting."""
+    The container stores (cell / nucleus / cytoplasm / membrane) are place-graph
+    branches — they nest children rather than hold a scalar. Each leaf shows its
+    name, its type, and its value. The loom reads a store's display value from
+    ``_default`` (``_v`` writes ``_value``, which the viewer does not show), so
+    these leaves are authored with ``_default`` directly."""
+    def sv(type_name: str, default) -> dict:
+        return {"_type": type_name, "_default": default}
     return {
         "cell": {
             "nucleus": {
-                "chromatin": _v("genome", 0.0),
-                "mRNA": _v("transcript", 0.0),
+                "chromatin": sv("DNA", 2),            # genome copies (diploid)
+                "mRNA": sv("transcript", 12000),      # mRNA molecules
             },
             "cytoplasm": {
-                "ribosome": _v("count", 0.0),
-                "ATP": _v("energy", 0.0),
+                "ribosome": sv("count", 200000),      # ribosomes
+                "ATP": sv("concentration", 3.5),      # ATP, mM
             },
-            "membrane": {"receptor": _v("count", 0.0)},
+            "membrane": {"receptor": sv("count", 5000)},  # surface receptors
         },
-        "medium": _v("concentration", 0.0),  # extracellular sibling
+        "medium": sv("concentration", 10.0),  # extracellular glucose, mM
     }
 
 

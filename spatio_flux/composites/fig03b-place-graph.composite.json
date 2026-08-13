@@ -10,34 +10,34 @@
     "cell": {
       "nucleus": {
         "chromatin": {
-          "_type": "genome",
-          "_value": 0.0
+          "_type": "DNA",
+          "_default": 2
         },
         "mRNA": {
           "_type": "transcript",
-          "_value": 0.0
+          "_default": 12000
         }
       },
       "cytoplasm": {
         "ribosome": {
           "_type": "count",
-          "_value": 0.0
+          "_default": 200000
         },
         "ATP": {
-          "_type": "energy",
-          "_value": 0.0
+          "_type": "concentration",
+          "_default": 3.5
         }
       },
       "membrane": {
         "receptor": {
           "_type": "count",
-          "_value": 0.0
+          "_default": 5000
         }
       }
     },
     "medium": {
       "_type": "concentration",
-      "_value": 0.0
+      "_default": 10.0
     }
   }
 }
