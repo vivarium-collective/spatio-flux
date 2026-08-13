@@ -341,14 +341,16 @@ class CellExchange(DraftProcess):
 @draft_process(
     name="BigraphLink",
     inputs={"in": "place_node"},
-    outputs={"out": "place_node"},
+    outputs={"out": "place_node", "out_b": "place_node"},
     contract={
         "summary": "Process p — connects place-graph nodes via typed ports",
         "description": "A process in the process bigraph: it connects nodes of the "
                        "place graph through its typed ports, replacing a Milner "
                        "hyperedge in the link graph.",
         "status": "draft - no update",
-        "ports": {"in": "a node this process reads", "out": "a node this process writes"},
+        "ports": {"in": "a node this process reads",
+                  "out": "a node this process writes",
+                  "out_b": "a second node this process writes"},
     },
 )
 class BigraphLink(DraftProcess):
