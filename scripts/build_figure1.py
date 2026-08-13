@@ -135,23 +135,23 @@ def build_figure1() -> Path:
         if panel.get("id", "") == "Panel D - Community":
             root.remove(panel)
     cw = PANEL_W - 2 * SIDE  # image width inside a card
-    x = MARGIN
-    max_h = 0
-    swapped = 0
-    for panel in root.findall(_q("g")):
-        loom = PANEL_LOOM.get(panel.get("id", ""))
-        if not loom:
-            continue  # defs / other groups: untouched
-        png = VIZ / loom
+    # Each loom image fills the card WIDTH at its native aspect (no letterbox).
+    # Pre-pass: measure every panel's natural content height, then give ALL cards
+    # the SAME height (the tallest) — the images sit top-aligned and any leftover
+    # space is the card's own tint, not white, so the three panels line up.
+    panels = [p for p in root.findall(_q("g")) if PANEL_LOOM.get(p.get("id", ""))]
+    info = []
+    for panel in panels:
+        png = VIZ / PANEL_LOOM[panel.get("id", "")]
         if not png.is_file():
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
-        # Size the image to fill the card width at its native aspect (no letterbox);
-        # the card grows/shrinks to fit → the image fills it with only SIDE/TOP/BOTTOM
-        # margins. Cards are top-aligned (ragged bottoms) so none carries dead space.
         ch = round(cw / _aspect(png))
         is_share = panel.get("id", "") == SHARE_PANEL
-        share_y = TOP + ch + 14  # the Share & Reuse block sits below the image
-        panel_h = (share_y + SHARE_H + BOTTOM) if is_share else (TOP + ch + BOTTOM)
+        natural_h = (TOP + ch + 14 + SHARE_H + BOTTOM) if is_share else (TOP + ch + BOTTOM)
+        info.append((panel, png, ch, is_share, natural_h))
+    panel_h = max(n for *_, n in info)  # common height for all three cards
+    x = MARGIN
+    for panel, png, ch, is_share, _ in info:
         panel.find(_q("rect")).set("height", str(panel_h))  # background rect = first <rect>
         for extra in list(panel)[HEADER_KEEP:]:
             panel.remove(extra)  # drop the scaffold's placeholder illustration
@@ -162,12 +162,12 @@ def build_figure1() -> Path:
         img.set("preserveAspectRatio", "none")  # box == image aspect → fills, no distortion
         if is_share:  # append the loom-styled Share & Reuse block under the image
             grp = _share_reuse_group(cw)
-            grp.set("transform", f"translate({SIDE},{share_y})")
+            grp.set("transform", f"translate({SIDE},{TOP + ch + 14})")
             panel.append(grp)
         panel.set("transform", f"translate({x},{MARGIN})")  # pull the cards together
         x += PANEL_W + GAP
-        max_h = max(max_h, panel_h)
-        swapped += 1
+    max_h = panel_h
+    swapped = len(info)
     fig_w = MARGIN + swapped * PANEL_W + (swapped - 1) * GAP + MARGIN
     fig_h = MARGIN + max_h + MARGIN
     root.set("width", str(fig_w)); root.set("height", str(fig_h))
