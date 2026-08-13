@@ -76,7 +76,7 @@ def _aspect(png: Path) -> float:
 # heading, with publish / discover arrows. Drawn as an SVG <g> so it composites
 # straight into the scaffold's panel-C group.
 SHARE_PANEL = "Panel C - Process Bigraph"
-SHARE_H = 158  # height of the appended section
+SHARE_H = 126  # height of the appended section
 
 
 def _sr_icon_process(cx: float) -> str:  # a small process/component network
@@ -105,9 +105,7 @@ def _share_reuse_group(w: int):
              (107, _sr_icon_schema, "Schema Registry", "Interfaces &amp; types"),
              (210, _sr_icon_repo, "Model Repository", "Composites")]
     parts = [
-        f'<defs><marker id="sr_ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" '
-        f'orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker></defs>',
-        f'<rect x="1" y="2" width="{w - 2}" height="152" rx="12" fill="#f6fdfa" stroke="#bbf7d0" '
+        f'<rect x="1" y="2" width="{w - 2}" height="120" rx="12" fill="#f6fdfa" stroke="#bbf7d0" '
         f'stroke-width="1.5" stroke-dasharray="5 4"/>',
         f'<text x="{w / 2:.0f}" y="24" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" '
         f'font-size="15" font-weight="700" fill="#16a34a">Share &amp; Reuse</text>',
@@ -120,10 +118,6 @@ def _share_reuse_group(w: int):
         parts.append(icon(cx))
         parts.append(f'<text x="{cx:.0f}" y="97" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1e293b">{name}</text>')
         parts.append(f'<text x="{cx:.0f}" y="108" text-anchor="middle" font-size="7" fill="#64748b">{sub}</text>')
-    for lx, lbl in ((78, "publish"), (228, "discover &amp; reuse")):
-        parts.append(f'<path d="M{lx} 141 V127" fill="none" stroke="#94a3b8" stroke-width="1.4" '
-                     f'stroke-dasharray="4 3" marker-end="url(#sr_ar)"/>')
-        parts.append(f'<text x="{lx}" y="150" text-anchor="middle" font-size="8" font-style="italic" fill="#64748b">{lbl}</text>')
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 
