@@ -554,11 +554,15 @@ def _fig02_bigraph_state(prefix: str) -> dict:
         # Place graph: n1/n2/n4 are BRANCH nodes (contain children); n3/n5/n6 are leaves.
         "n1": {"n3": _v("place_node", 0.0), "n4": {"n6": _v("place_node", 0.0)}},
         "n2": {"n5": _v("place_node", 0.0)},
-        # Connectors wired across the place graph (paths into the nesting). #1 and
-        # #3 also link to n2 (extra hyperedge spoke / process wire).
-        f"{prefix}1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n1", "n3"], "out_b": ["n2"]}),
+        # Connectors wired across the place graph (paths into the nesting).
+        # Ports are laid out to keep the wires untangled: each process's two
+        # outputs fan to non-crossing targets.
+        #   #1: in←n1 ; out→n2 (top), out_b→n3 (bottom)
+        #   #2: in←n3 ; out→n6
+        #   #3: in←n6 ; out→n2, out_b→n5
+        f"{prefix}1": _proc(BigraphLink, {"in": ["n1"]},          {"out": ["n2"], "out_b": ["n1", "n3"]}),
         f"{prefix}2": _proc(BigraphLink, {"in": ["n1", "n3"]},    {"out": ["n1", "n4", "n6"]}),
-        f"{prefix}3": _proc(BigraphLink, {"in": ["n2", "n5"]},    {"out": ["n1", "n4", "n6"], "out_b": ["n2"]}),
+        f"{prefix}3": _proc(BigraphLink, {"in": ["n1", "n4", "n6"]}, {"out": ["n2"], "out_b": ["n2", "n5"]}),
     }
 
 
