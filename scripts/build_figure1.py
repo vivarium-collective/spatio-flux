@@ -51,11 +51,11 @@ HEADER_KEEP = 5
 # the small inner margins, GAP the space between cards, MARGIN the outer border.
 PANEL_W = 320
 SIDE = 6      # inner left/right margin around the image
-TOP = 92      # image top (just below the header: 2-line title + 3-line caption)
+TOP = 102     # image top (below the header: 2-line title + 3-line caption, enlarged)
 BOTTOM = 8    # inner margin below the image
 GAP = 16      # between A / B / C  (was 40)
 MARGIN = 20   # outer figure margin
-CALLOUT_H = 66  # height of the A / B bottom callout strip
+CALLOUT_H = 74  # height of the A / B bottom callout strip
 
 
 def _q(tag: str) -> str:
@@ -82,23 +82,23 @@ SHARE_H = 126  # height of the appended section
 
 
 def _sr_icon_process(cx: float) -> str:  # a small process/component network
-    return (f'<g stroke="#16a34a" stroke-width="1.5">'
+    return (f'<g stroke="#2f6b3f" stroke-width="1.5">'
             f'<line x1="{cx}" y1="60" x2="{cx-9}" y2="71"/><line x1="{cx}" y1="60" x2="{cx+9}" y2="71"/>'
             f'<line x1="{cx-9}" y1="71" x2="{cx+9}" y2="71"/><line x1="{cx}" y1="60" x2="{cx}" y2="76"/></g>'
-            f'<g fill="#16a34a"><circle cx="{cx}" cy="60" r="2.8"/><circle cx="{cx-9}" cy="71" r="2.8"/>'
+            f'<g fill="#2f6b3f"><circle cx="{cx}" cy="60" r="2.8"/><circle cx="{cx-9}" cy="71" r="2.8"/>'
             f'<circle cx="{cx+9}" cy="71" r="2.8"/><circle cx="{cx}" cy="76" r="2.8"/></g>')
 
 
 def _sr_icon_schema(cx: float) -> str:  # a 2×2 grid of interface/type tiles
-    return (f'<g fill="none" stroke="#3b82f6" stroke-width="1.5">'
+    return (f'<g fill="none" stroke="#2f6b3f" stroke-width="1.5">'
             f'<rect x="{cx-9}" y="59" width="8" height="8" rx="1.5"/><rect x="{cx+1}" y="59" width="8" height="8" rx="1.5"/>'
             f'<rect x="{cx-9}" y="69" width="8" height="8" rx="1.5"/><rect x="{cx+1}" y="69" width="8" height="8" rx="1.5"/></g>')
 
 
 def _sr_icon_repo(cx: float) -> str:  # a database cylinder
-    return (f'<g fill="#dcfce7" stroke="#16a34a" stroke-width="1.6">'
+    return (f'<g fill="#e7f1ea" stroke="#2f6b3f" stroke-width="1.6">'
             f'<path d="M{cx-9} 61 v11 a9 3.4 0 0 0 18 0 v-11"/><ellipse cx="{cx}" cy="61" rx="9" ry="3.4"/></g>'
-            f'<path d="M{cx-9} 67.5 a9 3.4 0 0 0 18 0" fill="none" stroke="#16a34a" stroke-width="1.2" opacity="0.6"/>')
+            f'<path d="M{cx-9} 67.5 a9 3.4 0 0 0 18 0" fill="none" stroke="#2f6b3f" stroke-width="1.2" opacity="0.6"/>')
 
 
 def _share_reuse_group(w: int):
@@ -107,19 +107,18 @@ def _share_reuse_group(w: int):
              (107, _sr_icon_schema, "Schema Registry", "Interfaces &amp; types"),
              (210, _sr_icon_repo, "Model Repository", "Composites")]
     parts = [
-        f'<rect x="1" y="2" width="{w - 2}" height="120" rx="12" fill="#f6fdfa" stroke="#bbf7d0" '
-        f'stroke-width="1.5" stroke-dasharray="5 4"/>',
+        f'<rect x="1" y="2" width="{w - 2}" height="120" rx="12" fill="#fdf8ea" stroke="#e6d9a8" stroke-width="1.3"/>',
         f'<text x="{w / 2:.0f}" y="24" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" '
-        f'font-size="15" font-weight="700" fill="#16a34a">Share &amp; Reuse</text>',
-        f'<text x="{w / 2:.0f}" y="39" text-anchor="middle" font-size="8.5" fill="#64748b">'
+        f'font-size="16.5" font-weight="700" fill="#2f6b3f">Share &amp; Reuse</text>',
+        f'<text x="{w / 2:.0f}" y="39" text-anchor="middle" font-size="9.5" fill="#64748b">'
         f'Publish reusable components and discover those from others.</text>',
     ]
     for x, icon, name, sub in boxes:
         cx = x + bw / 2
-        parts.append(f'<rect x="{x}" y="{y}" width="{bw}" height="66" rx="9" fill="#ffffff" stroke="#22c55e" stroke-width="1.8"/>')
+        parts.append(f'<rect x="{x}" y="{y}" width="{bw}" height="66" rx="9" fill="#ffffff" stroke="#2f6b3f" stroke-width="1.8"/>')
         parts.append(icon(cx))
-        parts.append(f'<text x="{cx:.0f}" y="97" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1e293b">{name}</text>')
-        parts.append(f'<text x="{cx:.0f}" y="108" text-anchor="middle" font-size="7" fill="#64748b">{sub}</text>')
+        parts.append(f'<text x="{cx:.0f}" y="97" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">{name}</text>')
+        parts.append(f'<text x="{cx:.0f}" y="109" text-anchor="middle" font-size="8" fill="#64748b">{sub}</text>')
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 
@@ -183,13 +182,13 @@ def _callout_group(w, items, fill, border, accent):
     for i, (icon, names, subs) in enumerate(items):
         cx0 = col * i
         parts.append(icon(cx0 + 15, CALLOUT_H / 2, accent))
-        tx, y = cx0 + 27, 20
+        tx, y = cx0 + 28, 21
         for nm in names:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="8" font-weight="700" fill="{accent}">{nm}</text>')
-            y += 10
+            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="9" font-weight="700" fill="{accent}">{nm}</text>')
+            y += 11
         for s in subs:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="6.8" fill="#64748b">{s}</text>')
-            y += 8.5
+            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="7.6" fill="#64748b">{s}</text>')
+            y += 9.4
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 
@@ -226,10 +225,10 @@ def build_figure1() -> Path:
         ch = round(cw / _aspect(png))
         block, block_h = _bottom_block(panel.get("id", ""), cw)  # A/B callout, C Share & Reuse
         natural_h = TOP + ch + (14 + block_h if block is not None else 0) + BOTTOM
-        info.append((panel, png, ch, block, natural_h))
+        info.append((panel, png, ch, block, block_h, natural_h))
     panel_h = max(n for *_, n in info)  # common height for all three cards
     x = MARGIN
-    for panel, png, ch, block, _ in info:
+    for panel, png, ch, block, block_h, _ in info:
         panel.find(_q("rect")).set("height", str(panel_h))  # background rect = first <rect>
         for extra in list(panel)[HEADER_KEEP:]:
             panel.remove(extra)  # drop the scaffold's placeholder illustration
@@ -238,8 +237,8 @@ def build_figure1() -> Path:
         img.set("x", str(SIDE)); img.set("y", str(TOP))
         img.set("width", str(cw)); img.set("height", str(ch))
         img.set("preserveAspectRatio", "none")  # box == image aspect → fills, no distortion
-        if block is not None:  # append the panel's bottom block under the image
-            block.set("transform", f"translate({SIDE},{TOP + ch + 14})")
+        if block is not None:  # bottom-align the block so all three line up at the base
+            block.set("transform", f"translate({SIDE},{panel_h - BOTTOM - block_h})")
             panel.append(block)
         panel.set("transform", f"translate({x},{MARGIN})")  # pull the cards together
         x += PANEL_W + GAP
