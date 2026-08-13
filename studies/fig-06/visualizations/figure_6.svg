@@ -130,18 +130,18 @@
     <rect class="proc" x="1142" y="76" width="82" height="34" rx="0"/><text class="name" x="1183" y="98">burst</text>
 
     <!-- state 1: environ + agent₁ -->
-    <rect class="store" x="690" y="158" width="88" height="42" rx="10"/><text class="name" x="734" y="184">environ</text>
+    <rect class="store" x="682" y="158" width="104" height="42" rx="10"/><text class="name" x="734" y="184">environment</text>
     <rect class="store" x="702" y="256" width="64" height="40" rx="10"/><text class="name" x="734" y="281">agent₁</text>
     <!-- state 2: environ + agent₂ + agent₃ (divided) -->
-    <rect class="store" x="882" y="158" width="116" height="42" rx="10"/><text class="name" x="940" y="184">environ</text>
+    <rect class="store" x="882" y="158" width="116" height="42" rx="10"/><text class="name" x="940" y="184">environment</text>
     <rect class="store" x="884" y="256" width="56" height="40" rx="10"/><text class="nm2" x="912" y="281">agent₂</text>
     <rect class="store" x="942" y="256" width="56" height="40" rx="10"/><text class="nm2" x="970" y="281">agent₃</text>
     <!-- state 3: environ + agent₂ ▸ agent₃ (engulfed / nested) -->
-    <rect class="store" x="1064" y="158" width="88" height="42" rx="10"/><text class="name" x="1108" y="184">environ</text>
+    <rect class="store" x="1056" y="158" width="104" height="42" rx="10"/><text class="name" x="1108" y="184">environment</text>
     <rect class="store" x="1076" y="256" width="64" height="40" rx="10"/><text class="name" x="1108" y="281">agent₂</text>
     <rect class="store" x="1076" y="336" width="64" height="40" rx="10"/><text class="name" x="1108" y="361">agent₃</text>
     <!-- state 4: environ + agent₂ (burst) -->
-    <rect class="store" x="1214" y="158" width="88" height="42" rx="10"/><text class="name" x="1258" y="184">environ</text>
+    <rect class="store" x="1206" y="158" width="104" height="42" rx="10"/><text class="name" x="1258" y="184">environment</text>
     <rect class="store" x="1226" y="256" width="64" height="40" rx="10"/><text class="name" x="1258" y="281">agent₂</text>
 
     <!-- one arrow INTO each event (from the prior state) + one OUT (to the next
