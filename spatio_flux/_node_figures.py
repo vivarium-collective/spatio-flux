@@ -297,6 +297,105 @@ FIG1A_ICONS: dict[str, str] = {
 }
 
 
+# ── Fig-1b: a BLUE-themed icon set (panel B is a blue monochrome theme) ──────
+# Clean single-colour blue glyphs in the same style as the fig-1a red set, for
+# every process + store in the multiscale composite. Kept separate from ICONS so
+# the shared keys stay multi-colour elsewhere.
+_B_BLUE = "#2b5bd0"
+
+
+def _b(color=_B_BLUE):
+    return color
+
+
+FIG1B_ICONS: dict[str, str] = {
+    # ── processes ──
+    "diffusion": _svg(
+        f'<circle cx="14" cy="24" r="6.5" fill="{_B_BLUE}"/>'
+        f'<g fill="{_B_BLUE}"><circle cx="28" cy="17" r="3" opacity="0.85"/><circle cx="31" cy="31" r="2.6" opacity="0.7"/>'
+        f'<circle cx="42" cy="21" r="2.2" opacity="0.55"/><circle cx="47" cy="32" r="1.9" opacity="0.45"/>'
+        f'<circle cx="56" cy="25" r="1.6" opacity="0.32"/></g>'),
+    "abm": _svg(
+        f'<g stroke="{_B_BLUE}" stroke-width="1.7" stroke-dasharray="3 3" opacity="0.7">'
+        f'<line x1="20" y1="17" x2="46" y2="16"/><line x1="20" y1="17" x2="33" y2="35"/><line x1="46" y1="16" x2="33" y2="35"/></g>'
+        f'<g stroke="{_B_BLUE}" stroke-width="2"><circle cx="20" cy="17" r="6"/><circle cx="46" cy="16" r="6"/><circle cx="33" cy="35" r="6"/></g>'
+        f'<g fill="{_B_BLUE}"><circle cx="20" cy="17" r="1.8"/><circle cx="46" cy="16" r="1.8"/><circle cx="33" cy="35" r="1.8"/></g>'),
+    "transcription": _svg(
+        _helix(16, _B_BLUE) + f'<path d="M30 24 Q40 13 50 24 Q58 32 64 26" stroke="{_B_BLUE}" stroke-width="2.8"/>'
+        f'<circle cx="64" cy="26" r="2.4" fill="{_B_BLUE}"/>'),
+    "translation": _svg(
+        f'<path d="M6 36 Q16 28 26 36 Q34 42 42 37" stroke="{_B_BLUE}" stroke-width="2.6"/>'
+        f'<circle cx="33" cy="26" r="11" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<path d="M22 20 A11 11 0 0 1 44 20" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<g fill="{_B_BLUE}"><circle cx="50" cy="17" r="2.6"/><circle cx="56" cy="12" r="2.6"/><circle cx="63" cy="9" r="2.6"/></g>'),
+    "rna_degradation": _svg(
+        f'<path d="M6 24 Q13 16 20 24 Q27 32 34 24" stroke="{_B_BLUE}" stroke-width="2.6"/>'
+        f'<circle cx="43" cy="15" r="3.4" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<circle cx="43" cy="33" r="3.4" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<path d="M45.5 17.5 L66 30 M45.5 30.5 L66 18" stroke="{_B_BLUE}" stroke-width="2.2"/>'),
+    "metabolism": _svg(_hub(36, 24, 15, _B_BLUE)),
+    "structural_packing": _svg(
+        f'<g stroke="{_B_BLUE}" stroke-width="1.9">'
+        f'<circle cx="25" cy="19" r="8.5"/><circle cx="42" cy="21" r="7.5"/><circle cx="31" cy="34" r="7.5"/><circle cx="47" cy="34" r="6"/></g>'),
+    "growth": _svg(
+        f'<path d="M36 43 V19" stroke="{_B_BLUE}" stroke-width="2.8"/>'
+        f'<path d="M36 27 Q24 25 20 15 Q33 15 36 27 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<path d="M36 31 Q48 30 53 21 Q40 20 36 31 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<path d="M36 19 l-4 4 M36 19 l4 4" stroke="{_B_BLUE}" stroke-width="2.6"/>'),
+    "division": _svg(
+        f'<g stroke="{_B_BLUE}" stroke-width="2.4"><circle cx="25" cy="24" r="11"/><circle cx="47" cy="24" r="11"/></g>'
+        f'<line x1="36" y1="12" x2="36" y2="36" stroke="{_B_BLUE}" stroke-width="1.7" stroke-dasharray="3 3"/>'
+        f'<g fill="{_B_BLUE}"><circle cx="25" cy="24" r="2.6"/><circle cx="47" cy="24" r="2.6"/></g>'),
+    # ── stores ──
+    "fields": _svg(
+        f'<rect x="8" y="8" width="56" height="32" rx="5" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<g stroke="{_B_BLUE}" stroke-width="1.2" opacity="0.55">'
+        f'<line x1="8" y1="18.7" x2="64" y2="18.7"/><line x1="8" y1="29.3" x2="64" y2="29.3"/>'
+        f'<line x1="26.7" y1="8" x2="26.7" y2="40"/><line x1="45.3" y1="8" x2="45.3" y2="40"/></g>'
+        f'<g fill="{_B_BLUE}" opacity="0.5"><rect x="12" y="12" width="10.5" height="5.5"/><rect x="49" y="30.5" width="11" height="5.5"/></g>'),
+    "cell_population": _svg(
+        f'<g stroke="{_B_BLUE}" stroke-width="2">'
+        f'<circle cx="18" cy="18" r="6.5"/><circle cx="35" cy="14" r="6.5"/><circle cx="52" cy="19" r="6"/>'
+        f'<circle cx="26" cy="32" r="6.5"/><circle cx="44" cy="32" r="6"/></g>'
+        f'<g fill="{_B_BLUE}"><circle cx="18" cy="18" r="2"/><circle cx="35" cy="14" r="2"/><circle cx="52" cy="19" r="2"/><circle cx="26" cy="32" r="2"/><circle cx="44" cy="32" r="2"/></g>'),
+    "DNA": _svg(_helix(36, _B_BLUE)),
+    "mRNA": _svg(
+        f'<path d="M7 24 Q17 11 27 24 Q37 37 47 24 Q57 11 65 22" stroke="{_B_BLUE}" stroke-width="2.8"/>'
+        f'<g stroke="{_B_BLUE}" stroke-width="1.6" opacity="0.55"><line x1="17" y1="17" x2="19" y2="21"/><line x1="37" y1="30" x2="35" y2="27"/><line x1="55" y1="17" x2="57" y2="21"/></g>'),
+    "protein": _svg(
+        f'<path d="M22 30 Q14 22 22 15 Q30 9 40 13 Q50 17 48 27 Q46 37 35 37 Q26 37 22 30 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<path d="M27 26 q4 -5 8 0 t8 0" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<circle cx="27" cy="26" r="1.8" fill="{_B_BLUE}"/><circle cx="43" cy="26" r="1.8" fill="{_B_BLUE}"/>'),
+    "metabolites": _svg(
+        f'<path d="M36 10 L48 17 V31 L36 38 L24 31 V17 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<path d="M28 19 V29 M44 19 V29" stroke="{_B_BLUE}" stroke-width="1.6" opacity="0.6"/>'
+        f'<g fill="{_B_BLUE}"><circle cx="36" cy="10" r="2.6"/><circle cx="48" cy="17" r="2.6"/><circle cx="48" cy="31" r="2.6"/>'
+        f'<circle cx="36" cy="38" r="2.6"/><circle cx="24" cy="31" r="2.6"/><circle cx="24" cy="17" r="2.6"/></g>'),
+    "energy": _svg(f'<path d="M42 6 L22 27 H34 L30 42 L50 20 H37 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2.4" stroke-linejoin="round"/>'),
+    "reg_signals": _svg(
+        f'<circle cx="17" cy="24" r="4.5" fill="{_B_BLUE}"/>'
+        f'<g stroke="{_B_BLUE}" stroke-width="2.4" opacity="0.9"><path d="M27 15 Q34 24 27 33"/></g>'
+        f'<g stroke="{_B_BLUE}" stroke-width="2.2" opacity="0.6"><path d="M36 11 Q47 24 36 37"/></g>'
+        f'<g stroke="{_B_BLUE}" stroke-width="2" opacity="0.35"><path d="M45 8 Q60 24 45 40"/></g>'),
+    "structure": _svg(
+        f'<path d="M22 15 L50 15 L36 38 Z M22 15 L36 26 L50 15 M36 26 L36 38" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<g fill="none" stroke="{_B_BLUE}" stroke-width="2">'
+        f'<circle cx="22" cy="15" r="4.6"/><circle cx="50" cy="15" r="4.6"/><circle cx="36" cy="38" r="4.6"/><circle cx="36" cy="26" r="4.6"/></g>'),
+    "mass": _svg(
+        f'<path d="M28 18 Q29 9 36 9 Q43 9 44 18" stroke="{_B_BLUE}" stroke-width="2.4"/>'
+        f'<path d="M20 17 H52 L48 41 H24 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<text x="36" y="34" font-family="Inter,system-ui,sans-serif" font-size="10" font-weight="700" fill="{_B_BLUE}" text-anchor="middle" stroke="none">m</text>'),
+    "volume": _svg(
+        f'<path d="M36 8 L52 17 L36 26 L20 17 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<path d="M20 17 V33 L36 42 V26 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'
+        f'<path d="M52 17 V33 L36 42 V26 Z" fill="none" stroke="{_B_BLUE}" stroke-width="2"/>'),
+    "phase": _svg(
+        f'<circle cx="36" cy="24" r="14" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<path d="M36 24 V13 M36 24 l8 5" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<circle cx="36" cy="24" r="2.2" fill="{_B_BLUE}"/>'),
+}
+
+
 def attach(state: dict, icons: dict[str, str] = ICONS) -> dict:
     """Stamp ``_figure`` onto every matching process/store node in ``state``
     (in place). Recurses through place-graph branches and composite inner states.

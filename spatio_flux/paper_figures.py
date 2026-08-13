@@ -19,6 +19,7 @@ from process_bigraph import DraftProcess, draft_process
 
 from spatio_flux._node_figures import attach as _attach_figures
 from spatio_flux._node_figures import FIG1A_ICONS as _FIG1A_ICONS
+from spatio_flux._node_figures import FIG1B_ICONS as _FIG1B_ICONS
 
 
 # Extra biological/physical scalar types (spatio-flux already provides
@@ -542,7 +543,8 @@ def _cell() -> dict:
 
 
 def fig1b_multiscale_state() -> dict:
-    """Fig 1b: the multiscale draft composite (tissue ⊃ cells ⊃ cell ⊃ molecules)."""
+    """Fig 1b: the multiscale draft composite (tissue ⊃ cells ⊃ cell ⊃ molecules).
+    Uses the BLUE-themed panel-B icon set (see _node_figures.FIG1B_ICONS)."""
     return _attach_figures({
         "tissue": {
             "fields": _v("concentration", 0.0),
@@ -551,7 +553,7 @@ def fig1b_multiscale_state() -> dict:
             "diffusion": _proc(Diffusion, {"field": ["fields"]}, {"field": ["fields"]}),
             "abm": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
         },
-    })
+    }, icons=_FIG1B_ICONS)
 
 
 def _community_dfba_sim() -> dict:
