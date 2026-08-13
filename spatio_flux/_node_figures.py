@@ -120,8 +120,40 @@ ICONS: dict[str, str] = {
         f'<rect x="38" y="23" width="8" height="17" rx="2" fill="{_ENE}"/>'
         f'<rect x="50" y="12" width="8" height="28" rx="2" fill="{_CELL}"/></g>'
         f'<path d="M18 24 L30 15 L42 20 L54 9" stroke="{_INK}" stroke-width="2" opacity="0.55"/>'),
+    "neural_dynamics": _svg(
+        # a 2 → 3 → 2 fully-connected neural network (the ML formalism)
+        f'<g stroke="{_PROT}" stroke-width="1" opacity="0.35">'
+        f'<path d="M16 16 L34 10 M16 16 L34 24 M16 16 L34 38 M16 32 L34 10 M16 32 L34 24 M16 32 L34 38"/>'
+        f'<path d="M34 10 L56 16 M34 10 L56 32 M34 24 L56 16 M34 24 L56 32 M34 38 L56 16 M34 38 L56 32"/></g>'
+        f'<g fill="{_PROT}"><circle cx="16" cy="16" r="3.4"/><circle cx="16" cy="32" r="3.4"/>'
+        f'<circle cx="34" cy="10" r="3.4"/><circle cx="34" cy="24" r="3.4"/><circle cx="34" cy="38" r="3.4"/>'
+        f'<circle cx="56" cy="16" r="3.4"/><circle cx="56" cy="32" r="3.4"/></g>'),
+    "analyses": _svg(
+        f'<line x1="12" y1="40" x2="60" y2="40" stroke="{_INK}" stroke-width="1.8" opacity="0.6"/>'
+        f'<g stroke-width="0">'
+        f'<rect x="14" y="27" width="8" height="13" rx="2" fill="{_FIELD}"/>'
+        f'<rect x="26" y="18" width="8" height="22" rx="2" fill="{_GREEN}"/>'
+        f'<rect x="38" y="23" width="8" height="17" rx="2" fill="{_ENE}"/>'
+        f'<rect x="50" y="12" width="8" height="28" rx="2" fill="{_CELL}"/></g>'),
+    "visualizations": _svg(
+        f'<path d="M16 10 V38 H58" stroke="{_INK}" stroke-width="1.9" opacity="0.55"/>'
+        f'<path d="M18 32 C26 20 32 34 40 22 C47 13 52 20 57 13" stroke="{_FIELD}" stroke-width="2.8"/>'
+        f'<circle cx="57" cy="13" r="2.8" fill="{_GREEN}"/>'),
+    "tests": _svg(
+        f'<rect x="18" y="9" width="36" height="33" rx="5" fill="#f8fafc" stroke="{_INK}" stroke-width="1.9"/>'
+        f'<rect x="28" y="5" width="16" height="8" rx="2.5" fill="#ffffff" stroke="{_INK}" stroke-width="1.7"/>'
+        f'<path d="M25 24 l5 5 11 -13" stroke="{_GREEN}" stroke-width="2.8"/>'),
 
     # ── stores ─────────────────────────────────────────────────────────────
+    "datasets": _svg(
+        f'<rect x="20" y="8" width="38" height="24" rx="4" fill="#eff6ff" stroke="{_FIELD}" stroke-width="1.8"/>'
+        f'<rect x="12" y="16" width="38" height="24" rx="4" fill="#f8fafc" stroke="{_FIELD}" stroke-width="1.9"/>'
+        f'<g fill="{_FIELD}"><circle cx="20" cy="24" r="1.7"/><circle cx="28" cy="24" r="1.7"/><circle cx="36" cy="24" r="1.7"/>'
+        f'<circle cx="20" cy="32" r="1.7"/><circle cx="28" cy="32" r="1.7"/><circle cx="36" cy="32" r="1.7"/></g>'),
+    "model_specification": _svg(
+        f'<rect x="18" y="7" width="36" height="34" rx="4" fill="#f8fafc" stroke="{_INK}" stroke-width="1.9"/>'
+        f'<path d="M30 13 q-4 0 -4 5 q0 5 -4 6 q4 1 4 6 q0 5 4 5" fill="none" stroke="{_PROT}" stroke-width="2"/>'
+        f'<path d="M42 13 q4 0 4 5 q0 5 4 6 q-4 1 -4 6 q0 5 -4 5" fill="none" stroke="{_PROT}" stroke-width="2"/>'),
     "DNA": _svg(_helix(36, _DNA)),
     "mRNA": _svg(
         f'<path d="M7 24 Q17 11 27 24 Q37 37 47 24 Q57 11 65 22" stroke="{_RNA}" stroke-width="2.8"/>'

@@ -225,6 +225,28 @@ class GeneExpression(DraftProcess):
     pass
 
 
+@draft_process(
+    name="NeuralDynamics",
+    inputs={"state": "concentration"},
+    outputs={"state": "concentration"},
+    contract={
+        "summary": "Learned dynamics — neural-network surrogate",
+        "description": "A machine-learning formalism: a neural network f_θ, trained on "
+                       "trajectory data, predicts the state's time-derivative (a neural ODE) — "
+                       "a fast, differentiable stand-in for an unknown or expensive mechanism.",
+        # state is the port; f_θ (a neural net) IS the learned vector field, θ fit
+        # to data by minimizing trajectory error.
+        "math": [r"\frac{d\,\text{state}}{dt} = f_\theta(\text{state}),\quad f_\theta = \mathrm{NN}(\theta)",
+                 r"\theta^\ast = \arg\min_\theta \sum_k \lVert \hat{x}(t_k) - x_k \rVert^2"],
+        "symbols": {"state": "system state (in + out)", "f_θ": "neural network — learned vector field",
+                    "θ": "network weights", "NN": "neural network", "x_k": "observed data at t_k"},
+        "ports": {"state": "system state"},
+    },
+)
+class NeuralDynamics(DraftProcess):
+    pass
+
+
 # ── Fig 3a: process graph (metabolism + gene expression over shared stores) ──
 @draft_process(
     name="MetabolismGraph",
@@ -362,15 +384,16 @@ class BigraphLink(DraftProcess):
 # ── Fig 1c: study-workflow steps (draft pre/post around real simulations) ─────
 @draft_process(
     name="Preprocess",
-    inputs={"raw": "concentration"},
+    inputs={"datasets": "dataset", "spec": "json"},
     outputs={"conditions": "concentration"},
     contract={
         "summary": "Pre-processing — prepare the simulation conditions",
-        "description": "The workflow's pre-step: reads the raw study inputs and "
-                       "derives the initial conditions / parameters shared by the "
-                       "parallel simulation ensemble.",
+        "description": "The workflow's pre-step: reads the experimental datasets and the "
+                       "model specification (JSON) and derives the initial conditions / "
+                       "parameters shared by the parallel simulation ensemble.",
         "status": "draft - no update dynamics yet",
-        "ports": {"raw": "raw study inputs", "conditions": "prepared simulation conditions"},
+        "ports": {"datasets": "experimental datasets", "spec": "model specification (JSON)",
+                  "conditions": "prepared simulation conditions"},
     },
 )
 class Preprocess(DraftProcess):
@@ -378,18 +401,50 @@ class Preprocess(DraftProcess):
 
 
 @draft_process(
-    name="AnalysisViz",
+    name="Analyses",
     inputs={"runs": "concentration"},
-    outputs={"figure": "concentration"},
+    outputs={"results": "results"},
     contract={
-        "summary": "Analysis + visualization of the simulation ensemble",
-        "description": "The workflow's post-step: aggregates the outputs of the "
-                       "parallel simulations and renders the analysis + figure.",
+        "summary": "Analyses — quantify the simulation ensemble",
+        "description": "A workflow post-step: aggregates the parallel simulation outputs into "
+                       "quantitative analysis results (summary statistics, derived observables).",
         "status": "draft - no update dynamics yet",
-        "ports": {"runs": "the parallel simulation outputs", "figure": "analysis + visualization"},
+        "ports": {"runs": "the parallel simulation outputs", "results": "analysis results"},
     },
 )
-class AnalysisViz(DraftProcess):
+class Analyses(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="Visualizations",
+    inputs={"runs": "concentration"},
+    outputs={"figures": "figure"},
+    contract={
+        "summary": "Visualizations — render figures from the results",
+        "description": "A workflow post-step: reads the simulation outputs and renders the "
+                       "figures (plots, snapshots, animations).",
+        "status": "draft - no update dynamics yet",
+        "ports": {"runs": "the parallel simulation outputs", "figures": "rendered figures"},
+    },
+)
+class Visualizations(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="Tests",
+    inputs={"runs": "concentration"},
+    outputs={"report": "report"},
+    contract={
+        "summary": "Tests — check results against expected behavior",
+        "description": "A workflow post-step: evaluates the simulation outputs against the "
+                       "study's acceptance criteria and emits a pass / fail report.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"runs": "the parallel simulation outputs", "report": "test report (pass / fail)"},
+    },
+)
+class Tests(DraftProcess):
     pass
 
 
@@ -460,6 +515,7 @@ def fig1a_processes_state() -> dict:
         "metabolism": _proc(Metabolism, {}, {}),
         "morphogen_gradient": _proc(Diffusion, {}, {}),
         "multicellular_interactions": _proc(ABM, {}, {}),
+        "neural_dynamics": _proc(NeuralDynamics, {}, {}),
     })
 
 
@@ -523,13 +579,17 @@ def _community_dfba_sim() -> dict:
 
 
 def fig1c_study_workflow_state() -> dict:
-    """Fig 1c: a study workflow. A draft Preprocess step feeds three PARALLEL
+    """Fig 1c: a study workflow. Two inputs (experimental datasets + a model
+    specification JSON) feed a draft Preprocess step, which sets up three PARALLEL
     community-dFBA simulations (real, zoomable composites — the same real study
-    template ×3), whose outputs feed a draft Analysis + Visualization step. The
-    pre/post steps are draft; the parallel simulations are a real composite."""
+    template ×3). The simulation results are then read by three draft post-steps —
+    Analyses, Visualizations, and Tests — each writing its own output store."""
     return _attach_figures({
-        "raw_data": _v("dataset", 0.0),
-        "preprocess": _proc(Preprocess, {"raw": ["raw_data"]}, {"conditions": ["simulations"]}),
+        # two inputs at the top
+        "datasets": _v("dataset", 0.0),
+        "model_specification": {"_type": "json", "_value": 0.0},
+        "preprocess": _proc(Preprocess, {"datasets": ["datasets"], "spec": ["model_specification"]},
+                            {"conditions": ["simulations"]}),
         # Three parallel runs of the SAME real composite (an ensemble); each is a
         # full community-dFBA composite you can zoom into.
         "simulations": {
@@ -537,8 +597,13 @@ def fig1c_study_workflow_state() -> dict:
             "sim_1": _community_dfba_sim(),
             "sim_2": _community_dfba_sim(),
         },
-        "results": _v("figure", 0.0),
-        "analysis": _proc(AnalysisViz, {"runs": ["simulations"]}, {"figure": ["results"]}),
+        # three post-steps, each READING the simulation results into its own store
+        "analyses": _proc(Analyses, {"runs": ["simulations"]}, {"results": ["analysis_results"]}),
+        "visualizations": _proc(Visualizations, {"runs": ["simulations"]}, {"figures": ["figures"]}),
+        "tests": _proc(Tests, {"runs": ["simulations"]}, {"report": ["test_report"]}),
+        "analysis_results": _v("results", 0.0),
+        "figures": _v("figure", 0.0),
+        "test_report": _v("report", 0.0),
     })
 
 
