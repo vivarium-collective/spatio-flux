@@ -21,6 +21,8 @@ import base64
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from PIL import Image
+
 WS = Path(__file__).resolve().parents[1]
 SCAFFOLD = WS / "investigations" / "paper-figures" / "inputs" / "figure1-scaffold.svg"
 VIZ = WS / "studies" / "fig-01" / "visualizations"
@@ -42,11 +44,16 @@ PANEL_LOOM = {
 #   [3] title <g> (2 lines) [4] caption <g> (2 lines)
 # …then the illustration. Keep the header, drop the rest.
 HEADER_KEEP = 5
-# Content region inside a 320×630 panel (shortened from 740 to use the vertical
-# space better), below the ~88px header. Images are TOP-aligned (see
-# preserveAspectRatio below) so they sit up near the header instead of floating in
-# the middle of a tall box.
-CX, CY, CW, CH = 14, 90, 292, 525
+# Tight per-panel layout (removes white space): each card is sized to its loom
+# image so the image FILLS it — no letterbox — with small margins, and the cards
+# sit close together. PANEL_W stays 320 (the header text needs it); SIDE/TOP are
+# the small inner margins, GAP the space between cards, MARGIN the outer border.
+PANEL_W = 320
+SIDE = 6      # inner left/right margin around the image
+TOP = 78      # image top (just below the ~74px header block)
+BOTTOM = 8    # inner margin below the image
+GAP = 16      # between A / B / C  (was 40)
+MARGIN = 20   # outer figure margin
 
 
 def _q(tag: str) -> str:
@@ -57,36 +64,54 @@ def _data_uri(png: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(png.read_bytes()).decode("ascii")
 
 
+def _aspect(png: Path) -> float:
+    with Image.open(png) as im:
+        w, h = im.size
+    return w / h
+
+
 def build_figure1() -> Path:
     tree = ET.parse(SCAFFOLD)
     root = tree.getroot()
+    # Drop panel D (community) — Figure 1 is now just A / B / C.
+    for panel in root.findall(_q("g")):
+        if panel.get("id", "") == "Panel D - Community":
+            root.remove(panel)
+    cw = PANEL_W - 2 * SIDE  # image width inside a card
+    x = MARGIN
+    max_h = 0
     swapped = 0
     for panel in root.findall(_q("g")):
         loom = PANEL_LOOM.get(panel.get("id", ""))
         if not loom:
-            continue  # panel d + defs/other groups: untouched
+            continue  # defs / other groups: untouched
         png = VIZ / loom
         if not png.is_file():
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
+        # Size the image to fill the card width at its native aspect (no letterbox);
+        # the card grows/shrinks to fit → the image fills it with only SIDE/TOP/BOTTOM
+        # margins. Cards are top-aligned (ragged bottoms) so none carries dead space.
+        ch = round(cw / _aspect(png))
+        panel_h = TOP + ch + BOTTOM
+        panel.find(_q("rect")).set("height", str(panel_h))  # background rect = first <rect>
         for extra in list(panel)[HEADER_KEEP:]:
             panel.remove(extra)  # drop the scaffold's placeholder illustration
         img = ET.SubElement(panel, _q("image"))
         img.set("href", _data_uri(png))
-        img.set("x", str(CX)); img.set("y", str(CY))
-        img.set("width", str(CW)); img.set("height", str(CH))
-        img.set("preserveAspectRatio", "xMidYMin meet")  # top-align → images move up
+        img.set("x", str(SIDE)); img.set("y", str(TOP))
+        img.set("width", str(cw)); img.set("height", str(ch))
+        img.set("preserveAspectRatio", "none")  # box == image aspect → fills, no distortion
+        panel.set("transform", f"translate({x},{MARGIN})")  # pull the cards together
+        x += PANEL_W + GAP
+        max_h = max(max_h, panel_h)
         swapped += 1
-    # Drop panel D (the community drawing): Figure 1 is now just A / B / C. Remove
-    # its group and crop the canvas to the 3-panel width (C ends at x=1060, +20
-    # right margin = 1080) so no empty column is left behind.
-    for panel in root.findall(_q("g")):
-        if panel.get("id", "") == "Panel D - Community":
-            root.remove(panel)
-    root.set("width", "1080")
-    root.set("viewBox", "0 0 1080 680")
+    fig_w = MARGIN + swapped * PANEL_W + (swapped - 1) * GAP + MARGIN
+    fig_h = MARGIN + max_h + MARGIN
+    root.set("width", str(fig_w)); root.set("height", str(fig_h))
+    root.set("viewBox", f"0 0 {fig_w} {fig_h}")
     out = VIZ / "figure_1.svg"
     tree.write(out, encoding="utf-8", xml_declaration=True)
-    print(f"composed {out.relative_to(WS)} — swapped {swapped}/3 loom panels (A/B/C), dropped panel D")
+    print(f"composed {out.relative_to(WS)} — {swapped} tight panels (A/B/C), dropped panel D")
     return out
 
 
