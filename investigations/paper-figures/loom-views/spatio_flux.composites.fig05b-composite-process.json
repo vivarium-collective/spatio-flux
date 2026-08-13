@@ -1,27 +1,12 @@
 {
   "v": 1,
-  "collapsed": [],
-  "hidden": [],
-  "mode": "flow-down",
-  "detail": null,
-  "collapse": false,
-  "hyperedges": false,
-  "detailOverrides": {},
   "positions": {
     "tissue": {
       "x": 1000,
       "y": 40
     },
-    "tissue.diffusion": {
-      "x": 60,
-      "y": 300
-    },
     "tissue.fields": {
       "x": 820,
-      "y": 300
-    },
-    "tissue.exchange": {
-      "x": 1360,
       "y": 300
     },
     "tissue.fields.glucose": {
@@ -32,21 +17,47 @@
       "x": 900,
       "y": 560
     },
+    "tissue.diffusion": {
+      "x": 384,
+      "y": 249,
+      "w": 296,
+      "h": 199
+    },
+    "tissue.exchange": {
+      "x": 1220.6705218044258,
+      "y": 219.74865519830672,
+      "w": 331,
+      "h": 173
+    },
     "tissue.local": {
-      "x": 1420,
-      "y": 820
+      "x": 1427.206697148047,
+      "y": 683.072754187108
     },
     "tissue.local.glucose": {
-      "x": 1320,
-      "y": 1060
+      "x": 1303.1843733212236,
+      "y": 867.8214093854148
     },
     "tissue.local.acetate": {
-      "x": 1600,
-      "y": 1060
+      "x": 1520.7263313714836,
+      "y": 908.659359891014
     },
     "tissue.cell": {
-      "x": 380,
-      "y": 900
+      "x": 399.2178590614585,
+      "y": 785.6424152709641,
+      "w": 879,
+      "h": 576
     }
+  },
+  "collapsed": [],
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "on"
   }
 }
