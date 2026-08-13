@@ -178,14 +178,14 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['status'] = 'draft - no update dynamics yet'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['summary'] = 'Gene expression — ordinary differential equations'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['description'] = 'Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['math'] = ['\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma\\,\\text{mrna}', '\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma\\,\\text{protein}']
+spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['math'] = ['\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma_m\\,\\text{mrna}', '\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma_p\\,\\text{protein}']
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['dna'] = 'DNA template (in)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['energy'] = 'ATP/GTP — powers α, β (in)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['mrna'] = 'mRNA (out)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['protein'] = 'protein (out)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['α'] = 'transcription rate'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['β'] = 'translation rate'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['γ'] = 'turnover rate'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['symbols']['γ_m, γ_p'] = 'mRNA / protein turnover rates'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['ports']['dna'] = 'DNA template'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['ports']['energy'] = 'ATP / GTP'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['ports']['mrna'] = 'mRNA'
@@ -197,7 +197,7 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['confi
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['status'] = 'draft - no update dynamics yet'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['summary'] = 'Metabolism — Flux Balance Analysis (FBA)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['description'] = 'Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['math'] = ['\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0', 'v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})', '\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v']
+spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['math'] = ['\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0', 'v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})', '\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v\\,\\Delta t']
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['symbols']['enzymes'] = 'enzyme levels — set flux bounds (in)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['symbols']['energy'] = 'available energy — sets bounds (in)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['symbols']['metabolites'] = 'produced metabolites (out)'
@@ -227,15 +227,16 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_inter
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['status'] = 'draft - no update dynamics yet'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['summary'] = 'Multicellular interactions — Agent-Based Model'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['description'] = 'Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['math'] = ['\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)', 'P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}']
+spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['math'] = ['\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i', 'P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}']
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['population'] = 'cells {x⃗ᵢ} (in + out)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['field'] = 'morphogen — drives ∇field (in)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['x⃗ᵢ'] = 'position of cell i'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['μ'] = 'mobility'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['f_int'] = 'interaction force'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['χ'] = 'chemotactic coefficient'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['η·ξ(t)'] = 'noise'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['P_kill'] = 'kill probability'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['D_m'] = 'motility diffusion'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['ξᵢ'] = 'unit Gaussian noise'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['k_kill'] = 'kill rate'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['symbols']['d'] = 'interaction radius'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['ports']['population'] = 'cell population {x⃗ᵢ}'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['ports']['field'] = 'local morphogen field'
@@ -246,12 +247,13 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['status'] = 'draft - no update dynamics yet'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['summary'] = 'Learned dynamics — neural-network surrogate'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['description'] = "A machine-learning formalism: a neural network f_θ, trained on trajectory data, predicts the state's time-derivative (a neural ODE) — a fast, differentiable stand-in for an unknown or expensive mechanism."
-spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['math'] = ['\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)', '\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\hat{x}(t_k) - x_k \\rVert^2']
+spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['math'] = ['\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)', '\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\widehat{\\text{state}}_\\theta(t_k) - \\text{state}_k \\rVert^2']
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['state'] = 'system state (in + out)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['f_θ'] = 'neural network — learned vector field'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['θ'] = 'network weights'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['NN'] = 'neural network'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['x_k'] = 'observed data at t_k'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['ŝtate_θ(t_k)'] = 'model prediction'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['state_k'] = 'observed state at t_k'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['ports']['state'] = 'system state'
 
 # **Composite `spatio_flux.composites.fig01b-multiscale-composite`** — `spec_spatio_flux_composites_fig01b_multiscale_composite` (a plain, editable dict)

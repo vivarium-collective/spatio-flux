@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Kv0PKTZH": {
+    "TYGEn5uu": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "Kv0PKTZH",
+      "id": "TYGEn5uu",
       "position": [
-        6.381456962619958,
-        32.581928156834955
+        46.372477501044024,
+        40.08525935686158
       ],
-      "mass": 0.6300147505328847,
+      "mass": 0.9180098296568104,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -634,20 +634,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -670,8 +670,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

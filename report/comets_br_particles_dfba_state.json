@@ -1,6 +1,6 @@
 {
   "particles": {
-    "QOcPtiMQ": {
+    "aUu88mxe": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "QOcPtiMQ",
+      "id": "aUu88mxe",
       "position": [
-        13.713465067311681,
-        13.636826165170929
+        11.085146263009332,
+        0.36745374815156384
       ],
-      "mass": 0.49417152156553956,
+      "mass": 0.6899253895715732,
       "local": {},
       "exchange": {},
       "sub_masses": {},
