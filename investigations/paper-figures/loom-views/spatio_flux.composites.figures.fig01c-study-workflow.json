@@ -91,14 +91,14 @@
     "simulations.sim_2"
   ],
   "mode": "flow-down",
-  "detail": null,
+  "detail": "full",
   "collapse": false,
   "hyperedges": false,
   "detailOverrides": {
-    "ports": "none",
+    "ports": "plain",
     "stores": "type",
     "config": "off",
-    "contract": "on",
+    "contract": "off",
     "figures": "auto"
   },
   "fontScale": 1.8

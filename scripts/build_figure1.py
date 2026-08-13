@@ -18,7 +18,6 @@ per-panel one-offs) — this only stitches. Run:
 from __future__ import annotations
 
 import base64
-import math
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -55,7 +54,7 @@ TOP = 102     # image top (below the header: 2-line title + 3-line caption, enla
 BOTTOM = 8    # inner margin below the image
 GAP = 16      # between A / B / C  (was 40)
 MARGIN = 20   # outer figure margin
-CALLOUT_H = 74  # height of the A / B bottom callout strip
+CALLOUT_H = 58  # height of the A / B bottom callout strip
 
 
 def _q(tag: str) -> str:
@@ -78,92 +77,116 @@ def _aspect(png: Path) -> float:
 # heading, with publish / discover arrows. Drawn as an SVG <g> so it composites
 # straight into the scaffold's panel-C group.
 SHARE_PANEL = "Panel C - Process Bigraph"
-SHARE_H = 126  # height of the appended section
+SHARE_H = 94  # height of the appended section
 
 
-def _sr_icon_process(cx: float) -> str:  # a small process/component network
-    return (f'<g stroke="#2f6b3f" stroke-width="1.5">'
-            f'<line x1="{cx}" y1="60" x2="{cx-9}" y2="71"/><line x1="{cx}" y1="60" x2="{cx+9}" y2="71"/>'
-            f'<line x1="{cx-9}" y1="71" x2="{cx+9}" y2="71"/><line x1="{cx}" y1="60" x2="{cx}" y2="76"/></g>'
-            f'<g fill="#2f6b3f"><circle cx="{cx}" cy="60" r="2.8"/><circle cx="{cx-9}" cy="71" r="2.8"/>'
-            f'<circle cx="{cx+9}" cy="71" r="2.8"/><circle cx="{cx}" cy="76" r="2.8"/></g>')
+_SR_C = "#2f6b3f"
 
 
-def _sr_icon_schema(cx: float) -> str:  # a 2×2 grid of interface/type tiles
-    return (f'<g fill="none" stroke="#2f6b3f" stroke-width="1.5">'
-            f'<rect x="{cx-9}" y="59" width="8" height="8" rx="1.5"/><rect x="{cx+1}" y="59" width="8" height="8" rx="1.5"/>'
-            f'<rect x="{cx-9}" y="69" width="8" height="8" rx="1.5"/><rect x="{cx+1}" y="69" width="8" height="8" rx="1.5"/></g>')
+def _sr_icon_process(x, y, c):  # components — a small node graph
+    return (f'<g stroke="{c}" stroke-width="1.6" stroke-linecap="round">'
+            f'<line x1="{x}" y1="{y-6.5}" x2="{x-7}" y2="{y+5}"/><line x1="{x}" y1="{y-6.5}" x2="{x+7}" y2="{y+5}"/>'
+            f'<line x1="{x-7}" y1="{y+5}" x2="{x+7}" y2="{y+5}"/></g>'
+            f'<g fill="#ffffff" stroke="{c}" stroke-width="1.6">'
+            f'<circle cx="{x}" cy="{y-6.5}" r="3.2"/><circle cx="{x-7}" cy="{y+5}" r="3.2"/>'
+            f'<circle cx="{x+7}" cy="{y+5}" r="3.2"/></g>')
 
 
-def _sr_icon_repo(cx: float) -> str:  # a database cylinder
-    return (f'<g fill="#e7f1ea" stroke="#2f6b3f" stroke-width="1.6">'
-            f'<path d="M{cx-9} 61 v11 a9 3.4 0 0 0 18 0 v-11"/><ellipse cx="{cx}" cy="61" rx="9" ry="3.4"/></g>'
-            f'<path d="M{cx-9} 67.5 a9 3.4 0 0 0 18 0" fill="none" stroke="#2f6b3f" stroke-width="1.2" opacity="0.6"/>')
+def _sr_icon_schema(x, y, c):  # interfaces & types — a typed table
+    return (f'<rect x="{x-8}" y="{y-7}" width="16" height="14" rx="2.4" fill="#ffffff" stroke="{c}" stroke-width="1.6"/>'
+            f'<rect x="{x-8}" y="{y-7}" width="16" height="4.5" rx="2.4" fill="{c}" fill-opacity="0.18"/>'
+            f'<g stroke="{c}" stroke-width="1.1" opacity="0.7">'
+            f'<line x1="{x-8}" y1="{y-2.5}" x2="{x+8}" y2="{y-2.5}"/><line x1="{x-8}" y1="{y+2.5}" x2="{x+8}" y2="{y+2.5}"/>'
+            f'<line x1="{x}" y1="{y-2.5}" x2="{x}" y2="{y+7}"/></g>')
+
+
+def _sr_icon_repo(x, y, c):  # composites — a stacked database cylinder
+    return (f'<g fill="#ffffff" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
+            f'<path d="M{x-8} {y-6} v11 a8 3 0 0 0 16 0 v-11"/><ellipse cx="{x}" cy="{y-6}" rx="8" ry="3"/></g>'
+            f'<g fill="none" stroke="{c}" stroke-width="1.2" opacity="0.6">'
+            f'<path d="M{x-8} {y-2} a8 3 0 0 0 16 0"/><path d="M{x-8} {y+1.5} a8 3 0 0 0 16 0"/></g>')
 
 
 def _share_reuse_group(w: int):
-    bw, y = 94, 47
-    boxes = [(4, _sr_icon_process, "Process Registry", "Components"),
-             (107, _sr_icon_schema, "Schema Registry", "Interfaces &amp; types"),
-             (210, _sr_icon_repo, "Model Repository", "Composites")]
+    # Same icon-left, accent-title, gray-sub item style as the A/B callouts,
+    # under a compact "Share & Reuse" heading.
+    accent = "#2f6b3f"
+    items = [(_sr_icon_process, ["Process", "Registry"], "Components"),
+             (_sr_icon_schema,  ["Schema", "Registry"],  "Interfaces &amp; types"),
+             (_sr_icon_repo,    ["Model", "Repository"], "Composites")]
+    n = len(items)
+    col = w / n
+    title_lh, sub_lh = 10.5, 9.4
     parts = [
-        f'<rect x="1" y="2" width="{w - 2}" height="120" rx="12" fill="#fdf8ea" stroke="#e6d9a8" stroke-width="1.3"/>',
-        f'<text x="{w / 2:.0f}" y="24" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" '
-        f'font-size="16.5" font-weight="700" fill="#2f6b3f">Share &amp; Reuse</text>',
-        f'<text x="{w / 2:.0f}" y="39" text-anchor="middle" font-size="9.5" fill="#64748b">'
+        f'<rect x="1" y="2" width="{w - 2}" height="{SHARE_H - 4}" rx="10" fill="#fdf8ea" stroke="#e6d9a8" stroke-width="1.3"/>',
+        f'<text x="{w / 2:.0f}" y="21" text-anchor="middle" font-size="13.5" font-weight="700" fill="{accent}">Share &amp; Reuse</text>',
+        f'<text x="{w / 2:.0f}" y="33" text-anchor="middle" font-size="8.6" fill="#64748b">'
         f'Publish reusable components and discover those from others.</text>',
     ]
-    for x, icon, name, sub in boxes:
-        cx = x + bw / 2
-        # No per-item card box — icon + labels sit directly on the yellow panel.
-        parts.append(icon(cx))
-        parts.append(f'<text x="{cx:.0f}" y="97" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">{name}</text>')
-        parts.append(f'<text x="{cx:.0f}" y="109" text-anchor="middle" font-size="8" fill="#64748b">{sub}</text>')
+    row_top = 38  # below the heading; items fill the rest like an A/B callout
+    row_h = SHARE_H - row_top
+    for i, (icon, names, sub) in enumerate(items):
+        cx0 = col * i
+        block_h = len(names) * title_lh + sub_lh
+        parts.append(icon(cx0 + 17, row_top + row_h / 2, accent))
+        tx = cx0 + 33
+        y = row_top + (row_h - block_h) / 2 + 8.5
+        for nm in names:
+            parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="9" font-weight="700" fill="{accent}">{nm}</text>')
+            y += title_lh
+        parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="7.6" fill="#64748b">{sub}</text>')
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 
 # ── A / B bottom callout strips (icon-left, three items) ─────────────────────
-def _ic_cluster(x, y, c):   # multi-scale — a cluster of cells
-    return (f'<g fill="none" stroke="{c}" stroke-width="1.3">'
-            f'<circle cx="{x}" cy="{y-4}" r="3.4"/><circle cx="{x-5}" cy="{y+2}" r="3.4"/>'
-            f'<circle cx="{x+5}" cy="{y+2}" r="3.4"/><circle cx="{x}" cy="{y+6}" r="2.8"/></g>'
-            f'<g fill="{c}"><circle cx="{x}" cy="{y-4}" r="1"/><circle cx="{x-5}" cy="{y+2}" r="1"/><circle cx="{x+5}" cy="{y+2}" r="1"/></g>')
+def _ic_cluster(x, y, c):   # multi-scale — molecule → cell → organ, growing
+    return (f'<circle cx="{x-8}" cy="{y+2}" r="2" fill="{c}"/>'                       # molecule (solid)
+            f'<circle cx="{x-1}" cy="{y+1}" r="3.8" fill="{c}" fill-opacity="0.18" stroke="{c}" stroke-width="1.6"/>'  # cell
+            f'<circle cx="{x+7.5}" cy="{y-1}" r="5.6" fill="none" stroke="{c}" stroke-width="1.85"/>'   # organ (outline)
+            f'<circle cx="{x+7.5}" cy="{y-1}" r="1.5" fill="{c}"/>')                  # organ nucleus
 
 
-def _ic_paradigm(x, y, c):  # multi-paradigm — a cell with mixed inner marks
-    return (f'<circle cx="{x}" cy="{y}" r="8" fill="none" stroke="{c}" stroke-width="1.3" stroke-dasharray="2 1.6"/>'
-            f'<g fill="{c}"><circle cx="{x-3}" cy="{y-2}" r="1.4"/><circle cx="{x+3}" cy="{y-1}" r="1.4"/>'
-            f'<circle cx="{x}" cy="{y+3}" r="1.4"/><circle cx="{x-2}" cy="{y+2}" r="1"/></g>')
+def _ic_paradigm(x, y, c):  # multi-paradigm — three distinct formalism shapes
+    return (f'<g fill="{c}" fill-opacity="0.16" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
+            f'<path d="M{x} {y-8.5} L{x-4.7} {y-1.4} L{x+4.7} {y-1.4} Z"/>'   # triangle
+            f'<circle cx="{x-5}" cy="{y+4.6}" r="3.4"/>'                       # circle
+            f'<rect x="{x+1.6}" y="{y+1.1}" width="6.8" height="6.8" rx="1.5"/></g>')  # square
 
 
-def _ic_gear(x, y, c):      # data-informed — a gear
-    teeth = "".join(
-        f'<line x1="{x + 5 * math.cos(math.radians(a)):.1f}" y1="{y + 5 * math.sin(math.radians(a)):.1f}" '
-        f'x2="{x + 8 * math.cos(math.radians(a)):.1f}" y2="{y + 8 * math.sin(math.radians(a)):.1f}"/>'
-        for a in range(0, 360, 45))
-    return (f'<g stroke="{c}" stroke-width="1.3">{teeth}</g>'
-            f'<circle cx="{x}" cy="{y}" r="4.5" fill="none" stroke="{c}" stroke-width="1.3"/>'
-            f'<circle cx="{x}" cy="{y}" r="1.6" fill="{c}"/>')
+def _ic_gear(x, y, c):      # data-informed — parameter sliders
+    rows = ((-5.5, -3.5), (0.5, 4), (6.5, -2))
+    tracks = "".join(f'<line x1="{x-8.5}" y1="{y+dy}" x2="{x+8.5}" y2="{y+dy}"/>' for dy, _ in rows)
+    knobs = "".join(f'<circle cx="{x+kx}" cy="{y+dy}" r="2.6"/>' for dy, kx in rows)
+    return (f'<g stroke="{c}" stroke-width="1.75" stroke-linecap="round">{tracks}</g>'
+            f'<g fill="#ffffff" stroke="{c}" stroke-width="1.75">{knobs}</g>')
 
 
 def _ic_chip(x, y, c):      # typed interfaces — a node with typed ports
-    return (f'<circle cx="{x}" cy="{y}" r="6" fill="none" stroke="{c}" stroke-width="1.3"/>'
-            f'<g stroke="{c}" stroke-width="1.3"><line x1="{x-6}" y1="{y}" x2="{x-10}" y2="{y}"/>'
-            f'<line x1="{x+6}" y1="{y}" x2="{x+10}" y2="{y}"/><line x1="{x}" y1="{y-6}" x2="{x}" y2="{y-10}"/></g>'
-            f'<g fill="{c}"><circle cx="{x-10}" cy="{y}" r="1.6"/><circle cx="{x+10}" cy="{y}" r="1.6"/>'
-            f'<circle cx="{x}" cy="{y-10}" r="1.6"/></g>')
+    return (f'<rect x="{x-5.5}" y="{y-7}" width="11" height="14" rx="3.3" fill="{c}" fill-opacity="0.12" '
+            f'stroke="{c}" stroke-width="1.7"/>'
+            f'<g stroke="{c}" stroke-width="1.6" stroke-linecap="round">'
+            f'<line x1="{x-5.5}" y1="{y-3.3}" x2="{x-10.5}" y2="{y-3.3}"/><line x1="{x-5.5}" y1="{y+3.3}" x2="{x-10.5}" y2="{y+3.3}"/>'
+            f'<line x1="{x+5.5}" y1="{y}" x2="{x+10.5}" y2="{y}"/></g>'
+            f'<g fill="{c}"><circle cx="{x-10.5}" cy="{y-3.3}" r="1.8"/><circle cx="{x-10.5}" cy="{y+3.3}" r="1.8"/>'
+            f'<circle cx="{x+10.5}" cy="{y}" r="1.8"/></g>')
 
 
-def _ic_link(x, y, c):      # explicit coupling — two ports linked
-    return (f'<line x1="{x-6}" y1="{y}" x2="{x+6}" y2="{y}" stroke="{c}" stroke-width="1.6"/>'
-            f'<g fill="none" stroke="{c}" stroke-width="1.3"><circle cx="{x-8}" cy="{y}" r="2.6"/><circle cx="{x+8}" cy="{y}" r="2.6"/></g>')
+def _ic_link(x, y, c):      # explicit coupling — two connectors plugged together
+    return (f'<g stroke="{c}" stroke-width="1.7" stroke-linecap="round"><line x1="{x-11}" y1="{y}" x2="{x-6.5}" y2="{y}"/>'
+            f'<line x1="{x+11}" y1="{y}" x2="{x+6.5}" y2="{y}"/></g>'
+            f'<g fill="{c}" fill-opacity="0.14" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
+            f'<rect x="{x-6.5}" y="{y-3.6}" width="6" height="7.2" rx="1.7"/>'
+            f'<rect x="{x+0.5}" y="{y-3.6}" width="6" height="7.2" rx="1.7"/></g>'
+            f'<circle cx="{x}" cy="{y}" r="1.5" fill="{c}"/>')  # coupling joint
 
 
-def _ic_tree(x, y, c):      # hierarchical composition — parts → whole
-    return (f'<g stroke="{c}" stroke-width="1.3"><line x1="{x}" y1="{y-7}" x2="{x-6}" y2="{y+5}"/>'
-            f'<line x1="{x}" y1="{y-7}" x2="{x+6}" y2="{y+5}"/></g>'
-            f'<g fill="{c}"><circle cx="{x}" cy="{y-7}" r="2.4"/><circle cx="{x-6}" cy="{y+5}" r="2.4"/>'
-            f'<circle cx="{x+6}" cy="{y+5}" r="2.4"/></g>')
+def _ic_tree(x, y, c):      # hierarchical composition — nested boxes, parts → whole
+    return (f'<rect x="{x-8.5}" y="{y-8.5}" width="17" height="17" rx="3.4" fill="{c}" fill-opacity="0.1" '
+            f'stroke="{c}" stroke-width="1.7" stroke-linejoin="round"/>'
+            f'<g fill="{c}" fill-opacity="0.34" stroke="{c}" stroke-width="1.3" stroke-linejoin="round">'
+            f'<rect x="{x-5}" y="{y-5}" width="4.7" height="4.7" rx="1"/>'
+            f'<rect x="{x+0.5}" y="{y-5}" width="4.7" height="4.7" rx="1"/>'
+            f'<rect x="{x-2.2}" y="{y+0.9}" width="4.7" height="4.7" rx="1"/></g>')
 
 
 CALLOUT_A = [(_ic_cluster, ["Multi-scale"], ["Molecules →", "Cells → Organs"]),
@@ -177,18 +200,23 @@ CALLOUT_B = [(_ic_chip, ["Typed interfaces"], ["Explicit ports", "&amp; data typ
 def _callout_group(w, items, fill, border, accent):
     n = len(items)
     col = w / n
+    title_lh, sub_lh = 11.0, 9.4
     parts = [f'<rect x="1" y="2" width="{w - 2}" height="{CALLOUT_H - 4}" rx="10" '
              f'fill="{fill}" stroke="{border}" stroke-width="1.3"/>']
     for i, (icon, names, subs) in enumerate(items):
         cx0 = col * i
-        parts.append(icon(cx0 + 15, CALLOUT_H / 2, accent))
-        tx, y = cx0 + 28, 21
+        # Vertically center the icon + text block in the strip (was top-packed,
+        # leaving an empty lower third). First baseline = center − ½ block + ascent.
+        block_h = len(names) * title_lh + len(subs) * sub_lh
+        y = (CALLOUT_H - block_h) / 2 + 8.5
+        parts.append(icon(cx0 + 17, CALLOUT_H / 2, accent))
+        tx = cx0 + 35  # generous gap so the icon never touches the text
         for nm in names:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="9" font-weight="700" fill="{accent}">{nm}</text>')
-            y += 11
+            parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="9" font-weight="700" fill="{accent}">{nm}</text>')
+            y += title_lh
         for s in subs:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.0f}" font-size="7.6" fill="#64748b">{s}</text>')
-            y += 9.4
+            parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="7.6" fill="#64748b">{s}</text>')
+            y += sub_lh
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 

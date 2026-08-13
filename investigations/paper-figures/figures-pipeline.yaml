@@ -20,11 +20,14 @@
 
 panels:
   # ── fig-01 ──────────────────────────────────────────────────────────────
-  - {study: fig-01, output: fig01a-draft-processes,      loom: spatio_flux.composites.fig01a-draft-processes,      flags: {contract: on, figures: on}}
-  - {study: fig-01, output: fig01b-multiscale-composite, loom: spatio_flux.composites.fig01b-multiscale-composite, flags: {detail: full, ports: plain, contract: off, figures: on}}
+  # No `flags` here on purpose: fig-01's saved default views are the single
+  # source of truth for the detail mix (tier, ports, contract, figures). The
+  # render applies each committed view verbatim — nothing is forced on top.
+  - {study: fig-01, output: fig01a-draft-processes,      loom: spatio_flux.composites.fig01a-draft-processes}
+  - {study: fig-01, output: fig01b-multiscale-composite, loom: spatio_flux.composites.fig01b-multiscale-composite}
   # 1c is served as a GENERATOR (drillable sub-composites); its spec input is the
   # generator source, not a static composite json.
-  - {study: fig-01, output: fig01c-study-workflow,       loom: spatio_flux.composites.figures.fig01c-study-workflow, flags: {detail: full, ports: plain, contract: off, figures: on}}
+  - {study: fig-01, output: fig01c-study-workflow,       loom: spatio_flux.composites.figures.fig01c-study-workflow}
   # ── fig-02 (two composites: 2a hyperedges e1-e3, 2b processes p1-p3) ─────
   - {study: fig-02, output: fig02a-hyperedges, loom: spatio_flux.composites.fig02a-hyperedges, flags: {hyperedges: true}}
   - {study: fig-02, output: fig02b-processes,  loom: spatio_flux.composites.fig02b-processes,  flags: {detail: glyph}}

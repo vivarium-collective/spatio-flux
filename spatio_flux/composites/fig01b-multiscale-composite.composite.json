@@ -289,7 +289,7 @@
                 "math": [
                   "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
                   "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
-                  "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v"
+                  "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v\\,\\Delta t"
                 ],
                 "symbols": {
                   "enzymes": "enzyme levels \u2014 set flux bounds (in)",
@@ -320,7 +320,7 @@
               "math": [
                 "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
                 "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
-                "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v"
+                "\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v\\,\\Delta t"
               ],
               "symbols": {
                 "enzymes": "enzyme levels \u2014 set flux bounds (in)",
@@ -637,8 +637,8 @@
             "summary": "Multicellular interactions \u2014 Agent-Based Model",
             "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
             "math": [
-              "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)",
-              "P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
+              "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i",
+              "P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
             ],
             "symbols": {
               "population": "cells {x\u20d7\u1d62} (in + out)",
@@ -647,8 +647,9 @@
               "\u03bc": "mobility",
               "f_int": "interaction force",
               "\u03c7": "chemotactic coefficient",
-              "\u03b7\u00b7\u03be(t)": "noise",
-              "P_kill": "kill probability",
+              "D_m": "motility diffusion",
+              "\u03be\u1d62": "unit Gaussian noise",
+              "k_kill": "kill rate",
               "d": "interaction radius"
             },
             "ports": {
@@ -669,8 +670,8 @@
           "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
           "status": "draft - no update dynamics yet",
           "math": [
-            "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field} + \\eta\\, \\xi(t)",
-            "P_{\\text{kill}} = \\text{Prob(kill)} \\cdot \\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
+            "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i",
+            "P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
           ],
           "symbols": {
             "population": "cells {x\u20d7\u1d62} (in + out)",
@@ -679,8 +680,9 @@
             "\u03bc": "mobility",
             "f_int": "interaction force",
             "\u03c7": "chemotactic coefficient",
-            "\u03b7\u00b7\u03be(t)": "noise",
-            "P_kill": "kill probability",
+            "D_m": "motility diffusion",
+            "\u03be\u1d62": "unit Gaussian noise",
+            "k_kill": "kill rate",
             "d": "interaction radius"
           },
           "inputs": {
