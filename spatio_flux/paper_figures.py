@@ -18,6 +18,7 @@ from pathlib import Path
 from process_bigraph import DraftProcess, draft_process
 
 from spatio_flux._node_figures import attach as _attach_figures
+from spatio_flux._node_figures import FIG1A_ICONS as _FIG1A_ICONS
 
 
 # Extra biological/physical scalar types (spatio-flux already provides
@@ -509,14 +510,15 @@ def _proc(cls, inputs: dict, outputs: dict) -> dict:
 
 # ── composite states ─────────────────────────────────────────────────────────
 def fig1a_processes_state() -> dict:
-    """Fig 1a: four unwired draft-process cards — no stores, no wiring."""
+    """Fig 1a: five unwired draft-process cards — no stores, no wiring. Uses the
+    RED-themed panel-A icon set (see _node_figures.FIG1A_ICONS)."""
     return _attach_figures({
         "gene_expression": _proc(GeneExpression, {}, {}),
         "metabolism": _proc(Metabolism, {}, {}),
         "morphogen_gradient": _proc(Diffusion, {}, {}),
         "multicellular_interactions": _proc(ABM, {}, {}),
         "neural_dynamics": _proc(NeuralDynamics, {}, {}),
-    })
+    }, icons=_FIG1A_ICONS)
 
 
 def _cell() -> dict:

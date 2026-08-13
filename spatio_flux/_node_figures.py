@@ -14,6 +14,8 @@ cross-wire the wrong gradient.
 """
 from __future__ import annotations
 
+import math
+
 
 def _svg(body: str, w: int = 72, h: int = 48) -> str:
     # The wrapping <g> gives every child rounded caps/joins + fill:none by default;
@@ -244,6 +246,54 @@ ICONS: dict[str, str] = {
         f'<path d="M20 34 V16 M20 34 H52" stroke="{_INK}" stroke-width="1.6" opacity="0.5"/>'
         f'<path d="M22 30 L31 22 L38 26 L52 13" stroke="{_FIELD}" stroke-width="2.4"/>'
         f'<circle cx="52" cy="13" r="3" fill="{_GREEN_T}" stroke="{_GREEN}" stroke-width="2"/>'),
+}
+
+
+# ── Fig-1a: a RED-themed icon set (panel A is a red monochrome theme) ────────
+# Same five formalisms as the fig-1a cards, drawn as clean single-colour red
+# glyphs (like the reference): a DNA helix, a metabolic hub, a morphogen scatter,
+# a cell cluster, and a brain. Kept separate from ICONS so the SHARED keys
+# (metabolism …) stay multi-colour everywhere else (e.g. fig-1b).
+_A_RED = "#c0392b"
+
+
+def _hub(cx: int, cy: int, r: int, color: str) -> str:
+    pts = [(cx + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a))) for a in range(0, 360, 60)]
+    spokes = "".join(f'<line x1="{cx}" y1="{cy}" x2="{px:.1f}" y2="{py:.1f}"/>' for px, py in pts)
+    outer = "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="3.4"/>' for px, py in pts)
+    return (f'<g stroke="{color}" stroke-width="1.7">{spokes}</g>'
+            f'<circle cx="{cx}" cy="{cy}" r="4.6" stroke="{color}" stroke-width="2.2"/>'
+            f'<g stroke="{color}" stroke-width="1.9">{outer}</g>')
+
+
+FIG1A_ICONS: dict[str, str] = {
+    "gene_expression": _svg(
+        f'<g stroke="{_A_RED}" stroke-width="2.4">'
+        f'<path d="M8 11 C20 11 20 37 32 37 C44 37 44 11 56 11"/>'
+        f'<path d="M8 37 C20 37 20 11 32 11 C44 11 44 37 56 37"/></g>'
+        f'<g stroke="{_A_RED}" stroke-width="1.5" opacity="0.7">'
+        f'<line x1="14" y1="16" x2="14" y2="32"/><line x1="32" y1="13" x2="32" y2="35"/><line x1="50" y1="16" x2="50" y2="32"/></g>'),
+    "metabolism": _svg(_hub(36, 24, 15, _A_RED)),
+    "morphogen_gradient": _svg(
+        f'<g fill="{_A_RED}">'
+        f'<circle cx="12" cy="16" r="2.4"/><circle cx="12" cy="30" r="2.4"/><circle cx="18" cy="23" r="2.2"/>'
+        f'<circle cx="18" cy="12" r="1.8"/><circle cx="18" cy="35" r="1.8"/><circle cx="25" cy="18" r="1.8"/>'
+        f'<circle cx="25" cy="30" r="1.8"/><circle cx="32" cy="24" r="1.6" opacity="0.85"/>'
+        f'<circle cx="33" cy="14" r="1.4" opacity="0.7"/><circle cx="34" cy="33" r="1.4" opacity="0.7"/>'
+        f'<circle cx="42" cy="20" r="1.3" opacity="0.55"/><circle cx="44" cy="30" r="1.2" opacity="0.5"/>'
+        f'<circle cx="52" cy="24" r="1.1" opacity="0.4"/><circle cx="58" cy="19" r="1" opacity="0.3"/></g>'),
+    "multicellular_interactions": _svg(
+        f'<g stroke="{_A_RED}" stroke-width="1.9">'
+        f'<circle cx="29" cy="16" r="5.6"/><circle cx="41" cy="16" r="5.6"/><circle cx="23" cy="26" r="5.6"/>'
+        f'<circle cx="35" cy="26" r="5.6"/><circle cx="47" cy="26" r="5.6"/><circle cx="29" cy="36" r="5.6"/><circle cx="41" cy="36" r="5.6"/></g>'
+        f'<g fill="{_A_RED}"><circle cx="29" cy="16" r="1.5"/><circle cx="41" cy="16" r="1.5"/><circle cx="23" cy="26" r="1.5"/>'
+        f'<circle cx="35" cy="26" r="1.5"/><circle cx="47" cy="26" r="1.5"/><circle cx="29" cy="36" r="1.5"/><circle cx="41" cy="36" r="1.5"/></g>'),
+    "neural_dynamics": _svg(
+        f'<path d="M36 9 C26 9 20 14 21 21 C15 23 15 33 23 35 C24 41 33 42 36 39 C39 42 48 41 49 35 '
+        f'C57 33 57 23 51 21 C52 14 46 9 36 9 Z" stroke="{_A_RED}" stroke-width="2.2"/>'
+        f'<path d="M36 11 V39" stroke="{_A_RED}" stroke-width="1.4" opacity="0.55"/>'
+        f'<g stroke="{_A_RED}" stroke-width="1.3" opacity="0.6">'
+        f'<path d="M28 18 q4 3 0 6"/><path d="M44 18 q-4 3 0 6"/><path d="M27 28 q5 2 0 5"/><path d="M45 28 q-5 2 0 5"/></g>'),
 }
 
 

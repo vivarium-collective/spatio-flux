@@ -75,7 +75,7 @@
       },
       "inputs": {},
       "outputs": {},
-      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M17 7 Q25 13 17 19 Q9 25 17 31 Q25 37 17 43\" stroke=\"#2563eb\" stroke-width=\"2.6\"/><path d=\"M17 7 Q9 13 17 19 Q25 25 17 31 Q9 37 17 43\" stroke=\"#2563eb\" stroke-width=\"2.6\"/><g stroke=\"#2563eb\" stroke-width=\"1.7\" opacity=\"0.5\"><line x1=\"10\" y1=\"13\" x2=\"24\" y2=\"13\"/><line x1=\"10\" y1=\"25\" x2=\"24\" y2=\"25\"/><line x1=\"10\" y1=\"37\" x2=\"24\" y2=\"37\"/></g><path d=\"M34 24 H52\" stroke=\"#334155\" stroke-width=\"2.4\"/><path d=\"M46 18 L54 24 L46 30\" stroke=\"#334155\" stroke-width=\"2.4\"/><circle cx=\"61\" cy=\"24\" r=\"4.5\" fill=\"#ede9fe\" stroke=\"#7c3aed\" stroke-width=\"2\"/></g></svg>"
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke=\"#c0392b\" stroke-width=\"2.4\"><path d=\"M8 11 C20 11 20 37 32 37 C44 37 44 11 56 11\"/><path d=\"M8 37 C20 37 20 11 32 11 C44 11 44 37 56 37\"/></g><g stroke=\"#c0392b\" stroke-width=\"1.5\" opacity=\"0.7\"><line x1=\"14\" y1=\"16\" x2=\"14\" y2=\"32\"/><line x1=\"32\" y1=\"13\" x2=\"32\" y2=\"35\"/><line x1=\"50\" y1=\"16\" x2=\"50\" y2=\"32\"/></g></g></svg>"
     },
     "metabolism": {
       "_type": "process",
@@ -142,7 +142,7 @@
       },
       "inputs": {},
       "outputs": {},
-      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13 L14 31 L33 37 L45 20 L20 13 M45 20 L55 33\" stroke=\"#0d9488\" stroke-width=\"2\"/><g fill=\"#0d9488\"><circle cx=\"20\" cy=\"13\" r=\"4.4\"/><circle cx=\"14\" cy=\"31\" r=\"4.4\"/><circle cx=\"33\" cy=\"37\" r=\"4.4\"/><circle cx=\"45\" cy=\"20\" r=\"4.4\"/><circle cx=\"55\" cy=\"33\" r=\"4.4\"/></g></g></svg>"
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke=\"#c0392b\" stroke-width=\"1.7\"><line x1=\"36\" y1=\"24\" x2=\"51.0\" y2=\"24.0\"/><line x1=\"36\" y1=\"24\" x2=\"43.5\" y2=\"37.0\"/><line x1=\"36\" y1=\"24\" x2=\"28.5\" y2=\"37.0\"/><line x1=\"36\" y1=\"24\" x2=\"21.0\" y2=\"24.0\"/><line x1=\"36\" y1=\"24\" x2=\"28.5\" y2=\"11.0\"/><line x1=\"36\" y1=\"24\" x2=\"43.5\" y2=\"11.0\"/></g><circle cx=\"36\" cy=\"24\" r=\"4.6\" stroke=\"#c0392b\" stroke-width=\"2.2\"/><g stroke=\"#c0392b\" stroke-width=\"1.9\"><circle cx=\"51.0\" cy=\"24.0\" r=\"3.4\"/><circle cx=\"43.5\" cy=\"37.0\" r=\"3.4\"/><circle cx=\"28.5\" cy=\"37.0\" r=\"3.4\"/><circle cx=\"21.0\" cy=\"24.0\" r=\"3.4\"/><circle cx=\"28.5\" cy=\"11.0\" r=\"3.4\"/><circle cx=\"43.5\" cy=\"11.0\" r=\"3.4\"/></g></g></svg>"
     },
     "morphogen_gradient": {
       "_type": "process",
@@ -197,7 +197,7 @@
       },
       "inputs": {},
       "outputs": {},
-      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><defs><radialGradient id=\"g_mg\" cx=\"34%\" cy=\"42%\" r=\"72%\"><stop offset=\"0%\" stop-color=\"#3b82f6\"/><stop offset=\"100%\" stop-color=\"#dbeafe\"/></radialGradient></defs><rect x=\"7\" y=\"7\" width=\"58\" height=\"34\" rx=\"9\" fill=\"url(#g_mg)\"/><g stroke=\"#ffffff\" stroke-width=\"1.6\" opacity=\"0.7\"><circle cx=\"26\" cy=\"21\" r=\"6\"/><circle cx=\"26\" cy=\"21\" r=\"11.5\"/></g><circle cx=\"26\" cy=\"21\" r=\"2.4\" fill=\"#ffffff\"/></g></svg>"
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g fill=\"#c0392b\"><circle cx=\"12\" cy=\"16\" r=\"2.4\"/><circle cx=\"12\" cy=\"30\" r=\"2.4\"/><circle cx=\"18\" cy=\"23\" r=\"2.2\"/><circle cx=\"18\" cy=\"12\" r=\"1.8\"/><circle cx=\"18\" cy=\"35\" r=\"1.8\"/><circle cx=\"25\" cy=\"18\" r=\"1.8\"/><circle cx=\"25\" cy=\"30\" r=\"1.8\"/><circle cx=\"32\" cy=\"24\" r=\"1.6\" opacity=\"0.85\"/><circle cx=\"33\" cy=\"14\" r=\"1.4\" opacity=\"0.7\"/><circle cx=\"34\" cy=\"33\" r=\"1.4\" opacity=\"0.7\"/><circle cx=\"42\" cy=\"20\" r=\"1.3\" opacity=\"0.55\"/><circle cx=\"44\" cy=\"30\" r=\"1.2\" opacity=\"0.5\"/><circle cx=\"52\" cy=\"24\" r=\"1.1\" opacity=\"0.4\"/><circle cx=\"58\" cy=\"19\" r=\"1\" opacity=\"0.3\"/></g></g></svg>"
     },
     "multicellular_interactions": {
       "_type": "process",
@@ -267,7 +267,7 @@
       },
       "inputs": {},
       "outputs": {},
-      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke=\"#db2777\" stroke-width=\"1.7\" stroke-dasharray=\"3 3\" opacity=\"0.75\"><line x1=\"18\" y1=\"16\" x2=\"46\" y2=\"15\"/><line x1=\"18\" y1=\"16\" x2=\"32\" y2=\"35\"/><line x1=\"46\" y1=\"15\" x2=\"32\" y2=\"35\"/></g><g fill=\"#fce7f3\" stroke=\"#db2777\" stroke-width=\"2.2\"><circle cx=\"18\" cy=\"16\" r=\"7.5\"/><circle cx=\"46\" cy=\"15\" r=\"7.5\"/><circle cx=\"32\" cy=\"35\" r=\"7.5\"/></g><g fill=\"#db2777\"><circle cx=\"18\" cy=\"16\" r=\"2.4\"/><circle cx=\"46\" cy=\"15\" r=\"2.4\"/><circle cx=\"32\" cy=\"35\" r=\"2.4\"/></g></g></svg>"
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke=\"#c0392b\" stroke-width=\"1.9\"><circle cx=\"29\" cy=\"16\" r=\"5.6\"/><circle cx=\"41\" cy=\"16\" r=\"5.6\"/><circle cx=\"23\" cy=\"26\" r=\"5.6\"/><circle cx=\"35\" cy=\"26\" r=\"5.6\"/><circle cx=\"47\" cy=\"26\" r=\"5.6\"/><circle cx=\"29\" cy=\"36\" r=\"5.6\"/><circle cx=\"41\" cy=\"36\" r=\"5.6\"/></g><g fill=\"#c0392b\"><circle cx=\"29\" cy=\"16\" r=\"1.5\"/><circle cx=\"41\" cy=\"16\" r=\"1.5\"/><circle cx=\"23\" cy=\"26\" r=\"1.5\"/><circle cx=\"35\" cy=\"26\" r=\"1.5\"/><circle cx=\"47\" cy=\"26\" r=\"1.5\"/><circle cx=\"29\" cy=\"36\" r=\"1.5\"/><circle cx=\"41\" cy=\"36\" r=\"1.5\"/></g></g></svg>"
     },
     "neural_dynamics": {
       "_type": "process",
@@ -326,7 +326,7 @@
       },
       "inputs": {},
       "outputs": {},
-      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke=\"#7c3aed\" stroke-width=\"1\" opacity=\"0.35\"><path d=\"M16 16 L34 10 M16 16 L34 24 M16 16 L34 38 M16 32 L34 10 M16 32 L34 24 M16 32 L34 38\"/><path d=\"M34 10 L56 16 M34 10 L56 32 M34 24 L56 16 M34 24 L56 32 M34 38 L56 16 M34 38 L56 32\"/></g><g fill=\"#7c3aed\"><circle cx=\"16\" cy=\"16\" r=\"3.4\"/><circle cx=\"16\" cy=\"32\" r=\"3.4\"/><circle cx=\"34\" cy=\"10\" r=\"3.4\"/><circle cx=\"34\" cy=\"24\" r=\"3.4\"/><circle cx=\"34\" cy=\"38\" r=\"3.4\"/><circle cx=\"56\" cy=\"16\" r=\"3.4\"/><circle cx=\"56\" cy=\"32\" r=\"3.4\"/></g></g></svg>"
+      "_figure": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"72\" height=\"48\" viewBox=\"0 0 72 48\"><g fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M36 9 C26 9 20 14 21 21 C15 23 15 33 23 35 C24 41 33 42 36 39 C39 42 48 41 49 35 C57 33 57 23 51 21 C52 14 46 9 36 9 Z\" stroke=\"#c0392b\" stroke-width=\"2.2\"/><path d=\"M36 11 V39\" stroke=\"#c0392b\" stroke-width=\"1.4\" opacity=\"0.55\"/><g stroke=\"#c0392b\" stroke-width=\"1.3\" opacity=\"0.6\"><path d=\"M28 18 q4 3 0 6\"/><path d=\"M44 18 q-4 3 0 6\"/><path d=\"M27 28 q5 2 0 5\"/><path d=\"M45 28 q-5 2 0 5\"/></g></g></svg>"
     }
   }
 }
