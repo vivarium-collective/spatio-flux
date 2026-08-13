@@ -42,30 +42,30 @@ ROWS = [
 
 CONTENT_W = 2200   # target content width every row justifies to
 PAD = 28           # outer margin
-GAP = 22           # gap between panels and between rows
-LABEL_H = 34       # space above each row for its panel letters
+GAP = 12           # gap between panels and between rows (tight — squeeze rows)
+LABEL_H = 26       # space above each row for its panel letters
 # Per-row height caps (row index -> max px). A capped row is centered in the
 # content width instead of stretched; an uncapped (or generously-capped) row
 # justifies to fill CONTENT_W. Row 0 = panel a (full-width loom), given a tall cap
 # so it fills the top row; row 1 = the b/c/d simulation plots, cap raised past
 # their natural justified height so they stretch to the full content width.
-ROW_MAX_H = {0: 840, 1: 640}
-# Tighter label band above a given row (pulls b/c/d up toward a). Must stay big
-# enough to clear the panel-letter (~36px for the 34px bold serif).
-ROW_GAP_ABOVE = {1: 24}
+ROW_MAX_H = {0: 840, 1: 640, 2: 560}  # cap e/f (row 2) shorter too
+# Tighter label band above the lower rows (pulls them up, squeezing the figure).
+# Must stay big enough to clear the panel-letter (~28px for the 26px bold serif).
+ROW_GAP_ABOVE = {1: 16, 2: 16, 3: 16}
 # Panels rendered at a WIDER target aspect (width/height) than their source — the
 # b / c / d timeseries plots, which read too tall. Their box is stretched to this
 # aspect (preserveAspectRatio=none), so the plots come out a bit shorter + wider
 # and the whole b/c/d row is shorter — the main lever for fitting Figure 7 on the
 # page. Timeseries tolerate a modest horizontal stretch.
 WIDEN_ASPECT = {
-    "fig07b-monod-kinetics.png": 1.6,
-    "fig07c-dfba.png": 1.6,
-    "fig07d-hybrid-community.png": 1.6,
+    "fig07b-monod-kinetics.png": 1.85,
+    "fig07c-dfba.png": 1.85,
+    "fig07d-hybrid-community.png": 1.85,
 }
 # Whole-row scale applied AFTER justification (row is centered at the reduced
-# size). Row 3 = g / h (Brownian loom + traces) at 90%, per request.
-ROW_SCALE = {3: 0.9}
+# size). Row 3 = g / h (Brownian loom + traces) — shrunk further to shorten it.
+ROW_SCALE = {3: 0.8}
 
 _LABEL_FONTS = (
     "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
