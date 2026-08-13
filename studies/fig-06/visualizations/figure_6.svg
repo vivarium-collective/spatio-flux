@@ -75,32 +75,32 @@
     <text class="title" x="430" y="42">b.  workflow</text>
 
     <!-- nodes: stores as loom rounded-rects, steps as processes -->
-    <rect class="store" x="514" y="68" width="32" height="24" rx="7"/>
-    <rect class="proc" x="498" y="106" width="64" height="34" rx="0"/><text class="name" x="530" y="128">step</text>
-    <rect class="store" x="501" y="156" width="18" height="16" rx="5"/><rect class="store" x="521" y="156" width="18" height="16" rx="5"/><rect class="store" x="541" y="156" width="18" height="16" rx="5"/>
-    <rect class="proc" x="452" y="188" width="64" height="34" rx="0"/><text class="name" x="484" y="210">step</text>
-    <rect class="proc" x="544" y="188" width="64" height="34" rx="0"/><text class="name" x="576" y="210">step</text>
-    <rect class="store" x="457" y="238" width="18" height="16" rx="5"/><rect class="store" x="493" y="238" width="18" height="16" rx="5"/>
-    <rect class="store" x="549" y="238" width="18" height="16" rx="5"/><rect class="store" x="585" y="238" width="18" height="16" rx="5"/>
-    <rect class="proc" x="498" y="270" width="64" height="34" rx="0"/><text class="name" x="530" y="292">step</text>
-    <rect class="store" x="501" y="320" width="18" height="16" rx="5"/><rect class="store" x="521" y="320" width="18" height="16" rx="5"/><rect class="store" x="541" y="320" width="18" height="16" rx="5"/>
+    <rect class="store" x="514" y="60" width="32" height="24" rx="7"/>
+    <rect class="proc" x="494" y="100" width="72" height="36" rx="0"/><text class="name" x="530" y="123">step</text>
+    <rect class="store" x="489" y="160" width="18" height="16" rx="5"/><rect class="store" x="521" y="160" width="18" height="16" rx="5"/><rect class="store" x="553" y="160" width="18" height="16" rx="5"/>
+    <rect class="proc" x="432" y="204" width="72" height="36" rx="0"/><text class="name" x="468" y="227">step</text>
+    <rect class="proc" x="556" y="204" width="72" height="36" rx="0"/><text class="name" x="592" y="227">step</text>
+    <rect class="store" x="441" y="264" width="18" height="16" rx="5"/><rect class="store" x="477" y="264" width="18" height="16" rx="5"/>
+    <rect class="store" x="565" y="264" width="18" height="16" rx="5"/><rect class="store" x="601" y="264" width="18" height="16" rx="5"/>
+    <rect class="proc" x="494" y="308" width="72" height="36" rx="0"/><text class="name" x="530" y="331">step</text>
+    <rect class="store" x="489" y="368" width="18" height="16" rx="5"/><rect class="store" x="521" y="368" width="18" height="16" rx="5"/><rect class="store" x="553" y="368" width="18" height="16" rx="5"/>
 
-    <!-- DAG wires (top -> down) -->
-    <path class="wire" d="M530,92 L530,106" marker-end="url(#ar)"/>
-    <path class="wire" d="M524,140 C516,150 512,155 510,157" marker-end="url(#ar)"/>
-    <path class="wire" d="M530,140 L530,157" marker-end="url(#ar)"/>
-    <path class="wire" d="M536,140 C544,150 548,155 550,157" marker-end="url(#ar)"/>
-    <path class="wire" d="M508,170 C495,178 486,182 484,186" marker-end="url(#ar)"/>
-    <path class="wire" d="M552,170 C565,178 574,182 576,186" marker-end="url(#ar)"/>
-    <path class="wire" d="M478,222 C470,230 467,236 466,239" marker-end="url(#ar)"/>
-    <path class="wire" d="M490,222 C498,230 501,236 502,239" marker-end="url(#ar)"/>
-    <path class="wire" d="M570,222 C562,230 559,236 558,239" marker-end="url(#ar)"/>
-    <path class="wire" d="M582,222 C590,230 593,236 594,239" marker-end="url(#ar)"/>
-    <path class="wire" d="M502,252 C512,260 520,264 524,268" marker-end="url(#ar)"/>
-    <path class="wire" d="M558,252 C548,260 540,264 536,268" marker-end="url(#ar)"/>
-    <path class="wire" d="M524,304 C516,314 512,319 510,321" marker-end="url(#ar)"/>
-    <path class="wire" d="M530,304 L530,321" marker-end="url(#ar)"/>
-    <path class="wire" d="M536,304 C544,314 548,319 550,321" marker-end="url(#ar)"/>
+    <!-- DAG wires (top -> down): longer runs, wider fan, no overlap -->
+    <path class="wire" d="M530,84 L530,100" marker-end="url(#ar)"/>
+    <path class="wire" d="M520,136 L502,158" marker-end="url(#ar)"/>
+    <path class="wire" d="M530,136 L530,158" marker-end="url(#ar)"/>
+    <path class="wire" d="M540,136 L558,158" marker-end="url(#ar)"/>
+    <path class="wire" d="M496,176 L472,202" marker-end="url(#ar)"/>
+    <path class="wire" d="M564,176 L588,202" marker-end="url(#ar)"/>
+    <path class="wire" d="M462,240 L452,262" marker-end="url(#ar)"/>
+    <path class="wire" d="M474,240 L486,262" marker-end="url(#ar)"/>
+    <path class="wire" d="M586,240 L574,262" marker-end="url(#ar)"/>
+    <path class="wire" d="M598,240 L610,262" marker-end="url(#ar)"/>
+    <path class="wire" d="M488,280 L512,306" marker-end="url(#ar)"/>
+    <path class="wire" d="M572,280 L548,306" marker-end="url(#ar)"/>
+    <path class="wire" d="M520,344 L502,366" marker-end="url(#ar)"/>
+    <path class="wire" d="M530,344 L530,366" marker-end="url(#ar)"/>
+    <path class="wire" d="M540,344 L558,366" marker-end="url(#ar)"/>
   </g>
 
   <!-- ======================= c. event-driven graph rewrite ======================= -->
