@@ -13,6 +13,7 @@ studies:
 - fig-03
 - fig-04
 - fig-05
+- fig-06
 - fig-07
 - fig-08
 # Captions + numbering for the stitched figures (the ↓ figures download + the
@@ -39,6 +40,14 @@ figures:
   caption: >-
     A process graph and the composite process it defines — the same wiring seen as a graph
     of processes and as a single encapsulated composite.
+- study: fig-06
+  number: 6
+  caption: >-
+    Orchestration patterns, in bigraph-loom style. a: multi-timestepping — temporal
+    processes each updating at their own interval, reading/writing a shared store at
+    their update ticks. b: a workflow DAG of step processes over intermediate stores.
+    c: event-driven graph rewrite — divide / engulf / burst events restructuring
+    environ + agent subgraphs.
 - study: fig-07
   number: 7
   caption: >-

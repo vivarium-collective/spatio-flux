@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="400" viewBox="0 0 1320 400" font-family="Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="arD" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b5cf6"/>
+    </marker>
+    <style>
+      .panel { fill:#ffffff; }
+      .title { font: 700 17px Georgia, 'Times New Roman', serif; fill:#111827; }
+      .proc  { fill:#ffffff; stroke:#6366f1; stroke-width:2.2; }
+      .store { fill:#ffffff; stroke:#22c55e; stroke-width:2.2; }
+      .name  { font: 700 14px Inter, system-ui, sans-serif; fill:#1e293b; text-anchor:middle; }
+      .nm2   { font: 700 13px Inter, system-ui, sans-serif; fill:#1e293b; text-anchor:middle; }
+      .sub   { font: 11px ui-monospace, monospace; fill:#94a3b8; text-anchor:middle; }
+      .lbl   { font: italic 12px ui-monospace, monospace; fill:#64748b; }
+      .wire  { fill:none; stroke:#475569; stroke-width:2.6; }
+      .wireT { fill:none; stroke:#475569; stroke-width:4.5; }
+      .pwire { fill:none; stroke:#8b5cf6; stroke-width:1.7; stroke-dasharray:5 4; }
+      .axis  { stroke:#334155; stroke-width:2.2; fill:none; }
+      .tick  { stroke:#334155; stroke-width:2; }
+      .port  { fill:#ffffff; stroke:#22c55e; stroke-width:2; }
+    </style>
+  </defs>
+
+  <rect width="1320" height="400" fill="#ffffff"/>
+
+  <!-- ============================ a. multi-timestepping ============================ -->
+  <g id="panel-a">
+    <text class="title" x="34" y="42">a.  multi-timestepping</text>
+
+    <!-- top temporal process + its coarse time axis -->
+    <rect class="proc" x="32" y="78" width="126" height="58" rx="0"/>
+    <text class="nm2" x="95" y="103">temporal</text>
+    <text class="nm2" x="95" y="121">process</text>
+    <line class="axis" x1="158" y1="107" x2="360" y2="107" marker-end="url(#ar)"/>
+    <g stroke="#334155" stroke-width="2">
+      <line x1="182" y1="100" x2="182" y2="114"/><line x1="214" y1="100" x2="214" y2="114"/>
+      <line x1="246" y1="100" x2="246" y2="114"/><line x1="278" y1="100" x2="278" y2="114"/>
+      <line x1="310" y1="100" x2="310" y2="114"/>
+    </g>
+
+    <!-- shared store hub -->
+    <rect class="store" x="214" y="188" width="120" height="60" rx="12"/>
+    <text class="nm2" x="274" y="213">shared</text>
+    <text class="nm2" x="274" y="231">store</text>
+
+    <!-- bottom temporal process + its fine time axis -->
+    <rect class="proc" x="32" y="300" width="126" height="58" rx="0"/>
+    <text class="nm2" x="95" y="325">temporal</text>
+    <text class="nm2" x="95" y="343">process</text>
+    <line class="axis" x1="158" y1="329" x2="360" y2="329" marker-end="url(#ar)"/>
+    <g stroke="#334155" stroke-width="2">
+      <line x1="176" y1="322" x2="176" y2="336"/><line x1="194" y1="322" x2="194" y2="336"/>
+      <line x1="212" y1="322" x2="212" y2="336"/><line x1="230" y1="322" x2="230" y2="336"/>
+      <line x1="248" y1="322" x2="248" y2="336"/><line x1="266" y1="322" x2="266" y2="336"/>
+      <line x1="284" y1="322" x2="284" y2="336"/><line x1="302" y1="322" x2="302" y2="336"/>
+      <line x1="320" y1="322" x2="320" y2="336"/>
+    </g>
+    <text class="lbl" x="360" y="349" text-anchor="end">time</text>
+
+    <!-- read/write arrows anchored at each process's UPDATE TICKS along its
+         timeline (coarse ticks up top, fine ticks below) <-> the shared store -->
+    <path class="pwire" d="M214,110 L238,186" marker-end="url(#arD)"/>
+    <path class="pwire" d="M278,186 L246,110" marker-end="url(#arD)"/>
+    <path class="pwire" d="M278,110 L302,186" marker-end="url(#arD)"/>
+    <path class="pwire" d="M212,326 L238,250" marker-end="url(#arD)"/>
+    <path class="pwire" d="M278,250 L248,326" marker-end="url(#arD)"/>
+    <path class="pwire" d="M284,326 L302,250" marker-end="url(#arD)"/>
+  </g>
+
+  <!-- ================================ b. workflow ================================= -->
+  <g id="panel-b">
+    <text class="title" x="430" y="42">b.  workflow</text>
+
+    <!-- nodes: stores as loom rounded-rects, steps as processes -->
+    <rect class="store" x="514" y="68" width="32" height="24" rx="7"/>
+    <rect class="proc" x="498" y="106" width="64" height="34" rx="0"/><text class="name" x="530" y="128">step</text>
+    <rect class="store" x="501" y="156" width="18" height="16" rx="5"/><rect class="store" x="521" y="156" width="18" height="16" rx="5"/><rect class="store" x="541" y="156" width="18" height="16" rx="5"/>
+    <rect class="proc" x="452" y="188" width="64" height="34" rx="0"/><text class="name" x="484" y="210">step</text>
+    <rect class="proc" x="544" y="188" width="64" height="34" rx="0"/><text class="name" x="576" y="210">step</text>
+    <rect class="store" x="457" y="238" width="18" height="16" rx="5"/><rect class="store" x="493" y="238" width="18" height="16" rx="5"/>
+    <rect class="store" x="549" y="238" width="18" height="16" rx="5"/><rect class="store" x="585" y="238" width="18" height="16" rx="5"/>
+    <rect class="proc" x="498" y="270" width="64" height="34" rx="0"/><text class="name" x="530" y="292">step</text>
+    <rect class="store" x="501" y="320" width="18" height="16" rx="5"/><rect class="store" x="521" y="320" width="18" height="16" rx="5"/><rect class="store" x="541" y="320" width="18" height="16" rx="5"/>
+
+    <!-- DAG wires (top -> down) -->
+    <path class="wire" d="M530,92 L530,106" marker-end="url(#ar)"/>
+    <path class="wire" d="M524,140 C516,150 512,155 510,157" marker-end="url(#ar)"/>
+    <path class="wire" d="M530,140 L530,157" marker-end="url(#ar)"/>
+    <path class="wire" d="M536,140 C544,150 548,155 550,157" marker-end="url(#ar)"/>
+    <path class="wire" d="M508,170 C495,178 486,182 484,186" marker-end="url(#ar)"/>
+    <path class="wire" d="M552,170 C565,178 574,182 576,186" marker-end="url(#ar)"/>
+    <path class="wire" d="M478,222 C470,230 467,236 466,239" marker-end="url(#ar)"/>
+    <path class="wire" d="M490,222 C498,230 501,236 502,239" marker-end="url(#ar)"/>
+    <path class="wire" d="M570,222 C562,230 559,236 558,239" marker-end="url(#ar)"/>
+    <path class="wire" d="M582,222 C590,230 593,236 594,239" marker-end="url(#ar)"/>
+    <path class="wire" d="M502,252 C512,260 520,264 524,268" marker-end="url(#ar)"/>
+    <path class="wire" d="M558,252 C548,260 540,264 536,268" marker-end="url(#ar)"/>
+    <path class="wire" d="M524,304 C516,314 512,319 510,321" marker-end="url(#ar)"/>
+    <path class="wire" d="M530,304 L530,321" marker-end="url(#ar)"/>
+    <path class="wire" d="M536,304 C544,314 548,319 550,321" marker-end="url(#ar)"/>
+  </g>
+
+  <!-- ======================= c. event-driven graph rewrite ======================= -->
+  <g id="panel-c">
+    <text class="title" x="676" y="42">c.  event-driven graph rewrite</text>
+
+    <!-- events (processes) -->
+    <rect class="proc" x="700" y="76" width="86" height="34" rx="0"/><text class="name" x="743" y="98">divide</text>
+    <rect class="proc" x="1020" y="76" width="86" height="34" rx="0"/><text class="name" x="1063" y="98">engulf</text>
+    <rect class="proc" x="1200" y="76" width="86" height="34" rx="0"/><text class="name" x="1243" y="98">burst</text>
+
+    <!-- environ stores -->
+    <rect class="store" x="694" y="158" width="92" height="42" rx="10"/><text class="name" x="740" y="184">environ</text>
+    <rect class="store" x="816" y="158" width="92" height="42" rx="10"/><text class="name" x="862" y="184">environ</text>
+    <rect class="store" x="1018" y="158" width="92" height="42" rx="10"/><text class="name" x="1064" y="184">environ</text>
+    <rect class="store" x="1198" y="158" width="92" height="42" rx="10"/><text class="name" x="1244" y="184">environ</text>
+
+    <!-- agent stores -->
+    <rect class="store" x="702" y="256" width="76" height="40" rx="10"/><text class="name" x="740" y="281">agent₁</text>
+    <rect class="store" x="812" y="256" width="76" height="40" rx="10"/><text class="name" x="850" y="281">agent₂</text>
+    <rect class="store" x="898" y="256" width="76" height="40" rx="10"/><text class="name" x="936" y="281">agent₃</text>
+    <rect class="store" x="1026" y="256" width="76" height="40" rx="10"/><text class="name" x="1064" y="281">agent₂</text>
+    <rect class="store" x="1026" y="336" width="76" height="40" rx="10"/><text class="name" x="1064" y="361">agent₃</text>
+    <rect class="store" x="1206" y="256" width="76" height="40" rx="10"/><text class="name" x="1244" y="281">agent₂</text>
+
+    <!-- event -> environ (dashed, rewrite target) -->
+    <path class="pwire" d="M726,110 C712,128 706,140 730,156" marker-end="url(#arD)"/>
+    <path class="pwire" d="M760,110 C800,128 830,138 852,156" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1063,110 L1064,156" marker-end="url(#arD)"/>
+    <path class="pwire" d="M1243,110 L1244,156" marker-end="url(#arD)"/>
+
+    <!-- environ -> agent (place-graph containment, solid) -->
+    <path class="wire" d="M740,200 L740,254"/>
+    <path class="wireT" d="M856,200 C850,224 852,238 850,254"/>
+    <path class="wireT" d="M868,200 C896,224 918,240 936,254"/>
+    <path class="wire" d="M1064,200 L1064,254"/>
+    <path class="wire" d="M1064,296 L1064,334"/>
+    <path class="wire" d="M1244,200 L1244,254"/>
+  </g>
+
+</svg>
