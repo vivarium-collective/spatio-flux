@@ -50,6 +50,26 @@ def _helix(cx: int, color: str) -> str:
 
 
 ICONS: dict[str, str] = {
+    # ── fig-1c workflow additions ───────────────────────────────────────────
+    "emitter": _svg(  # broadcast waves captured into a storage cylinder
+        f'<g fill="none" stroke="{_FIELD}" stroke-width="2.2" stroke-linecap="round">'
+        f'<path d="M13 17 A11 11 0 0 1 13 31"/><path d="M8 12 A17 17 0 0 1 8 36"/></g>'
+        f'<circle cx="17" cy="24" r="3.2" fill="{_FIELD}"/>'
+        f'<g fill="#f8fafc" stroke="{_INK}" stroke-width="1.9">'
+        f'<ellipse cx="47" cy="14" rx="10" ry="3.6"/><path d="M37 14 v19 a10 3.6 0 0 0 20 0 v-19"/></g>'
+        f'<path d="M37 23.5 a10 3.6 0 0 0 20 0" fill="none" stroke="{_INK}" stroke-width="1.4" opacity="0.5"/>'),
+    "emitter_data": _svg(  # the stored emitter output — a data-log cylinder
+        f'<g fill="#f8fafc" stroke="{_INK}" stroke-width="1.9">'
+        f'<ellipse cx="36" cy="11" rx="13" ry="4.5"/><path d="M23 11 v24 a13 4.5 0 0 0 26 0 v-24"/></g>'
+        f'<g fill="none" stroke="{_INK}" stroke-width="1.4" opacity="0.5">'
+        f'<path d="M23 19 a13 4.5 0 0 0 26 0"/><path d="M23 27 a13 4.5 0 0 0 26 0"/></g>'),
+    "load_results": _svg(  # read a store (left) into a results table (right)
+        f'<g fill="#f8fafc" stroke="{_INK}" stroke-width="1.8">'
+        f'<ellipse cx="14" cy="15" rx="8" ry="3"/><path d="M6 15 v14 a8 3 0 0 0 16 0 v-14"/></g>'
+        f'<path d="M26 24 H37" stroke="{_GREEN}" stroke-width="2.4" stroke-linecap="round"/>'
+        f'<path d="M33 20 l5 4 -5 4" fill="none" stroke="{_GREEN}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+        f'<rect x="42" y="10" width="24" height="28" rx="3" fill="#f8fafc" stroke="{_INK}" stroke-width="1.8"/>'
+        f'<path d="M42 18 H66 M54 10 V38" stroke="{_INK}" stroke-width="1.3" opacity="0.5"/>'),
     # ── processes ──────────────────────────────────────────────────────────
     "gene_expression": _svg(
         _helix(17, _DNA)
@@ -315,7 +335,7 @@ FIG1B_ICONS: dict[str, str] = {
         f'<g fill="{_B_BLUE}"><circle cx="28" cy="17" r="3" opacity="0.85"/><circle cx="31" cy="31" r="2.6" opacity="0.7"/>'
         f'<circle cx="42" cy="21" r="2.2" opacity="0.55"/><circle cx="47" cy="32" r="1.9" opacity="0.45"/>'
         f'<circle cx="56" cy="25" r="1.6" opacity="0.32"/></g>'),
-    "abm": _svg(
+    "multicellular_interactions": _svg(
         f'<g stroke="{_B_BLUE}" stroke-width="1.7" stroke-dasharray="3 3" opacity="0.7">'
         f'<line x1="20" y1="17" x2="46" y2="16"/><line x1="20" y1="17" x2="33" y2="35"/><line x1="46" y1="16" x2="33" y2="35"/></g>'
         f'<g stroke="{_B_BLUE}" stroke-width="2"><circle cx="20" cy="17" r="6"/><circle cx="46" cy="16" r="6"/><circle cx="33" cy="35" r="6"/></g>'
@@ -358,6 +378,23 @@ FIG1B_ICONS: dict[str, str] = {
         f'<circle cx="18" cy="18" r="6.5"/><circle cx="35" cy="14" r="6.5"/><circle cx="52" cy="19" r="6"/>'
         f'<circle cx="26" cy="32" r="6.5"/><circle cx="44" cy="32" r="6"/></g>'
         f'<g fill="{_B_BLUE}"><circle cx="18" cy="18" r="2"/><circle cx="35" cy="14" r="2"/><circle cx="52" cy="19" r="2"/><circle cx="26" cy="32" r="2"/><circle cx="44" cy="32" r="2"/></g>'),
+    "tissue": _svg(  # a bounded sheet of cells (organ/tissue)
+        f'<rect x="9" y="8" width="54" height="32" rx="10" fill="none" stroke="{_B_BLUE}" stroke-width="2.2"/>'
+        f'<g stroke="{_B_BLUE}" stroke-width="1.9" fill="none">'
+        f'<circle cx="26" cy="20" r="5.5"/><circle cx="42" cy="17" r="5"/><circle cx="34" cy="31" r="5.5"/><circle cx="50" cy="30" r="4.5"/></g>'
+        f'<g fill="{_B_BLUE}"><circle cx="26" cy="20" r="1.7"/><circle cx="42" cy="17" r="1.6"/>'
+        f'<circle cx="34" cy="31" r="1.7"/><circle cx="50" cy="30" r="1.4"/></g>'),
+    "cell": _svg(  # a single cell — membrane + nucleus + organelles
+        f'<circle cx="36" cy="24" r="15" fill="none" stroke="{_B_BLUE}" stroke-width="2.4"/>'
+        f'<circle cx="36" cy="24" r="6.5" fill="{_B_BLUE}" opacity="0.9"/>'
+        f'<g fill="{_B_BLUE}" opacity="0.5"><circle cx="25" cy="18" r="2.3"/><circle cx="47" cy="29" r="2.1"/>'
+        f'<circle cx="45" cy="16" r="1.8"/><circle cx="27" cy="31" r="1.8"/></g>'),
+    "molecules": _svg(  # a molecule — central atom bonded to three others
+        f'<g stroke="{_B_BLUE}" stroke-width="2.3"><line x1="23" y1="19" x2="36" y2="27"/>'
+        f'<line x1="36" y1="27" x2="50" y2="17"/><line x1="36" y1="27" x2="39" y2="39"/></g>'
+        f'<circle cx="36" cy="27" r="6" fill="none" stroke="{_B_BLUE}" stroke-width="2.3"/>'
+        f'<circle cx="36" cy="27" r="2.1" fill="{_B_BLUE}"/>'
+        f'<g fill="{_B_BLUE}"><circle cx="23" cy="19" r="5"/><circle cx="50" cy="17" r="5.5"/><circle cx="39" cy="39" r="4.5"/></g>'),
     "DNA": _svg(_helix(36, _B_BLUE)),
     "mRNA": _svg(
         f'<path d="M7 24 Q17 11 27 24 Q37 37 47 24 Q57 11 65 22" stroke="{_B_BLUE}" stroke-width="2.8"/>'
@@ -412,6 +449,8 @@ def attach(state: dict, icons: dict[str, str] = ICONS) -> dict:
             inner = (node.get("config") or {}).get("state")
             if isinstance(inner, dict):
                 attach(inner, icons)
-        else:  # a plain place-graph branch → recurse
+        else:  # a plain place-graph branch → stamp if its name matches, then recurse
+            if key in icons:
+                node["_figure"] = icons[key]
             attach(node, icons)
     return state

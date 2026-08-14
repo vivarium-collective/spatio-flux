@@ -54,6 +54,7 @@
         "summary": "Process p \u2014 connects place-graph nodes via typed ports",
         "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
         "status": "draft - no update",
+        "method": "",
         "math": [],
         "symbols": {},
         "inputs": {
@@ -108,6 +109,7 @@
         "summary": "Process p \u2014 connects place-graph nodes via typed ports",
         "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
         "status": "draft - no update",
+        "method": "",
         "math": [],
         "symbols": {},
         "inputs": {
@@ -161,6 +163,7 @@
         "summary": "Process p \u2014 connects place-graph nodes via typed ports",
         "description": "A process in the process bigraph: it connects nodes of the place graph through its typed ports, replacing a Milner hyperedge in the link graph.",
         "status": "draft - no update",
+        "method": "",
         "math": [],
         "symbols": {},
         "inputs": {
