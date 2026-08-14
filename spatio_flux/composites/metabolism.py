@@ -10,8 +10,9 @@ from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_mo
 @composite_generator(
     name="ecoli_core_dfba",
     description=(
-        "Single-cell metabolism baseline: dynamic FBA for E. coli core with "
-        "external glucose/acetate and biomass over time (no space, no particles)."
+        "Dynamic FBA of a single E. coli core cell in a well-mixed medium, "
+        "tracking extracellular glucose and acetate as biomass grows — the "
+        "simplest single-cell metabolism model, with no space or particles."
     ),
     parameters={
         "model_id":       {"type": "string", "default": "ecoli core"},
@@ -43,9 +44,9 @@ def ecoli_core_dfba(core=None, *, model_id="ecoli core",
 @composite_generator(
     name="monod_kinetics",
     description=(
-        "Field-only baseline: Monod uptake/growth on a well-mixed substrate "
-        "pool (no spatial lattice, no particles). Use to sanity-check "
-        "kinetics + mass balance."
+        "Monod uptake and growth kinetics on a well-mixed pool of glucose and "
+        "acetate — the simplest field-only metabolism model, with no spatial "
+        "lattice or particles."
     ),
     parameters={
         "model_id": {"type": "string", "default": "overflow_metabolism"},
@@ -68,9 +69,9 @@ def monod_kinetics(core=None, *, model_id="overflow_metabolism",
 @composite_generator(
     name="ecoli_dfba",
     description=(
-        "Single-cell metabolism (large model): dynamic FBA using iAF1260 "
-        "with tracked extracellular fields (glucose/formate) and biomass. "
-        "Stress-tests solver + exchange wiring."
+        "Dynamic FBA of a single E. coli cell using the genome-scale iAF1260 "
+        "model, tracking extracellular glucose and formate as biomass grows in "
+        "a well-mixed medium."
     ),
     parameters={
         "model_id": {"type": "string", "default": "ecoli"},
@@ -95,9 +96,9 @@ def ecoli_dfba(core=None, *, model_id="ecoli",
 @composite_generator(
     name="yeast_dfba",
     description=(
-        "Single-cell metabolism (yeast): dynamic FBA using iMM904 with "
-        "extracellular glucose and biomass. Cross-model check of the dFBA "
-        "pipeline."
+        "Dynamic FBA of a single yeast cell using the genome-scale iMM904 "
+        "model, tracking extracellular glucose as biomass grows in a "
+        "well-mixed medium."
     ),
     parameters={
         "model_id": {"type": "string", "default": "yeast"},
@@ -120,9 +121,9 @@ def yeast_dfba(core=None, *, model_id="yeast", glucose=5.0, biomass=0.1):
 @composite_generator(
     name="community_dfba",
     description=(
-        "Multi-agent well-mixed community: several independent dFBA "
-        "instances share the same extracellular pools, creating competition / "
-        "cross-feeding dynamics without space."
+        "A well-mixed microbial community where several dFBA species and a "
+        "Monod-kinetic population share the same extracellular substrate pools, "
+        "producing competition and cross-feeding without spatial structure."
     ),
     parameters={
         "dt":                {"type": "float",  "default": 1.0},
@@ -160,9 +161,9 @@ def community_dfba(core=None, *, dt=1.0, kinetic_model_id="acetate_only",
 @composite_generator(
     name="dfba_kinetics_community",
     description=(
-        "Hybrid community (well-mixed): mixes Monod-kinetic agents with "
-        "dFBA agents in a shared environment. Demonstrates heterogeneous "
-        "process composition under one schema."
+        "A well-mixed community pairing a dFBA population with a Monod-kinetic "
+        "population that share the same extracellular glucose and acetate "
+        "pools, coupling two metabolic modeling styles in one environment."
     ),
     parameters={
         "dfba_model_id":      {"type": "string", "default": "ecoli core"},

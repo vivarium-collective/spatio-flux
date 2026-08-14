@@ -16,9 +16,10 @@ from spatio_flux.composites._constants import (
 @composite_generator(
     name="spatioflux_reference_demo",
     description=(
-        "SpatioFlux demonstration reference composite: Newtonian motile "
-        "particles + particle–field exchange + internal multi-dFBA + "
-        "Monod/diffusion fields + mass-aggregated division."
+        "The flagship SpatioFlux reference model: Newtonian particles, each "
+        "carrying a two-strain E. coli community with its own internal dFBA, "
+        "swim through diffusing glucose and acetate fields, exchange substrate "
+        "locally, and divide by splitting sub-masses between daughters."
     ),
     parameters={
         "bounds":      {"type": "object", "default": list(SQUARE_BOUNDS)},
@@ -119,7 +120,12 @@ def spatioflux_reference_demo(
 
 @composite_generator(
     name="reference_demo_x2y2",
-    description="Different resolution for the spatio-flux reference demo",
+    description=(
+        "The SpatioFlux reference model on a finer field lattice with doubled "
+        "bin counts in x and y: the same Newtonian particles carrying a "
+        "two-strain internal-dFBA community, with local substrate exchange, "
+        "diffusing glucose/acetate fields, and sub-mass-splitting division."
+    ),
     parameters={
         "bounds":      {"type": "object", "default": list(SQUARE_BOUNDS)},
         "n_bins":      {"type": "object",

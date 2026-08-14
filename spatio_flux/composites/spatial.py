@@ -18,9 +18,9 @@ from spatio_flux.composites._constants import (
 @composite_generator(
     name="spatial_many_dfba",
     description=(
-        "Spatial microenvironment (sitewise dFBA): a lattice where each site "
-        "runs its own dFBA instance. Useful for validating lattice indexing "
-        "+ per-site state isolation."
+        "A spatial microenvironment where every lattice site runs its own "
+        "dFBA instance over local glucose, acetate, and dissolved biomass, "
+        "resolving metabolism site by site across the grid."
     ),
     parameters={
         "model_id": {"type": "string", "default": "ecoli core"},
@@ -44,9 +44,9 @@ def spatial_many_dfba(core=None, *, model_id="ecoli core",
 @composite_generator(
     name="spatial_dfba_process",
     description=(
-        "Spatial microenvironment (vectorized dFBA): one spatial dFBA "
-        "process updates all lattice sites as a single structured state. "
-        "Demonstrates batched execution + field coupling."
+        "A spatial microenvironment where a single vectorized dFBA process "
+        "updates every lattice site at once, with six microbial species "
+        "arranged in rows across a horizontal glucose gradient."
     ),
     parameters={
         "n_bins": {"type": "object", "default": [5, 6]},
@@ -89,9 +89,10 @@ def spatial_dfba_process(core=None, *, n_bins=[5, 6]):
 @composite_generator(
     name="diffusion_process",
     description=(
-        "Field transport primitive: finite-volume diffusion/advection on a "
-        "2D lattice. Use to validate boundary conditions, stability, and "
-        "transport timescales."
+        "Finite-volume diffusion and advection of solute fields on a 2D "
+        "lattice — glucose diffuses while a seeded band of dissolved biomass "
+        "diffuses and advects — the field-transport building block underlying "
+        "the spatial composites."
     ),
     parameters={
         "n_bins":         {"type": "object", "default": list(DEFAULT_BINS)},

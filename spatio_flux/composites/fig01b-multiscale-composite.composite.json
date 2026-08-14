@@ -1,6 +1,6 @@
 {
   "name": "fig01b-multiscale-composite",
-  "description": "Fig 1b \u2014 The multiscale draft composite: tissue \u2283 {fields, cell_population, cells \u2283 cell \u2283 molecules}. Molecular ODEs, FBA metabolism, structural packing, growth/division, and tissue-scale diffusion + ABM \u2014 all draft processes.",
+  "description": "Fig 1b \u2014 A multiscale draft composite spanning molecules \u2192 tissue: tissue \u2283 {fields, cell_population \u2283 cell (\u00d710, collapsed) \u2283 molecules}. Each cell runs molecular ODEs (transcription / translation / degradation), FBA metabolism, structural packing, and growth / division; tissue-scale diffusion and multicellular interactions (ABM) couple the population. All processes are draft \u2014 typed ports + contracts, no dynamics.",
   "tags": [
     "paper-figure",
     "draft",

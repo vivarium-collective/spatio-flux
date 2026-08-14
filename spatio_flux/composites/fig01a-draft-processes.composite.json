@@ -1,6 +1,6 @@
 {
   "name": "fig01a-draft-processes",
-  "description": "Fig 1a \u2014 Four draft-process cards \u2014 Gene Expression (ODE), Metabolism (FBA), Morphogen Gradient (PDE), Multicellular Interactions (ABM). Unwired: ports + contracts only, no stores.",
+  "description": "Fig 1a \u2014 Five draft-process cards, one per modeling formalism \u2014 Gene Expression (ODE), Metabolism (Flux Balance Analysis), Morphogen Gradient (reaction\u2013diffusion PDE), Multicellular Interactions (Agent-Based Model), and Neural Dynamics (ML surrogate). Each is unwired: typed ports + a governing-equation contract, no stores and no update dynamics.",
   "tags": [
     "paper-figure",
     "draft",
