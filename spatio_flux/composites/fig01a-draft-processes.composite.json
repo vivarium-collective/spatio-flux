@@ -17,6 +17,7 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Gene expression \u2014 ordinary differential equations",
+          "method": "ODE",
           "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
           "math": [
             "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma_m\\,\\text{mrna}",
@@ -51,6 +52,7 @@
         "summary": "Gene expression \u2014 ordinary differential equations",
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
         "status": "draft - no update dynamics yet",
+        "method": "ODE",
         "math": [
           "\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma_m\\,\\text{mrna}",
           "\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma_p\\,\\text{protein}"
@@ -87,6 +89,7 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Metabolism \u2014 Flux Balance Analysis (FBA)",
+          "method": "Flux Balance Analysis",
           "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
           "math": [
             "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
@@ -119,6 +122,7 @@
         "summary": "Metabolism \u2014 Flux Balance Analysis (FBA)",
         "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
         "status": "draft - no update dynamics yet",
+        "method": "Flux Balance Analysis",
         "math": [
           "\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0",
           "v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})",
@@ -154,6 +158,7 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Morphogen gradient \u2014 reaction\u2013diffusion PDE",
+          "method": "Reaction\u2013Diffusion",
           "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
           "math": [
             "\\frac{\\partial\\,\\text{field}}{\\partial t} = D\\,\\nabla^2\\,\\text{field} + S(x) - \\lambda\\,\\text{field}"
@@ -179,6 +184,7 @@
         "summary": "Morphogen gradient \u2014 reaction\u2013diffusion PDE",
         "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
         "status": "draft - no update dynamics yet",
+        "method": "Reaction\u2013Diffusion",
         "math": [
           "\\frac{\\partial\\,\\text{field}}{\\partial t} = D\\,\\nabla^2\\,\\text{field} + S(x) - \\lambda\\,\\text{field}"
         ],
@@ -209,6 +215,7 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Multicellular interactions \u2014 Agent-Based Model",
+          "method": "Agent-Based Model",
           "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
           "math": [
             "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i",
@@ -243,6 +250,7 @@
         "summary": "Multicellular interactions \u2014 Agent-Based Model",
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
         "status": "draft - no update dynamics yet",
+        "method": "Agent-Based Model",
         "math": [
           "\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i",
           "P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}"
@@ -281,6 +289,7 @@
         "contract": {
           "status": "draft - no update dynamics yet",
           "summary": "Learned dynamics \u2014 neural-network surrogate",
+          "method": "Neural Network",
           "description": "A machine-learning formalism: a neural network f_\u03b8, trained on trajectory data, predicts the state's time-derivative (a neural ODE) \u2014 a fast, differentiable stand-in for an unknown or expensive mechanism.",
           "math": [
             "\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)",
@@ -309,6 +318,7 @@
         "summary": "Learned dynamics \u2014 neural-network surrogate",
         "description": "A machine-learning formalism: a neural network f_\u03b8, trained on trajectory data, predicts the state's time-derivative (a neural ODE) \u2014 a fast, differentiable stand-in for an unknown or expensive mechanism.",
         "status": "draft - no update dynamics yet",
+        "method": "Neural Network",
         "math": [
           "\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)",
           "\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\widehat{\\text{state}}_\\theta(t_k) - \\text{state}_k \\rVert^2"

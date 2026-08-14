@@ -54,7 +54,6 @@ TOP = 102     # image top (below the header: 2-line title + 3-line caption, enla
 BOTTOM = 8    # inner margin below the image
 GAP = 16      # between A / B / C  (was 40)
 MARGIN = 20   # outer figure margin
-CALLOUT_H = 58  # height of the A / B bottom callout strip
 
 
 def _q(tag: str) -> str:
@@ -71,164 +70,113 @@ def _aspect(png: Path) -> float:
     return w / h
 
 
-# ── Share & Reuse section (appended below panel C) ───────────────────────────
-# A small loom-styled block: three rounded green "store" cards — a Process
-# Registry, Schema Registry, and Model Repository — under a "Share & Reuse"
-# heading, with publish / discover arrows. Drawn as an SVG <g> so it composites
-# straight into the scaffold's panel-C group.
+# ── Unified bottom callout for a / b / c — icon-top columns, one keyword each ─
+# A three-line abstract of the paper (per-column UPPERCASE keyword + support):
+#   a  STATE / DYNAMICS / SCALE                       (why composition is hard)
+#   b  INTERFACES / STORES / WIRING / ORCHESTRATION   (what's made explicit)
+#   c  SUBSTITUTE / RECOMBINE / REPRODUCE / SHARE     (what becomes possible)
+# All three share the SAME height + grammar; no box header, no tagline.
 SHARE_PANEL = "Panel C - Process Bigraph"
-SHARE_H = 94  # height of the appended section
+BOTTOM_H = 44  # uniform height of every a/b/c bottom callout (icon + keyword only)
 
 
-_SR_C = "#2f6b3f"
+def _db(x, y, c):  # a database cylinder (STATE + SHARED STORES)
+    return (f'<g fill="{c}" fill-opacity="0.12" stroke="{c}" stroke-width="1.7" stroke-linejoin="round">'
+            f'<ellipse cx="{x}" cy="{y-6}" rx="8" ry="3"/><path d="M{x-8} {y-6} v12 a8 3 0 0 0 16 0 v-12"/></g>'
+            f'<g fill="none" stroke="{c}" stroke-width="1.3" opacity="0.6">'
+            f'<path d="M{x-8} {y-1} a8 3 0 0 0 16 0"/><path d="M{x-8} {y+3.5} a8 3 0 0 0 16 0"/></g>')
 
 
-def _sr_icon_process(x, y, c):  # components — a small node graph
-    return (f'<g stroke="{c}" stroke-width="1.6" stroke-linecap="round">'
-            f'<line x1="{x}" y1="{y-6.5}" x2="{x-7}" y2="{y+5}"/><line x1="{x}" y1="{y-6.5}" x2="{x+7}" y2="{y+5}"/>'
-            f'<line x1="{x-7}" y1="{y+5}" x2="{x+7}" y2="{y+5}"/></g>'
-            f'<g fill="#ffffff" stroke="{c}" stroke-width="1.6">'
-            f'<circle cx="{x}" cy="{y-6.5}" r="3.2"/><circle cx="{x-7}" cy="{y+5}" r="3.2"/>'
-            f'<circle cx="{x+7}" cy="{y+5}" r="3.2"/></g>')
+# ---- Panel A icons — State / Dynamics / Scale -------------------------------
+def _ic_dynamics(x, y, c):  # a small molecular / process network
+    return (f'<g stroke="{c}" stroke-width="1.5"><line x1="{x}" y1="{y-6}" x2="{x-7}" y2="{y+3}"/>'
+            f'<line x1="{x}" y1="{y-6}" x2="{x+7}" y2="{y+3}"/><line x1="{x-7}" y1="{y+3}" x2="{x+7}" y2="{y+3}"/>'
+            f'<line x1="{x}" y1="{y-6}" x2="{x}" y2="{y+7}"/></g>'
+            f'<g fill="#ffffff" stroke="{c}" stroke-width="1.6"><circle cx="{x}" cy="{y-6}" r="2.6"/>'
+            f'<circle cx="{x-7}" cy="{y+3}" r="2.6"/><circle cx="{x+7}" cy="{y+3}" r="2.6"/><circle cx="{x}" cy="{y+7}" r="2.3"/></g>')
 
 
-def _sr_icon_schema(x, y, c):  # interfaces & types — a typed table
-    return (f'<rect x="{x-8}" y="{y-7}" width="16" height="14" rx="2.4" fill="#ffffff" stroke="{c}" stroke-width="1.6"/>'
-            f'<rect x="{x-8}" y="{y-7}" width="16" height="4.5" rx="2.4" fill="{c}" fill-opacity="0.18"/>'
-            f'<g stroke="{c}" stroke-width="1.1" opacity="0.7">'
-            f'<line x1="{x-8}" y1="{y-2.5}" x2="{x+8}" y2="{y-2.5}"/><line x1="{x-8}" y1="{y+2.5}" x2="{x+8}" y2="{y+2.5}"/>'
-            f'<line x1="{x}" y1="{y-2.5}" x2="{x}" y2="{y+7}"/></g>')
+def _ic_scale(x, y, c):     # stacked layers (molecules → cells → tissues)
+    return (f'<g fill="{c}" fill-opacity="0.14" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
+            f'<path d="M{x} {y-8} l9 4.5 l-9 4.5 l-9 -4.5 z"/><path d="M{x} {y-1} l9 4.5 l-9 4.5 l-9 -4.5 z"/></g>')
 
 
-def _sr_icon_repo(x, y, c):  # composites — a stacked database cylinder
-    return (f'<g fill="#ffffff" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
-            f'<path d="M{x-8} {y-6} v11 a8 3 0 0 0 16 0 v-11"/><ellipse cx="{x}" cy="{y-6}" rx="8" ry="3"/></g>'
-            f'<g fill="none" stroke="{c}" stroke-width="1.2" opacity="0.6">'
-            f'<path d="M{x-8} {y-2} a8 3 0 0 0 16 0"/><path d="M{x-8} {y+1.5} a8 3 0 0 0 16 0"/></g>')
+# ---- Panel B icons — Interfaces / Stores / Wiring / Orchestration -----------
+def _ic_interfaces(x, y, c):  # a typed-interface bar with ports
+    return (f'<line x1="{x}" y1="{y-8}" x2="{x}" y2="{y+8}" stroke="{c}" stroke-width="1.8"/>'
+            f'<g stroke="{c}" stroke-width="1.6" stroke-linecap="round"><line x1="{x}" y1="{y-4}" x2="{x-7}" y2="{y-4}"/>'
+            f'<line x1="{x}" y1="{y+4}" x2="{x-7}" y2="{y+4}"/><line x1="{x}" y1="{y}" x2="{x+7}" y2="{y}"/></g>'
+            f'<g fill="{c}"><circle cx="{x-7}" cy="{y-4}" r="1.9"/><circle cx="{x-7}" cy="{y+4}" r="1.9"/>'
+            f'<circle cx="{x+7}" cy="{y}" r="1.9"/></g>')
 
 
-def _share_reuse_group(w: int):
-    # Same icon-left, accent-title, gray-sub item style as the A/B callouts,
-    # under a compact "Share & Reuse" heading.
-    accent = "#2f6b3f"
-    items = [(_sr_icon_process, ["Process", "Registry"], "Components"),
-             (_sr_icon_schema,  ["Schema", "Registry"],  "Interfaces &amp; types"),
-             (_sr_icon_repo,    ["Model", "Repository"], "Composites")]
+def _ic_wiring(x, y, c):    # two interlocking chain links
+    return (f'<g fill="none" stroke="{c}" stroke-width="1.9" stroke-linecap="round">'
+            f'<rect x="{x-9}" y="{y-3.6}" width="10" height="7.2" rx="3.6"/>'
+            f'<rect x="{x-1}" y="{y-3.6}" width="10" height="7.2" rx="3.6"/></g>')
+
+
+def _ic_orchestration(x, y, c):  # orchestration — timing / a clock
+    return (f'<circle cx="{x}" cy="{y}" r="8.5" fill="none" stroke="{c}" stroke-width="1.7"/>'
+            f'<path d="M{x} {y} V{y-5} M{x} {y} L{x+4} {y+2}" fill="none" stroke="{c}" stroke-width="1.7" stroke-linecap="round"/>'
+            f'<g fill="{c}"><circle cx="{x}" cy="{y-8.5}" r="1.1"/><circle cx="{x+8.5}" cy="{y}" r="1.1"/>'
+            f'<circle cx="{x}" cy="{y+8.5}" r="1.1"/><circle cx="{x-8.5}" cy="{y}" r="1.1"/></g>')
+
+
+# ---- Panel C icons — Substitute / Recombine / Reproduce / Share -------------
+def _ic_substitute(x, y, c):  # two opposed swap arrows
+    return (f'<g fill="none" stroke="{c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+            f'<path d="M{x-8} {y-3} h13 m-3.5 -3.5 l3.5 3.5 l-3.5 3.5"/>'
+            f'<path d="M{x+8} {y+3.5} h-13 m3.5 -3.5 l-3.5 3.5 l3.5 3.5"/></g>')
+
+
+def _ic_recombine(x, y, c):  # a puzzle piece
+    return (f'<path d="M{x-7.5} {y-7.5} h4.5 a2.2 2.2 0 0 1 4.6 0 h4.4 v4.4 a2.2 2.2 0 0 0 0 4.6 v4.5 '
+            f'h-4.4 a2.2 2.2 0 0 1 -4.6 0 h-4.5 v-4.5 a2.2 2.2 0 0 0 0 -4.6 z" '
+            f'fill="{c}" fill-opacity="0.14" stroke="{c}" stroke-width="1.6" stroke-linejoin="round"/>')
+
+
+def _ic_reproduce(x, y, c):  # a play button on a card (run anywhere)
+    return (f'<rect x="{x-9}" y="{y-7}" width="18" height="14" rx="2.6" fill="{c}" fill-opacity="0.1" '
+            f'stroke="{c}" stroke-width="1.6"/>'
+            f'<path d="M{x-2.6} {y-3.6} l6 3.6 l-6 3.6 z" fill="{c}"/>')
+
+
+def _ic_share(x, y, c):     # three community members
+    def person(px, py):
+        return (f'<circle cx="{px}" cy="{py}" r="2.3" fill="{c}"/>'
+                f'<path d="M{px-3.4} {py+6.2} a3.4 3.4 0 0 1 6.8 0 z" fill="{c}"/>')
+    return person(x, y - 3) + person(x - 7.5, y + 1.5) + person(x + 7.5, y + 1.5)
+
+
+# Content per box: (icon, KEYWORD). Just the icon + keyword — no support text.
+BOTTOM_A = [(_db, "STATE"), (_ic_dynamics, "DYNAMICS"), (_ic_scale, "SCALE")]
+BOTTOM_B = [(_ic_interfaces, "TYPED INTERFACES"), (_db, "SHARED STORES"),
+            (_ic_wiring, "EXPLICIT WIRING"), (_ic_orchestration, "ORCHESTRATION")]
+BOTTOM_C = [(_ic_substitute, "SUBSTITUTE"), (_ic_recombine, "RECOMBINE"),
+            (_ic_reproduce, "REPRODUCE"), (_ic_share, "SHARE")]
+
+
+def _bottom_callout(w, items, fill, border, accent):
     n = len(items)
     col = w / n
-    title_lh, sub_lh = 10.5, 9.4
-    parts = [
-        f'<rect x="1" y="2" width="{w - 2}" height="{SHARE_H - 4}" rx="10" fill="#fdf8ea" stroke="#e6d9a8" stroke-width="1.3"/>',
-        f'<text x="{w / 2:.0f}" y="21" text-anchor="middle" font-size="13.5" font-weight="700" fill="{accent}">Share &amp; Reuse</text>',
-        f'<text x="{w / 2:.0f}" y="33" text-anchor="middle" font-size="8.6" fill="#64748b">'
-        f'Publish reusable components and discover those from others.</text>',
-    ]
-    row_top = 38  # below the heading; items fill the rest like an A/B callout
-    row_h = SHARE_H - row_top
-    for i, (icon, names, sub) in enumerate(items):
-        cx0 = col * i
-        block_h = len(names) * title_lh + sub_lh
-        parts.append(icon(cx0 + 17, row_top + row_h / 2, accent))
-        tx = cx0 + 33
-        y = row_top + (row_h - block_h) / 2 + 8.5
-        for nm in names:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="9" font-weight="700" fill="{accent}">{nm}</text>')
-            y += title_lh
-        parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="7.6" fill="#64748b">{sub}</text>')
-    return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
-
-
-# ── A / B bottom callout strips (icon-left, three items) ─────────────────────
-def _ic_cluster(x, y, c):   # multi-scale — molecule → cell → organ, growing
-    return (f'<circle cx="{x-8}" cy="{y+2}" r="2" fill="{c}"/>'                       # molecule (solid)
-            f'<circle cx="{x-1}" cy="{y+1}" r="3.8" fill="{c}" fill-opacity="0.18" stroke="{c}" stroke-width="1.6"/>'  # cell
-            f'<circle cx="{x+7.5}" cy="{y-1}" r="5.6" fill="none" stroke="{c}" stroke-width="1.85"/>'   # organ (outline)
-            f'<circle cx="{x+7.5}" cy="{y-1}" r="1.5" fill="{c}"/>')                  # organ nucleus
-
-
-def _ic_paradigm(x, y, c):  # multi-paradigm — three distinct formalism shapes
-    return (f'<g fill="{c}" fill-opacity="0.16" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
-            f'<path d="M{x} {y-8.5} L{x-4.7} {y-1.4} L{x+4.7} {y-1.4} Z"/>'   # triangle
-            f'<circle cx="{x-5}" cy="{y+4.6}" r="3.4"/>'                       # circle
-            f'<rect x="{x+1.6}" y="{y+1.1}" width="6.8" height="6.8" rx="1.5"/></g>')  # square
-
-
-def _ic_gear(x, y, c):      # data-informed — parameter sliders
-    rows = ((-5.5, -3.5), (0.5, 4), (6.5, -2))
-    tracks = "".join(f'<line x1="{x-8.5}" y1="{y+dy}" x2="{x+8.5}" y2="{y+dy}"/>' for dy, _ in rows)
-    knobs = "".join(f'<circle cx="{x+kx}" cy="{y+dy}" r="2.6"/>' for dy, kx in rows)
-    return (f'<g stroke="{c}" stroke-width="1.75" stroke-linecap="round">{tracks}</g>'
-            f'<g fill="#ffffff" stroke="{c}" stroke-width="1.75">{knobs}</g>')
-
-
-def _ic_chip(x, y, c):      # typed interfaces — a node with typed ports
-    return (f'<rect x="{x-5.5}" y="{y-7}" width="11" height="14" rx="3.3" fill="{c}" fill-opacity="0.12" '
-            f'stroke="{c}" stroke-width="1.7"/>'
-            f'<g stroke="{c}" stroke-width="1.6" stroke-linecap="round">'
-            f'<line x1="{x-5.5}" y1="{y-3.3}" x2="{x-10.5}" y2="{y-3.3}"/><line x1="{x-5.5}" y1="{y+3.3}" x2="{x-10.5}" y2="{y+3.3}"/>'
-            f'<line x1="{x+5.5}" y1="{y}" x2="{x+10.5}" y2="{y}"/></g>'
-            f'<g fill="{c}"><circle cx="{x-10.5}" cy="{y-3.3}" r="1.8"/><circle cx="{x-10.5}" cy="{y+3.3}" r="1.8"/>'
-            f'<circle cx="{x+10.5}" cy="{y}" r="1.8"/></g>')
-
-
-def _ic_link(x, y, c):      # explicit coupling — two connectors plugged together
-    return (f'<g stroke="{c}" stroke-width="1.7" stroke-linecap="round"><line x1="{x-11}" y1="{y}" x2="{x-6.5}" y2="{y}"/>'
-            f'<line x1="{x+11}" y1="{y}" x2="{x+6.5}" y2="{y}"/></g>'
-            f'<g fill="{c}" fill-opacity="0.14" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
-            f'<rect x="{x-6.5}" y="{y-3.6}" width="6" height="7.2" rx="1.7"/>'
-            f'<rect x="{x+0.5}" y="{y-3.6}" width="6" height="7.2" rx="1.7"/></g>'
-            f'<circle cx="{x}" cy="{y}" r="1.5" fill="{c}"/>')  # coupling joint
-
-
-def _ic_tree(x, y, c):      # hierarchical composition — nested boxes, parts → whole
-    return (f'<rect x="{x-8.5}" y="{y-8.5}" width="17" height="17" rx="3.4" fill="{c}" fill-opacity="0.1" '
-            f'stroke="{c}" stroke-width="1.7" stroke-linejoin="round"/>'
-            f'<g fill="{c}" fill-opacity="0.34" stroke="{c}" stroke-width="1.3" stroke-linejoin="round">'
-            f'<rect x="{x-5}" y="{y-5}" width="4.7" height="4.7" rx="1"/>'
-            f'<rect x="{x+0.5}" y="{y-5}" width="4.7" height="4.7" rx="1"/>'
-            f'<rect x="{x-2.2}" y="{y+0.9}" width="4.7" height="4.7" rx="1"/></g>')
-
-
-CALLOUT_A = [(_ic_cluster, ["Multi-scale"], ["Molecules →", "Cells → Organs"]),
-             (_ic_paradigm, ["Multi-paradigm"], ["ODE, FBA, PDE,", "ABM, ML…"]),
-             (_ic_gear, ["Data-informed"], ["Parameters,", "structure, …"])]
-CALLOUT_B = [(_ic_chip, ["Typed interfaces"], ["Explicit ports", "&amp; data types"]),
-             (_ic_link, ["Explicit coupling"], ["Connect variables,", "not code"]),
-             (_ic_tree, ["Hierarchical", "composition"], ["parts → whole"])]
-
-
-def _callout_group(w, items, fill, border, accent):
-    n = len(items)
-    col = w / n
-    title_lh, sub_lh = 11.0, 9.4
-    parts = [f'<rect x="1" y="2" width="{w - 2}" height="{CALLOUT_H - 4}" rx="10" '
+    # keyword font shrinks a touch when the longest keyword is wide (4-col boxes).
+    kw_fs = 7.1 if max(len(k) for _, k in items) > 8 else 8.4
+    parts = [f'<rect x="1" y="2" width="{w - 2}" height="{BOTTOM_H - 4}" rx="10" '
              f'fill="{fill}" stroke="{border}" stroke-width="1.3"/>']
-    for i, (icon, names, subs) in enumerate(items):
-        cx0 = col * i
-        # Vertically center the icon + text block in the strip (was top-packed,
-        # leaving an empty lower third). First baseline = center − ½ block + ascent.
-        block_h = len(names) * title_lh + len(subs) * sub_lh
-        y = (CALLOUT_H - block_h) / 2 + 8.5
-        parts.append(icon(cx0 + 17, CALLOUT_H / 2, accent))
-        tx = cx0 + 35  # generous gap so the icon never touches the text
-        for nm in names:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="9" font-weight="700" fill="{accent}">{nm}</text>')
-            y += title_lh
-        for s in subs:
-            parts.append(f'<text x="{tx:.0f}" y="{y:.1f}" font-size="7.6" fill="#64748b">{s}</text>')
-            y += sub_lh
+    icon_cy = 17
+    for i, (icon, keyword) in enumerate(items):
+        cx = col * (i + 0.5)
+        parts.append(icon(cx, icon_cy, accent))
+        parts.append(f'<text x="{cx:.0f}" y="{icon_cy + 18:.1f}" text-anchor="middle" font-size="{kw_fs}" '
+                     f'font-weight="700" letter-spacing="0.03em" fill="{accent}">{keyword}</text>')
     return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
 
 
-# Per-panel bottom block: (SVG <g>, height). A/B get a callout strip; C the
-# Share & Reuse block; anything else none.
+# Per-panel bottom block. Disabled: the panel headers + graphs already carry the
+# heterogeneity / composition / reuse story, so no bottom callout is drawn.
+# (The _bottom_callout + BOTTOM_A/B/C content above are kept for easy re-enable.)
 def _bottom_block(panel_id: str, w: int):
-    if panel_id == "Panel A - Different formalisms":
-        return _callout_group(w, CALLOUT_A, "#fdecea", "#e6a8a0", "#c0392b"), CALLOUT_H
-    if panel_id == "Panel B - Composition interfaces":
-        return _callout_group(w, CALLOUT_B, "#e8f0fe", "#a9c4f5", "#2b5bd0"), CALLOUT_H
-    if panel_id == SHARE_PANEL:
-        return _share_reuse_group(w), SHARE_H
     return None, 0
 
 
@@ -252,7 +200,7 @@ def build_figure1() -> Path:
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
         ch = round(cw / _aspect(png))
         block, block_h = _bottom_block(panel.get("id", ""), cw)  # A/B callout, C Share & Reuse
-        natural_h = TOP + ch + (14 + block_h if block is not None else 0) + BOTTOM
+        natural_h = TOP + ch + (8 + block_h if block is not None else 0) + BOTTOM
         info.append((panel, png, ch, block, block_h, natural_h))
     panel_h = max(n for *_, n in info)  # common height for all three cards
     x = MARGIN

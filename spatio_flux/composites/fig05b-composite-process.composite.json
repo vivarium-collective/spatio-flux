@@ -59,6 +59,7 @@
           "summary": "Tissue-scale diffusion \u2014 spatial transport of the molecular fields",
           "description": "Diffuses the tissue's molecular fields across the lattice \u2014 the higher-scale environment the cell is embedded in.",
           "status": "draft - no update dynamics yet",
+          "method": "",
           "math": [
             "\\partial_t\\,c = D\\,\\nabla^2 c"
           ],
@@ -122,6 +123,7 @@
           "summary": "Scale bridge \u2014 couples the tissue field to the cell's local bin",
           "description": "The typed tissue\u2194cell interface: samples the tissue field array[concentration] at the cell's location to set the cell's LOCAL concentration, and returns the cell's secreted products to that same field bin. Concentration in the cell; array[concentration] in the tissue.",
           "status": "draft - no update dynamics yet",
+          "method": "",
           "math": [
             "c_{\\text{local}} = c\\!\\left[b(\\text{cell})\\right],\\qquad c\\!\\left[b\\right] \\mathrel{+}= s_{\\text{cell}}"
           ],
@@ -225,6 +227,7 @@
                 "summary": "Metabolism \u2014 substrates + enzymes \u2192 products",
                 "description": "The process-graph view of metabolism: consumes substrate metabolites under enzyme (protein) catalysis to make product metabolites.",
                 "status": "draft - no update dynamics yet",
+                "method": "",
                 "math": [
                   "\\frac{d[\\text{products}]}{dt} = k_{\\text{cat}}\\,[\\text{enzymes}]\\,\\frac{[\\text{substrates}]}{K_m + [\\text{substrates}]}"
                 ],
@@ -288,6 +291,7 @@
                 "summary": "Gene expression \u2014 genes \u2192 protein",
                 "description": "The process-graph view of gene expression: reads the gene (DNA) template and produces protein (the enzymes metabolism uses).",
                 "status": "draft - no update dynamics yet",
+                "method": "",
                 "math": [
                   "\\frac{d[\\text{protein}]}{dt} = k_{\\text{expr}}\\,[\\text{genes}] - \\gamma\\,[\\text{protein}]"
                 ],

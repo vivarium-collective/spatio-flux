@@ -41,6 +41,7 @@
         "summary": "A typed function signature whose update method emits a delta \u0394",
         "description": "Typed input ports (what it reads) and typed output ports (what it updates); the update method maps config + inputs to a delta \u0394 \u2014 the tree of changes to apply, branched by output port.",
         "status": "draft - no update dynamics yet",
+        "method": "",
         "math": [
           "p_{\\text{proc}}\\big[\\text{interval}{:}\\text{integer}\\big]\\ :\\ \\text{in}_1^{\\text{species}},\\ \\text{in}_2^{\\text{params}}\\ \\longrightarrow\\ \\Delta{=}\\{\\text{out}_1^{\\text{ss\\_species}},\\ \\text{out}_2^{\\text{rates}}\\}"
         ],

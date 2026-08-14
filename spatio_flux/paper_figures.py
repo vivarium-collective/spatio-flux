@@ -63,6 +63,7 @@ def register_types(core):
     outputs={"mrna": "concentration"},
     contract={
         "summary": "Gene expression — transcription (ODE)",
+        "method": "ODE",
         "description": "RNA polymerase reads the DNA template to synthesize mRNA; the regulator gates the synthesis rate.",
         "math": [r"\frac{dr}{dt} = \alpha - \gamma_r\, r"],
         "symbols": {"r": "mRNA concentration", "α": "transcription rate", "γ_r": "mRNA degradation rate"},
@@ -79,6 +80,7 @@ class Transcription(DraftProcess):
     outputs={"protein": "concentration"},
     contract={
         "summary": "Gene expression — translation (ODE)",
+        "method": "ODE",
         "description": "Ribosomes translate mRNA into protein, consuming energy cofactors (ATP / GTP).",
         "math": [r"\frac{dp}{dt} = \beta\, r - \gamma_p\, p"],
         "symbols": {"p": "protein concentration", "r": "mRNA concentration", "β": "translation rate", "γ_p": "protein degradation rate"},
@@ -94,6 +96,7 @@ class Translation(DraftProcess):
     inputs={"mrna": "concentration"}, outputs={"mrna": "concentration"},
     contract={
         "summary": "mRNA degradation — first-order turnover",
+        "method": "ODE",
         "description": "Sets mRNA lifetime via first-order decay.",
         "math": [r"\frac{dr}{dt} = -\gamma_r\, r"],
         "symbols": {"r": "mRNA concentration", "γ_r": "mRNA degradation rate"},
@@ -110,6 +113,7 @@ class RNADegradation(DraftProcess):
     outputs={"metabolites": "concentration"},
     contract={
         "summary": "Metabolism — Flux Balance Analysis (FBA)",
+        "method": "Flux Balance Analysis",
         "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
         # enzymes + energy set the flux bounds; metabolites are the exchange fluxes out.
         "math": [r"\text{maximize}\quad Z = c^{\mathsf{T}} v \quad\text{s.t.}\quad S\,v = 0",
@@ -131,6 +135,7 @@ class Metabolism(DraftProcess):
     outputs={"structure": "mass"},
     contract={
         "summary": "Structural packing — cellPACK-style 3D packing (parsimony)",
+        "method": "Spatial packing",
         "description": "Places each molecular species at its true abundance into the cell geometry with an octree collision engine (the parsimony packer), filling to a target volume occupancy subject to non-overlap constraints.",
         "math": [r"\varphi = \frac{\sum_i n_i\, v_i}{V_{\text{cell}}}", r"\lVert x_i - x_j \rVert \ge r_i + r_j \quad \forall\, i \ne j"],
         "symbols": {"φ": "volume occupancy", "nᵢ": "copy number of species i", "vᵢ": "molecular volume", "V_cell": "cell volume", "xᵢ": "packed position", "rᵢ": "collision radius"},
@@ -145,6 +150,7 @@ class MolecularPacking(DraftProcess):
     name="Growth", inputs={"mass": "mass"}, outputs={"volume": "volume"},
     contract={
         "summary": "Cell growth — exponential",
+        "method": "ODE",
         "description": "Biomass accumulation drives volume increase.",
         "math": [r"\frac{dV}{dt} = \mu\, V"],
         "symbols": {"V": "cell volume", "μ": "specific growth rate"},
@@ -159,6 +165,7 @@ class Growth(DraftProcess):
     name="Division", inputs={"volume": "volume", "phase": "phase"}, outputs={"phase": "phase"},
     contract={
         "summary": "Cell division — threshold-gated",
+        "method": "Rule-based",
         "description": "Division triggers when volume and cell-cycle phase cross thresholds; volume halves and phase resets.",
         "math": [r"V \ge V_{\text{div}} \ \wedge\ \phi \ge \phi^\ast \;\Rightarrow\; V \to \tfrac{V}{2},\ \phi \to 0"],
         "symbols": {"V": "cell volume", "V_div": "division volume", "φ": "cell-cycle phase", "φ*": "phase threshold"},
@@ -173,6 +180,7 @@ class Division(DraftProcess):
     name="Diffusion", inputs={"field": "concentration"}, outputs={"field": "concentration"},
     contract={
         "summary": "Morphogen gradient — reaction–diffusion PDE",
+        "method": "Reaction–Diffusion",
         "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
         # The `field` port IS the state variable in the PDE.
         "math": [r"\frac{\partial\,\text{field}}{\partial t} = D\,\nabla^2\,\text{field} + S(x) - \lambda\,\text{field}"],
@@ -191,6 +199,7 @@ class Diffusion(DraftProcess):
     outputs={"population": "cell_count"},
     contract={
         "summary": "Multicellular interactions — Agent-Based Model",
+        "method": "Agent-Based Model",
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
         # `population` is the set of cells {x⃗ᵢ}; `field` is the morphogen that
         # drives the chemotactic gradient ∇field.
@@ -213,6 +222,7 @@ class ABM(DraftProcess):
     outputs={"mrna": "concentration", "protein": "concentration"},
     contract={
         "summary": "Gene expression — ordinary differential equations",
+        "method": "ODE",
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
         # Every port appears in the equations: dna templates mrna, mrna templates
         # protein, both decay; energy powers the rates (α, β).
@@ -235,6 +245,7 @@ class GeneExpression(DraftProcess):
     outputs={"state": "concentration"},
     contract={
         "summary": "Learned dynamics — neural-network surrogate",
+        "method": "Neural Network",
         "description": "A machine-learning formalism: a neural network f_θ, trained on "
                        "trajectory data, predicts the state's time-derivative (a neural ODE) — "
                        "a fast, differentiable stand-in for an unknown or expensive mechanism.",
@@ -453,6 +464,41 @@ class Tests(DraftProcess):
     pass
 
 
+@draft_process(
+    name="Emitter",
+    inputs={"simulations": "json"},
+    outputs={"emitter_data": "emitter_data"},
+    contract={
+        "summary": "Emitter — capture simulation state to storage",
+        "method": "Emitter",
+        "description": "Subscribes to the running simulation ensemble and records their "
+                       "observed state each timestep to a store — the standard "
+                       "process-bigraph emitter that persists a run.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"simulations": "the running simulations", "emitter_data": "captured emitter output"},
+    },
+)
+class Emitter(DraftProcess):
+    pass
+
+
+@draft_process(
+    name="LoadResults",
+    inputs={"emitter_data": "emitter_data"},
+    outputs={"results": "results"},
+    contract={
+        "summary": "Load results — read emitted data into a results table",
+        "method": "Data loader",
+        "description": "Reads the emitter's stored output and materializes it as a tidy "
+                       "results table that the downstream analysis steps consume.",
+        "status": "draft - no update dynamics yet",
+        "ports": {"emitter_data": "stored emitter output", "results": "tidy results table"},
+    },
+)
+class LoadResults(DraftProcess):
+    pass
+
+
 # ── Fig 4: the process schematic (typed ports + update function) ──────────────
 @draft_process(
     name="ProcessSchematic",
@@ -502,6 +548,7 @@ def _proc(cls, inputs: dict, outputs: dict) -> dict:
             "summary": cls.contract.get("summary", ""),
             "description": cls.contract.get("description", ""),
             "status": status,
+            "method": cls.contract.get("method", ""),
             "math": list(cls.contract.get("math", [])),
             "symbols": dict(cls.contract.get("symbols", {})),
             "inputs": {p: cls.contract.get("ports", {}).get(p, t) for p, t in cls.DRAFT_INPUTS.items()},
@@ -546,15 +593,24 @@ def _cell() -> dict:
 
 
 def fig1b_multiscale_state() -> dict:
-    """Fig 1b: the multiscale draft composite (tissue ⊃ cells ⊃ cell ⊃ molecules).
+    """Fig 1b: the multiscale draft composite (tissue ⊃ cell_population ⊃ cell ⊃
+    molecules). The population holds MANY identical cells (the first is the plain
+    `cell`, the collapse representative); with "collapse repeated processes" on,
+    the loom folds them into one ``cell_* ×N`` node with a single set of processes.
     Uses the BLUE-themed panel-B icon set (see _node_figures.FIG1B_ICONS)."""
+    N_CELLS = 10
+    # First cell keeps the plain id `cell` so it stays the collapse representative
+    # (members[0]) and carries the `cell` figure; the rest are identical siblings.
+    cells = {"cell": _cell()}
+    for i in range(2, N_CELLS + 1):
+        cells[f"cell_{i}"] = _cell()
     return _attach_figures({
         "tissue": {
             "fields": _v("concentration", 0.0),
-            "cell_population": _v("cell_count", 1.0),
-            "cells": {"cell": _cell()},
+            # The cell population IS the collection of cells (no separate `cells`).
+            "cell_population": cells,
             "diffusion": _proc(Diffusion, {"field": ["fields"]}, {"field": ["fields"]}),
-            "abm": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
+            "multicellular_interactions": _proc(ABM, {"population": ["cell_population"], "field": ["fields"]}, {"population": ["cell_population"]}),
         },
     }, icons=_FIG1B_ICONS)
 
@@ -589,8 +645,10 @@ def fig1c_study_workflow_state() -> dict:
     """Fig 1c: a study workflow. Two inputs (experimental datasets + a model
     specification JSON) feed a draft Preprocess step, which sets up three PARALLEL
     community-dFBA simulations (real, zoomable composites — the same real study
-    template ×3). The simulation results are then read by three draft post-steps —
-    Analyses, Visualizations, and Tests — each writing its own output store."""
+    template ×3). An Emitter captures the running simulations into an emitter-data
+    store; a LoadResults step reads that back into a results table, which the three
+    draft post-steps — Analyses, Visualizations, and Tests — each read to write
+    their own output store."""
     return _attach_figures({
         # two inputs at the top
         "datasets": _v("dataset", 0.0),
@@ -604,10 +662,16 @@ def fig1c_study_workflow_state() -> dict:
             "sim_1": _community_dfba_sim(),
             "sim_2": _community_dfba_sim(),
         },
-        # three post-steps, each READING the simulation results into its own store
-        "analyses": _proc(Analyses, {"runs": ["simulations"]}, {"results": ["analysis_results"]}),
-        "visualizations": _proc(Visualizations, {"runs": ["simulations"]}, {"figures": ["figures"]}),
-        "tests": _proc(Tests, {"runs": ["simulations"]}, {"report": ["test_report"]}),
+        # Emitter captures the running simulations → emitter_data; LoadResults
+        # reads that back into a `results` table the post-steps consume.
+        "emitter": _proc(Emitter, {"simulations": ["simulations"]}, {"emitter_data": ["emitter_data"]}),
+        "emitter_data": _v("emitter_data", 0.0),
+        "load_results": _proc(LoadResults, {"emitter_data": ["emitter_data"]}, {"results": ["results"]}),
+        "results": _v("results", 0.0),
+        # three post-steps, each READING the results table into its own store
+        "analyses": _proc(Analyses, {"runs": ["results"]}, {"results": ["analysis_results"]}),
+        "visualizations": _proc(Visualizations, {"runs": ["results"]}, {"figures": ["figures"]}),
+        "tests": _proc(Tests, {"runs": ["results"]}, {"report": ["test_report"]}),
         "analysis_results": _v("results", 0.0),
         "figures": _v("figure", 0.0),
         "test_report": _v("report", 0.0),
