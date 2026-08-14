@@ -1,6 +1,6 @@
 {
   "particles": {
-    "eyNaBR0H": {
+    "mqhtvnU4": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "eyNaBR0H",
+      "id": "mqhtvnU4",
       "position": [
-        11.81196860216876,
-        12.205732684835613
+        46.758762607702906,
+        9.781664561671244
       ],
-      "mass": 0.9372926761711854,
+      "mass": 0.7609213020339332,
       "local": {},
       "exchange": {},
       "sub_masses": {},
