@@ -108,8 +108,11 @@ jobs:
           cp -R report/. /tmp/ghp/report/
           cp -R workbench-site/. /tmp/ghp/workbench/
           cp -R figures-site/. /tmp/ghp/figures/
+          # Disable Jekyll so underscore-prefixed api files (e.g. api/inputs/_global.json)
+          # are served instead of silently dropped — otherwise the Resources tab 404s.
+          touch /tmp/ghp/.nojekyll
           cd /tmp/ghp
-          git add report workbench figures
+          git add report workbench figures .nojekyll
           if git diff --cached --quiet; then
             echo "no changes to publish"
           else
