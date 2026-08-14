@@ -64,7 +64,11 @@ jobs:
         # typed/units API; vivarium-workbench@main for the publish CLI + loom.
         run: |
           uv pip install --upgrade "pbg-superpowers>=0.16" "bigraph-schema>=1.4.3"
-          uv pip install "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
+          # --reinstall-package: main's version string can match the already-synced
+          # wheel, so a plain install is skipped and the snapshot ships a STALE loom /
+          # publisher. Force a fresh checkout of main every publish.
+          uv pip install --reinstall-package vivarium-workbench \
+            "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
 
       - name: Reproduce the investigation (run all studies + build report)
         # Runs every study's post-run analysis flush (charts + zarr run-stores)
