@@ -47,7 +47,7 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'serine')" -> "('spatial_dFBA',)" [label=<fields/serine> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'dissolved biomass')" -> "('spatial_dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
@@ -55,11 +55,7 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'dissolved biomass')" -> "('spatial_dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
-		"('fields', 'formate')" -> "('spatial_dFBA',)" [label=<fields/formate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'glutamate')" -> "('spatial_dFBA',)" [label=<fields/glutamate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
@@ -67,7 +63,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
-		"('fields', 'glutamate')" -> "('spatial_dFBA',)" [label=<fields/glutamate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'serine')" -> "('spatial_dFBA',)" [label=<fields/serine> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
+		"('fields', 'formate')" -> "('spatial_dFBA',)" [label=<fields/formate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {

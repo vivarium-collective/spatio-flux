@@ -1,6 +1,6 @@
 {
   "particles": {
-    "vbnIpDE9": {
+    "196NECSu": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "vbnIpDE9",
+      "id": "196NECSu",
       "position": [
-        29.005597987472427,
-        47.534462478026796
+        26.4750487167505,
+        24.0345664997305
       ],
-      "mass": 0.10822411905742808,
+      "mass": 0.5048215404530881,
       "local": {},
       "exchange": {},
       "sub_masses": {},

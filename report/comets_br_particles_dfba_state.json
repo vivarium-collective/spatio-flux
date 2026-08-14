@@ -1,6 +1,6 @@
 {
   "particles": {
-    "2U7kSNlR": {
+    "tObAN2TT": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "2U7kSNlR",
+      "id": "tObAN2TT",
       "position": [
-        17.33429210801125,
-        2.3819382591989067
+        0.6338374005528946,
+        28.93262972281145
       ],
-      "mass": 0.07597446127998438,
+      "mass": 0.43052787019535993,
       "local": {},
       "exchange": {},
       "sub_masses": {},
