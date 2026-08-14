@@ -1,6 +1,6 @@
 {
   "name": "fig01c-study-workflow",
-  "description": "Fig 1c \u2014 A study workflow: a draft Preprocess step feeds three parallel community-dFBA simulations (real, zoomable composites \u2014 the same real study template \u00d73); their outputs feed a draft Analysis + Visualization step. Pre/post are draft; the parallel simulations are a real composite.",
+  "description": "Fig 1c \u2014 A study-workflow composite: a draft Preprocess step configures three parallel community-dFBA simulations (each a drillable sub-composite wrapping the real community-dFBA model); an Emitter captures their state into an emitter-data store, a LoadResults step reads it into a results table, and draft Analyses / Visualizations / Tests steps consume the results. The pre/post steps are draft; the simulations are real composites.",
   "tags": [
     "paper-figure",
     "draft",

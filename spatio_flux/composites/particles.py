@@ -20,9 +20,8 @@ from spatio_flux.composites._constants import (
 @composite_generator(
     name="brownian_particles",
     description=(
-        "Particle-only baseline: Brownian motion of agents with mass in "
-        "continuous space (no fields, no metabolism). Checks integrator + "
-        "particle state schema."
+        "Brownian motion of mass-carrying agents in continuous space — the "
+        "particle-only building block, with no fields or metabolism."
     ),
     parameters={
         "n_bins":         {"type": "object", "default": list(SQUARE_BINS)},
@@ -55,9 +54,10 @@ def brownian_particles(core=None, *, n_bins=list(SQUARE_BINS),
 @composite_generator(
     name="br_particles_kinetics",
     description=(
-        "Particle–field coupling (kinetics): Brownian agents sample local "
-        "lattice concentrations and apply Monod-style exchange, modifying "
-        "both particle mass and fields."
+        "Brownian agents diffuse through a lattice of glucose and acetate, "
+        "taking up substrate by Monod kinetics so that exchange updates both "
+        "particle mass and the local fields, with agents dividing once they "
+        "cross a mass threshold."
     ),
     parameters={
         "model_id":                 {"type": "string", "default": "overflow_metabolism"},
@@ -104,9 +104,10 @@ def br_particles_kinetics(core=None, *, model_id="overflow_metabolism",
 @composite_generator(
     name="br_particles_dfba",
     description=(
-        "Particle-embedded metabolism: Brownian agents carry internal dFBA; "
-        "uptake/secretion couples to fields and biomass accumulates into "
-        "particle mass/size."
+        "Brownian agents each run an internal dFBA model, exchanging glucose "
+        "and acetate with the surrounding fields so that metabolic biomass "
+        "accumulates as particle mass and drives division, over a vertical "
+        "glucose gradient."
     ),
     parameters={
         "particle_model_id":        {"type": "string", "default": "ecoli core"},
@@ -159,9 +160,9 @@ def br_particles_dfba(core=None, *, particle_model_id="ecoli core",
 @composite_generator(
     name="newtonian_particles",
     description=(
-        "Physics-only baseline (Pymunk): rigid-body particles with "
-        "collisions/crowding in continuous space. Use to validate contact "
-        "dynamics + boundary enforcement."
+        "Rigid-body particles under gravity that collide and crowd in "
+        "continuous space via a Pymunk physics engine — the mechanics-only "
+        "building block, with no fields or metabolism."
     ),
     parameters={
         "n_particles": {"type": "int",    "default": 1},

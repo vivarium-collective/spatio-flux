@@ -17,10 +17,11 @@ from pbg_superpowers.composite_generator import composite_generator
 @composite_generator(
     name="fig01c-study-workflow",
     description=(
-        "Fig 1c — study workflow: a draft Preprocess step feeds three parallel "
-        "community-dFBA simulations, each a drillable sub-composite (a "
-        "local:Composite process wrapping the real community-dFBA model), whose "
-        "outputs feed a draft Analysis + Visualization step."
+        "Fig 1c — study workflow: a draft Preprocess step configures three parallel "
+        "community-dFBA simulations, each a drillable sub-composite (a local:Composite "
+        "process wrapping the real community-dFBA model). An Emitter captures the "
+        "simulations into an emitter-data store, a LoadResults step reads it into a "
+        "results table, and draft Analyses / Visualizations / Tests steps consume it."
     ),
 )
 def fig01c_study_workflow(core=None):

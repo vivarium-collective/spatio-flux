@@ -22,18 +22,25 @@ OUT = Path(__file__).resolve().parents[1] / "spatio_flux" / "composites"
 
 SPECS = [
     ("fig01a-draft-processes", "Fig 1a", pf.fig1a_processes_state, False,
-     "Four draft-process cards — Gene Expression (ODE), Metabolism (FBA), Morphogen "
-     "Gradient (PDE), Multicellular Interactions (ABM). Unwired: ports + contracts "
-     "only, no stores."),
+     "Five draft-process cards, one per modeling formalism — Gene Expression (ODE), "
+     "Metabolism (Flux Balance Analysis), Morphogen Gradient (reaction–diffusion PDE), "
+     "Multicellular Interactions (Agent-Based Model), and Neural Dynamics (ML "
+     "surrogate). Each is unwired: typed ports + a governing-equation contract, no "
+     "stores and no update dynamics."),
     ("fig01b-multiscale-composite", "Fig 1b", pf.fig1b_multiscale_state, True,
-     "The multiscale draft composite: tissue ⊃ {fields, cell_population, cells ⊃ "
-     "cell ⊃ molecules}. Molecular ODEs, FBA metabolism, structural packing, "
-     "growth/division, and tissue-scale diffusion + ABM — all draft processes."),
+     "A multiscale draft composite spanning molecules → tissue: tissue ⊃ {fields, "
+     "cell_population ⊃ cell (×10, collapsed) ⊃ molecules}. Each cell runs molecular "
+     "ODEs (transcription / translation / degradation), FBA metabolism, structural "
+     "packing, and growth / division; tissue-scale diffusion and multicellular "
+     "interactions (ABM) couple the population. All processes are draft — typed ports "
+     "+ contracts, no dynamics."),
     ("fig01c-study-workflow", "Fig 1c", pf.fig1c_study_workflow_state, False,
-     "A study workflow: a draft Preprocess step feeds three parallel community-dFBA "
-     "simulations (real, zoomable composites — the same real study template ×3); "
-     "their outputs feed a draft Analysis + Visualization step. Pre/post are draft; "
-     "the parallel simulations are a real composite."),
+     "A study-workflow composite: a draft Preprocess step configures three parallel "
+     "community-dFBA simulations (each a drillable sub-composite wrapping the real "
+     "community-dFBA model); an Emitter captures their state into an emitter-data "
+     "store, a LoadResults step reads it into a results table, and draft Analyses / "
+     "Visualizations / Tests steps consume the results. The pre/post steps are draft; "
+     "the simulations are real composites."),
     # Fig 2: the SAME place graph (nodes n1..n6) read two ways — as a Milner link
     # graph (2a, hyperedges e1/e2/e3) and as a process graph (2b, processes
     # p1/p2/p3). Two composites so each panel carries its own labels.

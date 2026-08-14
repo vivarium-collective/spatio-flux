@@ -23,9 +23,9 @@ from spatio_flux.composites._constants import (
 @composite_generator(
     name="comets_diffusion",
     description=(
-        "Two-phase coupling (no particles): spatial dFBA on a lattice with "
-        "advection–diffusion of substrates + biomass. The classic COMETS "
-        "field-only scenario."
+        "The classic COMETS field-only scenario: per-site dFBA on a lattice "
+        "coupled to advection–diffusion of glucose, acetate, and dissolved "
+        "biomass, with biomass seeded at the top edge."
     ),
     parameters={
         "dissolved_model_id": {"type": "string", "default": "ecoli core"},
@@ -73,10 +73,10 @@ def comets_diffusion(core=None, *, dissolved_model_id="ecoli core",
 @composite_generator(
     name="comets_spatial_dfba",
     description=(
-        "COMETS with a SINGLE vectorized SpatialDFBA process: one process "
-        "updates every lattice site as a batched structured state — instead of "
-        "one dFBA process per bin — so the field-only COMETS scenario scales to "
-        "much larger grids. Coupled to advection-diffusion of substrates + biomass."
+        "The field-only COMETS scenario driven by a single vectorized dFBA "
+        "process that updates every lattice site at once, coupled to advection–"
+        "diffusion of glucose, acetate, and dissolved biomass — scaling the "
+        "per-site approach to large grids."
     ),
     parameters={
         "model_id":       {"type": "string", "default": "ecoli core"},
@@ -128,9 +128,10 @@ def comets_spatial_dfba(core=None, *, model_id="ecoli core",
 @composite_generator(
     name="comets_br_particles_kinetics",
     description=(
-        "Three-way coupling: spatial dFBA fields + Brownian particle "
-        "agents that run Monod kinetics locally + diffusion. End-to-end "
-        "smoke test of the COMETS-style composite stack with kinetic agents."
+        "A COMETS-style scenario coupling lattice dFBA fields, advection–"
+        "diffusion, and Brownian agents that run Monod kinetics against local "
+        "concentrations, exchanging substrate with the fields and dividing at "
+        "a mass threshold."
     ),
     parameters={
         "division_mass_threshold": {"type": "float",  "default": DIVISION_MASS_THRESHOLD},
@@ -196,9 +197,10 @@ def comets_br_particles_kinetics(
 @composite_generator(
     name="comets_br_particles_dfba",
     description=(
-        "Full COMETS-style spatial composite: lattice dFBA + advection–"
-        "diffusion + Brownian particles with internal dFBA + division. "
-        "End-to-end coupled scenario."
+        "The full COMETS-style composite: per-site lattice dFBA and advection–"
+        "diffusion of substrates coupled to Brownian particles that each run "
+        "an internal dFBA model, exchange with the fields, and divide as "
+        "biomass accumulates."
     ),
     parameters={
         "particle_model_id":       {"type": "string", "default": "ecoli core"},
@@ -266,9 +268,10 @@ def comets_br_particles_dfba(
 @composite_generator(
     name="comets_nt_particles_dfba",
     description=(
-        "Mechanochemical + metabolic coupling: Pymunk particles move/"
-        "collide while COMETS fields diffuse; particles run metabolism "
-        "(via exchange) against local concentrations."
+        "Pymunk rigid-body particles that collide and settle under gravity "
+        "while COMETS fields diffuse and a lattice kinetics process consumes "
+        "substrate; each particle runs an internal dFBA model, exchanging with "
+        "the local fields and dividing as it grows."
     ),
     parameters={
         "particle_model_id":  {"type": "string", "default": "ecoli core"},
