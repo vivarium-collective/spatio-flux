@@ -1,6 +1,6 @@
 {
   "particles": {
-    "3cFJnj9R": {
+    "ZdyEp2n3": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "3cFJnj9R",
+      "id": "ZdyEp2n3",
       "position": [
-        25.23102135118042,
-        23.851526604507324
+        34.82578077428683,
+        6.1591495456249366
       ],
-      "mass": 0.9384580223610763,
+      "mass": 0.4870453096753488,
       "local": {},
       "exchange": {},
       "sub_masses": {},

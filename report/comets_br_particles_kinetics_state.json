@@ -1,6 +1,6 @@
 {
   "particles": {
-    "SaMtTkT7": {
+    "mSmTuExN": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "SaMtTkT7",
+      "id": "mSmTuExN",
       "position": [
-        19.327911262510582,
-        8.51936286122913
+        20.216021950033603,
+        1.875413766204509
       ],
-      "mass": 8.376440592240751,
+      "mass": 7.693357199616217,
       "local": {},
       "exchange": {},
       "sub_masses": {},

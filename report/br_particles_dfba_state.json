@@ -1,6 +1,6 @@
 {
   "particles": {
-    "YdQvnB-g": {
+    "lyGsDO-q": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "YdQvnB-g",
+      "id": "lyGsDO-q",
       "position": [
-        23.273805853523633,
-        24.98557294902571
+        24.96014740798455,
+        9.634932351879122
       ],
-      "mass": 0.08583119673045463,
+      "mass": 0.6247111693429644,
       "local": {},
       "exchange": {},
       "sub_masses": {},
