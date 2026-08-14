@@ -1,0 +1,21 @@
+{
+  "v": 1,
+  "positions": {
+    "process": {
+      "x": 19.641950529577855,
+      "y": 11.97658471223167
+    }
+  },
+  "collapsed": [],
+  "hidden": [],
+  "mode": "hierarchy",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "auto",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "full"
+  }
+}

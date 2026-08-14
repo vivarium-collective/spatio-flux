@@ -1,0 +1,51 @@
+{
+  "v": 1,
+  "positions": {
+    "spatial_dFBA": {
+      "x": 670.1521827009328,
+      "y": 251.53696443083942,
+      "w": 339,
+      "h": 171
+    },
+    "fields": {
+      "x": 346.8033930483958,
+      "y": 204.3551825385485
+    },
+    "fields.glucose": {
+      "x": 404,
+      "y": 466
+    },
+    "fields.acetate": {
+      "x": 608,
+      "y": 466
+    },
+    "fields.biomass": {
+      "x": 200,
+      "y": 466
+    },
+    "diffusion": {
+      "x": 672.6247500354079,
+      "y": 69.2590395414419,
+      "w": 238,
+      "h": 161
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
+    }
+  },
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "off",
+    "contract": "on"
+  }
+}

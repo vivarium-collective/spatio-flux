@@ -1,6 +1,6 @@
 {
   "particles": {
-    "DLDyxYtA": {
+    "3cFJnj9R": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "DLDyxYtA",
+      "id": "3cFJnj9R",
       "position": [
-        49.397283143575606,
-        48.6185844351219
+        25.23102135118042,
+        23.851526604507324
       ],
-      "mass": 0.4020152655313565,
+      "mass": 0.9384580223610763,
       "local": {},
       "exchange": {},
       "sub_masses": {},

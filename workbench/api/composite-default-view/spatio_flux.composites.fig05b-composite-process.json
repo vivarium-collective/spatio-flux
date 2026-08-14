@@ -1,0 +1,65 @@
+{
+  "v": 1,
+  "positions": {
+    "tissue": {
+      "x": 704.9905323055883,
+      "y": 47.080227224665876
+    },
+    "tissue.fields": {
+      "x": 510.8300778562567,
+      "y": 207.9570460793435
+    },
+    "tissue.fields.glucose": {
+      "x": 407.4718956535837,
+      "y": 387.71447086646367
+    },
+    "tissue.fields.acetate": {
+      "x": 612.0707595302542,
+      "y": 382.9943193833529
+    },
+    "tissue.diffusion": {
+      "x": 1103.8231011743649,
+      "y": 55.11371345091068,
+      "w": 578,
+      "h": 189
+    },
+    "tissue.exchange": {
+      "x": 1128.6275678837694,
+      "y": 318.87183634362907,
+      "w": 583,
+      "h": 161
+    },
+    "tissue.local": {
+      "x": 1474.4082119791526,
+      "y": 581.5894973002303
+    },
+    "tissue.local.glucose": {
+      "x": 1612.3542954649668,
+      "y": 799.3792128803115
+    },
+    "tissue.local.acetate": {
+      "x": 1426.323301709272,
+      "y": 797.7358000379153
+    },
+    "tissue.cell": {
+      "x": 379.02013130811724,
+      "y": 534.6759014972087,
+      "w": 1000,
+      "h": 507
+    }
+  },
+  "collapsed": [],
+  "hidden": [],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "on",
+    "figures": "auto"
+  },
+  "fontScale": 1.1
+}
