@@ -1,6 +1,6 @@
 {
   "particles": {
-    "TYGEn5uu": {
+    "bN3Z8sYB": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "TYGEn5uu",
+      "id": "bN3Z8sYB",
       "position": [
-        46.372477501044024,
-        40.08525935686158
+        41.143338625194495,
+        3.9818198038744756
       ],
-      "mass": 0.9180098296568104,
+      "mass": 0.0058364332757143535,
       "local": {},
       "exchange": {},
       "sub_masses": {},

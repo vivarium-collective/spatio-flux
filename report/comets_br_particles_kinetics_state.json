@@ -1,6 +1,6 @@
 {
   "particles": {
-    "I-4Jqn8j": {
+    "NdL9K9-y": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "I-4Jqn8j",
+      "id": "NdL9K9-y",
       "position": [
-        31.94916672922395,
-        6.338097676357607
+        9.326126454950884,
+        27.447635707099188
       ],
-      "mass": 8.656481459926002,
+      "mass": 3.1489947529750735,
       "local": {},
       "exchange": {},
       "sub_masses": {},
