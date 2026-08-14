@@ -1,6 +1,6 @@
 {
   "particles": {
-    "ngx9Xc0F": {
+    "dZHltVa1": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "ngx9Xc0F",
+      "id": "dZHltVa1",
       "position": [
-        20.994454978283134,
-        19.711369664475985
+        34.68514858539252,
+        23.072557368992424
       ],
-      "mass": 2.7527884835724334,
+      "mass": 9.855270984041166,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -1207,20 +1207,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     },
     "outputs": {
@@ -1243,8 +1243,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "particles": "node",
-          "fields": "node"
+          "fields": "node",
+          "particles": "node"
         },
         "outputs": {
           "results": "node"

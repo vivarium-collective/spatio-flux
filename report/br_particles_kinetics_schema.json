@@ -5,10 +5,8 @@
     "_value": {
       "monod_kinetics": {
         "_type": "process",
-        "address": "local:MonodKinetics",
+        "address": "protocol",
         "config": "node",
-        "_inputs": "biomass:mass|substrates:map[concentration]",
-        "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
         "inputs": "wires",
         "outputs": "wires",
         "interval": 1.0
@@ -63,8 +61,8 @@
     "_type": "step",
     "address": "local:ParticleDivision",
     "config": "node",
-    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
-    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "inputs": "wires",
     "outputs": "wires",
     "priority": 0.0
@@ -73,7 +71,7 @@
     "_type": "step",
     "address": "local:RAMEmitter",
     "config": "node",
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",

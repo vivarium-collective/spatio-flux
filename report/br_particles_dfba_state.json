@@ -1,6 +1,6 @@
 {
   "particles": {
-    "196NECSu": {
+    "qZQOD9P2": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "196NECSu",
+      "id": "qZQOD9P2",
       "position": [
-        26.4750487167505,
-        24.0345664997305
+        0.06255819512829275,
+        18.827386644044257
       ],
-      "mass": 0.5048215404530881,
+      "mass": 0.031179117726094125,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -634,20 +634,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     },
     "outputs": {
@@ -670,8 +670,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "particles": "node",
-          "fields": "node"
+          "fields": "node",
+          "particles": "node"
         },
         "outputs": {
           "results": "node"
