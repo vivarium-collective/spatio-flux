@@ -1,6 +1,6 @@
 {
   "particles": {
-    "vvUEEEjg": {
+    "bsvLNDzE": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "vvUEEEjg",
+      "id": "bsvLNDzE",
       "position": [
-        45.81369132961064,
-        22.15331745870919
+        17.601638194061504,
+        40.10026096590827
       ],
-      "mass": 0.24845672317997247,
+      "mass": 0.5127972794343338,
       "local": {},
       "exchange": {},
       "sub_masses": {},

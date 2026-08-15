@@ -1,6 +1,6 @@
 {
   "particles": {
-    "zO0oYtXz": {
+    "wP2DQGUp": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "zO0oYtXz",
+      "id": "wP2DQGUp",
       "position": [
-        12.280063549248615,
-        31.806380108122156
+        29.835269859837627,
+        24.24765183203414
       ],
-      "mass": 4.279025111734229,
+      "mass": 3.1155883475675767,
       "local": {},
       "exchange": {},
       "sub_masses": {},

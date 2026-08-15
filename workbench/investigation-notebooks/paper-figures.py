@@ -412,9 +412,9 @@ _save_viz('fig-02', 'Figure_2b_process_bigraph', _render_one('image:visualizatio
 # Figure 2 (hypergraph + process bigraph)
 _save_viz('fig-02', 'Figure_2_hypergraph_process_bigraph', _render_one('image:visualizations/figure_2.svg', {}, RUNS_DB, STUDY_YAML))
 
-# ## Study: Fig 3 — process graph + composite process (`fig-03`)
+# ## Study: Fig 3 — store diagram + place graph (`fig-03`)
 #
-# **Purpose.** A process graph (metabolism + gene expression over metab/enzymes/DNA) and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport), rendered in bigraph-loom.
+# **Purpose.** A store diagram (a single `cell` store holding an `ecoli` data type, shown in full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell), rendered in bigraph-loom.
 #
 # **Claim.** image generated
 

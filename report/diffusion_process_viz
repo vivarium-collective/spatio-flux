@@ -6,7 +6,7 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'dissolved biomass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>dissolved<BR/>biomass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[ 0.  0.  0.  0.  0…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[1.77332304 1.90115…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
+	"('fields', 'glucose')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>glucose</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: [[0.66592498 0.90352…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: positive_array</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('results',)" [label=<results>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]

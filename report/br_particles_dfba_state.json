@@ -1,6 +1,6 @@
 {
   "particles": {
-    "gsiaXF-C": {
+    "RTb24Q82": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "gsiaXF-C",
+      "id": "RTb24Q82",
       "position": [
-        30.069275123593815,
-        3.7992320871578222
+        43.82330489451298,
+        2.330028497072334
       ],
-      "mass": 0.2690908078091557,
+      "mass": 0.8600203861740022,
       "local": {},
       "exchange": {},
       "sub_masses": {},

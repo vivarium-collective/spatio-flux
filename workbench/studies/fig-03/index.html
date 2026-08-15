@@ -14,7 +14,7 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="fig-03" title="fig-03">Fig 3 — process graph + composite process</span>
+    <span class="study-name" id="study-name" data-slug="fig-03" title="fig-03">Fig 3 — store diagram + place graph</span>
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
@@ -140,27 +140,13 @@
 
 
 
-<div class="composite-lint-banner" role="alert"
-     style="margin:8px 0 14px 0;padding:10px 14px;background:#fffbeb;border:1px solid #f59e0b;border-left-width:5px;border-radius:6px;color:#92400e;font-size:0.9em">
-  
-  <div>⚠ composite not found in registry: <code>spatio_flux.composites.fig03a-process-graph</code></div>
-  
-  <div>⚠ composite not found in registry: <code>spatio_flux.composites.fig03b-composite-process</code></div>
-  
-  <div style="margin-top:4px;font-size:0.86em;color:#a16207">
-    This study references a composite that doesn't resolve — it may not declare a
-    real, registered composite. Add a <code>.composite.yaml</code> and register it
-    in <code>core.py</code>, or fix the ref.
-  </div>
-</div>
 
 
 
 
 
 
-
-<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> What does Fig 3 — process graph + composite process depict, and does its bigraph-loom image generate?</p>
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> What does Fig 3 — store diagram + place graph depict, and does its bigraph-loom image generate?</p>
 
 <nav class="study-tabs" aria-label="Study sections">
   
@@ -446,7 +432,7 @@
     <div class="overview-section">
       
       <div class="purpose-callout" style="background:#eff6ff;border-left:4px solid #3b82f6">
-        <strong>Question.</strong> What does Fig 3 — process graph + composite process depict, and does its bigraph-loom image generate?
+        <strong>Question.</strong> What does Fig 3 — store diagram + place graph depict, and does its bigraph-loom image generate?
       </div>
       
       
@@ -456,7 +442,7 @@
       
       
       <div class="purpose-callout" style="background:#fefce8;border-left:4px solid #facc15">
-        <strong>Mechanism / Model change.</strong> A process graph (metabolism + gene expression over metab/enzymes/DNA) and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport), rendered in bigraph-loom.
+        <strong>Mechanism / Model change.</strong> A store diagram (a single `cell` store holding an `ecoli` data type, shown in full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell), rendered in bigraph-loom.
       </div>
       
     </div>
@@ -996,7 +982,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "dd9aa4374f98cd5dfaa79124c4d3d06b9e0fd5e0", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/dd9aa4374f98cd5dfaa79124c4d3d06b9e0fd5e0", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-14 21:12 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "e8e81881625c78b637ab4ba18a1e66b8209fed91", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/e8e81881625c78b637ab4ba18a1e66b8209fed91", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-08-15 02:29 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "fig-03";
