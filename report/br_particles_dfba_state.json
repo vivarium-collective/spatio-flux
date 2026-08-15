@@ -1,6 +1,6 @@
 {
   "particles": {
-    "RTb24Q82": {
+    "6KZvbySv": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "RTb24Q82",
+      "id": "6KZvbySv",
       "position": [
-        43.82330489451298,
-        2.330028497072334
+        35.425195790958384,
+        17.74994696482686
       ],
-      "mass": 0.8600203861740022,
+      "mass": 0.6268657935721247,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -634,20 +634,20 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -670,8 +670,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"
