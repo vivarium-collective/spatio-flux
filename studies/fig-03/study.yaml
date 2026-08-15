@@ -1,17 +1,17 @@
 schema_version: 3
 name: fig-03
-title: Fig 3 — process graph + composite process
+title: Fig 3 — store diagram + place graph
 investigation: paper-figures
 created: '2026-08-09'
 status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 3 — process graph + composite process depict, and does its
+  question: What does Fig 3 — store diagram + place graph depict, and does its
     bigraph-loom image generate?
-  mechanism: A process graph (metabolism + gene expression over metab/enzymes/DNA)
-    and the `cell` composite process (cyto/mem/nuc/DNA + grow/express/transport),
-    rendered in bigraph-loom.
+  mechanism: A store diagram (a single `cell` store holding an `ecoli` data type,
+    shown in full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃
+    ribo, mucin}, with EPS a sibling of cell), rendered in bigraph-loom.
   expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
 baseline:
 - name: 3a-store
@@ -35,7 +35,7 @@ visualizations:
 variants: []
 interventions: []
 runs:
-- name: spatio_flux.composites.fig03a-process-graph__1786323952__30c709
+- name: spatio_flux.composites.fig03a-store__1786323952__30c709
   status: completed
   timestamp: 1786323954.576271
   emitter:
@@ -49,7 +49,7 @@ runs:
         source: resolved
     params_captured_at: '2026-08-09'
     params_source: dashboard-runner
-- name: spatio_flux.composites.fig03b-composite-process__1786323954__987b6b
+- name: spatio_flux.composites.fig03b-place-graph__1786323954__987b6b
   status: completed
   timestamp: 1786323957.0641248
   emitter:
@@ -64,14 +64,14 @@ runs:
     params_captured_at: '2026-08-09'
     params_source: dashboard-runner
 simulation_set:
-- name: 3a-process-graph-baseline
+- name: 3a-store-baseline
   kind: single
-  base_model: spatio_flux.composites.fig03a-process-graph
+  base_model: spatio_flux.composites.fig03a-store
   is_baseline: true
   status: ran
-- name: 3b-composite-process-baseline
+- name: 3b-place-graph-baseline
   kind: single
-  base_model: spatio_flux.composites.fig03b-composite-process
+  base_model: spatio_flux.composites.fig03b-place-graph
   is_baseline: true
   status: ran
 pipeline_gate:
