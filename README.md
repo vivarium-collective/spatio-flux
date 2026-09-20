@@ -129,9 +129,10 @@ Spatio-Flux is part of **Vivarium 2.0** — an open-source ecosystem for composi
 
 ```bibtex
 @article{agmon2025spatioflux,
-  title  = {Process Bigraphs and the Architecture of Compositional Systems Biology},
-  author = {Agmon, Eran and Spangler, Daniel},
-  journal = {arXiv preprint arXiv:2512.23754},
-  year   = {2025},
+  title   = {Process Bigraphs and the Architecture of Compositional Systems Biology},
+  author  = {Agmon, Eran and Spangler, Daniel},
+  journal = {PLoS Computational Biology},
+  note    = {to appear},
+  year    = {2025},
 }
 ```
