@@ -1,0 +1,168 @@
+{
+  "name": "fig06-orchestration",
+  "description": "Fig 6 — orchestration patterns (conceptual): (a) multi-timestepping temporal processes each updating at their own interval over a shared store, (b) a workflow DAG of step processes over intermediate stores, and (c) event-driven graph rewrite. A draft drawing composite backing the hand-composed figure_6.svg; it is not simulated.",
+  "tags": [
+    "paper-figure",
+    "draft",
+    "fig-6"
+  ],
+  "state": {
+    "shared_store": {
+      "_type": "place_node",
+      "_value": 0.0
+    },
+    "workflow_store": {
+      "_type": "place_node",
+      "_value": 0.0
+    },
+    "agent_subgraph": {
+      "_type": "place_node",
+      "_value": 0.0
+    },
+    "multi_timestepping": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 0.5,
+        "summary": "Multi-timestepping — temporal processes each updating at their own interval, reading/writing a shared store at their ticks.",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Multi-timestepping — temporal processes on their own intervals over a shared store.",
+          "description": "Pattern (a): several temporal processes each advance on their own time interval, reading and writing a shared store at their update ticks.",
+          "ports": {
+            "in": "the shared store this process reads",
+            "out": "the shared store this process writes"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "place_node"
+      },
+      "_outputs": {
+        "out": "place_node"
+      },
+      "_contract": {
+        "summary": "Multi-timestepping — temporal processes on their own intervals over a shared store.",
+        "description": "Pattern (a): several temporal processes each advance on their own time interval, reading and writing a shared store at their update ticks.",
+        "status": "draft - no update",
+        "method": "",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "the shared store this process reads"
+        },
+        "outputs": {
+          "out": "the shared store this process writes"
+        }
+      },
+      "inputs": {
+        "in": [
+          "shared_store"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "shared_store"
+        ]
+      }
+    },
+    "workflow": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Workflow — a DAG of step processes over intermediate stores.",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Workflow — a DAG of step processes over intermediate stores.",
+          "description": "Pattern (b): step processes form a directed acyclic graph, each consuming and producing intermediate stores.",
+          "ports": {
+            "in": "an upstream intermediate store",
+            "out": "a downstream intermediate store"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "place_node"
+      },
+      "_outputs": {
+        "out": "place_node"
+      },
+      "_contract": {
+        "summary": "Workflow — a DAG of step processes over intermediate stores.",
+        "description": "Pattern (b): step processes form a directed acyclic graph, each consuming and producing intermediate stores.",
+        "status": "draft - no update",
+        "method": "",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "an upstream intermediate store"
+        },
+        "outputs": {
+          "out": "a downstream intermediate store"
+        }
+      },
+      "inputs": {
+        "in": [
+          "shared_store"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "workflow_store"
+        ]
+      }
+    },
+    "event_rewrite": {
+      "_type": "process",
+      "address": "local:BigraphLink",
+      "_draft": true,
+      "config": {
+        "interval": 1.0,
+        "summary": "Event-driven graph rewrite — divide / engulf / burst events restructuring environ + agent subgraphs.",
+        "contract": {
+          "status": "draft - no update",
+          "summary": "Event-driven graph rewrite — divide / engulf / burst events restructure the graph.",
+          "description": "Pattern (c): discrete events (divide, engulf, burst) restructure the environ + agent subgraphs.",
+          "ports": {
+            "in": "the agent subgraph this event reads",
+            "out": "the restructured subgraph this event writes"
+          }
+        }
+      },
+      "_inputs": {
+        "in": "place_node"
+      },
+      "_outputs": {
+        "out": "place_node"
+      },
+      "_contract": {
+        "summary": "Event-driven graph rewrite — divide / engulf / burst events restructure the graph.",
+        "description": "Pattern (c): discrete events (divide, engulf, burst) restructure the environ + agent subgraphs.",
+        "status": "draft - no update",
+        "method": "",
+        "math": [],
+        "symbols": {},
+        "inputs": {
+          "in": "the agent subgraph this event reads"
+        },
+        "outputs": {
+          "out": "the restructured subgraph this event writes"
+        }
+      },
+      "inputs": {
+        "in": [
+          "workflow_store"
+        ]
+      },
+      "outputs": {
+        "out": [
+          "agent_subgraph"
+        ]
+      }
+    },
+    "global_time": 0.0
+  }
+}
