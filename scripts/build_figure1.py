@@ -38,6 +38,7 @@ FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
 PANELS = [
     {
         "id": "a",
+        "hscale": 1.4,
         "loom": "fig01a-draft-processes.png",
         "tint": "#fdecea", "stroke": "#e6a8a0", "accent": "#d33a2c",
         "title": "Every subsystem gets its own best model",
@@ -47,6 +48,7 @@ PANELS = [
     },
     {
         "id": "b",
+        "hscale": 1.4,
         "loom": "fig01b-multiscale-composite.png",
         "tint": "#e8f0fe", "stroke": "#a9c4f5", "accent": "#2b5bd0",
         "title": "Process Bigraphs make coupling explicit",
@@ -55,6 +57,7 @@ PANELS = [
     },
     {
         "id": "c",
+        "hscale": 1.4,
         "loom": "fig01c-study-workflow.png",
         "tint": "#fef7e0", "stroke": "#e6d9a8", "accent": "#2f6b3f",
         "title": "Compositions become reusable simulations",
@@ -78,11 +81,11 @@ CARD_RX = 18           # card corner radius
 PAD = 28               # header inner padding
 BADGE = 30             # letter-badge square
 BADGE_GAP = 15         # gap from badge to the text column
-TITLE_FS = 22          # title font size
-TITLE_LH = 27          # title line height
+TITLE_FS = 26          # title font size
+TITLE_LH = 32          # title line height
 TITLE_INK = "#1b2432"  # near-black title (accent is reserved for the badge/rule)
-SUB_FS = 16            # subtitle font size
-SUB_LH = 22            # subtitle line height
+SUB_FS = 19            # subtitle font size
+SUB_LH = 26            # subtitle line height
 SUB_INK = "#4a5460"    # subtitle grey (a touch darker for readability)
 RULE_W = 34            # length of the accent rule under the title
 RULE_H = 3             # thickness of the accent rule
@@ -174,27 +177,30 @@ def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: floa
 
 
 def build_figure1() -> Path:
-    # Equal-height panels: every illustration renders at the SAME height IMG_H and
-    # each column's width follows that panel's aspect ratio — so a denser/wider
-    # panel (c) gets a wider column and there is no letterbox / bottom whitespace.
+    # Each illustration renders at IMG_H * its own `hscale`, and its column width
+    # follows its aspect ratio. Denser panels (b, c) get a larger hscale so they
+    # occupy MORE of the figure — bigger, more legible — while the compact panel a
+    # stays smaller. Cards are top-aligned; each card is as tall as its own content.
     prepared = []
     header_h = 0.0
     for p in PANELS:
         png = VIZ / p["loom"]
         if not png.is_file():
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
-        img_w = round(IMG_H * _aspect(png))
+        img_h = round(IMG_H * p.get("hscale", 1.0))
+        img_w = round(img_h * _aspect(png))
         panel_w = img_w + 2 * SIDE
         text_w = panel_w - _text_x() - PAD
         title_lines, sub_lines = _header_lines(p, text_w)
         header_h = max(header_h, _header_height(title_lines, sub_lines))
-        prepared.append((p, png, title_lines, sub_lines, img_w, panel_w))
+        prepared.append((p, png, title_lines, sub_lines, img_w, panel_w, img_h))
 
-    panel_h = round(header_h + IMG_H + BOTTOM)
+    # Per-panel card height (ragged bottoms), figure height = the tallest card.
+    def _card_h(img_h):
+        return round(header_h + img_h + BOTTOM)
+    fig_h = round(2 * MARGIN + max(_card_h(ih) for *_, ih in prepared))
 
-    # Build the SVG.
-    fig_w = round(2 * MARGIN + sum(pw for *_, pw in prepared) + GAP * (len(prepared) - 1))
-    fig_h = round(2 * MARGIN + panel_h)
+    fig_w = round(2 * MARGIN + sum(pw for *_, pw, _ in prepared) + GAP * (len(prepared) - 1))
     root = ET.Element(_q("svg"), {
         "width": str(fig_w), "height": str(fig_h),
         "viewBox": f"0 0 {fig_w} {fig_h}", "font-family": FONT,
@@ -203,11 +209,11 @@ def build_figure1() -> Path:
                                      "height": str(fig_h), "fill": "#ffffff"})
 
     x = MARGIN
-    for p, png, title_lines, sub_lines, img_w, panel_w in prepared:
+    for p, png, title_lines, sub_lines, img_w, panel_w, img_h in prepared:
         g = ET.SubElement(root, _q("g"), {"id": f"Panel {p['id']}",
                                           "transform": f"translate({x},{MARGIN})"})
         ET.SubElement(g, _q("rect"), {
-            "x": "0", "y": "0", "width": str(panel_w), "height": str(panel_h),
+            "x": "0", "y": "0", "width": str(panel_w), "height": str(_card_h(img_h)),
             "rx": str(CARD_RX), "fill": p["tint"], "stroke": p["stroke"],
             "stroke-width": "1.4"})
         g.append(ET.fromstring(
@@ -215,7 +221,7 @@ def build_figure1() -> Path:
         img = ET.SubElement(g, _q("image"))
         img.set("href", _data_uri(png))
         img.set("x", str(SIDE)); img.set("y", f"{header_h:.1f}")
-        img.set("width", str(img_w)); img.set("height", str(IMG_H))
+        img.set("width", str(img_w)); img.set("height", str(img_h))
         img.set("preserveAspectRatio", "xMidYMin meet")
         x += panel_w + GAP
 
