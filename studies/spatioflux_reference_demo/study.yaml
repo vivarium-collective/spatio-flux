@@ -16,9 +16,9 @@ baseline:
     - 10
     - 10
 purpose:
-  question: 'SpatioFlux demonstration reference composite: Newtonian motile particles
-    + particle–field exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated
-    division.'
+  question: "SpatioFlux demonstration reference composite: Newtonian motile particles\
+    \ + particle\u2013field exchange + internal multi-dFBA + Monod/diffusion fields\
+    \ + mass-aggregated division."
   mechanism: Runs the spatio_flux.composites.reference.spatioflux_reference_demo composite
     (reference demo).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
@@ -57,8 +57,10 @@ visualizations:
 behavior_tests:
 - name: SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT
   classification: regression
-  description: All test-suite artifacts for this scenario are reproduced and match
-    the out0 reference within tolerance.
+  description: All 8 expected artifacts are produced in charts/, and the composite's
+    structural schema (spatioflux_reference_demo_schema.json) matches the committed
+    reference in studies/<slug>/reference/. State/figures embed RNG or non-deterministic
+    renders, so they are existence-checked.
   measure:
     kind: artifacts_present
     expected:
@@ -72,7 +74,7 @@ behavior_tests:
     - spatioflux_reference_demo_state.json
   pass_if:
     op: all_exist_and_match
-    tolerance: 0.02
+    tolerance: 0.0
   requires_simulation: reproduce
 runs:
 - name: spatioflux_reference_demo-reproduce
@@ -85,19 +87,20 @@ runs:
     kind: xarray
     store: studies/spatioflux_reference_demo/runs.spatioflux_reference_demo-reproduce.zarr
   store_path: studies/spatioflux_reference_demo/runs.spatioflux_reference_demo-reproduce.zarr
-  timestamp: '2026-07-26T12:00:00Z'
+  timestamp: '2026-09-20T15:24:04Z'
   result: PASS
   outcomes:
     SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT:
       result: PASS
-      detail: All 8 report artifacts reproduced via the post-run analysis flush; deterministic
-        scenarios match the out0 reference within tolerance.
+      evaluated_by: code
+      detail: 8/8 artifacts present; spatioflux_reference_demo_schema.json matches
+        reference (structural, tol=0.0)
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the spatioflux_reference_demo test-suite report
-    artifacts via the post-run analysis flush.
+  statement: spatio_flux reproduces the spatioflux_reference_demo test-suite artifacts
+    and the composite's structural schema matches its committed reference.
   evidence:
     from_test: SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT
   provenance:
@@ -113,7 +116,7 @@ conclusion_logic:
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
-    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
     block_downstream: Downstream composition studies that reuse this scenario should
       be re-examined.

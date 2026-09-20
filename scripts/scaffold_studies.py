@@ -85,7 +85,6 @@ def render_study(entry):
     desc = _description_for(ref)
     test_name = f"{slug.upper()}-REPRODUCES-REPORT"
     run_id = f"{slug}-reproduce"   # unique — SimulationsDB dedups rows by run_id
-    store_path = f"studies/{slug}/runs.{run_id}.zarr"
     n_artifacts = len(expected_files(slug))
     return {
         "schema_version": 3,
@@ -93,13 +92,18 @@ def render_study(entry):
         "created": "2026-07-26",
         # completed with evidence: multi-axis status (effective_status precedence
         # is gate > evaluation > simulation > implementation > design > legacy).
-        "status": "complete",
-        "phase": "Evaluate",
+        # Scaffold state only: the study is designed + implemented but NOT yet
+        # run or evaluated. `scripts/verify_reference.py` runs the composite,
+        # evaluates the gate by code, and flips these to ran/evaluated/passed
+        # with a real, dated run + outcome. The scaffolder must never assert a
+        # pass it did not compute.
+        "status": "in_progress",
+        "phase": "Simulate",
         "design_status": "complete",
         "implementation_status": "complete",
-        "simulation_status": "ran",
-        "evaluation_status": "evaluated",
-        "gate_status": "passed",
+        "simulation_status": "pending",
+        "evaluation_status": "pending",
+        "gate_status": "pending",
         "baseline": [{"name": "baseline", "composite": ref, "params": entry["params"]}],
         "purpose": {
             "question": desc or f"Reproduce the {slug} test-suite scenario as a study.",
@@ -129,41 +133,26 @@ def render_study(entry):
         "behavior_tests": [{
             "name": test_name,
             "classification": "regression",
-            "description": ("All test-suite artifacts for this scenario are reproduced "
-                            "and match the out0 reference within tolerance."),
+            "description": (f"All {n_artifacts} expected artifacts are produced in "
+                            "charts/, and the composite's structural schema "
+                            f"({slug}_schema.json) matches the committed reference "
+                            "in studies/<slug>/reference/. State/figures embed RNG or "
+                            "non-deterministic renders, so they are existence-checked."),
             "measure": {"kind": "artifacts_present", "expected": expected_files(slug)},
-            "pass_if": {"op": "all_exist_and_match", "tolerance": 0.02},
+            "pass_if": {"op": "all_exist_and_match", "tolerance": 0.0},
             "requires_simulation": "reproduce",
         }],
-        # A recorded canonical run tags this study in the SimulationsDB (via the
-        # study.yaml runs: reader) and carries the outcome so the Tests tab +
-        # investigation-graph node show completed-with-evidence.
-        "runs": [{
-            "name": run_id,
-            "run_id": run_id,
-            "kind": "simulation",
-            "status": "completed",
-            "canonical": True,
-            "composite": ref,
-            "emitter": {"kind": "xarray", "store": store_path},
-            "store_path": store_path,
-            "timestamp": "2026-07-26T12:00:00Z",
-            "result": "PASS",
-            "outcomes": {
-                test_name: {
-                    "result": "PASS",
-                    "detail": (f"All {n_artifacts} report artifacts reproduced via the "
-                               f"post-run analysis flush; deterministic scenarios match "
-                               f"the out0 reference within tolerance."),
-                },
-            },
-        }],
+        # NOTE: no `runs`/outcomes block here. The scaffolder has not run
+        # anything, so it records no run and no result. `verify_reference.py`
+        # runs the composite, evaluates the gate via spatio_flux.evaluators
+        # (measure kind `artifacts_present`), and writes the real run + outcome.
         "findings": [{
             "id": "F1",
             "kind": "computational",
-            "status": "passed",
-            "statement": (f"spatio_flux reproduces the {slug} test-suite report artifacts "
-                          f"via the post-run analysis flush."),
+            "status": "pending",
+            "statement": (f"spatio_flux reproduces the {slug} test-suite artifacts and "
+                          "the composite's structural schema matches its committed "
+                          "reference."),
             "evidence": {"from_test": test_name},
             "provenance": {"run_ids": [run_id]},
         }],
@@ -181,7 +170,7 @@ def render_study(entry):
             },
             "if_primary_tests_fail": {
                 "diagnose": [
-                    "Compare the produced charts/<slug>_* artifacts against out0/.",
+                    "Compare charts/<slug>_schema.json against studies/<slug>/reference/.",
                     "Check the composite build and the FLUSH_SPEC config for this slug.",
                 ],
                 "block_downstream": (
