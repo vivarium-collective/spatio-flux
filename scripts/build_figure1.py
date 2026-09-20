@@ -64,7 +64,7 @@ PANELS = [
 ]
 
 # ── Layout (all in SVG user units) ──────────────────────────────────────────
-PANEL_W = 500          # card width (was 320) — wider cards → larger, readable illustrations
+IMG_H = 900            # common illustration height; each column's width follows its aspect
 SIDE = 14              # inner L/R margin around the illustration
 GAP = 30               # between cards
 MARGIN = 26            # outer figure margin
@@ -174,27 +174,27 @@ def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: floa
 
 
 def build_figure1() -> Path:
-    cw = PANEL_W - 2 * SIDE            # illustration width inside a card
-    text_w = PANEL_W - _text_x() - PAD  # header text column width (beside the badge)
-
-    # Pre-pass: wrap headers, measure image + header heights, size all cards equal.
+    # Equal-height panels: every illustration renders at the SAME height IMG_H and
+    # each column's width follows that panel's aspect ratio — so a denser/wider
+    # panel (c) gets a wider column and there is no letterbox / bottom whitespace.
     prepared = []
     header_h = 0.0
     for p in PANELS:
         png = VIZ / p["loom"]
         if not png.is_file():
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
+        img_w = round(IMG_H * _aspect(png))
+        panel_w = img_w + 2 * SIDE
+        text_w = panel_w - _text_x() - PAD
         title_lines, sub_lines = _header_lines(p, text_w)
         header_h = max(header_h, _header_height(title_lines, sub_lines))
-        img_h = round(cw / _aspect(png))
-        prepared.append((p, png, title_lines, sub_lines, img_h))
+        prepared.append((p, png, title_lines, sub_lines, img_w, panel_w))
 
-    panel_h = round(header_h + max(ih for *_, ih in prepared) + BOTTOM)
+    panel_h = round(header_h + IMG_H + BOTTOM)
 
     # Build the SVG.
-    n = len(prepared)
-    fig_w = MARGIN + n * PANEL_W + (n - 1) * GAP + MARGIN
-    fig_h = MARGIN + panel_h + MARGIN
+    fig_w = round(2 * MARGIN + sum(pw for *_, pw in prepared) + GAP * (len(prepared) - 1))
+    fig_h = round(2 * MARGIN + panel_h)
     root = ET.Element(_q("svg"), {
         "width": str(fig_w), "height": str(fig_h),
         "viewBox": f"0 0 {fig_w} {fig_h}", "font-family": FONT,
@@ -203,11 +203,11 @@ def build_figure1() -> Path:
                                      "height": str(fig_h), "fill": "#ffffff"})
 
     x = MARGIN
-    for p, png, title_lines, sub_lines, img_h in prepared:
+    for p, png, title_lines, sub_lines, img_w, panel_w in prepared:
         g = ET.SubElement(root, _q("g"), {"id": f"Panel {p['id']}",
                                           "transform": f"translate({x},{MARGIN})"})
         ET.SubElement(g, _q("rect"), {
-            "x": "0", "y": "0", "width": str(PANEL_W), "height": str(panel_h),
+            "x": "0", "y": "0", "width": str(panel_w), "height": str(panel_h),
             "rx": str(CARD_RX), "fill": p["tint"], "stroke": p["stroke"],
             "stroke-width": "1.4"})
         g.append(ET.fromstring(
@@ -215,13 +215,13 @@ def build_figure1() -> Path:
         img = ET.SubElement(g, _q("image"))
         img.set("href", _data_uri(png))
         img.set("x", str(SIDE)); img.set("y", f"{header_h:.1f}")
-        img.set("width", str(cw)); img.set("height", str(img_h))
+        img.set("width", str(img_w)); img.set("height", str(IMG_H))
         img.set("preserveAspectRatio", "xMidYMin meet")
-        x += PANEL_W + GAP
+        x += panel_w + GAP
 
     out = VIZ / "figure_1.svg"
     ET.ElementTree(root).write(out, encoding="utf-8", xml_declaration=True)
-    print(f"composed {out.relative_to(WS)} — {n} panels, {fig_w}x{fig_h}, header {header_h:.0f}px")
+    print(f"composed {out.relative_to(WS)} — {len(prepared)} panels, {fig_w}x{fig_h}, header {header_h:.0f}px")
     return out
 
 
