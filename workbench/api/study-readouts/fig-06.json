@@ -1,0 +1,1 @@
+{"error": "study has no baseline composite", "rows": [], "emitter": {"name": "sqlite", "class_name": "SQLiteEmitter", "module": "pbg_emitters.sqlite_emitter", "output_kind": "sqlite", "interval": 1, "buffer": null, "output_dir": "<study>/runs.db", "scope": "declared"}}

@@ -1,13 +1,13 @@
 {
   "global_time": 0.0,
   "particles": {
-    "N0sBSExB": {
-      "id": "N0sBSExB",
+    "kMyXP8pL": {
+      "id": "kMyXP8pL",
       "position": [
-        42.119336218371714,
-        36.551968440688235
+        20.32553177827669,
+        30.084029866516303
       ],
-      "mass": 0.8973343882722412,
+      "mass": 0.749878462406178,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -160,7 +160,8 @@
     },
     "config": {
       "emit": "global_time:node|particles:node",
-      "subsample": 1
+      "subsample": 1,
+      "max_len": null
     },
     "_inputs": "global_time:node|particles:node",
     "_outputs": "results:node",
@@ -179,12 +180,13 @@
     },
     "_contract": {
       "summary": "Store historical states in memory.",
-      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.\n``max_len`` optionally bounds ``history`` to the most recent N\nrecorded rows (a ring buffer): once the cap is reached each new\nhistorical behaviour \u2014 consumers such as v2ecoli that read the\nfull ``history`` are unaffected unless they opt in). ``max_len``\ncounts *recorded* rows (i.e. post-``subsample``).",
       "inputs": {},
       "outputs": {},
       "config": {},
       "math": [
-        "``subsample`` records only every Nth composite tick (default 1 ="
+        "``subsample`` records only every Nth composite tick (default 1 =",
+        "record drops the oldest. Default ``None`` = unbounded (the"
       ],
       "symbols": {},
       "assumptions": [],

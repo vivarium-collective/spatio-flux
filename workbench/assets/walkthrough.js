@@ -1,6 +1,14 @@
 // walkthrough.js — v0.8.0: Registry Full view is now directly runnable — the config bar IS the editable config and the left ports ARE the editable input fields (no "Run this process" dropdown); Run lives in the body, outputs on the right. Middle (grid) zoom shows ports+types inline (no dropdown); double-click a card → runnable Full. Modules table split into Installed-here vs Marketplace sections with a Repos (imported-into) column, GitHub link on the name, and Install/Uninstall in one Action column (n_repos from module_stats federation scan). bigraph-loom: Explore (graph) is the default left tab; the right dock defaults to Processes with Nodes/Inspector collapsed. v0.7.0: Composites semantic zoom (Table/Cards full-row compact/Loom on-demand embed) + double-click to zoom in; /api/composites now runs in the WARM pooled worker (flake fix). v0.6.9: registry filter now data-driven (works in Table/Cards/Full); middle Cards zoom is full-row with composite/study usage split + details; double-click zooms in centered; select persists across zoom; run panel input ports as per-field form (type + resolved default, auto-grow) + Copy outputs; loom config bar lightened to match workbench palette. v0.6.8: run panel lazy-loads RESOLVED defaults (core.fill via /api/registry/process-template) into a per-field config form + inputs JSON (no more null-heavy templates); loom card restyled as a crisp rectangle. v0.6.7: Registry Full-view interactive runner — editable config + input-port JSON, Run → outputs (POST /api/registry/run-process; env_worker._run_process instantiates + Step.update / Process.update(interval)); loom inputs left / outputs right. v0.6.6: Registry semantic zoom (compact/detailed/full loom-rectangle: inputs left, outputs right, config top) + Cards⇄Table sortable view (_setRegistryZoom/_setRegistryView/_renderRegistryTable); rail pins hover-only + ungrouped back to a collapsible folder. v0.6.5: Registry processes sorted by USE (most-referenced across composites/runners first) with a use-count badge (build_registry._annotate_use_counts source-scan). v0.6.4: Registry page — "Discovered registry"→"Registry" (main tab), "Modules"→"Marketplace"; rich registry entries (description + inputs/outputs ports/contract + full config schema, loom-like) and a new Report Cards tab (_renderRegistryEntry/_regPortColumn). v0.6.3: STUDIES rail — per-study pin toggle (localStorage) with a "Pinned" strip at the top for quick access, and ungrouped studies rendered as a flat list at the bottom instead of a collapsible dropdown (_toggleStudyPin/_loadPinnedStudies; _railStudyItem + _renderRailInvestigationGroups). v0.6.2: Marketplace merged into the Modules tab — Modules grid loads the FULL ecosystem via /api/marketplace (available modules under the "Available to install" divider), installed cards gain an Uninstall action gated by an impact-confirmation modal (_showUninstallImpactModal via /api/catalog-uninstall-impact), viva-* display names + stat chips. v0.6.1: Marketplace sub-tab — browse the FULL viva ecosystem (unfiltered by registry.include) + install (_loadMarketplace/_renderMarketplace via /api/marketplace; shared _renderModuleGrid/_moduleActionFor with the Modules tab). v0.6.0: system-deps awareness — pre-install check + consent modal (_installFromCatalog → _showSystemDepsModal; new _checkSystemDepsForInstalled on Registry rows); v0.5.3: investigation detail panel — Spec/Runs/Visualizations tabs + Run button + Delete; v0.5.2: composite explorer UX fixes (no focus-mode hijack, one-row-per-param layout, lazy-load composite cache); v0.5.1: composite explorer page (bigraph-viz + test run + promote to simulation); v0.4.14: Available Composites picker + Emitter Use feedback + drop process multi-select; v0.4.5: _renderInstallError structured diagnosis; v0.4.1: _loadCatalog + _installFromCatalog; v0.4.0b: active-branch workstream strip; v0.3.7-A: _installImport; v0.3.6: Registry tab; v0.1.9: drag-drop uploads; v0.1.7: interactive forms.
 (function () {
   "use strict";
+  // Cache-bust token for the bigraph-loom iframe, captured once per page load.
+  // The loom bundle is served no-store, but a React re-render reuses the same
+  // <iframe> element without re-navigating, so a freshly-built loom looked stale
+  // until an Empty-Cache-and-Hard-Reload. Appending &v=<load token> to every loom
+  // iframe src makes each full page reload re-navigate the iframe (→ fresh
+  // bundle), while staying stable within a session so we don't reload it on every
+  // SPA update.
+  var _LOOM_V = Date.now();
 
   // Prefix a root-absolute /api path with the dashboard base path (e.g. /workbench)
   // so composite-explore run/resolve/status calls reach the workbench under the
@@ -10,11 +18,69 @@
     return (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl(p) : p;
   }
 
+  // Single client for all workbench /api calls. Applies the base-path shim via
+  // _api(path) (composes safely with the global _base_path_shim) and the JSON
+  // request shape, and returns the raw fetch Response so call sites keep their
+  // own `.then(function (r) { ... })` handling — a drop-in for the uniform
+  // `fetch(url, { method, headers: {'Content-Type': 'application/json'},
+  // body: JSON.stringify(x) })` pattern this file used ~77 times. Pass `body`
+  // to send it as JSON; omit it for GET / no-body requests. FormData / raw-body
+  // uploads stay on plain fetch (they don't fit the JSON shape).
+  function apiFetch(method, path, body) {
+    var opts = { method: method };
+    if (body !== undefined && body !== null) {
+      opts.headers = { 'Content-Type': 'application/json' };
+      opts.body = JSON.stringify(body);
+    }
+    return fetch(_api(path), opts);
+  }
+
   // Module-level so EVERY render function can call it. It was previously only
   // defined nested inside the investigation-report builder, but called from
   // sibling scopes (tick / study-card / v4 renderers) — which threw
   // "ReferenceError: Can't find variable: _humanizeStudyName" and failed the
   // investigation report load (fixed 2026-06-10). Hoisted here = visible IIFE-wide.
+  // Canonical study status -> {color, icon, label, state}. ONE source of truth for
+  // the colored status shown in the spine sidebar dot, the investigation-graph card
+  // badge, and the graph legend, so those three can never drift apart. (They used
+  // to: the sidebar read the lifecycle `effective_status` while the card read the
+  // hand-set `confidence` field first — so a `blocked` study showed amber
+  // "Investigating" on its card while its sidebar dot was red.) Precedence, honoring
+  // the card code's own stated intent: the COMPUTED gate_status verdict wins, then
+  // the hand-set confidence, then the lifecycle status. `Blocked` is its own state —
+  // a study that could not run — distinct from `Refuted` (a hypothesis disproven).
+  var _STATUS_META = {
+    Accepted:      {color: '#16a34a', icon: '✓', label: 'Accepted'},      // ✓
+    Investigating: {color: '#ca8a04', icon: '◐', label: 'Investigating'}, // ◐
+    Planned:       {color: '#2563eb', icon: '○', label: 'Planned'},       // ○
+    Blocked:       {color: '#64748b', icon: '⊘', label: 'Blocked'},       // ⊘
+    Refuted:       {color: '#dc2626', icon: '✗', label: 'Refuted'},       // ✗
+  };
+  function _studyStatusState(s) {
+    s = s || {};
+    // 1. The COMPUTED gate_status verdict is the top authority.
+    var gate = String(s.gate_status || '').trim().toLowerCase();
+    if (gate === 'passed' || gate === 'pass' || gate === 'accepted') return 'Accepted';
+    if (gate === 'failed' || gate === 'failed_evaluation' || gate === 'refuted') return 'Refuted';
+    if (gate === 'blocked') return 'Blocked';
+    if (gate === 'partial' || gate === 'needs_calibration' || gate === 'in_progress') return 'Investigating';
+    // 2. A DEFINITIVE lifecycle state (server-computed effective_status/status folds
+    //    gate_status in) outranks the drift-prone hand-set confidence: a `blocked`
+    //    study must never read as its stale `confidence: Investigating`. This is what
+    //    lets the gate-less rail study objects agree with the gate-bearing graph cards.
+    var life = String(s.effective_status || s.status || '').trim().toLowerCase();
+    if (life.indexOf('blocked') !== -1) return 'Blocked';
+    if (life.indexOf('fail') !== -1 || life === 'invalid' || life === 'refuted') return 'Refuted';
+    // 3. Hand-set confidence, when no gate verdict and no definitive lifecycle.
+    var conf = String(s.confidence || '').trim();
+    if (_STATUS_META[conf]) return conf;
+    // 4. Remaining lifecycle states.
+    if (['complete', 'completed', 'ran', 'passed', 'evaluated', 'decided'].indexOf(life) >= 0) return 'Accepted';
+    if (['running', 'analyzing', 'in_progress'].indexOf(life) >= 0) return 'Investigating';
+    return 'Planned';
+  }
+  function _studyStatusMeta(s) { return _STATUS_META[_studyStatusState(s)] || _STATUS_META.Planned; }
+
   function _humanizeStudyName(slug) {
     var m = /^([a-z]+-\d+[a-z]*)-(.+)$/.exec(slug);
     if (!m) return {chip: '', title: String(slug).replace(/-/g, ' ')};
@@ -168,6 +234,13 @@
       window._ceLastRunId = ev.data.simulation_id || null;
       var bar = document.getElementById('ce-post-run-bar');
       if (bar) bar.style.display = 'flex';
+      // A just-completed run should appear in the Runs tab right away — without a
+      // manual reload or waiting the ~100s remote fetch. Re-pull the sim index: the
+      // Phase-1 local fetch picks up the new .pbg/composite-runs.db row fast
+      // (including a Cloud run's save_metadata row). The backed-off remote fetch
+      // (_maybeLoadRemoteSims) is not re-triggered, so this stays cheap.
+      if (typeof window._initSimulations === 'function') window._initSimulations(true);
+      if (typeof window._loadStudySims === 'function') window._loadStudySims(true);
     }
   });
 
@@ -400,8 +473,25 @@
         if (doc && doc.body && window.ResizeObserver && !frame._roFit) {
           frame._roFit = new ResizeObserver(function () { fit(true); });
           frame._roFit.observe(doc.body);
+          // Observe documentElement too: a tab switch / async chart render can
+          // grow the document without changing body's observed box, so a
+          // body-only observer misses it and the porthole keeps its own
+          // scrollbar (the middle of the nested-scrollbar bug).
+          if (doc.documentElement) frame._roFit.observe(doc.documentElement);
         }
       } catch (_) { /* cross-origin */ }
+      // Bounded catch-up (~8s): the observer above can still miss content that
+      // grows well after load (lazy figure iframes finishing their own resize).
+      // Poll a refit so the porthole reaches full content height. Skipped while
+      // the landing scroll is active so it can't cancel the scroll-to-study.
+      if (frame._catchupTimer) { clearInterval(frame._catchupTimer); }
+      var _ticks = 0;
+      frame._catchupTimer = setInterval(function () {
+        if (!frame.isConnected) { clearInterval(frame._catchupTimer); frame._catchupTimer = null; return; }
+        if (window._embedLandingUntil && Date.now() < window._embedLandingUntil) return;
+        fit(false);
+        if (++_ticks >= 16) { clearInterval(frame._catchupTimer); frame._catchupTimer = null; }
+      }, 500);
     };
     frame.addEventListener('load', onload);
     try {
@@ -512,15 +602,16 @@
   window._closeStudyEmbedded = _closeStudyEmbedded;
 
   // -------------------------------------------------------------------------
-  // UI feature flags (ui.composite_view)
+  // UI feature flags (ui.composite_view, ui.auto_results)
   // -------------------------------------------------------------------------
   window._uiConfig = null;
-  fetch('/api/ui-config').then(function(r) { return r.json(); }).then(function(cfg) {
+  apiFetch('GET', '/api/ui-config').then(function(r) { return r.json(); }).then(function(cfg) {
     window._uiConfig = cfg || {};
     // Read-only / remote-only mode: hide authoring controls (.js-authoring) via
     // CSS; the Source panel reads this flag at render time to go remote-only.
     if (window._uiConfig.readonly) document.body.classList.add('readonly');
     _applyCompositeViewMode();
+    _applyAutoResultsCheckbox();
   });
 
   function _applyCompositeViewMode() {
@@ -538,6 +629,39 @@
     }
   }
   window._applyCompositeViewMode = _applyCompositeViewMode;
+
+  // Composite loom viewer chrome: a default-on checkbox mirroring the
+  // workspace's ui.auto_results setting (Task 7 — gates whether a composite
+  // run auto-runs its declared analyses/visualizations). Default checked when
+  // unset (cfg.auto_results !== false), matching build_ui_config's default.
+  function _applyAutoResultsCheckbox() {
+    var cfg = window._uiConfig || {};
+    var cb = document.getElementById('ui-auto-results-cb');
+    if (!cb) return;
+    cb.checked = cfg.auto_results !== false;
+  }
+  window._applyAutoResultsCheckbox = _applyAutoResultsCheckbox;
+
+  // Checkbox onchange handler: POST the new value to the settings endpoint.
+  // This is a mirror, not the source of truth — workspace.yaml stays that.
+  function _setAutoResults(checked) {
+    var cb = document.getElementById('ui-auto-results-cb');
+    apiFetch('POST', '/api/ui-config', { auto_results: !!checked }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function() {
+      window._uiConfig = window._uiConfig || {};
+      window._uiConfig.auto_results = !!checked;
+    }).catch(function(err) {
+      // Revert the checkbox on failure so it doesn't silently drift from the
+      // persisted workspace setting.
+      if (cb) cb.checked = !checked;
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('Failed to persist ui.auto_results:', err);
+      }
+    });
+  }
+  window._setAutoResults = _setAutoResults;
 
   // -------------------------------------------------------------------------
   // Form submission helper
@@ -561,11 +685,7 @@
 
     var data = dataFn ? dataFn(form) : _formToObj(form);
 
-    fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    apiFetch('POST', endpoint, data)
       .then(function (res) {
         return res.json().then(function (json) {
           return { ok: res.ok, status: res.status, json: json };
@@ -587,7 +707,7 @@
         if (next) msg += "\n\nNext terminal step:\n  " + next;
         if (note) msg += "\n\n" + note;
         // Re-render then reload (strip updates on reload).
-        fetch("/api/render", { method: "POST" }).finally(function () {
+        apiFetch('POST', "/api/render").finally(function () {
           alert(msg);
           location.reload();
         });
@@ -614,11 +734,7 @@
   }
 
   function _postPhaseAction(endpoint, data) {
-    fetch("/api/" + endpoint, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(data),
-    })
+    apiFetch('POST', "/api/" + endpoint, data)
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], json = parts[1];
@@ -627,7 +743,7 @@
           return;
         }
         var msg = "Done! Branch: " + (json.branch || "?");
-        fetch("/api/render", {method: "POST"}).finally(function() {
+        apiFetch('POST', "/api/render").finally(function() {
           _refreshGitStatus();
           alert(msg);
           location.reload();
@@ -836,7 +952,7 @@
   function _loadInputs() {
     var el = document.getElementById('inputs-api-render');
     if (!el) return;
-    el.innerHTML = '<p class="muted" style="font-style:italic">Loading inputs…</p>';
+    el.innerHTML = '<p class="muted" style="font-style:italic">Loading…</p>';
     // Prefer the Sources-page picker selection over the git-branch-current slug.
     var _slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
     var _pInputs = window.DataSource
@@ -848,8 +964,9 @@
     // Also load the investigation list so the panel can offer a picker when no
     // investigation is branch-current — the user chooses which investigation to
     // load sources INTO (its own sources, not the repo-wide shared sources).
-    var _pList = fetch('/api/investigation-summaries')
-      .then(function(r) { return r.json(); })
+    var _pList = (window.DataSource
+      ? window.DataSource.loadIsetList()
+      : apiFetch('GET', '/api/investigation-summaries').then(function(r) { return r.json(); }))
       .then(function(d) { return (d && d.investigations) || []; })
       .catch(function() { return []; });
     Promise.all([_pInputs, _pList])
@@ -1060,11 +1177,7 @@
     body = body || {};
     var slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
     if (slug) body.investigation = slug;
-    fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
+    apiFetch('POST', endpoint, body)
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (res) {
         if (!res.ok || (res.d && res.d.error)) {
@@ -1268,9 +1381,12 @@
     // workspaces without a provider see no extra UI. Rendered FIRST (above the
     // shared datasets/references) as the primary repo-wide source.
     html += '<div id="data-sources-host" style="display:none;margin-bottom:16px"></div>';
-    html += '<h4 style="margin:12px 0 4px">Datasets</h4>' +
+    // Scope the sub-headers so they stay unambiguous when the panel's own
+    // "Repo-wide data sources" heading scrolls off — otherwise a bare "Datasets"
+    // here reads as a twin of the investigation's "Datasets" table above.
+    html += '<h4 style="margin:12px 0 4px">Repo-wide datasets</h4>' +
       _inputsDatasetsHtml(glob.datasets);
-    html += '<h4 style="margin:12px 0 4px">References</h4>' +
+    html += '<h4 style="margin:12px 0 4px">Repo-wide references</h4>' +
       _inputsRefsHtml(glob.references);
     html += '</div>';
 
@@ -1297,7 +1413,7 @@
     if (!host) return;
     var _p = window.DataSource
       ? window.DataSource.loadDataSources()
-      : fetch('/api/data-sources').then(function(r) { return r.json(); });
+      : apiFetch('GET', '/api/data-sources').then(function(r) { return r.json(); });
     _p
       .then(function(j) {
         var sources = (j && j.sources) || [];
@@ -1546,7 +1662,7 @@
       '<h4 style="margin:0 0 8px;font-size:0.95em;text-transform:uppercase;letter-spacing:0.06em;color:#374151">Visualizations' +
       ' <span class="count-badge" style="font-size:0.8em">' + vizzes.length + '</span></h4>';
     if (vizzes.length === 0) {
-      html += '<p class="empty-state muted" style="margin:0">No Visualization classes found. Install a pbg-* package that provides one (Registry tab &rarr; Available modules).</p>';
+      html += '<p class="empty-state muted" style="margin:0">No Visualization classes found. Install a pbg-* package that provides one (Catalog tab &rarr; Available modules).</p>';
     } else {
       html += vizzes.map(_renderClassCard).join('');
     }
@@ -1662,9 +1778,9 @@
           ? '<a class="btn-mini" href="' + _esc(_openHref) + '" target="_blank" rel="noopener">Open ↗</a>'
           : (_isSnapshot
           ? '<span class="muted" style="font-size:0.8em">Launch from the local workbench</span>'
-          : '<button class="btn-mini" onclick="_launchViewer(\'' + _esc(v.uid) + '\',\'' + _esc(t.study) + '\')">Launch</button>');
+          : '<button class="btn-mini" onclick="_launchViewer(\'' + _esc(v.uid) + '\',\'' + _esc(t.study || '') + '\',\'' + _esc(t.run || '') + '\')">Launch</button>');
         return '<div class="picker-row">' +
-          '<div class="picker-row-main"><strong>' + _esc(t.label || t.study) + '</strong>' +
+          '<div class="picker-row-main"><strong>' + _esc(t.label || t.study || t.run) + '</strong>' +
             (t.detail ? ' <span class="muted" style="font-size:0.82em">' + _esc(t.detail) + '</span>' : '') + '</div>' +
           '<div class="picker-row-actions">' + action + '</div>' +
         '</div>';
@@ -1681,15 +1797,7 @@
     return html;
   }
 
-  function _renderExplorerCard() {
-    return '<div class="analyses-card" id="explorer-card">' +
-      '<div class="analyses-card-head"><strong>Data Explorer</strong></div>' +
-      '<p class="muted" style="font-size:0.85em;margin:2px 0 8px">' +
-      'Interactively explore any run: timeseries, scatter, allocation, and flux maps.</p>' +
-      '<div id="explorer-mount"></div></div>';
-  }
-
-  function _launchViewer(uid, study) {
+  function _launchViewer(uid, study, run) {
     // The read-only snapshot has no launch backend to call. Bail with a clear
     // message rather than fetch a 404 HTML page and throw a JSON-parse error.
     if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') {
@@ -1697,8 +1805,11 @@
             'when running the workbench locally.');
       return;
     }
-    var url = '/api/analysis-viewer/' + encodeURIComponent(uid) + '/launch' +
-      (study ? '?study=' + encodeURIComponent(study) : '');
+    // A target is keyed by `study` (a local study's exports) or `run` (a landed
+    // run's exports, e.g. a GovCloud compose analysis) — forward whichever is set.
+    var q = study ? '?study=' + encodeURIComponent(study)
+          : (run ? '?run=' + encodeURIComponent(run) : '');
+    var url = '/api/analysis-viewer/' + encodeURIComponent(uid) + '/launch' + q;
     fetch(url).then(function(r) {
       return r.text().then(function(t) {
         var d = {};
@@ -1740,6 +1851,13 @@
       ? m.viewer_url
       : base + '/parsimony-viewer/index.html?models=' +
           encodeURIComponent(base + '/api/study/' + encodeURIComponent(ref) + '/3d/models.json');
+  }
+
+  function _buildSimulariumSrc(m) {
+    var base = _analysesBase();
+    var trajs = (m && m.trajectories) || [];
+    var url = trajs.length ? trajs[0].url : '';
+    return base + '/simularium-viewer.html?traj=' + encodeURIComponent(url);
   }
 
   // Human-readable label for a matched run/study in a card's result dropdown.
@@ -1797,7 +1915,6 @@
   }
 
   // Open a tool's selected result full-window in a new tab. Per kind:
-  //   embed-explorer -> the standalone Data Explorer page for the run
   //   embed-3d       -> the (hosted or bundled) parsimony viewer for the study
   //   launcher       -> the target's external href, else the live launch endpoint
   function _openTool(toolId, btn) {
@@ -1807,11 +1924,10 @@
     var sel = card ? card.querySelector('.tool-select') : null;
     var idx = sel ? (parseInt(sel.value, 10) || 0) : 0;
     var m = items[idx] || items[0]; if (!m) return;
-    if (t.kind === 'embed-explorer') {
-      window.open(_analysesBase() + '/assets/explorer.html?run=' +
-        encodeURIComponent(m.ref || m.run_id || ''), '_blank', 'noopener');
-    } else if (t.kind === 'embed-3d') {
+    if (t.kind === 'embed-3d') {
       window.open(_build3dSrc(m), '_blank', 'noopener');
+    } else if (t.kind === 'embed-simularium') {
+      window.open(_buildSimulariumSrc(m), '_blank', 'noopener');
     } else if (m.href) {
       window.open(m.href, '_blank', 'noopener');
     } else {
@@ -1827,7 +1943,7 @@
     var countEl   = document.getElementById('viz-count');
     if (!container) return;
     // Tools-first Analysis Tools tab, backed by GET /api/analysis-tools: built-in
-    // tools (Data Explorer, Parsimony Viewer) + external contributed viewers, each
+    // tools (Parsimony Viewer) + external contributed viewers, each
     // capability-matched to the runs/studies that satisfy its `requires`. Snapshot
     // mode reads the static api/analysis-tools.json bundle file; live mode hits the
     // endpoint. Parse defensively via text() so a missing/HTML response degrades to
@@ -1847,7 +1963,7 @@
         data = data || {};
         var tools = data.tools || [];
         if (!tools.length) {
-          container.innerHTML = '<p class="empty-state">No analysis tools for this workspace. Tools are built-in (Data Explorer, Parsimony Viewer) or contributed by the repo (a package\'s <code>workbench_viewers</code> module).</p>';
+          container.innerHTML = '<p class="empty-state">No analysis tools for this workspace. Tools are built-in (Parsimony Viewer) or contributed by the repo (a package\'s <code>workbench_viewers</code> module).</p>';
           if (countEl) countEl.textContent = '';
           return;
         }
@@ -1872,7 +1988,7 @@
 
   function _renderKindPicker(items, container, kind) {
     if (!items || items.length === 0) {
-      container.innerHTML = '<p class="empty-state">No ' + kind + 's registered. Install a pbg-* package that provides one (Registry tab &rarr; Available modules).</p>';
+      container.innerHTML = '<p class="empty-state">No ' + kind + 's registered. Install a pbg-* package that provides one (Catalog tab &rarr; Available modules).</p>';
       return;
     }
     // Sort: in_workspace → framework → environment_only, then alpha by name.
@@ -1922,8 +2038,9 @@
 
   function _useRegistryClass(kind, name) {
     if (kind === 'emitter') {
-      _switchPage('simulation-setup');
-      // Find the inline simulation form (inside a <details> in Simulation Setup)
+      _switchPage('modules');
+      // Legacy: the inline simulation form (once on Simulation Setup) is gone —
+      // this early-returns, leaving the Modules page shown.
       var form = document.getElementById('form-simulation');
       if (!form) return;
       var details = form.closest('details');
@@ -1982,24 +2099,12 @@
     }
     return String(v);
   }
+  // Exported: static/composite-card.js's _regPortColumn (moved out in the
+  // study-spine-reorg Task 6 extraction) calls this as a global.
+  window._regTypeLabel = _regTypeLabel;
 
-  // One port column (Inputs or Outputs): port name → type, from a schema dict.
-  function _regPortColumn(title, schema) {
-    var keys = schema && typeof schema === 'object' ? Object.keys(schema) : null;
-    var body;
-    if (keys === null) {
-      body = '<div class="reg-port-na" title="Ports depend on a configured instance and can\'t be introspected statically.">—</div>';
-    } else if (!keys.length) {
-      body = '<div class="reg-port-na">(none)</div>';
-    } else {
-      body = '<ul class="reg-port-list">' + keys.map(function (k) {
-        var t = _regTypeLabel(schema[k]);
-        return '<li><code class="reg-port-name">' + _esc(k) + '</code>' +
-          (t ? ' <span class="reg-port-type">' + _esc(t) + '</span>' : '') + '</li>';
-      }).join('') + '</ul>';
-    }
-    return '<div class="reg-port-col"><div class="reg-port-title">' + title + '</div>' + body + '</div>';
-  }
+  // _regPortColumn (one port column: Inputs or Outputs) moved to
+  // static/composite-card.js (study-spine-reorg Task 6).
 
   // ── Registry semantic zoom ──────────────────────────────────────────────
   // 'table' (dense sortable table) | 'grid' (card grid; config/ports on expand)
@@ -2169,6 +2274,15 @@
               : 'Temporal — a Process that advances state over a timestep') +
       '">' + (isStep ? 'Step' : 'Temporal') + '</span>';
   }
+  // Marks a vivarium-BRIDGE process: a vivarium-core Step injected into the
+  // whole-cell engine via the topology bridge (not a pbg-native process). Shown
+  // alongside the kind badge so it's clear it runs inside the WCM engine.
+  function _procBridgeBadge(p) {
+    if (!p || !p.bridge) return '';
+    return '<span class="proc-kind-badge proc-kind-other" ' +
+      'title="Bridge — a vivarium-core process injected into the whole-cell engine ' +
+      'via the topology bridge (not pbg-native; runs inside the WCM)">bridge</span>';
+  }
 
   // Config-schema + ports body, revealed by a per-card "config & ports" dropdown
   // in the grid view — keeps the grid dense but the contract one click away.
@@ -2226,37 +2340,8 @@
 
   // Grid card (middle zoom): name, use, one-line description, and the ports+types
   // shown inline. Double-click zooms to the runnable Full view.
-  // Usage stats chips — shared by grid + full cards, for processes AND
-  // composites: "used in N composites", "requires N processes" (composites),
-  // "N studies · X% passed". Returns '' when there's nothing to show.
-  function _regStatsHtml(p) {
-    var esc = _esc;
-    function stat(glyph, n, singular, plural, title) {
-      return '<span class="reg-stat" title="' + esc(title) + '"><span class="reg-stat-glyph">' + glyph +
-        '</span><strong>' + n + '</strong> ' + (n === 1 ? singular : plural) + '</span>';
-    }
-    var stats = [];
-    if (p.composite_uses) stats.push(stat('▦', p.composite_uses, 'composite', 'composites', 'Used in this many composite generators'));
-    if (p.requires && p.requires.processes && p.requires.processes.length)
-      stats.push(stat('⚙', p.requires.processes.length, 'process', 'processes', 'Requires this many process/step classes'));
-    // Study participation / % success is meaningful only for runnable process
-    // kinds and composites — not emitters/visualizations/analyses/types.
-    var noStudies = /^(emitter|visualization|analysis|type|report_card)$/.test(p.kind || '');
-    var sp = noStudies ? null : (p.study_participation || p.studies);   // composites carry `studies`
-    if (sp && sp.studies) {
-      var succ = (sp.success_pct != null && sp.total)
-        ? ' <span class="reg-succ-inline ' + (sp.success_pct >= 80 ? 'reg-succ-hi' : (sp.success_pct >= 50 ? 'reg-succ-mid' : 'reg-succ-lo')) + '">' + sp.success_pct + '%</span>'
-        : '';
-      stats.push('<span class="reg-stat reg-stat-part" title="Participates in ' + sp.studies +
-        ' stud' + (sp.studies === 1 ? 'y' : 'ies') + '; ' +
-        (sp.pass != null ? sp.pass + '/' + sp.total + ' report-card outcomes passed' : '') + '"><span class="reg-stat-glyph">◆</span><strong>' +
-        sp.studies + '</strong> stud' + (sp.studies === 1 ? 'y' : 'ies') + succ + '</span>');
-    } else if (p.study_uses) {
-      stats.push(stat('⌥', p.study_uses, 'study', 'studies', 'Referenced by this many study runner scripts'));
-    }
-    return stats.join('');
-  }
-  window._regStatsHtml = _regStatsHtml;
+  // _regStatsHtml (usage stats chips, shared by grid + full cards) moved to
+  // static/composite-card.js (study-spine-reorg Task 6).
 
   // Small info-box popup anchored under the clicked element; closes on outside
   // click / scroll. Shared by the clickable card stats.
@@ -2385,7 +2470,7 @@
         ' title="Double-click to zoom in on this ' + (p.kind || 'process') + '">' +
       '<div class="reg-card-row">' +
         '<div class="reg-card-main">' +
-          '<div class="reg-card-head"><strong class="reg-card-name">' + esc(p.name) + '</strong>' + _procKindBadge(p.kind) + defaultBadge + _regUseBadge(p) + '</div>' +
+          '<div class="reg-card-head"><strong class="reg-card-name">' + esc(p.name) + '</strong>' + _procKindBadge(p.kind) + _procBridgeBadge(p) + defaultBadge + _regUseBadge(p) + '</div>' +
           '<code class="reg-card-addr">' + addr + '</code>' +
           (short ? '<p class="reg-card-desc">' + esc(short) + '</p>' : '') +
         '</div>' +
@@ -2443,53 +2528,16 @@
   }
 
   // ── Shared ProcessCard building blocks (used by process + composite cards) ──
-  // Left info-panel row → open + scroll the matching accordion section.
-  function _pcardInfoRow(target, label, n) {
-    return '<button type="button" class="pcard-info-row" data-target="' + target +
-      '" onclick="_pcardJumpSec(this)" title="Open the ' + label + ' section">' +
-      '<span class="pcard-info-label">' + _esc(label) + '</span>' +
-      '<span class="pcard-info-n">' + n + '</span></button>';
-  }
-  // One accordion section: header (caret · name · summary [· extra]) + body.
-  function _pcardSection(key, name, summary, body, opts) {
-    opts = opts || {};
-    var open = !!opts.open;
-    var caret = open ? '▾' : '▸';
-    var cls = 'pcard-sec pcard-sec-' + key + (open ? ' pcard-sec-open' : '') +
-      (opts.wide ? ' pcard-sec-wide' : '') + (opts.resizable ? ' pcard-sec-resizable' : '') +
-      (opts.feature ? ' pcard-sec-feature' : '');
-    // Resizable sections get a drag grip: drag to set height, double-click to fit.
-    var grip = opts.resizable
-      ? '<div class="pcard-sec-grip" title="Drag to resize · double-click to fit contents" ' +
-        'onmousedown="_pcardSecGripDown(event,this)" ontouchstart="_pcardSecGripDown(event,this)" ' +
-        'ondblclick="_pcardSecGripFull(event,this)"></div>'
-      : '';
-    return '<div class="' + cls + '" data-sec="' + key + '">' +
-      '<div class="pcard-sec-head" role="button" tabindex="0" onclick="_pcardToggleSec(this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();_pcardToggleSec(this);}">' +
-        '<span class="pcard-sec-caret">' + caret + '</span>' +
-        '<span class="pcard-sec-name">' + _esc(name) + '</span>' +
-        '<span class="pcard-sec-sum">' + summary + '</span>' +
-        (opts.headExtra || '') +
-      '</div>' +
-      '<div class="pcard-sec-body">' + body + '</div>' +
-      grip +
-    '</div>';
-  }
-  // Persistent (non-collapsible) Run bar — always visible at the card's top level.
-  function _pcardRunBar(inner) {
-    return '<div class="pcard-runbar">' + inner + '</div>';
-  }
-  // "Composite" kind pill (a composite IS a process — sits alongside Temporal/Step).
-  function _compositeBadge() {
-    return '<span class="proc-kind-badge proc-kind-composite" title="Composite — a Process assembled from other processes/steps; open Explore for its bigraph">Composite</span>';
-  }
+  // _pcardInfoRow / _pcardSection / _pcardRunBar / _compositeBadge /
+  // _cardPopoutBtn / _cardMaximizeBtn / _positionMaximizedCard /
+  // _toggleCardMaximize / _maximizeCardFromHeader / _compositeJsonBtn /
+  // _shareCompositeBtn moved to static/composite-card.js (study-spine-reorg
+  // Task 6 — shared with the Study Detail Model tab). composite-card.js loads
+  // before this file, so the bare references below still resolve globally.
 
-  // A card header "pop out" control — opens the whole card (Explore/loom and all)
-  // in its own focused window.
-  function _cardPopoutBtn(address, kind) {
-    return '<button class="pcard-popout" type="button" title="Pop out this card into its own window" ' +
-      'onclick="event.stopPropagation();_popoutCard(\'' + _esc(address) + '\',\'' + _esc(kind) + '\')">⤢</button>';
-  }
+  // A card header "pop out" control — opens the whole card (Explore/loom and
+  // all) in its own focused window. Stays here: its ?popcard= handshake is
+  // this page's own bootstrap (_enterPopcardMode below), not shared.
   function _popoutCard(address, kind) {
     var url = location.origin + location.pathname +
       '?popcard=' + encodeURIComponent(address) + '&kind=' + encodeURIComponent(kind || 'process');
@@ -2497,83 +2545,6 @@
   }
   window._popoutCard = _popoutCard;
 
-  // "⛶" — maximize this card into the content area (right of the left rail),
-  // in-place (unlike ⤢ pop-out which opens a new window). Toggles again / Esc
-  // to restore. Gives the Explore/loom graph the full pane to work in.
-  function _cardMaximizeBtn() {
-    return '<button class="pcard-maximize" type="button" title="Fill the pane — maximize (Esc to exit)" ' +
-      'onclick="event.stopPropagation();_toggleCardMaximize(this)">⛶</button>';
-  }
-  function _positionMaximizedCard(card) {
-    // The card's fixed geometry is CSS-driven (see .pcard-maximized) off a single
-    // CSS var so a card re-render can't strip inline positioning. Here we only
-    // (a) publish the rail's right edge so the card clears the menu bar, and
-    // (b) grow the embedded loom to fill from its top to the bottom of the pane.
-    var rail = document.querySelector('.viv-rail');
-    var railRight = rail ? rail.getBoundingClientRect().right : 240;
-    document.documentElement.style.setProperty('--vw-rail-right', railRight + 'px');
-    var frame = card.querySelector('.ccard-loom-frame');
-    if (frame) {
-      var fr = frame.getBoundingClientRect();
-      frame.style.height = Math.max(360, window.innerHeight - fr.top - 16) + 'px';
-      frame.style.maxHeight = 'none';
-    }
-  }
-  function _toggleCardMaximize(btn) {
-    var card = btn.closest('.registry-entry-full');
-    if (!card) return;
-    var on = card.classList.toggle('pcard-maximized');
-    document.body.classList.toggle('pcard-maximized', on);
-    if (on) {
-      btn.title = 'Restore (Esc)';
-      // Make sure the Explore section is open so the loom is actually visible.
-      var explore = card.querySelector('.pcard-sec-explore');
-      if (explore && !explore.classList.contains('pcard-sec-open')) {
-        var head = explore.querySelector('.pcard-sec-head');
-        if (head) head.click();
-      }
-      _positionMaximizedCard(card);
-      card._maxReposition = function () { _positionMaximizedCard(card); };
-      card._maxEsc = function (e) { if (e.key === 'Escape') _toggleCardMaximize(btn); };
-      window.addEventListener('resize', card._maxReposition);
-      document.addEventListener('keydown', card._maxEsc);
-      // Re-fit once the Explore section has finished expanding.
-      setTimeout(function () { if (card.classList.contains('pcard-maximized')) _positionMaximizedCard(card); }, 120);
-    } else {
-      btn.title = 'Fill the pane — maximize (Esc to exit)';
-      ['position', 'top', 'left', 'width', 'height', 'zIndex'].forEach(function (p) { card.style[p] = ''; });
-      var frame = card.querySelector('.ccard-loom-frame');
-      if (frame) { frame.style.height = ''; frame.style.maxHeight = ''; }
-      if (card._maxReposition) window.removeEventListener('resize', card._maxReposition);
-      if (card._maxEsc) document.removeEventListener('keydown', card._maxEsc);
-      card._maxReposition = card._maxEsc = null;
-      card.scrollIntoView({ block: 'nearest' });
-    }
-  }
-  window._toggleCardMaximize = _toggleCardMaximize;
-
-  // Double-clicking a composite card's header also maximizes it (per user ask).
-  function _maximizeCardFromHeader(headerEl) {
-    var card = headerEl.closest('.registry-entry-full');
-    if (!card) return;
-    var btn = card.querySelector('.pcard-maximize');
-    if (btn) _toggleCardMaximize(btn);
-  }
-  window._maximizeCardFromHeader = _maximizeCardFromHeader;
-
-  // "{ } JSON" — reveal the composite's full resolved JSON spec (processes,
-  // wiring, visualizations…) at the top of the card, as a collapsible tree.
-  function _compositeJsonBtn() {
-    return '<button class="pcard-json-btn" type="button" title="View the full composite JSON spec" ' +
-      'onclick="event.stopPropagation();_toggleCompositeJson(this)">{ } JSON</button>';
-  }
-  // "🔗 Share" — copy an absolute link to THIS composite's interactive bigraph
-  // view (the loom, which applies the composite's saved default view). Sits next
-  // to { } JSON so it's easy to grab a shareable URL — works in the snapshot too.
-  function _shareCompositeBtn() {
-    return '<button class="pcard-json-btn" type="button" title="Copy a shareable link to this composite\'s view" ' +
-      'onclick="event.stopPropagation();_shareCompositeFromHeader(this)">🔗 Share</button>';
-  }
   function _shareCompositeFromHeader(btn) {
     var card = btn.closest('.registry-entry-full');
     var id = card ? card.getAttribute('data-address') : null;
@@ -2582,9 +2553,9 @@
       ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
     // chrome=off → a view-only share: just the bigraph graph + toolbar, no tab
     // strip / left Config panel / bottom run bar (matches the loom Share button).
-    var rel = document.body.classList.contains('snapshot')
+    var rel = (document.body.classList.contains('snapshot')
       ? apiUrl('/bigraph-loom/index.html') + '?static=1&chrome=off&stateUrl=' + encodeURIComponent(_compositeStateUrl(id))
-      : apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off';
+      : apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off') + '&v=' + _LOOM_V;
     var url;
     try { url = new URL(rel, window.location.href).href; } catch (e) { url = rel; }
     var flash = function () {
@@ -2644,18 +2615,8 @@
     // focus-mode strips the rail/topbar (content-only window); popcard-mode
     // additionally hides the registry tabs + toolbar to leave just the card.
     document.body.classList.add('focus-mode', 'popcard-mode');
-    // Floating "pop back in" control (top-left) — return to the full workbench
-    // (with the side rail) showing this composite maximized.
-    if (!document.getElementById('popcard-backin')) {
-      var _bi = document.createElement('button');
-      _bi.id = 'popcard-backin'; _bi.type = 'button'; _bi.textContent = '◀ Pop back in';
-      _bi.title = 'Return to the workbench (with the side menu) and show this composite here';
-      _bi.style.cssText = 'position:fixed;top:9px;left:10px;z-index:100000;height:30px;' +
-        'padding:0 12px;font-size:13px;font-weight:600;background:#fff;border:1px solid #d1d5db;' +
-        'border-radius:6px;cursor:pointer;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,0.14)';
-      _bi.onclick = function () { _popCardBackIn(address, kind); };
-      document.body.appendChild(_bi);
-    }
+    // "Pop back in" is injected into the card HEADER's action row (top-right,
+    // where the pop-out button was) after the card renders — see below.
     var isComposite = (kind === 'composite');
     if (typeof _switchPage === 'function') _switchPage('modules');
     window._registryZoom = 'full';
@@ -2675,10 +2636,22 @@
       if (host && html) {
         host.innerHTML = '<div class="reg-cards reg-cards-full popcard-single">' + html + '</div>';
         if (typeof _observeRunnableCards === 'function') _observeRunnableCards(host);
-        // For composites, auto-open Explore so the loom is visible immediately.
+        // "Pop back in" in the header action row (top-right, replacing the now-
+        // redundant ↗ pop-out button — hidden via .popcard-mode CSS).
+        var _hdr = host.querySelector('.pcard-header');
+        if (_hdr && !_hdr.querySelector('.popcard-backin-hdr')) {
+          var _bi = document.createElement('button');
+          _bi.className = 'popcard-backin-hdr'; _bi.type = 'button';
+          _bi.textContent = '◀ Pop back in';
+          _bi.title = 'Return to the workbench (with the side menu) and show this composite here';
+          _bi.onclick = function (ev) { ev.stopPropagation(); _popCardBackIn(address, kind); };
+          _hdr.appendChild(_bi);
+        }
+        // For composites (popped-out single card), auto-open the loom so it's
+        // visible immediately — via the single graph bar that toggles it.
         if (isComposite) {
-          var sec = host.querySelector('.pcard-sec-explore .pcard-sec-head');
-          if (sec) _pcardToggleSec(sec);
+          var expBtn = host.querySelector('.pcard-graph-bar');
+          if (expBtn && typeof _toggleLoomCard === 'function') _toggleLoomCard(expBtn);
         }
         return;
       }
@@ -2834,175 +2807,13 @@
     '</div>';
   }
 
-  // Expand / collapse a clamped description in place.
-  function _pcardToggleDesc(el) { if (el) el.classList.toggle('pcard-desc-open'); }
-  window._pcardToggleDesc = _pcardToggleDesc;
+  // _pcardToggleDesc / _pcardSecGripDown / _pcardSecGripFull / _pcardToggleSec /
+  // _pcardJumpSec / _compositeLoomExplore / _runCmdChip / _copyRunCmd /
+  // _renderCompositeCardGrid moved to static/composite-card.js
+  // (study-spine-reorg Task 6). composite-card.js's _pcardToggleSec still
+  // calls _loadFullRunFields (below, process-only) and
+  // _openCompositeLoomInline (this page's live-loom glue) as globals.
 
-  // Resize a section body by dragging its grip; double-click fits to contents.
-  function _pcardSecGripDown(e, grip) {
-    if (e && e.cancelable) e.preventDefault();
-    var sec = grip.closest('.pcard-sec'); if (!sec) return;
-    var body = sec.querySelector('.pcard-sec-body'); if (!body) return;
-    sec.classList.remove('pcard-sec-full');
-    var y0 = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-    var h0 = body.getBoundingClientRect().height;
-    document.body.classList.add('pcard-sec-resizing');
-    function move(ev) {
-      var y = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
-      body.style.setProperty('--pch', Math.max(56, h0 + (y - y0)) + 'px');
-      if (ev.cancelable) ev.preventDefault();
-    }
-    function up() {
-      document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up);
-      document.removeEventListener('touchmove', move); document.removeEventListener('touchend', up);
-      document.body.classList.remove('pcard-sec-resizing');
-    }
-    document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
-    document.addEventListener('touchmove', move, { passive: false }); document.addEventListener('touchend', up);
-  }
-  window._pcardSecGripDown = _pcardSecGripDown;
-  function _pcardSecGripFull(e, grip) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    var sec = grip.closest('.pcard-sec'); if (!sec) return;
-    var body = sec.querySelector('.pcard-sec-body'); if (body) body.style.removeProperty('--pch');
-    sec.classList.toggle('pcard-sec-full');
-  }
-  window._pcardSecGripFull = _pcardSecGripFull;
-
-  // Toggle one accordion section (Configure / Inputs / Run / Outputs). Opening
-  // Configure or Inputs makes sure the lazily-resolved fields are loaded.
-  function _pcardToggleSec(head) {
-    var sec = head.closest('.pcard-sec'); if (!sec) return;
-    var open = sec.classList.toggle('pcard-sec-open');
-    var caret = head.querySelector('.pcard-sec-caret'); if (caret) caret.textContent = open ? '▾' : '▸';
-    if (!open) return;
-    var card = head.closest('.registry-entry-full');
-    // Process cards lazy-load resolved config/input fields; composites don't.
-    if (card && !card.classList.contains('pcard-composite')) _loadFullRunFields(card);
-    // Explore section: mount the composite's loom bigraph on first open.
-    var embed = sec.querySelector('.ccard-loom-embed');
-    if (embed && typeof _openCompositeLoomInline === 'function') _openCompositeLoomInline(embed);
-    // Outputs section: lazy-fill the declared-observables checklist on first open.
-    if (card && card.classList.contains('pcard-composite') && sec.getAttribute('data-sec') === 'outputs') {
-      _loadCompositeObservables(card);
-    }
-  }
-  window._pcardToggleSec = _pcardToggleSec;
-
-  // Info-panel click → open the matching section and scroll it into view.
-  function _pcardJumpSec(btn) {
-    var target = btn.getAttribute('data-target');
-    var card = btn.closest('.registry-entry-full'); if (!card) return;
-    var sec = card.querySelector('.pcard-sec[data-sec="' + target + '"]'); if (!sec) return;
-    if (!sec.classList.contains('pcard-sec-open')) {
-      var head = sec.querySelector('.pcard-sec-head'); if (head) _pcardToggleSec(head);
-    }
-    try { sec.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { /* ignore */ }
-  }
-  window._pcardJumpSec = _pcardJumpSec;
-
-  // ── Composite ProcessCard ────────────────────────────────────────────────
-  // A composite IS a process (§ unified idea): same card, same accordion, plus
-  // an EXPLORE section (the wide loom bigraph) between Inputs and Run. A
-  // composite is mostly top-level, so Inputs/Outputs are informational; the
-  // value is Configure (its parameters) + Explore (its internal wiring).
-  function _compositeLoomExplore(c) {
-    // The loom is a read-only VIEWER: config is edited in the Configure section
-    // and running is the ▶ RUN bar below — so no "Enable running" / live toggle.
-    return '<div class="ccard-loom-embed pcard-loom" data-id="' + _esc(c.id) + '">' +
-      '<div class="ccard-loom-frame"><p class="muted" style="padding:10px;font-size:0.85em">Resolving composite &amp; rendering the bigraph…</p></div>' +
-    '</div>';
-  }
-
-  // Shared "how to run this in your terminal" chip: a copy-pasteable one-line
-  // command + a copy button, rendered on composite/process cards and the
-  // investigation graph. The canonical command strings come from the server
-  // (lib/run_commands.py, mirrored per surface); this only presents + copies
-  // them. Self-contained inline styles (no CSS-file dependency). A long command
-  // (e.g. the process one-liner) truncates with ellipsis; hover/copy give the
-  // full text. onclick stopPropagation so it never triggers the card's select.
-  function _runCmdChip(cmd) {
-    if (!cmd) return '';
-    var full = _esc(cmd);
-    return '<div class="run-cmd-chip" onclick="event.stopPropagation()" ' +
-        'style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:4px 6px;' +
-        'background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;font-size:0.72em;min-width:0">' +
-      '<span aria-hidden="true" style="color:#94a3b8;flex:none;font-family:ui-monospace,monospace">$</span>' +
-      '<code title="' + full + '" style="flex:1 1 auto;min-width:0;overflow:hidden;' +
-        'text-overflow:ellipsis;white-space:nowrap;color:#334155;' +
-        'font-family:ui-monospace,SFMono-Regular,Menlo,monospace">' + full + '</code>' +
-      '<button type="button" class="run-cmd-copy" data-cmd="' + full + '" ' +
-        'onclick="event.stopPropagation();_copyRunCmd(this)" title="Copy command" ' +
-        'style="flex:none;font-size:0.95em;cursor:pointer;border:1px solid #cbd5e1;' +
-        'background:#fff;border-radius:4px;padding:1px 6px;color:#475569">copy</button>' +
-    '</div>';
-  }
-  window._runCmdChip = _runCmdChip;
-
-  function _copyRunCmd(btn) {
-    var cmd = btn && btn.getAttribute('data-cmd');
-    if (!cmd) return;
-    var done = function () {
-      var prev = btn.getAttribute('data-label') || 'copy';
-      btn.textContent = 'copied'; btn.style.color = '#047857';
-      setTimeout(function () { btn.textContent = prev; btn.style.color = '#475569'; }, 1200);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(cmd).then(done, done);
-    } else { done(); }
-  }
-  window._copyRunCmd = _copyRunCmd;
-
-  // Compact composite card (Cards / medium zoom) — mirrors the process grid
-  // card: name · badge · address · short desc · usage stats.
-  function _renderCompositeCardGrid(c) {
-    var addr = c.module ? (c.module + '.' + c.name) : c.id;
-    var desc = (c.description || '').trim(), short = desc ? desc.split('\n')[0] : '';
-    var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
-    var stats = _regStatsHtml(c);
-    var selCls = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
-    var idA = _esc(c.id);
-    // A little more info on the card: process + parameter counts, and tags.
-    var np = (c.parameters && typeof c.parameters === 'object') ? Object.keys(c.parameters).length : 0;
-    var nproc = (c.requires && c.requires.processes) ? c.requires.processes.length : 0;
-    var metaBits = [];
-    if (nproc) metaBits.push(nproc + ' process' + (nproc === 1 ? '' : 'es'));
-    if (np) metaBits.push(np + ' param' + (np === 1 ? '' : 's'));
-    var meta = metaBits.length
-      ? '<div class="reg-card-meta" style="font-size:11px;color:#6b7280;margin:2px 0 4px">' + metaBits.join(' · ') + '</div>' : '';
-    var tags = Array.isArray(c.tags) ? c.tags.slice(0, 3) : [];
-    var tagHtml = tags.length
-      ? '<div class="reg-card-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">' +
-          tags.map(function (t) { return '<span style="font-size:10px;color:#6d28d9;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:4px;padding:1px 6px">' + _esc(t) + '</span>'; }).join('') +
-        '</div>' : '';
-    var actions = '<div class="reg-card-actions" style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">' +
-      '<button type="button" onclick="event.stopPropagation();_enterMaxcardMode(\'' + idA + '\',\'composite\')" ' +
-        'title="Open maximized with the interactive bigraph (Explore) pinned at the top" ' +
-        'style="height:26px;padding:0 11px;font-size:12px;font-weight:600;background:#2563eb;color:#fff;border:1px solid #2563eb;border-radius:5px;cursor:pointer">🔍 Explore</button>' +
-      '<button type="button" onclick="event.stopPropagation();_popoutCard(\'' + idA + '\',\'composite\')" ' +
-        'title="Pop out into its own window" ' +
-        'style="height:26px;padding:0 9px;font-size:12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:5px;cursor:pointer">⤢ Pop out</button>' +
-      '<button type="button" onclick="event.stopPropagation();_setRegistryZoom(\'full\')" ' +
-        'title="Open the full card (Configure · Inputs · Run)" ' +
-        'style="height:26px;padding:0 9px;font-size:12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:5px;cursor:pointer">Full card</button>' +
-    '</div>';
-    return '<div class="registry-card' + selCls + '" data-address="' + idA + '" data-kind="composite"' +
-        ' onclick="_selectRegistryEntry(\'' + idA + '\')" ondblclick="_enterMaxcardMode(\'' + idA + '\',\'composite\')"' +
-        ' title="Double-click to Explore (maximized bigraph)">' +
-      '<div class="reg-card-row">' +
-        '<div class="reg-card-main">' +
-          '<div class="reg-card-head"><strong class="reg-card-name">' + _esc(c.name) + '</strong>' + _compositeBadge() + wsPill + '</div>' +
-          '<code class="reg-card-addr">' + _esc(addr) + '</code>' +
-          meta +
-          (short ? '<p class="reg-card-desc">' + _esc(short) + '</p>' : '') +
-          tagHtml +
-          _runCmdChip(c.run_command) +
-          actions +
-        '</div>' +
-        '<div class="reg-card-stats">' + stats + '</div>' +
-      '</div>' +
-    '</div>';
-  }
   // Composite table (Table / dense zoom).
   function _renderCompositeTableHtml(list) {
     var mod = function (c) { return (c.module || ''); };
@@ -3025,98 +2836,9 @@
       '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
-  // Outputs before any run this session.
-  function _compositeOutIdle() {
-    return '<div class="pcard-out-empty">' +
-      '<p class="pcard-out-empty-title">No run yet</p>' +
-      '<p class="muted">Set <strong>Steps</strong> and hit <strong>▶ Run</strong> above — this shows the run\'s progress, then its visualizations. Past runs live under ' +
-        '<a href="#simulations" onclick="_switchPage(\'simulations\');return false;">Runs</a>.</p>' +
-    '</div>';
-  }
-
-  // Outputs controls: the emitter (observation sink) + the observables to emit.
-  // The emitter mirrors the composite's `emitter` config param (choices), and
-  // on change syncs back to the Configure field so runs + Explore re-resolve
-  // stay consistent. The observables checklist is lazy-filled on first open
-  // (see _loadCompositeObservables) from the composite's declared emit paths.
-  function _compositeOutControls(c) {
-    var params = (c.parameters && typeof c.parameters === 'object') ? c.parameters : {};
-    var em = params.emitter || {};
-    var emVal = ('default' in em) ? em.default : null;
-    var emChoices = Array.isArray(em.choices) ? em.choices : null;
-    var emHint = em.description ? String(em.description).split('.')[0] : '';
-    var emitterRow = '';
-    if (emChoices) {
-      emitterRow =
-        '<div class="pcard-out-ctl-row">' +
-          '<span class="pcard-out-ctl-lbl">Emitter</span>' +
-          '<select class="pcard-out-emitter" data-role="out-emitter-sel" onchange="_syncOutEmitter(this)" title="Observation sink — where this run\'s outputs are written">' +
-            emChoices.map(function (ch) { return '<option value="' + _esc(String(ch)) + '"' + (ch === emVal ? ' selected' : '') + '>' + _esc(String(ch)) + '</option>'; }).join('') +
-          '</select>' +
-          (emHint ? '<span class="pcard-out-ctl-hint muted">' + _esc(emHint) + '</span>' : '') +
-        '</div>';
-    } else if (emVal != null) {
-      emitterRow =
-        '<div class="pcard-out-ctl-row">' +
-          '<span class="pcard-out-ctl-lbl">Emitter</span>' +
-          '<code class="pcard-out-emitter-static">' + _esc(String(emVal)) + '</code>' +
-          '<span class="pcard-out-ctl-hint muted">set in Configure</span>' +
-        '</div>';
-    }
-    return '<div class="pcard-out-controls" data-role="out-controls">' +
-      emitterRow +
-      '<div class="pcard-out-ctl-row pcard-out-obs-row">' +
-        '<span class="pcard-out-ctl-lbl">Observables</span>' +
-        '<div class="pcard-out-obs" data-role="out-observables">' +
-          '<span class="muted pcard-out-obs-hint">Loading declared observables…</span>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-
-  // Mirror the Outputs emitter <select> back to the Configure `emitter` field so
-  // there is a single authoritative value at run time (_collectCardConfig reads
-  // Configure) and the Explore re-resolve uses the same emitter.
-  function _syncOutEmitter(sel) {
-    var card = sel.closest('.registry-entry-full'); if (!card) return;
-    var cfg = card.querySelector('.loom-cfg-field[data-key="emitter"]');
-    if (cfg) cfg.value = sel.value;
-  }
-  window._syncOutEmitter = _syncOutEmitter;
-
-  // Lazy-fill the Outputs observables checklist from the composite's DECLARED
-  // emit paths (composite-resolve → state._declared_emit_paths). All checked by
-  // default; global_time is always emitted (time axis) so it's shown pinned/
-  // disabled, not a toggle. Runs pass a subset as emit_paths (see _runComposite).
-  function _loadCompositeObservables(card) {
-    if (!card || card._obsLoaded) return;
-    card._obsLoaded = true;
-    var box = card.querySelector('[data-role="out-observables"]'); if (!box) return;
-    var id = card.getAttribute('data-address');
-    fetch(_api('/api/composite-resolve?id=' + encodeURIComponent(id)))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var st = (d && d.state) ? d.state : d;
-        var paths = (st && Array.isArray(st._declared_emit_paths)) ? st._declared_emit_paths : [];
-        var toggles = paths.filter(function (p) { return p && p !== 'global_time'; });
-        if (!toggles.length) {
-          box.innerHTML = '<span class="muted">This composite declares no selectable observables — the run emits its default set.</span>';
-          return;
-        }
-        box.innerHTML =
-          (paths.indexOf('global_time') >= 0
-            ? '<label class="pcard-obs-item pcard-obs-fixed" title="Always emitted — the trajectory time axis"><input type="checkbox" checked disabled> global_time</label>'
-            : '') +
-          toggles.map(function (p) {
-            return '<label class="pcard-obs-item"><input type="checkbox" class="pcard-obs-cb" value="' + _esc(p) + '" checked> ' + _esc(p) + '</label>';
-          }).join('');
-      })
-      .catch(function () {
-        card._obsLoaded = false;  // allow a retry on next open
-        box.innerHTML = '<span class="muted pcard-apply-err">Could not load declared observables.</span>';
-      });
-  }
-  window._loadCompositeObservables = _loadCompositeObservables;
+  // _compositeOutIdle / _compositeOutControls / _syncOutEmitter /
+  // _loadCompositeObservables moved to static/composite-card.js
+  // (study-spine-reorg Task 6).
 
   // Poll a launched composite run and render its progress → visualizations into
   // the card's Outputs panel. /api/composite-run/<id>/status returns
@@ -3142,7 +2864,7 @@
     card._pollRun = runId;   // guard: a newer run supersedes this poll
     var tick = function () {
       if (card._pollRun !== runId) return;   // superseded
-      fetch(_api('/api/composite-run/' + encodeURIComponent(runId) + '/status'))
+      apiFetch('GET', '/api/composite-run/' + encodeURIComponent(runId) + '/status')
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (res) {
           if (card._pollRun !== runId) return;
@@ -3191,97 +2913,11 @@
   }
   window._pollCompositeRun = _pollCompositeRun;
 
-  function _renderCompositeCardFull(c) {
-    var params = (c.parameters && typeof c.parameters === 'object') ? c.parameters : {};
-    var pKeys = Object.keys(params), nCfg = pKeys.length;
-    var desc = (c.description || '').trim();
-    var sel = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
-    var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
-    var roPill = c.read_only ? '<span class="tag-pill" style="background:#fef2f2;color:#b91c1c;margin-left:6px">read-only</span>' : '';
-
-    var chip = function (k) { return '<code class="pcard-chip">' + _esc(k) + '</code>'; };
-    var cfgChips = nCfg
-      ? pKeys.slice(0, 6).map(chip).join('') + (nCfg > 6 ? ' <span class="muted pcard-chip-more">+' + (nCfg - 6) + '</span>' : '')
-      : '<span class="muted">none</span>';
-
-    // Editable config fields from each parameter's default; title carries its
-    // description so hovering a field explains the parameter.
-    var cfgFields = nCfg
-      ? pKeys.map(function (k) {
-          var pv = params[k] || {};
-          return _runField(k, ('default' in pv) ? pv.default : null, { type: pv.type, description: pv.description });
-        }).join('')
-      : '<p class="muted" style="font-size:0.82em">No parameters.</p>';
-
-    var infoPanel =
-      '<div class="pcard-infopanel">' +
-        _pcardInfoRow('configure', 'Config', nCfg) +
-        _pcardInfoRow('inputs', 'Inputs', 0) +
-        _pcardInfoRow('outputs', 'Outputs', 0) +
-      '</div>';
-
-    var configBody =
-      '<div class="cfg-list" data-role="cfg">' + cfgFields + '</div>' +
-      _cfgJsonTools() +
-      '<div class="pcard-config-actions">' +
-        '<button class="btn-mini pcard-apply" type="button" onclick="_applyCompositeConfig(this)" title="Apply parameters &amp; re-resolve the Explore bigraph">✓ Apply</button>' +
-        '<button class="btn-mini" type="button" onclick="_resetCompositeConfig(this)" title="Reset to declared defaults">↺ Reset</button>' +
-        _cfgJsonToggle() +
-        '<span class="pcard-apply-status muted" data-role="apply-status"></span>' +
-      '</div>';
-
-    var topNote = '<p class="muted pcard-toplevel-note">Top-level composite — its interface is the internal wiring (see Explore), not bridge ports.</p>';
-    var runBar = _pcardRunBar(
-      // The ▶ RUN label IS the run button (its whole side of the bar), with the
-      // Steps selector beside it — no separate Run button on the right.
-      c.read_only
-        ? '<span class="pcard-run-go pcard-run-go-disabled" aria-disabled="true">▶ Run</span>' +
-          '<span class="muted pcard-run-note">read-only composite — enable running inside Explore to run in place</span>'
-        : '<button class="pcard-run-go" type="button" onclick="_runComposite(this)">▶ Run</button>' +
-          '<label class="loom-run-field loom-run-interval-field">Steps <input type="number" step="1" min="1" class="pcard-run-time" placeholder="e.g. 10"></label>');
-
-    // Outputs = the launched run's live status → its visualizations. A composite
-    // run is detached; _runComposite stores the run_id and _pollCompositeRun
-    // fills this panel (progress → viz_html on completion).
-    var outputsBody =
-      _compositeOutControls(c) +
-      '<div class="pcard-out-panel" data-role="out-panel">' + _compositeOutIdle() + '</div>';
-    var addr = c.module ? (c.module + '.' + c.name) : c.id;
-
-    return '<div class="registry-entry registry-entry-full loom-runnable pcard pcard-accordion pcard-composite' + sel +
-        '" data-address="' + _esc(c.id) + '" data-kind="composite">' +
-      '<div class="loom-card loom-card-stack loom-card-composite">' +
-        '<div class="pcard-top">' +
-          '<div class="pcard-header pcard-title" onclick="_pinCardTop(this)" ondblclick="event.stopPropagation();_maximizeCardFromHeader(this)" title="Click to pin to top · double-click to maximize">' +
-            '<span class="loom-name">' + _esc(c.name) + '</span>' + _compositeBadge() + wsPill + roPill +
-            '<code class="loom-addr">' + _esc(addr) + '</code>' +
-            _shareCompositeBtn() +
-            _compositeJsonBtn() +
-            _cardMaximizeBtn() +
-            _cardPopoutBtn(c.id, 'composite') +
-          '</div>' +
-          '<div class="pcard-summary">' +
-            '<div class="pcard-desc-col">' +
-              '<div class="pcard-contract-meta" data-role="contract-meta">composite · <strong>' + nCfg + '</strong> param' + (nCfg === 1 ? '' : 's') + '</div>' +
-              (function () { var s = _regStatsHtml(c); return s ? '<div class="reg-card-stats pcard-usage">' + s + '</div>' : ''; })() +
-              (desc ? '<p class="loom-desc pcard-desc-clamp" onclick="_pcardToggleDesc(this)" title="Click to expand / collapse">' + _esc(desc) + '</p>' : '') +
-            '</div>' +
-          '</div>' +
-          '<div class="pcard-json-view" data-role="composite-json" hidden>' +
-            '<div class="pcard-json-body"></div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="pcard-acc">' +
-          _pcardSection('explore', 'Explore', '<span class="pcard-sec-hint">◆ Interactive bigraph — click to open</span>', _compositeLoomExplore(c), { wide: true, feature: true }) +
-          _pcardSection('configure', 'Configure', '<span class="pcard-sec-count">' + nCfg + '</span><span class="pcard-config-chips" data-role="config-chips" hidden></span>', configBody, { resizable: true }) +
-          _pcardSection('inputs', 'Inputs', '<span class="pcard-sec-count">0</span>', topNote) +
-          runBar +
-          _pcardSection('outputs', 'Outputs', '', outputsBody) +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-  window._renderCompositeCardFull = _renderCompositeCardFull;
+  // _renderCompositeCardFull moved to static/composite-card.js
+  // (study-spine-reorg Task 6) — shared verbatim with the Study Detail Model
+  // tab. composite-card.js loads before this file and exports it on
+  // `window`, so callers below (_enterPopcardMode/_enterMaxcardMode/etc.)
+  // keep working unchanged.
 
   // Apply edited parameters → re-resolve the Explore bigraph with the overrides.
   function _applyCompositeConfig(btn) {
@@ -3351,7 +2987,7 @@
   // discovered afterward via aws batch describe-jobs. A plain local-engine
   // run (unchanged, pre-existing behavior) fires with no confirm.
   function _confirmRemoteDispatchThen(fireFn, cancelFn) {
-    fetch(_api('/api/remote-run-config')).then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (cfg) {
+    apiFetch('GET', '/api/remote-run-config').then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (cfg) {
       cfg = cfg || {};
       if (cfg.pinned) {
         var msg = 'Dispatch to AWS Batch:\n\n' +
@@ -3402,7 +3038,7 @@
     _confirmRemoteDispatchThen(function () {
       btn.disabled = true; btn.textContent = 'Launching…';
       if (status) { status.classList.remove('pcard-apply-err'); status.textContent = 'launching run…'; }
-      fetch(_api('/api/composite-test-run'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      apiFetch('POST', '/api/composite-test-run', payload)
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (res) {
           var rid = res.j && res.j.run_id;
@@ -3525,6 +3161,10 @@
       })
       .catch(function () { apply({}, {}, {}); });
   }
+  // Exported: static/composite-card.js's _pcardToggleSec (moved out in the
+  // study-spine-reorg Task 6 extraction) calls this as a global for
+  // non-composite (process) cards.
+  window._loadFullRunFields = _loadFullRunFields;
 
   // Load resolved defaults for runnable Full cards as they scroll into view, so
   // the Full zoom doesn't fire N template fetches for every process at once.
@@ -3539,53 +3179,9 @@
     cards.forEach(function (c) { io.observe(c); });
   }
 
-  // One config parameter as an organized ROW: name · declared type · value
-  // field (prefilled with the default). `opts.type` is the declared type label,
-  // `opts.description` a hover/explainer line. The input carries the vtype the
-  // collectors (_collectCardConfig / run) read back.
-  function _runField(key, value, opts) {
-    opts = opts || {};
-    var t = (value === null) ? 'null' : (Array.isArray(value) ? 'json' : typeof value);
-    var attr = 'class="loom-cfg-field" data-key="' + _esc(key) + '" data-vtype="';
-    var input;
-    if (t === 'boolean') {
-      input = '<input type="checkbox" ' + attr + 'boolean"' + (value ? ' checked' : '') + '>';
-    } else if (t === 'number') {
-      input = '<input type="number" step="any" ' + attr + 'number" value="' + _esc(String(value)) + '">';
-    } else if (t === 'string') {
-      input = '<input type="text" ' + attr + 'string" value="' + _esc(value) + '">';
-    } else {
-      var jv = ''; try { jv = JSON.stringify(value); } catch (e) { jv = ''; }
-      input = '<input type="text" ' + attr + 'json" value="' + _esc(jv) + '" placeholder="JSON / null">';
-    }
-    var typeLabel = opts.type || '';
-    var desc = (opts.description || '').trim();
-    return '<div class="cfg-row"' + (desc ? ' title="' + _esc(desc) + '"' : '') + '>' +
-        '<div class="cfg-row-name">' +
-          '<span class="cfg-key">' + _esc(key) + '</span>' +
-          (typeLabel ? '<span class="cfg-type">' + _esc(typeLabel) + '</span>' : '') +
-        '</div>' +
-        '<div class="cfg-row-input">' + input + '</div>' +
-        (desc ? '<div class="cfg-row-desc">' + _esc(desc) + '</div>' : '') +
-      '</div>';
-  }
+  // _runField / _cfgJsonTools / _cfgJsonToggle moved to
+  // static/composite-card.js (study-spine-reorg Task 6).
 
-  // "Set via JSON" panel — paste a JSON object to override matching config
-  // fields in one shot. Shared by process + composite Configure sections.
-  function _cfgJsonTools() {
-    return '<div class="cfg-json" hidden data-role="cfg-json">' +
-        '<textarea class="cfg-json-box" spellcheck="false" rows="4" ' +
-          'placeholder=\'{ "param": value, … }  — overrides the matching fields above\'></textarea>' +
-        '<div class="cfg-json-actions">' +
-          '<button class="btn-mini" type="button" onclick="_applyConfigJson(this)">Load into fields</button>' +
-          '<span class="cfg-json-status muted"></span>' +
-        '</div>' +
-      '</div>';
-  }
-  function _cfgJsonToggle() {
-    return '<button class="btn-mini cfg-json-toggle" type="button" onclick="_toggleConfigJson(this)" ' +
-      'title="Paste a JSON object to set several parameters at once">{ } Set via JSON</button>';
-  }
   // Reveal/hide the JSON panel; on reveal, prefill it with the current values.
   function _toggleConfigJson(btn) {
     var body = btn.closest('.pcard-sec-body') || btn.closest('.pcard-region-body'); if (!body) return;
@@ -4007,10 +3603,7 @@
     var orig = btn.textContent;
     btn.disabled = true; btn.textContent = 'Running…';
     out.innerHTML = '<div class="muted" style="font-size:0.85em">Running…</div>';
-    fetch('/api/registry/run-process', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address: address, config: config, inputs: inputs, interval: interval }),
-    })
+    apiFetch('POST', '/api/registry/run-process', { address: address, config: config, inputs: inputs, interval: interval })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         btn.disabled = false; btn.textContent = orig;
@@ -4130,7 +3723,7 @@
           '" onclick="_selectRegistryEntry(\'' + _esc(p.address || '') + '\')" ondblclick="_zoomInOn(\'' + _esc(p.address || '') + '\')"' +
           ' title="Click to select · double-click to zoom in on this process">' +
         '<td class="reg-td-name" title="' + _esc(p.address || p.name || '') + '"><strong>' + _esc(p.name) + '</strong> <code>' + _esc(p.address || '') + '</code></td>' +
-        '<td class="reg-td-kind">' + (_procKindBadge(p.kind) || _esc(_procKindLabel(p.kind))) + '</td>' +
+        '<td class="reg-td-kind">' + (_procKindBadge(p.kind) || _esc(_procKindLabel(p.kind))) + _procBridgeBadge(p) + '</td>' +
         '<td title="' + _esc(mod(p)) + '">' + _esc(mod(p)) + '</td>' +
         '<td class="num">' + (p.use_count || 0) + '</td>' +
         '<td class="num">' + ((p.study_participation || {}).studies || 0) + '</td>' +
@@ -4176,15 +3769,7 @@
   }
   window._startColResize = _startColResize;
 
-  // Percent-success cell/chip from a study_participation stat (pass/total of
-  // report-card outcomes across participating studies). '—' when none ran.
-  function _successCell(sp) {
-    if (!sp || sp.success_pct == null || !sp.total) return '<span class="muted">—</span>';
-    var pct = sp.success_pct;
-    var cls = pct >= 80 ? 'reg-succ-hi' : (pct >= 50 ? 'reg-succ-mid' : 'reg-succ-lo');
-    return '<span class="reg-succ ' + cls + '" title="' + sp.pass + ' / ' + sp.total +
-      ' report-card outcomes passed across participating studies">' + pct + '%</span>';
-  }
+  // _successCell moved to static/composite-card.js (study-spine-reorg Task 6).
   function _setRegistryTableSort(key) {
     if (window._registryTableSort === key) {
       window._registryTableDir = (window._registryTableDir === 'desc') ? 'asc' : 'desc';
@@ -4300,24 +3885,37 @@
     var _sortKey = window._registrySort || 'use';
     var primary = inWs.concat(framework).sort(function(a, b) { return _registryGridCmp(a, b, _sortKey); });
     envOnly.sort(function(a, b) { return _registryGridCmp(a, b, _sortKey); });
+    var _hasEnv = envOnly.length > 0;
     if (primary.length) {
+      // Only label the workspace group when there's also an environment group to
+      // separate it from — a single group needs no header.
+      if (_hasEnv) {
+        html += '<div class="reg-section-header" style="margin:2px 0 8px;font-size:0.82em;' +
+          'font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#475569">' +
+          'Declared in this workspace <span style="color:#9ca3af;font-weight:600">' + primary.length + '</span></div>';
+      }
       html += '<div class="' + cardsCls + '">' + primary.map(_renderRegistryEntry).join('') + '</div>';
     } else {
       html += '<p class="empty-state muted" style="font-size:0.9em">No workspace-declared entries of this kind.</p>';
     }
 
-    // Environment-only entries: collapsible section, dimmed.
-    if (envOnly.length) {
+    // Environment entries: a clearly-labeled, always-visible section rendered at
+    // FULL opacity and equally interactive. (Previously dimmed via opacity:0.6
+    // AND collapsed behind a <details>, which hid e.g. EcoliWCM and made imported
+    // processes second-class.) Kept visually separated from the workspace-declared
+    // entries by a header + a top rule — not by fading them out.
+    if (_hasEnv) {
       html +=
-        '<details class="registry-env-section" style="margin-top:12px">' +
-        '<summary style="cursor:pointer;color:#6b7280;font-size:0.9em;padding:4px 0">' +
-        'Also available in environment (' + envOnly.length + ') — not declared in workspace.yaml' +
-        '</summary>' +
-        '<div class="' + cardsCls + '" style="opacity:0.6;margin-top:6px">' +
-        envOnly.map(_renderRegistryEntry).join('') +
-        '</div>' +
-        '<p style="font-size:0.8em;color:#9ca3af;margin:4px 0 0">Run <code>/pbg-install &lt;pkg&gt;</code> to add a package to this workspace\'s imports.</p>' +
-        '</details>';
+        '<div class="registry-env-section" style="margin-top:18px;padding-top:12px;' +
+        'border-top:1px solid var(--border,#e5e7eb)">' +
+        '<div class="reg-section-header" style="margin:0 0 8px;font-size:0.82em;font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:0.04em;color:#475569">' +
+        'Available in environment <span style="color:#9ca3af;font-weight:600">' + envOnly.length + '</span>' +
+        '<span style="font-weight:500;text-transform:none;letter-spacing:0;color:#9ca3af;font-size:0.92em">' +
+        ' — installed but not declared in this workspace’s <code>imports:</code></span></div>' +
+        '<div class="' + cardsCls + '">' + envOnly.map(_renderRegistryEntry).join('') + '</div>' +
+        '<p style="font-size:0.8em;color:#9ca3af;margin:8px 0 0">Run <code>/pbg-install &lt;pkg&gt;</code> to add a package to this workspace\'s imports.</p>' +
+        '</div>';
     }
 
     el.innerHTML = html;
@@ -4357,7 +3955,17 @@
     var entries = vizEntries || [];
     var analyses = entries.filter(function(c) { return c.kind === 'analysis'; })
       .map(function (c) { return { name: c.name, address: c.address, description: c.doc || '', kind: 'analysis', source: 'framework' }; });
-    var vizzes   = entries.filter(function(c) { return c.kind !== 'analysis'; });
+    // Merge the address-classified workspace analyses (kind=step under ….analyses.…,
+    // which /api/visualization-classes doesn't enumerate) so they render in the
+    // Analyses tab instead of Processes. Dedupe by name (viz-classes entry wins).
+    var _seenA = {};
+    analyses.forEach(function (a) { _seenA[(a.name || '').trim()] = true; });
+    (window._addrClassifiedAnalyses || []).forEach(function (a) {
+      var nm = (a.name || '').trim();
+      if (nm && !_seenA[nm]) { _seenA[nm] = true; analyses.push(a); }
+    });
+    var cards    = entries.filter(function(c) { return c.kind === 'report_card' || c.kind === 'test'; });
+    var vizzes   = entries.filter(function(c) { var k = c.kind; return k !== 'analysis' && k !== 'report_card' && k !== 'test'; });
 
     // Analyses tab — same card renderers as everything else (grid/full/table),
     // and registered so semantic-zoom re-renders pick them up.
@@ -4376,14 +3984,42 @@
       .map(function(c) {
         return { name: c.name, address: c.address, source: 'framework', aliases: [] };
       });
+    // Union of build_core viz entries + catalog-only ones. Re-render (source
+    // grouping) when there are extras, and — symmetrically with the Analyses
+    // count above — keep the Visualizations count badge in sync. The initial
+    // setCount ran off build_core's registry (byKind.visualization, often 0);
+    // the real viz classes arrive here via /api/visualization-classes.
+    var current = (window._registryVizEntries || []);
+    var union = current.concat(extra);
     if (extra.length) {
       var container = document.getElementById('registry-visualizations-container');
-      if (container) {
-        // Re-render with the union so source grouping stays correct.
-        var current = (window._registryVizEntries || []);
-        _renderRegistryGrid('registry-visualizations-container', current.concat(extra));
-      }
+      if (container) _renderRegistryGrid('registry-visualizations-container', union);
     }
+    window._registryVizEntries = union;
+    var vCount = document.getElementById('registry-visualization-count');
+    if (vCount) vCount.textContent = union.length;
+
+    // Tests tab (report cards) — merge the framework TEST_REGISTRY / report-card
+    // classes from the catalog with any build_core-registered ones, and keep the
+    // count in sync, symmetrically with Analyses + Visualizations above. Without
+    // this the report-card classes never surface (build_core's report_card kind
+    // is usually empty) and the "Tests" count stays 0.
+    var rcExisting = {};
+    document.querySelectorAll('#registry-report_cards-container .registry-entry strong')
+      .forEach(function(s) { rcExisting[(s.textContent || '').trim()] = true; });
+    var rcExtra = cards.filter(function(c) { return !rcExisting[(c.name || '').trim()]; })
+      .map(function(c) {
+        return { name: c.name, address: c.address, description: c.doc || '', source: 'framework', kind: 'report_card' };
+      });
+    var rcCurrent = ((window._registryByKind || {})['registry-report_cards-container'] || []);
+    var rcUnion = rcCurrent.concat(rcExtra);
+    if (rcExtra.length) {
+      (window._registryByKind = window._registryByKind || {})['registry-report_cards-container'] = rcUnion;
+      var rcContainer = document.getElementById('registry-report_cards-container');
+      if (rcContainer) _renderRegistryGrid('registry-report_cards-container', rcUnion);
+    }
+    var rcCount = document.getElementById('registry-report_card-count');
+    if (rcCount) rcCount.textContent = rcUnion.length;
   }
   window._enrichRegistryWithVizClasses = _enrichRegistryWithVizClasses;
 
@@ -4527,7 +4163,7 @@
     if (status) status.textContent = '';
     var _p = window.DataSource
       ? window.DataSource.loadRegistry(refresh)
-      : fetch('/api/registry' + (refresh ? '?refresh=1' : '')).then(function(r) { return r.json(); });
+      : apiFetch('GET', '/api/registry' + (refresh ? '?refresh=1' : '')).then(function(r) { return r.json(); });
     _p
       .then(function(data) {
         if (status) {
@@ -4554,14 +4190,38 @@
         // Processes and Steps share one "Processes" tab — both are Processes
         // (edges); each card/row is badged Temporal vs Step (_procKindBadge).
         var procsAndSteps = byKind.process.concat(byKind.step);
+        // Analysis/visualization classes are mechanically Steps (they subclass
+        // Step), so build_core reports them as kind=step and they'd otherwise pile
+        // into the Processes tab even though they each have their own tab. Route
+        // them by the module-path convention (….analyses.… / ….visualizations.…)
+        // so a class shows under exactly one tab; genuine processes/steps stay put.
+        // (/api/visualization-classes only enumerates framework analyses, not the
+        // workspace's own sms_modules.analyses.* — hence the path-based split here.)
+        var _addrCat = function (e) {
+          var s = '.' + String(e.address || '').toLowerCase() + '.';
+          if (s.indexOf('.analyses.') >= 0 || s.indexOf('.analysis.') >= 0) return 'analysis';
+          if (s.indexOf('.visualizations.') >= 0 || s.indexOf('.visualization.') >= 0) return 'visualization';
+          return 'process';
+        };
+        var realProcs = [], addrAnalyses = [], addrViz = [];
+        procsAndSteps.forEach(function (p) {
+          var c = _addrCat(p);
+          if (c === 'analysis') addrAnalyses.push(Object.assign({}, p, {kind: 'analysis'}));
+          else if (c === 'visualization') addrViz.push(p);
+          else realProcs.push(p);
+        });
+        byKind.visualization = byKind.visualization.concat(addrViz);
+        // Stashed for _enrichRegistryWithVizClasses to merge into the Analyses tab
+        // (deduped by name) alongside the /api/visualization-classes analyses.
+        window._addrClassifiedAnalyses = addrAnalyses;
         window._registryByKind = {
-          'registry-processes-container': procsAndSteps,
+          'registry-processes-container': realProcs,
           'registry-emitters-container': byKind.emitter,
           'registry-visualizations-container': byKind.visualization,
           'registry-report_cards-container': byKind.report_card,
         };
         // Render tabbed Registry browser (Registry page).
-        _renderRegistryGrid('registry-processes-container', procsAndSteps);
+        _renderRegistryGrid('registry-processes-container', realProcs);
         _renderRegistryGrid('registry-emitters-container', byKind.emitter);
         window._registryVizEntries = byKind.visualization;
         _renderRegistryGrid('registry-visualizations-container', byKind.visualization);
@@ -4590,7 +4250,7 @@
             ? total + ' total'
             : wsCount + ' from this workspace, ' + (total - wsCount) + ' from environment';
         };
-        setCount('registry-process-count', procsAndSteps);
+        setCount('registry-process-count', realProcs);
         setCount('registry-emitter-count', byKind.emitter);
         setCount('registry-visualization-count', byKind.visualization);
         setCount('registry-report_card-count', byKind.report_card);
@@ -4644,390 +4304,13 @@
   // -------------------------------------------------------------------------
 
   window._composites = [];
-  window._compositesFilter = { search: '', tags: new Set() };
-  window._compositesView = 'grid';
+  // Retained: read by the registry toolbar sync to default the composites view.
   window._compositesZoom = (function () {
     var z; try { z = localStorage.getItem('viv.compositesZoom'); } catch (e) { z = null; }
     return (z === 'table' || z === 'cards' || z === 'loom') ? z : 'cards';
   })();
-  // Default sort: workspace-local composites first, then alphabetical.
-  // Surfaces the composites the current investigation actually needs
-  // ahead of the full list of every installed pbg-* package's composites
-  // — the Composites tab grew unwieldy as more pbg-* packages came
-  // online. Other sorts (name / module / kind) remain available via the
-  // dropdown.
-  window._compositesSort = 'workspace-first';
 
-  function _buildCompositeChips() {
-    var chipsEl = document.getElementById('composite-tag-chips');
-    if (!chipsEl) return;
-    var allTags = [];
-    window._composites.forEach(function(c) {
-      (c.tags || []).forEach(function(t) {
-        if (allTags.indexOf(t) === -1) allTags.push(t);
-      });
-    });
-    allTags.sort();
-    chipsEl.innerHTML = allTags.map(function(t) {
-      return '<button class="card-browse-chip" onclick="_toggleCompositeChip(this,\'' + _esc(t) + '\')">' + _esc(t) + '</button>';
-    }).join('');
-  }
 
-  function _toggleCompositeChip(btn, tag) {
-    if (window._compositesFilter.tags.has(tag)) {
-      window._compositesFilter.tags.delete(tag);
-      btn.classList.remove('active');
-    } else {
-      window._compositesFilter.tags.add(tag);
-      btn.classList.add('active');
-    }
-    _renderComposites();
-  }
-  window._toggleCompositeChip = _toggleCompositeChip;
-
-  function _setCompositeView(view) {
-    window._compositesView = view;
-    var btns = document.querySelectorAll('#composite-toolbar .view-btn');
-    btns.forEach(function(b) {
-      b.classList.toggle('active', b.getAttribute('data-view') === view);
-    });
-    _renderComposites();
-  }
-  window._setCompositeView = _setCompositeView;
-
-  function _setCompositesSort(value) {
-    window._compositesSort = value || 'workspace-first';
-    _renderComposites();
-  }
-  window._setCompositesSort = _setCompositesSort;
-
-  // ---- Composite pinning (localStorage, keyed by composite id) -------------
-  // Pinned composites float to the top of the list, above the sort order. The
-  // pin control is hover-revealed on each card (mirrors the studies-rail pins).
-  function _loadPinnedComposites() {
-    try {
-      var raw = window.localStorage.getItem('viv.pinnedComposites');
-      window._pinnedComposites = raw ? JSON.parse(raw) : [];
-    } catch (e) { window._pinnedComposites = []; }
-    if (!Array.isArray(window._pinnedComposites)) window._pinnedComposites = [];
-    return window._pinnedComposites;
-  }
-  function _isCompositePinned(id) {
-    if (!window._pinnedComposites) _loadPinnedComposites();
-    return window._pinnedComposites.indexOf(id) !== -1;
-  }
-  function _toggleCompositePin(id) {
-    if (!window._pinnedComposites) _loadPinnedComposites();
-    var i = window._pinnedComposites.indexOf(id);
-    if (i === -1) window._pinnedComposites.push(id);
-    else window._pinnedComposites.splice(i, 1);
-    try { window.localStorage.setItem('viv.pinnedComposites', JSON.stringify(window._pinnedComposites)); } catch (e) { /* private mode */ }
-    _renderComposites();
-  }
-  window._toggleCompositePin = _toggleCompositePin;
-  // Hover-revealed pin toggle for a composite card / row. stopPropagation so it
-  // never triggers the card's double-click-to-zoom.
-  function _compositePinBtn(c) {
-    var pinned = _isCompositePinned(c.id);
-    return '<button class="ccard-pin' + (pinned ? ' pinned' : '') + '"' +
-      ' onclick="event.stopPropagation(); _toggleCompositePin(\'' + _esc(c.id) + '\')"' +
-      ' title="' + (pinned ? 'Unpin' : 'Pin to top') + '"' +
-      ' aria-label="' + (pinned ? 'Unpin composite' : 'Pin composite to top') + '">📌</button>';
-  }
-  window._compositePinBtn = _compositePinBtn;
-
-  function _renderComposites() {
-    var container = document.getElementById('composite-cards');
-    if (!container) return;
-    var f = window._compositesFilter;
-    var search = f.search.toLowerCase();
-    var activeTags = f.tags;
-    var composites = window._composites.filter(function(c) {
-      if (search) {
-        var haystack = (c.name + ' ' + (c.description || '') + ' ' + (c.tags || []).join(' ') + ' ' + (c.module || '')).toLowerCase();
-        if (haystack.indexOf(search) === -1) return false;
-      }
-      if (activeTags.size > 0) {
-        var cTags = c.tags || [];
-        var match = false;
-        activeTags.forEach(function(t) { if (cTags.indexOf(t) !== -1) match = true; });
-        if (!match) return false;
-      }
-      return true;
-    });
-
-    // Apply sort toggle (Workspace first / Name / Module / Kind). Ties
-    // break on name. Workspace-first puts composites whose `module` starts
-    // with the workspace's own package prefix (backend-annotated as
-    // `workspace_local: true` on each /api/composites record) at the top,
-    // followed by every-installed-pbg-* composites alphabetically. When
-    // grouping, _renderGroupedComposites below inserts a visual section
-    // divider between the two groups.
-    var sorted = composites.slice();
-    if (window._compositesSort === 'module') {
-      sorted.sort(function(a, b) {
-        return (a.module || '').localeCompare(b.module || '')
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else if (window._compositesSort === 'kind') {
-      sorted.sort(function(a, b) {
-        return (a.kind || '').localeCompare(b.kind || '')
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else if (window._compositesSort === 'passrate') {
-      // Highest report-card pass-rate first; ties → more studies → name.
-      sorted.sort(function(a, b) {
-        function rate(c) { var s = c.studies; return (s && s.total) ? s.pass / s.total : -1; }
-        function used(c) { var s = c.studies; return (s && s.studies) ? s.studies : 0; }
-        return (rate(b) - rate(a)) || (used(b) - used(a))
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else if (window._compositesSort === 'workspace-first') {
-      sorted.sort(function(a, b) {
-        var aw = a.workspace_local ? 0 : 1;
-        var bw = b.workspace_local ? 0 : 1;
-        return (aw - bw)
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else {
-      sorted.sort(function(a, b) {
-        return (a.name || '').localeCompare(b.name || '');
-      });
-    }
-    // Pinned composites float to the top, preserving the sort order within the
-    // pinned and unpinned groups.
-    _loadPinnedComposites();
-    if (window._pinnedComposites.length) {
-      var _pins = [], _rest = [];
-      sorted.forEach(function (c) { (_isCompositePinned(c.id) ? _pins : _rest).push(c); });
-      sorted = _pins.concat(_rest);
-    }
-    composites = sorted;
-
-    if (!composites.length) {
-      container.innerHTML = '<p class="empty-state">No composites match the current filter.</p>';
-      container.className = '';
-      return;
-    }
-
-    // Semantic zoom: Table (dense sortable) → Cards (full-row) → Loom (bigraph
-    // embedded on demand per card). The old grid/list toggle is subsumed.
-    var _czoom = window._compositesZoom || 'cards';
-    document.querySelectorAll('#composite-toolbar .reg-zoom-btn').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-czoom') === _czoom);
-    });
-    if (_czoom === 'table') { _renderCompositesTable(container, composites); return; }
-
-    function _moduleLine(c) {
-      var mod = c.module || '';
-      var kind = c.kind || 'spec';
-      var kindBadge = (kind === 'generator')
-        ? ' <span class="kind-badge">generator</span>' : '';
-      if (!mod) return '';
-      return '<div class="composite-module"><small>Module:</small> ' +
-        '<code>' + _esc(mod) + '</code>' + kindBadge + '</div>';
-    }
-    function _wsTag(c) {
-      // Small "📦 workspace" pill on cards whose composite lives in the
-      // workspace's own package. Helps the user scan quickly even when
-      // the workspace-first sort isn't active.
-      return c.workspace_local
-        ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
-    }
-    // Section-divider injector — emits a thin "Other modules" separator
-    // between the last workspace-local item and the first non-local item
-    // when the workspace-first sort is active and both groups are present.
-    // Returns '' otherwise so existing layouts are byte-identical.
-    var _otherCount = composites.filter(function(c) { return !c.workspace_local; }).length;
-    function _maybeDivider(prev, cur) {
-      if (window._compositesSort !== 'workspace-first') return '';
-      if (!prev || !cur) return '';
-      if (prev.workspace_local && !cur.workspace_local) {
-        return '<div class="composite-section-divider">'
-             + '<span>Other installed pbg-* modules'
-             + (_otherCount ? ' (' + _otherCount + ')' : '')
-             + '</span></div>';
-      }
-      return '';
-    }
-
-    var _isSnapshot = document.body.classList.contains('snapshot');
-    if (window._compositesView === 'list') {
-      container.className = 'composite-list';
-      var prevC = null;
-      var rows = composites.map(function(c) {
-        var tagPills = (c.tags || []).map(function(t) {
-          return '<span class="tag-pill">' + _esc(t) + '</span>';
-        }).join('');
-        var divider = _maybeDivider(prevC, c);
-        prevC = c;
-        var exploreBtn = _compositeCardActions(c, 'action-btn', 'action-btn');
-        return divider + '<div class="composite-list-row' + (c.read_only ? ' federated-readonly' : '') + '">' +
-          '<span class="name">' + _esc(c.name) + ' ' + _wsTag(c) + _originBadge(c.origin_repo) + '</span>' +
-          '<span class="desc">' + tagPills + ' ' + _esc(c.description || '(no description)') +
-            _moduleLine(c) +
-          '</span>' +
-          '<span>' + _compositePinBtn(c) + exploreBtn + '</span>' +
-          '</div>';
-      });
-      container.innerHTML = rows.join('');
-    } else {
-      container.className = 'ccard-rows' + (_czoom === 'loom' ? ' ccard-loom' : '');
-      var prevG = null;
-      var cards = composites.map(function(c) {
-        var kind = c.kind || 'spec';
-        // Marker 1 — KIND: generator (builds state from params) vs spec (static
-        // document). One clean pill instead of the old "Module: … generator" line.
-        var kindPill = '<span class="ccard-kind ccard-kind-' + kind + '" title="'
-          + (kind === 'generator'
-              ? 'Generator — builds its state from parameters'
-              : 'Spec — a static composite document') + '">' + kind + '</span>';
-        // Marker 2 — SOURCE: the workspace's own package (green) vs which
-        // installed package it came from (so imported composites name their origin).
-        var srcBadge;
-        if (c.workspace_local) {
-          srcBadge = '<span class="ccard-src ccard-src-ws" title="Defined in this workspace">workspace</span>';
-        } else {
-          var pkg = (c.module || '').split('.')[0].replace(/_/g, '-');
-          srcBadge = pkg
-            ? '<span class="ccard-src" title="From the ' + _esc(pkg) + ' package">' + _esc(pkg) + '</span>'
-            : '';
-        }
-        // Meta row — at-a-glance counts (params / tags / default steps).
-        var paramKeys = Object.keys(c.parameters || {});
-        var meta = [];
-        if (paramKeys.length) meta.push('<span title="configurable parameters">' + paramKeys.length + ' param' + (paramKeys.length === 1 ? '' : 's') + '</span>');
-        if (c.tags && c.tags.length) meta.push('<span title="topic tags">' + c.tags.length + ' tag' + (c.tags.length === 1 ? '' : 's') + '</span>');
-        if (c.default_n_steps) meta.push('<span title="default run length">' + c.default_n_steps + ' steps</span>');
-        var ep = (c.parameters || {}).emitter;
-        if (ep && ep.default) meta.push('<span title="observation sink (emitter)">emitter: ' + _esc(String(ep.default)) + '</span>');
-        var metaRow = meta.length ? '<div class="ccard-meta">' + meta.join('<i>·</i>') + '</div>' : '';
-        // Cross-study track record: usage count + pass/inconclusive/fail bar.
-        var trackRow = '';
-        var st = c.studies;
-        if (st && st.studies) {
-          var tot = st.total || (st.pass + st.inconclusive + st.fail);
-          var pw = tot ? Math.round(100 * st.pass / tot) : 0;
-          var iw = tot ? Math.round(100 * st.inconclusive / tot) : 0;
-          var fw = tot ? (100 - pw - iw) : 0;
-          trackRow = '<div class="ccard-track">' +
-            '<div class="ccard-track-top">used in <strong>' + st.studies + '</strong> stud' + (st.studies === 1 ? 'y' : 'ies') +
-              (tot ? '' : ' <span class="muted">· no report cards yet</span>') + '</div>' +
-            (tot ? '<div class="ccard-bar" title="' + st.pass + ' pass · ' + st.inconclusive + ' inconclusive · ' + st.fail + ' fail">' +
-              '<span class="seg pass" style="width:' + pw + '%"></span>' +
-              '<span class="seg inc" style="width:' + iw + '%"></span>' +
-              '<span class="seg fail" style="width:' + fw + '%"></span></div>' +
-              '<div class="ccard-track-counts">' +
-                '<span class="pass">' + st.pass + ' ✓</span>' +
-                (st.inconclusive ? '<span class="inc">' + st.inconclusive + ' ~</span>' : '') +
-                (st.fail ? '<span class="fail">' + st.fail + ' ✗</span>' : '') +
-              '</div>' : '') +
-          '</div>';
-        }
-        // Lazy structure (process / store counts) — fetched on first expand only.
-        var structRow = '<details class="ccard-struct" ontoggle="_loadCompositeStructure(this,\'' + _esc(c.id) + '\')">' +
-          '<summary>structure</summary>' +
-          '<div class="ccard-struct-body" data-loaded="0"></div></details>';
-        // Config — a collapsed <details> that expands to a per-parameter table
-        // (name · type · default · description). Collapsed keeps the card compact;
-        // expanded gives the full config surface with descriptions.
-        var paramPreview = '';
-        if (paramKeys.length) {
-          var cfgRows = paramKeys.map(function(k) {
-            var p = (c.parameters || {})[k] || {};
-            var t = p.type || '';
-            var dv = (p.default === undefined || p.default === null) ? ''
-              : (typeof p.default === 'object' ? JSON.stringify(p.default) : String(p.default));
-            var desc = p.description || '';
-            return '<div class="ccard-cfg-row">' +
-              '<div class="ccard-cfg-head">' +
-                '<code class="ccard-cfg-name">' + _esc(k) + '</code>' +
-                (t ? '<span class="ccard-cfg-type">' + _esc(t) + '</span>' : '') +
-                (dv !== '' ? '<span class="ccard-cfg-def" title="default">= ' + _esc(dv.length > 44 ? dv.slice(0, 44) + '…' : dv) + '</span>' : '') +
-              '</div>' +
-              (desc ? '<div class="ccard-cfg-desc">' + _esc(desc) + '</div>' : '') +
-            '</div>';
-          }).join('');
-          paramPreview = '<details class="ccard-cfg">' +
-            '<summary>' + paramKeys.length + ' config parameter' + (paramKeys.length === 1 ? '' : 's') + '</summary>' +
-            '<div class="ccard-cfg-body">' + cfgRows + '</div>' +
-          '</details>';
-        }
-        var tagRow = '';
-        if (c.tags && c.tags.length) {
-          tagRow = '<div class="ccard-tags">' + c.tags.slice(0, 5).map(function(t) {
-            return '<span class="ccard-tag">' + _esc(t) + '</span>';
-          }).join('') + (c.tags.length > 5 ? '<span class="ccard-more">+' + (c.tags.length - 5) + '</span>' : '') + '</div>';
-        }
-        var divider = _maybeDivider(prevG, c);
-        prevG = c;
-        var exploreBtn = _compositeCardActions(c, 'ccard-view', 'ccard-explore');
-        var _csel = (window._compositesSelected && window._compositesSelected === c.id) ? ' reg-selected' : '';
-        // Compact full-row card: identity | description | stats | actions across
-        // the bar; config/structure/tags collapse into a details strip below.
-        return divider + '<div class="ccard ccard-compact' + _csel + (c.workspace_local ? ' ccard-ws-card' : '') + (c.read_only ? ' federated-readonly' : '') + '"' +
-            ' data-id="' + _esc(c.id) + '" ondblclick="_compositeCardDblClick(\'' + _esc(c.id) + '\')" title="Double-click to zoom in on this composite">' +
-          '<div class="ccc-grid">' +
-            '<div class="ccc-identity">' +
-              '<div class="ccc-name-row"><span class="ccc-name" title="' + _esc(c.name) + '">' + _esc(c.name) + '</span> ' + kindPill + srcBadge + _originBadge(c.origin_repo) + '</div>' +
-              '<code class="ccc-addr" title="' + _esc(c.id) + '">' + _esc(c.id) + '</code>' +
-            '</div>' +
-            '<div class="ccc-desc" title="' + _esc(c.description || '') + '">' + _esc(c.description || 'No description') + '</div>' +
-            '<div class="ccc-stats">' + metaRow + trackRow + '</div>' +
-            '<div class="ccc-actions">' + _compositePinBtn(c) + exploreBtn + '</div>' +
-          '</div>' +
-          // Config-parameters / structure preview strips removed as low-signal;
-          // tags (if any) still show. Config lives in the loom's Config sidebar.
-          (tagRow ? '<div class="ccc-details-row">' + tagRow + '</div>' : '') +
-          (_czoom === 'loom' ? _compositeLoomEmbed(c) : '') +
-        '</div>';
-      });
-      container.innerHTML = cards.join('');
-      // Cards zoom (not loom): multi-column grid + column control.
-      _syncColsControls();
-      if (_czoom === 'cards') _applyCardCols(container, 'composites');
-      else { container.classList.remove('cards-grid-cols'); container.style.gridTemplateColumns = ''; }
-    }
-  }
-  window._renderComposites = _renderComposites;
-
-  function _setCompositeZoom(z) {
-    window._compositesZoom = z;
-    try { localStorage.setItem('viv.compositesZoom', z); } catch (e) { /* private mode */ }
-    document.querySelectorAll('#composite-toolbar .reg-zoom-btn').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-czoom') === z);
-    });
-    _renderComposites();
-    _updateColsSlotVisibility();   // slider only in Cards zoom (table/loom hidden)
-  }
-  window._setCompositeZoom = _setCompositeZoom;
-
-  // Double-click a composite → zoom in one level (table → cards → loom), focused.
-  function _zoomInComposite(id) {
-    var order = ['table', 'cards', 'loom'];
-    var i = order.indexOf(window._compositesZoom || 'cards');
-    window._compositesSelected = id;
-    _setCompositeZoom(order[Math.min(order.length - 1, i + 1)]);
-    setTimeout(function () {
-      var sel = document.querySelector('#composite-cards [data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
-      if (sel) { sel.classList.add('reg-selected'); try { sel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* ignore */ } }
-    }, 60);
-  }
-  window._zoomInComposite = _zoomInComposite;
-
-  // Loom (Full) zoom: an on-demand embed of the composite's bigraph. Resolving a
-  // composite can be ParCa-heavy, so it only loads when the card is expanded —
-  // read-only, via the loom's static stateUrl pointed at live composite-resolve.
-  function _compositeLoomEmbed(c) {
-    if (c.read_only && !c.has_wiring) return '';
-    // Read-only viewer only — config is edited in Configure, running is the
-    // external ▶ RUN bar; no in-place "Enable running" toggle.
-    return '<details class="ccard-loom-embed" data-id="' + _esc(c.id) + '" ontoggle="_openCompositeLoomInline(this)">' +
-      '<summary>Open loom</summary>' +
-      '<div class="ccard-loom-frame"><p class="muted" style="padding:10px;font-size:0.85em">Expand to resolve &amp; render the bigraph…</p></div>' +
-    '</details>';
-  }
-  window._compositeLoomEmbed = _compositeLoomEmbed;
 
   // Flip an inline loom embed from read-only preview to LIVE mode (editable
   // config + Run), reloading the iframe at the same URL the pop-out uses
@@ -5038,7 +4321,7 @@
     det._loomLive = true;
     var id = det.getAttribute('data-id');
     var apiUrl = (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    var liveUrl = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off';
+    var liveUrl = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off' + '&v=' + _LOOM_V;
     var iframe = det.querySelector('.ccard-loom-iframe');
     if (iframe) iframe.src = liveUrl;         // already open → swap in place
     else { det._loomLoaded = false; _openCompositeLoomInline(det); }  // not open yet → load live
@@ -5047,240 +4330,13 @@
   }
   window._enableInlineLoomRun = _enableInlineLoomRun;
 
-  // "View" — open the composite's loom inline at max detail. From a lower zoom
-  // (table/cards) this jumps to the loom (max semantic) zoom AND opens this
-  // composite's embed; at loom zoom it toggles the embed. Replaces the old
-  // "Explore →" hop to the standalone explorer page (now redundant).
-  function _viewCompositeLoom(id) {
-    var esc = (window.CSS && CSS.escape) ? CSS.escape(id) : id;
-    var find = function () { return document.querySelector('.ccard-loom-embed[data-id="' + esc + '"]'); };
-    var z = window._compositesZoom || 'cards';
-    if (z !== 'loom') {
-      // Jump to max semantic zoom, focus this composite, then open its loom.
-      window._compositesSelected = id;
-      _setCompositeZoom('loom');
-      setTimeout(function () {
-        var det = find();
-        if (det) {
-          if (!det.open) det.open = true;   // fires ontoggle → lazy-load
-          try { det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
-        }
-      }, 80);
-      return;
-    }
-    var det = find();
-    if (!det) return;
-    det.open = !det.open;                   // toggle at loom zoom
-    if (det.open) { try { det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ } }
-  }
-  window._viewCompositeLoom = _viewCompositeLoom;
 
-  // The static composite-state URL the loom fetches. In a PUBLISHED snapshot the
-  // live /api/composite-resolve endpoint doesn't exist — the pre-resolved state
-  // is a static file at /api/composite-state/<id>.json — so point there; in live
-  // mode use the resolve endpoint. (Without this, "View" 404'd in the snapshot.)
-  function _compositeStateUrl(id, overrides) {
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
-      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    if (document.body.classList.contains('snapshot')) {
-      return apiUrl('/api/composite-state/' + encodeURIComponent(id) + '.json');
-    }
-    return apiUrl('/api/composite-resolve?id=' + encodeURIComponent(id)) +
-      (overrides ? '&overrides=' + encodeURIComponent(overrides) : '');
-  }
+  // The loom embed glue — _compositeStateUrl / _openCompositeLoomInline /
+  // _wireLoomAutoHeight — is defined ONCE in loom-embed.js (loaded before this
+  // file in the SPA, and standalone in the study-detail iframe). It installs
+  // window globals; the bare calls in this file resolve to them. Keeping a
+  // single copy avoids the byte-identical-duplication drift this used to carry.
 
-  // "Pop out" — open this composite's loom in a separate window directly (live,
-  // full config + run), bypassing the standalone explorer page. In a published
-  // snapshot there's no live API, so open the static (?static=1&stateUrl=) URL.
-  function _popoutCompositeLoom(id) {
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
-      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    var url;
-    if (document.body.classList.contains('snapshot')) {
-      url = apiUrl('/bigraph-loom/index.html') + '?static=1&stateUrl=' + encodeURIComponent(_compositeStateUrl(id));
-    } else {
-      url = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id);
-    }
-    var w = window.open(url, '_blank',
-      'width=1280,height=860,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes');
-    if (!w) alert('Popup blocked. Allow popups from this site to pop out the composite.');
-  }
-  window._popoutCompositeLoom = _popoutCompositeLoom;
-
-  // Card actions: View (inline loom) + Pop out (separate window). Shared by the
-  // table rows and the cards/loom zoom. Empty when the composite has no viewable
-  // wiring in this context (snapshot without pre-built wiring, or a read-only
-  // federated composite without wiring).
-  function _compositeCardActions(c, viewClass, popClass) {
-    if ((document.body.classList.contains('snapshot') && !c.has_wiring)) return '';
-    if (c.read_only && !c.has_wiring) return '';
-    var id = _esc(c.id);
-    return '<button class="' + viewClass + '" onclick="_viewCompositeLoom(\'' + id + '\')"' +
-        ' title="Open the loom inline at full detail">View</button>' +
-      '<button class="' + popClass + '" onclick="_popoutCompositeLoom(\'' + id + '\')"' +
-        ' title="Open the loom in a separate window">Pop out &#8599;</button>';
-  }
-  window._compositeCardActions = _compositeCardActions;
-
-  // Double-click a composite card: at the full (loom) semantic zoom there's no
-  // deeper level to zoom into, so open the loom inline instead — a quiet
-  // shortcut for the top-right "View" button. Lower zooms keep zooming in.
-  function _compositeCardDblClick(id) {
-    if ((window._compositesZoom || 'cards') === 'loom') _viewCompositeLoom(id);
-    else _zoomInComposite(id);
-  }
-  window._compositeCardDblClick = _compositeCardDblClick;
-
-  function _openCompositeLoomInline(det) {
-    if (!det || det._loomLoaded) return;
-    // <details> embeds only mount when open; a plain container (the ProcessCard
-    // Explore section) has no `.open` and mounts as soon as it's asked to.
-    if (det.tagName === 'DETAILS' && !det.open) return;
-    det._loomLoaded = true;
-    var id = det.getAttribute('data-id');
-    var host = det.querySelector('.ccard-loom-frame');
-    if (!host) return;
-    host.innerHTML = '<p class="muted" style="padding:10px;font-size:0.85em">Resolving composite (this can take a moment)…</p>';
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    // Live mode (user hit "Enable running") loads the same URL as the pop-out
-    // (?id=<ref>) so config is editable and Run works; otherwise a read-only
-    // static render pointed at live composite-resolve.
-    // chrome=off → embedded (no breadcrumb/tab strip). An optional data-view
-    // (e.g. "visualizations"/"results"/"document") selects which loom tab the
-    // embed shows — used by the card's Outputs section.
-    var tabParam = det.getAttribute('data-view') ? '&tab=' + encodeURIComponent(det.getAttribute('data-view')) : '';
-    // On a live dashboard the view-only loom still carries the composite id +
-    // live=1 so drilling into an inner Composite (a Composite Process like
-    // EcoliWCM) resolves via the live /api/composite-inner-state endpoint —
-    // static=1 alone (a published snapshot) would look for a pre-built file that
-    // only a snapshot ships. Omit both under body.snapshot (truly no server).
-    var liveInner = document.body.classList.contains('snapshot')
-      ? '' : '&id=' + encodeURIComponent(id) + '&live=1';
-    var loomUrl = det._loomLive
-      ? apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) +
-          (det._overrides ? '&overrides=' + encodeURIComponent(det._overrides) : '') + '&chrome=off' + tabParam
-      : apiUrl('/bigraph-loom/index.html') + '?static=1&stateUrl=' +
-          encodeURIComponent(_compositeStateUrl(id, det._overrides)) + liveInner + '&chrome=off' + tabParam;
-    var f = document.createElement('iframe');
-    f.className = 'ccard-loom-iframe';
-    f.setAttribute('title', 'Loom — ' + id);
-    f.src = loomUrl;
-    host.innerHTML = '';
-    // Restore a previously dragged height (shared across all loom embeds).
-    var savedH = 0;
-    try { savedH = parseInt(localStorage.getItem('viv.loomFrameH') || '', 10) || 0; } catch (e) { /* private mode */ }
-    if (savedH) host.style.height = Math.max(220, Math.min(Math.round(window.innerHeight * 0.92), savedH)) + 'px';
-    host.appendChild(f);
-    _wireLoomResize(host, f);
-  }
-  window._openCompositeLoomInline = _openCompositeLoomInline;
-
-  // Drag-to-resize the embedded loom panel. A full-width grip below the iframe
-  // grows/shrinks the frame; the card grows with it. Height persists across
-  // embeds via localStorage. Pointer events are disabled on the iframe mid-drag
-  // so the gesture keeps tracking when the cursor moves over the loom.
-  function _wireLoomResize(frame, iframe) {
-    var grip = document.createElement('div');
-    grip.className = 'ccard-loom-resize';
-    grip.title = 'Drag to resize';
-    frame.appendChild(grip);
-    var startY = 0, startH = 0;
-    function pointY(e) { return e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY; }
-    function onMove(e) {
-      var maxH = Math.round(window.innerHeight * 0.92);
-      var h = Math.max(220, Math.min(maxH, startH + (pointY(e) - startY)));
-      frame.style.height = h + 'px';
-      if (e.cancelable) e.preventDefault();
-      try { localStorage.setItem('viv.loomFrameH', String(Math.round(h))); } catch (err) { /* private mode */ }
-    }
-    function onUp() {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('touchend', onUp);
-      if (iframe) iframe.style.pointerEvents = '';
-      frame.classList.remove('is-resizing');
-    }
-    function onDown(e) {
-      startY = pointY(e);
-      startH = frame.getBoundingClientRect().height;
-      if (iframe) iframe.style.pointerEvents = 'none';
-      frame.classList.add('is-resizing');
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-      document.addEventListener('touchmove', onMove, { passive: false });
-      document.addEventListener('touchend', onUp);
-      if (e.cancelable) e.preventDefault();
-    }
-    grip.addEventListener('mousedown', onDown);
-    grip.addEventListener('touchstart', onDown, { passive: false });
-  }
-  window._wireLoomResize = _wireLoomResize;
-
-  // Composites Table view — sortable (Name / Module / Kind / Params / Steps / Used).
-  function _renderCompositesTable(container, composites) {
-    var sk = window._compositesTableSort || 'workspace';
-    var sd = window._compositesTableDir || (sk === 'workspace' ? 'asc' : 'asc');
-    var mod = function (c) { return (c.module || '').split('.')[0]; };
-    var used = function (c) { return (c.studies && c.studies.studies) ? c.studies.studies : 0; };
-    var nparam = function (c) { return Object.keys(c.parameters || {}).length; };
-    var rows = composites.slice().sort(function (a, b) {
-      var av, bv;
-      // Default view: this-workspace composites on top, then most-used in this
-      // workspace, then alphabetical. Returns directly (direction-agnostic).
-      if (sk === 'workspace') {
-        var aw = a.workspace_local ? 0 : 1, bw = b.workspace_local ? 0 : 1;
-        if (aw !== bw) return aw - bw;
-        var au = used(a), bu = used(b);
-        if (au !== bu) return bu - au;
-        return (a.name || '').localeCompare(b.name || '');
-      }
-      if (sk === 'module') { av = mod(a).toLowerCase(); bv = mod(b).toLowerCase(); }
-      else if (sk === 'kind') { av = (a.kind || ''); bv = (b.kind || ''); }
-      else if (sk === 'params') { av = nparam(a); bv = nparam(b); }
-      else if (sk === 'steps') { av = a.default_n_steps || 0; bv = b.default_n_steps || 0; }
-      else if (sk === 'used') { av = used(a); bv = used(b); }
-      else { av = (a.name || '').toLowerCase(); bv = (b.name || '').toLowerCase(); }
-      var c = av < bv ? -1 : (av > bv ? 1 : (a.name || '').localeCompare(b.name || ''));
-      return sd === 'desc' ? -c : c;
-    });
-    // Pinned composites float to the top of the table too, above the column sort.
-    _loadPinnedComposites();
-    if (window._pinnedComposites.length) {
-      var _tp = [], _tr = [];
-      rows.forEach(function (c) { (_isCompositePinned(c.id) ? _tp : _tr).push(c); });
-      rows = _tp.concat(_tr);
-    }
-    function th(key, label, cls) {
-      var on = sk === key;
-      return '<th class="reg-th' + (cls ? ' ' + cls : '') + (on ? ' active' : '') +
-        '" onclick="_setCompositesTableSort(\'' + key + '\')">' + label + (on ? (sd === 'desc' ? ' ▾' : ' ▴') : '') + '</th>';
-    }
-    var body = rows.map(function (c) {
-      return '<tr class="reg-tr" data-id="' + _esc(c.id || '') + '" ondblclick="_compositeCardDblClick(\'' + _esc(c.id || '') + '\')" title="Double-click to zoom in">' +
-        '<td class="reg-td-pin">' + _compositePinBtn(c) + '</td>' +
-        '<td class="reg-td-name"><strong>' + _esc(c.name) + '</strong> <code>' + _esc(c.id || '') + '</code></td>' +
-        '<td>' + _esc(mod(c)) + '</td>' +
-        '<td>' + _esc(c.kind || 'spec') + '</td>' +
-        '<td class="num">' + nparam(c) + '</td>' +
-        '<td class="num">' + (c.default_n_steps || '') + '</td>' +
-        '<td class="num">' + used(c) + '</td>' +
-        '<td class="reg-td-src">' + (c.workspace_local ? 'workspace' : _esc(mod(c))) + '</td>' +
-      '</tr>';
-    }).join('');
-    container.className = '';
-    container.innerHTML = '<div class="registry-table-wrap"><table class="registry-table"><thead><tr>' +
-      '<th class="reg-th reg-th-pin" title="Pin to top"></th>' +
-      th('name', 'Name') + th('module', 'Module') + th('kind', 'Kind') + th('params', 'Params', 'num') +
-      th('steps', 'Steps', 'num') + th('used', 'Used', 'num') + th('workspace', 'Source') +
-      '</tr></thead><tbody>' + body + '</tbody></table></div>';
-  }
-  function _setCompositesTableSort(key) {
-    if (window._compositesTableSort === key) window._compositesTableDir = (window._compositesTableDir === 'desc') ? 'asc' : 'desc';
-    else { window._compositesTableSort = key; window._compositesTableDir = (key === 'name' || key === 'module' || key === 'kind') ? 'asc' : 'desc'; }
-    _renderComposites();
-  }
-  window._setCompositesTableSort = _setCompositesTableSort;
 
   // Lazily fetch a composite's process/store counts when its "structure"
   // <details> is first opened (building a composite can be ParCa-heavy, so this
@@ -5291,7 +4347,7 @@
     if (!body || body.getAttribute('data-loaded') === '1') return;
     body.setAttribute('data-loaded', '1');
     body.textContent = 'building…';
-    fetch('/api/composite-state?ref=' + encodeURIComponent(id))
+    apiFetch('GET', '/api/composite-state?ref=' + encodeURIComponent(id))
       .then(function(r) { return r.json(); })
       .then(function(d) {
         var root = (d && d.state) ? (d.state.state || d.state) : null;
@@ -5312,13 +4368,33 @@
       .catch(function() { body.textContent = 'unavailable'; });
   };
 
-  function _loadComposites() {
+  function _loadComposites(_attempt) {
+    _attempt = _attempt || 0;
+    // Discovery re-imports the workspace package in a subprocess (~seconds cold),
+    // and a cold pooled worker can briefly answer empty / with an `error`. Show a
+    // "Loading…" state on the first attempt (rather than flashing "No composites
+    // registered.") and retry a cold/empty/errored response a few times before
+    // concluding the workspace genuinely has none.
+    if (_attempt === 0 && !(window._composites && window._composites.length)) {
+      var _el0 = document.getElementById('registry-composites-container');
+      if (_el0) _el0.innerHTML = '<p class="empty-state">Loading composites…</p>';
+    }
     var _p = window.DataSource
       ? window.DataSource.loadComposites()
-      : fetch('/api/composites').then(function(r) { return r.json(); });
+      : apiFetch('GET', '/api/composites').then(function(r) { return r.json(); });
+    var _retry = function () {
+      // ~error: definitely transient (cold/unavailable) → retry harder.
+      // ~empty, no error: probably genuine, but do one safety retry for a cold
+      // race. Non-empty → render.
+      setTimeout(function () { _loadComposites(_attempt + 1); }, 700 + _attempt * 900);
+    };
     _p
       .then(function(data) {
-        var composites = data.composites || [];
+        var composites = (data && data.composites) || [];
+        var hadError = !!(data && data.error);
+        var maxAttempts = hadError ? 5 : (composites.length ? 1 : 2);
+        if (!composites.length && _attempt + 1 < maxAttempts) { _retry(); return; }
+        if (hadError && !composites.length && _attempt + 1 < maxAttempts) { _retry(); return; }
         // Cache by id so onclick handlers pass just the id; _useComposite
         // looks the full object up. Inline JSON.stringify in onclick attrs
         // breaks when descriptions contain apostrophes / quotes.
@@ -5328,33 +4404,9 @@
 
         // (a) Registry/Processes-page "Composites" tab — accordion cards.
         _renderRegistryComposites(composites);
-
-        // (b) Standalone Composites page (simulation-setup), if present.
-        var container = document.getElementById('composite-cards');
-        var countBadge = document.getElementById('composite-count');
-        if (countBadge) countBadge.textContent = '(' + composites.length + ')';
-        var _cSearch = document.getElementById('composite-search');
-        if (_cSearch) _cSearch.placeholder = 'Filter ' + composites.length + ' composites…';
-        if (!container) return;
-        if (!composites.length) {
-          container.innerHTML =
-            '<p class="empty-state">No composite specs found yet. Add a <code>*.composite.yaml</code> file under ' +
-            '<code>pbg_&lt;slug&gt;/composites/</code> to register one. See ' +
-            '<a href="https://github.com/vivarium-collective/pbg-superpowers/blob/main/docs/conventions/composites.md" target="_blank">' +
-            'the composite spec convention</a> for the format.</p>';
-          return;
-        }
-        // Wire up search input
-        var searchEl = document.getElementById('composite-search');
-        if (searchEl && !searchEl._pbgWired) {
-          searchEl._pbgWired = true;
-          searchEl.oninput = function() {
-            window._compositesFilter.search = this.value.toLowerCase();
-            _renderComposites();
-          };
-        }
-        _buildCompositeChips();
-        _renderComposites();
+      })
+      .catch(function () {
+        if (_attempt + 1 < 5) { _retry(); }
       });
   }
   window._loadComposites = _loadComposites;
@@ -5384,12 +4436,29 @@
     // Honour the Sort control (default keeps workspace-local first, then name).
     var _sortKey = window._registrySort || 'use';
     list = list.slice().sort(function (a, b) { return _compositeSortCmp(a, b, _sortKey); });
+    // Group by figure (stable within each figure) so a figure's draft /
+    // executable / live-topology cards cluster together; non-figure composites
+    // keep to the end.
+    var _figNum = function (c) { var m = ((c && c.id) || '').match(/\.fig0*(\d+)/i); return m ? parseInt(m[1], 10) : 9999; };
+    list = list
+      .map(function (c, i) { return { c: c, i: i, n: _figNum(c) }; })
+      .sort(function (a, b) { return (a.n - b.n) || (a.i - b.i); })
+      .map(function (x) { return x.c; });
     // Semantic zoom: Table (dense) → Cards (grid + usage) → Full (accordion).
     var zoom = window._registryZoom || 'grid';
     if (zoom === 'table') { el.innerHTML = _renderCompositeTableHtml(list); return; }
     var cardsCls = 'reg-cards reg-cards-' + (zoom === 'full' ? 'full' : 'grid');
     var render = (zoom === 'full') ? _renderCompositeCardFull : _renderCompositeCardGrid;
-    el.innerHTML = '<div class="' + cardsCls + '">' + list.map(render).join('') + '</div>';
+    var _prevF = null;
+    var _cardsHtml = list.map(function (c) {
+      var n = _figNum(c), head = '';
+      if (n !== 9999 && (!_prevF || _figNum(_prevF) !== n)) {
+        head = '<div class="composite-figure-group"><span>Fig ' + n + '</span></div>';
+      }
+      _prevF = c;
+      return head + render(c);
+    }).join('');
+    el.innerHTML = '<div class="' + cardsCls + '">' + _cardsHtml + '</div>';
     if (zoom === 'grid') el.querySelectorAll('.reg-cards-grid').forEach(function (cc) { _applyCardCols(cc, 'registry'); });
   }
   window._renderRegistryComposites = _renderRegistryComposites;
@@ -5929,11 +4998,7 @@
 
   function _uninstallFromInstalled(name) {
     if (!confirm('Uninstall ' + name + '? This removes it from this workspace\'s dependencies.')) return;
-    fetch('/api/catalog-uninstall', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/catalog-uninstall', {name: name})
       .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, json: j}; }); })
       .then(function(p) {
         if (!p.ok) {
@@ -5955,7 +5020,7 @@
   window._uninstallFromInstalled = _uninstallFromInstalled;
 
   function _checkSystemDepsForInstalled(name) {
-    fetch('/api/system-deps-check?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/system-deps-check?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
@@ -6345,9 +5410,9 @@
       return;
     }
     if (type === 'composite') {
-      _switchPage('simulation-setup');
-      var ci = document.getElementById('composite-search');
-      if (ci) { ci.value = name; ci.dispatchEvent(new Event('input', { bubbles: true })); }
+      _switchPage('modules');
+      var ci = document.getElementById('registry-search');
+      if (ci) { ci.value = name; if (typeof _filterRegistry === 'function') _filterRegistry(name); }
       return;
     }
     if (type === 'process') {
@@ -6688,15 +5753,18 @@
     Object.keys(byRepo).forEach(function (k) {
       var b = byRepo[k], c = b._cat;
       if (!b._fromArtifacts && c) {
+        b.process = c.n_processes || 0;
         b.composite = c.n_composites || 0;
         b.study = c.n_studies || 0;
         b.investigation = c.n_investigations || 0;
         b.total = b.process + b.composite + b.study + b.investigation;
         b.use = c.n_used || 0;
       }
-      // Affected studies = this workspace's OWN studies that depend on the repo
-      // (module_stats.n_used — deep, via composite→process usage). The real
-      // "what breaks if I uninstall" signal, distinct from total artifact uses.
+      // Affected studies = studies that depend on / use this repo — this
+      // workspace's OWN studies AND linked (federated) workspaces' studies
+      // (module_stats.n_used — deep, via composite→process usage + bare-name/
+      // alias attribution). The real "what breaks if I uninstall" signal,
+      // distinct from total artifact uses.
       b.affected = (c && typeof c.n_used === 'number') ? c.n_used : 0;
       if (!b.url) b.url = _marketRepoUrl(b.repo);
     });
@@ -6755,7 +5823,7 @@
   function _repoFoot(b) {
     var meta = [];
     if (b.total) meta.push(b.total + ' artifact' + (b.total === 1 ? '' : 's'));
-    if (b.affected) meta.push('<span title="studies in your investigations that depend on this repo"><b>' + b.affected + '</b> affected stud' + (b.affected === 1 ? 'y' : 'ies') + '</span>');
+    if (b.affected) meta.push('<span title="Studies that depend on / use this repository (in this workspace and linked workspaces)"><b>' + b.affected + '</b> affected stud' + (b.affected === 1 ? 'y' : 'ies') + '</span>');
     return '<div class="repo-card-foot"><span class="repo-meta">' + (meta.join(' · ') || '&nbsp;') + '</span>'
       + _repoActions(b) + '</div>';
   }
@@ -6793,11 +5861,11 @@
       + '<th class="repo-th" style="width:100px">Processes</th>'
       + '<th class="repo-th" style="width:100px">Composites</th>'
       + '<th class="repo-th" style="width:90px">Studies</th>'
-      + '<th class="repo-th" style="width:130px" title="Studies in your investigations that depend on this repo">Affected studies</th>'
+      + '<th class="repo-th" style="width:130px" title="Studies that depend on / use this repository (in this workspace and linked workspaces)">Affected studies</th>'
       + '<th class="repo-th" style="width:190px"></th></tr>';
     var body = repos.map(function (b) {
       var aff = b.affected
-        ? '<span class="repo-affected" title="studies in your investigations that depend on this repo">' + b.affected + '</span>'
+        ? '<span class="repo-affected" title="Studies that depend on / use this repository (in this workspace and linked workspaces)">' + b.affected + '</span>'
         : '<span class="repo-td-zero">—</span>';
       return '<tr class="repo-tr">'
         + '<td class="market-td-name">📦 ' + _esc(_vivaLabel(b.display_name || b.repo))
@@ -6995,7 +6063,7 @@
     // If anything is missing, show the consent modal instead of jumping
     // straight to the pip-install path (which would fail with a cryptic
     // dlopen error at first Run).
-    fetch('/api/system-deps-check?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/system-deps-check?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var rOk = parts[0], j = parts[1];
@@ -7026,11 +6094,7 @@
     var body = {name: name};
     if (opts && opts.skip_system_deps_check) body.skip_system_deps_check = true;
     if (opts && opts.full_repo) body.full_repo = true;
-    fetch('/api/catalog-install', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', '/api/catalog-install', body)
       .then(function(r) { return r.json().then(function(j) { return [r.ok, r.status, j]; }); })
       .then(function(parts) {
         var ok = parts[0], status = parts[1], json = parts[2];
@@ -7058,7 +6122,7 @@
         var msg = "Installed " + name + ".\nCommit: " + (json.commit || 'n/a');
         alert(msg);
         window._registryLoaded = false;  // force registry reload on next switch
-        fetch('/api/render', {method: 'POST'}).finally(function() {
+        apiFetch('POST', '/api/render').finally(function() {
           location.reload();
         });
       })
@@ -7172,11 +6236,7 @@
     var btn = document.getElementById('sysdeps-install-btn');
     if (errEl) errEl.textContent = '';
     if (btn) { btn.disabled = true; btn.textContent = 'Installing…'; }
-    fetch('/api/system-deps-install', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name, check_names: checkNames}),
-    })
+    apiFetch('POST', '/api/system-deps-install', {name: name, check_names: checkNames})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
@@ -7307,11 +6367,7 @@
     var errEl = document.getElementById('uninstall-error');
     if (errEl) errEl.textContent = '';
     if (btn) { btn.disabled = true; btn.textContent = 'Uninstalling…'; }
-    fetch('/api/catalog-uninstall', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/catalog-uninstall', {name: name})
       .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, json: j}; }); })
       .then(function(p) {
         if (!p.ok) {
@@ -7366,15 +6422,11 @@
 
   function _deleteSimulation(name) {
     if (!confirm("Remove simulation '" + name + "'?")) return;
-    fetch('/api/simulation', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('DELETE', '/api/simulation', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         if (!parts[0]) { alert("Error: " + (parts[1].error || "unknown")); return; }
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
 
@@ -7391,11 +6443,7 @@
     var btn = event.target;
     btn.disabled = true;
     btn.textContent = "Installing…";
-    fetch('/api/import-install', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/import-install', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], json = parts[1];
@@ -7408,7 +6456,7 @@
         alert("Installed.\nBranch: " + json.branch + "\n\nRegistry will refresh; new processes may appear after pip-cached subprocess restarts.");
         // Drop registry cache, switch to Registry tab so user sees the change.
         window._registryLoaded = false;
-        fetch('/api/render', {method: 'POST'}).finally(function() {
+        apiFetch('POST', '/api/render').finally(function() {
           location.hash = '#modules';
           location.reload();
         });
@@ -7420,7 +6468,7 @@
   function _toggleDirtyPanel() {
     var panel = document.getElementById('ws-dirty-panel');
     if (panel) { panel.remove(); return; }
-    fetch('/api/dirty-status')
+    apiFetch('GET', '/api/dirty-status')
       .then(function(r){ return r.json(); })
       .then(_renderDirtyPanel)
       .catch(function(err){ console.warn('dirty-status failed:', err); });
@@ -7484,10 +6532,7 @@
     };
     var submitBtn = form.querySelector('button[type=submit]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Pushing…'; }
-    fetch('/api/work-link-branch', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/work-link-branch', body).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); })
       .then(function (pair) {
         var ok = pair[0], j = pair[1];
         if (!ok) {
@@ -7517,11 +6562,7 @@
   function _startWork() {
     var name = prompt("Investigation branch name (suggested: investigation/<short-slug>):", "investigation/");
     if (!name) return;
-    fetch('/api/work-start', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({branch: name.trim()}),
-    })
+    apiFetch('POST', '/api/work-start', {branch: name.trim()})
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         if (!parts[0]) { alert("Could not start investigation branch:\n" + (parts[1].error || 'unknown')); return; }
@@ -7532,7 +6573,7 @@
   window._startWork = _startWork;
 
   function _pushWork() {
-    fetch('/api/work-push', {method: 'POST'})
+    apiFetch('POST', '/api/work-push')
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         var ok = parts[0], json = parts[1];
@@ -7563,11 +6604,7 @@
     };
     var errEl = form.querySelector('.form-error');
     errEl.textContent = '';
-    fetch('/api/work-create-pr', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data),
-    })
+    apiFetch('POST', '/api/work-create-pr', data)
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         var ok = parts[0], json = parts[1];
@@ -7590,11 +6627,7 @@
     var input = form.elements[fieldName];
     btn.disabled = true;
     btn.textContent = "…";
-    fetch('/api/suggest', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({kind: kind}),
-    })
+    apiFetch('POST', '/api/suggest', {kind: kind})
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         var ok = parts[0], json = parts[1];
@@ -7613,7 +6646,7 @@
       return;
     }
     btn.textContent = "polling (" + attempts + ")";
-    fetch('/api/suggest-poll?id=' + encodeURIComponent(id))
+    apiFetch('GET', '/api/suggest-poll?id=' + encodeURIComponent(id))
       .then(function(r){ return r.json(); })
       .then(function(json){
         if (json.ready) {
@@ -7631,7 +6664,7 @@
 
   function _endWork() {
     if (!confirm("End this investigation branch? Switches you back to base; the branch is preserved.")) return;
-    fetch('/api/work-end', {method: 'POST'})
+    apiFetch('POST', '/api/work-end')
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         if (!parts[0]) { alert("Could not end investigation branch:\n" + (parts[1].error || 'unknown')); return; }
@@ -7652,11 +6685,7 @@
     if (spinner) spinner.style.display = "inline";
     if (out) out.textContent = "Running…";
 
-    fetch("/api/run-tests", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: model }),
-    })
+    apiFetch('POST', "/api/run-tests", { model: model })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (btn) btn.disabled = false;
@@ -7928,12 +6957,12 @@
                  && document.getElementById('investigations-list');
     var p1 = (window.DataSource
       ? window.DataSource.loadInvestigationsFlat()
-      : fetch('/api/investigations').then(function(r) { return r.json(); })
+      : apiFetch('GET', '/api/investigations').then(function(r) { return r.json(); })
     ).catch(function() { return {investigations: []}; });
     var p2 = hasIsetUI
       ? (window.DataSource && window.DataSource.loadIsetList
           ? window.DataSource.loadIsetList()
-          : fetch('/api/investigation-summaries').then(function(r) { return r.json(); })
+          : apiFetch('GET', '/api/investigation-summaries').then(function(r) { return r.json(); })
         ).catch(function() { return {investigations: []}; })
       : Promise.resolve({investigations: []});
     Promise.all([p1, p2]).then(function(arr) {
@@ -8136,7 +7165,7 @@
   // -------------------------------------------------------------------------
 
   function _vizRefreshStatus(name) {
-    fetch('/api/visualization-status?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/visualization-status?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json(); })
       .then(function(s) {
         var el = document.getElementById('viz-status-' + name);
@@ -8154,11 +7183,7 @@
   window._vizRefreshAll = _vizRefreshAll;
 
   function _vizCreate(name) {
-    fetch('/api/visualization-create', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/visualization-create', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
@@ -8175,7 +7200,7 @@
 
   function _vizPollUntilCreated(name, attempts) {
     if (attempts > 60) return;  // ~2 minutes
-    fetch('/api/visualization-status?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/visualization-status?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json(); })
       .then(function(s) {
         _vizRefreshStatus(name);
@@ -8185,11 +7210,7 @@
   }
 
   function _vizAddToProject(name) {
-    fetch('/api/visualization-add-to-project', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/visualization-add-to-project', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
@@ -8201,33 +7222,25 @@
 
   function _vizCommit(names) {
     if (!confirm('Commit ' + names.length + ' visualization(s) to the active branch?')) return;
-    fetch('/api/visualization-commit-batch', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({names: names}),
-    })
+    apiFetch('POST', '/api/visualization-commit-batch', {names: names})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
         if (!ok) { alert('Commit failed: ' + (json.error || 'unknown')); return; }
         alert('Committed: ' + (json.committed || []).join(', '));
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
   window._vizCommit = _vizCommit;
 
   function _vizCommitAll() {
-    fetch('/api/visualization-commit-batch', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({}),
-    })
+    apiFetch('POST', '/api/visualization-commit-batch', {})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
         if (!ok) { alert('Commit-all failed: ' + (json.error || 'unknown')); return; }
         alert('Committed: ' + (json.committed || []).join(', '));
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
   window._vizCommitAll = _vizCommitAll;
@@ -8248,10 +7261,7 @@
     // Preview a registered workspace.yaml instance by name. The server
     // looks up its class+config and renders against demo data (or a real
     // investigation if source is set later via the modal).
-    fetch('/api/visualization-preview-instance', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name, source: 'demo'}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-preview-instance', {name: name, source: 'demo'}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -8265,10 +7275,7 @@
 
   function _vizClassPreview(address, className) {
     // Preview a raw Visualization class (no config) against demo data.
-    fetch('/api/visualization-preview', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({address: address, source: 'demo'}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-preview', {address: address, source: 'demo'}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -8282,16 +7289,12 @@
 
   function _vizRemove(name) {
     if (!confirm("Remove visualization '" + name + "'?")) return;
-    fetch('/api/visualization', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('DELETE', '/api/visualization', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
         if (!ok) { alert('Remove failed: ' + (json.error || 'unknown')); return; }
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
   window._vizRemove = _vizRemove;
@@ -8361,11 +7364,7 @@
     var name = id.indexOf('.') >= 0 ? id.split('.').pop() : id;
     var btn = document.getElementById('ce-begin-study-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Starting study…'; }
-    fetch('/api/study-create-from-composite', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({composite_name: name}),
-    })
+    apiFetch('POST', '/api/study-create-from-composite', {composite_name: name})
       .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, body: j}; }); })
       .then(function(res) {
         if (!res.ok) {
@@ -8385,7 +7384,7 @@
         if (typeof _openInvestigation === 'function') {
           _openInvestigation(newName);
         } else {
-          fetch('/api/investigation/' + encodeURIComponent(newName))
+          apiFetch('GET', '/api/investigation/' + encodeURIComponent(newName))
             .then(function(r) { return r.json(); })
             .then(function(data) {
               if (typeof _renderInvestigationDetail === 'function') {
@@ -8442,7 +7441,7 @@
     if (window._ceHistoryFetching) return;
     window._ceHistoryFetching = true;
     var id = window._ceCurrent.id;
-    fetch(_api('/api/composite-runs?spec_id=' + encodeURIComponent(id)))
+    apiFetch('GET', '/api/composite-runs?spec_id=' + encodeURIComponent(id))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var runs = data.runs || [];
@@ -8529,7 +7528,7 @@
     var body = document.getElementById('ce-compare-body');
     body.innerHTML = '<p class="empty-state">Loading&hellip;</p>';
     Promise.all(ids.map(function(id) {
-      return fetch(_api('/api/composite-run/' + encodeURIComponent(id)))
+      return apiFetch('GET', '/api/composite-run/' + encodeURIComponent(id))
         .then(function(r) { return r.json(); });
     })).then(function(results) {
       var runs = ids.map(function(id, i) {
@@ -8616,7 +7615,7 @@
       _ceShowState(run_id, step, cached);
       return;
     }
-    fetch(_api('/api/composite-run/' + encodeURIComponent(run_id)))
+    apiFetch('GET', '/api/composite-run/' + encodeURIComponent(run_id))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var trajectory = data.trajectory || [];
@@ -8874,7 +7873,7 @@
     var el = document.getElementById('composite-explore-svg-legacy');
     if (!el) return;
     el.innerHTML = '<p style="color:#888">Loading SVG…</p>';
-    fetch(_api('/api/composite-resolve?id=' + encodeURIComponent(ref)))
+    apiFetch('GET', '/api/composite-resolve?id=' + encodeURIComponent(ref))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.svg) {
@@ -9047,16 +8046,12 @@
     var resultsEl = document.getElementById('ce-test-results');
     _confirmRemoteDispatchThen(function () {
       resultsEl.innerHTML = '<p class="empty-state">Starting run&hellip;</p>';
-      fetch(_api('/api/composite-test-run'), {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
+      apiFetch('POST', '/api/composite-test-run', {
           id: window._ceCurrent.id,
           overrides: overrides,
           steps: steps,
           emit_paths: window._explorerEmitPaths || [],
-        }),
-      })
+        })
         .then(function(r) { return r.json().then(function(j) { return [r.status, j]; }); })
         .then(function(parts) {
           var code = parts[0], body = parts[1];
@@ -9146,16 +8141,12 @@
     var submitBtn = document.querySelector('#form-save-as-study button[type="submit"]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating…'; }
 
-    fetch('/api/study-create-from-run', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+    apiFetch('POST', '/api/study-create-from-run', {
         name: name,
         objective: objective,
         description: description,
         source_run_id: sourceRunId,
-      }),
-    })
+      })
       .then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
       .then(function(res) {
         if (res.status === 200) {
@@ -9204,7 +8195,7 @@
     }
     // Cache not populated yet (user landed here without visiting
     // Simulation Setup). Fetch synchronously-as-possible, then open.
-    fetch('/api/composites')
+    apiFetch('GET', '/api/composites')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var composites = data.composites || [];
@@ -9230,7 +8221,7 @@
   function _loadInvestigations() {
     var _p = window.DataSource
       ? window.DataSource.loadInvestigationsFlat()
-      : fetch('/api/investigations').then(function(r) {
+      : apiFetch('GET', '/api/investigations').then(function(r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         });
@@ -9442,25 +8433,21 @@
       // Keep the "done" vocabulary in sync with the backend roll-up
       // (_STUDY_STATUS_DONE_ROLLUP): complete/ran/passed/evaluated/decided are all
       // green "done" states, so a passed study never mislabels as "planned".
-      var _SD = { complete:['#16a34a','done'], ran:['#16a34a','done'], passed:['#16a34a','passed'],
-                  evaluated:['#16a34a','evaluated'], decided:['#16a34a','decided'],
-                  running:['#2563eb','running'], analyzing:['#2563eb','running'],
-                  in_progress:['#d97706','in progress'], failed:['#dc2626','failed'], invalid:['#dc2626','invalid'],
-                  planning:['#94a3b8','planned'] };
-      function _sMeta(st) { return _SD[st] || _SD[st === 'ran' ? 'complete' : 'planning'] || ['#94a3b8','planned']; }
       var studyObjs = _isetStudyObjs(iset);
+      // Group the summary chips by the SAME canonical status the dots + graph use.
+      var _stOrder = ['Accepted', 'Investigating', 'Blocked', 'Planned', 'Refuted'];
       var byStatus = {};
       studyObjs.forEach(function(s) {
-        var st = (s && (s.effective_status || s.status)) || 'planning';
-        byStatus[st] = (byStatus[st] || 0) + 1;
+        var meta = _studyStatusMeta(s);
+        (byStatus[meta.label] = byStatus[meta.label] || {n: 0, color: meta.color}).n++;
       });
       var breakdown = Object.keys(byStatus).sort(function(a, b) {
-        return (_statusRank[a] ?? 9) - (_statusRank[b] ?? 9);
-      }).map(function(st) {
-        var m = _sMeta(st);
+        return _stOrder.indexOf(a) - _stOrder.indexOf(b);
+      }).map(function(lab) {
+        var e = byStatus[lab];
         return '<span style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap">' +
-          '<span style="width:8px;height:8px;border-radius:50%;background:' + m[0] + '"></span>' +
-          byStatus[st] + ' ' + _esc(m[1]) + '</span>';
+          '<span style="width:8px;height:8px;border-radius:50%;background:' + e.color + '"></span>' +
+          e.n + ' ' + _esc(lab) + '</span>';
       }).join('<span style="color:#cbd5e1">·</span>');
 
       // Expandable study list (revealed by clicking the studies count): each row
@@ -9468,7 +8455,7 @@
       // (↓ figures / ↓ notebook, all modes) and, live only, ▶ run / ↻ reproduce.
       var _isSnap = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
       var studyRows = studyObjs.map(function(s) {
-        var m = _sMeta((s && (s.effective_status || s.status)) || 'planning');
+        var m = _studyStatusMeta(s);
         var slug = (s && s.name) || '';
         var title = (s && s.title) ? String(s.title) : '';
         var obj = (s && (s.objective || s.description)) ? String(s.objective || s.description) : '';
@@ -9479,18 +8466,18 @@
         // (▶ Run current spec / ↻ Reproduce), not here — so a card stays a
         // browse+download surface.
         var acts =
-          '<a href="#" style="' + lnk + '" title="Download this study\'s figures (panels + its composite) as a zip" ' +
+          '<a href="#" style="' + lnk + '" title="Download this study\'s figures (and embedded HTML reports) as a zip" ' +
             'onclick="window._vivStudyFiguresFromCard(event,\'' + _esc(slug) + '\');return false;">↓ figures</a>' +
           '<a href="#" style="' + lnk + '" title="Download this study\'s own runnable notebook (composite + parameters + figures)" ' +
             'onclick="window._vivStudyNotebookFromCard(event,\'' + _esc(slug) + '\',\'' + _esc(iset.name) + '\');return false;">↓ notebook</a>';
         return '<div class="iset-study-row" style="padding:6px;border-radius:5px" ' +
           'onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">' +
           '<div style="display:flex;align-items:center;gap:8px">' +
-            '<span style="width:7px;height:7px;border-radius:50%;background:' + m[0] + '"></span>' +
+            '<span style="width:7px;height:7px;border-radius:50%;background:' + m.color + '"></span>' +
             '<a href="/studies/' + encodeURIComponent(slug) + '" onclick="event.stopPropagation()" style="text-decoration:none">' +
               '<code style="font-size:0.92em;color:#475569">' + _esc(slug) + '</code></a>' +
             (title ? '<span style="font-size:0.86em;color:#334155">' + _esc(title) + '</span>' : '') +
-            '<span style="margin-left:auto;color:#94a3b8;font-size:0.82em">' + _esc(m[1]) + '</span>' +
+            '<span style="margin-left:auto;color:#94a3b8;font-size:0.82em">' + _esc(m.label) + '</span>' +
           '</div>' +
           (objShort ? '<div style="font-size:0.8em;color:#64748b;margin:2px 0 0 15px;line-height:1.35">' + _esc(objShort) + '</div>' : '') +
           '<div style="display:flex;gap:14px;margin:4px 0 0 15px">' + acts + '</div>' +
@@ -9627,10 +8614,7 @@
     });
     var createBtn = document.getElementById('iset-browse-create');
     if (createBtn) createBtn.textContent = (tab === 'studies') ? '+ Study' : '+ Investigation';
-    // The zoom toolbar (#iset-zoom-toolbar) is always visible on both tabs —
-    // only the "click a card's studies count" tip is Studies-only.
-    var tip = document.getElementById('iset-list-tip');
-    if (tip) tip.style.display = (tab === 'studies') ? 'none' : '';
+    // The zoom toolbar (#iset-zoom-toolbar) is always visible on both tabs.
     var invCount = document.getElementById('iset-tab-inv-count');
     var studyCount = document.getElementById('iset-tab-study-count');
     if (invCount) invCount.textContent = (window._isetIndex || []).length || '';
@@ -9753,8 +8737,15 @@
     // skip their scroll-restore so they can't cancel the scroll-to-study below.
     var _HOLD_MS = 1800;
     window._embedLandingUntil = Date.now() + _HOLD_MS;
-    if (typeof _fitEmbedToContent === 'function') _fitEmbedToContent(frame, 560);
-    else if (typeof _fitEmbedToViewport === 'function') _fitEmbedToViewport(frame, panel, 560);
+    // Floor the study porthole at the scroll container's visible height so the
+    // study FILLS the view on open instead of sitting short under the (often
+    // tall) investigation graph. With a full-viewport porthole, landing on the
+    // study scrolls the graph fully off the top — scroll up to bring it back.
+    var _scroller = document.querySelector('.viv-content');
+    var _vh = (_scroller && _scroller.clientHeight) || window.innerHeight || 800;
+    var _floor = Math.max(560, _vh - 8);
+    if (typeof _fitEmbedToContent === 'function') _fitEmbedToContent(frame, _floor);
+    else if (typeof _fitEmbedToViewport === 'function') _fitEmbedToViewport(frame, panel, _floor);
     // Land on the study AND actively HOLD it there. A one-shot smooth scroll
     // wasn't enough: the investigation graph / About block re-renders (and the
     // iframe refits) AFTER the scroll, springing the view back up to the top.
@@ -9850,20 +8841,33 @@
     var isSnapshot = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
     var name = window._wsInvestigation || window._currentIset || '';
     // Match the investigation CARD's ↓ actions (↓ report / ↓ notebook / ↓ figures)
-    // instead of the old emoji buttons. ↓ figures is injected async, only when the
-    // investigation actually has figures (same n_figures gate as the card).
+    // instead of the old emoji buttons. ↓ figures ALWAYS shows here (so the
+    // affordance is discoverable) but starts DISABLED/greyed; the async summary
+    // upgrades it to an active download when the investigation actually has
+    // figures (same n_figures signal as the card).
+    var _figuresDisabled =
+      ' <button class="btn-mini" disabled ' +
+        'title="No figures yet — run this investigation\'s studies to generate them" ' +
+        'style="opacity:0.5;cursor:not-allowed">↓ figures</button>';
     actions.innerHTML =
-      '<button class="btn-mini" onclick="_generateInvestigationReport()" ' +
-        'title="Generate a shareable HTML report">↓ report</button> ' +
+      '<button class="btn-mini" onclick="_downloadInvestigationReport()" ' +
+        'title="Download the shareable HTML report">↓ report</button> ' +
       '<button class="btn-mini" onclick="_downloadInvestigationNotebook()" ' +
         'title="Download a self-contained Jupyter notebook">↓ notebook</button>' +
-      '<span id="ws-actions-figures"></span>' +
+      '<span id="ws-actions-figures">' + _figuresDisabled + '</span>' +
       (isSnapshot ? '' :
       ' <button class="btn-mini" onclick="_rerunInvestigation()" ' +
         'title="Re-run every member study\'s CURRENT baseline spec (re-derives from each study\'s study.yaml)">▶ Run current spec</button>');
     if (name) {
-      fetch('/api/investigation-summaries', {headers: {Accept: 'application/json'}})
-        .then(function (r) { return r.json(); })
+      // Snapshot-aware: DataSource.loadIsetList() maps to the baked
+      // /api/investigation-summaries.json in a published bundle. The `_api()`
+      // adapter only prefixes the base path (never appends `.json`), so it 404s
+      // in a snapshot — leaving the ↓ figures button greyed even when figures.zip
+      // is baked. DataSource is always present in a published bundle.
+      (window.DataSource
+        ? window.DataSource.loadIsetList()
+        : fetch('/api/investigation-summaries', {headers: {Accept: 'application/json'}})
+            .then(function (r) { return r.json(); }))
         .then(function (j) {
           var me = ((j && j.investigations) || []).filter(function (i) { return i.name === name; })[0];
           var host = document.getElementById('ws-actions-figures');
@@ -9872,6 +8876,7 @@
               'onclick="window._vivFiguresFromCard(event,\'' + _esc(name) + '\')" ' +
               'title="Download all figures (studies figures + post-study composites) as a zip">↓ figures</button>';
           }
+          // else: leave the disabled/greyed ↓ figures in place.
         }).catch(function () {});
     }
   }
@@ -9949,7 +8954,7 @@
     var errEl = form.querySelector('.form-error');
     if (!name) { errEl.textContent = 'Name required.'; return; }
     var post = function (url, body) {
-      return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      return apiFetch('POST', url, body)
         .then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
     };
     if (window._browseCreateMode === 'investigation') {
@@ -9968,7 +8973,7 @@
           if (!p[0]) { errEl.textContent = p[1].error || 'Create failed.'; return; }
           var created = (p[1] && p[1].name) || name;
           // Seed the question on the scaffolded study (best-effort).
-          post('/api/study-narrative-set', { study: created, path: 'purpose.question', value: prompt })
+          apiFetch('PATCH', '/api/study/' + encodeURIComponent(created), { narrative: { path: 'purpose.question', value: prompt } })
             .catch(function () {}).then(function () {
               closeModal('modal-browse-create');
               window._investigationsLoaded = false;
@@ -9981,17 +8986,10 @@
   window._submitBrowseCreate = _submitBrowseCreate;
 
   // Status dot vocab shared by the study cards + breakdowns.
-  var _STUDY_DOT = {
-    complete: ['#16a34a', 'done'], ran: ['#16a34a', 'done'],
-    running: ['#2563eb', 'running'], in_progress: ['#d97706', 'in progress'],
-    failed: ['#dc2626', 'failed'], planning: ['#94a3b8', 'planned'],
-    planned: ['#94a3b8', 'planned'],
-  };
-  function _studyDotMeta(st) { return _STUDY_DOT[st] || _STUDY_DOT.planned; }
 
   function _studyBrowseCardHtml(s, full) {
     var status = s.effective_status || s.status || 'planned';
-    var m = _studyDotMeta(status);
+    var m = _studyStatusMeta(s);  // unified status source (see _studyStatusMeta)
     var inv = _investigationForStudy(s.name);
     var q = s.question || s.objective || '';
     var qText = String(q).split('\n')[0];
@@ -10010,7 +9008,7 @@
       '<div style="display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px;">' +
         '<strong style="font-size:1.02em;flex:1 1 100%">' + _esc(s.title || s.name) + '</strong>' +
         '<span style="font-size:0.72em;border-radius:9999px;padding:1px 9px;white-space:nowrap;' +
-          'background:' + m[0] + '22;color:' + m[0] + ';border:1px solid ' + m[0] + '55">' + _esc(m[1]) + '</span>' +
+          'background:' + m.color + '22;color:' + m.color + ';border:1px solid ' + m.color + '55">' + _esc(m.label) + '</span>' +
         _originBadge(s.origin_repo) +
       '</div>' +
       (inv ? '<div style="font-size:0.78em;color:#94a3b8;margin:0 0 6px"><span style="color:#cbd5e1">▪</span> ' + _esc(inv) + '</div>' : '') +
@@ -10117,7 +9115,7 @@
       var inv = _investigationForStudy(s.name) || '';
       var invTitle = _isetTitleForSlug(inv);
       var status = s.effective_status || s.status || 'planned';
-      var m = _studyDotMeta(status);
+      var m = _studyStatusMeta(s);  // unified status source (see _studyStatusMeta)
       var runs = runsOf(s);
       var rowText = (String(s.title || s.name) + ' ' + inv + ' ' + invTitle + ' ' + status + ' ' + (s.phase || '')).toLowerCase();
       return '<tr data-row-text="' + _esc(rowText) + '" onclick="_openStudyEmbeddedNewTab(\'' + _esc(s.name) + '\')" ' +
@@ -10125,7 +9123,7 @@
         'onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">' +
         '<td style="padding:7px 10px;font-weight:600;color:#1e293b">' + _esc(s.title || s.name) + '</td>' +
         '<td style="padding:7px 10px;color:#64748b">' + _esc(invTitle) + '</td>' +
-        '<td style="padding:7px 10px;white-space:nowrap"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + m[0] + ';margin-right:5px"></span>' + _esc(m[1]) + '</td>' +
+        '<td style="padding:7px 10px;white-space:nowrap"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + m.color + ';margin-right:5px"></span>' + _esc(m.label) + '</td>' +
         '<td style="padding:7px 10px;color:#64748b">' + _esc(s.phase || '—') + '</td>' +
         '<td style="padding:7px 10px;text-align:right;color:' + (runs ? '#1e293b' : '#cbd5e1') + '">' + runs + '</td>' +
         '<td style="padding:7px 10px;color:#64748b;white-space:nowrap">' + _fmtStudyDate(s.last_run) + '</td>' +
@@ -10272,11 +9270,7 @@
   function _setInvestigationStatus(btn, name, status) {
     var orig = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
-    fetch('/api/investigation-set-status', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: name, status: status}),
-    })
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(name), {status: status})
       .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function() {
         if (typeof _loadInvestigationSets === 'function') _loadInvestigationSets();
@@ -10505,6 +9499,7 @@
     function inline(s) {
       s = _escInv(s);
       s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');   // *italic* (after **bold**)
       s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
       return s;
     }
@@ -10624,29 +9619,40 @@
       var m = t.match(/^.*?[.!](?=\s)/);
       return m ? m[0] : t;
     };
-    var primary  = whatIs || q;
-    var headline = primary ? headlineOf(primary) : (d.title || d.name || '');
-    var framing  = primary ? oneline(primary).slice(headlineOf(primary).length).trim() : '';
+    var _invInline = function(s) {
+      s = _escInv(s);
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      return s;
+    };
+    // Headline = the investigation title (falls back to the driving question);
+    // the full what_is_this renders below as markdown prose (the introduction).
+    var headline = (d.title && d.title !== d.name) ? d.title
+                   : (q ? headlineOf(q) : (d.name || ''));
 
     var H = [];
     H.push('<div class="inv-brief inv-vs-' + vsClass + '">');
 
-    // Headline — the driving question, kept to one line.
-    if (headline) H.push('<h2 class="inv-brief-q">' + _esc(headline) + '</h2>');
+    // Headline.
+    if (headline) H.push('<h2 class="inv-brief-q">' + _invInline(headline) + '</h2>');
 
-    // Verdict — answers the question, as a colored status line.
+    // Verdict — a colored status line.
     if (verdict) {
       H.push('<div class="inv-brief-verdict">' +
         '<span class="inv-vs-pill">' + _esc(vs.toUpperCase()) + '</span>' +
         '<span class="inv-brief-verdict-label">Current verdict</span> ' +
-        '<span class="inv-brief-verdict-text">' + _esc(verdict) + '</span></div>');
+        '<span class="inv-brief-verdict-text">' + _invInline(verdict) + '</span></div>');
     }
 
-    // Framing — the rest of the opening sentence(s), muted.
-    if (framing) H.push('<p class="inv-brief-framing">' + _esc(framing) + '</p>');
+    // Introduction — the full what_is_this rendered as markdown prose.
+    if (whatIs) H.push('<div class="inv-brief-prose inv-brief-intro">' + _renderInvLeadMarkdown(whatIs) + '</div>');
 
-    // Meta — hypothesis.
-    if (hyp) H.push('<div class="inv-brief-meta"><span class="inv-brief-meta-item"><em>Hypothesis</em> ' + _esc(hyp) + '</span></div>');
+    // Meta — the driving question + hypothesis, one muted line each.
+    var _meta = [];
+    if (q) _meta.push('<span class="inv-brief-meta-item"><em>Question</em> ' + _invInline(oneline(q)) + '</span>');
+    if (hyp) _meta.push('<span class="inv-brief-meta-item"><em>Hypothesis</em> ' + _invInline(hyp) + '</span>');
+    if (_meta.length) H.push('<div class="inv-brief-meta">' + _meta.join('') + '</div>');
 
     // Depth — one flat tab strip; only tabs with content are shown.
     var tabs = [];
@@ -10761,7 +9767,7 @@
           // the badges off; the graph still renders.
           var _isSnap = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
           var _statusP = _isSnap ? Promise.resolve(null) :
-            fetch('/api/investigation-trigger-status?investigation=' + encodeURIComponent(slug))
+            apiFetch('GET', '/api/investigation-trigger-status?investigation=' + encodeURIComponent(slug))
               .then(function (r) { return r.ok ? r.json() : null; })
               .catch(function () { return null; });
           // Snapshot-aware: DataSource resolves to /api/investigation-graph/<slug>.json
@@ -10769,7 +9775,7 @@
           // 404s there, dropping the evidence chains from every card).
           var _graphP = (window.DataSource && window.DataSource.loadInvestigationGraph
             ? window.DataSource.loadInvestigationGraph(slug)
-            : fetch('/api/investigation-graph?investigation=' + encodeURIComponent(slug))
+            : apiFetch('GET', '/api/investigation-graph?investigation=' + encodeURIComponent(slug))
                 .then(function (r) { if (!r.ok) throw new Error('graph ' + r.status); return r.json(); })
           );
           _statusP.then(function (status) {
@@ -10906,11 +9912,7 @@
     var panel = document.getElementById('investigation-run-progress');
     if (btn) { btn.disabled = true; btn.textContent = '… queuing'; }
     if (panel) { panel.style.display = ''; panel.innerHTML = '<div class="inv-run-progress-banner">Queuing run-unblocked job…</div>'; }
-    fetch('/api/investigation-run-unblocked', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: name}),
-    }).then(function(r) {
+    apiFetch('POST', '/api/investigation-run-unblocked', {investigation: name}).then(function(r) {
       return r.json().then(function(j) { return {ok: r.ok, body: j, status: r.status}; });
     }).then(function(res) {
       if (!res.ok) {
@@ -10966,11 +9968,7 @@
     var panel = document.getElementById('investigation-run-progress');
     if (btn) { btn.disabled = true; btn.textContent = '… launching'; }
     if (panel) { panel.style.display = ''; panel.innerHTML = '<div class="inv-run-progress-banner">Launching reruns…</div>'; }
-    fetch('/api/investigation-rerun', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ investigation: name }),
-    }).then(function(r) {
+    apiFetch('POST', '/api/investigation-rerun', { investigation: name }).then(function(r) {
       return r.json().then(function(j) { return { ok: r.ok, body: j, status: r.status }; });
     }).then(function(res) {
       if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
@@ -11013,8 +10011,28 @@
 
   function _vivPollRunProgress(jobId) {
     if (_vivRunUnblockedTimer) clearTimeout(_vivRunUnblockedTimer);
+    // Plan §A3′ option (c): an item gated behind an unfinished prerequisite is
+    // parked `waiting` and its worker RETURNS, rather than holding a thread for
+    // the life of a Batch job. Something has to come back and release it once
+    // the prerequisite lands, and this poll is the natural caller — it is
+    // already here, already watching the same job.
+    //
+    // Fired on CHANGE, not every tick. The status GET resolves `submitted`
+    // items against viva-api, so a prerequisite completing on Batch shows up
+    // here as `progress.done` increasing; that edge is exactly when a redrive
+    // can accomplish something. Polling it blindly every 2s would spawn a
+    // worker thread per tick for the whole life of a multi-hour campaign, each
+    // one re-parking the same items.
+    var lastDone = -1;
+    function maybeRedrive(job) {
+      var prog = job.progress || {};
+      if (!prog.waiting) { lastDone = (prog.done || 0); return; }
+      if ((prog.done || 0) === lastDone) return;   // nothing settled since last look
+      lastDone = (prog.done || 0);
+      apiFetch('POST', '/api/investigation-run-redrive', { job_id: jobId }).catch(function() { /* best-effort: the next change re-tries */ });
+    }
     function tick() {
-      fetch('/api/investigation-run-unblocked-status?job_id=' + encodeURIComponent(jobId))
+      apiFetch('GET', '/api/investigation-run-unblocked-status?job_id=' + encodeURIComponent(jobId))
         .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, body: j}; }); })
         .then(function(res) {
           if (!res.ok) return;
@@ -11028,6 +10046,7 @@
             }
             return;
           }
+          maybeRedrive(res.body);
           _vivRunUnblockedTimer = setTimeout(tick, 2000);
         });
     }
@@ -11039,8 +10058,11 @@
     if (!panel) return;
     var items = (job.items || []).map(function(it) {
       var statusCls = 'inv-run-item inv-run-' + (it.status || 'queued');
+      // `submitted` (A2′) and `waiting` (A3′) both post-date this map, so both
+      // rendered as '?' — a dispatched Batch run and a gated dependent looked
+      // like a bug rather than the two normal states they are.
       var icon = ({queued: '⋯', running: '▶', done: '✓', failed: '✗',
-                   blocked: '⛔', skipped: '—'})[it.status] || '?';
+                   blocked: '⛔', skipped: '—', submitted: '☁', waiting: '⏸'})[it.status] || '?';
       var err = it.error ? ' <span class="inv-run-err">' + _h(it.error) + '</span>' : '';
       return '<div class="' + statusCls + '">'
         + '<span class="inv-run-icon">' + icon + '</span>'
@@ -11058,7 +10080,9 @@
       headline = '<strong>✗ Job failed.</strong> ' + prog.done + ' / ' + prog.total + ' attempted.';
     } else {
       headline = '<strong>Running…</strong> ' + prog.done + ' / ' + prog.total + ' complete' +
-                 (prog.running ? ' · ' + prog.running + ' in flight' : '');
+                 (prog.running ? ' · ' + prog.running + ' in flight' : '') +
+                 (prog.submitted ? ' · ' + prog.submitted + ' on Batch' : '') +
+                 (prog.waiting ? ' · ' + prog.waiting + ' waiting on prerequisites' : '');
     }
     panel.innerHTML = '<div class="inv-run-progress-banner">' + headline + '</div>'
                     + '<div class="inv-run-list">' + items + '</div>';
@@ -11182,10 +10206,20 @@
   // study tab.
   function _dagDownloadControlsHtml(slug) {
     var lnk = 'font-size:0.66em;color:#3b82f6;text-decoration:none;white-space:nowrap';
+    // Show "↓ figures" only when the study actually has downloadable figures.
+    // The per-study status (from /api/investigation-trigger-status) carries
+    // has_figures; hide the link ONLY on an explicit false so that when the
+    // status is unavailable (snapshot bundle / fetch failed → no entry) we keep
+    // showing it rather than hiding a real download. ↓ notebook is always
+    // generatable, so it stays unconditional.
+    var _st = _dagTriggerBySlug[slug];
+    var _figures = (!_st || _st.has_figures !== false)
+      ? '<a href="#" title="Download this study\'s figures (and embedded HTML reports) as a zip" ' +
+          'onclick="window._vivStudyFiguresFromCard(event,\'' + _esc(slug) + '\');return false;" ' +
+          'style="' + lnk + '">↓ figures</a>'
+      : '';
     return '<div class="dag-download-controls" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">' +
-      '<a href="#" title="Download this study\'s figures (panels + its composite) as a zip" ' +
-        'onclick="window._vivStudyFiguresFromCard(event,\'' + _esc(slug) + '\');return false;" ' +
-        'style="' + lnk + '">↓ figures</a>' +
+      _figures +
       '<a href="#" title="Download this study\'s own runnable notebook (composite + parameters + figures)" ' +
         'onclick="window._vivStudyNotebookFromCard(event,\'' + _esc(slug) + '\',\'' + _esc(_dagInvSlug || '') + '\');return false;" ' +
         'style="' + lnk + '">↓ notebook</a>' +
@@ -11196,13 +10230,9 @@
     if (!_dagInvSlug) return;
     var original = btnEl ? btnEl.textContent : '';
     if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'triggering…'; }
-    fetch('/api/investigation-trigger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    apiFetch('POST', '/api/investigation-trigger', {
         investigation: _dagInvSlug, target_study: slug, on_missing: onMissing,
-      }),
-    }).then(function (r) {
+      }).then(function (r) {
       return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; });
     }).then(function (res) {
       if (btnEl) { btnEl.disabled = false; btnEl.textContent = original; }
@@ -11235,7 +10265,7 @@
 
   function _refreshDagTriggerStatus() {
     if (!_dagInvSlug) return;
-    fetch('/api/investigation-trigger-status?investigation=' + encodeURIComponent(_dagInvSlug))
+    apiFetch('GET', '/api/investigation-trigger-status?investigation=' + encodeURIComponent(_dagInvSlug))
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (status) {
         if (!status) return;
@@ -11386,26 +10416,14 @@
     //    top TBD, append, measure --
     studies.forEach(function(s) {
       var liveStatus = s.effective_status || s.status || 'planned';
-      // Derive confidence from the spine's gate_status VERDICT first, so the badge
-      // tracks the computed verdict rather than the drift-prone hand-set `status`
-      // (a stale `status: in_progress` on a passed study used to mis-show
-      // "Investigating"). Fall back to lifecycle status only when no gate verdict.
-      var gateV = String(s.gate_status || '').trim().toLowerCase();
-      var confidence = s.confidence || (function() {
-        if (gateV === 'passed' || gateV === 'pass') return 'Accepted';
-        if (gateV === 'partial' || gateV === 'needs_calibration') return 'Investigating';
-        if (gateV === 'failed' || gateV === 'failed_evaluation' || gateV === 'refuted' || gateV === 'blocked') return 'Refuted';
-        if (liveStatus === 'completed' || liveStatus === 'complete' || liveStatus === 'ran') return 'Accepted';
-        if (liveStatus === 'in_progress' || liveStatus === 'running') return 'Investigating';
-        if (liveStatus === 'failed' || liveStatus === 'invalid') return 'Refuted';
-        return 'Planned';
-      })();
-      var ss = ({
-        Accepted:      {color: '#16a34a', icon: '✓'},
-        Investigating: {color: '#ca8a04', icon: '◐'},
-        Planned:       {color: '#2563eb', icon: '○'},
-        Refuted:       {color: '#dc2626', icon: '✗'},
-      })[confidence] || {color: '#9ca3af', icon: '○'};
+      // Unified status source (see _studyStatusMeta): gate_status VERDICT first, then
+      // the hand-set confidence, then lifecycle status -- the SAME derivation the
+      // spine sidebar dot and the legend use, so the card badge can never disagree
+      // with the sidebar. Fixes the prior bug where `s.confidence || derive(...)` let
+      // a drift-prone hand-set `confidence: Investigating` mask a `blocked` gate.
+      // `Blocked` renders as its own state (slate ⊘), not as Refuted (red ✗).
+      var ss = _studyStatusMeta(s);
+      var confidence = ss.label;
       var followUps = s.follow_up_studies || [];
 
       // Single display name everywhere: authored title:, else the shared
@@ -11595,8 +10613,12 @@
     edgesSvg.setAttribute('height', canvasH);
     edgesSvg.style.width = canvasW + 'px';
     edgesSvg.style.height = canvasH + 'px';
+    // Loom-like viewport: remember the canvas dims and apply the current zoom.
+    // The shell keeps its CSS/user height (resize:vertical) instead of being
+    // forced to fit — content scrolls/zooms inside it.
     var shellSize = document.getElementById('investigation-dag-shell');
-    if (shellSize) shellSize.style.height = canvasH + 'px';
+    if (shellSize) { shellSize.dataset.canvasW = canvasW; shellSize.dataset.canvasH = canvasH; }
+    _applyAigZoom();
 
     // Edges (drawn after positions are known), using measured heights.
     edgesSvg.innerHTML =
@@ -11699,6 +10721,7 @@
       legendHost.innerHTML =
         '<span style="font-weight:600;color:#475569;margin-right:10px">Confidence:</span>' +
         _lg('#16a34a', '✓', 'Accepted') + _lg('#ca8a04', '◐', 'Investigating') +
+        _lg('#64748b', '⊘', 'Blocked') +
         _lg('#2563eb', '○', 'Planned') + _lg('#dc2626', '✗', 'Refuted') +
         '<span style="flex-basis:100%;height:0"></span>' +
         '<span style="font-weight:600;color:#475569;margin:6px 10px 0 0">Edges:</span>' +
@@ -11709,6 +10732,67 @@
     }
   }
   window._renderInvestigationDag = _renderInvestigationDag;
+
+  // ── Investigation-graph viewport: continuous zoom / pan / fit / fullscreen ──
+  var aigZoom = 1;
+  function _applyAigZoom() {
+    var shell = document.getElementById('investigation-dag-shell');
+    var nodes = document.getElementById('investigation-dag-nodes');
+    var edges = document.getElementById('investigation-dag-edges');
+    if (!shell || !nodes || !edges) return;
+    var z = aigZoom;
+    var cw = parseFloat(shell.dataset.canvasW) || nodes.offsetWidth || 0;
+    var ch = parseFloat(shell.dataset.canvasH) || nodes.offsetHeight || 0;
+    [nodes, edges].forEach(function (el) {
+      el.style.transformOrigin = '0 0';
+      el.style.transform = 'scale(' + z + ')';
+    });
+    // A spacer sized to the SCALED content so the shell's scroll extent matches
+    // (transforms don't affect scrollWidth/Height on their own).
+    var spacer = shell.querySelector('.aig-spacer');
+    if (!spacer) {
+      spacer = document.createElement('div');
+      spacer.className = 'aig-spacer';
+      spacer.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none';
+      shell.appendChild(spacer);
+    }
+    spacer.style.width = (cw * z) + 'px';
+    spacer.style.height = (ch * z) + 'px';
+  }
+  function _aigZoomBy(f) { aigZoom = Math.max(0.3, Math.min(2.2, aigZoom * f)); _applyAigZoom(); }
+  function _aigFit() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    var cw = parseFloat(shell.dataset.canvasW) || 1, ch = parseFloat(shell.dataset.canvasH) || 1;
+    var z = Math.min((shell.clientWidth - 10) / cw, (shell.clientHeight - 10) / ch);
+    aigZoom = Math.max(0.3, Math.min(1.5, z || 1));
+    _applyAigZoom();
+    shell.scrollLeft = 0; shell.scrollTop = 0;
+  }
+  function _aigFullscreen() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (shell.requestFullscreen) { shell.requestFullscreen().then(function () { setTimeout(_aigFit, 150); }); }
+  }
+  window._aigZoomBy = _aigZoomBy;
+  window._aigFit = _aigFit;
+  window._aigFullscreen = _aigFullscreen;
+  // Drag anywhere on the shell background to pan (card clicks still work).
+  document.addEventListener('pointerdown', function (e) {
+    var shell = e.target.closest && e.target.closest('#investigation-dag-shell');
+    if (!shell || (e.target.closest && e.target.closest('.iset-dag-node'))) return;
+    var sx = e.clientX, sy = e.clientY, sl = shell.scrollLeft, st0 = shell.scrollTop, moved = false;
+    shell.style.cursor = 'grabbing';
+    function mv(ev) { moved = true; shell.scrollLeft = sl - (ev.clientX - sx); shell.scrollTop = st0 - (ev.clientY - sy); }
+    function up() {
+      document.removeEventListener('pointermove', mv);
+      document.removeEventListener('pointerup', up);
+      shell.style.cursor = '';
+    }
+    document.addEventListener('pointermove', mv);
+    document.addEventListener('pointerup', up);
+  });
 
   function _setAigBand(b) {
     var nb = Math.max(0, Math.min(2, b | 0));
@@ -11834,11 +10918,7 @@
   // surfaces converge on the same backend.
   function _seedFollowupAndOpen(parentName, idx) {
     if (!confirm('Seed a new study from this follow-up?\n\nA new study.yaml will be created under studies/<new-name>/.')) return;
-    fetch('/api/study-seed-followup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({parent: parentName, followup_idx: idx}),
-    }).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
+    apiFetch('POST', '/api/study-seed-followup', {parent: parentName, followup_idx: idx}).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
       .then(function(res) {
         if (res.status !== 200 || res.body.error) {
           alert('Seed failed: ' + (res.body.error || res.status));
@@ -11847,7 +10927,8 @@
         var pop = document.getElementById('dag-followups-popover');
         if (pop) pop.remove();
         alert('Created: ' + res.body.new_study_name + '\nOpening it now.');
-        window.location.href = '/studies/' + encodeURIComponent(res.body.new_study_name);
+        window.location.href = (window.__BASE_PATH__ || '') + '/studies/' +
+          encodeURIComponent(res.body.new_study_name);
       });
   }
   window._seedFollowupAndOpen = _seedFollowupAndOpen;
@@ -11866,11 +10947,7 @@
     var payload = {parent: parentName};
     if (proposalId) payload.proposal_id = proposalId;
     payload.proposal_idx = proposalIdx;
-    fetch('/api/study-seed-followup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
+    apiFetch('POST', '/api/study-seed-followup', payload).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
       .then(function(res) {
         if (res.status !== 200 || res.body.error) {
           alert('Seed failed: ' + (res.body.error || res.status));
@@ -11981,189 +11058,44 @@
   // (over email) BEFORE simulations run — so it surfaces the predictions,
   // assumptions, and gaps in a form that lets the expert validate the
   // design without needing the dashboard.
-  function _generateInvestigationReport() {
-    var name = window._currentIset;
+  // The investigation report is generated server-side (GET
+  // /api/investigation-report/<slug>) — a deterministic, data-only, fully
+  // self-contained document. In a static bundle (no server) publish.py
+  // pre-renders it to reports/investigation-<slug>.html and this opens that
+  // file instead. (Replaced the old client-side fan-out builder, now removed.)
+  function _investigationReportUrl(name) {
+    var cfg = window.__DASH_CONFIG__ || {};
+    var base = cfg.basePath || '';
+    return (cfg.mode === 'snapshot')
+      ? base + '/reports/investigation-' + encodeURIComponent(name) + '.html'
+      : '/api/investigation-report/' + encodeURIComponent(name);
+  }
+  function _downloadInvestigationReport(name) {
+    name = name || window._wsInvestigation || window._currentIset;
     if (!name) {
-      console.warn('_generateInvestigationReport: no current investigation');
+      console.warn('_downloadInvestigationReport: no current investigation');
       return;
     }
-    var btn = event && event.target;
-    var orig = btn ? btn.textContent : null;
-    if (btn) { btn.textContent = 'Generating…'; btn.disabled = true; }
-    // Use window.DataSource.loadInvestigation if available (client-fetch seam,
-    // sub-project #1).  Falls back to a direct fetch so local mode is unchanged.
-    var _isetFetch = (window.DataSource && window.DataSource.loadInvestigation)
-      ? window.DataSource.loadInvestigation(name)
-      : fetch('/api/investigation/' + encodeURIComponent(name), {headers: {Accept: 'application/json'}})
-          .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-    _isetFetch
-      .then(function(iset) {
-        var studyFetches = (iset.studies || []).map(function(s) {
-          return ((window.DataSource && window.DataSource.loadStudy)
-            ? window.DataSource.loadStudy(s.name)
-            : fetch('/api/study/' + encodeURIComponent(s.name))
-                .then(function(r) { return r.ok ? r.json() : {spec: {name: s.name, error: 'load-failed'}}; })
-                .then(function(j) { return j.spec || j; })
-          );
-        });
-        var bibFetch = fetch((window.DataSource && window.DataSource.referencesBibUrl)
-            ? window.DataSource.referencesBibUrl() : '/api/references-bib')
-          .then(function(r) { return r.ok ? r.json() : {entries: []}; })
-          .then(function(j) { return j.entries || []; })
-          .catch(function() { return []; });
-        var chartFetches = (iset.studies || []).map(function(s) {
-          // Via DataSource so snapshot mode reads api/study-charts/<slug>.json at
-          // the bundle basePath; raw fetch would 404 on a hosted read-only site.
-          return ((window.DataSource && window.DataSource.loadStudyCharts)
-            ? window.DataSource.loadStudyCharts(s.name)
-            : fetch('/api/study-charts/' + encodeURIComponent(s.name))
-                .then(function(r) { return r.ok ? r.json() : {charts: []}; }))
-            .then(function(j) { return {name: s.name, charts: (j && j.charts) || []}; })
-            .catch(function() { return {name: s.name, charts: []}; });
-        });
-        // Current coordinated generation — stamps the report's provenance
-        // banner (expert-feedback A.3). Best-effort: null when none active.
-        var genFetch = fetch('/api/generation')
-          .then(function(r) { return r.ok ? r.json() : {generation: null}; })
-          .then(function(j) { return (j && j.generation) || null; })
-          .catch(function() { return null; });
-        // Workspace GitHub repo (owner/name) — injected into the exported
-        // report's inline-feedback widget so its "Open GitHub issue" button
-        // pre-fills against the right repo with no reviewer prompt. Best-
-        // effort: null when the workspace has no GitHub origin (widget then
-        // falls back to host-detection / a one-time prompt).
-        var ghRepoFetch = fetch('/api/github-repo')
-          .then(function(r) { return r.ok ? r.json() : {repo: null}; })
-          .then(function(j) { return (j && j.repo) || null; })
-          .catch(function() { return null; });
-        // Evidence & rigor roll-up — deterministic skeptic-feedback computed
-        // by pbg_superpowers.rigor (replication, controls, alternatives,
-        // claim discipline, falsifiability, adversarial coverage).
-        var rigorFetch = fetch('/api/investigation-rigor?investigation=' + encodeURIComponent(iset.name))
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .catch(function() { return null; });
-        // Wave 3a #26 — framework-self metrics across every study + investigation
-        // (deterministic, pbg_superpowers.rigor.framework_metrics). Renders the
-        // "Framework scorecard" section. Best-effort: null → section omitted.
-        var fmFetch = fetch('/api/framework-metrics')
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .catch(function() { return null; });
-        // Wave 3b #6/#16 — competing hypotheses with the COMPUTED support_log
-        // (pbg_superpowers.hypotheses.rollup_support, via the report-data path).
-        // Best-effort: [] → the panel falls back to authored iset.hypotheses.
-        var hypFetch = fetch('/api/investigation-hypotheses?investigation=' + encodeURIComponent(iset.name))
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .then(function(j) { return (j && j.hypotheses) || null; })
-          .catch(function() { return null; });
-        return Promise.all([Promise.all(studyFetches), bibFetch,
-                            Promise.all(chartFetches), genFetch,
-                            ghRepoFetch, rigorFetch, fmFetch, hypFetch]).then(function(arr) {
-          var chartsByStudy = {};
-          arr[2].forEach(function(c) { chartsByStudy[c.name] = c.charts; });
-          var generation = arr[3];
-          var ghRepo = arr[4];
-          var rigor = arr[5];
-          var frameworkMetrics = arr[6];
-          var hypotheses = arr[7];
-          // Second pass: now that we have the specs, fetch each study's
-          // embed_visualizations URLs so the downloaded report can inline
-          // them as <iframe srcdoc="...">. This makes the file truly
-          // self-contained — works offline because the full preview HTML
-          // (incl. its Plotly CDN <script src>) is embedded inline.
-          var specs = arr[0];
-          var embedFetches = specs.map(function(spec) {
-            var embeds = (spec && spec.embed_visualizations) || [];
-            var perStudy = embeds.map(function(embed) {
-              if (!embed || !embed.url) return Promise.resolve(null);
-              return fetch(embed.url, {headers: {Accept: 'text/html'}})
-                .then(function(r) { return r.ok ? r.text() : null; })
-                .then(function(text) {
-                  return text ? {
-                    name: embed.name || '',
-                    description: embed.description || '',
-                    url: embed.url,
-                    html: text,
-                    stale: embed.stale === true,
-                  } : null;
-                })
-                .catch(function() { return null; });
-            });
-            return Promise.all(perStudy).then(function(results) {
-              return {name: spec && spec.name, embeds: results.filter(Boolean)};
-            });
-          });
-          // Parallel to the embeds: fetch each study's report-card modules
-          // (viz/report_card/<card>.html, surfaced as spec.report_card_urls)
-          // and inline their HTML so the downloaded report shows them offline
-          // as <iframe srcdoc>. The live study-detail view uses <iframe src=url>
-          // (server-backed); the exported report must inline, like the embeds.
-          var reportCardFetches = specs.map(function(spec) {
-            var rcUrls = (spec && spec.report_card_urls) || {};
-            var perStudy = Object.keys(rcUrls).map(function(card) {
-              var rc = rcUrls[card];
-              if (!rc || !rc.url) return Promise.resolve(null);
-              return fetch(rc.url, {headers: {Accept: 'text/html'}})
-                .then(function(r) { return r.ok ? r.text() : null; })
-                .then(function(text) {
-                  return text ? {
-                    card: card,
-                    verdict: rc.verdict || 'ungraded',
-                    html: text,
-                  } : null;
-                })
-                .catch(function() { return null; });
-            });
-            return Promise.all(perStudy).then(function(results) {
-              return {name: spec && spec.name, cards: results.filter(Boolean)};
-            });
-          });
-          return Promise.all([Promise.all(embedFetches),
-                              Promise.all(reportCardFetches)]).then(function(both) {
-            var embedsByStudy = {};
-            both[0].forEach(function(e) {
-              if (e && e.name) embedsByStudy[e.name] = e.embeds;
-            });
-            var reportCardsByStudy = {};
-            both[1].forEach(function(e) {
-              if (e && e.name) reportCardsByStudy[e.name] = e.cards;
-            });
-            return {iset: iset, specs: specs, bibEntries: arr[1],
-                    chartsByStudy: chartsByStudy, embedsByStudy: embedsByStudy,
-                    reportCardsByStudy: reportCardsByStudy,
-                    generation: generation, ghRepo: ghRepo, rigor: rigor,
-                    frameworkMetrics: frameworkMetrics, hypotheses: hypotheses};
-          });
-        });
-      })
-      .then(function(bundle) {
-        var html = _buildInvestigationReportHtml(bundle.iset, bundle.specs,
-                                                  bundle.bibEntries, bundle.chartsByStudy,
-                                                  bundle.embedsByStudy, bundle.generation,
-                                                  bundle.ghRepo, bundle.rigor,
-                                                  bundle.frameworkMetrics, bundle.hypotheses,
-                                                  bundle.reportCardsByStudy);
-        var dateStr = new Date().toISOString().slice(0, 10);
-        var filename = 'investigation-' + name + '-' + dateStr + '.html';
-        _triggerDownload(filename, html, 'text/html');
-      })
-      .catch(function(err) {
-        console.error('report generation failed', err);
-        alert('Report generation failed: ' + err);
-      })
-      .finally(function() {
-        if (btn) { btn.textContent = orig; btn.disabled = false; }
-      });
+    var cfg = window.__DASH_CONFIG__ || {};
+    // Live: hit the endpoint with ?download=1 so the server sends
+    // Content-Disposition: attachment and the browser saves it. Snapshot: the
+    // pre-rendered static file, downloaded via the anchor's `download` attr.
+    var url = _investigationReportUrl(name) + (cfg.mode === 'snapshot' ? '' : '?download=1');
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'investigation-' + name + '.html';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
-  window._generateInvestigationReport = _generateInvestigationReport;
+  window._downloadInvestigationReport = _downloadInvestigationReport;
 
   // Per-card actions on the Investigations LIST (don't require opening the
-  // investigation). _generateInvestigationReport captures the name synchronously
-  // from _currentIset, so we set/restore it around the call.
+  // investigation) — open the report for the named investigation directly.
   window._vivReportFromCard = function (ev, name) {
     if (ev) ev.stopPropagation();
-    var prev = window._currentIset;
-    window._currentIset = name;
-    try { _generateInvestigationReport(); } finally { window._currentIset = prev; }
+    _downloadInvestigationReport(name);
   };
   window._vivNotebookFromCard = function (ev, name) {
     if (ev) ev.stopPropagation();
@@ -12205,14 +11137,15 @@
     a.href = url; a.download = name + '-figures.zip';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
-  // A single study's figures (its panels + its own composite) as a zip.
+  // A single study's OUTPUTS (its image figures + any embedded HTML report /
+  // dashboard and its viz assets) as a zip.
   window._vivStudyFiguresFromCard = function (ev, slug) {
     if (ev) ev.stopPropagation();
     var c = window.__DASH_CONFIG__ || {};
     var base = c.basePath || '';
     var url = (c.mode === 'snapshot')
       ? base + '/figures/studies/' + encodeURIComponent(slug) + '.zip'
-      : '/api/study/' + encodeURIComponent(slug) + '/figures.zip';
+      : '/api/study/' + encodeURIComponent(slug) + '/outputs.zip';
     // Probe before downloading. The ↓ visualizations button renders whenever a
     // study declares any `visualizations`, but the figures zip only contains
     // declared IMAGE files (svg/png/gif). A study whose visualizations are all
@@ -12225,8 +11158,8 @@
     }
     fetch(url).then(function (r) {
       if (!r.ok) {
-        _notify('No downloadable figure archive for "' + slug + '" '
-          + '(its visualizations have no exportable image files).');
+        _notify('No downloadable figures for "' + slug + '" '
+          + '(no figures or embedded HTML reports).');
         return null;
       }
       return r.blob();
@@ -12238,7 +11171,7 @@
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       window.setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
     }).catch(function (e) {
-      _notify('Figure download failed: ' + e);
+      _notify('Figures download failed: ' + e);
     });
   };
   // A study's ↓ notebook is its parent investigation's runnable notebook (there
@@ -12253,10 +11186,7 @@
     if (ev) ev.stopPropagation();
     if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;
     if (!confirm("Run this study's current baseline spec as a new run?")) return;
-    fetch('/api/study-run-baseline', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({study: slug}),
-    }).then(function (r) { return r.json(); }).then(function (j) {
+    apiFetch('POST', '/api/study-run-baseline', {study: slug}).then(function (r) { return r.json(); }).then(function (j) {
       var id = j && (j.run_id || j.simulation_id);
       var msg = id ? ('Run launched — ' + id) : ('Run: ' + ((j && j.error) || 'done'));
       if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
@@ -12267,16 +11197,13 @@
   window._vivReproduceStudyFromRow = function (ev, slug) {
     if (ev) ev.stopPropagation();
     if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;
-    fetch('/api/simulations?study=' + encodeURIComponent(slug))
+    apiFetch('GET', '/api/simulations?study=' + encodeURIComponent(slug))
       .then(function (r) { return r.json(); })
       .then(function (j) {
         var rows = (j && (j.simulations || j.runs)) || [];
         var latest = rows[0] && (rows[0].run_id || rows[0].id || rows[0].name);
         if (!latest) { alert('No run to reproduce yet for ' + slug + '.'); return; }
-        return fetch('/api/study-reproduce', {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({study: slug, run_id: latest}),
-        }).then(function (r) { return r.json(); }).then(function (res) {
+        return apiFetch('POST', '/api/study-reproduce', {study: slug, run_id: latest}).then(function (r) { return r.json(); }).then(function (res) {
           var id = res && res.run_id;
           var msg = id ? ('Reproduce launched — ' + id) : ('Reproduce: ' + ((res && res.error) || 'done'));
           if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
@@ -12409,7 +11336,7 @@
     var setStatus = function(txt) { if (statusEl) statusEl.textContent = txt || ''; };
     btn.disabled = true;
     setStatus('refreshing…');
-    fetch('/api/study-refresh-viz/' + encodeURIComponent(study), {method: 'POST'})
+    apiFetch('POST', '/api/study-refresh-viz/' + encodeURIComponent(study))
       .then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
@@ -12419,7 +11346,7 @@
         var errs = results.filter(function(x) { return x && x.status === 'error'; }).length;
         var ok = results.filter(function(x) { return x && x.status === 'rendered'; }).length;
         // Re-fetch the freshly-stamped charts and rebuild the section body.
-        return fetch('/api/study-charts/' + encodeURIComponent(study))
+        return apiFetch('GET', '/api/study-charts/' + encodeURIComponent(study))
           .then(function(r) { return r.ok ? r.json() : {charts: []}; })
           .then(function(j) {
             var container = document.getElementById('study-' + study + '-charts');
@@ -13164,4674 +12091,6 @@
     return html;
   }
 
-  function _buildInvestigationReportHtml(iset, specs, bibEntries, chartsByStudy, embedsByStudy, generation, ghRepo, rigor, frameworkMetrics, hypotheses, reportCardsByStudy) {
-    bibEntries = bibEntries || [];
-    chartsByStudy = chartsByStudy || {};
-    embedsByStudy = embedsByStudy || {};
-    reportCardsByStudy = reportCardsByStudy || {};
-    generation = generation || null;
-    ghRepo = ghRepo || null;
-    // Wave 3b #6/#16 — prefer the report-data-path enriched hypotheses (with the
-    // computed support_log); fall back to the authored iset.hypotheses so the
-    // panel still renders (un-enriched) when the fetch is unavailable.
-    hypotheses = hypotheses || (iset && iset.hypotheses) || [];
-    var bibByKey = {};
-    bibEntries.forEach(function(e) { bibByKey[e.key] = e; });
-    var now = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
-
-    // Task 9: render a canonical `vdash …` command as a copy-to-run chip. The
-    // command strings come PRECOMPUTED off each study's `run_commands` payload
-    // (the single source of truth — server lib/run_commands.study_run_commands),
-    // never hand-built here. Returns '' for a falsy command so older payloads /
-    // the published bundle degrade to no chip rather than "undefined".
-    function _runChip(cmd) {
-      if (!cmd) return '';
-      return '<code class="run-chip" title="Copy to run">' + _h(cmd) + '</code>';
-    }
-
-    // ── Coordinated-generation banner (expert-feedback A.3) ──────────────
-    // One prominent provenance stamp so the reviewer knows every panel below
-    // reflects a single (git_sha, params) state — and a loud warning when
-    // displayed runs span more than one generation (the "results are mixed,
-    // some 5/17 some 5/19" complaint). Built once, here, so live + exported
-    // reports stamp identically.
-    function _genBannerHtml() {
-      // Gather the distinct generation ids actually present in displayed runs.
-      var seen = {};
-      specs.forEach(function(s) {
-        (s.runs || []).forEach(function(r) {
-          var g = r && r.generation_id;
-          if (g) seen[g] = true;
-        });
-      });
-      var distinct = Object.keys(seen);
-      var curId = generation && generation.generation_id;
-      var bits = [];
-      if (curId) bits.push('<code>' + _h(curId) + '</code>');
-      if (generation && generation.git_sha) bits.push('git <code>' + _h(generation.git_sha) + '</code>');
-      if (generation && generation.param_set_hash) bits.push('params <code>' + _h(generation.param_set_hash) + '</code>');
-      if (generation && generation.created_at) bits.push(_h(String(generation.created_at).replace('T', ' ').slice(0, 16)));
-      // A report mixes generations if displayed runs carry >1 distinct id, or
-      // any displayed run's generation differs from the current one.
-      var mixes = distinct.length > 1
-        || (curId && distinct.some(function(g) { return g !== curId; }));
-      var head, body, bg, border, fg;
-      if (!curId && !distinct.length) {
-        return '';  // no generation model in play — say nothing
-      }
-      if (mixes) {
-        bg = '#fffbeb'; border = '#f59e0b'; fg = '#92400e';
-        head = '⚠ This report mixes results from more than one generation';
-        body = 'Panels below do not all reflect the same code + parameter state. '
-             + 'Re-run the whole investigation as one generation, then re-export, '
-             + 'so every result is coordinated.'
-             + (distinct.length ? ' Generations present: '
-                 + distinct.map(function(g){return '<code>'+_h(g)+'</code>';}).join(', ') + '.' : '');
-      } else {
-        bg = '#f0fdf4'; border = '#16a34a'; fg = '#166534';
-        head = 'Coordinated generation';
-        body = 'Every result below reflects one snapshot: ' + bits.join(' · ') + '.';
-      }
-      return '<div class="generation-banner" id="generation-banner" '
-        + 'style="margin:16px 0;padding:12px 16px;background:' + bg + ';border:1px solid '
-        + border + ';border-left-width:5px;border-radius:6px;color:' + fg + '">'
-        + '<strong>' + head + '</strong>'
-        + '<div class="small" style="margin-top:4px">' + body + '</div>'
-        + '</div>';
-    }
-    var generationBannerHtml = _genBannerHtml();
-
-    // Topological depth ordering of the studies (same as the dashboard DAG).
-    var depthMap = {};
-    var children = {};
-    specs.forEach(function(s) {
-      depthMap[s.name] = 0;
-      children[s.name] = [];
-    });
-    specs.forEach(function(s) {
-      (s.parent_studies || []).forEach(function(p) {
-        var pn = (typeof p === 'string') ? p : p.study;
-        if (children[pn]) children[pn].push(s.name);
-      });
-    });
-    var queue = [];
-    specs.forEach(function(s) {
-      if (!(s.parent_studies || []).length) queue.push(s.name);
-    });
-    var guard = specs.length * 4;
-    while (queue.length && guard-- > 0) {
-      var n = queue.shift();
-      (children[n] || []).forEach(function(c) {
-        if (depthMap[c] < (depthMap[n] || 0) + 1) {
-          depthMap[c] = depthMap[n] + 1;
-          queue.push(c);
-        }
-      });
-    }
-    var ordered = specs.slice().sort(function(a, b) {
-      return (depthMap[a.name] || 0) - (depthMap[b.name] || 0)
-          || a.name.localeCompare(b.name);
-    });
-
-    // ── Spine C2: investigation verdict DAG + acceptance narrative ──────────
-    // A compact, dependency-true map of the member studies, each badged with
-    // its code-computed gate verdict, plus a one-paragraph acceptance roll-up.
-    // Reuses the `ordered` / `depthMap` topology above (no second sort) and the
-    // spine-computed verdicts/acceptance (no recompute). Mirrors the
-    // param-enforcement banner: surfaced, connected (nodes/criteria link to the
-    // per-study sections), labeled code-computed.
-    // Per-test outcome counts for a study (pass/fail/skip/pending), read from
-    // the run that carries outcomes (canonical/grade), falling back to the
-    // authored tests[].status. Single-sourced with the control-panel clarity
-    // counter (_studyControlPanel) so the two never drift.
-    function _studyOutcomeCounts(s) {
-      var tests = _studyTests(s);
-      var latest = _runWithOutcomes((s && s.runs) || []);
-      var outc = (latest && latest.outcomes) || {};
-      var c = { pass: 0, fail: 0, skip: 0, pending: 0, total: tests.length };
-      tests.forEach(function (t) {
-        var o = outc[t.name];
-        var r = (((o && o.result) != null ? o.result : o) || '').toString().toLowerCase();
-        if (!r) r = (_testStatusToResult(t.status) || '').toLowerCase();
-        if (r === 'pass' || r === 'passed' || r === 'ok') c.pass++;
-        else if (r === 'fail' || r === 'failed' || r === 'error') c.fail++;
-        else if (r === 'skip' || r === 'skipped' || r === 'inconclusive' || r === 'partial') c.skip++;
-        else c.pending++;
-      });
-      return c;
-    }
-    // A compact "4 passed · 1 skipped" summary of the counts a verdict was
-    // derived from — the data already lives in the outcomes, so surface it so
-    // needs_calibration reads as progress, not a bare ⚠.
-    function _spineCountLabel(c) {
-      if (!c || !c.total) return '';
-      var bits = [];
-      if (c.pass) bits.push(c.pass + ' passed');
-      if (c.fail) bits.push(c.fail + ' failed');
-      if (c.skip) bits.push(c.skip + ' skipped');
-      if (c.pending) bits.push(c.pending + ' pending');
-      return bits.join(' · ');
-    }
-    // Map a study's code-computed gate verdict onto a badge. roll_up_verdict
-    // emits FIVE states (passed / failed / needs_calibration / blocked /
-    // not_started); render all five distinctly so partial progress is visible
-    // to a reader. In particular: ◽ neutral for not-yet-evaluated (never ⚠ —
-    // an unstarted study must not read as broken), 🔄 progress-shaped for
-    // needs_calibration, and ⚠ reserved for genuinely blocked.
-    function _spineVerdictBadge(result, study) {
-      var r = (result || '').toString().toLowerCase();
-      // Descriptive/informational reference (not_applicable gate) → neutral
-      // "reference" badge, NOT ⚠ "needs work".
-      if (r === 'not_applicable' || r === 'n/a' || r === 'na' || r === 'informational'
-          || r === 'descriptive' || (study && _isInformationalStudy(study))) {
-        return { glyph: '📄', cls: 'none', bd: '#94a3b8', label: 'reference' };
-      }
-      if (r === 'passed' || r === 'pass') return { glyph: '✅', cls: 'pass', bd: '#16a34a', label: 'passed' };
-      if (r === 'failed' || r === 'fail') return { glyph: '⛔', cls: 'fail', bd: '#dc2626', label: 'failed' };
-      // Nothing recorded yet — no run, no outcomes. Neutral "not evaluated",
-      // matching the empty-result badge. Covers the explicit not_started
-      // constant from roll_up_verdict, which is a non-empty string and would
-      // otherwise fall through to the ⚠ catch-all below.
-      if (!r || r === 'not_started' || r === 'not started') {
-        return { glyph: '◽', cls: 'none', bd: '#cbd5e1', label: 'not evaluated' };
-      }
-      // Ran; some behaviors pass, some deferred/skipped → progress-shaped and
-      // distinct from both "broken" and "not started". Mirrors the 🔄 used for
-      // needs_calibration in the study control panel.
-      if (r === 'needs_calibration' || r === 'stale') {
-        return { glyph: '🔄', cls: 'cal', bd: '#0284c7',
-                 label: r === 'stale' ? 'stale' : 'needs calibration' };
-      }
-      // Ran, but a prerequisite is unmet — genuinely blocked. ⚠ reserved here.
-      return { glyph: '⚠', cls: 'warn', bd: '#f59e0b', label: 'blocked' };
-    }
-    function _verdictDagHtml() {
-      if (!ordered.length) return '';
-      var hasEdges = specs.some(function(s) { return (s.parent_studies || []).length; });
-      var byDepth = {};
-      ordered.forEach(function(s) {
-        var d = depthMap[s.name] || 0;
-        (byDepth[d] = byDepth[d] || []).push(s);
-      });
-      var depths = Object.keys(byDepth).map(Number).sort(function(a, b) { return a - b; });
-      var ranks = depths.map(function(d) {
-        var nodes = byDepth[d].map(function(s) {
-          var b = _spineVerdictBadge((s.computed_gate_verdict || {}).result, s);
-          var parents = (s.parent_studies || []).map(function(p) {
-            return (typeof p === 'string') ? p : p.study;
-          }).filter(Boolean);
-          var dep = parents.length
-            ? ' <span class="sdag-dep muted small">← ' + parents.map(function(p) {
-                return '<a href="#study-' + _h(p) + '">' + _h(p) + '</a>';
-              }).join(', ') + '</span>'
-            : '';
-          // Show the counts the verdict was derived from, so needs_calibration
-          // (4 passed · 1 skipped) reads as progress, not a bare badge. Prefer
-          // the canonical counts the server attaches to computed_gate_verdict
-          // (from viva_superpowers roll_up_verdict); fall back to a client-side
-          // recompute when an older/snapshot payload lacks them.
-          var cgvCounts = (s.computed_gate_verdict || {}).counts;
-          var counts = _spineCountLabel(cgvCounts || _studyOutcomeCounts(s));
-          var countHtml = counts
-            ? ' <span class="sdag-counts muted small" style="color:#64748b">(' + _h(counts) + ')</span>'
-            : '';
-          return '<li class="sdag-node sdag-' + b.cls + '" '
-            + 'style="margin:3px 0;padding:2px 8px;border-left:3px solid ' + b.bd + '">'
-            + '<span class="sdag-badge" title="code-computed gate verdict: ' + _h(b.label) + '">' + b.glyph + '</span> '
-            + '<a href="#study-' + _h(s.name) + '"><strong>' + _h(s.name) + '</strong></a>'
-            + countHtml + dep + '</li>';
-        }).join('');
-        return '<div class="sdag-rank" style="margin:4px 0">'
-          + (hasEdges ? '<span class="sdag-rank-lbl muted small" style="display:inline-block;min-width:64px">depth ' + d + '</span>' : '')
-          + '<ul class="sdag-list" style="list-style:none;margin:0;padding:0;display:inline-block;vertical-align:top">' + nodes + '</ul></div>';
-      }).join('');
-      return '<div class="study-verdict-dag" id="study-verdict-dag" '
-        + 'style="margin:14px 0;padding:12px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left-width:5px;border-radius:6px">'
-        + '<strong>Study verdict map</strong> '
-        + '<span class="muted small">code-computed gate verdicts (✅ passed · ⛔ failed · 🔄 needs calibration · ⚠ blocked · ◽ not evaluated)'
-        + (hasEdges ? '; edges = pipeline prerequisites (← depends on)' : '') + '</span>'
-        + ranks + '</div>';
-    }
-    function _acceptanceNarrativeHtml() {
-      var ca = iset.computed_acceptance;
-      if (!ca || !ca.criteria || !ca.criteria.length) return '';
-      var total = ca.criteria.length;
-      function _is(r, set) { return set.indexOf((r || '').toString().toLowerCase()) >= 0; }
-      var nPass = ca.criteria.filter(function(c) { return _is(c.result, ['passing', 'pass']); }).length;
-      var blocked = ca.criteria.filter(function(c) {
-        return _is(c.result, ['failing', 'fail', 'blocked']);
-      }).map(function(c) { return c.study; }).filter(Boolean);
-      var vs = ca.verdict_status || (nPass === total ? 'passing' : 'in-progress');
-      return '<p class="acceptance-narrative" id="acceptance-narrative" '
-        + 'style="margin:10px 0;padding:10px 16px;background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:4px">'
-        + '<strong>Investigation acceptance: ' + _h(vs) + '.</strong> '
-        + nPass + ' of ' + total + ' acceptance criteria passing'
-        + (blocked.length
-            ? '; blocked by ' + blocked.map(function(n) {
-                return '<a href="#study-' + _h(n) + '">' + _h(n) + '</a>';
-              }).join(', ')
-            : '')
-        + '. <span class="muted small">code-computed from member-study verdicts</span></p>';
-    }
-    // ── SP4a: AC → study gating-matrix panel ───────────────────────────────
-    // Rows = acceptance criteria; columns = the gating study (linked to its
-    // section) + the computed result. Acceptance criteria with NO `study:` link
-    // are FLAGGED red ("no study linked — gap") — this is what surfaces e.g.
-    // chromosome-cycle-calibration's 5 unlinked criteria. Built synchronously
-    // from iset.acceptance_criteria (so the gap is visible even in a static
-    // snapshot), then ENRICHED from /api/linkage-index?investigation=<name>
-    // when the live endpoint is reachable. Tolerates the endpoint failing.
-    function _acResultBadge(result) {
-      var r = (result || '').toString().toLowerCase();
-      if (r === 'passing' || r === 'pass' || r === 'passed') return { glyph: '✅', bd: '#16a34a', bg: '#f0fdf4' };
-      if (r === 'failing' || r === 'fail' || r === 'failed') return { glyph: '⛔', bd: '#dc2626', bg: '#fef2f2' };
-      if (r === 'passing-with-caveats') return { glyph: '⚠', bd: '#f59e0b', bg: '#fffbeb' };
-      return { glyph: '◐', bd: '#94a3b8', bg: '#f8fafc' };  // in-progress / pending
-    }
-    // What an acceptance criterion IS — shown once, above the acceptance tables,
-    // so a reviewer knows these are computed metrics, not assertions.
-    var _acceptanceExplainer =
-      '<p class="muted small" style="margin:2px 0 10px 0;line-height:1.5;color:#475569">'
-      + 'Each <strong>acceptance criterion</strong> is a <em>behaviour test</em> declared in a study: a '
-      + 'measured field from the run (e.g. <code>closure_gap_size</code>) compared against an explicit '
-      + '<code>pass_if</code> band (a numeric threshold/range). The per-criterion result, each study’s '
-      + 'gate verdict, and this roll-up are <strong>computed in code from the run outcomes</strong> '
-      + '(deterministic) — not human judgement. Expand a row to see the field, the passing band, and the '
-      + 'observed value.</p>';
-    // Map study slug -> spec, to look up each criterion's underlying behaviour
-    // test (the actual metric) from the gating study.
-    var _specBySlug = {};
-    (specs || []).forEach(function(s) { if (s && s.name) _specBySlug[s.name] = s; });
-    function _passIfText(p) {
-      if (p == null || p === '') return '';
-      if (typeof p !== 'object') return String(p);
-      // {op, value} — the common shape (e.g. {op:">", value:0} -> "> 0").
-      if (p.op !== undefined && p.value !== undefined) {
-        var sym = {'>=': '≥', '<=': '≤', '>': '>', '<': '<', '==': '=', '!=': '≠',
-                   'in_range': 'in range'}[p.op] || p.op;
-        return sym + ' ' + p.value;
-      }
-      // {low, high} band.
-      if (p.low !== undefined || p.high !== undefined) {
-        return 'in [' + (p.low !== undefined ? p.low : '−∞') + ', '
-          + (p.high !== undefined ? p.high : '∞') + ']';
-      }
-      var bits = [];
-      if (p.min !== undefined || p.max !== undefined)
-        bits.push((p.min !== undefined ? ('≥ ' + p.min) : '') +
-                  (p.max !== undefined ? ((p.min !== undefined ? ' and ' : '') + '≤ ' + p.max) : ''));
-      ['gte', 'lte', 'gt', 'lt', 'equals', 'eq', 'min_fraction', 'at_least', 'at_most'].forEach(function(k) {
-        if (p[k] !== undefined) bits.push(k.replace(/_/g, ' ') + ' ' + p[k]);
-      });
-      return bits.length ? bits.join(', ') : JSON.stringify(p);
-    }
-    // A measure ({kind, field/path}) as readable text, e.g. "broken_network_gap (derived_scalar)".
-    function _measureText(m) {
-      if (!m) return '';
-      if (typeof m !== 'object') return String(m);
-      var f = m.field || m.path || '';
-      var k = m.kind || '';
-      if (f && k) return '<code>' + _h(f) + '</code> <span class="muted small">(' + _h(k) + ')</span>';
-      return f ? '<code>' + _h(f) + '</code>' : (k ? '<span class="muted small">' + _h(k) + '</span>' : _h(JSON.stringify(m)));
-    }
-    // Returns {field, passIf, observed, description} for a (study, behavior),
-    // or null if the gating study / test can't be resolved.
-    function _critMetric(study, behavior) {
-      var s = _specBySlug[study];
-      if (!s) return null;
-      var tests = s.behavior_tests || s.expected_behavior || [];
-      var t = null;
-      for (var i = 0; i < tests.length; i++) {
-        if (tests[i] && tests[i].name === behavior) { t = tests[i]; break; }
-      }
-      if (!t) return null;
-      var field = (t.measure && (t.measure.field || t.measure.kind)) || '';
-      var observed = null;
-      var runs = s.runs || [];
-      var ocRun = _runWithOutcomes(runs);
-      if (ocRun) {
-        var oc = _normOutcome((ocRun.outcomes || {})[behavior]);
-        if (oc && oc.observed !== undefined) observed = oc.observed;
-      }
-      return { field: field, passIf: _passIfText(t.pass_if), observed: observed,
-               description: t.description || '' };
-    }
-    // A compact "field · pass-if · observed" detail line for a criterion row.
-    function _critMetricDetail(study, behavior) {
-      var m = _critMetric(study, behavior);
-      if (!m) return '';
-      var bits = [];
-      if (m.field) bits.push('field <code>' + _h(m.field) + '</code>');
-      if (m.passIf) bits.push('passes if <code>' + _h(m.passIf) + '</code>');
-      if (m.observed !== null && m.observed !== undefined)
-        bits.push('observed <strong>' + _fmtObserved(m.observed) + '</strong>');
-      if (!bits.length && !m.description) return '';
-      return '<div class="crit-metric muted small" style="margin:2px 0 0 0;color:#475569">'
-        + bits.join(' &middot; ')
-        + (m.description ? '<div style="margin-top:2px">' + _h(m.description.replace(/\s+/g, ' ').trim()) + '</div>' : '')
-        + '</div>';
-    }
-    function _acGatingMatrixHtml() {
-      var crits = (iset.acceptance_criteria || []).filter(function(c) {
-        return c && typeof c === 'object';
-      });
-      if (!crits.length) return '';
-      var computed = ((iset.computed_acceptance || {}).criteria) || [];
-      var nGap = 0;
-      var rows = crits.map(function(c, i) {
-        var study = (c.study || '').toString().trim();
-        var gap = !study;
-        if (gap) nGap += 1;
-        var result = (computed[i] && computed[i].result) || c.status || '';
-        var b = _acResultBadge(result);
-        var behavior = c.behavior || c.name || '(criterion ' + (i + 1) + ')';
-        var studyCell = gap
-          ? '<td style="color:#b91c1c;font-weight:600">⚠ no study linked — gap</td>'
-          : '<td><a href="#study-' + _h(study) + '">' + _h(study) + '</a></td>';
-        var resultCell = '<td id="acg-result-' + i + '" '
-          + 'style="white-space:nowrap"><span class="acg-pill" '
-          + 'style="display:inline-block;padding:1px 8px;border-radius:10px;border:1px solid '
-          + b.bd + ';background:' + b.bg + '">' + b.glyph + ' ' + _h(result || 'pending') + '</span></td>';
-        return '<tr id="acg-row-' + i + '" data-gap="' + (gap ? '1' : '0') + '" '
-          + 'style="' + (gap ? 'background:#fef2f2' : '') + '">'
-          + '<td style="padding-right:10px;vertical-align:top">' + _h(behavior)
-            + _critMetricDetail(study, behavior) + '</td>'
-          + studyCell + resultCell + '</tr>';
-      }).join('');
-      var gapNote = nGap
-        ? '<p class="muted small" style="margin:6px 0 0 0;color:#b91c1c">'
-          + nGap + ' of ' + crits.length + ' acceptance criteria have no study linked (gaps) — '
-          + 'nothing gates them.</p>'
-        : '<p class="muted small" style="margin:6px 0 0 0">All ' + crits.length
-          + ' acceptance criteria are linked to a gating study.</p>';
-      return '<div class="ac-gating-matrix" id="ac-gating-matrix" '
-        + 'data-investigation="' + _h(iset.name || '') + '" '
-        + 'style="margin:12px 0;padding:12px 16px;background:#f0f9ff;'
-        + 'border:1px solid #bae6fd;border-left:4px solid #3b82f6;border-radius:6px">'
-        + '<strong>AC → study gating matrix</strong> '
-        + '<span class="muted small">which study gates each acceptance criterion · '
-        + '⚠ = no study linked (gap)</span>'
-        + _acceptanceExplainer
-        + '<table class="acg-table" style="width:100%;border-collapse:collapse;margin-top:8px;font-size:0.92em">'
-        + '<thead><tr style="text-align:left;border-bottom:1px solid #cbd5e1">'
-        + '<th style="padding:2px 10px 4px 0">Acceptance criterion</th>'
-        + '<th style="padding:2px 0 4px 0">Gating study</th>'
-        + '<th style="padding:2px 0 4px 0">Result</th></tr></thead>'
-        + '<tbody>' + rows + '</tbody></table>' + gapNote
-        + '</div>'
-        // Enrich from the live linkage-index endpoint when reachable. The panel
-        // already renders the gaps synchronously, so a failed/absent endpoint
-        // (e.g. a static snapshot) is harmless — we just keep the skeleton.
-        + '<script>(function(){try{'
-        + 'var panel=document.getElementById("ac-gating-matrix");'
-        + 'if(!panel)return;var inv=panel.getAttribute("data-investigation");if(!inv)return;'
-        + 'fetch("/api/linkage-index?investigation="+encodeURIComponent(inv))'
-        + '.then(function(r){return r.ok?r.json():null;})'
-        + '.then(function(d){if(!d||!d.ac_matrix||!d.ac_matrix.criteria)return;'
-        + 'd.ac_matrix.criteria.forEach(function(c,i){'
-        + 'var cell=document.getElementById("acg-result-"+i);if(!cell)return;'
-        + 'var res=(c.result||"pending");'
-        + 'var span=cell.querySelector(".acg-pill");if(span)span.textContent="• "+res;'
-        + '});})'
-        + '.catch(function(){});'
-        + '}catch(e){}})();</script>';
-    }
-
-    // ── SP5: "Decisions needed" report section ─────────────────────────────
-    // A compact list of the same needs-attention items shown in the live panel.
-    // Built as a placeholder that an inline script fills from the deterministic
-    // /api/needs-attention scan (mirrors the AC-gating-matrix enrich pattern):
-    // the section hydrates in the live report and stays quiet/hidden in a static
-    // snapshot where the endpoint is unreachable. The report computes nothing.
-    function _needsAttentionReportHtml() {
-      var inv = (iset.name || '').toString();
-      if (!inv) return '';
-      return '<section class="needs-attention-report" id="needs-attention-report" '
-        + 'data-investigation="' + _h(inv) + '" style="display:none;margin:12px 0;'
-        + 'padding:12px 16px;background:#fffbeb;border:1px solid #fcd34d;'
-        + 'border-left:4px solid #f59e0b;border-radius:6px">'
-        + '<strong>Decisions needed</strong> '
-        + '<span class="muted small">items the deterministic scan flags for triage · code-computed</span>'
-        + '<div id="needs-attention-report-body" style="margin-top:8px;font-size:0.92em"></div>'
-        + '</section>'
-        + '<script>(function(){try{'
-        + 'var sec=document.getElementById("needs-attention-report");'
-        + 'if(!sec)return;var inv=sec.getAttribute("data-investigation");if(!inv)return;'
-        + 'fetch("/api/needs-attention?investigation="+encodeURIComponent(inv))'
-        + '.then(function(r){return r.ok?r.json():null;})'
-        + '.then(function(d){if(!d||!d.summary||!(d.summary.total>0))return;'
-        + 'var sevcol={high:"#dc2626",medium:"#f59e0b",low:"#3b82f6"};'
-        + 'var body=document.getElementById("needs-attention-report-body");if(!body)return;'
-        + 'var esc=function(s){var e=document.createElement("span");e.textContent=(s==null?"":String(s));return e.innerHTML;};'
-        + 'var rows=(d.items||[]).map(function(it){'
-        + 'var c=sevcol[(it.severity||"low")]||"#3b82f6";'
-        + 'var ref=esc(it.study||it.ref||"");'
-        + 'var hint=it.action_hint?(" &middot; "+esc(it.action_hint)):"";'
-        + 'return "<li style=\\"margin-top:5px;padding-left:9px;border-left:3px solid "+c+"\\">"'
-        + '+"<code style=\\"font-size:0.85em\\">"+esc(it.kind||"")+"</code> &middot; <code>"+ref+"</code>"+hint+"</li>";'
-        + '}).join("");'
-        + 'body.innerHTML="<div class=\\"muted small\\">"+((d.summary.by_severity||{}).high||0)+" high &middot; "'
-        + '+d.summary.total+" total</div><ul style=\\"margin:6px 0 0 0;padding:0 0 0 4px;list-style:none\\">"+rows+"</ul>";'
-        + 'sec.style.display="";'
-        + '}).catch(function(){});'
-        + '}catch(e){}})();</script>';
-    }
-
-    var verdictDagHtml = _verdictDagHtml();
-    var acceptanceNarrativeHtml = _acceptanceNarrativeHtml();
-    var acGatingMatrixHtml = _acGatingMatrixHtml();
-    var needsAttentionReportHtml = _needsAttentionReportHtml();
-    var rigorSectionHtml = _rigorSectionHtml(rigor, specs);
-    var frameworkScorecardHtml = _frameworkScorecardHtml(frameworkMetrics);  // #26
-    var competingHypothesesHtml = _competingHypothesesHtml(hypotheses);      // #6/#16
-
-    // Reader-centered reorder: precomputed booleans gate the new top-nav links
-    // so we only emit a nav anchor when that section will actually render.
-    var _hasOpenQuestions = !!(((iset.executive || {}).decisions_needed || []).length
-      || (needsAttentionReportHtml && needsAttentionReportHtml.trim()));
-    var _hasRoadmap = !!(verdictDagHtml && verdictDagHtml.trim());
-    var _hasAppendices = !!((acGatingMatrixHtml && acGatingMatrixHtml.trim())
-      || (rigorSectionHtml && rigorSectionHtml.trim())
-      || (frameworkScorecardHtml && frameworkScorecardHtml.trim())
-      || (competingHypothesesHtml && competingHypothesesHtml.trim())
-      || ((iset.proposed_inputs || {}).items || []).length);
-
-    // Data-driven flags so the "How to read" guide describes only what this
-    // investigation actually contains — no workspace-specific boilerplate.
-    var hasDag = specs.some(function(s) {
-      return (s.parent_studies || []).length > 0;
-    });
-
-    // --- v3-shape per-study section ----------------------------------
-    // Render a sweep table (e.g. {1x: {dnaA_median: 115}, ...}) as a small
-    // inline-SVG bar chart. Used in finding cards when evidence.sweep or
-    // evidence.sweep_table is present.
-    function _renderSweepChart(sweep) {
-      if (!sweep || typeof sweep !== 'object') return '';
-      var keys = Object.keys(sweep);
-      if (!keys.length) return '';
-      var metrics = {};
-      keys.forEach(function(k) {
-        var v = sweep[k];
-        if (v && typeof v === 'object') {
-          Object.keys(v).forEach(function(m) {
-            var n = v[m];
-            if (typeof n === 'number') {
-              (metrics[m] = metrics[m] || {})[k] = n;
-            }
-          });
-        }
-      });
-      var metricNames = Object.keys(metrics);
-      if (!metricNames.length) return '';
-      // Render the most numeric-rich metric (max count of non-null values).
-      var metric = metricNames.sort(function(a, b) {
-        return Object.keys(metrics[b]).length - Object.keys(metrics[a]).length;
-      })[0];
-      var data = metrics[metric];
-      var entries = keys.map(function(k){return [k, data[k]];}).filter(function(e){return e[1] != null;});
-      if (!entries.length) return '';
-      var maxV = Math.max.apply(null, entries.map(function(e){return Math.abs(e[1]);}));
-      var minV = Math.min.apply(null, entries.map(function(e){return e[1];}));
-      var W = 480, H = 160, barW = Math.max(40, (W - 80) / entries.length - 8);
-      var x0 = 56, baseY = (minV < 0) ? H / 2 : H - 32;
-      var bars = entries.map(function(e, i) {
-        var x = x0 + i * (barW + 8);
-        var pixels = maxV ? Math.abs(e[1]) / maxV * (H - 60) : 0;
-        var y = e[1] >= 0 ? baseY - pixels : baseY;
-        var color = e[1] >= 0 ? '#3b82f6' : '#dc2626';
-        return '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + pixels + '" fill="' + color + '" rx="2"/>'
-             + '<text x="' + (x + barW/2) + '" y="' + (y - 4) + '" font-size="10" text-anchor="middle" fill="#0f172a">' + e[1] + '</text>'
-             + '<text x="' + (x + barW/2) + '" y="' + (H - 10) + '" font-size="10" text-anchor="middle" fill="#475569">' + _h(e[0]) + '</text>';
-      }).join('');
-      return '<div class="sweep-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" style="display:block;width:100%;max-width:' + W + 'px;margin:8px 0">'
-        + '<text x="' + W/2 + '" y="16" font-size="11" font-weight="600" text-anchor="middle" fill="#0f172a">Sweep comparison — ' + _h(metric) + '</text>'
-        + '<line x1="' + x0 + '" y1="' + baseY + '" x2="' + (W - 16) + '" y2="' + baseY + '" stroke="#94a3b8" stroke-width="0.5"/>'
-        + bars
-        + '</svg></div>';
-    }
-
-    // Decision-status helper — returns the data the decision box renders.
-    function _decideDecision(s) {
-      var runs = s.runs || [];
-      // Read outcomes from the run that actually carries them (canonical/grade),
-      // NOT blindly runs[last] (a later composite/sim run with no outcomes).
-      var latest = _runWithOutcomes(runs);
-      var followUps = s.follow_up_studies || [];
-      var openFollowups = followUps.filter(function(f) {
-        return f.status !== 'done' && f.kind !== 'existing';
-      });
-      var phase = s.phase || '';
-      var status = s.status || 'planned';
-
-      // Descriptive/informational reference: no hypothesis test, no pass/fail
-      // gate. Render it as a completed reference, not a pending run.
-      if (_isInformationalStudy(s)) {
-        return {
-          label: 'Reference', cls: 'dec-passed',
-          passed: [], failed: [], blocks: [],
-          next: 'Descriptive reference — no pass/fail gate.'
-        };
-      }
-
-      // No runs yet
-      if (!latest) {
-        if (phase === 'Design' || status === 'planned') {
-          return {
-            label: 'Not started',
-            cls:   'dec-notstarted',
-            passed: [], failed: [], blocks: [],
-            next: 'Run the baseline simulation to begin evaluation.'
-          };
-        }
-        return {
-          label: 'Ready to run',
-          cls:   'dec-ready',
-          passed: [], failed: [], blocks: [],
-          next: 'Execute the simulation_set to gather evidence.'
-        };
-      }
-
-      // Decide from BOTH the authored outcomes AND the run/outcome-spine
-      // computed_outcomes (authored wins), normalizing bare-string outcomes, and
-      // falling back to each test's authored tests[].status, so the panel
-      // reflects recorded results — not a stale "In progress".
-      var outcomes = Object.assign({}, latest.computed_outcomes || {});
-      Object.keys(latest.outcomes || {}).forEach(function(k) { outcomes[k] = latest.outcomes[k]; });
-      var passed = [], failed = [], partial = [], seen = {};
-      function _classify(name, res) {
-        if (res === 'PASS') passed.push(name);
-        else if (res === 'FAIL') failed.push(name);
-        else if (res === 'PARTIAL') partial.push(name);
-        else return;
-        seen[name] = true;
-      }
-      Object.keys(outcomes).forEach(function(name) {
-        var o = _normOutcome(outcomes[name]);
-        _classify(name, o && o.result);
-      });
-      _studyTests(s).forEach(function(t) {
-        if (!t || !t.name || seen[t.name]) return;
-        _classify(t.name, _testStatusToResult(t.status));
-      });
-      var calibration = openFollowups.filter(function(f){return f.kind === 'calibration_task';});
-      var infra       = openFollowups.filter(function(f){return f.kind === 'infrastructure_fix';});
-      var newWork     = openFollowups.filter(function(f){return f.kind === 'new';});
-
-      // The authored/spine gate_status is the verdict of record. A study can carry
-      // intended-negative results (controls, productive-negative diagnostics) whose
-      // raw test FAILs must NOT read as "Blocked". An explicit pass/partial gate wins
-      // over the raw-outcome classification below.
-      var gateAuthored = String((s && s.gate_status) || '').trim().toLowerCase();
-      if (gateAuthored === 'passed' || gateAuthored === 'pass') {
-        var enP = (s.pipeline_gate && s.pipeline_gate.enables) || [];
-        return {
-          label: 'Passed', cls: 'dec-passed',
-          passed: passed, failed: failed, partial: partial, blocks: [],
-          next: enP.length ? 'Gate cleared. Next: ' + enP.join(', ') : 'Gate cleared.'
-        };
-      }
-      if (gateAuthored === 'partial') {
-        return {
-          label: 'Partial', cls: 'dec-inprogress',
-          passed: passed, failed: failed, partial: partial, blocks: [],
-          next: 'Gate is PARTIAL — core objective met with a noted caveat (see findings); not a blocker.'
-        };
-      }
-
-      if (failed.length === 0 && partial.length === 0 && passed.length > 0) {
-        var enables = (s.pipeline_gate && s.pipeline_gate.enables) || [];
-        return {
-          label: 'Passed',
-          cls:   'dec-passed',
-          passed: passed, failed: [], partial: [], blocks: [],
-          next: enables.length
-            ? 'Gate cleared. Next: ' + enables.join(', ')
-            : 'Gate cleared. No declared downstream studies — review pipeline_gate.enables.'
-        };
-      }
-      if (failed.length > 0) {
-        var label = calibration.length ? 'Needs calibration' : 'Blocked';
-        var cls   = calibration.length ? 'dec-needscal'      : 'dec-blocked';
-        var nextItem = calibration[0] || infra[0] || newWork[0] || null;
-        var nextStr;
-        if (nextItem) {
-          nextStr = 'Resolve: ' + nextItem.title;
-        } else {
-          nextStr = 'Investigate why ' + failed.length + ' test(s) failed.';
-        }
-        return {
-          label: label, cls: cls,
-          passed: passed, failed: failed,
-          blocks: openFollowups.map(function(f){return f.title;}),
-          next: nextStr
-        };
-      }
-      if (partial.length > 0) {
-        return {
-          label: 'Partial', cls: 'dec-inprogress',
-          passed: passed, failed: failed, partial: partial, blocks: [],
-          next: partial.length + ' test(s) ran but did not meet the gate threshold — see findings.'
-        };
-      }
-      return {
-        label: 'In progress', cls: 'dec-inprogress',
-        passed: passed, failed: failed, partial: partial, blocks: [],
-        next: 'Continue analysing run outcomes.'
-      };
-    }
-
-    // Plain-English study summary — 2-4 sentences, no code identifiers.
-    function _studySummary(s, dec) {
-      var purpose = s.purpose || {};
-      var question = (purpose.question || '').trim().split('\n')[0];
-      var findings = _asFindings(s.findings);
-      var sentences = [];
-
-      if (question) {
-        var q = question.charAt(0).toLowerCase() + question.slice(1);
-        if (q.charAt(q.length - 1) === '.') q = q.slice(0, -1);
-        sentences.push('This study asks whether ' + q + '.');
-      } else if (s.objective) {
-        // Minimal study (no purpose.question): lead with the objective.
-        sentences.push(_firstSentence(s.objective));
-      }
-      if (findings.length) {
-        var confirms     = findings.filter(function(f){return f.status === 'confirms';}).length;
-        var contradicts  = findings.filter(function(f){return f.status === 'contradicts';}).length;
-        var novel        = findings.filter(function(f){return f.status === 'novel';}).length;
-        var parts = [];
-        if (confirms)    parts.push(confirms + ' finding' + (confirms === 1 ? '' : 's') + ' confirm the expected biology');
-        if (contradicts) parts.push(contradicts + ' contradict it');
-        if (novel)       parts.push(novel + ' novel computational result' + (novel === 1 ? '' : 's'));
-        if (parts.length) sentences.push('We recorded ' + parts.join(', ') + '.');
-      } else if ((s.runs || []).length === 0) {
-        sentences.push('No simulations have run yet — the study is still in its design phase.');
-      }
-      sentences.push('Gate decision: ' + dec.label + '. ' + dec.next);
-      return sentences.join(' ');
-    }
-
-    // First sentence of a (possibly multi-line) prose blob — used to derive a
-    // one-liner for the collapsed control panel when no explicit one-liner was
-    // authored. Collapses whitespace/newlines first.
-    function _firstSentence(text) {
-      if (!text) return '';
-      var t = String(text).replace(/\s+/g, ' ').trim();
-      var m = /^(.*?[.!?])(\s|$)/.exec(t);
-      return m ? m[1] : t;
-    }
-
-    // Word-boundary preview (collapse whitespace, cut at a space, ellipsis).
-    // Unlike _firstSentence it never breaks mid-abbreviation ("E. coli").
-    function _previewText(text, maxLen) {
-      var t = String(text || '').replace(/\s+/g, ' ').trim();
-      if (t.length <= maxLen) return t;
-      var cut = t.slice(0, maxLen);
-      var sp = cut.lastIndexOf(' ');
-      if (sp > maxLen * 0.6) cut = cut.slice(0, sp);
-      return cut + '\u2026';
-    }
-
-    // Verdict vocabulary for the collapsed control panel. An authored
-    // `report.verdict` (one of the keys below) wins; otherwise we derive it
-    // from the gate decision class so older studies still get a sensible badge.
-    var VERDICT_MAP = {
-      'passing':              {emoji: '✅', label: 'Passing',                       cls: 'v-pass'},
-      'passing-with-caveats': {emoji: '⚠️', label: 'Passing with caveats',          cls: 'v-warn'},
-      'blocked':              {emoji: '⛔', label: 'Blocked',                       cls: 'v-block'},
-      'preliminary':          {emoji: '🧪', label: 'Preliminary',                   cls: 'v-prelim'},
-      'failing-bio':          {emoji: '❌', label: 'Failing biological validation', cls: 'v-fail'},
-      'calibrating':          {emoji: '🔄', label: 'Calibration in progress',       cls: 'v-cal'},
-      'not-started':          {emoji: '📋', label: 'Not started',                   cls: 'v-none'},
-      'informational':        {emoji: '📄', label: 'Reference',                     cls: 'v-none'},
-      'descriptive':          {emoji: '📄', label: 'Reference',                     cls: 'v-none'}
-    };
-    function _verdictBadge(s, decision) {
-      var key = ((s.report || {}).verdict || s.verdict || '').trim().toLowerCase();
-      if (VERDICT_MAP[key]) return VERDICT_MAP[key];
-      if (_isInformationalStudy(s)) return VERDICT_MAP['informational'];
-      switch (decision.cls) {
-        case 'dec-passed':     return VERDICT_MAP['passing'];
-        case 'dec-needscal':   return VERDICT_MAP['calibrating'];
-        case 'dec-blocked':    return VERDICT_MAP['blocked'];
-        case 'dec-notstarted': return VERDICT_MAP['not-started'];
-        default:               return VERDICT_MAP['preliminary'];
-      }
-    }
-
-    // The reviewer-facing "Ran · Tests · Verdict" clarity strip. Prefers the
-    // server-computed `s.clarity_summary` (single-sourced from
-    // pbg_superpowers.study_status.study_clarity_summary) and falls back to an
-    // equivalent client-side computation so the strip renders even against an
-    // older server. Answers, at a glance: did this study run? were the tests
-    // run (pass/fail)? did it pass? (dnaa-replication reviewer feedback.)
-    function _clarityStrip(s) {
-      var cs = (s || {}).clarity_summary;
-      // Descriptive/informational reference: override the (possibly server-
-      // supplied) clarity strip so it reads as a completed reference rather than
-      // "○ Not run" / "Tests pending" — there is no hypothesis to run.
-      if (_isInformationalStudy(s)) {
-        cs = {
-          ran: { status: 'ran', label: 'Complete' },
-          tests: { label: 'Descriptive reference', total: 0, pending: 0 },
-          verdict: { label: 'Reference', glyph: '📄', cls: 'v-none' },
-          ambiguities: (cs && cs.ambiguities) || []
-        };
-      }
-      if (!cs) {
-        var runs = (s && s.runs) || [];
-        var done = function (r) {
-          var st = ((r && r.status) || '').toLowerCase();
-          return st === 'completed' || st === 'complete' || st === 'ran' || st === 'done';
-        };
-        var nC = runs.filter(done).length;
-        var ranStatus = nC ? 'ran'
-          : (runs.some(function (r) { return ((r && r.status) || '').toLowerCase() === 'running'; }) ? 'running' : 'not_run');
-        var tests = _studyTests(s);
-        // Read outcomes from the run that carries them (canonical/grade), not
-        // blindly runs[last]; fall back to authored tests[].status.
-        var latest = _runWithOutcomes(runs);
-        var outc = (latest && latest.outcomes) || {};
-        var c = { pass: 0, fail: 0, skip: 0, pending: 0, total: tests.length };
-        tests.forEach(function (t) {
-          var o = outc[t.name];
-          var r = (((o && o.result) != null ? o.result : o) || '').toString().toLowerCase();
-          if (!r) r = (_testStatusToResult(t.status) || '').toLowerCase();
-          if (r === 'pass' || r === 'passed' || r === 'ok') c.pass++;
-          else if (r === 'fail' || r === 'failed' || r === 'error') c.fail++;
-          else if (r === 'skip' || r === 'skipped' || r === 'inconclusive' || r === 'partial') c.skip++;
-          else c.pending++;
-        });
-        var gate = ((s && s.gate_status) || '').toLowerCase();
-        var verd;
-        if (_isInformationalStudy(s)) {
-          // Descriptive reference: no pass/fail gate; render as complete, not
-          // "Not run" / "Tests pending".
-          ranStatus = 'ran';
-          verd = { label: 'Reference', glyph: '📄', cls: 'v-none' };
-        }
-        else if (gate === 'passed' || gate === 'pass') verd = { label: 'Passed', glyph: '✅', cls: 'v-pass' };
-        else if (gate === 'partial') verd = { label: 'Partial', glyph: '◐', cls: 'v-warn' };
-        else if (gate === 'failed' || gate === 'failed_evaluation' || gate === 'refuted') verd = { label: 'Failing', glyph: '❌', cls: 'v-fail' };
-        else if (gate === 'blocked') verd = { label: 'Blocked', glyph: '⛔', cls: 'v-block' };
-        else if (gate === 'needs_calibration') verd = { label: 'Needs calibration', glyph: '🔄', cls: 'v-cal' };
-        else if (gate === 'in_progress') verd = { label: 'In progress', glyph: '🔶', cls: 'v-warn' };
-        else if (ranStatus !== 'ran') verd = { label: 'Not run', glyph: '○', cls: 'v-none' };
-        else if (c.fail) verd = { label: 'Failing', glyph: '❌', cls: 'v-fail' };
-        else if (c.pending && c.total) verd = { label: 'Tests pending', glyph: '⏳', cls: 'v-warn' };
-        else if (c.pass) verd = { label: 'Passed', glyph: '✅', cls: 'v-pass' };
-        else verd = { label: 'In progress', glyph: '🔶', cls: 'v-warn' };
-        var parts = [];
-        if (c.pass) parts.push(c.pass + '✓');
-        if (c.fail) parts.push(c.fail + '✗');
-        if (c.skip) parts.push(c.skip + '⏭');
-        if (c.pending) parts.push(c.pending + '⏳');
-        var _info = _isInformationalStudy(s);
-        var _ranLabel = _info
-          ? 'Complete'
-          : (ranStatus === 'ran' ? ('Ran · ' + nC + ' run' + (nC !== 1 ? 's' : ''))
-             : (ranStatus === 'running' ? 'Running…' : 'Not run'));
-        cs = {
-          ran: { status: ranStatus, label: _ranLabel },
-          tests: { label: c.total ? ('Tests: ' + parts.join(' · ')) : (_info ? 'Descriptive reference' : 'No tests declared'), total: c.total, pending: _info ? 0 : c.pending },
-          verdict: verd, ambiguities: []
-        };
-      }
-      var ranOn = cs.ran.status === 'ran';
-      var pill = 'display:inline-block;padding:2px 9px;border-radius:9999px;font-size:0.78em;font-weight:600;margin-right:6px;';
-      var ranBg = ranOn ? 'background:#dbeafe;color:#1e40af' : (cs.ran.status === 'running' ? 'background:#fef3c7;color:#92400e' : 'background:#f1f5f9;color:#475569');
-      var tBg = (cs.tests.pending && cs.tests.total) ? 'background:#fef3c7;color:#92400e' : 'background:#f1f5f9;color:#334155';
-      var amb = (cs.ambiguities && cs.ambiguities.length)
-        ? '<span style="' + pill + 'background:#fef3c7;color:#92400e" title="' + _h(cs.ambiguities.join(' | ')) + '">⚠ ' + cs.ambiguities.length + ' clarity note' + (cs.ambiguities.length > 1 ? 's' : '') + '</span>'
-        : '';
-      // Spine A2: code-vs-authored gate divergence chip. The spine's
-      // study_verdict writes pipeline_gate.gate_evaluator (computed_gate_verdict)
-      // carrying diverges_from_authored. Mirrors the param-enforcement banner:
-      // surfaced beside the verdict, connected to its source (the coded
-      // evaluator), and labeled code-computed vs authored. Only shown on divergence.
-      var cgv = s && s.computed_gate_verdict;
-      var divChip = (cgv && cgv.diverges_from_authored)
-        ? '<span class="sp-gate-divergence" style="' + pill + 'background:#fffbeb;color:#92400e;border:1px solid #f59e0b" title="Code-computed verdict (spine study_verdict, not human-authored) disagrees with the authored gate_status.">⚠ code: ' + _h(cgv.result || '?') + ' · authored: ' + _h((s && s.gate_status) || '—') + '</span>'
-        : '';
-      return '<div class="sp-clarity" style="margin:6px 0 2px 0">'
-        + '<span style="' + pill + ranBg + '">' + (ranOn ? '▶' : (cs.ran.status === 'running' ? '…' : '○')) + ' ' + _h(cs.ran.label) + '</span>'
-        + '<span style="' + pill + tBg + '">' + _h(cs.tests.label) + '</span>'
-        + '<span class="sp-verdict ' + cs.verdict.cls + '" style="' + pill + '">' + cs.verdict.glyph + ' ' + _h(cs.verdict.label) + '</span>'
-        + divChip
-        + amb
-        + '</div>';
-    }
-
-    // The collapsed study header — a scannable "scientific control panel".
-    // Ordering follows the spec: identity → verdict → confidence/evidence →
-    // objective → conclusion → metrics → insight → caveat. Every field is
-    // optional; an absent field simply doesn't render. Authored one-liners
-    // (report.objective/conclusion/main_insight/caveat) win; otherwise we
-    // derive from the longer report prose so nothing is silently blank.
-    function _studyControlPanel(s, i, decision) {
-      var rep = s.report || {};
-      var v = _verdictBadge(s, decision);
-      var title = s.title || rep.title || _humanizeStudyName(s.name).title;
-      var objective  = rep.objective    || _firstSentence(rep.purpose)
-                        || _firstSentence((s.purpose || {}).question);
-      var conclusion = rep.conclusion   || _firstSentence(rep.result);
-      var insight    = rep.main_insight || _firstSentence(rep.interpretation);
-      var caveat = rep.caveat;
-      if (!caveat && Array.isArray(s.limitations) && s.limitations.length) {
-        var l0 = s.limitations[0];
-        caveat = (typeof l0 === 'string') ? l0 : (l0 && (l0.text || l0.limitation)) || '';
-      }
-
-      // Metadata: keep machine ids visually secondary.
-      var runs = s.runs || [];
-      var latest = runs.length ? runs[runs.length - 1] : null;
-      var updated = (latest && (latest.created_at || latest.timestamp)) || s.last_run || '';
-      if (updated) updated = String(updated).replace('T', ' ').slice(0, 16);
-      var sha = (generation && generation.git_sha) ? String(generation.git_sha).slice(0, 7) : '';
-      var meta = ['<code>' + _h(s.name) + '</code>', 'depth ' + (depthMap[s.name] || 0)];
-      if (updated) meta.push('updated ' + _h(updated));
-      if (sha) meta.push('git <code>' + _h(sha) + '</code>');
-
-      var conf = (rep.confidence || '').trim();
-      var ev   = (rep.evidence_quality || '').trim();
-
-      // Metrics strip: authored key_metrics (strings or {label,value,status})
-      // plus an auto-derived test pass ratio and literature-match chip.
-      var chips = [];
-      (rep.key_metrics || []).forEach(function(m) {
-        if (typeof m === 'string') {
-          chips.push('<span class="sp-metric">' + _h(m) + '</span>');
-        } else if (m && typeof m === 'object') {
-          var st = (m.status || '').toLowerCase();
-          var icon = st === 'pass' ? '✅ ' : st === 'warn' ? '⚠️ ' : st === 'fail' ? '❌ ' : '';
-          var txt = (m.label || '') + (m.value != null ? ': ' + m.value : '');
-          chips.push('<span class="sp-metric sp-metric-' + _h(st || 'plain') + '">' + icon + _h(txt) + '</span>');
-        }
-      });
-      var nPass = (decision.passed || []).length, nFail = (decision.failed || []).length;
-      if (nPass + nFail) {
-        chips.push('<span class="sp-metric sp-metric-' + (nFail ? 'warn' : 'pass') + '">'
-                   + nPass + '/' + (nPass + nFail) + ' tests passing</span>');
-      }
-      if (rep.lit_match) chips.push('<span class="sp-metric">Lit match: ' + _h(rep.lit_match) + '</span>');
-
-      return ''
-        + '<div class="sp-top">'
-        +   '<span class="sp-num">' + (i + 1) + '.</span>'
-        +   '<span class="sp-title">' + _h(title) + '</span>'
-        +   '<span class="sp-verdict ' + v.cls + '">' + v.emoji + ' ' + _h(v.label) + '</span>'
-        + '</div>'
-        + _clarityStrip(s)
-        + (objective ? '<div class="sp-objective">' + _h(objective) + '</div>' : '')
-        + '<div class="sp-meta">' + meta.join(' · ') + '</div>'
-        + ((conf || ev)
-            ? '<div class="sp-quality">'
-              + (conf ? '<span class="sp-conf sp-conf-' + _h(conf.toLowerCase()) + '">Confidence: ' + _h(conf) + '</span>' : '')
-              + (ev   ? '<span class="sp-ev">Evidence: ' + _h(ev) + '</span>' : '')
-              + '</div>'
-            : '')
-        + (conclusion ? '<div class="sp-conclusion"><span class="sp-lbl">Conclusion</span> ' + _h(conclusion) + '</div>' : '')
-        + (chips.length ? '<div class="sp-metrics">' + chips.join('') + '</div>' : '')
-        + (insight ? '<div class="sp-insight"><span class="sp-lbl">Insight</span> ' + _h(insight) + '</div>' : '')
-        + (caveat  ? '<div class="sp-caveat"><span class="sp-lbl">Caveat</span> ' + _h(caveat) + '</div>' : '')
-        + '<span class="sp-expand-hint">▸ click to expand full study</span>';
-    }
-
-    // Review-readiness gates — mechanical checks that catch the classes of
-    // problem an expert reviewer keeps flagging, BEFORE the report reaches them.
-    // Computed from already-declared fields (no run data needed), so they fire
-    // at design time. Returns {warns:[html], oks:[text]}.
-    //   Gate 1 (parameter vs reference): a model_setting's `default` is the
-    //     literature/heuristic value; flag when `current` deviates materially.
-    //   Gate 2 (duration vs doubling time): flag when the configured run length
-    //     can't cover one doubling time τ (steadiness claims need ≥ 1 τ).
-    function _reviewReadiness(s) {
-      var cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : {};
-      var settings = cond.model_settings || cond.expert_inputs || [];
-      var warns = [], oks = [];
-
-      settings.forEach(function(ms) {
-        var def = ms.default, cur = ms.current;
-        if (typeof def === 'number' && typeof cur === 'number' && def !== 0 && cur !== def) {
-          var ratio = cur / def;
-          if (ratio < 0.75 || ratio > 1.34) {
-            var factor = ratio < 1 ? def / cur : ratio;
-            warns.push('Parameter <code>' + _h(ms.name) + '</code> is set to <strong>' + _h(cur)
-              + '</strong> but the heuristic/literature default is <strong>' + _h(def) + '</strong> ('
-              + (factor >= 10 ? Math.round(factor) : factor.toFixed(1)) + '× off). '
-              + 'Justify the deviation in the study or correct it.');
-          }
-        }
-      });
-
-      var tau = null, tauName = null;
-      settings.forEach(function(ms) {
-        var v = (ms.current != null) ? ms.current : ms.default;
-        if (tau == null && typeof v === 'number'
-            && /(^|_)(tau|doubling|generation[_ ]?time)/i.test(ms.name || '')) {
-          tau = v; tauName = ms.name;
-        }
-      });
-      if (tau != null) {
-        var bp = (cond.baseline && cond.baseline.params) || {};
-        var nSteps = bp.n_steps, ts = (typeof bp.time_step === 'number' && bp.time_step > 0) ? bp.time_step : 1;
-        if (typeof nSteps === 'number') {
-          var runMin = nSteps * ts / 60.0;
-          if (runMin < tau) {
-            warns.push('Configured run is ≈ <strong>' + runMin.toFixed(0) + ' min</strong> (n_steps '
-              + nSteps + ' × ' + ts + ' s), shorter than one doubling time τ = <strong>' + _h(tau)
-              + ' min</strong> (<code>' + _h(tauName) + '</code>). Steadiness / steady-state claims need ≥ 1 doubling time.');
-          } else {
-            oks.push('Run ≈ ' + runMin.toFixed(0) + ' min covers ≥ 1 doubling time (τ = ' + tau + ' min).');
-          }
-        }
-      }
-      return {warns: warns, oks: oks};
-    }
-
-    // SP3b: per-study feedback → action table for the report. Renders the
-    // pbg-supplied s.feedback_actions items that carry a proposed action
-    // (kind + proposed_text + open/applied status). Read-only — the report
-    // never computes the action. Returns '' when there are none.
-    function _renderReportFeedbackActions(s, slug) {
-      var fa = s && s.feedback_actions;
-      if (!fa || !fa.items || !fa.items.length) return '';
-      var withActions = fa.items.filter(function(it) { return it && it.action; });
-      if (!withActions.length) return '';
-      var badge = {
-        open:      'background:#fef3c7;color:#92400e;',
-        applied:   'background:#d1fae5;color:#065f46;',
-        dismissed: 'background:#f1f5f9;color:#64748b;',
-      };
-      var rows = withActions.map(function(it) {
-        var a = it.action || {};
-        var st = it.status || 'open';
-        return '<tr>'
-          + '<td><span style="' + (badge[st] || badge.open)
-          +   'padding:1px 8px;border-radius:9999px;font-size:0.82em;'
-          +   'font-family:ui-monospace,monospace">' + _h(st) + '</span></td>'
-          + '<td><code>' + _h(a.kind || '') + '</code>'
-          +   (a.target_finding ? ' <span class="muted small">→ ' + _h(a.target_finding) + '</span>' : '') + '</td>'
-          + '<td>' + _h(a.proposed_text || '') + '</td>'
-          + '<td class="muted small">' + _h((it.text || '').slice(0, 120)) + '</td>'
-          + '</tr>';
-      }).join('');
-      return '<div class="feedback-actions-panel" id="study-' + slug + '-feedback-actions" '
-        + 'style="margin:12px 0;padding:12px 16px;background:#f5f3ff;border:1px solid #8b5cf6;'
-        + 'border-left-width:5px;border-radius:6px;color:#3730a3">'
-        + '<strong>🔁 Feedback → action (' + withActions.length + ')</strong>'
-        + '<table class="readout-table" style="margin-top:8px"><thead><tr>'
-        + '<th>Status</th><th>Action</th><th>Proposed</th><th>From feedback</th>'
-        + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
-    }
-
-    function v3StudySection(s, i, statusBadge, phaseBadge, parents, kids) {
-      var slug = _h(s.name);
-      var sid = {
-        summary:    'study-' + slug + '-summary',
-        decision:   'study-' + slug + '-decision',
-        takeaways:  'study-' + slug + '-takeaways',
-        findings:   'study-' + slug + '-findings',
-        sims:       'study-' + slug + '-sims',
-        charts:     'study-' + slug + '-charts',
-        readouts:   'study-' + slug + '-readouts',
-        tests:      'study-' + slug + '-tests',
-        conditions: 'study-' + slug + '-conditions',
-        build:      'study-' + slug + '-build',
-        reqs:       'study-' + slug + '-reqs',
-        followups:  'study-' + slug + '-followups',
-        discovery:  'study-' + slug + '-discovery',
-        limits:     'study-' + slug + '-limitations',
-        refs:       'study-' + slug + '-refs',
-      };
-
-      var purpose = s.purpose || {};
-      var gate = s.pipeline_gate || {};
-      var sims = s.simulation_set || [];
-      var modelChange = s.model_change;
-      var assumptions = s.key_assumptions || [];
-      // implementation_requirements is authored EITHER as a list of
-      // {id,title,...} dicts OR as a multi-line prose STRING
-      // (`implementation_requirements: |`), and migrations sometimes write a
-      // dict keyed by req-id. Normalize to a list of objects so we never iterate
-      // a string char-by-char (which made `.length` the character count, e.g.
-      // "(492)", and `r.title` the str.title method) and never crash on reqs.map.
-      var reqs = (function(v) {
-        if (v == null) return [];
-        if (typeof v === 'string') {
-          var t = v.trim();
-          return t ? [{ _prose: true, description: t }] : [];
-        }
-        if (!Array.isArray(v)) {
-          // dict keyed by req-id → its values; any other non-array → wrap once
-          v = (typeof v === 'object') ? Object.values(v) : [v];
-        }
-        return v.reduce(function(acc, item) {
-          if (item && typeof item === 'object') { acc.push(item); }
-          else {
-            var s2 = item == null ? '' : String(item).trim();
-            if (s2) acc.push({ _prose: true, description: s2 });
-          }
-          return acc;
-        }, []);
-      })(s.implementation_requirements || s.gaps);
-      var readouts = s.readouts || [];
-      // Prefer the modular `tests:` list (which carries `kind: report_card`
-      // modules) over the legacy behavior_tests/expected_behavior, so report
-      // cards render as test modules in the test section below.
-      var tests = _studyTests(s);
-      var decide = s.conclusion_logic || {};
-      var limitations = s.limitations || [];
-      // Tolerate a string (authors sometimes write limitations as prose, not a list).
-      if (typeof limitations === 'string') limitations = limitations.trim() ? [limitations] : [];
-      var followUps = s.follow_up_studies || [];
-      // Discovery Implications — alternate hypotheses, mechanism-update
-      // proposals, and the richer followup_study_proposals (successor to
-      // follow_up_studies). All fields optional; section hidden when empty.
-      var discImpl = (s.discovery_implications && typeof s.discovery_implications === 'object')
-                      ? s.discovery_implications : {};
-      var followupProposals = discImpl.followup_study_proposals || [];
-      var findings = _asFindings(s.findings);
-      var bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      var charts = (chartsByStudy && chartsByStudy[s.name]) || [];
-
-      var hasBuild = !!modelChange || assumptions.length || reqs.length;
-      var ifPass = decide.if_primary_tests_pass || decide.if_pass;
-      var ifFail = decide.if_primary_tests_fail || decide.if_fail;
-      var runs = s.runs || [];
-      // Pick the run that actually carries recorded outcomes (canonical/grade),
-      // not blindly runs[last] — a later composite/sim run with no outcomes made
-      // every test pill render ⏳ PENDING.
-      var latestRun = _runWithOutcomes(runs);
-
-      // Derive decision + plain-English summary FIRST so they can be linked
-      // from the sub-nav and rendered at the top of the section.
-      var decision = _decideDecision(s);
-      var summaryText = _studySummary(s, decision);
-      var controlPanelHtml = _studyControlPanel(s, i, decision);
-      var verdictBadge = _verdictBadge(s, decision);
-      var _review = _reviewReadiness(s);
-      var reviewHtml = _review.warns.length
-        ? '<div class="review-gate" id="study-' + slug + '-review">'
-          + '<strong>⚠ Review-readiness checks (' + _review.warns.length + ')</strong>'
-          + '<div class="review-gate-sub">Caught before expert review — fix or justify each.</div>'
-          + '<ul>' + _review.warns.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul>'
-          + '</div>'
-        : '';
-      var hasDecide = !!(ifPass || ifFail
-                         || (decide.implementation_validation && decide.implementation_validation.length)
-                         || (decide.biological_validation && decide.biological_validation.length)
-                         || s.conclusion || latestRun);
-
-      // Sub-nav links — order MUST mirror the report's section render order
-      // (the post-execution assembly below): embeds → summary → findings →
-      // conditions → ran → measured → charts → tests → model changes →
-      // build/fix → next steps → limitations → refs → decision (last).
-      var links = [];
-      var nEmbedsForStudy = (embedsByStudy[s.name] || []).length;
-      if (nEmbedsForStudy)
-        links.push('<a href="#study-' + slug + '-embeds">Visualizations <span class="sn-count">' + nEmbedsForStudy + '</span></a>');
-      links.push('<a href="#' + sid.summary + '">Summary</a>');
-      if (findings.length)    links.push('<a href="#' + sid.findings + '">Findings <span class="sn-count">' + findings.length + '</span></a>');
-      var _hasDiscovery = !!(
-        (discImpl.alternate_hypotheses || []).length
-        || (discImpl.mechanism_update_proposals || []).length
-        || followupProposals.length
-        || (discImpl.resolved_uncertainties || []).length
-        || (discImpl.remaining_uncertainties || []).length);
-      if (_hasDiscovery) {
-        var _nDisc = (discImpl.alternate_hypotheses || []).length
-                   + (discImpl.mechanism_update_proposals || []).length
-                   + followupProposals.length;
-        links.push('<a href="#' + sid.discovery + '">Discovery implications'
-                   + (_nDisc ? ' <span class="sn-count">' + _nDisc + '</span>' : '') + '</a>');
-      }
-      // Conditions sub-nav link: rendered when the Conditions section will
-      // render — i.e. a v4 ``conditions:`` block, a server-folded
-      // ``simulation_set``, or (v3-shaped) a top-level ``baseline:`` list that
-      // _renderConditionsBlock now derives from.
-      var _cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : null;
-      var _nVar = (_cond && _cond.variants || []).length;
-      var _nEI  = (_cond && (_cond.model_settings || _cond.expert_inputs) || []).length;
-      var _hasCond = !!_cond
-                     || (Array.isArray(s.simulation_set) && s.simulation_set.length)
-                     || (Array.isArray(s.baseline) && s.baseline.length);
-      if (_hasCond) {
-        var _condCount = _nVar + _nEI;
-        links.push('<a href="#' + sid.conditions + '">Conditions ' +
-                   (_condCount ? '<span class="sn-count">' + _condCount + '</span>' : '') + '</a>');
-      }
-      var _ranCount = sims.length || (s.baseline || []).length || (s.runs || []).length;
-      links.push('<a href="#' + sid.sims + '">What we ran' + (_ranCount ? ' <span class="sn-count">' + _ranCount + '</span>' : '') + '</a>');
-      if (readouts.length)    links.push('<a href="#' + sid.readouts + '">What we measured <span class="sn-count">' + readouts.length + '</span></a>');
-      if (charts.length)      links.push('<a href="#' + sid.charts + '">Charts <span class="sn-count">' + charts.length + '</span></a>');
-      if (tests.length)       links.push('<a href="#' + sid.tests + '">How we judge it <span class="sn-count">' + tests.length + '</span></a>');
-      if (hasBuild)           links.push('<a href="#' + sid.build + '">Model changes</a>');
-      if (reqs.length)        links.push('<a href="#' + sid.reqs + '">What to build / fix <span class="sn-count">' + reqs.length + '</span></a>');
-      if (followUps.length)   links.push('<a href="#' + sid.followups + '">Next steps <span class="sn-count">' + followUps.length + '</span></a>');
-      if (limitations.length) links.push('<a href="#' + sid.limits + '">Limitations <span class="sn-count">' + limitations.length + '</span></a>');
-      if (bib.length)         links.push('<a href="#' + sid.refs + '">Cited refs <span class="sn-count">' + bib.length + '</span></a>');
-      links.push('<a href="#' + sid.decision + '">Decision</a>');
-
-      var dependsBrief = parents ? 'Depends on: ' + parents : '<em>Root study (no dependencies)</em>';
-
-      var subNav = ''
-        + '<div class="study-nav">'
-        +   '<div class="study-nav-row1">'
-        +     '<span class="study-nav-num">' + (i + 1) + '.</span>'
-        +     '<strong class="study-nav-name">' + _h(s.name) + '</strong>'
-        +     phaseBadge + statusBadge
-        +     '<span class="study-nav-deps muted small">' + dependsBrief + '</span>'
-        +   '</div>'
-        +   '<nav class="study-nav-row2">' + links.join('') + '</nav>'
-        +   '<span class="sn-collapse-hint" data-collapse="study">▴ click to collapse full study</span>'
-        + '</div>';
-
-      // ── COMPACT REPORT BLOCK (authored: Purpose·Setup·Result·… ) ──────
-      // Leads each study with the uniform human-facing pattern. Reads
-      // s.report; absent → just the plain-English summary below (fallback).
-      var _rep = s.report || {};
-      var reportHtml = '';
-      (function() {
-        var rows = [
-          ['Purpose', _rep.purpose], ['Setup', _rep.setup],
-          ['Result', _rep.result], ['Interpretation', _rep.interpretation],
-          ['Decision', _rep.decision], ['Next action', _rep.next_action],
-        ].filter(function(r) { return r[1]; });
-        if (!rows.length) return;
-        reportHtml = '<div class="study-report">' + rows.map(function(r) {
-          return '<div class="study-report-row"><span class="srl">' + r[0] + '</span>'
-               + '<span class="srv">' + _multiline(r[1]) + '</span></div>';
-        }).join('') + '</div>';
-      })();
-
-      // ── PLAIN-ENGLISH SUMMARY ─────────────────────────────────────────
-      var summaryHtml = reportHtml
-        + '<div id="' + sid.summary + '" class="study-summary">'
-        + '<h3>Overview</h3>'
-        + '<p class="study-summary-text">' + _h(summaryText) + '</p>'
-        + '<details class="tech-details"><summary>Purpose &amp; background (study design)</summary>'
-        +   (purpose.question         ? '<div class="callout cl-blue"><strong>Question.</strong> ' + _multiline(purpose.question) + '</div>' : '')
-        +   (purpose.mechanism        ? '<div class="callout cl-yellow"><strong>Mechanism / Model change.</strong> ' + _multiline(purpose.mechanism) + '</div>' : '')
-        +   (purpose.expected_outcome ? '<div class="callout cl-green"><strong>Expected outcome.</strong> ' + _multiline(purpose.expected_outcome) + '</div>' : '')
-        + '</details>'
-        + '</div>';
-
-      // ── DECISION BOX ──────────────────────────────────────────────────
-      function _listAsBullets(arr, emptyText) {
-        if (!arr || !arr.length) return '<em class="muted">' + emptyText + '</em>';
-        return '<ul style="margin:4px 0 0 18px;padding:0">' + arr.map(function(x){return '<li>' + _h(x) + '</li>';}).join('') + '</ul>';
-      }
-      var decisionTechnical = '';
-      if (gate.prerequisites || gate.enables || gate.proceed_condition || ifPass || ifFail) {
-        var prereqStr = (gate.prerequisites && gate.prerequisites.length)
-          ? gate.prerequisites.map(function(p){
-              // prerequisites are {study, condition} objects (or bare slug strings).
-              var slug = (p && typeof p === 'object') ? (p.study || p.slug || '') : p;
-              var cond = (p && typeof p === 'object' && p.condition) ? ' <span class="muted small">(' + _h(p.condition) + ')</span>' : '';
-              return '<a href="#study-' + _h(slug) + '"><code>' + _h(slug) + '</code></a>' + cond;
-            }).join(' · ')
-          : '<em class="muted">none (root study)</em>';
-        var enablesStr = (gate.enables && gate.enables.length)
-          ? gate.enables.map(function(p){
-              var slug = (p && typeof p === 'object') ? (p.study || p.slug || '') : p;
-              var cond = (p && typeof p === 'object' && p.condition) ? ' <span class="muted small">(' + _h(p.condition) + ')</span>' : '';
-              return '<a href="#study-' + _h(slug) + '"><code>' + _h(slug) + '</code></a>' + cond;
-            }).join(' · ')
-          : '<em class="muted">—</em>';
-        decisionTechnical = '<details class="tech-details"><summary>Pipeline gate &amp; conclusion logic (technical)</summary>'
-          + '<p><strong>Prerequisites:</strong> ' + prereqStr + '</p>'
-          + '<p><strong>Enables:</strong> ' + enablesStr + '</p>'
-          + (gate.proceed_condition ? '<p><strong>Proceed when:</strong> ' + _multiline(gate.proceed_condition) + '</p>' : '')
-          + (ifPass ? '<div class="callout cl-green"><strong>If primary tests pass:</strong> ' + (typeof ifPass === 'string' ? _multiline(ifPass) : _multiline((ifPass.implementation_status || '') + (ifPass.biological_validation ? ' ' + ifPass.biological_validation : ''))) + '</div>' : '')
-          + (ifFail ? '<div class="callout cl-red"><strong>If primary tests fail:</strong> ' + (typeof ifFail === 'string' ? _multiline(ifFail) : _multiline((ifFail.block_downstream || JSON.stringify(ifFail.diagnose || '')))) + '</div>' : '')
-          + '</details>';
-      }
-      var decisionHtml = '<div id="' + sid.decision + '" class="decision-box decision-' + decision.cls + '">'
-        + '<div class="decision-header">'
-        +   '<h3 class="decision-title">Pipeline-gate decision</h3>'
-        +   '<span class="decision-status">' + _h(decision.label) + '</span>'
-        + '</div>'
-        + '<div class="decision-grid">'
-        +   '<div class="decision-cell decision-cell-pass"><strong>✓ Passed</strong>' + _listAsBullets(decision.passed, 'nothing yet') + '</div>'
-        +   '<div class="decision-cell decision-cell-fail"><strong>✗ Failed</strong>' + _listAsBullets(decision.failed, 'nothing failing') + '</div>'
-        +   '<div class="decision-cell decision-cell-block"><strong>⛔ Blocks the next study</strong>' + _listAsBullets(decision.blocks, 'nothing blocking') + '</div>'
-        +   '<div class="decision-cell decision-cell-next"><strong>→ Immediate next action</strong><div style="margin-top:4px">' + _h(decision.next) + '</div></div>'
-        + '</div>'
-        + decisionTechnical
-        + '</div>';
-
-      // ── KEY TAKEAWAYS + GROUPED FINDINGS ─────────────────────────────
-      var takeawaysHtml = '';
-      if (findings.length) {
-        var groups = {biological: [], computational: [], methodological: [], other: []};
-        findings.forEach(function(f) {
-          var k = f.kind || 'other';
-          (groups[k] || groups.other).push(f);
-        });
-
-        // 1) Short takeaways list — one bullet per finding (statement first sentence).
-        var takeawayItems = findings.map(function(f) {
-          var status = f.status || 'novel';
-          var glyph = ({confirms:'✓', partial:'◐', contradicts:'✗', novel:'◆'})[status] || '◆';
-          var stmt = (f.statement || (f.id||'').replace(/[-_]/g,' ')).split('\n')[0].split('.')[0];
-          if (stmt.length > 180) stmt = stmt.slice(0, 177) + '…';
-          return '<li class="takeaway-' + status + '"><span class="takeaway-glyph">' + glyph + '</span> '
-               + '<a href="#finding-' + _h(f.id || '') + '">' + _h(stmt) + '</a></li>';
-        }).join('');
-
-        // 2) Detailed cards grouped by kind, each with a heading.
-        var kindHeader = {
-          biological:     'Biological findings',
-          computational:  'Infrastructure / computational findings',
-          methodological: 'Methodological findings',
-          other:          'Other findings',
-        };
-        function _renderFinding(f) {
-          var status = f.status || 'novel';
-          var glyph = ({confirms:'✓', partial:'◐', contradicts:'✗', novel:'◆'})[status] || '◆';
-          var statusText = (f.kind === 'biological')
-            ? (status + ' literature')
-            : ({confirms:'confirmed', partial:'partial result', contradicts:'correction', novel:'new result'}[status] || status);
-          var ev = f.evidence || {};
-          var exp = f.expected || {};
-          var ref = f.expert_reference || {};
-          var prov = f.provenance || {};
-          // Anchor a (possibly descriptive) test reference: the leading
-          // identifier token becomes the #<prefix>-<id> target, the full text
-          // stays as the link label so the reader can trace the value to its
-          // source (the test card) instead of reading dead code.  Only used
-          // for the TEST case: the report renders test cards (id="test-..."),
-          // so #test- anchors resolve.  The report has NO per-run rows, so run
-          // references are rendered as plain <code> (see _traceRun) — anchoring
-          // them would produce dead run-row links.  (The STUDY page does emit
-          // per-run rows and keeps its run anchors; that lives in study-detail.)
-          function _traceLink(prefix, val) {
-            var s = String(val);
-            var tok = (s.match(/^[A-Za-z0-9_.\-]+/) || [s])[0];
-            return '<a href="#' + prefix + '-' + _h(tok) + '"><code>' + _h(s) + '</code></a>';
-          }
-          // Run references in the report: plain <code>, no anchor (no target).
-          function _traceRun(val) {
-            return '<code>' + _h(String(val)) + '</code>';
-          }
-          var techParts = [];
-          if (ev.from_test) techParts.push('test: ' + _traceLink('test', ev.from_test));
-          if (ev.from_run)  techParts.push('run: ' + _traceRun(ev.from_run));
-          if (ev.window)    techParts.push('window: ' + _h(ev.window));
-          if (ev.smoking_gun) techParts.push('<details style="margin-top:4px"><summary>Smoking gun</summary><pre style="white-space:pre-wrap;font-size:0.85em;background:#fff;padding:6px;border-radius:3px">' + _h(ev.smoking_gun) + '</pre></details>');
-          if (ev.discovered_during) techParts.push('discovered during: <code>' + _h(ev.discovered_during) + '</code>');
-
-          var techDisclosure = techParts.length
-            ? '<details class="tech-details"><summary>Technical details</summary>' + techParts.join('<br>') + '</details>'
-            : '';
-
-          var evMain = '';
-          if (ev.observed != null) {
-            evMain = '<div class="finding-evidence"><strong>What we saw:</strong> '
-                   + _fmtObserved(ev.observed) + (ev.units ? ' ' + _h(ev.units) : '') + '</div>';
-          }
-          var expMain = '';
-          if (exp.range != null || exp.threshold != null || exp.summary) {
-            var rngStr = '';
-            if (exp.range != null) {
-              var rng = Array.isArray(exp.range) ? '[' + exp.range.join(', ') + ']' : String(exp.range);
-              rngStr = '<strong>What the literature says:</strong> ' + _h(rng);
-            } else if (exp.threshold != null) {
-              rngStr = '<strong>Target threshold:</strong> ' + _h(String(exp.threshold));
-            }
-            expMain = '<div class="finding-expected">' + rngStr
-                    + (exp.summary ? '<div style="margin-top:4px">' + _multiline(exp.summary) + '</div>' : '')
-                    + (exp.cites && exp.cites.length ? '<div class="muted small" style="margin-top:4px">Cites: ' + exp.cites.map(function(c){return '<code>' + _h(c) + '</code>';}).join(', ') + '</div>' : '')
-                    + '</div>';
-          }
-
-          // Traceability block (spine B1): surface the finding's computed
-          // distance + provenance, connected to source. The headline computed
-          // number `divergence_factor` (how far observed is from expected) was
-          // previously dropped; render it prominently. Link the cited test +
-          // run, list provenance.run_ids (linked), and inline the cited test's
-          // pass_if band so the reader sees what "passing" meant without hunting.
-          var traceBits = [];
-          if (ev.divergence_factor != null) {
-            traceBits.push('<span class="finding-divergence" style="font-weight:600">×'
-              + _h(String(ev.divergence_factor)) + ' vs expected</span>');
-          }
-          if (ev.from_test) traceBits.push('test: ' + _traceLink('test', ev.from_test));
-          if (ev.from_run)  traceBits.push('run: ' + _traceRun(ev.from_run));
-          var runIds = prov.run_ids || [];
-          if (Array.isArray(runIds) && runIds.length) {
-            traceBits.push('runs: ' + runIds.map(function(rid) {
-              return '<code>' + _h(String(rid)) + '</code>';
-            }).join(', '));
-          }
-          // Inline the cited test's pass_if band (look it up by from_test).
-          var citedBand = '';
-          if (ev.from_test) {
-            var citedTok = (String(ev.from_test).match(/^[A-Za-z0-9_.\-]+/) || [''])[0];
-            var citedTest = (tests || []).filter(function(t){ return t && t.name === citedTok; })[0];
-            if (citedTest && (citedTest.pass_if || citedTest.expect)) {
-              citedBand = '<div class="pass_if-band muted small" style="margin-top:4px">passes if '
-                + (citedTest.measure ? _measureText(citedTest.measure) + ' ' : '')
-                + '<strong>' + _h(_passIfText(citedTest.pass_if || citedTest.expect)) + '</strong></div>';
-            }
-          }
-          var traceBlock = (traceBits.length || citedBand)
-            ? '<div class="finding-traceability" style="margin-top:6px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;font-size:0.88em">'
-              + (traceBits.length ? '<span class="muted small">traceability:</span> ' + traceBits.join(' · ') : '')
-              + citedBand
-              + '</div>'
-            : '';
-
-          var refBlock = '';
-          if (ref.doc || ref.quote || ref.note) {
-            var refBody = '';
-            if (ref.quote) refBody += '<blockquote class="finding-expert-quote">' + _multiline(ref.quote) + '</blockquote>';
-            if (ref.note) refBody += '<div class="finding-expert-note">' + _multiline(ref.note) + '</div>';
-            var refLabel = ref.doc ? 'Expert reference: <code>' + _h(ref.doc) + '</code>' : 'Expert reference';
-            if (ref.section) refLabel += ' (' + _h(ref.section) + ')';
-            refBlock = '<details class="finding-expert"><summary>' + refLabel + '</summary>' + refBody + '</details>';
-          }
-
-          // Optional sweep visualisation when evidence carries a sweep table
-          // (e.g. F-08 / F-10 calibration sweeps). Renders an inline SVG
-          // bar chart of the numeric value across multipliers.
-          var sweepChart = '';
-          var sweepData = ev.sweep_table || ev.sweep;
-          if (sweepData && typeof sweepData === 'object') {
-            sweepChart = _renderSweepChart(sweepData);
-          }
-
-          return '<div class="finding-card finding-kind-' + _h(f.kind || 'other') + ' finding-status-' + _h(status) + '" id="finding-' + _h(f.id || '') + '">'
-               +   '<div class="finding-header">'
-               +     '<span class="finding-status-glyph">' + glyph + '</span>'
-               +     '<span class="finding-id">' + _h(f.id || '') + '</span>'
-               +     '<span class="finding-status-text">' + _h(statusText) + '</span>'
-               +     _findingWeightChip(f._evidential_weight)
-               +     _findingChips(f)
-               +   '</div>'
-               +   '<div class="finding-statement">' + _multiline(f.statement || (f.id ? f.id.replace(/[-_]/g,' ') : '(no statement)')) + '</div>'
-               +   evMain
-               +   expMain
-               +   traceBlock
-               +   (f.explanation ? '<div class="finding-explanation"><em>Why:</em> ' + _multiline(f.explanation) + '</div>' : '')
-               +   sweepChart
-               +   refBlock
-               +   (f.next_action ? '<div class="finding-next"><strong>→ Next:</strong> ' + _multiline(f.next_action) + '</div>' : '')
-               +   (f.seeded_study ? '<div class="finding-seeded"><strong>→ seeded study:</strong> <a href="' + _studyHref(f.seeded_study) + '">' + _h(f.seeded_study) + '</a></div>' : '')
-               +   techDisclosure
-               + '</div>';
-        }
-
-        takeawaysHtml = '<div id="' + sid.findings + '" class="findings-section">'
-          + '<h3>Detailed findings</h3>'
-          + Object.keys(groups).filter(function(k){return groups[k].length;}).map(function(k) {
-              return '<h4 class="findings-group-header">' + kindHeader[k] + ' <span class="muted small">(' + groups[k].length + ')</span></h4>'
-                   + groups[k].map(_renderFinding).join('');
-            }).join('')
-          + '</div>';
-      }
-
-      // ── WHAT DID/WILL WE RUN? (Simulations) ──────────────────────────
-      var simsHtml = '';
-      // What we ran — ENFORCED. The composite(s) + parameter settings actually
-      // simulated. Prefer the v3 simulation_set; else derive from the dashboard-
-      // managed baseline (composite + params) + recorded runs + robustness
-      // (seeds) — which is how the autopoiesis studies record runs. Always
-      // rendered; a study with neither gets an explicit gap notice. Each
-      // composite links out to the bigraph-loom explorer (popped out, live only).
-      function _short(model) {
-        if (!model) return '';
-        var p = String(model).split('.');
-        return p[p.length - 1];
-      }
-      // A composite reference rendered as a one-click pop-out to the bigraph-loom
-      // STATIC view (read-only): /bigraph-loom/?static=1&stateUrl=/api/composite-
-      // state/<ref>.json. Works from any report on the live dashboard.
-      function _loomStaticPopout(composite) {
-        // Pop out the bigraph-loom STATIC (read-only) view of the composite. The
-        // URL is computed at GENERATION time and baked in absolute so the button
-        // works whether the report is viewed inline, in an iframe/srcdoc, or
-        // downloaded (as long as that dashboard is up).
-        //
-        // Snapshot mode (the hosted read-only dashboard) serves pre-resolved
-        // composite state as STATIC FILES at <basePath>/api/composite-state/
-        // <id>.json and the loom entry point at <basePath>/bigraph-loom/ — BOTH
-        // must carry the configured base path (e.g. /v2ecoli/dashboard on a
-        // GitHub Pages project site). The live server instead answers the query
-        // form /api/composite-state?ref=<id> at the origin root. Using the live
-        // form (or omitting the base path) in snapshot mode 404s the pop-out —
-        // mirror _loadCompositeExplorer's snapshot handling here.
-        var cfg = (typeof window !== 'undefined' && window.__DASH_CONFIG__) || {};
-        var isSnap = cfg.mode === 'snapshot';
-        var origin = (typeof location !== 'undefined' && location.origin
-                      && /^https?:/.test(location.origin)) ? location.origin : '';
-        // basePath applies in both snapshot and live-under-a-prefix (/workbench);
-        // empty in normal local serving.
-        var base = origin + (cfg.basePath || '');
-        var stateUrl = isSnap
-          ? base + '/api/composite-state/' + encodeURIComponent(composite) + '.json'
-          : base + '/api/composite-state?ref=' + encodeURIComponent(composite);
-        var u = base + '/bigraph-loom/index.html?static=1&stateUrl=' + encodeURIComponent(stateUrl);
-        return "window.open('" + u.replace(/'/g, "\\'") + "','loom','width=1200,height=840');";
-      }
-      function _compositeCell(composite) {
-        if (!composite) return '<span class="muted">—</span>';
-        // Standalone reports: render the composite as plain text — no link out
-        // to the bigraph-loom explorer. Those live-only pop-outs are not worth
-        // maintaining and break a self-contained / shared report.
-        return '<code>' + _h(_short(composite)) + '</code>';
-      }
-      function _paramsCell(params) {
-        if (!params || typeof params !== 'object' || !Object.keys(params).length)
-          return '<span class="muted">default parameters</span>';
-        return Object.keys(params).map(function(k) {
-          return '<code>' + _h(k) + ' = ' + _h(JSON.stringify(params[k])) + '</code>';
-        }).join(' ');
-      }
-      if (sims.length) {
-        // The first sim is the reference; describe each row as its diff from it.
-        var baseSim = sims[0] || {};
-        var baseParams = baseSim.params || {};
-        var baseModel = baseSim.base_model;
-        function _changes(sim) {
-          var bits = [];
-          if (sim === baseSim) return '<em class="muted">reference baseline</em>';
-          if (sim.base_model && sim.base_model !== baseModel)
-            bits.push('different model <code>' + _h(_short(sim.base_model)) + '</code>');
-          // perturbation dict wins; else diff params vs the baseline sim
-          var changed = sim.perturbation && Object.keys(sim.perturbation).length
-            ? sim.perturbation
-            : (function() {
-                var d = {}, p = sim.params || {};
-                Object.keys(p).forEach(function(k) {
-                  if (k === 'seed' || k === 'cache_dir' || k === 'n_steps') return;
-                  if (JSON.stringify(p[k]) !== JSON.stringify(baseParams[k])) d[k] = p[k];
-                });
-                return d;
-              })();
-          var keys = Object.keys(changed).filter(function(k){return changed[k] !== null;});
-          if (keys.length) bits.push(keys.slice(0, 6).map(function(k) {
-            return '<code>' + _h(k) + '=' + _h(JSON.stringify(changed[k])) + '</code>';
-          }).join(' '));
-          return bits.length ? bits.join('; ') : '<em class="muted">same params, longer/other</em>';
-        }
-        var rows = sims.map(function(sim) {
-          var statusClass = sim.status === 'ready' ? 'sim-status-ready'
-                          : sim.status === 'gated' ? 'sim-status-gated'
-                          : sim.status === 'ran' ? 'sim-status-ran' : 'sim-status-unknown';
-          var statusPill = sim.status ? '<span class="sim-status-pill ' + statusClass + '">' + _h(sim.status) + '</span>' : '<span class="muted small">—</span>';
-          var runParts = [];
-          if (sim.condition) runParts.push(_h(sim.condition));
-          var ns = (sim.params && sim.params.n_steps);
-          if (sim.duration_min != null) runParts.push(_h(sim.duration_min) + ' min');
-          else if (ns != null) runParts.push(_h(ns) + ' steps');
-          if (sim.seeds && sim.seeds.length) runParts.push(sim.seeds.length + ' seed' + (sim.seeds.length === 1 ? '' : 's'));
-          var tests = sim.applies_tests || sim.tests || [];
-          var feeds = (Array.isArray(tests) && tests.length)
-            ? '<div class="sim-feeds muted small">feeds: ' + tests.map(function(t){return '<code>' + _h(t) + '</code>';}).join(' ') + '</div>' : '';
-          return '<tr>'
-            + '<td><strong>' + _h(sim.name || '(unnamed)') + '</strong>' + feeds + '</td>'
-            + '<td>' + _compositeCell(sim.base_model) + '</td>'
-            + '<td>' + _changes(sim) + '</td>'
-            + '<td class="muted small">' + (runParts.join(' · ') || '—') + '</td>'
-            + '<td>' + _runChip(s.run_commands && s.run_commands.baseline) + '</td>'
-            + '<td>' + statusPill + '</td>'
-            + '</tr>';
-        }).join('');
-        simsHtml = '<div id="' + sid.sims + '"><h3>What we ran <span class="muted small">(' + sims.length + ' simulation' + (sims.length === 1 ? '' : 's') + ')</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">One row per concrete run: the model composite, what changes vs the reference baseline, the condition / length, and its status.</p>'
-          + '<table class="sim-table"><thead><tr><th>Simulation</th><th>Composite</th><th>Changes vs baseline</th><th>Run</th><th>CLI</th><th>Status</th></tr></thead>'
-          + '<tbody>' + rows + '</tbody></table>'
-          + '</div>';
-      } else {
-        // No simulation_set — derive what was run from the dashboard-managed
-        // baseline (composite + parameter settings), recorded runs, and
-        // robustness (seeds). This is how the autopoiesis studies record runs.
-        var baseline = s.baseline || [];
-        var runsArr = s.runs || [];
-        var rob = s.robustness || {};
-        var runByName = {};
-        runsArr.forEach(function(r) { if (r && r.name) runByName[r.name] = r; });
-        var replCell = (rob && (rob.n_replicates || (rob.seeds && rob.seeds.length)))
-          ? ((rob.n_replicates || rob.seeds.length) + ' seed'
-             + ((rob.n_replicates || rob.seeds.length) === 1 ? '' : 's')
-             + (rob.parameter_sweep ? ' + sweep' : ''))
-          : (runsArr.length ? '1 run' : '—');
-        var entries = baseline.length
-          ? baseline
-          : runsArr.map(function(r) { return {name: r.name, composite: r.composite, params: null}; });
-        if (entries.length) {
-          var brows = entries.map(function(b) {
-            var run = runByName[b.name] || runsArr[0] || {};
-            var status = run.status || 'recorded';
-            return '<tr>'
-              + '<td><strong>' + _h(b.name || 'baseline') + '</strong></td>'
-              + '<td>' + _compositeCell(b.composite) + '</td>'
-              + '<td>' + _paramsCell(b.params) + '</td>'
-              + '<td class="muted small">' + _h(replCell) + '</td>'
-              + '<td>' + _runChip(s.run_commands && s.run_commands.baseline) + '</td>'
-              + '<td><span class="sim-status-pill sim-status-ran">' + _h(status) + '</span></td>'
-              + '</tr>';
-          }).join('');
-          simsHtml = '<div id="' + sid.sims + '"><h3>What we ran <span class="muted small">(composite + parameters)</span></h3>'
-            + '<p class="muted small" style="margin:0 0 8px 0">The composite(s) and parameter settings actually simulated for this study (from its baseline).</p>'
-            + '<table class="sim-table"><thead><tr><th>Run</th><th>Composite</th><th>Parameters</th><th>Replication</th><th>CLI</th><th>Status</th></tr></thead>'
-            + '<tbody>' + brows + '</tbody></table>'
-            + '</div>';
-        } else {
-          // ENFORCED: a study with no composite/params recorded is flagged.
-          simsHtml = '<div id="' + sid.sims + '"><h3>What we ran</h3>'
-            + '<p style="margin:0;color:#b45309">⚠ No composite or parameters recorded for this study — declare a baseline (composite + parameter settings) or a simulation_set so the report shows what was simulated.</p>'
-            + '</div>';
-        }
-      }
-
-      // ── PROMINENT MODEL BANNER ───────────────────────────────────────────
-      // Every study runs at least one composite — surface it at the TOP of the
-      // study with its key parameters and a one-click pop-out to the bigraph-loom
-      // STATIC view. Enforced: a study with no composite is flagged in red.
-      var modelBannerHtml = (function() {
-        var entries = [];
-        if (sims.length) {
-          var seen = {};
-          sims.forEach(function(sm) {
-            var c = sm.base_model;
-            if (c && !seen[c]) { seen[c] = 1; entries.push({composite: c, params: sm.params}); }
-          });
-        } else if ((s.baseline || []).length) {
-          (s.baseline).forEach(function(b) { entries.push({composite: b.composite, params: b.params}); });
-        } else {
-          (s.runs || []).forEach(function(r) { if (r.composite) entries.push({composite: r.composite, params: null}); });
-        }
-        if (!entries.length) {
-          return '<div class="study-model-banner study-model-missing" style="margin:10px 0;padding:12px 16px;'
-            + 'background:#fef2f2;border:1px solid #fecaca;border-left:5px solid #dc2626;border-radius:8px;color:#991b1b">'
-            + '<strong>⚠ No model declared.</strong> Every study must run at least one composite — declare a '
-            + 'baseline (composite + parameters) so this study is reproducible.</div>';
-        }
-        var rows = entries.map(function(e) {
-          var params = (e.params && typeof e.params === 'object' && Object.keys(e.params).length)
-            ? Object.keys(e.params).map(function(k) { return '<code>' + _h(k) + '=' + _h(JSON.stringify(e.params[k])) + '</code>'; }).join(' ')
-            : '<span class="muted">default parameters</span>';
-          var btn = e.composite
-            ? '<span style="font-size:0.92em;font-weight:600;color:#1e40af;white-space:nowrap">🧬 <code>'
-              + _h(_short(e.composite)) + '</code></span>'
-            : '<span class="muted">(no composite)</span>';
-          return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px">'
-            + btn + '<span style="font-size:0.88em;color:#475569">' + params + '</span></div>';
-        }).join('');
-        return '<div class="study-model-banner" style="margin:10px 0;padding:12px 16px;'
-          + 'background:#f0f9ff;border:1px solid #bae6fd;border-left:5px solid #2563eb;border-radius:8px">'
-          + '<div style="font-weight:700;color:#0c4a6e">Model</div>'
-          + '<div class="muted small" style="margin-top:2px">The composite(s) this study runs and their parameters.</div>'
-          + rows + '</div>';
-      })();
-
-      // ── CHARTS (visualisations from runs.db) ─────────────────────────
-      var chartsHtml = charts.length
-        ? '<div id="' + sid.charts + '">'
-          + '<h3>Visualisations from the latest run</h3>'
-          + _renderChartCardsHtml(charts, slug)
-          + '</div>'
-        : '';
-
-      // ── WHAT DID/WILL WE MEASURE? (Readouts) ─────────────────────────
-      var readoutsHtml = readouts.length
-        ? '<div id="' + sid.readouts + '"><h3>Measurements <span class="muted small">(' + readouts.length + ' readouts)</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Quantities we extract from each simulation run to evaluate the study\'s tests.</p>'
-          + '<table class="readout-table"><thead><tr><th>Readout</th><th>Status</th><th>Path</th><th>Description</th></tr></thead><tbody>'
-          + readouts.map(function(r) {
-              var path = r.path || r.identifier || r.store_path;
-              var blocked = (r.blocked_by_requirements && r.blocked_by_requirements.length)
-                ? '<div class="muted small">⛔ blocked by ' + r.blocked_by_requirements.map(function(b){return '<code>' + _h(b) + '</code>';}).join(', ') + '</div>' : '';
-              return '<tr>'
-                + '<td><strong>' + _h(r.name || '') + '</strong></td>'
-                + '<td class="muted small">' + (r.status ? _h(r.status) : '—') + '</td>'
-                + '<td>' + (path ? '<code>' + _h(path) + '</code>' : '<span class="muted">—</span>')
-                  + (r.units ? ' <span class="muted small">(' + _h(r.units) + ')</span>' : '') + '</td>'
-                + '<td>' + _h(r.notes || r.description || '') + blocked + '</td>'
-                + '</tr>';
-            }).join('')
-          + '</tbody></table>'
-          + '</div>'
-        : '';
-
-      // ── HOW DO WE JUDGE SUCCESS? (Tests, claim-first) ────────────────
-      var testsHtml = '';
-      if (tests.length) {
-        // Aggregate latest outcomes by test name so we can show PASS/FAIL pills.
-        // Merge BOTH the authored outcomes AND the run/outcome-spine
-        // evaluator-computed outcomes, so each test surfaces how it actually ran
-        // (measured_value, evaluated_by code/agent) and whether the code verdict
-        // agrees with the authored one (reconcile).
-        var outcomeByTest = {};
-        if (latestRun && latestRun.outcomes) {
-          Object.keys(latestRun.outcomes).forEach(function(k) { outcomeByTest[k] = _normOutcome(latestRun.outcomes[k]) || {}; });
-        }
-        if (latestRun && latestRun.computed_outcomes) {
-          Object.keys(latestRun.computed_outcomes).forEach(function(k) {
-            var c = latestRun.computed_outcomes[k] || {};
-            var base = outcomeByTest[k] || {};
-            if (base.result == null && c.result != null) base.result = c.result;   // code verdict when no authored one
-            if (c.measured_value != null && base.measured_value == null) base.measured_value = c.measured_value;
-            if (c.evaluated_by) base.evaluated_by = c.evaluated_by;   // code | agent | needs_rerun
-            if (c.operator) base.operator = c.operator;
-            if (c.reconcile) base.reconcile = c.reconcile;            // agree | divergent | no_authored
-            if (base.detail == null && (c.detail || c.reason)) base.detail = c.detail || c.reason;
-            outcomeByTest[k] = base;
-          });
-        }
-        // At-a-glance summary so a reviewer doesn't have to count pills.
-        var _tc = { PASS: 0, FAIL: 0, PARTIAL: 0, SKIP: 0, PENDING: 0 };
-        tests.forEach(function(t) {
-          var o = outcomeByTest[t.name];
-          var r = (o && o.result) || t.result || _testStatusToResult(t.status) || (t.status === 'gated' ? 'GATED' : 'PENDING');
-          if (r === 'PASS') _tc.PASS++; else if (r === 'FAIL') _tc.FAIL++;
-          else if (r === 'PARTIAL') _tc.PARTIAL++;
-          else if (r === 'SKIP') _tc.SKIP++; else _tc.PENDING++;
-        });
-        var _tcParts = [];
-        if (_tc.PASS) _tcParts.push(_tc.PASS + ' ✓ passed');
-        if (_tc.FAIL) _tcParts.push(_tc.FAIL + ' ✗ failed');
-        if (_tc.PARTIAL) _tcParts.push(_tc.PARTIAL + ' ◐ partial');
-        if (_tc.SKIP) _tcParts.push(_tc.SKIP + ' ⏭ skipped');
-        if (_tc.PENDING) _tcParts.push(_tc.PENDING + ' ⏳ pending');
-        var _tcSummary = _tcParts.length ? (' — ' + _tcParts.join(' · ')) : '';
-        // Report-card test modules: a `kind: report_card` test renders its
-        // inlined card + graded verdict pill (the offline analogue of the live
-        // study-detail _fillReportCardModules path). Look the card HTML up by
-        // its `card` name from this study's fetched report cards.
-        var _rcPill = {
-          within_tol: ['#16a34a', 'within tol'], drift: ['#d97706', 'drift'],
-          mismatch: ['#dc2626', 'mismatch'], ungraded: ['#64748b', 'ungraded'],
-        };
-        var _cardByName = {};
-        (reportCardsByStudy[s.name] || []).forEach(function(rc) { _cardByName[rc.card] = rc; });
-        testsHtml = '<div id="' + sid.tests + '"><h3>Success criteria <span class="muted small">(' + tests.length + ' tests' + _tcSummary + ')</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Each test makes a specific scientific claim with a machine-checkable criterion (<code>measure</code> + <code>pass_if</code>). Tests are now <strong>evaluated by code against the run</strong> (the run/outcome spine: RunReader → evaluator): the pill shows the result, and the evidence line shows the <em>measured value</em>, whether it was computed by <em>code</em> or routed to an <em>agent</em>, and whether the code verdict <em>agrees</em> with the authored one (reconcile). <span class="muted">⏳ pending = the study hasn\'t run yet.</span> Technical assertion + the exact evaluator are under "Technical details".</p>'
-          + tests.map(function(t) {
-              var name = t.name || '(unnamed)';
-              // ── REPORT-CARD TEST MODULE ──────────────────────────────────
-              // A modular `kind: report_card` test renders the card itself
-              // (inlined, self-contained) with its graded verdict pill, in
-              // place of the behavioral claim/evidence layout.
-              if ((t.kind || 'behavioral') === 'report_card') {
-                var rc = _cardByName[t.card];
-                var vp = _rcPill[(rc && rc.verdict) || 'ungraded'] || _rcPill.ungraded;
-                var rcPill = '<span style="display:inline-block;padding:2px 10px;border-radius:9999px;'
-                  + 'font-size:0.78em;font-weight:600;background:' + vp[0] + ';color:#fff">' + _h(vp[1]) + '</span>';
-                var rcBody = (rc && rc.html)
-                  ? '<iframe srcdoc="' + (rc.html || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '" '
-                    + 'class="embed-frame" onload="_wireEmbed(this)" scrolling="no" '
-                    + 'style="width:100%;min-height:560px;border:0;display:block;overflow:hidden;margin-top:8px" '
-                    + 'title="' + _h(t.card) + ' report card"></iframe>'
-                  : '<div class="muted small" style="padding:8px">report card <code>' + _h(t.card)
-                    + '</code> not generated yet — run the comparison.</div>';
-                return '<div class="test-card test-report-card" id="test-' + _h(name) + '">'
-                     +   '<div class="test-header" style="display:flex;align-items:center;gap:8px">'
-                     +     rcPill
-                     +     '<strong>' + _h(t.card) + ' report card</strong>'
-                     +     '<span class="test-id muted small" style="margin-left:auto">' + _h(name) + '</span>'
-                     +   '</div>'
-                     +   rcBody
-                     + '</div>';
-              }
-              var cls = t.classification || 'unclassified';
-              var out = outcomeByTest[name];
-              var result = (out && out.result) || t.result || _testStatusToResult(t.status) || (t.status === 'gated' ? 'GATED' : 'PENDING');
-              var resBg = result === 'PASS' ? '#d1fae5' : (result === 'FAIL' ? '#fee2e2' : (result === 'SKIP' ? '#fef3c7' : (result === 'PARTIAL' ? '#fde68a' : '#f1f5f9')));
-              var resFg = result === 'PASS' ? '#065f46' : (result === 'FAIL' ? '#991b1b' : (result === 'SKIP' ? '#92400e' : (result === 'PARTIAL' ? '#92400e' : '#475569')));
-              var resGlyph = result === 'PASS' ? '✓' : (result === 'FAIL' ? '✗' : (result === 'PARTIAL' ? '◐' : '⏳'));
-              // Claim: the English description, first sentence.
-              var claim = (t.description || t.en || '').split('\n')[0].split('. ')[0];
-              if (claim.length > 220) claim = claim.slice(0, 217) + '…';
-              if (claim && claim.charAt(claim.length - 1) !== '.' && claim.charAt(claim.length - 1) !== '?') claim += '.';
-              // Evidence (spine B3): render the code-computed outcome as a
-              // styled row — measured_value + operator + evaluated_by in a
-              // CODE-COMPUTED chip, kept visually SEPARATE from the
-              // human-authored outcome (its own chip), with a prominent
-              // reconcile:divergent badge and a link to the run that produced
-              // the value + the pass_if band it was judged against. No more
-              // raw merged k:v dump (which blended authored + computed).
-              var authoredOut = (latestRun && latestRun.outcomes) ? _normOutcome(latestRun.outcomes[name]) : null;
-              var computedOut = (latestRun && latestRun.computed_outcomes) ? latestRun.computed_outcomes[name] : null;
-              var runIdent = latestRun ? (latestRun.run_id || latestRun.name || '') : '';
-              var evidence = '';
-              if (computedOut || authoredOut) {
-                var co = computedOut || {};
-                var mv = co.measured_value;
-                var mvStr = (mv == null) ? '—' : (typeof mv === 'object' ? JSON.stringify(mv) : String(mv));
-                if (mvStr.length > 220) mvStr = mvStr.slice(0, 217) + '…';
-                var codeBits = [];
-                if (co.result != null) codeBits.push('<strong>' + _h(String(co.result)) + '</strong>');
-                if (co.operator) codeBits.push('op <code>' + _h(String(co.operator)) + '</code>');
-                if (co.evaluated_by) codeBits.push('by <code>' + _h(String(co.evaluated_by)) + '</code>');
-                var codeChip = computedOut
-                  ? '<span class="outcome-chip outcome-chip-computed" style="display:inline-block;padding:3px 7px;border-radius:4px;background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;font-size:0.85em"><span class="muted">code computed</span> ' + codeBits.join(' · ') + '</span>'
-                  : '';
-                var authoredChip = (authoredOut && authoredOut.result != null)
-                  ? ' <span class="outcome-chip outcome-chip-authored" style="display:inline-block;padding:3px 7px;border-radius:4px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:0.85em"><span class="muted">authored</span> <strong>' + _h(String(authoredOut.result)) + '</strong></span>'
-                  : '';
-                var divBadge = (co.reconcile === 'divergent')
-                  ? ' <span class="reconcile-divergent" style="display:inline-block;padding:3px 7px;border-radius:4px;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;font-weight:600;font-size:0.85em">⚠ reconcile: divergent</span>'
-                  : '';
-                var runLink = runIdent
-                  ? ' <span class="muted small">from run <code>' + _h(runIdent) + '</code></span>'
-                  : '';
-                var bandLine = t.pass_if
-                  ? '<div class="pass_if-band muted small" style="margin-top:3px">passes if '
-                    + (t.measure ? _measureText(t.measure) + ' ' : '')
-                    + '<strong>' + _h(_passIfText(t.pass_if)) + '</strong>'
-                    + _thresholdProvenanceChip(t.pass_if) + '</div>'   // #9
-                  : '';
-                var detailLine = (co.detail || co.reason)
-                  ? '<div class="muted small" style="margin-top:3px">' + _h(String(co.detail || co.reason)) + '</div>'
-                  : '';
-                evidence = '<div class="computed-outcome-row">'
-                  + (computedOut ? '<div><strong>measured_value:</strong> <code>' + _h(mvStr) + '</code></div>' : '')
-                  + '<div style="margin-top:3px">' + codeChip + authoredChip + divBadge + runLink + '</div>'
-                  + bandLine + detailLine
-                  + '</div>';
-              }
-              var techBits = [];
-              if (t.measure) techBits.push('Measure: ' + _measureText(t.measure));
-              if (t.pass_if) techBits.push('Pass condition: ' + _h(_passIfText(t.pass_if)));
-              else if (t.expect) techBits.push('Expect: <code>' + _h(JSON.stringify(t.expect)) + '</code>');
-              // The Python that actually evaluates this test: the declarative
-              // (kind, op) dispatch into the generic evaluator. There is no
-              // per-test Python — evaluate() handles every test by kind + op.
-              (function() {
-                var kind = (t.measure && t.measure.kind) || null;
-                var op = (t.pass_if && t.pass_if.op) || (t.expect && t.expect.op) || null;
-                if (!kind && !op) return;
-                var ref = 'Python: <code>vivarium_workbench/lib/expected_behavior.py</code> → <code>evaluate()</code>';
-                if (kind) ref += '; measure kind <code>' + _h(kind) + '</code> via <code>_series_for_simple_kind()</code>/<code>_measure()</code>';
-                if (op) ref += '; op <code>' + _h(op) + '</code> via <code>_check()</code>';
-                techBits.push(ref);
-              })();
-              if (t.requires_simulation) techBits.push('Requires sim: <code>' + _h(t.requires_simulation) + '</code>');
-              if (t.cites && t.cites.length) techBits.push('Cites: ' + t.cites.map(function(c){return '<code>' + _h(c) + '</code>';}).join(', '));
-              if (t.calibration_anchor) techBits.push('Calibration anchor: ⚠️ <code>' + _h(JSON.stringify(t.calibration_anchor)) + '</code>');
-              var techDisc = techBits.length ? '<details class="tech-details"><summary>Technical details</summary>' + techBits.join('<br>') + '</details>' : '';
-
-              return '<div class="test-card test-classification-' + _h(cls) + '" id="test-' + _h(name) + '">'
-                   +   '<div class="test-header">'
-                   +     '<span style="background:' + resBg + ';color:' + resFg + ';padding:2px 10px;border-radius:9999px;font-size:0.78em;font-weight:600">' + resGlyph + ' ' + _h(result) + '</span>'
-                   +     '<span class="test-classification">' + _h(cls) + '</span>'
-                   +     _thresholdProvenanceChip(t.pass_if)   // #9 — threshold provenance
-                   +   '</div>'
-                   +   '<div class="test-claim"><strong>Claim:</strong> ' + _h(claim) + '</div>'
-                   +   (evidence ? '<div class="test-evidence"><strong>Evidence:</strong> ' + evidence + '</div>' : '')
-                   +   '<div class="test-id muted small">Test id: <code>' + _h(name) + '</code></div>'
-                   +   techDisc
-                   + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // ── WHAT CHANGES IN THE MODEL? (Build / model_change) ────────────
-      var buildHtml = '';
-      if (modelChange || assumptions.length) {
-        var mcHtml = '';
-        if (modelChange) {
-          if (typeof modelChange === 'string') {
-            mcHtml = '<p>' + _multiline(modelChange) + '</p>';
-          } else {
-            var mcNotes = modelChange.notes || '';
-            var hasNewWork = (modelChange.new_processes || []).length
-                          || (modelChange.new_state_variables || []).length
-                          || (modelChange.new_parameters || []).length
-                          || (modelChange.modified_processes || []).length;
-            mcHtml = mcNotes ? '<p>' + _multiline(mcNotes) + '</p>' : '';
-            if (!hasNewWork && !mcNotes) mcHtml = '<p class="muted">No code-level model changes in this study.</p>';
-            // Technical details with everything (processes, params, listeners).
-            var mcBits = [];
-            Object.keys(modelChange).forEach(function(k) {
-              if (k === 'notes') return;
-              var v = modelChange[k];
-              if (Array.isArray(v) && !v.length) return;
-              if (typeof v === 'string') mcBits.push(_h(k) + ': ' + _multiline(v));
-              else mcBits.push(_h(k) + ': <code>' + _h(JSON.stringify(v)) + '</code>');
-            });
-            if (mcBits.length) mcHtml += '<details class="tech-details"><summary>Technical details</summary>' + mcBits.join('<br>') + '</details>';
-          }
-        }
-        var asmHtml = assumptions.length
-          ? '<h4 style="margin:12px 0 4px 0">Key assumptions</h4>'
-          + '<ul>' + assumptions.map(function(a){return '<li>' + _multiline(typeof a === 'string' ? a : (a.text || JSON.stringify(a))) + '</li>';}).join('') + '</ul>'
-          : '';
-        buildHtml = '<div id="' + sid.build + '"><h3>Model changes</h3>' + mcHtml + asmHtml + '</div>';
-      }
-
-      // ── WHAT NEEDS TO BE BUILT OR FIXED? (Implementation reqs) ───────
-      var reqsHtml = '';
-      if (reqs.length) {
-        reqsHtml = '<div id="' + sid.reqs + '"><h3>Build / fix list <span class="muted small">(' + reqs.length + ')</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Concrete engineering work to fully exercise this study.</p>'
-          + reqs.map(function(r) {
-              // Prose-form requirement (authored as a single `| ` block): render
-              // the text as a plain prose card, not an id/title/effort card.
-              if (r && r._prose) {
-                return '<div class="req-card"><div class="req-key">' + _multiline(r.description || '') + '</div></div>';
-              }
-              var effortBadge = r.effort ? '<span class="req-effort">' + _h(r.effort) + '</span>' : '';
-              var kindBadge   = r.kind   ? '<span class="req-kind">'   + _h(r.kind)   + '</span>' : '';
-              var statusBadge = '';
-              if (r.defer_until) statusBadge = '<span class="req-status req-status-deferred">deferred</span>';
-              else if (r.status === 'done' || r.status === 'complete') statusBadge = '<span class="req-status req-status-done">done</span>';
-              else statusBadge = '<span class="req-status req-status-open">open</span>';
-              var keyLine = '';
-              if (r.why) {
-                keyLine = '<div class="req-key"><strong>Why it matters:</strong> ' + _multiline(r.why) + '</div>';
-              } else if (r.description) {
-                var teaser = String(r.description).split(/\n\s*\n/)[0].slice(0, 240);
-                keyLine = '<div class="req-key">' + _multiline(teaser) + (r.description.length > 240 ? '…' : '') + '</div>';
-              }
-              var unblocks = '';
-              if (r.unblocks) {
-                var items = Array.isArray(r.unblocks) ? r.unblocks : [r.unblocks];
-                unblocks = '<div class="req-unblocks"><strong>Unblocks:</strong><ul>' + items.map(function(u){return '<li>' + _h(u) + '</li>';}).join('') + '</ul></div>';
-              }
-              var deferredNote = r.defer_until
-                ? '<div class="req-deferred">⏸ Deferred until <code>' + _h(r.defer_until) + '</code>.</div>'
-                : '';
-              var techBits = [];
-              if (r.description && r.description.length > 240) techBits.push(_multiline(r.description));
-              if (r.steps && r.steps.length) techBits.push('<ol>' + r.steps.map(function(st){return '<li>' + _h(st) + '</li>';}).join('') + '</ol>');
-              if (r.files && r.files.length) techBits.push('Files: ' + r.files.map(function(f){return '<code>' + _h(f) + '</code>';}).join(', '));
-              var techDisc = techBits.length ? '<details class="tech-details"><summary>Implementation detail</summary>' + techBits.join('<br>') + '</details>' : '';
-
-              return '<div class="req-card">'
-                   +   '<div class="req-header">'
-                   +     '<code class="req-id">' + _h(r.id || '') + '</code>'
-                   +     '<strong class="req-title">' + _h(r.title || '(untitled)') + '</strong>'
-                   +     '<span class="req-badges">' + kindBadge + effortBadge + statusBadge + '</span>'
-                   +   '</div>'
-                   +   keyLine + deferredNote + unblocks + techDisc
-                   + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // ── WHAT SHOULD HAPPEN NEXT? (Follow-ups) ────────────────────────
-      var followUpsHtml = followUps.length
-        ? '<div id="' + sid.followups + '"><h3>What should happen next? <span class="muted small">(' + followUps.length + ' follow-ups)</span></h3>'
-          + '<p class="muted small">Concrete next steps. <em>Non-existing</em> entries can be seeded into child studies via the dashboard.</p>'
-          + followUps.map(function(f) {
-              var kind = f.kind || 'other';
-              var techBits = [];
-              if (f.hypothesized_mechanism) techBits.push('Hypothesised mechanism: ' + _multiline(f.hypothesized_mechanism));
-              if (f.unblocks && f.unblocks.length) techBits.push('Unblocks: ' + f.unblocks.map(function(x){return '<code>' + _h(x) + '</code>';}).join(', '));
-              if (f.acceptance && f.acceptance.length) techBits.push('Acceptance criteria: <ul>' + f.acceptance.map(function(a){return '<li>' + _h(a) + '</li>';}).join('') + '</ul>');
-              var techDisc = techBits.length ? '<details class="tech-details"><summary>Technical details</summary>' + techBits.join('<br>') + '</details>' : '';
-              var status = f.status ? '<span class="fu-status fu-status-' + _h(f.status) + '">' + _h(f.status) + '</span>' : '';
-              var effort = f.effort ? '<span class="fu-effort">' + _h(f.effort) + '</span>' : '';
-              return '<div class="fu-card fu-kind-' + _h(kind) + '">'
-                   +   '<div class="fu-head"><span class="fu-kind">' + _h(kind) + '</span>' + effort + status + '<strong class="fu-title">' + _h(f.title || '(untitled)') + '</strong></div>'
-                   +   (f.why ? '<div class="fu-why">' + _multiline(f.why) + '</div>' : '')
-                   +   techDisc
-                   + '</div>';
-            }).join('')
-          + '</div>'
-        : '';
-
-      // ── DISCOVERY IMPLICATIONS ───────────────────────────────────────
-      // Turns the study's results into resolved/remaining uncertainties,
-      // alternate hypotheses, mechanism-update proposals, and selectable
-      // follow-up study proposals. Sits after the evidence/follow-ups and
-      // before the Decide box. Each follow-up proposal carries an
-      // "➕ Add to investigation" button that seeds a child study node.
-      var discoveryHtml = '';
-      if (_hasDiscovery) {
-        var diBits = [];
-
-        // Resolved / remaining uncertainties — two short lists.
-        var resolved = discImpl.resolved_uncertainties || [];
-        var remaining = discImpl.remaining_uncertainties || [];
-        if (resolved.length || remaining.length) {
-          var uncBits = [];
-          if (resolved.length) {
-            uncBits.push('<div class="di-unc di-unc-resolved"><h4>✓ Resolved uncertainties</h4><ul>'
-              + resolved.map(function(u){ return '<li>' + _multiline(typeof u === 'string' ? u : JSON.stringify(u)) + '</li>'; }).join('')
-              + '</ul></div>');
-          }
-          if (remaining.length) {
-            uncBits.push('<div class="di-unc di-unc-remaining"><h4>● Remaining uncertainties</h4><ul>'
-              + remaining.map(function(u){ return '<li>' + _multiline(typeof u === 'string' ? u : JSON.stringify(u)) + '</li>'; }).join('')
-              + '</ul></div>');
-          }
-          diBits.push('<div class="di-uncertainties">' + uncBits.join('') + '</div>');
-        }
-
-        // Alternate hypotheses. Canonical source is
-        // discovery_implications.alternate_hypotheses; C5 falls back to the
-        // top-level alternative_hypotheses so authored prose anywhere still
-        // surfaces (the top-level shape uses claim/discriminated_by/status).
-        var altH = (discImpl.alternate_hypotheses && discImpl.alternate_hypotheses.length)
-          ? discImpl.alternate_hypotheses
-          : (s.alternative_hypotheses || []);
-        if (altH.length) {
-          diBits.push('<div class="di-group"><h4>Alternate hypotheses <span class="muted small">(' + altH.length + ')</span></h4>'
-            + altH.map(function(h) {
-                if (typeof h === 'string') h = {statement: h};
-                var evFor = (h.evidence_for || []).length;
-                var evAgainst = (h.evidence_against || []).length;
-                var disc = h.discriminating_observables || [];
-                var rows = [];
-                if (h.why_plausible) rows.push('<div class="di-alt-why">' + _multiline(h.why_plausible) + '</div>');
-                if (evFor || evAgainst) {
-                  rows.push('<div class="di-alt-ev"><span class="di-ev di-ev-for">▲ ' + evFor + ' for</span>'
-                    + '<span class="di-ev di-ev-against">▼ ' + evAgainst + ' against</span></div>');
-                }
-                if (disc.length) {
-                  rows.push('<div class="di-alt-disc"><span class="di-lbl">Discriminating observables:</span> '
-                    + disc.map(function(d){ return '<code>' + _h(d) + '</code>'; }).join(', ') + '</div>');
-                }
-                // Top-level alternative_hypotheses fields.
-                if (h.discriminated_by) {
-                  rows.push('<div class="di-alt-disc"><span class="di-lbl">Discriminated by:</span> ' + _multiline(h.discriminated_by) + '</div>');
-                }
-                if (h.status) {
-                  rows.push('<div class="di-alt-status"><span class="di-lbl">Status:</span> ' + _h(h.status) + '</div>');
-                }
-                var elems = h.mechanism_elements_affected || [];
-                if (elems.length) {
-                  rows.push('<div class="di-alt-elems"><span class="di-lbl">Mechanism elements:</span> '
-                    + elems.map(function(e){ return '<code>' + _h(e) + '</code>'; }).join(', ') + '</div>');
-                }
-                return '<div class="di-alt-card">'
-                  + '<div class="di-alt-stmt"><strong>' + _h(h.statement || h.claim || h.hypothesis || '(untitled hypothesis)') + '</strong></div>'
-                  + rows.join('')
-                  + '</div>';
-              }).join('')
-            + '</div>');
-        }
-
-        // Mechanism update proposals.
-        var mech = discImpl.mechanism_update_proposals || [];
-        if (mech.length) {
-          diBits.push('<div class="di-group"><h4>Mechanism update proposals <span class="muted small">(' + mech.length + ')</span></h4>'
-            + mech.map(function(m) {
-                var ut = (m.update_type || 'revise');
-                var badge = m.requires_expert_approval
-                  ? '<span class="di-approval-badge">needs expert approval</span>' : '';
-                var cc = m.confidence_change
-                  ? '<span class="di-conf-change">Δconfidence: ' + _h(String(m.confidence_change)) + '</span>' : '';
-                return '<div class="di-mech-card">'
-                  + '<div class="di-mech-head">'
-                  +   '<code class="di-mech-target">' + _h(m.mechanism_node_or_edge || '(unspecified)') + '</code>'
-                  +   '<span class="di-update-chip di-update-' + _h(ut) + '">' + _h(ut) + '</span>'
-                  +   cc + badge
-                  + '</div>'
-                  + (m.rationale ? '<div class="di-mech-rationale">' + _multiline(m.rationale) + '</div>' : '')
-                  + '</div>';
-              }).join('')
-            + '</div>');
-        }
-
-        // Follow-up study proposals — each a selectable card with an
-        // "➕ Add to investigation" button (seeds a new child study node).
-        if (followupProposals.length) {
-          diBits.push('<div class="di-group"><h4>Follow-up study proposals <span class="muted small">(' + followupProposals.length + ')</span></h4>'
-            + '<p class="muted small">Click <strong>➕ Add study</strong> to spawn a new study node in the investigation graph (seeds a child study.yaml from the proposal, with a leads-to edge back to this study).</p>'
-            + followupProposals.map(function(p, pi) {
-                var gain = (p.expected_information_gain || '').toLowerCase();
-                var gainChip = gain ? '<span class="di-gain-chip di-gain-' + _h(gain) + '">gain: ' + _h(gain) + '</span>' : '';
-                var typeChip = p.study_type ? '<span class="di-type-chip">' + _h(p.study_type) + '</span>' : '';
-                var trigChip = p.source_trigger ? '<span class="di-trigger-chip">' + _h(p.source_trigger) + '</span>' : '';
-                var targets = p.target_mechanism_elements || [];
-                var prio = p.priority ? '<span class="di-prio-chip">priority: ' + _h(String(p.priority)) + '</span>' : '';
-                // "➕ Add study" seeds a child study from this proposal via
-                // _seedFollowupProposal (POST /api/study-seed-followup). Guarded
-                // so a downloaded static report (no walkthrough.js) degrades to a
-                // hint instead of a ReferenceError; the section is also an inline-
-                // feedback host (💬) for reviewers.
-                // Single-quoted args so they sit safely inside onclick="…" (a
-                // JSON.stringify'd id would emit double quotes and break the attr).
-                var seedArgs = "'" + _h(s.name) + "', '"
-                  + _h(p.id != null ? String(p.id) : '') + "', " + pi + ", this";
-                var seedBtn = '<div class="di-fup-actions" style="margin-top:8px">'
-                  + '<button class="btn-seed-followup" '
-                  + 'onclick="event.stopPropagation(); if(window._seedFollowupProposal){_seedFollowupProposal(' + seedArgs + ');}'
-                  + 'else{alert(\'Open this investigation in the live dashboard to add the study.\');}" '
-                  + 'style="font-size:0.82em;padding:3px 10px;border:1px solid #16a34a;background:#f0fdf4;'
-                  + 'color:#166534;border-radius:6px;cursor:pointer;white-space:nowrap">➕ Add study</button></div>';
-                return '<div class="di-fup-card">'
-                  + '<div class="di-fup-head">'
-                  +   '<strong class="di-fup-title">' + _h(p.title || '(untitled proposal)') + '</strong>'
-                  +   typeChip + trigChip + gainChip + prio
-                  + '</div>'
-                  + (p.motivation ? '<div class="di-fup-motivation" style="margin-top:4px"><span class="di-lbl">Why:</span> ' + _multiline(p.motivation) + '</div>' : '')
-                  + (p.proposed_experiment ? '<div class="di-fup-exp" style="margin-top:4px"><span class="di-lbl">Proposed experiment:</span> ' + _multiline(p.proposed_experiment) + '</div>' : '')
-                  + (p.hypothesized_mechanism ? '<div class="di-fup-mech" style="margin-top:4px"><span class="di-lbl">Hypothesized mechanism:</span> ' + _multiline(p.hypothesized_mechanism) + '</div>' : '')
-                  + (targets.length ? '<div class="di-fup-targets" style="margin-top:4px"><span class="di-lbl">Targets:</span> '
-                      + targets.map(function(t){ return '<code>' + _h(t) + '</code>'; }).join(', ') + '</div>' : '')
-                  + seedBtn
-                  + '</div>';
-              }).join('')
-            + '</div>');
-        }
-
-        // Addressed mechanism uncertainty (provenance line, optional).
-        var addressed = discImpl.mechanism_uncertainty_addressed || [];
-        if (addressed.length) {
-          diBits.push('<div class="di-addressed muted small"><span class="di-lbl">Mechanism uncertainty addressed:</span> '
-            + addressed.map(function(a){ return _h(typeof a === 'string' ? a : JSON.stringify(a)); }).join('; ') + '</div>');
-        }
-
-        discoveryHtml = '<div id="' + sid.discovery + '" class="discovery-implications">'
-          + '<h3>Discovery implications</h3>'
-          + '<p class="muted small">Where this study\'s results leave the mechanism model — and what to investigate next.</p>'
-          + diBits.join('')
-          + '</div>';
-      }
-
-      // ── LIMITATIONS ──────────────────────────────────────────────────
-      var limitsHtml = limitations.length
-        ? '<div id="' + sid.limits + '"><h3>Limitations</h3><ul>'
-          + limitations.map(function(l) { return '<li>' + _multiline(typeof l === 'string' ? l : (l.text || JSON.stringify(l))) + '</li>'; }).join('')
-          + '</ul></div>'
-        : '';
-
-      // ── REFERENCES ───────────────────────────────────────────────────
-      var refsHtml = bib.length
-        ? '<div id="' + sid.refs + '"><h3>References cited by this study</h3><p>'
-          + bib.map(function(k) { return '<code>' + _h(k) + '</code>'; }).join(', ')
-          + '</p></div>'
-        : '';
-
-      // ── BIOLOGY-AT-A-GLANCE (planning-phase, biologist-first) ────────
-      // Renders when study.yaml declares any of: biological_summary,
-      // study_card, literature_anchors. Designed so a biologist reading
-      // the report sees the biology before any code identifier.
-      // ── MECHANISM NARRATIVE (framework: 7 first-class fields any study can
-      // declare). Designed so the report reads as a cumulative mechanism
-      // migration rather than a sequence of implementation tasks. Each
-      // field is independently optional; only declared fields render.
-      //   biological_role         — what mechanism this study introduces
-      //   mechanism_replaced      — what heuristic / placeholder it replaces
-      //   dependency_rationale    — why this study must run at this point in
-      //                              the dependency chain
-      //   primary_claim           — what observable would convince us the
-      //                              mechanism is behaving correctly
-      //   primary_visualization   — the explanatory figure for this claim
-      //   scope_boundary          — what is explicitly in scope
-      //   deferred_biology        — what biology is intentionally deferred to
-      //                              later studies
-      var narrativeFields = [
-        ['biological_role',       'Biological role'],
-        ['mechanism_replaced',    'Mechanism replaced'],
-        ['dependency_rationale',  'Dependency rationale'],
-        ['primary_claim',         'Primary claim'],
-        ['primary_visualization', 'Primary visualization'],
-        ['scope_boundary',        'Scope boundary'],
-        ['deferred_biology',      'Deferred biology'],
-      ];
-      var narrativeRows = [];
-      narrativeFields.forEach(function(pair) {
-        var key = pair[0], label = pair[1];
-        var v = s[key];
-        if (typeof v === 'string' && v.trim()) {
-          narrativeRows.push('<tr><th>' + label + '</th><td>' + _multiline(v) + '</td></tr>');
-        }
-      });
-      var mechanismNarrativeHtml = '';
-      if (narrativeRows.length) {
-        mechanismNarrativeHtml =
-          '<div class="mechanism-narrative">'
-          + '<h3 class="biology-glance-label">Mechanism narrative</h3>'
-          + '<table class="mechanism-narrative-table">' + narrativeRows.join('') + '</table>'
-          + '</div>';
-      }
-
-      // C6 — biological_summary is the one optional override; derive the prose
-      // from findings[].statement when it is absent so the Biology callout
-      // still renders meaningful mechanism prose.
-      var _bioProse = s.biological_summary;
-      if (!_bioProse) {
-        var _bioFindings = _asFindings(s.findings)
-          .filter(function(f) { return f && typeof f === 'object'; })
-          .map(function(f) { return f.statement || f.summary; })
-          .filter(Boolean);
-        if (_bioFindings.length) _bioProse = _bioFindings.join('\n\n');
-      }
-      var biologyGlanceHtml = '';
-      if (_bioProse || s.study_card || s.literature_anchors) {
-        var bgsBits = [];
-        if (_bioProse) {
-          bgsBits.push(
-            '<div class="biology-summary-callout">'
-            + '<h3 class="biology-glance-label">Biology</h3>'
-            + '<p class="biology-prose">' + _multiline(_bioProse) + '</p>'
-            + '</div>'
-          );
-        }
-        if (s.study_card) {
-          var sc = s.study_card;
-          var scRows = [];
-          if (sc.goal) scRows.push('<tr><th>Goal</th><td>' + _multiline(sc.goal) + '</td></tr>');
-          if (sc.mechanism) scRows.push('<tr><th>Mechanism</th><td>' + _multiline(sc.mechanism) + '</td></tr>');
-          if (sc.why_before_next) scRows.push('<tr><th>Why before next</th><td>' + _multiline(sc.why_before_next) + '</td></tr>');
-          if (sc.expected_result) scRows.push('<tr><th>Expected result</th><td>' + _multiline(sc.expected_result) + '</td></tr>');
-          if (sc.main_expert_question) scRows.push('<tr><th>Main expert question</th><td>' + _multiline(sc.main_expert_question) + '</td></tr>');
-          if (scRows.length) {
-            bgsBits.push(
-              '<div class="study-card">'
-              + '<h3 class="biology-glance-label">Study card</h3>'
-              + '<table class="study-card-table">' + scRows.join('') + '</table>'
-              + '</div>'
-            );
-          }
-        }
-        if (Array.isArray(s.literature_anchors) && s.literature_anchors.length) {
-          var anchorItems = s.literature_anchors.map(function(a) {
-            var bits = ['<div class="anchor-expectation">' + _h(a.expectation || '') + '</div>'];
-            if (a.model_observable) {
-              bits.push('<div class="anchor-observable"><em>Model observable:</em> <code>'
-                + _h(a.model_observable) + '</code></div>');
-            }
-            if (a.source) {
-              bits.push('<div class="anchor-source"><em>Source:</em> ' + _h(a.source) + '</div>');
-            }
-            if (a.status_in_v2ecoli) {
-              bits.push('<div class="anchor-status"><em>Current status:</em> '
-                + _h(a.status_in_v2ecoli) + '</div>');
-            }
-            return '<li class="literature-anchor-card">' + bits.join('') + '</li>';
-          }).join('');
-          bgsBits.push(
-            '<div class="literature-anchors">'
-            + '<h3 class="biology-glance-label">Literature anchors</h3>'
-            + '<p class="muted small" style="margin:0 0 8px 0">The biological '
-            + 'expectations this study tests, mapped to the model observable that '
-            + 'will measure each one. Full citations live in the test cards.</p>'
-            + '<ul class="literature-anchor-list">' + anchorItems + '</ul>'
-            + '</div>'
-          );
-        }
-        if (bgsBits.length) {
-          biologyGlanceHtml = '<div class="biology-glance">' + bgsBits.join('') + '</div>';
-        }
-      }
-
-      // ── PRE-RUN EXPERT REVIEW ────────────────────────────────────────
-      // Compiles expert_decisions_needed into a prominent panel so biologists
-      // can answer them before the simulation is run.
-      var expertReviewHtml = '';
-      if (Array.isArray(s.expert_decisions_needed) && s.expert_decisions_needed.length) {
-        var qCards = s.expert_decisions_needed.map(function(q) {
-          var altHtml = '';
-          if (Array.isArray(q.alternatives) && q.alternatives.length) {
-            altHtml = '<div class="expert-question-alternatives"><em>Alternatives:</em><ul>'
-              + q.alternatives.map(function(a){return '<li>' + _h(a) + '</li>';}).join('')
-              + '</ul></div>';
-          }
-          var impactHtml = q.impact_if_wrong
-            ? '<div class="expert-question-impact"><em>Impact if wrong:</em> '
-              + _multiline(q.impact_if_wrong) + '</div>'
-            : '';
-          var blocksHtml = '';
-          if (Array.isArray(q.blocks) && q.blocks.length) {
-            blocksHtml = '<details class="expert-question-blocks"><summary>What this blocks ('
-              + q.blocks.length + ' items)</summary><ul>'
-              + q.blocks.map(function(b){return '<li>' + _h(b) + '</li>';}).join('')
-              + '</ul></details>';
-          }
-          var requestedHtml = q.requested_response
-            ? '<details class="expert-question-response"><summary>Requested response format</summary><p>'
-              + _multiline(q.requested_response) + '</p></details>'
-            : '';
-          var askedToHtml = q.asked_to
-            ? '<span class="expert-question-asked-to">asked to: ' + _h(q.asked_to) + '</span>'
-            : '';
-          return '<div class="expert-question-card status-' + _h(q.status || 'open') + '">'
-            + '<div class="expert-question-header">'
-            +   '<span class="expert-question-id">' + _h(q.id || '') + '</span>'
-            +   '<span class="expert-question-status">' + _h(q.status || 'open') + '</span>'
-            +   askedToHtml
-            + '</div>'
-            + '<div class="expert-question-text"><strong>Q.</strong> '
-            +   _multiline(q.question || '') + '</div>'
-            + altHtml + impactHtml + blocksHtml + requestedHtml
-            + '</div>';
-        }).join('');
-        expertReviewHtml = '<div class="pre-run-expert-review" id="study-' + slug + '-expert">'
-          + '<h3>Pre-run expert review</h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Open biological '
-          + 'questions the planning is contingent on. A "wrong" answer here means '
-          + 'a primary test threshold needs to change <em>before</em> the simulation '
-          + 'is run, not after.</p>'
-          + qCards
-          + '</div>';
-      }
-
-      // ── EMBED VISUALIZATIONS ─────────────────────────────────────────
-      // Pre-fetched HTML previews (study.yaml.embed_visualizations) inlined
-      // as <iframe srcdoc> so the downloaded report works offline. The
-      // preview's own <script src> CDN loads (Plotly) will still need
-      // network access at *viewing* time, but the HTML structure + data
-      // are baked in.
-      var embedsHtml = '';
-      var studyEmbeds = embedsByStudy[s.name] || [];
-      if (studyEmbeds.length) {
-        embedsHtml = '<div class="study-embeds" id="study-' + slug + '-embeds">'
-          + '<h3>Visualizations</h3>'
-          + studyEmbeds.map(function(emb) {
-              // Escape double-quotes for srcdoc attribute.
-              var escaped = (emb.html || '').replace(/&/g, '&amp;')
-                                            .replace(/"/g, '&quot;');
-              // A "prior / superseded" embed is one explicitly flagged stale, or
-              // whose name/description marks it as a pre-execution, placeholder,
-              // or older-dated preview. These are auto-collapsed (the expert's
-              // "fold these previous results") so they don't dominate the page
-              // with empty placeholder charts — but stay one click away.
-              var meta = ((emb.name || '') + ' ' + (emb.description || '')).toLowerCase();
-              var isStale = emb.stale === true
-                || (typeof emb.description === 'string' && emb.description.indexOf('⚠') === 0)
-                || /\b(prior|planning[- ]phase|placeholder|pending refresh|pre-execution|superseded|baseline rerun|will be populated|not yet run)\b/.test(meta);
-              // If the inner doc declares a fixed CSS height clamp (e.g.
-              // comparative_viz emits `html,body{height:540px;overflow:hidden}`
-              // to bound Plotly's hover-layer scrollHeight inflation), set
-              // the iframe height directly so _fitEmbed's measurements can't
-              // over- or under-grow it. Unclamped embeds (e.g. the tall
-              // chromosome figures) fall through to _fitEmbed's autosize.
-              // Lenient regex: matches `html,body { ... height: NNNpx ... }`
-              // regardless of property order inside the rule. Earlier strict
-              // form `/html,body\{height:(\d+)px/` only matched when `height:`
-              // was the FIRST property; viz authors who put `margin:0;padding:0;`
-              // first lost the clamp and got auto-resized to scrollHeight
-              // (which misreports for matplotlib-PNG bodies and for charts
-              // whose legend overflows the chart div).
-              var _hClamp = (emb.html || '').match(/html\s*,\s*body\s*\{[^}]*\bheight\s*:\s*(\d+)px/);
-              var _hStyle = _hClamp ? (';height:' + (parseInt(_hClamp[1], 10) + 24) + 'px') : '';
-              // Infrastructural no-scrollbar guarantee:
-              //   scrolling="no"     — kills the browser iframe scrollbar
-              //                        regardless of any size mismatch
-              //                        between _fitEmbed's measurement
-              //                        and the inner content's actual
-              //                        rendered height. Plotly's legend-
-              //                        overflow scrollbars previously
-              //                        leaked through because the chart
-              //                        div was sized for the chart but
-              //                        not the wrapped legend rows.
-              //   min-height:1200px  — under-measured iframes still show
-              //                        enough vertical space for typical
-              //                        multi-panel figures (e.g. 2×3 grid
-              //                        cell_mass / growth_rate / RNA /
-              //                        ribosome activity panels — these
-              //                        rendered at ~1280 px tall and the
-              //                        previous 720 px floor clipped them).
-              //                        The _fitEmbed walk extends to svg/
-              //                        img/canvas (see below) and uses
-              //                        img.naturalHeight to pre-measure
-              //                        before the browser has laid out
-              //                        the data: URL, so iframes grow
-              //                        correctly — this floor is the
-              //                        safety net for first-paint before
-              //                        any timers fire.
-              var iframe = '<iframe srcdoc="' + escaped + '" '
-                + 'class="embed-frame" onload="_wireEmbed(this)" '
-                + 'scrolling="no" '
-                + 'style="width:100%;min-height:1200px;border:0;display:block;overflow:hidden' + _hStyle + '" '
-                + 'title="' + _h(emb.name) + '"></iframe>';
-              if (isStale) {
-                // Collapsed by default; re-fit on expand.
-                return '<details class="study-embed-card stale-embed" ontoggle="_onEmbedToggle(this)" '
-                  + 'style="margin:12px 0;border:1px solid #f59e0b;border-radius:6px;background:#fffdf6;overflow:hidden">'
-                  + '<summary style="padding:8px 12px;cursor:pointer;background:#fffbeb;color:#92400e;font-weight:600;list-style:none">'
-                  +   '⚠ ' + _h(emb.name) + ' <span style="font-weight:400">— prior / superseded result (click to view)</span>'
-                  + '</summary>'
-                  + (emb.description ? '<p class="small" style="margin:6px 12px;color:#92400e">' + _h(emb.description) + '</p>' : '')
-                  + iframe
-                  + '</details>';
-              }
-              return '<div class="study-embed-card" style="margin:12px 0;border:1px solid #e2e8f0;border-radius:6px;background:#fff;overflow:hidden">'
-                + '<div style="padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">'
-                +   '<strong>' + _h(emb.name) + '</strong>'
-                + '</div>'
-                + (emb.description ? '<p class="muted small" style="margin:6px 12px">' + _h(emb.description) + '</p>' : '')
-                + iframe
-                + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // (Report cards now render as modules INSIDE the test section — see
-      // `kind: report_card` handling in testsHtml above — not as a separate
-      // block here.)
-
-      // ── CONDITIONS (v4: baseline + variants + model_settings) ─────────
-      // Renders the actual parameter table the evaluator wants: each
-      // variant's overrides + every model_setting's current/default/range.
-      var conditionsHtml = _renderConditionsBlock(s, sid.conditions);
-
-      // C2 + C3 — derived 3-track verdicts + read-only four-section synthesis,
-      // both computed from canonical fields (no longer write-only).
-      var verdictsHtml = _conclusionVerdictsHtml(s, slug);
-      var synthesisHtml = _conclusionSynthesisHtml(s, slug);
-
-      // Wave 2 — compositional causal discovery + semantic closure renders.
-      var commitmentHtml = _compositionCommitmentHtml(s, slug);   // C-COMMIT
-      var invariantsHtml = _invariantChecksHtml(s, slug);         // C-INVAR
-      var causalHtml = _causalNecessityHtml(s, slug);             // C-CF
-      var representationHtml = _representationHtml(s, slug);       // C-MODELCARD
-
-      // ── PLANNING-PHASE DETECTION ──
-      // A study is "planning" when no runs have completed yet. In that
-      // mode we strip decision / takeaways / findings (post-execution
-      // sections) and lead with the spec the expert needs to comment on:
-      // Question → Conditions → Tests → Baseline preview → Assumptions.
-      // Once runs land, the full flow returns.
-      var hasRuns = (s.runs || []).length > 0 || _asFindings(s.findings).length > 0;
-      // Informational/descriptive reference studies are "complete", not
-      // "planning" — they have no hypothesis to run, so don't show the
-      // "PLANNING — not yet run" framing.
-      var isPlanning = !hasRuns && !_isInformationalStudy(s);
-
-      // Param-enforcement banner (expert-feedback D.2). When the study
-      // declares enforced_params and its latest run didn't apply them, show
-      // the violations prominently so "declared but not implemented" is
-      // visible — the exact thing the reviewer caught manually.
-      var enforcementHtml = '';
-      var pe = s.param_enforcement;
-      if (pe && pe.violations && pe.violations.length) {
-        enforcementHtml =
-          '<div class="param-enforcement-banner" id="study-' + slug + '-enforcement" '
-          + 'style="margin:12px 0;padding:12px 16px;background:#fffbeb;border:1px solid #f59e0b;'
-          + 'border-left-width:5px;border-radius:6px;color:#92400e">'
-          + '<strong>⚠ Declared parameters were not applied to the latest run</strong>'
-          + '<div class="small" style="margin-top:4px">This study declares '
-          + 'enforced parameters, but the most recent run did not apply '
-          + (pe.violations.length === 1 ? 'one of them' : (pe.violations.length + ' of them'))
-          + ' — results below may reflect composite defaults rather than the '
-          + 'intended values. Re-run after wiring these in.</div>'
-          + '<ul class="small" style="margin:8px 0 0 18px">'
-          + pe.violations.map(function(v) {
-              return '<li>' + _h(v.message || (v.param + ': declared ' + v.expected)) + '</li>';
-            }).join('')
-          + '</ul></div>';
-      }
-
-      // Spine A3: readiness panel placeholder. Populated after render by
-      // _populateReadinessPanels(), which fetches /api/report-lint ONCE per
-      // report and keys the deterministic linter findings by study. Mirrors
-      // the param-enforcement banner: surfaced per study, connected to its
-      // source (the linter), labeled code-computed. Empty until populated.
-      var readinessHtml = '<div class="study-readiness-panel" id="study-' + slug + '-readiness" data-study="' + _h(slug) + '"></div>';
-
-      // Imported expert feedback (expert-feedback B.1). Shows the reviewer's
-      // own annotations back, in-context per study, so the loop closes: the
-      // next report makes clear what was said and lets the team show it's
-      // addressed. Newest-first; author + timestamp preserved.
-      // Imported reviewer-feedback quotes are intentionally NOT rendered in the
-      // report (per request — they cluttered the top of each study). Feedback is
-      // still imported + tracked in investigations/<inv>/feedback/*.yaml, and how
-      // it was addressed shows in the study conclusion/status.
-      var feedbackHtml = '';
-
-      // SP3b: feedback → action table. Read-only render of the pbg-supplied
-      // s.feedback_actions (open feedback items that have a proposed action +
-      // its kind / proposed_text / open-applied status). The report NEVER
-      // computes the action — it renders what study_feedback_actions returns.
-      feedbackHtml += _renderReportFeedbackActions(s, slug);
-
-      // Status-drift banner (round-2 friction #2). When a stored status axis
-      // (or a "planning" headline) contradicts what actually ran, say so — the
-      // report should never show "planning" on an executed study.
-      var statusDriftHtml = '';
-      var sdis = s.status_disagreements;
-      if (sdis && sdis.length) {
-        statusDriftHtml =
-          '<div class="status-drift-banner" id="study-' + slug + '-status-drift" '
-          + 'style="margin:12px 0;padding:12px 16px;background:#fffbeb;border:1px solid #f59e0b;'
-          + 'border-left-width:5px;border-radius:6px;color:#92400e">'
-          + '<strong>⚠ Status is out of date relative to what ran</strong>'
-          + '<ul class="small" style="margin:8px 0 0 18px">'
-          + sdis.map(function(v) { return '<li>' + _h(v.message || (v.axis + ': ' + v.stored + ' → ' + v.derived)) + '</li>'; }).join('')
-          + '</ul></div>';
-      }
-
-      // Charts come from runs.db when present, or fall back to the
-      // workspace default-baseline. Wrap them with a BASELINE banner
-      // so the expert knows the trace is pre-execution data, not a
-      // study-specific run.
-      var chartsWithBaselineNoticeHtml = chartsHtml;
-      if (isPlanning && chartsHtml) {
-        chartsWithBaselineNoticeHtml =
-            '<div class="planning-baseline-strip" id="study-' + slug + '-baseline-strip">' +
-              '<div class="planning-baseline-strip-banner">' +
-                '<span class="planning-baseline-pill">BASELINE</span>' +
-                '<span class="planning-baseline-text">' +
-                  'Charts below show the <strong>workspace pre-execution baseline</strong>' +
-                  ' — what the system looks like before any of this study\'s variants run.' +
-                  ' Expert reviewers: comment on whether these traces look right for the' +
-                  ' starting point.' +
-                '</span>' +
-              '</div>' +
-              chartsHtml +
-            '</div>';
-      }
-
-      // Reviewer-tier wrapper: technical/method subsections hide in Scientist
-      // mode (body.mode-scientist .tier-reviewer{display:none}) and show in
-      // Reviewer mode. Empty subsections stay empty (no stray wrapper div).
-      var _rv = function(h){ return (h && String(h).trim()) ? '<div class="tier-reviewer">' + h + '</div>' : ''; };
-
-      if (isPlanning) {
-        // Planning-phase layout — minimal, expert-comment-driven.
-        // The <header class="study-header"> chrome (num + slug + phase
-        // badge + status badge + Depends on + Blocks) was REMOVED because
-        // every field is already in the sticky control panel above
-        // (sp-top + sp-meta from _studyControlPanel). The v4 render path
-        // dropped this same header at line ~6172 for the same reason;
-        // this is the v3 sibling fix. Anchor (#study-<slug>) is on the
-        // <details> element itself, not the h2, so URL hashes still
-        // resolve. The "PLANNING — not yet run" pill is preserved as a
-        // standalone callout because the sticky panel doesn't render it.
-        return ''
-          + '<details class="study-fold verdict-' + verdictBadge.cls + '" id="study-' + slug + '">'
-          +   '<summary class="study-panel">' + controlPanelHtml + '</summary>'
-          + '<section class="study study-planning">'
-          +   subNav
-          +   '<div class="study-planning-pill">PLANNING — not yet run</div>'
-          +   modelBannerHtml     // 🧬 Model: composite(s) + params + loom static popout (PROMINENT)
-          +   _rv(statusDriftHtml)     // ⚠ status out of date vs runs (#2)
-          +   _rv(enforcementHtml)     // ⚠ declared params not applied (D.2)
-          +   _rv(readinessHtml)       // ✓/⚠ lint readiness panel (A3)
-          +   _rv(reviewHtml)          // ⚠ review-readiness gates (duration / param-vs-reference)
-          +   _rv(feedbackHtml)        // 💬 imported expert feedback (B.1)
-          +   _rv(commitmentHtml)      // Theoretical commitment (C-COMMIT)
-          +   _rv(invariantsHtml)      // Invariant checks (C-INVAR)
-          +   summaryHtml         // Question / purpose
-          +   _rv(conditionsHtml)      // Conditions: variants + model settings (PROMINENT)
-          +   _rv(testsHtml)           // Expected behavior / tests (PROMINENT for comments)
-          +   _rv(representationHtml)   // Representation claims (C-MODELCARD)
-          +   chartsWithBaselineNoticeHtml  // Baseline charts with BASELINE label
-          +   embedsHtml          // Embedded preview HTMLs
-          +   readoutsHtml        // What we'll measure
-          +   _rv(buildHtml)           // Model change (collapsed-ish, technical)
-          +   '<details class="study-technical-fold"><summary>Technical context (model changes · implementation tasks · follow-ups · limitations · refs)</summary>'
-          +     _rv(reqsHtml)          // Implementation requirements
-          +     followUpsHtml     // Follow-ups
-          +     discoveryHtml     // Discovery implications
-          +     limitsHtml        // Limitations
-          +     refsHtml          // References
-          +   '</details>'
-          + '</section>'
-          + '</details>';
-      }
-
-      // Post-execution layout — full v3 flow including decision + findings.
-      // <header class="study-header"> dropped for the same reason as the
-      // planning path + the v4 path: every field (num, slug, phase badge,
-      // status badge, Depends on, Blocks) is already in the sticky control
-      // panel's sp-top + sp-meta rows above.
-      return ''
-        + '<details class="study-fold verdict-' + verdictBadge.cls + '" id="study-' + slug + '">'
-        +   '<summary class="study-panel">' + controlPanelHtml + '</summary>'
-        + '<section class="study">'
-        +   subNav
-        +   modelBannerHtml     // 🧬 Model: composite(s) + params + loom static popout (PROMINENT)
-        +   _rv(statusDriftHtml)     // ⚠ status out of date vs runs (#2)
-        +   _rv(enforcementHtml)     // ⚠ declared params not applied (D.2)
-        +   _rv(readinessHtml)       // ✓/⚠ lint readiness panel (A3)
-        +   _rv(reviewHtml)          // ⚠ review-readiness gates (duration / param-vs-reference)
-        +   _rv(feedbackHtml)        // 💬 imported expert feedback (B.1)
-        +   _rv(commitmentHtml)      // Theoretical commitment (C-COMMIT)
-        +   _rv(invariantsHtml)      // Invariant checks (C-INVAR)
-        +   biologyGlanceHtml   // 0. Biology-at-a-glance
-        +   mechanismNarrativeHtml  // 0a. Mechanism narrative (7 framework fields)
-        +   summaryHtml         // 1. Plain-English summary (explanation leads, before charts)
-        +   embedsHtml          // 1a. Embedded visualizations (after the explanation)
-        +   _rv(expertReviewHtml)    // 2b. Pre-run expert review
-        +   takeawaysHtml       // 3 + 4. Detailed findings
-        +   _rv(verdictsHtml)        // Derived 3-track conclusion verdicts (computed)
-        +   _rv(causalHtml)          // Causal necessity table (C-CF)
-        +   discoveryHtml       // Discovery implications (directly under the findings)
-        +   _rv(conditionsHtml)      // Conditions (what we set up) — grouped with the runs
-        +   _rv(simsHtml)            // What did/will we run
-        +   readoutsHtml        // What did/will we measure (above visualisations)
-        +   chartsHtml          //    + Visualisations
-        +   _rv(testsHtml)           // 7. How we judge success
-        +   _rv(buildHtml)           // 8. Model changes
-        +   _rv(representationHtml)   // Representation claims (C-MODELCARD)
-        +   _rv(reqsHtml)            // 9. What to build/fix
-        +   followUpsHtml       // 10. Next steps
-        +   limitsHtml          // 11. Limitations
-        +   synthesisHtml       // Read-only four-section conclusion synthesis (derived)
-        +   refsHtml            // 12. References
-        +   decisionHtml        // Decision: can we move to the next study?
-        + '</section>'
-        + '</details>';
-    }
-
-    // Render the per-study Conditions block (v4). Returns empty string for
-    // studies without a ``conditions:`` mapping.
-    //
-    // Layout:
-    //   - Baseline composite + params
-    //   - Variants table (name, base_composite, parameter overrides)
-    //   - Model settings table (name, type, default, current, range, gate)
-    //
-    // Why this lives next to Tests instead of inside Build: variants and
-    // model_settings are the *experimental conditions* — what you change to
-    // run the tests — distinct from the *code* changes captured in Build.
-    function _renderConditionsBlock(s, anchorId) {
-      var cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : null;
-      // C4 — single canonical run-spec. When a study has no v4 ``conditions:``
-      // mapping, derive the rich conditions table from the normalized
-      // ``simulation_set`` (the server folds top-level baseline/variants and
-      // parameter-override interventions into it), so there is one source.
-      if (!cond && Array.isArray(s.simulation_set) && s.simulation_set.length) {
-        var _derivedBaseline = {};
-        var _derivedVariants = [];
-        s.simulation_set.forEach(function(e) {
-          if (!e || typeof e !== 'object') return;
-          if (e.is_baseline) {
-            _derivedBaseline = {composite: e.base_model, params: e.params || {}};
-          } else {
-            _derivedVariants.push({
-              name: e.name,
-              composite: e.base_model,
-              parameter_overrides: e.params || {},
-              description: e.description || ''
-            });
-          }
-        });
-        cond = {baseline: _derivedBaseline, variants: _derivedVariants, model_settings: []};
-      }
-      // Third fallback — v3-shaped studies that declare their setup ONLY as a
-      // top-level ``baseline:`` (+ ``variants:``) list and carry no ``conditions:``
-      // block and no server-folded ``simulation_set`` (migrate_v3_to_v4 doesn't
-      // synthesize one). Derive the conditions table straight from those lists so
-      // the "Conditions — what we set up to test it" section isn't blank by
-      // default. Handles a Step/Process baseline (no ``composite``) by using its
-      // dotted address, mirroring how the simulation_set fallback treats base_model.
-      if (!cond && Array.isArray(s.baseline) && s.baseline.length) {
-        var _b0 = s.baseline[0] || {};
-        var _bModel = _b0.composite || _b0.step || _b0.process || '';
-        var _dv = (Array.isArray(s.variants) ? s.variants : []).map(function(v) {
-          return {
-            name: v.name,
-            composite: v.composite || v.base_composite,
-            parameter_overrides: v.parameter_overrides || v.params || {},
-            description: v.description || v.notes || ''
-          };
-        });
-        if (_bModel || _dv.length) {
-          cond = {baseline: {composite: _bModel, params: _b0.params || {}},
-                  variants: _dv, model_settings: []};
-        }
-      }
-      if (!cond) return '';
-      var baseline = cond.baseline || {};
-      var variants = cond.variants || [];
-      var expertInputs = cond.model_settings || cond.expert_inputs || [];
-      if (!baseline.composite && !variants.length && !expertInputs.length) return '';
-
-      function _fmtVal(v) {
-        if (v === null || v === undefined) return '<em class="muted">—</em>';
-        if (typeof v === 'object') return '<code>' + _h(JSON.stringify(v)) + '</code>';
-        return '<code>' + _h(String(v)) + '</code>';
-      }
-      function _kvList(obj) {
-        var keys = Object.keys(obj || {});
-        if (!keys.length) return '<em class="muted">(no overrides)</em>';
-        return keys.map(function(k) {
-          return '<div class="cond-kv"><span class="cond-kv-k">' + _h(k) + '</span>' +
-                 '<span class="cond-kv-v">' + _fmtVal(obj[k]) + '</span></div>';
-        }).join('');
-      }
-
-      // Baseline row
-      var baselineHtml = '';
-      if (baseline.composite || baseline.params) {
-        baselineHtml =
-            '<div class="cond-baseline">' +
-              '<h4>Baseline</h4>' +
-              '<div class="cond-baseline-composite">' +
-                'Composite: <code>' + _h(baseline.composite || '?') + '</code>' +
-              '</div>' +
-              '<div class="cond-baseline-params">' +
-                _kvList(baseline.params || {}) +
-              '</div>' +
-            '</div>';
-      }
-
-      // Variants table
-      var variantsHtml = '';
-      if (variants.length) {
-        variantsHtml =
-            '<div class="cond-variants">' +
-              '<h4>Variants <span class="muted small">(' + variants.length + ')</span></h4>' +
-              '<p class="muted small" style="margin:0 0 6px 0">Each variant is a perturbation of the baseline — typically a parameter override or a swapped composite. These define the runs that test the assumption.</p>' +
-              '<table class="cond-table">' +
-                '<thead><tr><th>Variant</th><th>Composite / base</th><th>Parameter overrides</th><th>Notes</th><th>Run</th></tr></thead>' +
-                '<tbody>' +
-                  variants.map(function(v) {
-                    var ovr = v.parameter_overrides || v.params || {};
-                    var base = v.composite || v.base_composite || '<em class="muted">(inherits baseline)</em>';
-                    var name = v.name || '?';
-                    var notes = v.description || v.notes || '';
-                    // Task 9: look up this variant's precomputed `vdash …` command
-                    // off the study payload (single source of truth). Degrade to
-                    // no chip when run_commands is absent (older / static bundle).
-                    var _rcVariants = (s.run_commands && s.run_commands.variants) || [];
-                    var _vc = (_rcVariants.find && _rcVariants.find(function(x){ return x.name === v.name; })) || null;
-                    return '<tr>' +
-                      '<td><code>' + _h(name) + '</code></td>' +
-                      '<td>' + (typeof base === 'string' && base.indexOf('<em') === 0 ? base : '<code>' + _h(base) + '</code>') + '</td>' +
-                      '<td>' + _kvList(ovr) + '</td>' +
-                      '<td>' + (notes ? _multiline(notes) : '<em class="muted">—</em>') + '</td>' +
-                      '<td>' + _runChip(_vc && _vc.cmd) + '</td>' +
-                    '</tr>';
-                  }).join('') +
-                '</tbody>' +
-              '</table>' +
-            '</div>';
-      }
-
-      // Model settings table
-      var expertHtml = '';
-      if (expertInputs.length) {
-        var nRequired = expertInputs.filter(function(e){return e.gate === 'required-before-run';}).length;
-        var requiredBadge = nRequired
-          ? '<span class="cond-ei-required-badge" title="' + nRequired + ' input(s) must be set before this study can run">' + nRequired + ' required</span>'
-          : '';
-        expertHtml =
-            '<div class="cond-expert-inputs">' +
-              '<h4>Model settings <span class="muted small">(' + expertInputs.length + ')</span> ' + requiredBadge + '</h4>' +
-              '<p class="muted small" style="margin:0 0 6px 0">Parameters that need human input before the study runs. Edit a value on the dashboard\'s study-detail page (Build tab) and the next <code>pbg_runner</code> invocation will pick it up.</p>' +
-              '<table class="cond-table">' +
-                '<thead><tr><th>Name</th><th>Type</th><th>Default</th><th>Current</th><th>Range</th><th>Gate</th><th>Description</th></tr></thead>' +
-                '<tbody>' +
-                  expertInputs.map(function(e) {
-                    var name = e.name || '?';
-                    var type = e.type || '';
-                    var def  = e.default;
-                    var cur  = (e.current === null || e.current === undefined) ? null : e.current;
-                    var range = '';
-                    if (Array.isArray(e.range) && e.range.length === 2)
-                      range = '[' + e.range[0] + ', ' + e.range[1] + ']';
-                    else if (Array.isArray(e.options))
-                      range = e.options.join(' | ');
-                    var gate = e.gate || 'optional';
-                    var gateBadge = gate === 'required-before-run'
-                      ? '<span class="cond-ei-gate-req">required</span>'
-                      : '<span class="cond-ei-gate-opt">optional</span>';
-                    var awaiting = (cur === null) ? '<em class="muted">awaiting expert</em>' : _fmtVal(cur);
-                    return '<tr>' +
-                      '<td><code>' + _h(name) + '</code></td>' +
-                      '<td>' + _h(type) + '</td>' +
-                      '<td>' + _fmtVal(def) + '</td>' +
-                      '<td>' + awaiting + '</td>' +
-                      '<td>' + (range ? '<code>' + _h(range) + '</code>' : '<em class="muted">—</em>') + '</td>' +
-                      '<td>' + gateBadge + '</td>' +
-                      '<td>' + (e.description ? _multiline(e.description) : '<em class="muted">—</em>') + '</td>' +
-                    '</tr>';
-                  }).join('') +
-                '</tbody>' +
-              '</table>' +
-            '</div>';
-      }
-
-      return '<div id="' + anchorId + '" class="study-conditions">' +
-               '<h3>Conditions <span class="muted small">— what we set up to test it</span></h3>' +
-               baselineHtml + variantsHtml + expertHtml +
-             '</div>';
-    }
-
-    // --- per-study section builder -----------------------------------
-    function studySection(s, i) {
-      var isV3 = !!(s.purpose || s.simulation_set || s.behavior_tests
-                    || s.pipeline_gate || s.readouts || s.implementation_requirements);
-      var statusBadge = '<span class="badge badge-' + _h(s.status || 'planned') + '">'
-                      + _h(s.status || 'planned') + '</span>';
-      var phaseBadge = s.phase
-        ? ' <span class="phase-badge phase-' + _h((s.phase || '').toLowerCase()) + '">' + _h(s.phase) + '</span>'
-        : '';
-
-      // Parent + child chips.
-      var parents = (s.parent_studies || []).map(function(p) {
-        var pn = (typeof p === 'string') ? p : p.study;
-        var cond = (typeof p === 'string') ? 'tests-passed' : (p.condition || 'tests-passed');
-        return '<code>' + _h(pn) + '</code> <span class="muted">(' + _h(cond) + ')</span>';
-      }).join(' · ');
-      var kids = (children[s.name] || []).map(function(c) { return '<code>' + _h(c) + '</code>'; }).join(' · ');
-
-      if (isV3) return v3StudySection(s, i, statusBadge, phaseBadge, parents, kids);
-
-      // Variants list.
-      var variants = (s.variants || []).map(function(v) {
-        var paramRows = v.params ? Object.entries(v.params).map(function(kv) {
-          return '<li><code>' + _h(kv[0]) + ' = ' + _h(JSON.stringify(kv[1])) + '</code></li>';
-        }).join('') : '';
-        return '<details class="variant"><summary><strong>' + _h(v.name) + '</strong>'
-             + (v.status ? ' <span class="muted">[' + _h(v.status) + ']</span>' : '')
-             + '</summary>'
-             + '<p>' + _multiline(v.description || '') + '</p>'
-             + (paramRows ? '<ul class="params">' + paramRows + '</ul>' : '')
-             + '</details>';
-      }).join('');
-
-      // Interventions list.
-      var interventions = (s.interventions || []).map(function(iv) {
-        var tests = (iv.triggers_tests || []).map(function(t) { return '<code>' + _h(t) + '</code>'; }).join(', ');
-        return '<details class="intervention"><summary><strong>' + _h(iv.name) + '</strong></summary>'
-             + '<p>' + _multiline(iv.description || '') + '</p>'
-             + (tests ? '<p class="muted">Triggers tests: ' + tests + '</p>' : '')
-             + '</details>';
-      }).join('');
-
-      // Expected-behavior table (the assumptions / predictions block).
-      var ebRows = (s.expected_behavior || []).map(function(b) {
-        var cites = (b.cites || []).map(function(k) { return '<code>' + _h(k) + '</code>'; }).join(', ');
-        return '<tr class="eb-row eb-' + _h(b.status || 'implemented') + '">'
-             + '<td><code>' + _h(b.name) + '</code></td>'
-             + '<td>' + _h(b.en || '') + '</td>'
-             + '<td>' + _h(b.status || 'implemented') + '</td>'
-             + '<td>' + cites + '</td>'
-             + '</tr>';
-      }).join('');
-
-      // Gaps (assumptions / explicit deferrals).
-      var gaps = (s.gaps || []).map(function(g) {
-        return '<details class="gap"><summary><strong>' + _h(g.id || '') + '</strong> — ' + _h(g.title || '') + '</summary>'
-             + (g.why ? '<p><strong>Why:</strong> ' + _multiline(g.why) + '</p>' : '')
-             + (g.approach ? '<p><strong>Approach:</strong> ' + _multiline(g.approach) + '</p>' : '')
-             + (g.defer_until ? '<p class="muted">Deferred until: <code>' + _h(g.defer_until) + '</code></p>' : '')
-             + '</details>';
-      }).join('');
-
-      // Expert questions (the validate-this block).
-      var expertQs = (s.expert_questions || []).map(function(q) {
-        return '<li>' + _h(q) + '</li>';
-      }).join('');
-
-      // Bibliography keys for this study (so the expert can pull each).
-      var bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      var bibList = bib.map(function(k) { return '<code>' + _h(k) + '</code>'; }).join(', ');
-
-      // Sub-section ids — used by the per-study sticky sub-nav so each
-      // section is clickable to scroll-to.
-      var slug = _h(s.name);
-      var sidQ  = 'study-' + slug + '-qh';
-      var sidBg = 'study-' + slug + '-background';
-      var sidPr = 'study-' + slug + '-predictions';
-      var sidVa = 'study-' + slug + '-variants';
-      var sidIn = 'study-' + slug + '-interventions';
-      var sidGa = 'study-' + slug + '-gaps';
-      var sidQu = 'study-' + slug + '-questions';
-      var sidRe = 'study-' + slug + '-refs';
-
-      // Per-study sub-nav. CSS makes it sticky inside the .study section,
-      // so it sticks at the top of the viewport while you're in the study
-      // and is naturally replaced by the next study's nav as you scroll
-      // past.
-      var subNav = '';
-      var links = [];
-      links.push('<a href="#' + sidQ + '">Question</a>');
-      if (s.description)  links.push('<a href="#' + sidBg + '">Background</a>');
-      if (ebRows)         links.push('<a href="#' + sidPr + '">Predictions <span class="sn-count">' + (s.expected_behavior||[]).length + '</span></a>');
-      if (variants)       links.push('<a href="#' + sidVa + '">Variants <span class="sn-count">' + (s.variants||[]).length + '</span></a>');
-      if (interventions)  links.push('<a href="#' + sidIn + '">Interventions <span class="sn-count">' + (s.interventions||[]).length + '</span></a>');
-      if (gaps)           links.push('<a href="#' + sidGa + '">Gaps <span class="sn-count">' + (s.gaps||[]).length + '</span></a>');
-      if (expertQs)       links.push('<a href="#' + sidQu + '">Expert questions <span class="sn-count">' + (s.expert_questions||[]).length + '</span></a>');
-      if (bibList)        links.push('<a href="#' + sidRe + '">Cited refs <span class="sn-count">' + bib.length + '</span></a>');
-      var dependsBrief = parents ? 'Depends on: ' + parents : '<em>Root study (no dependencies)</em>';
-
-      subNav = ''
-        + '<div class="study-nav">'
-        +   '<div class="study-nav-row1">'
-        +     '<span class="study-nav-num">' + (i + 1) + '.</span>'
-        +     '<strong class="study-nav-name">' + _h(s.name) + '</strong>'
-        +     statusBadge
-        +     '<span class="study-nav-deps muted small">' + dependsBrief + '</span>'
-        +   '</div>'
-        +   '<nav class="study-nav-row2">' + links.join('') + '</nav>'
-        +   '<span class="sn-collapse-hint" data-collapse="study">▴ click to collapse full study</span>'
-        + '</div>';
-
-      // Wrap the v4 narrative-spine section in a <details class="study-fold">
-      // so the Expand all / Collapse all toolbar buttons (which target
-      // .study-fold) actually have something to operate on. v3 studies got
-      // this for free via v3StudySection's <details> wrapper; v4 sections
-      // were left flat and the buttons did nothing on v4-only investigations.
-      // Open by default so existing reader behaviour is unchanged.
-      //
-      // Reuses the v3 `.sp-*` CSS classes so the collapsed-card look matches
-      // what v3 readers already see: num + title + verdict / one-line
-      // objective / slug+depth meta / chips for predictions + variants +
-      // refs / expand hint. Populated from v4 narrative-spine fields:
-      // objective for the one-liner, expected_behavior for the chips, etc.
-      var v4Title    = s.title || _humanizeStudyName(s.name).title;
-      var v4Verdict  = (function() {
-        var st = (s.status || 'planning').toLowerCase();
-        if (st === 'planning' || st === 'planned') return {cls: 'v-prelim', emoji: '📋', label: 'Planned'};
-        if (st === 'running' || st === 'in_progress') return {cls: 'v-cal', emoji: '🔬', label: 'Running'};
-        if (st === 'complete' || st === 'ran' || st === 'passed') return {cls: 'v-pass', emoji: '✅', label: 'Complete'};
-        if (st === 'failed' || st === 'invalid') return {cls: 'v-fail', emoji: '❌', label: 'Failed'};
-        return {cls: 'v-none', emoji: '·', label: _h(s.status || 'planning')};
-      })();
-      var v4Objective = _firstSentence(s.objective || '');
-      var v4Meta = ['<code>' + _h(s.name) + '</code>',
-                    'depth ' + (depthMap[s.name] || 0)];
-      if (s.phase) v4Meta.push('phase ' + _h(s.phase));
-      if (s.topic) v4Meta.push('topic ' + _h(s.topic));
-
-      // Rich-panel content: an optional `report:` block on the study
-      // YAML (same shape as v3 _studyControlPanel reads) drives the
-      // dnaa-style Confidence/Evidence chips + CONCLUSION/INSIGHT/CAVEAT
-      // rows + status-colored key_metrics. Synthesises sensible
-      // pre-execution scaffold values when the block is missing or
-      // partial, so a fresh investigation lands with a populated card
-      // instead of an empty one.
-      var rep = s.report || {};
-      var v4Conf = (rep.confidence || '').trim();
-      var v4Ev   = (rep.evidence_quality || '').trim();
-      if (!v4Conf && (v4Verdict.label === 'Planned')) v4Conf = 'design-stage';
-      if (!v4Ev   && (v4Verdict.label === 'Planned')) v4Ev   = 'scaffold';
-      var v4Conclusion = rep.conclusion   || _firstSentence(rep.result)
-                       || (v4Verdict.label === 'Planned' && s.hypothesis
-                            ? 'Predicted — ' + _firstSentence(s.hypothesis) : '');
-      var v4Insight    = rep.main_insight || _firstSentence(rep.interpretation);
-      var v4Caveat     = rep.caveat;
-      if (!v4Caveat && Array.isArray(s.limitations) && s.limitations.length) {
-        var l0 = s.limitations[0];
-        v4Caveat = (typeof l0 === 'string') ? l0 : (l0 && (l0.text || l0.limitation)) || '';
-      }
-      var v4LitMatch = (rep.lit_match || '').trim();
-
-      // Chip strip: rich key_metrics (label+value+status) when authored,
-      // else auto-derived prediction-count + status breakdown + variants
-      // + refs + deps.
-      var v4Chips = [];
-      (rep.key_metrics || []).forEach(function(m) {
-        if (typeof m === 'string') {
-          v4Chips.push('<span class="sp-metric">' + _h(m) + '</span>');
-        } else if (m && typeof m === 'object') {
-          var st = (m.status || '').toLowerCase();
-          var icon = st === 'pass' ? '✅ ' : st === 'warn' ? '⚠️ ' : st === 'fail' ? '❌ ' : '';
-          var txt = (m.label || '') + (m.value != null ? ': ' + m.value : '');
-          v4Chips.push('<span class="sp-metric sp-metric-' + _h(st || 'plain') + '">' + icon + _h(txt) + '</span>');
-        }
-      });
-      var ebList = s.expected_behavior || [];
-      if (ebList.length) {
-        var counts = {stub: 0, gated: 0, implemented: 0};
-        ebList.forEach(function(b) {
-          var st = (b && b.status) || 'implemented';
-          if (counts[st] !== undefined) counts[st]++;
-        });
-        v4Chips.push('<span class="sp-metric">' + ebList.length + ' predictions</span>');
-        if (counts.implemented) v4Chips.push('<span class="sp-metric sp-metric-pass">✅ ' + counts.implemented + ' implemented</span>');
-        if (counts.gated)       v4Chips.push('<span class="sp-metric sp-metric-warn">⏳ ' + counts.gated + ' gated</span>');
-        if (counts.stub)        v4Chips.push('<span class="sp-metric">🟡 ' + counts.stub + ' stub</span>');
-      }
-      var nVar = (s.variants || []).length;
-      if (nVar) v4Chips.push('<span class="sp-metric">' + nVar + ' variants</span>');
-      var v4Bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      if (v4Bib.length) v4Chips.push('<span class="sp-metric">' + v4Bib.length + ' refs</span>');
-      var nParents = (s.parent_studies || []).length;
-      if (nParents) v4Chips.push('<span class="sp-metric">depends on ' + nParents + '</span>');
-      var nKids = (children[s.name] || []).length;
-      if (nKids) v4Chips.push('<span class="sp-metric">blocks ' + nKids + '</span>');
-      if (v4LitMatch) v4Chips.push('<span class="sp-metric">Lit match: ' + _h(v4LitMatch) + '</span>');
-
-      // Section-nav chips inside the sticky panel. CSS hides this row
-      // when the fold is COLLAPSED (it would just duplicate the
-      // metric chips below); when OPEN, the rich rows are hidden and
-      // this nav becomes the primary content of the sticky strip, so
-      // the user can jump to Question / Background / Predictions / etc.
-      // without scrolling back to the topbar.
-      var spSectionNav = links.length
-        ? '<nav class="sp-section-nav">' + links.join('') + '</nav>'
-        : '';
-
-      var foldSummary = ''
-        + '<summary class="study-panel">'
-        +   '<div class="sp-top">'
-        +     '<span class="sp-num">' + (i + 1) + '.</span>'
-        +     '<span class="sp-title">' + _h(v4Title) + '</span>'
-        +     '<span class="sp-verdict ' + v4Verdict.cls + '">' + v4Verdict.emoji + ' ' + _h(v4Verdict.label) + '</span>'
-        +   '</div>'
-        +   spSectionNav
-        +   (v4Objective ? '<div class="sp-objective">' + _h(v4Objective) + '</div>' : '')
-        +   '<div class="sp-meta">' + v4Meta.join(' · ') + '</div>'
-        +   ((v4Conf || v4Ev)
-              ? '<div class="sp-quality">'
-                + (v4Conf ? '<span class="sp-conf sp-conf-' + _h(v4Conf.toLowerCase()) + '">Confidence: ' + _h(v4Conf) + '</span>' : '')
-                + (v4Ev   ? '<span class="sp-ev">Evidence: ' + _h(v4Ev) + '</span>' : '')
-                + '</div>'
-              : '')
-        +   (v4Conclusion ? '<div class="sp-conclusion"><span class="sp-lbl">Conclusion</span> ' + _h(v4Conclusion) + '</div>' : '')
-        +   (v4Chips.length ? '<div class="sp-metrics">' + v4Chips.join('') + '</div>' : '')
-        +   (v4Insight ? '<div class="sp-insight"><span class="sp-lbl">Insight</span> ' + _h(v4Insight) + '</div>' : '')
-        +   (v4Caveat  ? '<div class="sp-caveat"><span class="sp-lbl">Caveat</span> '   + _h(v4Caveat)  + '</div>' : '')
-        +   '<span class="sp-expand-hint">▸ click to expand full study</span>'
-        + '</summary>';
-
-      // Dropped chrome on the v4 expanded section to remove three forms
-      // of redundancy with the (now-rich) sp-* summary panel:
-      //   1. subNav (sticky study-nav with chips like Question / Background
-      //      / Predictions / Cited refs) — the sp-metrics chips in the
-      //      summary panel already convey the same counts; the topbar nav
-      //      handles cross-study navigation. Removing it also kills the
-      //      double-sticky stack (topbar + study-fold panel + study-nav).
-      //   2. <header class="study-header"><h2>num. slug status</h2></header>
-      //      — every field is in sp-top + sp-meta of the panel above.
-      //   3. The "Depends on / Blocks" paragraphs that lived in the
-      //      header — these are now shown as the resolved dep list right
-      //      below the summary so the dep slugs (not just counts) stay
-      //      visible while the panel is sticky.
-      var depsLine = '';
-      if (parents || kids) {
-        var bits = [];
-        if (parents) bits.push('<span class="muted">Depends on:</span> ' + parents);
-        if (kids)    bits.push('<span class="muted">Blocks:</span> '     + kids);
-        depsLine = '<p class="study-deps muted small">' + bits.join(' &nbsp;·&nbsp; ') + '</p>';
-      }
-
-      // Task 9: per-study "Reproduce" line — the canonical baseline `vdash …`
-      // command off the study payload (single source of truth). Absent on
-      // older payloads / the static bundle → no line, never "undefined".
-      var _reproBase = s.run_commands && s.run_commands.baseline;
-      var reproLine = _reproBase
-        ? '<p class="reproduce-line muted small">Reproduce: ' + _runChip(_reproBase) + '</p>'
-        : '';
-
-      // FRAMEWORK FIX: the v4 narrative-spine renderer had no charts/embeds
-      // section, so any study that did not trip isV3 (a schema_version 3/4
-      // study authored with findings/tests/baseline but none of
-      // purpose|simulation_set|behavior_tests|pipeline_gate|readouts|
-      // implementation_requirements) silently dropped its figures even though
-      // /api/study-charts returned them. Render both here too, mirroring
-      // v3StudySection, so charts/visualizations are never lost by the routing.
-      var v4Charts = (chartsByStudy && chartsByStudy[s.name]) || [];
-      var v4ChartsHtml = v4Charts.length
-        ? '<div id="study-' + slug + '-charts"><h3>Visualisations from the latest run</h3>'
-          + _renderChartCardsHtml(v4Charts, slug) + '</div>'
-        : '';
-      var v4Embeds = (embedsByStudy && embedsByStudy[s.name]) || [];
-      var v4EmbedsHtml = v4Embeds.length
-        ? '<div class="study-embeds" id="study-' + slug + '-embeds"><h3>Interactive visualizations</h3>'
-          + v4Embeds.map(function(emb) {
-              var escaped = String((emb && emb.html) || '')
-                .replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-              var frame = escaped
-                ? '<iframe srcdoc="' + escaped + '" loading="lazy" scrolling="no" '
-                  + 'style="width:100%;border:0;min-height:420px" '
-                  + 'title="' + _h((emb && emb.name) || 'visualization') + '"></iframe>'
-                : (emb && emb.url
-                    ? '<p><a href="' + _h(emb.url) + '">' + _h(emb.name || emb.url) + '</a></p>'
-                    : '');
-              return '<div class="study-embed">'
-                + ((emb && emb.title) ? '<div class="chart-title" style="font-weight:600;margin-bottom:4px">' + _h(emb.title) + '</div>' : '')
-                + frame + '</div>';
-            }).join('')
-          + '</div>'
-        : '';
-
-      return ''
-        + '<details class="study-fold" id="study-fold-' + slug + '">'
-        + foldSummary
-        + '<section class="study" id="study-' + slug + '">'
-        +   depsLine
-        +   reproLine
-
-        +   '<div class="qh" id="' + sidQ + '">'
-        +     (s.question   ? '<p><strong>Question.</strong> '   + _multiline(s.question)   + '</p>' : '')
-        +     (s.hypothesis ? '<p><strong>Hypothesis.</strong> ' + _multiline(s.hypothesis) + '</p>' : '')
-        +     (s.objective  ? '<p><strong>Objective.</strong> '  + _multiline(s.objective)  + '</p>' : '')
-        +   '</div>'
-
-        +   (s.description ? '<div class="description" id="' + sidBg + '"><h3>Background</h3><p>' + _multiline(s.description) + '</p></div>' : '')
-
-        +   (ebRows ? '<div id="' + sidPr + '"><h3>Predicted behavior (assumptions to validate)</h3>'
-                    + '<p class="muted small">Each row is a precise, testable prediction. Status indicates whether the supporting code is in place today (implemented) or gated on upstream work (gated / stub).</p>'
-                    + '<table class="eb"><thead><tr><th>Name</th><th>Prediction</th><th>Status</th><th>Citations</th></tr></thead>'
-                    + '<tbody>' + ebRows + '</tbody></table></div>' : '')
-
-        +   v4EmbedsHtml       // Interactive visualizations (embed_visualizations)
-        +   v4ChartsHtml       // Charts / figures from the latest run (framework fix)
-
-        +   (variants ? '<div id="' + sidVa + '"><h3>Variants (perturbations to be tested)</h3>' + variants + '</div>' : '')
-
-        +   (interventions ? '<div id="' + sidIn + '"><h3>Interventions (simulation plans)</h3>' + interventions + '</div>' : '')
-
-        +   (gaps ? '<div id="' + sidGa + '"><h3>Open gaps / explicit deferrals</h3>'
-                  + '<p class="muted small">Concrete pieces of code that need to land before this study can run end-to-end.</p>'
-                  + gaps + '</div>' : '')
-
-        +   (expertQs ? '<div id="' + sidQu + '"><h3>Questions for domain experts</h3><ul class="expert-qs">' + expertQs + '</ul></div>' : '')
-
-        +   (bibList ? '<div id="' + sidRe + '"><h3>References cited by this study</h3><p>' + bibList + '</p></div>' : '')
-
-        + '</section>'
-        + '</details>';
-    }
-
-    // ── PARTS grouping (framework): investigation.yaml may declare a `parts`
-    // field grouping studies into conceptual phases (Foundations / Nucleotide
-    // cycle / Chromosome binding / Initiation trigger / Reset mechanisms / …).
-    // When present, render a Part header before each group's studies so the
-    // report reads as a coherent mechanism progression rather than a flat list.
-    // Schema:
-    //   parts:
-    //     - name: "I. Foundations"
-    //       overview: "Optional 1-2 sentence prose..."
-    //       studies: ["dnaa-00-parameter-foundation", "dnaa-01-expression-dynamics"]
-    var studiesHtml;
-    var parts = (iset && Array.isArray(iset.parts)) ? iset.parts : null;
-    if (parts && parts.length) {
-      // Map slug → index in `ordered` so we render each study once even when
-      // a part declares a study not in `ordered` (skip) or `ordered` has a
-      // study not declared in any part (append as "Unassigned" group).
-      var byNameIdx = {};
-      ordered.forEach(function(s, i) { byNameIdx[s && s.name] = i; });
-      var rendered = {};
-      var groupHtmls = [];
-      parts.forEach(function(part) {
-        var partStudies = (part && Array.isArray(part.studies)) ? part.studies : [];
-        var sections = [];
-        partStudies.forEach(function(slug) {
-          var i = byNameIdx[slug];
-          if (i === undefined) return;
-          sections.push(studySection(ordered[i], i));
-          rendered[slug] = true;
-        });
-        if (!sections.length) return;
-        var heading = '<header class="part-heading"><h2 class="part-title">' + _h(part.name || '') + '</h2>'
-          + (part.overview ? '<p class="part-overview">' + _multiline(part.overview) + '</p>' : '')
-          + '</header>';
-        groupHtmls.push('<section class="investigation-part">' + heading + sections.join('\n') + '</section>');
-      });
-      // Catch any unassigned studies (so nothing silently disappears).
-      var unassigned = ordered.filter(function(s) { return s && !rendered[s.name]; });
-      if (unassigned.length) {
-        var stub = '<header class="part-heading"><h2 class="part-title">Other studies</h2></header>';
-        var sec = unassigned.map(function(s) { return studySection(s, byNameIdx[s.name]); }).join('\n');
-        groupHtmls.push('<section class="investigation-part">' + stub + sec + '</section>');
-      }
-      studiesHtml = groupHtmls.join('\n');
-    } else {
-      studiesHtml = ordered.map(studySection).join('\n');
-    }
-
-    /* `acceptance` variable removed: it built an <ol> of acceptance_criteria
-       entries that fed the top-of-report "Acceptance criteria" section
-       (now removed). The acceptance_criteria field on investigation.yaml
-       still exists in the schema; per-study behavior_tests +
-       conclusion_verdicts carry the same signal more actionably.
-       The defensive `_asList` coercion this fix added at the (now-deleted)
-       render site is superseded; the durable guard lives server-side in
-       `_coerce_list_field`. `_asList` is kept as a reusable helper. */
-    var acceptance = '';
-
-    // ── Collect the union of references across the investigation + studies ──
-    // Sources: study expected_behavior[].cites + bibliography.bib_keys (bib keys),
-    // the investigation's declared inputs.references (iset.references, bib keys),
-    // and each study's `references:` (bib-key strings → looked up in papers.bib;
-    // rich {name,url,role} entries → rendered as standalone sources).
-    var citedKeys = new Set();
-    var extraSources = [];
-    function _collectRef(r) {
-      if (typeof r === 'string') { if (r) citedKeys.add(r); return; }
-      if (!r || typeof r !== 'object') return;
-      if (r.key || r.bib_key) { citedKeys.add(r.key || r.bib_key); return; }
-      if (r.name || r.url || r.path) extraSources.push(r);
-    }
-    (iset.references || []).forEach(_collectRef);
-    specs.forEach(function(s) {
-      (s.expected_behavior || []).forEach(function(b) {
-        (b.cites || []).forEach(function(k) { citedKeys.add(k); });
-      });
-      var bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      bib.forEach(function(k) { citedKeys.add(k); });
-      (s.references || []).forEach(_collectRef);
-    });
-    var orderedCited = Array.from(citedKeys).sort();
-    var referencesHtml = orderedCited.map(function(key) {
-      var e = bibByKey[key];
-      if (!e) {
-        return '<li class="ref-entry"><code>' + _h(key) + '</code> <span class="muted">— (not in papers.bib)</span></li>';
-      }
-      var citation = '';
-      if (e.author)  citation += _h(e.author);
-      if (e.year)    citation += (citation ? ' (' + _h(e.year) + ')' : _h(e.year));
-      if (e.title)   citation += (citation ? '. ' : '') + '<em>' + _h(e.title) + '</em>';
-      if (e.journal) citation += '. ' + _h(e.journal);
-      if (e.volume) {
-        citation += ' ' + _h(e.volume);
-        if (e.number) citation += '(' + _h(e.number) + ')';
-      }
-      if (e.pages)   citation += ', pp. ' + _h(e.pages);
-      var doiLink = e.doi ? ' · <a href="https://doi.org/' + encodeURIComponent(e.doi) + '" target="_blank">doi:' + _h(e.doi) + '</a>' : '';
-      var urlLink = e.url ? ' · <a href="' + _h(e.url) + '" target="_blank">link ↗</a>' : '';
-      return '<li class="ref-entry" id="ref-' + _h(key) + '">'
-           + '<code>' + _h(key) + '</code> &middot; '
-           + citation
-           + doiLink + urlLink
-           + (e.note ? '<div class="muted small">Note: ' + _h(e.note) + '</div>' : '')
-           + '</li>';
-    }).join('');
-    // Rich study/investigation sources (name + online link + role) that aren't
-    // papers.bib keys — de-duped by name+url, appended to the References list.
-    var _seenSrc = {};
-    referencesHtml += extraSources.filter(function (r) {
-      var k = (r.name || '') + '|' + (r.url || r.path || '');
-      if (_seenSrc[k]) return false; _seenSrc[k] = 1; return true;
-    }).map(function (r) {
-      var label = _h(r.name || r.url || r.path || 'source');
-      var head = r.url
-        ? '<a href="' + _h(r.url) + '" target="_blank" rel="noopener">' + label + '</a> <small class="muted">↗</small>'
-        : '<strong>' + label + '</strong>';
-      return '<li class="ref-entry">' + head
-           + (r.role ? '<div class="muted small">' + _h(r.role) + '</div>' : '') + '</li>';
-    }).join('');
-
-    // ── Build the TOC (sidebar nav) entries from the ordered studies ────
-    // Display name is human-readable; the kebab-slug appears in small
-    // muted text below as a stable identifier reference. Counts surface
-    // the v3-shape quantities a reader actually cares about.
-    function _humanizeStudyName(slug) {
-      // strip a leading "<prefix>-NN[a-z]?-" so dnaa-01-expression-dynamics
-      // becomes just "expression-dynamics". Keep the numbered prefix for
-      // display as a chip ("dnaa-01").
-      var m = /^([a-z]+-\d+[a-z]*)-(.+)$/.exec(slug);
-      if (!m) return {chip: '', title: slug.replace(/-/g, ' ')};
-      var rest = m[2].replace(/-/g, ' ');
-      // Title-case the first letter of the first word; leave the rest in
-      // lowercase so identifiers (rna_synth_prob etc.) read naturally.
-      rest = rest.charAt(0).toUpperCase() + rest.slice(1);
-      // Truncate aggressively for very long follow-up names.
-      if (rest.length > 60) rest = rest.slice(0, 57) + '…';
-      return {chip: m[1], title: rest};
-    }
-
-    var nameClean = _h(iset.name);
-
-    return ''
-      + '<!doctype html>\n<html><head><meta charset="utf-8">'
-      + '<title>Investigation: ' + _h(iset.title || iset.name) + '</title>'
-      + '<style>'
-      // ── reset + base ──
-      + '*{box-sizing:border-box}'
-      + 'html,body{margin:0;padding:0}'
-      + 'body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color:#0f172a;line-height:1.55;background:#fff}'
-      // ── layout: sticky top nav + single centered column ──
-      + '.topbar{position:sticky;top:0;z-index:100;display:flex;flex-wrap:wrap;align-items:center;gap:6px;'
-      +     'padding:9px 20px;background:rgba(255,255,255,0.95);backdrop-filter:saturate(140%) blur(6px);'
-      +     'border-bottom:1px solid #e2e8f0}'
-      + '.topbar .tb-title{font-weight:700;font-size:0.92em;color:#0f172a;margin-right:10px;white-space:nowrap}'
-      + '.topbar a{font-size:0.83em;color:#334155;text-decoration:none;padding:4px 12px;border-radius:9999px;background:#f1f5f9;white-space:nowrap}'
-      + '.topbar a:hover{background:#e2e8f0;color:#0f172a}'
-      + '.topbar a.active{background:#dbeafe;color:#1e40af;font-weight:600}'
-      // (reader-mode toggle removed — the report always shows the full view;
-      //  the tier-reviewer/tier-developer wrappers remain as inert containers.)
-      /* iset switcher dropdown at the right end of the topbar (margin-left:auto
-         pushes it past the section links). Calls /api/investigation-registry
-         to list peer dashboards; click a peer row to navigate. Trigger styled
-         like the section-anchor chips but with a subtle distinguishing border
-         so it doesn't look like just another anchor. */
-      + '.tb-iset-switcher{margin-left:auto;display:inline-flex;align-items:center;gap:5px;'
-      +     'font:inherit;font-size:0.83em;color:#334155;'
-      +     'padding:4px 12px;border-radius:9999px;background:#fff;border:1px solid #cbd5e1;cursor:pointer;'
-      +     'white-space:nowrap}'
-      + '.tb-iset-switcher:hover{background:#f1f5f9;border-color:#94a3b8}'
-      + '.tb-iset-switcher[aria-expanded="true"]{background:#dbeafe;border-color:#3b82f6;color:#1e40af}'
-      + '.tb-iset-switcher-icon{font-size:1.05em;line-height:1}'
-      + '.tb-iset-switcher-arrow{font-size:0.7em;color:#94a3b8;margin-left:1px}'
-      + '.tb-iset-menu{position:fixed;z-index:200;min-width:320px;max-width:480px;max-height:70vh;overflow-y:auto;'
-      +     'background:#fff;border:1px solid #cbd5e1;border-radius:8px;'
-      +     'box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px 0}'
-      + '.tb-iset-menu[hidden]{display:none}'
-      + '.tb-iset-menu-section{padding:6px 14px 4px;font-size:0.7em;font-weight:700;letter-spacing:0.05em;'
-      +     'text-transform:uppercase;color:#94a3b8}'
-      + '.tb-iset-menu-row{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;border:0;background:none;'
-      +     'width:100%;text-align:left;font:inherit;color:#0f172a;font-size:0.86em}'
-      + '.tb-iset-menu-row:hover{background:#f1f5f9}'
-      + '.tb-iset-menu-row-current{background:#dbeafe;color:#1e40af;cursor:default}'
-      + '.tb-iset-menu-row-current:hover{background:#dbeafe}'
-      + '.tb-iset-menu-slug{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-      + '.tb-iset-menu-pill{font-size:0.7em;font-weight:600;padding:2px 7px;border-radius:9999px;'
-      +     'background:#f1f5f9;color:#64748b;white-space:nowrap}'
-      + '.tb-iset-menu-pill-here{background:#dcfce7;color:#166534}'
-      + '.tb-iset-menu-pill-running{background:#fef9c3;color:#854d0e}'
-      + '.tb-iset-menu-pill-dormant{background:#f1f5f9;color:#64748b}'
-      + '.tb-iset-menu-empty,.tb-iset-menu-error{padding:10px 14px;font-size:0.82em;color:#64748b}'
-      + '.tb-iset-menu-error{color:#991b1b}'
-      + '.content{max-width:none;margin:0;padding:24px 40px}'
-      // Anchor targets clear the sticky bar when jumped to.
-      + '.content [id]{scroll-margin-top:60px}'
-      // Cap prose paragraphs only (≈75 chars) so wide-screen lines stay
-      // readable, but keep tables, code blocks, and callouts full-width.
-      // Text spans the full content width — no separate prose cap (which used
-      // to stop paragraphs short of the page while headings/rules ran wider).
-      + '.content p, .content li, .content .description p, .qh p{max-width:none}'
-      // ── typography ──
-      + 'h1{margin:0 0 8px 0;font-size:2em;line-height:1.2}'
-      + 'h2{margin:32px 0 12px 0;font-size:1.4em;border-bottom:1px solid #e2e8f0;padding-bottom:6px;scroll-margin-top:16px}'
-      + 'h3{margin:22px 0 8px 0;font-size:1.08em;color:#1e293b}'
-      + 'p{margin:8px 0}'
-      + 'code{background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:0.88em;font-family:ui-monospace,monospace}'
-      + 'pre{background:#f1f5f9;padding:10px 12px;border-radius:4px;font-size:0.85em;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word}'
-      // ── tables ──
-      + 'table{border-collapse:collapse;width:100%;font-size:0.92em;margin:8px 0}'
-      + 'th,td{border-bottom:1px solid #e2e8f0;padding:7px 10px;text-align:left;vertical-align:top}'
-      + 'th{background:#f8fafc;font-weight:600}'
-      + 'table.eb td{vertical-align:top}'
-      + 'table.eb td:first-child{font-family:ui-monospace,monospace;font-size:0.85em;color:#475569;white-space:nowrap}'
-      // ── badges + status pills ──
-      + '.muted{color:#64748b}'
-      + '.small{font-size:0.85em}'
-      + '.badge{display:inline-block;font-size:0.72em;padding:2px 9px;border-radius:9999px;background:#e2e8f0;color:#1e293b;text-transform:lowercase;vertical-align:middle;margin-left:8px;font-weight:500}'
-      + '.badge-planned{background:#f1f5f9;color:#475569}'
-      + '.badge-running{background:#dbeafe;color:#1e40af}'
-      + '.badge-ran{background:#d1fae5;color:#065f46}'
-      + '.badge-complete{background:#d1fae5;color:#064e3b}'
-      + '.badge-failed{background:#fee2e2;color:#991b1b}'
-      + '.badge-invalid{background:#fee2e2;color:#991b1b}'
-      + '.badge-planning{background:#fef3c7;color:#92400e}'
-      + '.phase-badge{display:inline-block;font-size:0.72em;padding:2px 9px;border-radius:9999px;margin-right:4px;font-weight:500;background:#e0e7ff;color:#3730a3;vertical-align:middle}'
-      + '.phase-design{background:#e0e7ff;color:#3730a3}'
-      + '.phase-build{background:#fef3c7;color:#92400e}'
-      + '.phase-simulate{background:#dbeafe;color:#1e40af}'
-      + '.phase-evaluate{background:#fce7f3;color:#9d174d}'
-      + '.phase-decide{background:#d1fae5;color:#065f46}'
-      + '.callout{margin:8px 0;padding:10px 14px;border-radius:4px;line-height:1.55}'
-      + '.callout.cl-blue{background:#eff6ff;border-left:4px solid #3b82f6}'
-      + '.callout.cl-yellow{background:#fefce8;border-left:4px solid #facc15}'
-      + '.callout.cl-green{background:#f0fdf4;border-left:4px solid #10b981}'
-      + '.callout strong{margin-right:6px}'
-      // follow-up cards
-      + '.fu-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.93em}'
-      + '.fu-kind-existing{border-left-color:#3b82f6;background:#eff6ff}'
-      + '.fu-kind-infrastructure_fix{border-left-color:#dc2626;background:#fef2f2}'
-      + '.fu-kind-calibration_task{border-left-color:#f59e0b;background:#fefce8}'
-      + '.fu-kind-expert_question{border-left-color:#a855f7;background:#faf5ff}'
-      + '.fu-kind-new{border-left-color:#10b981;background:#f0fdf4}'
-      + '.fu-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}'
-      + '.fu-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.fu-effort{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-family:ui-monospace,monospace}'
-      + '.fu-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.fu-status-blocked{background:#fef3c7;color:#92400e}'
-      + '.fu-status-done{background:#d1fae5;color:#065f46}'
-      + '.fu-title{flex:1}'
-      + '.fu-why,.fu-unblocks,.fu-acc,.fu-hyp{margin:4px 0 0 0;font-size:0.92em;line-height:1.45}'
-      + '.fu-hyp{padding:6px 10px;background:#fff;border-radius:3px;border:1px dashed #cbd5e1}'
-      + '.fu-acc ul{margin:2px 0 0 18px;padding:0}'
-      // discovery implications — alternate hypotheses, mechanism updates,
-      // selectable follow-up proposals.
-      + '.discovery-implications{margin:0 0 24px 0;padding:14px 16px;background:#fdfcff;border:1px solid #ddd6fe;border-radius:8px}'
-      + '.discovery-implications>h3{margin-top:0}'
-      + '.di-group{margin:14px 0 0 0}'
-      + '.di-group>h4{margin:0 0 6px 0;font-size:0.95em}'
-      + '.di-uncertainties{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}'
-      + '.di-unc{flex:1;min-width:220px;padding:8px 12px;border-radius:6px;font-size:0.9em}'
-      + '.di-unc>h4{margin:0 0 4px 0;font-size:0.85em}'
-      + '.di-unc ul{margin:0 0 0 18px;padding:0}'
-      + '.di-unc-resolved{background:#ecfdf5;border:1px solid #a7f3d0}'
-      + '.di-unc-remaining{background:#fffbeb;border:1px solid #fde68a}'
-      + '.di-alt-card,.di-mech-card,.di-fup-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #a78bfa;border-radius:4px;background:#fff;font-size:0.93em}'
-      + '.di-alt-stmt{margin-bottom:4px}'
-      + '.di-alt-why{color:#475569;margin:4px 0;line-height:1.45}'
-      + '.di-alt-ev{display:flex;gap:8px;margin:4px 0}'
-      + '.di-ev{font-size:0.78em;padding:1px 8px;border-radius:9999px}'
-      + '.di-ev-for{background:#dcfce7;color:#166534}'
-      + '.di-ev-against{background:#fee2e2;color:#991b1b}'
-      + '.di-alt-disc,.di-alt-elems,.di-fup-targets{font-size:0.85em;color:#475569;margin-top:4px}'
-      + '.di-lbl{color:#64748b;font-weight:600}'
-      + '.di-mech-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}'
-      + '.di-mech-target{background:#f1f5f9;padding:1px 6px;border-radius:3px}'
-      + '.di-mech-rationale{color:#475569;line-height:1.45}'
-      + '.di-update-chip{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.di-update-strengthen{background:#dcfce7;color:#166534}'
-      + '.di-update-weaken{background:#fef3c7;color:#92400e}'
-      + '.di-update-reject{background:#fee2e2;color:#991b1b}'
-      + '.di-update-revise,.di-update-split,.di-update-merge{background:#e0e7ff;color:#3730a3}'
-      + '.di-conf-change{font-size:0.72em;padding:1px 8px;border-radius:9999px;background:#eef2ff;color:#4338ca;font-family:ui-monospace,monospace}'
-      + '.di-approval-badge{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e}'
-      + '.di-fup-card{border-left-color:#10b981}'
-      + '.di-fup-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}'
-      + '.di-fup-title{flex:1;min-width:160px}'
-      + '.di-fup-exp{color:#475569;margin:4px 0;line-height:1.45}'
-      + '.di-type-chip,.di-trigger-chip,.di-prio-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.di-trigger-chip{background:#f3e8ff;color:#6b21a8}'
-      + '.di-gain-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.di-gain-high{background:#dcfce7;color:#166534}'
-      + '.di-gain-medium{background:#fef9c3;color:#854d0e}'
-      + '.di-gain-low{background:#f1f5f9;color:#64748b}'
-      + '.di-add-btn{margin-top:8px;font-size:0.82em;padding:4px 12px;border:1px solid #10b981;background:#f0fdf4;color:#065f46;border-radius:4px;cursor:pointer}'
-      + '.di-add-btn:hover{background:#dcfce7}'
-      + '.di-add-btn:disabled{opacity:0.6;cursor:default}'
-      + '.di-addressed{margin-top:12px}'
-      // charts — SVGs scale to fit their card container; preserves aspect
-      // ratio so a 1400×484 chart shrinks to (e.g.) 800×276 instead of
-      // overflowing horizontally + clipping content.
-      + '.chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px 12px 12px;margin:10px 0}'
-      + '.chart-card svg,.chart-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}'
-      + '.chart-caption{font-size:0.83em;color:#475569;margin-top:4px;line-height:1.4}'
-      + '.chart-simulations{font-size:0.9em;color:#1e3a8a;background:#dbeafe;border-left:3px solid #2563eb;padding:6px 10px;margin-top:8px;border-radius:0 3px 3px 0;line-height:1.5}'
-      + '.chart-simulations strong{color:#1e40af}'
-      + '.chart-interpretation{font-size:0.9em;color:#14532d;background:#dcfce7;border-left:3px solid #16a34a;padding:6px 10px;margin-top:6px;border-radius:0 3px 3px 0;line-height:1.5}'
-      + '.chart-interpretation strong{color:#15803d}'
-      // implementation-requirement cards (biologist-friendly layout)
-      + '.req-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-radius:6px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.02)}'
-      + '.req-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}'
-      + '.req-id{font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px;font-family:ui-monospace,monospace}'
-      + '.req-title{font-size:1.02em;flex:1;line-height:1.3}'
-      + '.req-badges{display:flex;gap:4px;flex-wrap:wrap}'
-      + '.req-kind{font-size:0.7em;text-transform:lowercase;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}'
-      + '.req-effort{font-size:0.72em;font-family:ui-monospace,monospace;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e;font-weight:600}'
-      + '.req-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;font-weight:500}'
-      + '.req-status-open{background:#fee2e2;color:#991b1b}'
-      + '.req-status-deferred{background:#fef3c7;color:#92400e}'
-      + '.req-status-done{background:#d1fae5;color:#065f46}'
-      + '.req-key{padding:8px 12px;background:#f8fafc;border-left:3px solid #3b82f6;border-radius:3px;font-size:0.94em;line-height:1.5;margin:6px 0}'
-      + '.req-deferred{padding:6px 10px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:3px;font-size:0.86em;color:#78350f;margin:6px 0}'
-      + '.req-unblocks{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.88em;margin:6px 0}'
-      + '.req-unblocks ul{margin:4px 0 0 20px;padding:0}'
-      + '.req-unblocks li{margin:2px 0}'
-      + '.req-detail{margin-top:8px;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.req-detail summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}'
-      + '.req-detail summary:hover{color:#0f172a}'
-      + '.req-detail-section{margin-top:8px}'
-      + '.req-detail-section h5{margin:6px 0 4px 0;font-size:0.85em;color:#475569;text-transform:uppercase;letter-spacing:0.04em}'
-      + '.req-detail-section ol,.req-detail-section ul{margin:4px 0 0 22px;padding:0;font-size:0.93em}'
-      // simulation cards (biologist-friendly layout)
-      + '.sim-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-radius:6px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.02)}'
-      + '.sim-card.sim-sim-status-gated{border-left:4px solid #f59e0b;background:#fffbeb}'
-      + '.sim-card.sim-sim-status-ready{border-left:4px solid #10b981}'
-      + '.sim-card.sim-sim-status-ran{border-left:4px solid #3b82f6;background:#eff6ff}'
-      + '.sim-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}'
-      + '.sim-name{font-size:1.02em;flex:1}'
-      + '.sim-status-pill{font-size:0.7em;text-transform:lowercase;padding:1px 8px;border-radius:9999px;font-weight:500}'
-      + '.sim-status-pill.sim-status-ready{background:#d1fae5;color:#065f46}'
-      + '.sim-status-pill.sim-status-gated{background:#fef3c7;color:#92400e}'
-      + '.sim-status-pill.sim-status-ran{background:#dbeafe;color:#1e40af}'
-      + '.sim-pert{padding:8px 12px;margin:6px 0;background:#f8fafc;border-left:3px solid #3b82f6;border-radius:3px;font-size:0.92em}'
-      + '.sim-pert ul{margin:4px 0 0 20px;padding:0}'
-      + '.sim-pert li{margin:2px 0;line-height:1.4}'
-      + '.sim-pert-none{color:#64748b;font-style:italic;border-left-color:#cbd5e1}'
-      + '.sim-meta{margin:6px 0;font-size:0.85em;color:#475569}'
-      + '.sim-meta span{margin-right:2px}'
-      + '.sim-meta em{font-style:normal;color:#94a3b8;font-size:0.92em}'
-      + '.sim-readouts,.sim-tests{margin:6px 0;font-size:0.88em;line-height:1.5}'
-      + '.sim-blocked{padding:6px 10px;margin:6px 0;background:#fef2f2;border-left:3px solid #dc2626;border-radius:3px;font-size:0.88em;color:#7f1d1d}'
-      + '.sim-blocked code{background:rgba(220,38,38,0.08);padding:1px 4px;border-radius:2px}'
-      + '.sim-detail{margin-top:8px;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.sim-detail summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}'
-      + '.sim-detail summary:hover{color:#0f172a}'
-      + '.sim-extra{margin-top:6px;font-size:0.92em;line-height:1.5}'
-      // findings (top-of-section "what we learned" cards)
-      + '.findings-section{margin:0 0 24px 0;padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}'
-      + '.findings-section h3{margin:0 0 6px 0;color:#3730a3}'
-      // study summary (plain-English block at top of each study)
-      + '.study-summary{padding:14px 16px;margin:12px 0 16px 0;background:#f8fafc;border-left:4px solid #6366f1;border-radius:6px}'
-      + '.study-summary-text{margin:0;font-size:1.02em;line-height:1.55;color:#1e293b}'
-      // Compact authored report block (leads each study).
-      + '.study-report{margin:12px 0 14px 0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}'
-      + '.study-report-row{display:flex;gap:0;border-bottom:1px solid #eef2f7}'
-      + '.study-report-row:last-child{border-bottom:none}'
-      + '.study-report .srl{flex:0 0 130px;padding:9px 12px;background:#f8fafc;font-weight:600;font-size:0.82em;'
-      +    'text-transform:uppercase;letter-spacing:0.03em;color:#475569}'
-      + '.study-report .srv{flex:1 1 auto;padding:9px 14px;color:#1e293b;min-width:0}'
-      + '.tech-details{margin-top:10px;padding:6px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:4px;font-size:0.88em}'
-      + '.tech-details summary{cursor:pointer;color:#475569;font-weight:500}'
-      + '.tech-details summary:hover{color:#0f172a}'
-      // decision box
-      + '.decision-box{margin:0 0 20px 0;padding:14px 16px;border-radius:8px;border:2px solid #cbd5e1;background:#fff}'
-      + '.decision-box.dec-passed{border-color:#10b981;background:#f0fdf4}'
-      + '.decision-box.dec-blocked{border-color:#dc2626;background:#fef2f2}'
-      + '.decision-box.dec-needscal{border-color:#f59e0b;background:#fffbeb}'
-      + '.decision-box.dec-ready{border-color:#3b82f6;background:#eff6ff}'
-      + '.decision-box.dec-notstarted{border-color:#94a3b8;background:#f8fafc}'
-      + '.decision-box.dec-inprogress{border-color:#8b5cf6;background:#faf5ff}'
-      + '.decision-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}'
-      + '.decision-title{margin:0;font-size:1.1em;color:#0f172a}'
-      + '.decision-status{font-size:0.9em;font-weight:600;padding:4px 12px;border-radius:9999px;background:#fff;border:1px solid currentColor}'
-      + '.dec-passed .decision-status{color:#065f46}'
-      + '.dec-blocked .decision-status{color:#991b1b}'
-      + '.dec-needscal .decision-status{color:#92400e}'
-      + '.dec-ready .decision-status{color:#1e40af}'
-      + '.dec-notstarted .decision-status{color:#475569}'
-      + '.dec-inprogress .decision-status{color:#6b21a8}'
-      + '.decision-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:6px}'
-      + '.decision-cell{padding:8px 10px;background:#fff;border-radius:4px;font-size:0.9em;border:1px solid #e2e8f0}'
-      + '.decision-cell strong{display:block;margin-bottom:4px;font-size:0.88em;color:#475569}'
-      + '.decision-cell-pass{border-left:3px solid #10b981}'
-      + '.decision-cell-fail{border-left:3px solid #dc2626}'
-      + '.decision-cell-block{border-left:3px solid #f59e0b}'
-      + '.decision-cell-next{border-left:3px solid #3b82f6}'
-      // key takeaways list
-      + '.takeaways-section{margin:0 0 20px 0;padding:14px 16px;background:#fafbff;border-left:4px solid #6366f1;border-radius:6px}'
-      + '.takeaways-section h3{margin:0 0 8px 0;color:#3730a3}'
-      + '.takeaway-list{list-style:none;padding:0;margin:0}'
-      + '.takeaway-list li{padding:5px 0;line-height:1.45;font-size:0.95em}'
-      + '.takeaway-list li a{color:#1e293b;text-decoration:none}'
-      + '.takeaway-list li a:hover{text-decoration:underline}'
-      + '.takeaway-glyph{display:inline-block;width:20px;text-align:center;margin-right:4px}'
-      + '.takeaway-confirms .takeaway-glyph{color:#10b981}'
-      + '.takeaway-contradicts .takeaway-glyph{color:#dc2626}'
-      + '.takeaway-partial .takeaway-glyph{color:#f59e0b}'
-      + '.takeaway-novel .takeaway-glyph{color:#8b5cf6}'
-      + '.findings-group-header{margin:14px 0 4px 0;font-size:1em;color:#3730a3}'
-      // test cards (claim-first)
-      + '.test-card{padding:10px 14px;margin:8px 0;background:#fff;border:1px solid #e2e8f0;border-radius:6px}'
-      + '.test-card.test-classification-primary{border-left:4px solid #10b981}'
-      + '.test-card.test-classification-supporting{border-left:4px solid #3b82f6}'
-      + '.test-card.test-classification-diagnostic{border-left:4px solid #f59e0b}'
-      + '.test-card.test-classification-regression{border-left:4px solid #94a3b8}'
-      + '.test-header{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}'
-      + '.test-classification{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}'
-      + '.test-claim{font-size:0.95em;line-height:1.5;margin:4px 0}'
-      + '.test-evidence{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0}'
-      + '.test-id{margin-top:4px;font-family:ui-monospace,monospace}'
-      // readout cards
-      + '.readout-card{padding:8px 12px;margin:6px 0;background:#fff;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.readout-desc{font-size:0.9em;color:#475569;margin-top:4px}'
-      // sweep chart
-      + '.sweep-chart{margin:8px 0;padding:6px;background:#fafbff;border:1px solid #e0e7ff;border-radius:4px}'
-      + '.finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.02)}'
-      + '.finding-card.finding-status-confirms{border-left-color:#10b981}'
-      + '.finding-card.finding-status-partial{border-left-color:#f59e0b}'
-      + '.finding-card.finding-status-contradicts{border-left-color:#dc2626}'
-      + '.finding-card.finding-status-novel{border-left-color:#8b5cf6}'
-      + '.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}'
-      + '.finding-status-glyph{font-size:1.2em;width:24px;text-align:center}'
-      + '.finding-status-confirms .finding-status-glyph{color:#10b981}'
-      + '.finding-status-partial   .finding-status-glyph{color:#f59e0b}'
-      + '.finding-status-contradicts .finding-status-glyph{color:#dc2626}'
-      + '.finding-status-novel     .finding-status-glyph{color:#8b5cf6}'
-      + '.finding-id{font-family:ui-monospace,monospace;font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px}'
-      + '.finding-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-weight:500}'
-      + '.finding-status-text{font-size:0.78em;color:#64748b;margin-left:auto;font-style:italic}'
-      + '.finding-statement{font-size:1.0em;line-height:1.5;font-weight:500;color:#0f172a;margin:4px 0 8px 0}'
-      + '.finding-evidence{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}'
-      + '.finding-expected{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}'
-      + '.finding-exp-summary{font-size:0.9em;color:#475569;padding:6px 10px;background:#fafbff;border-left:3px solid #6366f1;border-radius:3px;margin:6px 0;line-height:1.5}'
-      + '.finding-explanation{font-size:0.92em;color:#1e293b;margin:6px 0;line-height:1.5}'
-      + '.finding-explanation em{color:#475569;font-style:normal;font-weight:600}'
-      + '.finding-expert{margin:6px 0;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.finding-expert summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}'
-      + '.finding-expert-quote{border-left:3px solid #6366f1;margin:6px 0 4px 0;padding:6px 10px;background:#fafbff;font-style:italic;color:#1e1b4b;font-size:0.92em;line-height:1.5}'
-      + '.finding-expert-note{font-size:0.88em;color:#475569;margin-top:4px;font-style:italic}'
-      + '.finding-next{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.9em;margin-top:8px;line-height:1.5}'
-      + '.finding-next strong{color:#065f46}'
-      // ── eb table row coloring ──
-      // ── Conditions block (Variants + Model settings) ──
-      + '.study-conditions{margin:18px 0 10px 0;padding:12px 14px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px}'
-      // Planning-phase banner at the top of the report
-      + '.planning-phase-banner{display:flex;gap:16px;align-items:flex-start;background:linear-gradient(135deg,#fef9c3 0%,#fde68a 100%);border:1px solid #f59e0b;border-radius:8px;padding:18px 22px;margin:16px 0 24px 0;box-shadow:0 1px 3px rgba(0,0,0,0.05)}'
-      + '.planning-phase-banner-icon{font-size:1.8em;line-height:1;flex:0 0 auto;width:32px}'
-      + '.planning-phase-banner-content{flex:1 1 auto;min-width:0;color:#78350f;line-height:1.55}'
-      + '.planning-phase-banner-body{color:#78350f;line-height:1.55}'
-      + '.planning-phase-banner-body strong{color:#451a03}'
-      + '.planning-phase-banner-list{margin:8px 0 0 20px;padding:0;color:#78350f}'
-      + '.planning-phase-banner-list li{margin:6px 0;line-height:1.5}'
-      + '.planning-phase-banner-foot{margin:10px 0 0 0;color:#92400e;font-size:0.9em;font-style:italic;padding-top:8px;border-top:1px solid rgba(217,119,6,0.25)}'
-      // Per-study planning pill in the header
-      + '.study-planning-pill{display:inline-block;background:#fbbf24;color:#451a03;font-weight:700;font-size:0.78em;letter-spacing:0.06em;padding:3px 10px;border-radius:4px;margin-top:8px}'
-      // Baseline strip wrapping charts in planning mode
-      + '.planning-baseline-strip{border:1px solid #93c5fd;border-radius:8px;padding:0;margin:18px 0;background:#fff;overflow:hidden}'
-      + '.planning-baseline-strip-banner{display:flex;gap:10px;align-items:flex-start;background:#dbeafe;padding:8px 14px;border-bottom:1px solid #93c5fd}'
-      + '.planning-baseline-pill{display:inline-block;background:#1e40af;color:#fff;font-weight:700;font-size:0.72em;letter-spacing:0.08em;padding:3px 9px;border-radius:3px;flex-shrink:0;margin-top:2px}'
-      + '.planning-baseline-text{color:#1e40af;font-size:0.92em;line-height:1.5}'
-      + '.planning-baseline-text strong{color:#1e3a8a}'
-      + '.planning-baseline-strip .charts{padding:12px 14px}'
-      // Collapsed technical fold at the end of a planning study
-      + '.study-technical-fold{margin:18px 0 0 0;padding:8px 12px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px}'
-      + '.study-technical-fold>summary{cursor:pointer;color:#475569;font-size:0.9em;font-weight:600}'
-      + '.study-technical-fold[open]{background:#fff;border-color:#94a3b8}'
-      + '.study-technical-fold[open]>summary{margin-bottom:8px;color:#0f172a}'
-      + '.study-conditions h3{margin:0 0 8px 0;font-size:1.05em;color:#0f172a}'
-      + '.study-conditions h4{margin:14px 0 6px 0;font-size:0.95em;color:#334155;text-transform:uppercase;letter-spacing:0.04em}'
-      + '.cond-baseline{background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px 10px;margin:0 0 12px 0}'
-      + '.cond-baseline-composite{font-size:0.92em;color:#334155;margin-bottom:6px}'
-      + '.cond-baseline-params{display:flex;flex-wrap:wrap;gap:6px}'
-      + '.cond-kv{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border-radius:3px;padding:2px 6px;font-size:0.85em}'
-      + '.cond-kv-k{color:#3730a3;font-weight:600;font-family:ui-monospace,monospace}'
-      + '.cond-kv-v code{background:transparent;padding:0;color:#1f2937}'
-      + '.cond-table{width:100%;border-collapse:collapse;font-size:0.9em;margin:6px 0}'
-      + '.cond-table th{text-align:left;padding:6px 8px;border-bottom:1px solid #cbd5e1;color:#334155;font-weight:600;background:#fff}'
-      + '.cond-table td{padding:6px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top}'
-      + '.cond-table tr:last-child td{border-bottom:none}'
-      + '.cond-table td .cond-kv{display:block;margin:2px 0;background:#f3f4f6}'
-      + '.cond-ei-required-badge{display:inline-block;background:#fde68a;color:#78350f;font-size:0.75em;padding:1px 8px;border-radius:9px;margin-left:6px;font-weight:600}'
-      + '.cond-ei-gate-req{display:inline-block;background:#fde68a;color:#78350f;font-size:0.78em;padding:1px 6px;border-radius:3px;font-weight:600}'
-      + '.cond-ei-gate-opt{display:inline-block;background:#e0e7ff;color:#3730a3;font-size:0.78em;padding:1px 6px;border-radius:3px}'
-      + 'tr.eb-stub td{background:#fefce8}'
-      + 'tr.eb-gated td{background:#fff7ed}'
-      + 'tr.eb-implemented td{background:#f0fdf4}'
-      // ── details / collapsibles ──
-      + 'details{margin:8px 0;padding:8px 12px;background:#f8fafc;border-radius:4px;border-left:3px solid #cbd5e1}'
-      + 'details > summary{cursor:pointer;font-size:0.95em}'
-      + 'details[open]{background:#fff;border-left-color:#3b82f6}'
-      + 'details details{margin-left:0;background:#fff}'
-      // ── per-study sections ──
-      // Each .study is a sticky container for its own .study-nav. As the
-      // user scrolls past a study, its .study-nav exits its bounding
-      // .study div and the next study's nav takes over.
-      + '.study{margin-top:40px;padding-top:8px;scroll-margin-top:16px;position:relative}'
-      + '.study-nav{position:sticky;top:44px;z-index:20;background:rgba(255,255,255,0.96);backdrop-filter:saturate(120%) blur(2px);'
-      +     '-webkit-backdrop-filter:saturate(120%) blur(2px);'
-      +     'border-bottom:1px solid #e2e8f0;padding:8px 12px 6px 12px;margin:0 -12px 12px -12px;border-radius:4px}'
-      + '.study-nav .study-nav-row1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}'
-      + '.study-nav .study-nav-num{color:#94a3b8;font-family:ui-monospace,monospace;font-size:0.85em}'
-      + '.study-nav .study-nav-name{font-size:1.02em}'
-      + '.study-nav .study-nav-deps{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-      + '.study-nav-row2{display:flex;flex-wrap:wrap;gap:4px}'
-      + '.study-nav-row2 a{display:inline-block;padding:2px 10px;border-radius:9999px;font-size:0.83em;color:#3b82f6;text-decoration:none;background:#eff6ff;border:1px solid transparent}'
-      + '.study-nav-row2 a:hover{background:#dbeafe;border-color:#bfdbfe}'
-      + '.sn-count{display:inline-block;margin-left:4px;font-size:0.8em;color:#64748b;background:#fff;padding:0 5px;border-radius:9999px;border:1px solid #e2e8f0}'
-      /* sn-collapse-hint: the click-to-collapse affordance ON the visible
-         sticky strip (study-nav). Previous attempt put it inside the
-         per-study panel (which is the OFFICIAL <summary> click target for
-         the <details>), but study-nav has higher z-index than the panel at
-         top:44px, so the panel is covered and the in-panel hint is
-         invisible during scroll. Putting the hint here means the click
-         handler has to manually toggle the parent <details>.open — see
-         the DOMContentLoaded handler near the bottom of this file. Styled
-         to match sp-expand-hint (small grey, left-aligned, same font-size)
-         so it reads as the same control in two states. */
-      + '.sn-collapse-hint{display:none}'
-      + '.study-fold[open] .sn-collapse-hint{display:block;font-size:0.73em;color:#94a3b8;margin-top:6px;cursor:pointer}'
-      + '.study-fold[open] .sn-collapse-hint:hover{color:#334155}'
-      // Scroll-margin so links to sub-sections don't get hidden under the
-      // sticky study-nav.
-      + '.study [id^="study-"]{scroll-margin-top:96px}'
-      + '.study-header h2{border:0;padding:0;margin:0 0 4px 0}'
-      // Task 9: run-command chips (copy-to-run `vdash …` strings).
-      + '.run-chip{display:inline-block;font-family:ui-monospace,monospace;font-size:0.82em;background:#0f172a;color:#e2e8f0;padding:2px 7px;border-radius:4px;white-space:nowrap;cursor:pointer}'
-      + '.reproduce-line{margin:4px 0 8px 0}'
-      + '.study-num{color:#94a3b8;font-weight:normal;font-size:0.85em;margin-right:4px}'
-      + '.qh{padding:12px 16px;background:#f8fafc;border-left:4px solid #3b82f6;border-radius:4px;margin:12px 0}'
-      + '.qh p{margin:6px 0}'
-      + '.description p{white-space:pre-wrap}'
-      + 'ul.params{font-size:0.85em;font-family:ui-monospace,monospace;margin:6px 0;padding-left:20px}'
-      // ── footer ──
-      + 'footer{margin-top:56px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:0.82em;color:#64748b}'
-      // ── responsive ──
-      + '@media (max-width:900px){'
-      +   '.content{padding:20px;max-width:none}'
-      +   '.topbar{padding:8px 14px}'
-      + '}'
-      // ── print ──
-      + '@media print{'
-      +   '.topbar{display:none}'
-      +   '.content{padding:0;max-width:none}'
-      +   'details[open]{margin:4px 0}'
-      +   'h1,h2,h3{break-after:avoid}'
-      +   '.study{break-inside:avoid-page}'
-      + '}'
-
-      // ── biology-at-a-glance + investigation biology-story + expert-review
-      //    (added so the shareable report mirrors the live dashboard
-      //    biologist-first planning view; styled inline so the standalone
-      //    HTML renders with no external assets) ─────────────────────────
-      + '.investigation-biology-story{padding:16px 20px;background:#f0f9ff;border:1px solid #bae6fd;border-left:5px solid #0284c7;border-radius:8px;margin:14px 0 18px 0;max-width:none}'
-      + '.investigation-biology-story p.biology-prose{margin:0;font-size:1em;line-height:1.6;color:#0c4a6e;white-space:pre-line;max-width:none}'
-      + 'details.report-fold{margin:10px 0;border-left:3px solid #cbd5e1;padding-left:10px}'
-      + 'details.report-fold>summary{cursor:pointer;font-weight:600;color:#1e3a8a;margin-bottom:6px}'
-      + '.rf-prev{color:#64748b;font-weight:400;font-size:0.9em}'
-      + '.rf-chip{display:inline-block;background:#eef2ff;color:#3730a3;border-radius:10px;padding:1px 8px;font-size:0.72em;font-weight:600;margin:0 3px;vertical-align:middle}'
-      + '.rf-pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:0.72em;font-weight:700;margin:0 3px;vertical-align:middle;background:#e2e8f0;color:#334155;text-transform:uppercase;letter-spacing:0.03em}'
-      + '.rf-pill-pass,.rf-pill-passed,.rf-pill-complete{background:#dcfce7;color:#166534}'
-      + '.rf-pill-in-progress,.rf-pill-active,.rf-pill-running{background:#fef9c3;color:#854d0e}'
-      + '.rf-pill-fail,.rf-pill-failed,.rf-pill-invalid{background:#fee2e2;color:#991b1b}'
-      + '.biology-glance{margin:0 0 18px 0;padding:14px 18px;background:#f0fdf4;border:1px solid #bbf7d0;border-left:5px solid #16a34a;border-radius:8px}'
-      + '.biology-glance .biology-glance-label{font-size:0.85em;text-transform:uppercase;letter-spacing:0.05em;color:#166534;margin:0 0 8px 0;font-weight:600;border:none;padding:0}'
-      + '.biology-summary-callout{margin-bottom:14px}'
-      + '.biology-summary-callout .biology-prose{margin:0;font-size:1.02em;line-height:1.55;color:#14532d;white-space:pre-line;max-width:none}'
-      + '.biology-glance .study-card{margin-bottom:14px;background:#fff;border-radius:6px;padding:10px 14px;border:1px solid #d1fae5}'
-      + '.study-card-table{width:100%;border-collapse:collapse;font-size:0.93em;margin:0}'
-      + '.study-card-table th{text-align:left;font-weight:600;color:#166534;background:#f0fdf4;padding:6px 10px;white-space:nowrap;vertical-align:top;width:180px;border-bottom:1px solid #bbf7d0}'
-      + '.study-card-table td{padding:6px 10px;vertical-align:top;color:#14532d;border-bottom:1px solid #f0fdf4;line-height:1.5}'
-      + '.study-card-table tr:last-child th,.study-card-table tr:last-child td{border-bottom:none}'
-      // Investigation Parts grouping: section headings before each study group.
-      + '.investigation-part{margin-bottom:30px}'
-      + '.part-heading{margin:34px 0 10px 0;padding:14px 18px;background:linear-gradient(90deg,#eef2ff 0%,#fff 100%);border-left:4px solid #6366f1;border-radius:4px}'
-      + '.part-title{margin:0;font-size:1.4em;color:#3730a3;font-weight:700}'
-      + '.part-overview{margin:6px 0 0 0;color:#475569;font-size:0.95em;line-height:1.5;white-space:pre-line}'
-      // Mechanism narrative: 7 framework fields any study can declare.
-      + '.mechanism-narrative{margin:18px 0 14px 0;background:#fff;border-radius:6px;padding:10px 14px;border:1px solid #c7d2fe}'
-      + '.mechanism-narrative-table{width:100%;border-collapse:collapse;font-size:0.93em;margin:0}'
-      + '.mechanism-narrative-table th{text-align:left;font-weight:600;color:#3730a3;background:#eef2ff;padding:6px 10px;white-space:nowrap;vertical-align:top;width:190px;border-bottom:1px solid #c7d2fe}'
-      + '.mechanism-narrative-table td{padding:6px 10px;vertical-align:top;color:#1e1b4b;border-bottom:1px solid #eef2ff;line-height:1.55;white-space:pre-line}'
-      + '.mechanism-narrative-table tr:last-child th,.mechanism-narrative-table tr:last-child td{border-bottom:none}'
-      + '.literature-anchors{background:#fff;border-radius:6px;padding:10px 14px;border:1px solid #d1fae5}'
-      + '.literature-anchor-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}'
-      + '.literature-anchor-card{padding:8px 12px;background:#f8fefa;border-left:3px solid #16a34a;border-radius:4px;font-size:0.92em}'
-      + '.literature-anchor-card .anchor-expectation{font-weight:500;color:#064e3b;margin-bottom:4px;line-height:1.45}'
-      + '.literature-anchor-card .anchor-observable,.literature-anchor-card .anchor-source,.literature-anchor-card .anchor-status{font-size:0.88em;color:#475569;margin:2px 0;line-height:1.45}'
-      + '.literature-anchor-card .anchor-observable code{font-size:0.92em;background:#fff;padding:1px 5px;border-radius:3px;border:1px solid #d1fae5}'
-      + '.literature-anchor-card .anchor-status{font-style:italic}'
-      + '.pre-run-expert-review{margin:18px 0;padding:14px 16px;background:#faf5ff;border:1px solid #e9d5ff;border-left:5px solid #a855f7;border-radius:8px}'
-      + '.pre-run-expert-review h3{color:#6b21a8;margin:0 0 6px 0}'
-      + '.expert-question-card{padding:10px 14px;background:#fff;border:1px solid #e9d5ff;border-left:4px solid #a855f7;border-radius:6px;margin:10px 0}'
-      + '.expert-question-card.status-resolved{border-left-color:#10b981}'
-      + '.expert-question-header{display:flex;align-items:center;gap:8px;font-size:0.85em;color:#6b21a8;margin-bottom:6px;flex-wrap:wrap}'
-      + '.expert-question-id{font-family:ui-monospace,monospace;font-size:0.85em;background:#ede9fe;padding:1px 6px;border-radius:3px}'
-      + '.expert-question-status{font-size:0.78em;padding:1px 6px;border-radius:9999px;background:#fef3c7;color:#92400e}'
-      + '.expert-question-card.status-resolved .expert-question-status{background:#d1fae5;color:#065f46}'
-      + '.expert-question-asked-to{font-size:0.78em;color:#6b7280;margin-left:auto}'
-      + '.expert-question-text{font-size:0.95em;line-height:1.55;color:#1e1b4b;margin-bottom:6px}'
-      + '.expert-question-alternatives,.expert-question-impact{font-size:0.9em;color:#475569;line-height:1.5;margin:4px 0}'
-      + '.expert-question-alternatives ul{margin:4px 0 0 18px;padding:0}'
-      + '.expert-question-alternatives li{margin:2px 0}'
-      + '.expert-question-impact em,.expert-question-alternatives em{color:#6b21a8;font-style:normal;font-weight:600}'
-      + '.expert-question-blocks,.expert-question-response{font-size:0.88em;margin:6px 0 0 0;color:#475569}'
-      + '.expert-question-blocks summary,.expert-question-response summary{cursor:pointer;padding:3px 0;color:#6b7280}'
-      + '.expert-question-blocks ul{margin:4px 0 0 18px;padding:0}'
-      + '.expert-question-blocks li{margin:2px 0;font-size:0.92em}'
-      + '.expert-question-response p{margin:4px 0;padding:6px 10px;background:#faf5ff;border-radius:4px}'
-
-      // ── collapsible study fold + control-panel summary ──
-      + '.study-fold{border:1px solid #e2e8f0;border-radius:10px;margin:10px 0;background:#fff;scroll-margin-top:16px}'
-      + '.study-fold[open]{box-shadow:0 1px 3px rgba(0,0,0,.07)}'
-      + '.study-fold>.study-panel{cursor:pointer;list-style:none;padding:12px 16px;border-left:4px solid #cbd5e1;border-radius:9px}'
-      + '.study-fold>.study-panel::-webkit-details-marker{display:none}'
-      + '.study-fold>.study-panel:hover{background:#f8fafc}'
-      // When a study is open: make its header sticky so the collapse arrow
-      // stays in view while scrolling inside the study. One click collapses
-      // and the next study floats into view — no scrolling back to the top.
-      // Stick BELOW the topbar (which sits at top:0, z:100), not at top:0.
-      // Otherwise the topbar (higher z-index) visually covers the panel and
-      // every interactive element inside it — including the collapse hint —
-      // becomes invisible the moment the user scrolls. The 44px offset
-      // matches the existing `.study-nav{top:44px}` convention (topbar is
-      // ~44px tall after its 9px padding + ~26px line content). Friction
-      // report 2026-05-28: "click to collapse goes out of view when we
-      // scroll" — was actually the entire sticky panel disappearing
-      // behind the topbar, not just the hint.
-      + '.study-fold[open]>.study-panel{position:sticky;top:44px;z-index:10;padding:8px 16px;border-bottom:1px solid #e2e8f0;border-radius:9px 9px 0 0;background:#f8fafc;box-shadow:0 1px 4px rgba(0,0,0,.06)}'
-      // Sticky-when-open: hide the rich content rows (still visible
-      // below in the expanded body — no information lost, just no
-      // longer duplicated). The section-nav row stays visible to
-      // serve as the in-study jump-target navigation.
-      + '.study-fold[open]>.study-panel .sp-objective,'
-      + '.study-fold[open]>.study-panel .sp-meta,'
-      + '.study-fold[open]>.study-panel .sp-quality,'
-      + '.study-fold[open]>.study-panel .sp-conclusion,'
-      + '.study-fold[open]>.study-panel .sp-metrics,'
-      + '.study-fold[open]>.study-panel .sp-insight,'
-      + '.study-fold[open]>.study-panel .sp-caveat{display:none}'
-      // Section-nav chips: hidden in the collapsed card (would
-      // duplicate the metric chips); shown ONLY when the fold is
-      // open so the sticky strip provides in-study navigation.
-      + '.sp-section-nav{display:none}'
-      + '.study-fold[open]>.study-panel .sp-section-nav{'
-      +   'display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 0;width:100%'
-      + '}'
-      + '.sp-section-nav a{'
-      +   'display:inline-block;padding:2px 10px;border-radius:9999px;'
-      +   'font-size:0.83em;color:#3b82f6;text-decoration:none;'
-      +   'background:#eff6ff;border:1px solid transparent'
-      + '}'
-      + '.sp-section-nav a:hover{background:#dbeafe;border-color:#bfdbfe}'
-      + '.sp-section-nav .sn-count{'
-      +   'display:inline-block;margin-left:5px;padding:0 6px;border-radius:9999px;'
-      +   'background:rgba(59,130,246,0.13);color:#3b82f6;font-size:0.85em;'
-      + '}'
-      // Prominent collapse affordance (open state). Replaces the small
-      // float:right hint with a button-style chip in the top-right of
-      // the sticky strip; visible at a glance + obvious click target.
-      + '.study-fold[open]>.study-panel{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}'
-      + '.study-fold[open]>.study-panel>.sp-top{flex:1 1 auto;min-width:0;margin:0}'
-      + '.study-fold.verdict-v-pass>.study-panel{border-left-color:#16a34a}'
-      + '.study-fold.verdict-v-warn>.study-panel{border-left-color:#d97706}'
-      + '.study-fold.verdict-v-block>.study-panel{border-left-color:#dc2626}'
-      + '.study-fold.verdict-v-fail>.study-panel{border-left-color:#dc2626}'
-      + '.study-fold.verdict-v-prelim>.study-panel{border-left-color:#6366f1}'
-      + '.study-fold.verdict-v-cal>.study-panel{border-left-color:#0891b2}'
-      + '.study-fold.verdict-v-none>.study-panel{border-left-color:#94a3b8}'
-      + '.study-fold .study{margin-top:0;padding:8px 16px 4px}'
-      + '.sp-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}'
-      + '.sp-num{color:#94a3b8;font-family:ui-monospace,monospace;font-size:0.95em}'
-      + '.sp-title{font-size:1.13em;font-weight:700;color:#0f172a;flex:1;min-width:200px}'
-      + '.sp-verdict{font-size:0.88em;font-weight:700;padding:3px 11px;border-radius:9999px;white-space:nowrap}'
-      + '.sp-verdict.v-pass{background:#dcfce7;color:#166534}'
-      + '.sp-verdict.v-warn{background:#fef9c3;color:#854d0e}'
-      + '.sp-verdict.v-block{background:#fee2e2;color:#991b1b}'
-      + '.sp-verdict.v-prelim{background:#e0e7ff;color:#3730a3}'
-      + '.sp-verdict.v-fail{background:#fee2e2;color:#991b1b}'
-      + '.sp-verdict.v-cal{background:#cffafe;color:#155e75}'
-      + '.sp-verdict.v-none{background:#f1f5f9;color:#475569}'
-      + '.sp-objective{margin:6px 0 2px;color:#334155;font-size:0.97em}'
-      + '.sp-meta{font-size:0.77em;color:#94a3b8;margin:2px 0 6px}'
-      + '.sp-meta code{background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:0.95em;color:#64748b}'
-      + '.sp-quality{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0}'
-      + '.sp-conf,.sp-ev{font-size:0.78em;font-weight:600;padding:2px 9px;border-radius:6px;background:#f1f5f9;color:#475569}'
-      + '.sp-conf-high{background:#dcfce7;color:#166534}'
-      + '.sp-conf-medium{background:#fef9c3;color:#854d0e}'
-      + '.sp-conf-low{background:#fee2e2;color:#991b1b}'
-      + '.sp-conclusion{margin:6px 0;color:#0f172a;font-size:0.95em}'
-      + '.sp-insight{margin:4px 0;color:#0f172a;font-size:0.92em}'
-      + '.sp-caveat{margin:4px 0;color:#7c2d12;font-size:0.92em}'
-      + '.sp-lbl{display:inline-block;font-size:0.7em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#64748b;margin-right:5px;vertical-align:1px}'
-      + '.sp-caveat .sp-lbl{color:#b45309}'
-      + '.sp-metrics{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 3px}'
-      + '.sp-metric{font-size:0.77em;background:#eef2ff;color:#3730a3;padding:2px 9px;border-radius:9999px}'
-      + '.sp-metric-pass{background:#dcfce7;color:#166534}'
-      + '.sp-metric-warn{background:#fef9c3;color:#854d0e}'
-      + '.sp-metric-fail{background:#fee2e2;color:#991b1b}'
-      + '.sp-expand-hint{display:inline-block;font-size:0.73em;color:#94a3b8;margin-top:6px}'
-      + '.study-fold[open] .sp-expand-hint{display:none}'
-      /* sp-collapse-hint: the OPEN-state partner of sp-expand-hint.
-         Styled identically (same font-size, grey, margin) so the two
-         affordances feel like the same control in two states.
-
-         `flex: 0 0 100% + order: 100` guarantees it always lands on
-         its own row at the very bottom of the sticky panel, regardless
-         of whether sp-section-nav rendered (some studies have no nav
-         links — without the flex-basis trick the hint would float onto
-         the title row next to the verdict, which is what triggered the
-         2026-05-28 "click to collapse is in the wrong menu bar" report).
-         Default block text-align is left, matching where the expand-hint
-         sits on collapsed cards. */
-      + '.sp-collapse-hint{display:none}'
-      + '.study-fold[open] .sp-collapse-hint{'
-      +   'display:block;flex:0 0 100%;order:100;'
-      +   'font-size:0.73em;color:#94a3b8;margin-top:6px'
-      + '}'
-      + '.studies-toolbar{display:flex;gap:8px;margin:8px 0 14px}'
-      + '.studies-toolbar button{font:inherit;font-size:0.85em;padding:5px 12px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;cursor:pointer;color:#334155}'
-      + '.studies-toolbar button:hover{background:#e2e8f0}'
-      + '@media print{.sp-expand-hint,.sp-collapse-hint,.studies-toolbar{display:none}}'
-      // ── review-readiness gate panel ──
-      + '.review-gate{margin:10px 0;padding:10px 14px;background:#fffbeb;border:1px solid #f59e0b;border-left-width:5px;border-radius:6px;color:#92400e}'
-      + '.review-gate>strong{color:#b45309}'
-      + '.review-gate-sub{font-size:0.82em;color:#a16207;margin:2px 0 4px}'
-      + '.review-gate ul{margin:6px 0 0 18px;padding:0}'
-      + '.review-gate li{margin:3px 0}'
-      + '.review-gate code{background:#fef3c7;padding:0 4px;border-radius:3px;font-size:0.92em}'
-      // ── compact sim / readout tables ──
-      + '.sim-table,.readout-table{width:100%;border-collapse:collapse;font-size:0.9em;margin:4px 0 8px}'
-      + '.sim-table th,.readout-table th{text-align:left;padding:5px 8px;border-bottom:2px solid #e2e8f0;color:#475569;font-size:0.86em;font-weight:600}'
-      + '.sim-table td,.readout-table td{padding:5px 8px;border-bottom:1px solid #f1f5f9;vertical-align:top}'
-      + '.sim-table tr:hover,.readout-table tr:hover{background:#f8fafc}'
-      + '.sim-table code,.readout-table code{background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:0.92em}'
-      + '.sim-feeds,.sim-table .sim-feeds code{font-size:0.82em}'
-      + '.sim-status-pill{display:inline-block;font-size:0.8em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#1e293b}'
-      + '.sim-status-ready,.sim-status-pill.sim-status-ready{background:#dcfce7;color:#166534}'
-      + '.sim-status-ran,.sim-status-pill.sim-status-ran{background:#dbeafe;color:#1e40af}'
-      + '.sim-status-gated,.sim-status-pill.sim-status-gated{background:#fef9c3;color:#854d0e}'
-      + '</style></head><body>'
-
-      // ── Embed autosize (self-reporting child pattern) ──────────────
-      //
-      // Each embed-frame iframe runs its own ResizeObserver +
-      // MutationObserver inside its document and posts the measured
-      // height to this parent via postMessage. The parent maps
-      // event.source → iframe element and sets iframe.style.height.
-      //
-      // Why self-reporting instead of parent-side measurement: prior
-      // _fitEmbed used a selector walk
-      // (.plotly-graph-div / [data-plotly] / div[id] / svg / img / canvas)
-      // to find tall children and sum their bounding rects. Every new
-      // content type the walk didn't recognize (`<table>` from fetch,
-      // `<video>`, etc.) under-measured → iframe clipped. The
-      // MutationObserver here catches DOM changes that don't immediately
-      // trigger a size change on body (e.g. table populated from a
-      // fetch); the ResizeObserver catches everything else. body
-      // .scrollHeight is ground truth in the iframe's own document, no
-      // selector needed.
-      //
-      // The child function is defined here in the parent context only so
-      // its source can be extracted via .toString() and injected into
-      // each iframe's <head>. It does NOT execute in the parent.
-      + '<script>'
-      + 'window.__embedReg=window.__embedReg||new Map();'
-      // Parent receiver — install once.
-      + 'if(!window.__embedRecv){window.__embedRecv=true;'
-      +   'window.addEventListener("message",function(ev){'
-      +     'if(!ev.data||ev.data.type!=="embed-autosize:height")return;'
-      +     'var f=window.__embedReg.get(ev.source);if(!f)return;'
-      +     'var h=Math.max(0,+ev.data.height||0);'
-      +     'if(h>0)f.style.height=(h+24)+"px";'
-      +   '});'
-      + '}'
-      // Child function — its .toString() is what runs inside each iframe.
-      //
-      // Height measurement uses a SENTINEL: an invisible 0×0 div appended
-      // as the last child of body. Its top position (relative to body's
-      // top) IS the content height — independent of body's laid-out
-      // height, html element height, or `height: 100%` style inheritance.
-      // Avoids the feedback loop where html.scrollHeight grows with the
-      // iframe's own viewport size, which then makes us report a larger
-      // height, which grows the iframe again, ad infinitum.
-      + 'window.__embedChildFn=function(){'
-      +   'if(window.__ec)return;window.__ec=1;'
-      +   'var sentinel=null;'
-      +   'function ensureSentinel(){'
-      +     'if(sentinel&&sentinel.parentNode===document.body)return;'
-      +     'sentinel=document.createElement("div");'
-      +     'sentinel.setAttribute("data-ec-sentinel","1");'
-      +     'sentinel.style.cssText="height:0;width:0;visibility:hidden;clear:both;margin:0;padding:0";'
-      +     'document.body.appendChild(sentinel);'
-      +   '}'
-      +   'function m(){var d=document,b=d.body;if(!b)return;'
-      // Honor explicit pinned height (height + overflow:hidden in inner CSS).
-      +     'var p=0;if(window.getComputedStyle){var bs=getComputedStyle(b);'
-      +       'if(bs&&(bs.overflow||"").indexOf("hidden")>=0){'
-      +         'var hm=(bs.height||"").match(/^(\\d+(?:\\.\\d+)?)px$/);'
-      +         'if(hm)p=Math.round(parseFloat(hm[1]));}}'
-      +     'var h;'
-      +     'if(p>0){h=p;}else{'
-      +       'ensureSentinel();'
-      +       'var bRect=b.getBoundingClientRect();'
-      +       'var sRect=sentinel.getBoundingClientRect();'
-      +       'h=Math.max(0,Math.ceil(sRect.top-bRect.top));'
-      // Fallback if sentinel reads 0 (e.g. body itself has display:none).
-      +       'if(h===0)h=b.scrollHeight||0;'
-      +     '}'
-      +     'try{window.parent.postMessage({type:"embed-autosize:height",height:h},"*");}catch(_){}'
-      +   '}'
-      +   'function init(){ensureSentinel();m();'
-      // Only observe body. Observing documentElement caused the runaway
-      // feedback loop (html scrollHeight grows with iframe viewport).
-      +     'if(window.ResizeObserver&&document.body){'
-      +       'var ro=new ResizeObserver(m);ro.observe(document.body);}'
-      +     'if(window.MutationObserver&&document.body){var mo=new MutationObserver(function(muts){'
-      // Skip mutations triggered by our own sentinel insertion to avoid
-      // a measurement immediately re-firing measurement.
-      +       'for(var i=0;i<muts.length;i++){'
-      +         'var t=muts[i].target;'
-      +         'if(t&&t.getAttribute&&t.getAttribute("data-ec-sentinel"))return;}'
-      +       'm();'
-      +     '});'
-      +       'mo.observe(document.body,{childList:1,subtree:1,attributes:1,'
-      +         'attributeFilter:["style","class","src","open","hidden"]});}'
-      // Per-image load handlers catch late-decoded images that don't
-      // trigger body resize until they finish decoding.
-      +     'if(document.body){var ii=document.body.querySelectorAll("img");'
-      +       'for(var i=0;i<ii.length;i++){'
-      +         'if(!ii[i].complete)ii[i].addEventListener("load",m);}}'
-      +     'window.addEventListener("load",m);'
-      // Belt-and-suspenders timed safety net for content loaded by
-      // async scripts that don't mutate body's observable surface.
-      +     '[100,500,2000].forEach(function(t){setTimeout(m,t);});'
-      +   '}'
-      +   'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);'
-      +   'else init();'
-      + '};'
-      // Stash the child source for injection.
-      + 'window.__embedChildJs="("+window.__embedChildFn.toString()+")();";'
-      // _wireEmbed: register the iframe in the parent map, inject the
-      // child autosize script into its head. Idempotent — re-wiring
-      // an already-wired iframe is a no-op.
-      + 'window._wireEmbed=function(f){try{'
-      +   'var cw=f.contentWindow;if(cw)window.__embedReg.set(cw,f);'
-      +   'var inj=function(){try{var d=f.contentDocument;if(!d||!d.head)return;'
-      +     'if(d.head.querySelector("script[data-ec]"))return;'
-      +     'var s=d.createElement("script");s.setAttribute("data-ec","1");'
-      +     's.textContent=window.__embedChildJs;'
-      +     'd.head.appendChild(s);}catch(_e){}};'
-      +   'if(f.contentDocument&&f.contentDocument.readyState!=="loading")inj();'
-      +   'else f.addEventListener("load",inj,{once:true});'
-      + '}catch(e){}};'
-      // _fitEmbed: back-compat shim. A few call sites elsewhere still
-      // invoke _fitEmbed directly; forward to _wireEmbed so they pick
-      // up the new child-injection path without code changes.
-      + 'window._fitEmbed=function(f){if(window._wireEmbed)window._wireEmbed(f);};'
-      // Collapsed-embed toggle: when a <details> opens an embed, kick
-      // the iframe to re-measure (in case it was paused while hidden).
-      + 'window._onEmbedToggle=function(d){if(!d.open)return;var f=d.querySelector(".embed-frame");if(!f)return;'
-      +   'try{f.contentWindow&&f.contentWindow.dispatchEvent(new Event("resize"));}catch(e){}'
-      +   'if(window._wireEmbed)window._wireEmbed(f);};'
-      + '</script>'
-
-      // ── Sticky top nav — section-level tags only (per-study nav now lives
-      //    in the collapsed control panels). Conditional tags render only when
-      //    the section exists, keeping the bar uncluttered. Trailing switcher
-      //    dropdown lists peer investigations from /api/investigation-registry
-      //    so the user can jump between live dashboards without leaving the
-      //    page — see _wireIsetSwitcher below for the click + render logic.
-      + '<nav class="topbar">'
-      +   '<span class="tb-title">' + _h(iset.title || iset.name) + '</span>'
-      +   '<a href="#" onclick="window.scrollTo({top:0,behavior:\'smooth\'});return false;">Top</a>'
-      // Top menu kept minimal: Top · Studies · Appendices · References. The
-      // Overview/Open-questions/Roadmap sections sit close together near the top
-      // and are easily reached from Top, so they're omitted from the bar.
-      +   '<a href="#studies-heading">Studies</a>'
-      +   (_hasAppendices ? '<a href="#appendices">Appendices</a>' : '')
-      +   '<a href="#references">References</a>'
-      + '</nav>'
-
-      // ── Main content ──
-      + '<main class="content" id="top">'
-
-      +   '<h1>' + _h(iset.title || iset.name) + ' <span class="badge badge-' + _h(iset.status || 'planning') + '">' + _h(iset.status || 'planning') + '</span>'
-      +     _objectOfEvaluationChip(iset.object_of_evaluation) + '</h1>'
-      +   '<p class="muted small">Investigation report · <code>' + nameClean + '</code> · generated ' + _h(now) + ' · '
-      +     ((specs || []).some(function(s) { return (s.runs || []).length || _asFindings(s.findings).length; })
-          ? 'for expert review — results below reflect completed runs.'
-          : 'for expert review prior to execution.') + '</p>'
-
-      // ── Coordinated-generation provenance banner (expert-feedback A.3) ──
-      +   generationBannerHtml
-
-      // ── Execution-status / planning-phase banner — run-state context up top ──
-      +   (function() {
-            var alls = specs || [];
-            var planning = alls.filter(function(s) { return !(s.runs || []).length && !_asFindings(s.findings).length && !_isInformationalStudy(s); });
-            var total = alls.length, n = planning.length;
-            if (!n) return '';
-            var names = planning.map(function(s) { return s.name || s.slug || ''; }).filter(Boolean).join(', ');
-            var pre = (n === total);   // genuinely pre-execution — nothing has run
-            var body = pre
-              ? '<strong>Planning phase — pre-execution review.</strong> None of the ' + total
-                + ' studies have run yet; the charts are the <strong>workspace pre-execution baseline</strong>.'
-                + ' For each study the key review surfaces are:'
-              : '<strong>' + (total - n) + ' of ' + total + ' studies have completed runs</strong> — their'
-                + ' verdicts + evaluator-computed test outcomes are below. ' + n + ' still in planning'
-                + (names ? ' (<code>' + _h(names) + '</code>)' : '')
-                + ': their charts are pre-execution baselines and their tests are pending those runs.'
-                + ' For the planned studies the key review surfaces are:';
-            return '<div class="planning-phase-banner" id="planning-phase-banner">'
-              + '<div class="planning-phase-banner-icon">📝</div>'
-              + '<div class="planning-phase-banner-content">'
-              +   '<div class="planning-phase-banner-body">' + body + '</div>'
-              +   '<ul class="planning-phase-banner-list">'
-              +     '<li><strong>Conditions</strong> — variants and their parameter overrides, plus the model settings awaiting your call.</li>'
-              +     '<li><strong>Expected behavior</strong> — what each test claims will pass / fail and the criterion it uses (flag any under- or over-specified).</li>'
-              +     '<li><strong>Baseline visualizations</strong> — what the system looks like before the study\'s mechanism lands.</li>'
-              +   '</ul>'
-              +   '<div class="planning-phase-banner-foot">Click the <strong>💬</strong> icon next to any section to leave inline feedback. "Generate feedback report" (bottom-right) packages everything into a single yaml file.</div>'
-              + '</div>'
-              + '</div>';
-          })()
-
-      // ── One-line acceptance headline (full gating/verdict tables → Roadmap + Appendices) ──
-      +   acceptanceNarrativeHtml
-
-      // ── LAYER 1: EXECUTIVE — authored narrative + verdict for the reviewer ──
-      +   (function() {
-            var ex = iset.executive || {};
-            var dn = ex.decisions_needed || [];
-            if (!ex.what_is_this && !ex.verdict && !iset.question && !iset.hypothesis) return '';
-            var vs = ex.verdict_status || 'in-progress';
-            var h = '<details id="executive" class="report-fold" style="margin-top:12px"><summary>📋 Executive summary' + ' <span class="rf-pill rf-pill-' + _h(String(vs).toLowerCase().replace(/[^a-z0-9]+/g,'-')) + '">' + _h(vs) + '</span>' + ((ex.verdict || ex.what_is_this) ? ' <span class="rf-prev">' + _h(_previewText(ex.verdict || ex.what_is_this, 150)) + '</span>' : '') + '</summary>';
-            if (ex.what_is_this)
-              h += '<p>' + _multiline(ex.what_is_this) + '</p>';
-            if (ex.verdict)
-              h += '<div class="callout" style="background:#f8fafc;border-left:5px solid #64748b;border-radius:8px;padding:12px 16px;margin:10px 0">'
-                 + '<span class="badge badge-' + _h(vs) + '">' + _h(vs) + '</span> '
-                 + '<strong>Current verdict.</strong> ' + _multiline(ex.verdict) + '</div>';
-            if (iset.question)
-              h += '<p><strong>Question.</strong> ' + _multiline(iset.question) + '</p>';
-            if (iset.hypothesis)
-              h += '<p><strong>Hypothesis.</strong> ' + _multiline(iset.hypothesis) + '</p>';
-            // ── Spine A1: computed acceptance roll-up ──────────────────────
-            // Restores the acceptance visibility removed earlier, now COMPUTED
-            // by the spine (investigation_status.roll_up_acceptance) and
-            // connected to the member studies' verdicts. Mirrors the
-            // param-enforcement banner: surfaced, connected (each criterion
-            // links to its study section), and labeled code-computed vs
-            // authored, with a divergence badge when the two disagree.
-            var ca = iset.computed_acceptance;
-            if (ca && ca.criteria && ca.criteria.length) {
-              var authoredVs = (ex.verdict_status || '').toString().toLowerCase().trim();
-              var computedVs = (ca.verdict_status || '').toString().toLowerCase().trim();
-              // NOTE: the per-criterion `result`s below are LIVE-ROLLED at render
-              // time (from each member study's current verdict), whereas
-              // `ca.diverges_from_authored` is the spine-PERSISTED divergence flag
-              // — the two can momentarily differ; this is acceptable per the plan.
-              // Prefer the spine-persisted divergence flag; fall back to the
-              // computed-vs-authored verdict_status comparison the plan allows.
-              var caDiverges = (ca.diverges_from_authored === true)
-                || (!!authoredVs && !!computedVs && authoredVs !== computedVs);
-              var critRows = ca.criteria.map(function(c) {
-                var r = (c.result || '').toString().toLowerCase();
-                var rcls = (r === 'passing' || r === 'pass') ? '#16a34a'
-                         : (r === 'failing' || r === 'fail') ? '#dc2626'
-                         : '#92400e';
-                var m = _critMetric(c.study, c.behavior);
-                var metricCell = m
-                  ? (m.field ? '<code>' + _h(m.field) + '</code>' : '')
-                    + (m.passIf ? ' <span class="muted small">pass if ' + _h(m.passIf) + '</span>' : '')
-                    + (m.observed !== null && m.observed !== undefined
-                        ? ' → <strong>' + _fmtObserved(m.observed) + '</strong>' : '')
-                  : '<span class="muted small">—</span>';
-                return '<tr>'
-                  + '<td style="padding:3px 8px"><a href="#study-' + _h(c.study) + '">' + _h(c.study) + '</a></td>'
-                  + '<td style="padding:3px 8px">' + _h(c.behavior || '') + '</td>'
-                  + '<td style="padding:3px 8px;font-size:0.9em">' + metricCell + '</td>'
-                  + '<td style="padding:3px 8px;font-weight:600;color:' + rcls + '">' + _h(c.result || '—') + '</td>'
-                  + '</tr>';
-              }).join('');
-              var caBadge = caDiverges
-                ? '<span class="acceptance-divergence" title="The code-computed acceptance disagrees with the authored verdict_status — computed by the spine (investigation_status), not human-authored." style="display:inline-block;margin-left:8px;padding:2px 9px;border-radius:9999px;font-size:0.8em;font-weight:600;background:#fffbeb;border:1px solid #f59e0b;color:#92400e">⚠ code: ' + _h(ca.verdict_status || computedVs || '?') + ' · authored: ' + _h(ex.verdict_status || '—') + '</span>'
-                : '';
-              h += '<div class="acceptance-rollup" id="' + _h(iset.name || 'inv') + '-acceptance-rollup" '
-                + 'style="margin:12px 0;padding:12px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left-width:5px;border-radius:6px">'
-                + '<strong>Acceptance roll-up</strong> '
-                + '<span class="muted small" style="color:#64748b">code-computed from member-study verdicts</span>'
-                + caBadge
-                + _acceptanceExplainer
-                + '<table class="small" style="margin-top:8px;border-collapse:collapse">'
-                + '<thead><tr>'
-                + '<th style="padding:3px 8px;text-align:left">Study</th>'
-                + '<th style="padding:3px 8px;text-align:left">Behavior</th>'
-                + '<th style="padding:3px 8px;text-align:left">Metric (field · pass-if → observed)</th>'
-                + '<th style="padding:3px 8px;text-align:left">Result</th>'
-                + '</tr></thead><tbody>' + critRows + '</tbody></table></div>';
-            }
-            return h + '</details>';
-          })()
-
-      // ── Biology — the mechanism this investigation models ──
-      +   ((iset.biological_story || '').trim()
-          ? '<details id="biology" class="report-fold">'
-            + '<summary>🧬 Biology — the mechanism this investigation models' + ' <span class="rf-prev">' + _h(_previewText(iset.biological_story || '', 175)) + '</span>' + '</summary>'
-            + '<p style="margin:0">' + _multiline(iset.biological_story) + '</p>'
-            + '</details>'
-          : '')
-
-      // ── Key findings — the scientific argument ──
-      +   (function() {
-            var sa = iset.scientific_argument || {};
-            var ef = sa.evidence_for || [], ea = sa.evidence_against || [],
-                kf = sa.key_figures || [], cav = sa.caveats || [];
-            if (!sa.main_claim && !ef.length && !ea.length) return '';
-            function _li(x) { return '<li>' + _multiline(typeof x === 'string' ? x : (x.text || JSON.stringify(x))) + '</li>'; }
-            var h = '<details id="scientific-argument" class="report-fold"><summary>🔬 Scientific argument' + ((ef.length || ea.length) ? ' <span class="rf-chip">' + ef.length + ' for \u00b7 ' + ea.length + ' against</span>' : '') + (sa.main_claim ? ' <span class="rf-prev">' + _h(_previewText(sa.main_claim, 150)) + '</span>' : '') + '</summary>';
-            if (sa.main_claim)
-              h += '<p><strong>Main claim.</strong> ' + _multiline(sa.main_claim) + '</p>';
-            if (ef.length || ea.length) {
-              h += '<div style="display:flex;gap:24px;flex-wrap:wrap">';
-              if (ef.length) h += '<div style="flex:1 1 280px"><h3 style="color:#065f46">Evidence for</h3><ul>' + ef.map(_li).join('') + '</ul></div>';
-              if (ea.length) h += '<div style="flex:1 1 280px"><h3 style="color:#9a3412">Evidence against</h3><ul>' + ea.map(_li).join('') + '</ul></div>';
-              h += '</div>';
-            }
-            if (kf.length)
-              h += '<h3>Key figures</h3><ul>' + kf.map(function(k) {
-                return '<li><code>' + _h(k.study || '') + '</code> · <code>' + _h(k.viz || '') + '</code> — ' + _h(k.caption || '') + '</li>';
-              }).join('') + '</ul>';
-            if (cav.length)
-              h += '<h3>Caveats</h3><ul>' + cav.map(_li).join('') + '</ul>';
-            return h + '</details>';
-          })()
-
-      // ── Open questions & decisions needed (decisions-needed + needs-attention) ──
-      +   (function() {
-            var dec = (function() {
-            var dn = (iset.executive || {}).decisions_needed || [];
-            if (!dn.length) return '';
-            return '<div class="tier-reviewer"><details id="decisions-needed" class="report-fold"><summary>✋ Decisions needed from reviewers' + ' <span class="rf-chip">' + dn.length + ' item' + (dn.length===1?'':'s') + '</span>' + (dn[0] && dn[0].question ? ' <span class="rf-prev">next: ' + _h(_previewText(dn[0].question, 130)) + '</span>' : '') + '</summary><ol>'
-              + dn.map(function(d) {
-                  return '<li><strong>' + _h(d.question || '') + '</strong>'
-                    + (d.context ? '<div class="muted small">' + _multiline(d.context) + '</div>' : '')
-                    + '</li>';
-                }).join('') + '</ol></details></div>';
-            })();
-            var na = needsAttentionReportHtml;
-            var inner = dec + na;
-            if (!inner || !inner.trim()) return '';
-            return '<h2 id="open-questions">Open questions &amp; decisions needed</h2>' + inner;
-          })()
-
-      // ── Investigation roadmap — the study dependency / verdict graph ──
-      +   (function() {
-            if (!verdictDagHtml || !verdictDagHtml.trim()) return '';
-            return '<h2 id="roadmap">Investigation roadmap</h2>' + verdictDagHtml;
-          })()
-
-      +   ''
-
-      /* Removed: top-of-report "Acceptance criteria" section.
-         Per-study behavior_tests + conclusion_verdicts (the v4 way
-         studies signal pass/fail) already convey "what must pass for
-         this investigation to be considered complete." The top-of-
-         report ordered list of acceptance criteria duplicated that
-         signal in a less-actionable form. */
-
-      +   '<h2 id="studies-heading">Studies' + (hasDag ? ' (dependency order)' : '') + '</h2>'
-      +   '<p class="muted small">Each study is collapsed to a one-glance control panel — scan top to bottom, then click any panel to expand its full detail.</p>'
-      +   '<div class="studies-toolbar">'
-      +     '<button type="button" id="studies-expand-all">Expand all</button>'
-      +     '<button type="button" id="studies-collapse-all">Collapse all</button>'
-      +     '<script>(function(){'
-      +       'function findFolds(){return Array.from(document.querySelectorAll(".study-fold"));}'
-      +       'function setAll(open){'
-      +         'var folds=findFolds();'
-      +         'console.log("[studies-toolbar] "+(open?"expand":"collapse")+" "+folds.length+" .study-fold elements");'
-      +         'folds.forEach(function(d){d.open=open;});'
-      +         'if(open&&folds.length){folds[0].scrollIntoView({behavior:"smooth",block:"start"});}'
-      +       '}'
-      +       'function wire(){'
-      +         'var ex=document.getElementById("studies-expand-all");'
-      +         'var co=document.getElementById("studies-collapse-all");'
-      +         'if(ex)ex.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();setAll(true);});'
-      +         'if(co)co.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();setAll(false);});'
-      +       '}'
-      +       'document.addEventListener("click",function(e){'
-      +         'var t=e.target;var h=t&&t.closest?t.closest(".sn-collapse-hint,.sp-collapse-hint"):null;'
-      +         'if(h){var d=h.closest("details.study-fold");if(d){d.open=false;d.scrollIntoView({behavior:"smooth",block:"start"});}e.preventDefault();e.stopPropagation();return;}'
-      +         'var na=t&&t.closest?t.closest(".study-nav a"):null;'
-      +         'if(na&&na.getAttribute("href")&&na.getAttribute("href").charAt(0)==="#"){var tg=document.getElementById(na.getAttribute("href").slice(1));if(tg){var fd=tg.closest("details.study-fold");if(fd&&!fd.open)fd.open=true;e.preventDefault();setTimeout(function(){tg.scrollIntoView({behavior:"smooth",block:"start"});},0);}}'
-      +       '});'
-      +       'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",wire);}else{wire();}'
-      +     '})();</script>'
-      +   '</div>'
-      +   studiesHtml
-
-
-      // ── Future work (iset.future_work / iset.next_steps) ──
-      +   (function() {
-            var fw = (iset.future_work !== undefined && iset.future_work !== null) ? iset.future_work : iset.next_steps;
-            if (fw === undefined || fw === null) return '';
-            var body;
-            if (Object.prototype.toString.call(fw) === '[object Array]') {
-              var its = fw.filter(function(x) { return x !== null && x !== undefined && String(x).trim(); });
-              if (!its.length) return '';
-              body = '<ul>' + its.map(function(x) { return '<li>' + _multiline(typeof x === 'string' ? x : (x.text || JSON.stringify(x))) + '</li>'; }).join('') + '</ul>';
-            } else {
-              var s = String(fw);
-              if (!s.trim()) return '';
-              body = '<p>' + _multiline(s) + '</p>';
-            }
-            return '<details id="future-work" class="report-fold"><summary>🔭 Future work</summary>' + body + '</details>';
-          })()
-
-      // ── Appendices — method-grading & verification detail (reviewer / developer tiers) ──
-      +   (function() {
-            var accFold = (acGatingMatrixHtml && acGatingMatrixHtml.trim())
-              ? '<details class="report-fold tier-reviewer" id="acceptance-detail"><summary>How the verdict is computed — acceptance criteria &amp; gating matrix</summary>' + acGatingMatrixHtml + '</details>'
-              : '';
-            var proposedHtml = (function() {
-            var pi = iset.proposed_inputs || {};
-            var items = pi.items || [];
-            if (!items.length) return '';
-            var pending = items.filter(function(it){ return (it.status||'pending')==='pending'; }).length;
-            function _kindBadge(kind) {
-              var k = (kind||'reference');
-              var bg = k === 'mechanism' ? '#faf5ff' : '#eff6ff';
-              var fg = k === 'mechanism' ? '#6b21a8' : '#1e40af';
-              return '<span style="font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;'
-                + 'padding:1px 8px;border-radius:9999px;background:' + bg + ';color:' + fg + '">' + _h(k) + '</span>';
-            }
-            function _statusPill(status) {
-              var s = (status||'pending');
-              var c = s === 'accepted' ? {bg:'#dcfce7',fg:'#166534'}
-                    : s === 'declined' ? {bg:'#fee2e2',fg:'#991b1b'}
-                    : {bg:'#fef3c7',fg:'#92400e'};
-              return '<span style="font-size:0.7em;padding:1px 8px;border-radius:9999px;background:'
-                + c.bg + ';color:' + c.fg + ';margin-left:6px">' + _h(s) + '</span>';
-            }
-            var cards = items.map(function(it) {
-              var status = it.status || 'pending';
-              var headline = (it.kind === 'mechanism') ? (it.summary || '(mechanism)') : (it.citation || '(reference)');
-              var rows = [];
-              if (it.related_study) rows.push('<div class="muted small"><strong>Related study:</strong> <code>' + _h(it.related_study) + '</code></div>');
-              if (it.rationale) rows.push('<div class="small" style="margin-top:4px"><strong>Rationale.</strong> ' + _multiline(it.rationale) + '</div>');
-              if (it.provenance) rows.push('<div class="muted small" style="margin-top:4px"><strong>Provenance.</strong> ' + _multiline(it.provenance) + '</div>');
-              if (it.proposed_by || it.proposed_at) {
-                rows.push('<div class="muted small" style="margin-top:4px">proposed by ' + _h(it.proposed_by || 'agent')
-                  + (it.proposed_at ? ' · ' + _h(String(it.proposed_at)) : '') + '</div>');
-              }
-              var actions;
-              if (status === 'pending') {
-                // Accept button — records the acceptance into the SAME
-                // feedback-report channel as the follow-up "➕ Add study"
-                // button (window._decideProposedInput → _annotate →
-                // _fbAddAnnotation). No server POST: the acceptance is
-                // serialized into the downloadable feedback YAML and applied
-                // when the agent imports it. Works identically served
-                // (http/https) or offline (file://). Reviewers can still use
-                // the inline 💬 affordance for free-form notes.
-                // Single-quoted args so they sit safely inside onclick="…".
-                var acceptArgs = "'" + _h(String(it.id||'')) + "', 'accept', this, '"
-                  + _h(String(it.kind||'reference')) + "'";
-                actions = '<div class="proposed-input-actions" style="margin-top:10px">'
-                  + '<button class="btn-accept-proposed-input" '
-                  + 'onclick="event.stopPropagation(); if(window._decideProposedInput){_decideProposedInput(' + acceptArgs + ');}'
-                  + 'else{alert(\'Open this investigation in the live dashboard to accept the suggestion.\');}" '
-                  + 'style="font-size:0.82em;padding:3px 10px;border:1px solid #16a34a;background:#f0fdf4;'
-                  + 'color:#166534;border-radius:6px;cursor:pointer;white-space:nowrap">✓ Accept — add via feedback report</button></div>';
-              } else {
-                actions = '<div class="proposed-input-resolved muted small" style="margin-top:10px;font-style:italic">'
-                  + (status === 'accepted'
-                      ? '✓ Accepted by the expert' + (it.kind === 'reference' ? ' — added to the investigation\'s provided references.' : ' — a human integrates the mechanism.')
-                      : '✗ Declined by the expert — not integrated.')
-                  + '</div>';
-              }
-              var borderColor = status === 'accepted' ? '#16a34a' : status === 'declined' ? '#dc2626' : '#f59e0b';
-              return '<div class="proposed-input-card" data-item-id="' + _h(String(it.id||'')) + '" '
-                + 'style="padding:12px 14px;border:1px solid #e2e8f0;border-left:4px solid ' + borderColor
-                + ';border-radius:6px;background:#fff;margin-bottom:10px">'
-                + '<div style="display:flex;align-items:flex-start;gap:8px">'
-                +   '<div style="flex:1;min-width:0">'
-                +     _kindBadge(it.kind) + _statusPill(status)
-                +     '<div style="font-weight:600;margin-top:6px">' + _h(headline) + '</div>'
-                +     rows.join('')
-                +   '</div>'
-                + '</div>'
-                + actions
-                + '</div>';
-            }).join('');
-            var note = pi._note
-              ? '<p class="muted small" style="margin:0 0 10px 0">' + _multiline(pi._note) + '</p>'
-              : '<p class="muted small" style="margin:0 0 10px 0">These references / mechanisms were proposed by the agent and were '
-                + '<strong>not</strong> provided by the expert. Nothing here is integrated until you <strong>Accept</strong> it.</p>';
-            return '<details id="proposed-inputs" class="report-fold"><summary>🧩 Suggested additions — pending your approval'
-              + ' <span class="rf-chip">' + items.length + ' item' + (items.length===1?'':'s')
-              + (pending ? ' · ' + pending + ' pending' : '') + '</span></summary>'
-              + note + cards + '</details>';
-            })();
-            var parts = [
-              accFold,
-              (rigorSectionHtml && rigorSectionHtml.trim()) ? '<div class="tier-reviewer">' + rigorSectionHtml + '</div>' : '',
-              (frameworkScorecardHtml && frameworkScorecardHtml.trim()) ? '<div class="tier-developer">' + frameworkScorecardHtml + '</div>' : '',
-              (competingHypothesesHtml && competingHypothesesHtml.trim()) ? '<div class="tier-reviewer">' + competingHypothesesHtml + '</div>' : '',
-              (proposedHtml && proposedHtml.trim()) ? '<div class="tier-reviewer">' + proposedHtml + '</div>' : ''
-            ];
-            var inner = parts.filter(Boolean).join('');
-            if (!inner.trim()) return '';
-            return '<div class="tier-reviewer">'
-              + '<h2 id="appendices">Appendices</h2>'
-              + '<p class="muted small">Method-grading and verification detail — kept at the back, after the main narrative.</p>'
-              + inner
-              + '</div>';
-          })()
-      +   '<h2 id="references">References <span class="muted small">(' + orderedCited.length + ' cited across this investigation)</span></h2>'
-      +   '<p class="muted small">Union of <code>bibliography.bib_keys</code> and per-behavior <code>cites:</code> across all studies in this investigation. Click DOI or link to open the source.</p>'
-      +   '<ol class="references-list" style="line-height:1.6;font-size:0.93em">'
-      +     referencesHtml
-      +   '</ol>'
-
-      +   '<footer id="footer">'
-      +     '<p>Generated by vivarium-dashboard. Source of truth: <code>investigations/' + nameClean + '/investigation.yaml</code> and the per-study <code>studies/&lt;name&gt;/study.yaml</code> files.</p>'
-      +     '<p>Open the live DAG: in the dashboard, click <strong>Investigations</strong> → <em>' + _h(iset.title || iset.name) + '</em>.</p>'
-      +   '</footer>'
-
-      + '</main>'
-
-      // ── Active-section tracking for top-nav links ──
-      + '<script>'
-      + '(function(){'
-      +   'var links=Array.from(document.querySelectorAll(".topbar a"));'
-      +   'var targets=links.map(function(a){return document.getElementById(a.getAttribute("href").slice(1));})'
-      +     '.filter(Boolean);'
-      +   'function onScroll(){'
-      +     'var y=window.scrollY+80;'
-      +     'var current=null;'
-      +     'for(var i=0;i<targets.length;i++){if(targets[i].offsetTop<=y)current=targets[i];}'
-      +     'links.forEach(function(a){a.classList.toggle("active",current&&("#"+current.id)===a.getAttribute("href"));});'
-      +   '}'
-      +   'window.addEventListener("scroll",onScroll,{passive:true});'
-      +   'onScroll();'
-      // Studies are collapsed by default. When the URL targets a study (or any
-      // anchor inside one), open all ancestor <details> so the target is
-      // actually visible, then scroll to it.
-      +   'function openToHash(){'
-      +     'var h=location.hash;if(!h)return;'
-      +     'var el=document.getElementById(decodeURIComponent(h.slice(1)));if(!el)return;'
-      +     'if(el.tagName==="DETAILS")el.open=true;'
-      +     'var d=el.closest?el.closest("details"):null;'
-      +     'while(d){d.open=true;d=d.parentElement?d.parentElement.closest("details"):null;}'
-      +     'try{el.scrollIntoView();}catch(e){}'
-      +   '}'
-      +   'window.addEventListener("hashchange",openToHash);'
-      +   'openToHash();'
-      // Printing / save-as-PDF must show everything — a closed <details> can't
-      // be forced open by CSS, so open them all before print.
-      +   'window.addEventListener("beforeprint",function(){'
-      +     'document.querySelectorAll(".study-fold").forEach(function(d){d.open=true;});'
-      +   '});'
-      // When a fold opens, re-fit its embeds and nudge Plotly to recompute
-      // width (charts drawn while the fold was collapsed render at 0 width).
-      +   'document.querySelectorAll(".study-fold").forEach(function(d){'
-      +     'd.addEventListener("toggle",function(){if(!d.open)return;'
-      +       'd.querySelectorAll(".embed-frame").forEach(function(f){'
-      +         'try{f.contentWindow&&f.contentWindow.dispatchEvent(new Event("resize"));}catch(e){}'
-      +         'if(window._fitEmbed){window._fitEmbed(f);[120,400,1000].forEach(function(t){setTimeout(function(){window._fitEmbed(f);},t);});}'
-      +       '});'
-      +     '});'
-      +   '});'
-      + '})();'
-      + '</script>'
-
-      // ── Spine A3: readiness-panel populate (report-render completion) ──
-      // The `.study-readiness-panel` placeholders above are emitted per study
-      // but filled by JS. This report is self-contained (no walkthrough.js),
-      // so bake an EXACT copy of _populateReadinessPanels (+ _readinessPanelHtml
-      // + _h) via `.toString()` and invoke it once the study sections have
-      // rendered. Reuses the same deterministic linter fetch — no duplicated
-      // logic, no AI. Idempotent. fetch('/api/report-lint') resolves when the
-      // report is SERVED by the dashboard; offline (file://) it no-ops cleanly.
-      + '<script>'
-      +   '(function(){'
-      +     'var _h=' + _h.toString() + ';'
-      +     'var _readinessPanelHtml=' + _readinessPanelHtml.toString() + ';'
-      +     'var _populateReadinessPanels=' + _populateReadinessPanels.toString() + ';'
-      +     'window._populateReadinessPanels=_populateReadinessPanels;'
-      +     'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",_populateReadinessPanels);}else{_populateReadinessPanels();}'
-      +   '})();'
-      + '</script>'
-
-      // ── Proposed-input Accept/Decline wiring (in-report) ──────────────
-      // Self-contained handler baked into the downloaded report so the
-      // Accept/Decline buttons work both in the live dashboard report and
-      // when the report is served by the dashboard. POSTs the decision to
-      // /api/proposed-input-decision and, on success, rewrites the card's
-      // status in place (no full reload needed). The investigation name is
-      // baked in so the standalone report knows which investigation to PATCH.
-      + '<script>'
-      + '(function(){'
-      +   'var INV=' + JSON.stringify(iset.name || '') + ';'
-      // Accept / Decline / "+ Add to investigation" all record the reviewer's
-      // decision as a NORMAL ANNOTATION — the same channel the manual 💬
-      // highlight-comments use (window._fbAddAnnotation, defined by the inline-
-      // feedback widget below). No server POST: the agent applies the decision
-      // when it reads the exported feedback YAML, like all other feedback. This
-      // works identically whether the report is served (http/https) or opened
-      // offline (file://).
-      +   'function _annotate(sid,text){'
-      +     'if(window._fbAddAnnotation){window._fbAddAnnotation(sid,text);return true;}'
-      +     'return false;'
-      +   '}'
-      +   'window._decideProposedInput=function(itemId,decision,btn,kind){'
-      +     'if(!itemId){alert("Missing item id");return;}'
-      +     'var card=btn&&btn.closest?btn.closest(".proposed-input-card"):null;'
-      +     'var actions=card?card.querySelector(".proposed-input-actions"):null;'
-      +     'var accepted=decision==="accept";'
-      +     'var titleEl=card?card.querySelector("div[style*=\\"font-weight:600\\"]"):null;'
-      +     'var title=titleEl?titleEl.textContent.trim():"";'
-      +     'var text=(accepted?"Accept":"Decline")+" \\u2014 "+(kind?"["+kind+"] ":"")+(title||"proposed input")+" [id: "+itemId+"]";'
-      +     'if(!_annotate("proposed-inputs",text)){alert("Could not record the decision (feedback widget unavailable).");return;}'
-      +     'if(actions){actions.querySelectorAll("button").forEach(function(b){b.disabled=true;});}'
-      +     'if(card){card.style.borderLeftColor=accepted?"#16a34a":"#dc2626";}'
-      +     'var resolved=document.createElement("div");'
-      +     'resolved.className="proposed-input-resolved muted small";'
-      +     'resolved.style.cssText="margin-top:10px;font-style:italic";'
-      +     'resolved.textContent=(accepted?"\\u2713":"\\u2717")+" recorded \\u2014 exports with your feedback";'
-      +     'if(actions){actions.replaceWith(resolved);}else if(card){card.appendChild(resolved);}'
-      +   '};'
-      // ── "+ Add to investigation" seed handler (report-scoped) ──────────
-      // Records a "Add study" annotation keyed to the proposed-inputs section.
-      // The SPA defines its own richer _seedFollowupProposal (live graph
-      // refresh); this report-scoped version just annotates so the offline /
-      // served reviewer click is captured in the feedback export.
-      +   'window._seedFollowupProposal=function(parentName,proposalId,proposalIdx,btn){'
-      +     'var card=btn&&btn.closest?btn.closest(".di-fup-card"):null;'
-      +     'var title=card?(function(){var t=card.querySelector(".di-fup-title");return t?t.textContent.trim():"";})():"";'
-      +     'var targets=card?Array.prototype.map.call(card.querySelectorAll(".di-fup-targets code"),function(c){return c.textContent;}):[];'
-      +     'var text="Add study \\u2014 "+(title||"new study")+(targets.length?" (targets: "+targets.join(", ")+")":"")+(parentName?" [parent: "+parentName+"]":"");'
-      +     'if(!_annotate("proposed-inputs",text)){alert("Could not record the request (feedback widget unavailable).");return;}'
-      +     'if(btn){btn.disabled=true;btn.textContent="\\u2713 recorded \\u2014 exports with your feedback";btn.style.borderColor="#16a34a";btn.style.color="#166534";}'
-      +   '};'
-      + '})();'
-      + '</script>'
-
-      // ── Inline feedback widget (fully detached: localStorage only) ──
-      //
-      // Per-report annotation key: each download gets a unique reportId
-      // (millisecond-precision generation timestamp). Annotations are
-      // keyed by INV + REPORT_ID, so opening an older report doesn't
-      // see comments left on a newer one and vice versa. The yaml export
-      // tags meta.report_id so pbg-feedback-import can attribute it
-      // back to a specific report file.
-      + _feedbackWidgetCss()
-      + _feedbackWidgetJs(iset.name || 'investigation',
-                          'rpt-' + new Date().toISOString()
-                                     .slice(0, 19).replace(/[-:T]/g, ''),
-                          ghRepo)
-
-      + '</body></html>';
-  }
-
-  // Inline CSS for the inline-feedback widget. Self-contained so the
-  // downloaded report works with no external dependencies.
-  function _feedbackWidgetCss() {
-    return '<style>'
-      + '.fb-host{position:relative}'
-      + '.fb-add{position:absolute;top:4px;right:4px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;width:26px;height:26px;font-size:13px;line-height:1;cursor:pointer;opacity:.55;transition:opacity .15s;z-index:5;padding:0;display:inline-flex;align-items:center;justify-content:center}'
-      + '.fb-host:hover .fb-add{opacity:1}'
-      + '.fb-add:hover{background:#fde68a;border-color:#f59e0b}'
-      + '.fb-add.has-fb{opacity:1;background:#fde68a;border-color:#f59e0b}'
-      // Editor is a body-level FIXED overlay so it can never be clipped
-      // by parent overflow:hidden / flex / transform. Positioned at click
-      // time via getBoundingClientRect against the trigger button.
-      + '.fb-editor{position:fixed;width:360px;max-width:calc(100vw - 24px);padding:12px;background:#fffbeb;border:1px solid #f59e0b;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:1000}'
-      + '.fb-editor textarea{width:100%;box-sizing:border-box;padding:6px;font:inherit;border:1px solid #cbd5e1;border-radius:3px;min-height:80px;resize:vertical}'
-      + '.fb-editor-row{display:flex;gap:6px;margin-top:8px;align-items:center}'
-      + '.fb-editor-row input{flex:1;min-width:0;padding:4px 8px;border:1px solid #cbd5e1;border-radius:3px;font:inherit}'
-      + '.fb-editor-row button{padding:5px 12px;cursor:pointer;border-radius:3px;font:inherit}'
-      + '.fb-save{background:#2563eb;color:#fff;border:1px solid #1e40af}'
-      + '.fb-cancel{background:#f3f4f6;border:1px solid #d1d5db;color:#1f2937}'
-      + '.fb-entries{margin:6px 0 0 0}'
-      + '.fb-entry{background:#fefce8;border-left:3px solid #f59e0b;padding:6px 10px;margin:4px 0;border-radius:0 4px 4px 0;position:relative}'
-      + '.fb-meta{font-size:11px;color:#78716c}'
-      + '.fb-text{margin-top:2px;white-space:pre-wrap}'
-      + '.fb-del{position:absolute;top:4px;right:6px;background:none;border:none;color:#a8a29e;cursor:pointer;font-size:14px;padding:0;line-height:1}'
-      + '.fb-del:hover{color:#dc2626}'
-      + '.fb-gh-entry{margin-top:6px;background:#1f883d;color:#fff;border:1px solid #1a7f37;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;line-height:1.2}'
-      + '.fb-gh-entry:hover{background:#1a7f37}'
-      + '.fb-bar{position:fixed;bottom:16px;right:16px;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.15);border-radius:6px;background:#fff}'
-      + '.fb-bar-btn{background:#f59e0b;color:#1f2937;border:1px solid #d97706;padding:10px 14px;font-weight:600;border-radius:6px;cursor:pointer;font-size:14px}'
-      + '.fb-bar-btn:hover{background:#fde68a}'
-      + '.fb-bar-btn[disabled]{opacity:.5;cursor:not-allowed}'
-      + '.fb-count{font-weight:400;opacity:.75;margin-left:4px}'
-      + '@media print{.fb-add,.fb-editor,.fb-bar,.fb-gh-entry{display:none}}'
-      + '</style>';
-  }
-
-  // Inline JS for the inline-feedback widget. Persists to localStorage
-  // keyed per-investigation; renders 💬 buttons on every element whose
-  // id matches the section taxonomy (study-*, finding-*, acceptance,
-  // references, how-to-read, studies-heading) and offers a "Generate
-  // feedback report" YAML download. No server contact — works offline.
-  //
-  // The editor is a body-level FIXED overlay anchored at click time to
-  // the trigger button's viewport coords. Two reasons for the overlay
-  // pattern instead of an in-host child:
-  //   1. <button> defaults to type="submit" — appending a child editor
-  //      inside arbitrary report sections can land in unexpected layout
-  //      contexts (overflow:hidden parents, flex containers, <details>
-  //      blocks) that clip or hide the editor entirely.
-  //   2. A single global editor means clicking a different 💬 swaps the
-  //      anchor cleanly instead of opening N stacked editors.
-  function _feedbackWidgetJs(invName, reportId, ghRepo) {
-    return '<script>'
-      + '(function(){'
-      +   'var INV=' + JSON.stringify(invName) + ';'
-      +   'var REPORT_ID=' + JSON.stringify(reportId || '') + ';'
-      // Repo (owner/name) resolved server-side at generation time from the
-      // workspace git remote (fallback workspace.yaml dashboard.github_repo).
-      // null when the workspace has no GitHub origin — the widget then
-      // host-detects or prompts once.
-      +   'var GH_REPO=' + JSON.stringify(ghRepo || '') + ';'
-      +   'var KEY="v2ecoli_feedback_"+INV+(REPORT_ID?("_"+REPORT_ID):"");'
-      +   'var ID_PATTERNS=[/^study-/,/^finding-/,/^acceptance$/,/^references$/,/^studies-heading$/,/^executive$/,/^decisions-needed$/,/^scientific-argument$/,/^biology$/,/^proposed-inputs$/];'
-      +   'var openEd=null;'
-      +   'var memStore={};'
-      +   'function safeGet(k){try{var v=(typeof localStorage!=="undefined")?localStorage.getItem(k):null;return (v==null?memStore[k]:v)||"";}catch(e){return memStore[k]||"";}}'
-      +   'function safeSet(k,v){memStore[k]=v;try{if(typeof localStorage!=="undefined")localStorage.setItem(k,v);}catch(e){}}'
-      +   'function load(){try{var s=safeGet(KEY);return s?JSON.parse(s):{};}catch(e){return {};}}'
-      +   'function save(d){safeSet(KEY,JSON.stringify(d));}'
-      +   'function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}'
-      +   'function shouldAttach(el){if(!el.id)return false;return ID_PATTERNS.some(function(re){return re.test(el.id);});}'
-      +   'function attachAll(){'
-      +     'document.querySelectorAll("[id]").forEach(function(el){'
-      +       'if(!shouldAttach(el)||el.dataset.fbAttached)return;'
-      +       'el.dataset.fbAttached="1";el.classList.add("fb-host");'
-      +       'var btn=document.createElement("button");'
-      +       'btn.type="button";'  // explicit: never a form submit
-      +       'btn.className="fb-add";btn.title="Add feedback to this section";btn.textContent="💬";'
-      +       'btn.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();openEditor(el,el.id,btn);});'
-      +       'el.appendChild(btn);renderExisting(el,el.id);'
-      +     '});'
-      +     'updateBadges();updateBarCount();'
-      +   '}'
-      +   'function renderExisting(host,sid){'
-      +     'var data=load();var entries=data[sid]||[];'
-      +     'var box=host.querySelector(":scope>.fb-entries");'
-      +     'if(!box){box=document.createElement("div");box.className="fb-entries";host.appendChild(box);}'
-      +     'box.innerHTML=entries.map(function(e,i){'
-      +       'return "<div class=\\"fb-entry\\">'
-      +              '<button type=\\"button\\" class=\\"fb-del\\" data-i=\\""+i+"\\" title=\\"Delete\\">×</button>'
-      +              '<div class=\\"fb-meta\\">"+esc(e.author||"evaluator")+" · "+esc(e.ts)+"</div>'
-      +              '<div class=\\"fb-text\\">"+esc(e.text)+"</div>'
-      // Per-annotation one-click GitHub issue (label=feedback, titled+bodied
-      // with this section + this annotation). Hidden when no repo is known.
-      +              '<button type=\\"button\\" class=\\"fb-gh-entry\\" data-i=\\""+i+"\\" title=\\"File this comment as a GitHub issue\\">\\u2197 Open GitHub issue</button>'
-      +              '</div>";'
-      +     '}).join("");'
-      +     'box.querySelectorAll(".fb-del").forEach(function(b){'
-      +       'b.addEventListener("click",function(ev){ev.preventDefault();ev.stopPropagation();var i=parseInt(b.dataset.i,10);var d=load();(d[sid]||[]).splice(i,1);if(!(d[sid]||[]).length)delete d[sid];save(d);renderExisting(host,sid);updateBadges();updateBarCount();});'
-      +     '});'
-      +     'box.querySelectorAll(".fb-gh-entry").forEach(function(b){'
-      +       'b.addEventListener("click",function(ev){ev.preventDefault();ev.stopPropagation();var i=parseInt(b.dataset.i,10);var e=(load()[sid]||[])[i];if(e)openGhIssueForSection(sid,e.text,e.author);});'
-      +     '});'
-      +   '}'
-      +   'function closeEditor(){if(openEd){openEd.remove();openEd=null;}}'
-      +   'function positionEditor(ed,anchorBtn){'
-      +     'var r=anchorBtn.getBoundingClientRect();'
-      +     'var edW=Math.min(360,window.innerWidth-24);'
-      +     'var top=r.bottom+8;'
-      +     'var left=Math.max(12,Math.min(window.innerWidth-edW-12,r.right-edW));'
-      +     'ed.style.top=top+"px";'
-      +     'ed.style.left=left+"px";'
-      +     'var edH=ed.offsetHeight||220;'
-      +     'if(top+edH>window.innerHeight-12){ed.style.top=Math.max(12,r.top-edH-8)+"px";}'
-      +   '}'
-      +   'function openEditor(host,sid,anchorBtn){'
-      +     'closeEditor();'  // singleton: only one editor at a time
-      +     'var ed=document.createElement("div");ed.className="fb-editor";'
-      +     'ed.setAttribute("data-fb-sid",sid);'
-      +     'ed.innerHTML="<div style=\\"font-size:12px;color:#78716c;margin-bottom:6px\\">Feedback on §<code>"+esc(sid)+"</code></div>'
-      +       '<textarea placeholder=\\"What feedback do you have on this section? (assumption, parameter, evidence, missing detail, etc.)\\"></textarea>'
-      +       '<div class=\\"fb-editor-row\\">'
-      +         '<input class=\\"fb-author\\" placeholder=\\"Your name (optional)\\" value=\\""+esc(safeGet("fb_author"))+"\\">'
-      +         '<button type=\\"button\\" class=\\"fb-cancel\\">Cancel</button>'
-      +         '<button type=\\"button\\" class=\\"fb-save\\">Save</button>'
-      +       '</div>";'
-      +     'document.body.appendChild(ed);'
-      +     'openEd=ed;'
-      +     'ed.addEventListener("click",function(e){e.stopPropagation();});'
-      +     'positionEditor(ed,anchorBtn);'
-      +     'window.requestAnimationFrame(function(){positionEditor(ed,anchorBtn);});'  // refine after layout
-      +     'setTimeout(function(){var ta=ed.querySelector("textarea");if(ta)ta.focus();},0);'
-      +     'ed.querySelector(".fb-cancel").addEventListener("click",function(e){e.preventDefault();e.stopPropagation();closeEditor();});'
-      +     'ed.querySelector(".fb-save").addEventListener("click",function(e){'
-      +       'e.preventDefault();e.stopPropagation();'
-      +       'var text=ed.querySelector("textarea").value.trim();if(!text)return;'
-      +       'var author=ed.querySelector(".fb-author").value.trim();'
-      +       'if(author)safeSet("fb_author",author);'
-      +       'var d=load();d[sid]=d[sid]||[];'
-      +       'd[sid].push({ts:new Date().toISOString(),author:author,text:text});'
-      +       'save(d);closeEditor();renderExisting(host,sid);updateBadges();updateBarCount();'
-      +     '});'
-      +   '}'
-      +   'document.addEventListener("click",function(e){'
-      +     'if(!openEd)return;'
-      +     'if(openEd.contains(e.target))return;'
-      +     'if(e.target.classList&&e.target.classList.contains("fb-add"))return;'
-      +     'closeEditor();'
-      +   '});'
-      +   'document.addEventListener("keydown",function(e){if(e.key==="Escape")closeEditor();});'
-      +   'window.addEventListener("resize",function(){if(openEd){var sid=openEd.getAttribute("data-fb-sid");var host=sid&&document.getElementById(sid);var btn=host&&host.querySelector(":scope>.fb-add");if(btn)positionEditor(openEd,btn);}});'
-      +   'window.addEventListener("scroll",function(){if(openEd){var sid=openEd.getAttribute("data-fb-sid");var host=sid&&document.getElementById(sid);var btn=host&&host.querySelector(":scope>.fb-add");if(btn)positionEditor(openEd,btn);}},{passive:true});'
-      +   'function countAll(){var d=load();var n=0;Object.keys(d).forEach(function(k){n+=(d[k]||[]).length;});return n;}'
-      +   'function updateBadges(){var d=load();document.querySelectorAll(".fb-add").forEach(function(b){var sid=b.parentElement&&b.parentElement.id;if(!sid)return;b.classList.toggle("has-fb",((d[sid]||[]).length>0));});}'
-      +   'function updateBarCount(){var c=countAll();var nt="("+c+")";document.querySelectorAll(".fb-count").forEach(function(s){if(s.textContent!==nt)s.textContent=nt;});document.querySelectorAll(".fb-bar-btn").forEach(function(btn){btn.disabled=c===0;});}'
-      +   'function ensureBar(){'
-      +     'if(document.querySelector(".fb-bar"))return;'
-      +     'var bar=document.createElement("div");bar.className="fb-bar";'
-      +     'var html="";'
-      +     'html+="<button type=\\"button\\" class=\\"fb-bar-btn fb-dl-btn\\" title=\\"Download all your annotations as a yaml file\\">Download feedback (.yaml) <span class=\\"fb-count\\">(0)</span></button>";'
-      // One-click submit to GitHub — works on any host (no dashboard server
-      // needed), so an emailed/Pages-hosted report can file feedback directly.
-      +     'html+="<button type=\\"button\\" class=\\"fb-bar-btn fb-gh-issue\\" style=\\"margin-left:6px;background:#1f883d\\" title=\\"Open a prefilled GitHub issue with your feedback\\">→ GitHub issue</button>";'
-      +     'bar.innerHTML=html;'
-      +     'document.body.appendChild(bar);'
-      +     'var db=bar.querySelector(".fb-dl-btn");if(db)db.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();downloadFeedback();});'
-      +     'var gi=bar.querySelector(".fb-gh-issue");if(gi)gi.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();openGhIssue();});'
-      +   '}'
-      // Proposed-input Accept/Decline and "+ Add to investigation" record
-      // their decision through this — a NORMAL annotation, the same channel
-      // the manual 💬 comments use. Author defaults to the reviewer's saved
-      // name (fb_author) so decisions are attributed like every other comment.
-      +   'window._fbAddAnnotation=function(sid,text,author){'
-      +     'if(!sid||!text)return;'
-      +     'author=author||safeGet("fb_author")||"reviewer";'
-      +     'var d=load();d[sid]=d[sid]||[];'
-      +     'd[sid].push({ts:new Date().toISOString(),author:author,text:text});'
-      +     'save(d);var host=document.getElementById(sid);if(host&&host.dataset&&host.dataset.fbAttached)renderExisting(host,sid);updateBadges();updateBarCount();'
-      +   '};'
-      +   'function serialiseYaml(meta,data){'
-      +     'var L=["# Inline feedback report","# Generated from the v2ecoli inline-feedback widget.","# Import with: pbg-feedback-import <this-file>"];'
-      +     'L.push("meta:");'
-      +     'Object.keys(meta).forEach(function(k){L.push("  "+k+": "+JSON.stringify(meta[k]));});'
-      +     'var keys=Object.keys(data).sort();'
-      +     'if(!keys.length){L.push("annotations: {}");}'
-      +     'else{L.push("annotations:");keys.forEach(function(sid){'
-      +       '(data[sid]||[]).forEach(function(e,i){if(i===0)L.push("  "+JSON.stringify(sid)+":");L.push("    - ts: "+JSON.stringify(e.ts));if(e.author)L.push("      author: "+JSON.stringify(e.author));L.push("      text: "+JSON.stringify(e.text));});'
-      +     '});}'
-      +     'return L.join("\\n")+"\\n";'
-      +   '}'
-      +   'function downloadFeedback(){'
-      +     'var d=load();if(!countAll()){alert("No feedback yet — click 💬 next to any section first.");return;}'
-      +     'var ts=new Date().toISOString();'
-      +     'var meta={investigation:INV,report_id:REPORT_ID,generated_at:ts,page_title:document.title,source_url:location.href};'
-      +     'var blob=new Blob([serialiseYaml(meta,d)],{type:"application/yaml"});'
-      +     'var url=URL.createObjectURL(blob);var a=document.createElement("a");'
-      +     'a.href=url;a.download="feedback-"+INV+"-"+ts.slice(0,19).replace(/[:T]/g,"-")+".yaml";'
-      +     'document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},0);'
-      +   '}'
-      // GitHub submit helpers. Resolve owner/repo from a github.io host
-      // (vivarium-collective.github.io/<repo>/…), else ask once and remember.
-      +   'function ghRepo(){'
-      // 1) repo injected at generation time from the workspace git remote.
-      +     'if(GH_REPO)return GH_REPO;'
-      // 2) github.io host detection (vivarium-collective.github.io/<repo>/…).
-      +     'try{var h=location.hostname,p=location.pathname.split("/").filter(Boolean);'
-      +       'if(/\\.github\\.io$/.test(h)&&p.length)return h.split(".")[0]+"/"+p[0];}catch(e){}'
-      // 3) remembered prompt answer, then a one-time prompt.
-      +     'var v=safeGet("fb_gh_repo");if(v)return v;'
-      +     'var ans=prompt("GitHub repo for this feedback (owner/repo):","");'
-      +     'if(ans){ans=ans.replace(/^https?:\\/\\/github.com\\//,"").replace(/\\.git$/,"").replace(/\\/+$/,"");safeSet("fb_gh_repo",ans);}'
-      +     'return ans||"";'
-      +   '}'
-      // Per-section GitHub issue: file ONE annotation as a focused issue,
-      // titled with the section id and bodied with the annotation text, a
-      // short quote of the section, and a deep-link anchor back to it.
-      +   'function sectionQuote(sid){try{var el=document.getElementById(sid);if(!el)return "";'
-      +     'var clone=el.cloneNode(true);clone.querySelectorAll(".fb-add,.fb-editor,.fb-entries,.fb-bar,script,style").forEach(function(n){n.remove();});'
-      +     'var t=(clone.textContent||"").replace(/\\s+/g," ").trim();return t.slice(0,280)+(t.length>280?"\\u2026":"");}catch(e){return "";}}'
-      +   'function openGhIssueForSection(sid,text,author){'
-      +     'var repo=ghRepo();if(!repo)return;'
-      +     'var anchor=location.origin+location.pathname+"#"+encodeURIComponent(sid);'
-      +     'var quote=sectionQuote(sid);'
-      +     'var body="Reviewer feedback on the **"+INV+"** investigation report.\\n\\n"'
-      +       '+"**Section:** `"+sid+"`\\n"'
-      +       '+(author?("**Reviewer:** "+author+"\\n"):"")'
-      +       '+"\\n**Feedback:**\\n> "+String(text||"").replace(/\\n/g,"\\n> ")+"\\n"'
-      +       '+(quote?("\\n**Section context:**\\n> "+quote+"\\n"):"")'
-      +       '+"\\n[Open this section in the report]("+anchor+")\\n";'
-      +     'var title="Reviewer feedback ["+INV+"]: "+sid;'
-      +     'var url="https://github.com/"+repo+"/issues/new?labels=feedback&title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body);'
-      +     'var w=window.open(url,"_blank","noopener");if(!w)location.href=url;'
-      +   '}'
-      +   'function fbYaml(){var meta={investigation:INV,report_id:REPORT_ID,generated_at:new Date().toISOString(),page_title:document.title,source_url:location.href};return serialiseYaml(meta,load());}'
-      +   'function openGhIssue(){if(!countAll()){alert("No feedback yet — click the 💬 icons first.");return;}var repo=ghRepo();if(!repo)return;'
-      +     'var body="Inline feedback from the investigation report.\\n\\n```yaml\\n"+fbYaml()+"```\\n";'
-      +     'var url="https://github.com/"+repo+"/issues/new?labels=feedback&title="+encodeURIComponent("Reviewer feedback: "+INV)+"&body="+encodeURIComponent(body);'
-      +     'var w=window.open(url,"_blank","noopener");if(!w)location.href=url;'
-      +   '}'
-      +   'function init(){attachAll();ensureBar();var mo=new MutationObserver(function(){attachAll();});mo.observe(document.body,{childList:true,subtree:true});}'
-      +   'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();'
-      + '})();'
-      + '</script>';
-  }
-
-  // Pop-out the investigation itself in a detached window. URL carries
-  // both ?investigation=<name> AND #investigations so detection is robust
-  // regardless of when the param is read on the receiving side.
   function _popoutInvestigation() {
     var name = window._currentIset;
     if (!name) {
@@ -17932,21 +12191,6 @@
   // Map a study's free-form status string to a small colored dot. Keeps the
   // rail rows readable: the study NAME gets the full row width, the dot is a
   // glanceable status, the full status text is shown in the title tooltip.
-  function _railStatusColor(status) {
-    var s = String(status || '').toLowerCase();
-    if (s.indexOf('fail') !== -1 || s.indexOf('invalid') !== -1 || s.indexOf('blocked') !== -1) return '#ef4444';   // red
-    if (s.indexOf('pending') !== -1 || s.indexOf('refresh') !== -1 || s.indexOf('needs') !== -1) return '#f59e0b';// amber
-    if (s.indexOf('inconclusive') !== -1 || s.indexOf('partial') !== -1) return '#d97706'; // dark amber
-    if (s.indexOf('running') === 0) return '#3b82f6';                                // blue
-    // 'pass' covers the gate verdict 'passed' as well as 'passing'/'passes'.
-    if (s.indexOf('done') === 0 || s.indexOf('ran') === 0 || s.indexOf('complete') !== -1
-        || s.indexOf('evaluated') !== -1 || s.indexOf('confirmed') !== -1 || s.indexOf('pass') !== -1
-        || s.indexOf('accept') !== -1 || s.indexOf('decided') !== -1
-        || s.indexOf('-wins') !== -1 || s.indexOf('in-band') !== -1) return '#16a34a'; // green
-    if (s.indexOf('evaluate') === 0) return '#6366f1';                               // indigo (mid-pass action)
-    return '#9ca3af';                                                                // gray (planned/unknown)
-  }
-
   // Pinned studies: a per-user convenience, kept in localStorage (no workspace
   // write). A pinned study is duplicated into a "Pinned" strip at the top of the
   // STUDIES rail for quick access while still appearing in its own group.
@@ -17977,8 +12221,12 @@
   // study (stopPropagation). Used by the grouped, pinned, and ungrouped layouts.
   function _railStudyItem(s, opts) {
     opts = opts || {};
-    var status = s.status || 'planned';
-    var color = _railStatusColor(status);
+    // Unified status source (see _studyStatusMeta) so the rail dot agrees with the
+    // investigation-graph card + legend. Was _railStatusColor(s.status) — a separate
+    // 4th color map that showed `blocked` red while the card showed amber.
+    var _sm = _studyStatusMeta(s);
+    var status = _sm.label;
+    var color = _sm.color;
     var indent = opts.indent ? '28px' : '12px';
     var fontSize = opts.indent ? '0.85em' : '0.86em';
     var nameColor = opts.indent ? '#64748b' : '#374151';
@@ -18515,7 +12763,7 @@
   function _createInvestigation() {
     var srcSel = document.getElementById('create-inv-source');
     if (srcSel) srcSel.innerHTML = '<option value="">— blank composites list, add later —</option>';
-    fetch('/api/composites').then(function(r) { return r.json(); }).then(function(data) {
+    apiFetch('GET', '/api/composites').then(function(r) { return r.json(); }).then(function(data) {
       (data.composites || []).forEach(function(c) {
         if (srcSel) {
           var sopt = document.createElement('option');
@@ -18534,10 +12782,7 @@
   function _submitInvestigationCreate(form) {
     var data = new FormData(form);
     var payload = { name: data.get('name'), composite: data.get('composite'), source: data.get('source') || '' };
-    fetch('/api/study-create', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/study-create', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -18563,7 +12808,7 @@
     // Switch the Investigations page into single-study focus mode: hide the
     // grid + toolbar + chips and let the detail panel take the full width.
     _setInvestigationsFocusMode(true);
-    fetch('/api/investigation/' + encodeURIComponent(name))
+    apiFetch('GET', '/api/investigation/' + encodeURIComponent(name))
       .then(function(r) { return r.json(); })
       .then(function(data) { _renderInvestigationDetail(name, data); })
       .catch(function(err) {
@@ -18924,13 +13169,9 @@
   }
 
   function _saveOverviewField(invName, key, value) {
-    var body = { investigation: invName, fields: {} };
-    body.fields[key] = value;
-    fetch('/api/investigation-set-overview', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    var overview = {};
+    overview[key] = value;
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(invName), {overview: overview})
       .then(function(r) {
         if (!r.ok) {
           return r.json().then(function(j) { alert(j.error || 'save failed'); });
@@ -18983,11 +13224,7 @@
     var invName = window._currentInvestigation;
     if (!invName) return;
     var blob = _emitConclusionsBlob();
-    fetch('/api/investigation-set-conclusions', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, markdown: blob}),
-    })
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(invName), {conclusions: blob})
       .then(function(r) {
         if (!r.ok) return r.json().then(function(j) { alert(j.error || 'save failed'); });
         if (typeof _showToast === 'function') _showToast('Saved conclusions');
@@ -19216,11 +13453,7 @@
         observables: fields.observables,
       };
     }
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', url, body)
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, body: j}; });
       })
@@ -19247,11 +13480,7 @@
     var invName = window._currentInvestigation;
     if (!invName) return;
     if (!confirm('Remove comparison "' + cmpName + '"?')) return;
-    fetch('/api/investigation-comparison', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: cmpName}),
-    })
+    apiFetch('DELETE', '/api/investigation-comparison', {investigation: invName, name: cmpName})
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, status: r.status, body: j}; });
       })
@@ -19461,11 +13690,7 @@
         variants: fields.variants,
       };
     }
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', url, body)
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, body: j}; });
       })
@@ -19492,11 +13717,7 @@
     var invName = window._currentInvestigation;
     if (!invName) return;
     if (!confirm('Remove group "' + grpName + '"?')) return;
-    fetch('/api/investigation-group', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: grpName}),
-    })
+    apiFetch('DELETE', '/api/investigation-group', {investigation: invName, name: grpName})
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, status: r.status, body: j}; });
       })
@@ -19542,7 +13763,7 @@
   // ── Investigation Composites tab handlers ─────────────────────────────────
 
   function _loadInvComposites(invName) {
-    fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+    apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var sidebar = document.getElementById('inv-composites-sidebar');
@@ -19592,7 +13813,7 @@
 
   function _loadInvCompositeDetail(invName, compName) {
     _renderInvCompositeIntervention(compName);
-    fetch('/api/investigation-composite-doc?investigation=' + encodeURIComponent(invName) +
+    apiFetch('GET', '/api/investigation-composite-doc?investigation=' + encodeURIComponent(invName) +
           '&composite=' + encodeURIComponent(compName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -19691,7 +13912,7 @@
       return;
     }
     // Cache miss — fetch and then render.
-    fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+    apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var list = (data && data.composites) || [];
@@ -19887,11 +14108,7 @@
       parameter_overrides: paramObj,
       process_overrides: procObj,
     };
-    fetch('/api/investigation-composite-perturb', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', '/api/investigation-composite-perturb', body)
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, body: j}; });
       })
@@ -19902,7 +14119,7 @@
         }
         if (typeof _showToast === 'function') _showToast('Saved intervention "' + name + '"');
         // Re-fetch composites so the cache and table reflect the new state.
-        fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+        apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
           .then(function(r) { return r.json(); })
           .then(function(data) {
             var list = (data && data.composites) || [];
@@ -19921,7 +14138,7 @@
   function _loadInvObservables(invName) {
     // 1. Get composites list, 2. fetch each one's state tree, 3. union store paths,
     // 4. pre-check based on spec.observables.
-    fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+    apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var composites = data.composites || [];
@@ -19931,7 +14148,7 @@
           return;
         }
         Promise.all(composites.map(function(c) {
-          return fetch('/api/investigation-state-tree?investigation=' + encodeURIComponent(invName) +
+          return apiFetch('GET', '/api/investigation-state-tree?investigation=' + encodeURIComponent(invName) +
                        '&composite=' + encodeURIComponent(c.name))
             .then(function(r) { return r.json(); })
             .then(function(tree) { return {composite: c.name, nodes: tree.nodes || []}; });
@@ -20018,10 +14235,7 @@
       document.querySelectorAll('#inv-observables-tree input[type=checkbox][data-path]:checked')
         .forEach(function(cb) { paths.push(cb.dataset.path.split('.')); });
     }
-    fetch('/api/investigation-set-observables', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, paths: paths, emit_all: emitAll}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(invName), {observables: paths, emit_all: emitAll}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var status = document.getElementById('inv-observables-status');
         if (!status) return;
@@ -20065,10 +14279,7 @@
     var names = ((el && el.value) || '').split(/[\n,]/)
       .map(function(s) { return s.trim(); }).filter(Boolean);
     var analyses = names.map(function(n) { return {name: n, params: {}}; });
-    fetch('/api/study-set-analyses', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, analyses: analyses}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/study-set-analyses', {investigation: invName, analyses: analyses}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var status = document.getElementById('inv-analyses-status');
         if (!status) return;
@@ -20083,7 +14294,7 @@
     var sel = document.getElementById('inv-add-composite-source');
     if (!sel) return;
     sel.innerHTML = '<option value="">— pick a workspace composite —</option>';
-    fetch('/api/composites').then(function(r) { return r.json(); })
+    apiFetch('GET', '/api/composites').then(function(r) { return r.json(); })
       .then(function(data) {
         (data.composites || []).forEach(function(c) {
           var opt = document.createElement('option');
@@ -20110,10 +14321,7 @@
       name: data.get('name'),
       source: data.get('source'),
     };
-    fetch('/api/investigation-composite-add', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-composite-add', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20164,10 +14372,7 @@
     };
     if (po) payload.parameter_overrides = po;
     if (procO) payload.process_overrides = procO;
-    fetch('/api/investigation-composite-perturb', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-composite-perturb', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20181,10 +14386,7 @@
   window._submitPerturb = _submitPerturb;
 
   function _rebuildComposite(invName, compName) {
-    fetch('/api/investigation-composite-rebuild', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: compName}),
-    }).then(function() {
+    apiFetch('POST', '/api/investigation-composite-rebuild', {investigation: invName, name: compName}).then(function() {
       _loadInvComposites(invName);
       _loadInvCompositeDetail(invName, compName);
     });
@@ -20193,10 +14395,7 @@
 
   function _removeComposite(invName, compName) {
     if (!confirm('Remove composite ' + compName + '?')) return;
-    fetch('/api/investigation-composite', {
-      method: 'DELETE', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: compName}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('DELETE', '/api/investigation-composite', {investigation: invName, name: compName}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20277,16 +14476,12 @@
       if (errEl) errEl.textContent = 'Target name must match [a-z0-9_-]+';
       return;
     }
-    fetch('/api/composite-promote-to-catalog', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+    apiFetch('POST', '/api/composite-promote-to-catalog', {
         investigation: invName,
         variant: variant,
         target_name: target,
         description: desc,
-      }),
-    })
+      })
       .then(function(r) {
         return r.json().then(function(j) { return {status: r.status, body: j}; });
       })
@@ -20341,12 +14536,25 @@
     var detail = document.getElementById('investigation-detail');
     var btn = detail.querySelector('button.action-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Running…'; }
-    fetch('/api/investigation-run', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-run', {name: name}).then(function(r) { return r.json().then(function(j) { return [r.ok, j, r.status]; }); })
       .then(function(parts) {
-        var ok = parts[0], j = parts[1];
+        var ok = parts[0], j = parts[1], code = parts[2];
+        // §A5: a v3 investigation is now delegated server-side to the SAME
+        // background job machinery "Run unblocked" uses, so this answers
+        // 202 + job_id instead of blocking until every simulation finishes.
+        // Hand it to the existing progress poll rather than inventing a second
+        // async UX — that poll already renders items, resolves Batch dispatches
+        // and drives the prerequisite re-drive.
+        //
+        // This is also what makes the button usable on a gateway-fronted
+        // deployment at all: the synchronous shape could not outlive the ALB's
+        // idle timeout regardless of where the work ran.
+        if (code === 202 && j && j.job_id) {
+          if (typeof _vivPollRunProgress === 'function') _vivPollRunProgress(j.job_id);
+          if (btn) { btn.disabled = false; btn.textContent = 'Run'; }
+          _openInvestigation(name);
+          return;
+        }
         if (!ok) { alert('Run failed: ' + (j.error || 'unknown')); }
         // Refresh both the list (status update) and the detail panel
         window._investigationsLoaded = false;
@@ -20360,10 +14568,7 @@
 
   function _deleteInvestigation(name) {
     if (!confirm('Delete investigation "' + name + '"? This removes its runs.db, visualizations, and spec.yaml.')) return;
-    fetch('/api/investigation-delete', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+    apiFetch('POST', '/api/investigation-delete', {name: name}).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Delete failed: ' + (j.error || 'unknown')); return; }
       var detail = document.getElementById('investigation-detail');
       if (detail) { detail.style.display = 'none'; detail.innerHTML = ''; }
@@ -20377,10 +14582,7 @@
 
   function _deleteRun(investigationName, runId) {
     if (!confirm('Delete run ' + runId.slice(-12) + '?')) return;
-    fetch('/api/investigation-run-delete', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: investigationName, run_id: runId}),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+    apiFetch('POST', '/api/investigation-run-delete', {investigation: investigationName, run_id: runId}).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Delete failed: ' + (j.error || 'unknown')); return; }
       _openInvestigation(investigationName);
     });
@@ -20389,10 +14591,7 @@
 
   function _clearRuns(investigationName) {
     if (!confirm('Clear ALL runs from ' + investigationName + '? (visualizations will be empty until you re-run)')) return;
-    fetch('/api/investigation-runs-clear', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: investigationName}),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+    apiFetch('POST', '/api/investigation-runs-clear', {investigation: investigationName}).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Clear failed: ' + (j.error || 'unknown')); return; }
       _openInvestigation(investigationName);
     });
@@ -20407,15 +14606,12 @@
     var overrides;
     try { overrides = JSON.parse(edited); }
     catch (e) { alert('Invalid JSON: ' + e); return; }
-    fetch('/api/investigation-run-one', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+    apiFetch('POST', '/api/investigation-run-one', {
         investigation: investigationName,
         sim_name: simName + '-copy',
         overrides: overrides,
         steps: steps,
-      }),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+      }).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Duplicate-run failed: ' + (j.error || 'unknown')); return; }
       // Re-render the investigation; the new run's viz HTML lives at
       // /investigations/<inv>/viz/<run_id>/<name>.html and is discoverable
@@ -20477,8 +14673,8 @@
     if (classSel) classSel.innerHTML = '<option value="">— none (description-only) —</option>';
     if (alreadyEl) alreadyEl.textContent = '';
     Promise.all([
-      fetch('/api/visualization-classes').then(function(r) { return r.json(); }),
-      fetch('/api/visualization-instances').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-classes').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-instances').then(function(r) { return r.json(); }),
       fetch('/workspace.yaml').then(function(r) { return r.ok ? r.text() : ''; }),
     ]).then(function(parts) {
       // Filter out Analysis classes — the workspace viz picker only shows Visualization classes.
@@ -20535,8 +14731,8 @@
     // is created once and re-populated each open from the cached spec.
     _ensureAddVizComparisonDropdown();
     Promise.all([
-      fetch('/api/visualization-instances').then(function(r) { return r.json(); }),
-      fetch('/api/visualization-classes').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-instances').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-classes').then(function(r) { return r.json(); }),
     ]).then(function(parts) {
       var instances = (parts[0] && parts[0].instances) || [];
       // Filter out Analysis classes — the add-viz picker only offers Visualization classes.
@@ -20664,10 +14860,7 @@
       address: data.get('address'),
       config: config,
     };
-    fetch('/api/investigation-add-viz', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-add-viz', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20675,10 +14868,7 @@
           return;
         }
         closeModal('modal-investigation-add-viz');
-        fetch('/api/investigation-render-viz', {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({name: payload.investigation}),
-        }).then(function() {
+        apiFetch('POST', '/api/investigation-render-viz', {name: payload.investigation}).then(function() {
           _openInvestigation(payload.investigation);  // refresh detail panel
         });
       });
@@ -20698,10 +14888,7 @@
       name: data.get('name'),
       description: data.get('description'),
     };
-    fetch('/api/visualization-generate', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-generate', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20741,10 +14928,7 @@
   }
 
   function _acceptGeneratedClass(name) {
-    fetch('/api/visualization-accept', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-accept', {name: name}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         var statusEl = document.getElementById('viz-generate-status');
@@ -21001,6 +15185,10 @@
     if (key === 'investigation') return String(_simInvestigation(row) || '').toLowerCase();
     if (key === 'run') return String(row.sim_name || row.label || row.run_id || '').toLowerCase();
     if (key === 'composite') return String(row.spec_id || '').toLowerCase();
+    if (key === 'source') {
+      var _s = row.source_ref || {};
+      return ((_s.repo || '') + ' ' + (_s.commit_short || '')).toLowerCase();
+    }
     if (key === 'status') return String(row.status || '').toLowerCase();
     if (key === 'location') return String(row.store_path || row.db_path || '').toLowerCase();
     if (key === 'config') {
@@ -21018,15 +15206,39 @@
     return '';
   }
 
+  // Statuses that mean "not finished" — a run the user just launched and is
+  // actively watching. These ALWAYS pin to the top of the Runs list, regardless
+  // of the column sort: remote list timestamps come from an unreliable bulk
+  // `last_updated` (every GovCloud run shows the same frozen time), so a live
+  // cloud run can't otherwise rise above the wall of old completed runs.
+  var _ACTIVE_RUN_STATUSES = { queued: 1, running: 1, pending: 1, submitted: 1,
+                               in_progress: 1, started: 1, dispatching: 1 };
+  function _isActiveRun(row) {
+    return !!_ACTIVE_RUN_STATUSES[String((row && row.status) || '').toLowerCase()];
+  }
+  function _sortActiveRuns(list) {
+    // Newest dispatch first among the active runs — the remote simulation_id is
+    // monotonic and trustworthy (unlike the frozen timestamp), else fall to time.
+    return list.slice().sort(function (a, b) {
+      var ai = ((a.remote_origin || {}).simulation_id) || 0;
+      var bi = ((b.remote_origin || {}).simulation_id) || 0;
+      if (ai !== bi) return bi - ai;
+      return (b.completed_at || b.started_at || 0) - (a.completed_at || a.started_at || 0);
+    });
+  }
+
   function _sortSimRows(rows, key, dir) {
-    if (!key) return rows;
-    const s = rows.slice().sort(function (a, b) {
+    var active = rows.filter(_isActiveRun);
+    var rest = rows.filter(function (r) { return !_isActiveRun(r); });
+    if (!key) return _sortActiveRuns(active).concat(rest);  // backend order for the rest
+    var s = rest.slice().sort(function (a, b) {
       var va = _simSortValue(a, key), vb = _simSortValue(b, key);
       if (va < vb) return -1;
       if (va > vb) return 1;
       return 0;
     });
-    return dir === 'desc' ? s.reverse() : s;
+    var sortedRest = dir === 'desc' ? s.reverse() : s;
+    return _sortActiveRuns(active).concat(sortedRest);
   }
 
   function _onSimHeaderClick(th) {
@@ -21091,10 +15303,18 @@
 
     visible = _sortSimRows(visible, _simSortState.key, _simSortState.dir);
 
+    // Chunked display: render only the first _simShown rows (page-size selector
+    // + "Show more"), so a large index (hundreds of runs) paints a small slice
+    // fast instead of the whole table. Count reflects the full filtered set.
+    var pageSize = window._simPageSize || 50;
+    if (!window._simShown || window._simShown < pageSize) window._simShown = pageSize;
+    var shown = visible.slice(0, window._simShown);
+
     var tbody = document.getElementById('sim-tbody');
     var table = document.getElementById('sim-table');
     var empty = document.getElementById('sim-empty');
-    if (tbody) tbody.innerHTML = visible.map(_renderSimRow).join('');
+    if (tbody) tbody.innerHTML = shown.map(_renderSimRow).join('');
+    _updateSimCount(shown.length, visible.length, (window._simRows || []).length);
     // Row click opens the run (delegated once, survives re-renders); the
     // download links/buttons keep their own behaviour.
     if (tbody && !tbody._simClickWired) {
@@ -21126,6 +15346,14 @@
     }
     if (table) table.style.display = visible.length ? '' : 'none';
     if (empty) empty.style.display = visible.length ? 'none' : '';
+
+    // Drag-resizable columns for the Simulations DB table. The thead is static
+    // (rendered once in index.html.j2) and only the tbody re-renders, so wire
+    // the grips a single time; stored widths persist across filters/reloads.
+    if (table && window.ColResize && !table._colResizeWired) {
+      table._colResizeWired = true;
+      window.ColResize.apply(table, 'sim-global-v2');
+    }
 
     var note = document.getElementById('sim-scope-note');
     if (note) {
@@ -21201,7 +15429,12 @@
       if (table)   table.style.display = 'none';
     }
 
-    window.DataSource.loadSimulations()
+    // Phase 1 — local-first: fetch the fast local index (include_remote=false)
+    // so the table + count paint in ~seconds instead of blocking on the slow
+    // (~tens-of-seconds) remote (GovCloud) fetch. Snapshot mode has no live
+    // backend, so its baked list is already complete — load it in one call.
+    var snapshot = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
+    window.DataSource.loadSimulations(snapshot ? undefined : { includeRemote: false })
       .then(function (data) {
         if (data.error) {
           if (quiet) return;
@@ -21211,7 +15444,14 @@
             'onclick="_initSimulations()">Retry</button></span>';
           return;
         }
-        window._simRows = data.simulations || [];
+        // Never shrink back to the local-only set once the remote-enriched rows
+        // have loaded: a quiet auto-refresh's fast local-only fetch must not clobber
+        // the (slow) GovCloud rows while they're still valid — that collapse-to-local
+        // then re-fetch was the visible flap.
+        var _incoming = data.simulations || [];
+        if (!window._simRemoteLoaded || _incoming.length >= (window._simRows || []).length) {
+          window._simRows = _incoming;
+        }
         // Scope target, most-specific first: the investigation currently open
         // in the detail view (_currentIsetSlug, set by _openInvestigationDetail),
         // else the git-branch investigation slug, else whatever investigation the
@@ -21221,6 +15461,11 @@
         if (loading) loading.style.display = 'none';
         _populateSimFilters();
         _applySimFilter();
+        _pollNonTerminalRemoteRuns();
+        // Phase 2 — merge in the remote runs (slow ~100s) in the background.
+        // On a quiet auto-refresh this only re-fires after a backoff and never
+        // while one is in flight, so the 15s poll can't restart the slow fetch.
+        if (!snapshot) _maybeLoadRemoteSims(quiet);
       })
       .catch(function (err) {
         if (quiet) return;
@@ -21230,6 +15475,157 @@
       });
   }
   window._initSimulations = _initSimulations;
+
+  // Phase 2 of the Runs load: fetch local+remote (the second call includes the
+  // GovCloud runs, deduped server-side) and merge into the table. Best-effort:
+  // a down tunnel leaves the local-only view in place.
+  // Don't re-pull the slow GovCloud list more than ~every 3 min on the quiet
+  // auto-refresh; the deployed /simulations endpoint can take ~100s, so a 15s
+  // poll firing it repeatedly never settles.
+  var REMOTE_REFRESH_MS = 180000;
+
+  function _maybeLoadRemoteSims(quiet) {
+    // First load / explicit refresh: always. Quiet auto-refresh: only after the
+    // backoff, and never while a fetch is already in flight (guard below).
+    if (!quiet || !window._simRemoteLoaded ||
+        (Date.now() - (window._simLastRemoteLoad || 0)) > REMOTE_REFRESH_MS) {
+      _loadRemoteSimsAsync();
+    }
+  }
+
+  function _loadRemoteSimsAsync() {
+    // Dedupe: the remote fetch is slow (~100s). Never start a second one while
+    // one is in flight — overlapping fetches are what made the page flap.
+    if (window._simRemoteInFlight) return;
+    window._simRemoteInFlight = true;
+    _setSimRemoteStatus('loading');
+    window.DataSource.loadSimulations({ includeRemote: true })
+      .then(function (data) {
+        window._simRemoteInFlight = false;
+        if (!data || data.error) { _setSimRemoteStatus('error'); return; }
+        var all = data.simulations || [];
+        if (all.length >= (window._simRows || []).length) window._simRows = all;
+        window._simRemoteLoaded = true;
+        window._simLastRemoteLoad = Date.now();
+        _setSimRemoteStatus('done');
+        _populateSimFilters();
+        _applySimFilter();
+        _pollNonTerminalRemoteRuns();
+      })
+      .catch(function () { window._simRemoteInFlight = false; _setSimRemoteStatus('error'); });
+  }
+
+  function _setSimRemoteStatus(state) {
+    var el = document.getElementById('sim-remote-status');
+    if (!el) return;
+    el.textContent = state === 'loading' ? '· loading GovCloud runs…'
+      : state === 'error' ? '· GovCloud runs unavailable'
+      : '';
+  }
+
+  // Count line + "Show more" visibility. shown = rows rendered; visible = rows
+  // matching the current filters; total = all loaded runs.
+  function _updateSimCount(shown, visible, total) {
+    var countEl = document.getElementById('sim-count');
+    var ctrls = document.getElementById('sim-controls');
+    var more = document.getElementById('sim-more');
+    if (ctrls) ctrls.style.display = total ? 'flex' : 'none';
+    if (countEl) {
+      countEl.textContent = (visible === total)
+        ? (total + ' run' + (total === 1 ? '' : 's'))
+        : (visible + ' of ' + total + ' runs');
+    }
+    if (more) more.style.display = (shown < visible) ? '' : 'none';
+  }
+
+  function _onSimPageSizeChange() {
+    var sel = document.getElementById('sim-page-size');
+    window._simPageSize = sel ? (parseInt(sel.value, 10) || 50) : 50;
+    window._simShown = window._simPageSize;  // reset to first page
+    _applySimFilter();
+  }
+  window._onSimPageSizeChange = _onSimPageSizeChange;
+
+  function _simShowMore() {
+    window._simShown = (window._simShown || (window._simPageSize || 50))
+      + (window._simPageSize || 50);
+    _applySimFilter();
+  }
+  window._simShowMore = _simShowMore;
+
+  // Backlog item 84: a UI-dispatched remote run's row shows "running" from
+  // the moment PR #922's pending-dispatch placeholder lands until someone
+  // explicitly clicks "Land Results" -- runs.db is never otherwise touched,
+  // so without this the row is frozen at "running" even long after the real
+  // AWS Batch campaign finished. Piggybacks on the auto-refresh cadence
+  // _startSimAutoRefresh already drives (every 15s while this page is open)
+  // rather than adding a second timer. For each currently-rendered remote
+  // row still showing "running", does ONE live check via the same
+  // GET /api/remote-run-poll?simulation_id=<id> endpoint item 6/81's own
+  // active-dispatch progress bar already uses (remote_run_status --
+  // on-demand, no in-process state) and, if the real phase is terminal,
+  // swaps just that row's chip in place. Deliberately does NOT write to
+  // runs.db or auto-land -- landing (the actual data pull) stays an
+  // explicit user action; this only keeps what's ON SCREEN honest while
+  // waiting for that click. Analysis-side staleness (item 84's own filing:
+  // GET /analyses/{id}/status is also pull-based) is a separate, still-open
+  // follow-on -- no analysis_id is tracked per-row today to poll against.
+  // Page-session-scoped: once a poll confirms a simulation_id's real terminal
+  // phase, remember it here. Required because this poller never writes to
+  // runs.db (landing stays the explicit user action) -- without this cache,
+  // every 15s auto-refresh re-renders every row from the raw DB value (still
+  // "running" until landed), silently erasing the chip this function just
+  // set, and the very next tick would re-poll and flip it right back --
+  // running/completed/running/completed forever for as long as the tab
+  // stays open on a real, finished-but-unlanded remote campaign. Caught live
+  // by watching more than one refresh cycle, not by a single before/after
+  // check.
+  window._remoteTerminalCache = window._remoteTerminalCache || {};
+
+  function _pollNonTerminalRemoteRuns() {
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;  // no live backend
+    var rows = document.querySelectorAll('tr[data-remote-sim-id]');
+    if (!rows.length) return;
+    var checked = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var tr = rows[i];
+      var chipHost = tr.querySelector('.run-status-live');
+      if (!chipHost) continue;
+      var simId = tr.getAttribute('data-remote-sim-id');
+      if (!simId) continue;
+
+      // Already known terminal from an earlier poll this page session --
+      // reapply immediately (no request, no visible flicker) instead of
+      // leaving this tick's fresh-from-DB "running" render stand until the
+      // next poll gets around to it.
+      var cachedPhase = window._remoteTerminalCache[simId];
+      if (cachedPhase) {
+        chipHost.innerHTML = window.SimTable.statusChip(cachedPhase);
+        continue;
+      }
+
+      if (!/running/i.test(chipHost.textContent)) continue;
+      if (checked >= 20) continue;  // defensive cap, not expected to bind in practice
+      checked++;
+      (function (host, id) {
+        apiFetch('GET', '/api/remote-run-poll?simulation_id=' + encodeURIComponent(id))
+          .then(function (r) { return r.json(); })
+          .then(function (body) {
+            var phase = body && body.phase;
+            if (phase === 'done') {
+              window._remoteTerminalCache[id] = 'completed';
+              host.innerHTML = window.SimTable.statusChip('completed');
+            } else if (phase === 'failed') {
+              window._remoteTerminalCache[id] = 'failed';
+              host.innerHTML = window.SimTable.statusChip('failed');
+            }
+            // running / queued / unreachable: leave the chip as-is, the next
+            // 15s auto-refresh tick will check again.
+          })
+          .catch(function () { /* transient -- next tick retries */ });
+      })(chipHost, simId);
+    }
+  }
 
   // Auto-refresh: while the Simulations DB page is open, re-pull every 15s so
   // the table stays current with newly persisted / remote-landed runs without
@@ -21324,11 +15720,7 @@
     // Replace the confirm handler each time to bind the current run_id.
     confirm.onclick = function () {
       confirm.disabled = true;
-      fetch('/api/simulation-run', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ run_id: run_id }),
-      }).then(function (r) { return r.json().then(function (d) {
+      apiFetch('DELETE', '/api/simulation-run', { run_id: run_id }).then(function (r) { return r.json().then(function (d) {
         return { ok: r.ok, status: r.status, body: d };
       }); }).then(function (res) {
         confirm.disabled = false;
@@ -21531,12 +15923,12 @@
 
     function tick() {
       Promise.all([
-        fetch(_api('/api/composite-run/' + encodeURIComponent(run_id) + '/status'))
+        apiFetch('GET', '/api/composite-run/' + encodeURIComponent(run_id) + '/status')
           .then(function(r) {
             if (r.status === 404) return { _gone: true };
             return r.json();
           }),
-        fetch(_api('/api/composite-run/' + encodeURIComponent(run_id)))
+        apiFetch('GET', '/api/composite-run/' + encodeURIComponent(run_id))
           .then(function(r) { return r.ok ? r.json() : { trajectory: [] }; })
           .catch(function() { return { trajectory: [] }; }),
       ]).then(function(parts) {
@@ -21580,7 +15972,7 @@
   // -------------------------------------------------------------------------
 
   function _openPRDialog() {
-    fetch('/api/state').then(function (r) { return r.json(); }).then(function (state) {
+    apiFetch('GET', '/api/state').then(function (r) { return r.json(); }).then(function (state) {
       var branch = (state && state.active_branch) || '';
       var base = (state && state.base) || 'main';
       var titleField = document.querySelector('#form-open-pr input[name=title]');
@@ -21671,7 +16063,7 @@
       // Fetch composite diff in parallel so the "Model changes" section can
       // include actual file paths + line counts. Best-effort; renders without
       // the section if the fetch fails or returns no model-code changes.
-      fetch('/api/work-composite-diff').then(function (r) { return r.ok ? r.json() : {changes: []}; })
+      apiFetch('GET', '/api/work-composite-diff').then(function (r) { return r.ok ? r.json() : {changes: []}; })
         .catch(function () { return {changes: []}; })
         .then(function (diff) {
           var modelChanges = (diff && diff.changes) || [];
@@ -21802,14 +16194,11 @@
           if (!html) return null;
           var filename = 'investigation-' + iset.name + '.html';
           setStatus('Committing report…');
-          return fetch('/api/work-attach-report', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
+          return apiFetch('POST', '/api/work-attach-report', {
               filename: filename,
               html: html,
               commit_message: 'docs(report): refresh investigation report for PR',
-            }),
-          }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
+            }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
         });
     } else {
       attachPromise = Promise.resolve(null);
@@ -21824,10 +16213,7 @@
         }
       }
       setStatus('Creating PR…');
-      return fetch('/api/work-create-pr', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(prBody),
-      }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
+      return apiFetch('POST', '/api/work-create-pr', prBody).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
     })
     .then(function (pair) {
       var ok = pair[0], j = pair[1];
@@ -21856,77 +16242,11 @@
   function _generateReportHtmlForCurrentIset() {
     var name = window._currentIset;
     if (!name) return Promise.resolve(null);
-    // Route through DataSource so hosted/snapshot mode (sub-projects #2/#3)
-    // honours the configured source here too.  Direct-fetch fallback keeps
-    // behaviour unchanged when DataSource is not available.
-    var _isetFetch = (window.DataSource && window.DataSource.loadInvestigation)
-      ? window.DataSource.loadInvestigation(name)
-      : fetch('/api/investigation/' + encodeURIComponent(name)).then(function (r) { return r.json(); });
-    return _isetFetch.then(function (iset) {
-        var studyFetches = (iset.studies || []).map(function (s) {
-          return ((window.DataSource && window.DataSource.loadStudy)
-            ? window.DataSource.loadStudy(s.name).catch(function () { return {spec: {name: s.name}}; })
-            : fetch('/api/study/' + encodeURIComponent(s.name))
-                .then(function (r) { return r.ok ? r.json() : {spec: {name: s.name}}; }))
-            .then(function (j) { return j.spec || j; });
-        });
-        var bibFetch = fetch((window.DataSource && window.DataSource.referencesBibUrl)
-            ? window.DataSource.referencesBibUrl() : '/api/references-bib')
-          .then(function (r) { return r.ok ? r.json() : {entries: []}; })
-          .then(function (j) { return j.entries || []; })
-          .catch(function () { return []; });
-        var chartFetches = (iset.studies || []).map(function (s) {
-          // Via DataSource so snapshot mode reads api/study-charts/<slug>.json at
-          // the bundle basePath; raw fetch would 404 on a hosted read-only site.
-          return ((window.DataSource && window.DataSource.loadStudyCharts)
-            ? window.DataSource.loadStudyCharts(s.name)
-            : fetch('/api/study-charts/' + encodeURIComponent(s.name))
-                .then(function (r) { return r.ok ? r.json() : {charts: []}; }))
-            .then(function (j) { return {name: s.name, charts: (j && j.charts) || []}; })
-            .catch(function () { return {name: s.name, charts: []}; });
-        });
-        var ghRepoFetch = fetch('/api/github-repo')
-          .then(function (r) { return r.ok ? r.json() : {repo: null}; })
-          .then(function (j) { return (j && j.repo) || null; })
-          .catch(function () { return null; });
-        // Wave 3b #6/#16 — competing hypotheses + computed support_log.
-        var hypFetch = fetch('/api/investigation-hypotheses?investigation=' + encodeURIComponent(iset.name))
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (j) { return (j && j.hypotheses) || null; })
-          .catch(function () { return null; });
-        return Promise.all([Promise.all(studyFetches), bibFetch, Promise.all(chartFetches), ghRepoFetch, hypFetch])
-          .then(function (arr) {
-            var chartsByStudy = {};
-            arr[2].forEach(function (c) { chartsByStudy[c.name] = c.charts; });
-            // Fetch each study's embed_visualizations HTML and inline it so the
-            // generated report carries the interactive figures (Plotly hover/
-            // zoom/legend) offline, not just the static charts. The publisher
-            // basePath-prefixes embed.url, so a plain fetch resolves in a hosted
-            // snapshot too; in local mode it hits the same-origin /workspace path.
-            var specs = arr[0];
-            var embedFetches = specs.map(function (spec) {
-              var embeds = (spec && spec.embed_visualizations) || [];
-              var perStudy = embeds.map(function (embed) {
-                if (!embed || !embed.url) return Promise.resolve(null);
-                return fetch(embed.url, {headers: {Accept: 'text/html'}})
-                  .then(function (r) { return r.ok ? r.text() : null; })
-                  .then(function (text) {
-                    return text ? {name: embed.name || '', description: embed.description || '',
-                                   url: embed.url, html: text, stale: embed.stale === true} : null;
-                  })
-                  .catch(function () { return null; });
-              });
-              return Promise.all(perStudy).then(function (results) {
-                return {name: spec && spec.name, embeds: results.filter(Boolean)};
-              });
-            });
-            return Promise.all(embedFetches).then(function (embedResults) {
-              var embedsByStudy = {};
-              embedResults.forEach(function (e) { if (e && e.name) embedsByStudy[e.name] = e.embeds; });
-              return _buildInvestigationReportHtml(iset, specs, arr[1], chartsByStudy, embedsByStudy, null, arr[3], undefined, undefined, arr[4]);
-            });
-          });
-      });
+    // The report is generated server-side (or pre-rendered in a bundle); fetch
+    // its self-contained HTML to attach to a PR.
+    return fetch(_investigationReportUrl(name))
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .catch(function () { return null; });
   }
   window._generateReportHtmlForCurrentIset = _generateReportHtmlForCurrentIset;
 
@@ -21947,51 +16267,76 @@
     val.innerHTML = html + (hint ? '<div class="gh-value-hint">' + hint + '</div>' : '');
   }
 
-  function _renderGitStatusRows(s) {
-    if (!document.getElementById('viv-gh-row-repo')) return;  // page not present
-    if (s == null) {
-      _setRow('repo', '<span class="muted">not a git workspace</span>');
-      ['branch', 'push-state', 'ahead', 'dirty', 'pr'].forEach(function (id) { _setRow(id, ''); });
+  // Commit + Push — commit all changes on the workspace's branch and push it.
+  // Moved here from the Source card (this card owns git sync). Wired to
+  // #btn-commit-push in index.html.j2.
+  function _commitAndPush() {
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') {
+      alert('Commit + Push needs the live workbench — a read-only snapshot has no git backend.');
       return;
     }
-    // Repository
-    _setRow('repo', s.upstream_repo
-      ? '<a href="' + s.repo_url + '" target="_blank" rel="noopener">' + _esc(s.upstream_repo) + '</a> ↗'
-      : '<span class="muted">no upstream remote configured</span>');
-    // Branch
-    _setRow('branch', s.branch
+    var msg = window.prompt('Commit message for push:', 'dashboard commit');
+    if (msg == null) return;
+    var btn = document.getElementById('btn-commit-push');
+    if (btn) { btn.disabled = true; btn.textContent = 'Pushing…'; }
+    function _reset() { if (btn) { btn.disabled = false; btn.textContent = 'Commit + Push'; } }
+    apiFetch('POST', '/api/branch/push', { message: msg }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        _reset();
+        if (res.ok) {
+          var m = 'Pushed ' + (res.d.branch || '') + ' @ ' + (res.d.commit || '').slice(0, 7);
+          if (typeof _showToast === 'function') _showToast(m); else alert(m);
+          _refreshGitStatus();
+        } else {
+          alert('Push failed: ' + (res.d.error || 'error'));
+        }
+      })
+      .catch(function () { _reset(); alert('Push failed: network error'); });
+  }
+  window._commitAndPush = _commitAndPush;
+
+  function _renderGitStatusRows(s) {
+    if (!document.getElementById('viv-gh-row-branch')) return;  // page not present
+    if (s == null) {
+      ['branch', 'dirty', 'pr'].forEach(function (id) { _setRow(id, ''); });
+      _setRow('branch', '<span class="muted">not a git workspace</span>');
+      return;
+    }
+    // Branch → base: the branch name, then how far ahead of its base it is (the
+    // PR-relevant comparison). Repo is NOT shown here — it's chosen in the Source
+    // card above; duplicating it was the confusing overlap this layout removes.
+    var branchName = s.branch
       ? (s.branch_url
-          ? '<a href="' + s.branch_url + '" target="_blank" rel="noopener"><code>' + _esc(s.branch) + '</code></a> ↗'
+          ? '<a href="' + s.branch_url + '" target="_blank" rel="noopener"><code>' + _esc(s.branch) + '</code></a>'
           : '<code>' + _esc(s.branch) + '</code>')
-      : '<span class="muted">no branch</span>');
-    // Push state
-    var stateMap = {
+      : '<span class="muted">no branch</span>';
+    var vsBase = '';
+    if (s.base) {
+      if (s.ahead_of_base > 0) {
+        var n = s.ahead_of_base + ' commit' + (s.ahead_of_base === 1 ? '' : 's')
+          + ' ahead of <code>' + _esc(s.base) + '</code>';
+        vsBase = ' → ' + (s.compare_url
+          ? '<a href="' + s.compare_url + '" target="_blank" rel="noopener">' + n + ' ↗</a>'
+          : n);
+      } else {
+        vsBase = ' → <span class="muted">up to date with <code>' + _esc(s.base) + '</code></span>';
+      }
+    }
+    _setRow('branch', branchName + vsBase);
+    // Changes: how the branch sits vs its REMOTE (push state) + the working tree.
+    var pushMap = {
       pushed:   '<span class="git-badge git-badge-ok">✓ pushed</span>',
-      ahead:    '<span class="git-badge git-badge-ahead">↑ ' + s.ahead + ' ahead of remote</span>',
+      ahead:    '<span class="git-badge git-badge-ahead">↑ ' + s.ahead + ' to push</span>',
       behind:   '<span class="git-badge git-badge-behind">↓ ' + s.behind + ' behind remote</span>',
       diverged: '<span class="git-badge git-badge-warn">! diverged from remote</span>',
     };
-    _setRow('push-state', stateMap[s.push_state] || '<span class="git-badge git-badge-warn">⊘ no origin</span>');
-    // Ahead of base
-    if (s.ahead_of_base > 0) {
-      var aheadHtml = s.compare_url
-        ? '<a href="' + s.compare_url + '" target="_blank" rel="noopener">' + s.ahead_of_base + ' commits ahead of <code>' + _esc(s.base) + '</code></a> ↗'
-        : s.ahead_of_base + ' commits ahead of <code>' + _esc(s.base) + '</code>';
-      _setRow('ahead', aheadHtml);
-    } else {
-      _setRow('ahead', s.base
-        ? '<span class="muted">up to date with <code>' + _esc(s.base) + '</code></span>'
-        : '');
-    }
-    // Working tree
-    if (s.dirty_count > 0) {
-      _setRow('dirty',
-        '<a href="#" onclick="event.preventDefault();_toggleDirtyPanel();return false">'
-        + s.dirty_count + ' uncommitted file' + (s.dirty_count === 1 ? '' : 's') + '</a>',
-        'Click to view + stage');
-    } else {
-      _setRow('dirty', '<span class="muted">clean</span>');
-    }
+    var pushBadge = pushMap[s.push_state] || '<span class="git-badge git-badge-warn">⊘ no remote</span>';
+    var treePart = (s.dirty_count > 0)
+      ? '<a href="#" onclick="event.preventDefault();_toggleDirtyPanel();return false">'
+        + s.dirty_count + ' uncommitted file' + (s.dirty_count === 1 ? '' : 's') + '</a>'
+      : '<span class="muted">clean</span>';
+    _setRow('dirty', pushBadge + ' &nbsp;·&nbsp; ' + treePart,
+      s.dirty_count > 0 ? 'Click the count to view + stage' : '');
     // Pull request
     if (s.pr_url) {
       var prState = (s.pr_state || 'open').toLowerCase();
@@ -22004,7 +16349,7 @@
   }
 
   function _refreshGitStatus() {
-    fetch('/api/git-status').then(function (r) { return r.json(); }).then(function (s) {
+    apiFetch('GET', '/api/git-status').then(function (r) { return r.json(); }).then(function (s) {
       // Legacy single-string box (still populated for any consumer that
       // reads it). The GitHub-tab settings page renders the same data into
       // individual rows via _renderGitStatusRows below.
@@ -22115,7 +16460,7 @@
       var a = document.getElementById('viv-gh-org-retry');
       if (a) a.onclick = function (e) { e.preventDefault(); _loadGithubOrgs(); };
     }
-    fetch('/api/auth/github/orgs').then(function (r) {
+    apiFetch('GET', '/api/auth/github/orgs').then(function (r) {
       if (r.status === 401) {
         sel.innerHTML = '<option value="">Sign in to load orgs…</option>';
         if (hint) hint.textContent = 'Sign in above to pick a default org.';
@@ -22247,11 +16592,9 @@
   // `.study-readiness-panel` placeholders are currently in the DOM by
   // overwriting their innerHTML — so a second call after more panels render
   // fills the new ones without issuing a duplicate fetch or double-rendering.
-  // No outer closure state is used (cache lives on the function object) so the
-  // investigation report can bake an exact copy via `.toString()` — see
-  // _buildInvestigationReportHtml; the served/downloaded report has no
-  // walkthrough.js, so it carries its own copy and invokes it after its study
-  // sections render (the placeholders are emitted async, after DOMContentLoaded).
+  // No outer closure state is used (cache lives on the function object), a
+  // property retained from when the investigation report baked an exact copy of
+  // this function via `.toString()`.
   function _populateReadinessPanels() {
     var panels = document.querySelectorAll('.study-readiness-panel');
     if (!panels.length) return;
@@ -22264,7 +16607,7 @@
     if (_populateReadinessPanels._cache) { _apply(_populateReadinessPanels._cache); return; }
     if (_populateReadinessPanels._pending) return;
     _populateReadinessPanels._pending = true;
-    fetch('/api/report-lint')
+    apiFetch('GET', '/api/report-lint')
       .then(function (r) { return r.ok ? r.json() : { findings: [] }; })
       .then(function (j) {
         var byStudy = {};

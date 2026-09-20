@@ -1,6 +1,6 @@
 {
   "particles": {
-    "MM0FDb_l": {
+    "Vr61YKIo": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "MM0FDb_l",
+      "id": "Vr61YKIo",
       "position": [
-        1.7651592913445424,
-        18.622951525159294
+        0.3666075041154293,
+        18.06828473650224
       ],
-      "mass": 1.4402294763510801,
+      "mass": 5.3741641352385505,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -1208,7 +1208,8 @@
     },
     "config": {
       "emit": "global_time:node|fields:node|particles:node",
-      "subsample": 1
+      "subsample": 1,
+      "max_len": null
     },
     "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
@@ -1230,12 +1231,13 @@
     },
     "_contract": {
       "summary": "Store historical states in memory.",
-      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.\n``max_len`` optionally bounds ``history`` to the most recent N\nrecorded rows (a ring buffer): once the cap is reached each new\nhistorical behaviour \u2014 consumers such as v2ecoli that read the\nfull ``history`` are unaffected unless they opt in). ``max_len``\ncounts *recorded* rows (i.e. post-``subsample``).",
       "inputs": {},
       "outputs": {},
       "config": {},
       "math": [
-        "``subsample`` records only every Nth composite tick (default 1 ="
+        "``subsample`` records only every Nth composite tick (default 1 =",
+        "record drops the oldest. Default ``None`` = unbounded (the"
       ],
       "symbols": {},
       "assumptions": [],

@@ -3,20 +3,20 @@
   "fields": {
     "glucose": [
       [
-        9.483842893554908,
-        3.1434891290079103
+        12.329934391642816,
+        0.18641464756230297
       ],
       [
-        4.067425995270089,
-        9.863316321852356
+        19.633768274865794,
+        4.606827036884356
       ],
       [
-        6.616814892002365,
-        8.717787672888502
+        8.351231881328989,
+        7.730246057362926
       ],
       [
-        14.11026315570371,
-        18.84196122190291
+        1.2265354445873422,
+        18.568594680428568
       ]
     ],
     "acetate": [
@@ -39,20 +39,20 @@
     ],
     "dissolved biomass": [
       [
-        0.09293395715292488,
-        0.08568622149725631
+        0.09946210838888415,
+        0.026380756176243803
       ],
       [
-        0.0790018028694162,
-        0.0010370537101901279
+        0.019390351899071914,
+        0.011464769807166542
       ],
       [
-        0.03593491225799409,
-        0.003161144665993976
+        0.08318060090389351,
+        0.0050197008116724786
       ],
       [
-        0.07468520377199418,
-        0.02386795251702254
+        0.06773936966977298,
+        0.003868747876729173
       ]
     ]
   },
@@ -1097,7 +1097,8 @@
     },
     "config": {
       "emit": "global_time:node|fields:node",
-      "subsample": 1
+      "subsample": 1,
+      "max_len": null
     },
     "_inputs": "global_time:node|fields:node",
     "_outputs": "results:node",
@@ -1116,12 +1117,13 @@
     },
     "_contract": {
       "summary": "Store historical states in memory.",
-      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.",
+      "description": "every tick). Use this for long runs or composites with heavy\nstate (large fields, many agents) to keep RAM bounded \u2014 the\nsaved time-series still reflects the simulation's true cadence\nvia each row's ``global_time`` field.\n``max_len`` optionally bounds ``history`` to the most recent N\nrecorded rows (a ring buffer): once the cap is reached each new\nhistorical behaviour \u2014 consumers such as v2ecoli that read the\nfull ``history`` are unaffected unless they opt in). ``max_len``\ncounts *recorded* rows (i.e. post-``subsample``).",
       "inputs": {},
       "outputs": {},
       "config": {},
       "math": [
-        "``subsample`` records only every Nth composite tick (default 1 ="
+        "``subsample`` records only every Nth composite tick (default 1 =",
+        "record drops the oldest. Default ``None`` = unbounded (the"
       ],
       "symbols": {},
       "assumptions": [],

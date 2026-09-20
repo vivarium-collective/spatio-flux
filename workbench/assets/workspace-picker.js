@@ -154,17 +154,21 @@
     function openWs(ws, newTab) {
       close();
       _wsRecordUsed(ws && ws.path);   // stamp before we navigate/switch away
+      // EVERY navigation below needs this. report.py's _base_path_shim patches
+      // fetch / EventSource / XMLHttpRequest, but NOT window.open or
+      // window.location — so a root-absolute URL escapes the workbench: under
+      // `--base-path /workbench` it hits the ALB root, which serves PTools.
+      var BP = window.__BASE_PATH__ || "";
       if (ws && ws.kind === "remote") {
         // Same URL shape branch-source.js's Open button already uses —
         // session.js's ?build= bootstrap materializes it and binds this new
         // tab's session, honoring the base path behind the shared ALB.
-        var bp = window.__BASE_PATH__ || "";
-        window.open(bp + "/?build=" + encodeURIComponent(ws.simulator_id), "_blank");
+        window.open(BP + "/?build=" + encodeURIComponent(ws.simulator_id), "_blank");
         return;
       }
       if (newTab) {
         var url = ws && ws.url ? ws.url
-          : (ws && ws.name ? "/?workspace=" + encodeURIComponent(ws.name) : null);
+          : (ws && ws.name ? BP + "/?workspace=" + encodeURIComponent(ws.name) : null);
         if (url) window.open(url, "_blank");
         else window.alert("No running server for \"" + ((ws && (ws.label || ws.name)) || "this workspace") +
           "\" to open in a new tab. Start it from that repo, then it'll appear here.");
@@ -176,7 +180,7 @@
           .then(function (r) { if (r.ok) location.reload(); else window.alert("Switch failed."); })
           .catch(function () { window.alert("Switch failed (network)."); });
       } else if (ws && ws.name) {
-        window.location.assign("/?workspace=" + encodeURIComponent(ws.name));
+        window.location.assign(BP + "/?workspace=" + encodeURIComponent(ws.name));
       }
     }
 
@@ -267,6 +271,33 @@
           e.stopPropagation(); _wsTogglePin(ws.path); render();
         });
         li.appendChild(pin);
+        // Remove (Forget) — drop an unwanted/stale local workspace from the
+        // global catalog (~/.pbg/workspaces.json), so the dropdown itself lets you
+        // prune it. Not for the current workspace or remote sms-api builds (those
+        // are not catalog entries). Uses the existing /api/workspaces/forget.
+        if (!isCur && !isRemote && ws.path) {
+          var forget = document.createElement("button");
+          forget.type = "button";
+          forget.className = "viv-wsp-forget";
+          forget.textContent = "✕";
+          forget.title = "Remove from this list (forget " + (ws.label || ws.name || "workspace") + ")";
+          forget.setAttribute("aria-label", "Remove " + (ws.label || ws.name || "workspace"));
+          forget.style.cssText = "background:none;border:0;cursor:pointer;opacity:0.35;font-size:12px;padding:0 4px";
+          forget.addEventListener("mouseenter", function () { this.style.opacity = "0.9"; });
+          forget.addEventListener("mouseleave", function () { this.style.opacity = "0.35"; });
+          forget.addEventListener("click", function (e) {
+            e.stopPropagation();
+            forget.disabled = true;
+            fetch("/api/workspaces/forget", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ path: ws.path }),
+            }).then(function (r) { return r.ok; }).then(function (ok) {
+              if (ok) { all = all.filter(function (w) { return w.path !== ws.path; }); render(); }
+              else { forget.disabled = false; }
+            }).catch(function () { forget.disabled = false; });
+          });
+          li.appendChild(forget);
+        }
         listEl.appendChild(li);
       });
       activeIdx = -1;

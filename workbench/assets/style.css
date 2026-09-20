@@ -770,7 +770,7 @@ body.viv-rail-resizing-active{ cursor:col-resize !important; user-select:none; }
 }
 .viv-rail-brand-link:hover .viv-rail-brand strong{ text-decoration:underline; }
 .viv-rail-logo{
-  width:46px; height:46px; flex:0 0 46px;
+  width:38px; height:38px; flex:0 0 38px;
   border-radius:8px;
   display:block;
   object-fit:contain;
@@ -1848,11 +1848,15 @@ textarea.loom-in-field{
 
 /* header "{ } JSON" toggle + the revealed spec viewer */
 .pcard-json-btn{
-  margin-left:auto; flex:none; align-self:center;
+  margin-left:6px; flex:none; align-self:center;
   background:none; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;
   color:#64748b; font-size:0.72em; font-weight:600; padding:2px 8px;
   font-family:ui-monospace,Menlo,monospace; letter-spacing:0.02em;
 }
+/* Only the FIRST action button (Share, right after the address) pushes the whole
+   cluster — Share · JSON · fullscreen · pop-out — to the right so they read as
+   one group, instead of each auto-margin spreading them apart. */
+.pcard-header .loom-addr + .pcard-json-btn{ margin-left:auto; }
 .pcard-json-btn:hover{ background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
 .pcard-json-btn.active{ background:#2563eb; color:#fff; border-color:#2563eb; }
 .pcard-header .pcard-json-btn + .pcard-popout{ margin-left:6px; }   /* sit side by side */
@@ -1872,9 +1876,9 @@ textarea.loom-in-field{
   background:none; border:1px solid transparent; border-radius:5px; cursor:pointer;
   color:#94a3b8; font-size:0.95em; line-height:1; padding:2px 7px;
 }
-.pcard-maximize{ margin-left:auto; }                 /* push the pair to the right */
+.pcard-maximize{ margin-left:6px; }                  /* sit beside JSON, one group */
 .pcard-maximize + .pcard-popout{ margin-left:6px; }  /* pop-out sits beside maximize */
-.pcard-popout{ margin-left:auto; }                   /* still right-aligned when alone */
+.pcard-popout{ margin-left:6px; }                    /* grouped with the rest */
 .pcard-maximize:hover,
 .pcard-popout:hover{ background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
 .pcard-maximized .pcard-maximize{ background:#2563eb; color:#fff; border-color:#2563eb; }
@@ -1913,28 +1917,37 @@ body.popcard-mode .pcard-maximize{ display:none; }   /* already full-window */
 /* persistent Run bar (not an accordion) — always visible at the card's top level */
 /* Run bar: the ▶ RUN label IS the run button (cyan, matching a section head),
    with the Steps selector beside it — one compact group at the bar's start. */
+/* Match the loom's Explore run bar (.explore-runbar) so the collapsed card and
+   the open-loom surface read as one design. */
 .pcard-runbar{
-  display:flex; align-items:center; flex-wrap:wrap; gap:10px;
-  padding:6px 16px; border-top:1px solid #eef2f7; border-bottom:1px solid #eef2f7;
-  background:#fff; box-shadow:inset 3px 0 0 #0891b2;   /* cyan run accent */
+  display:flex; align-items:center; flex-wrap:wrap; gap:12px;
+  padding:7px 14px; border-top:1px solid #e5e7eb; border-bottom:1px solid #e5e7eb;
+  background:#f8fafc; font-size:13px;
 }
-/* The RUN button: looks like the section-head label, acts like a button. */
+/* Mode pill — mirrors the loom run bar's ◇ steps / ◷ time chip. */
+.pcard-run-kind{
+  font-size:11px; font-weight:700; letter-spacing:.03em;
+  padding:2px 8px; border-radius:999px; white-space:nowrap; cursor:help; flex:none;
+  color:#7c3aed; background:#f3effe; border:1px solid #ddd0fb;   /* steps = purple */
+}
+/* The RUN button — solid teal, matching the loom's ▶ Run (.sr-run-btn). */
 .pcard-run-go{
   display:inline-flex; align-items:center; gap:6px; flex:none;
-  font-family:inherit; font-size:0.72em; font-weight:700;
-  text-transform:uppercase; letter-spacing:0.07em; line-height:1;
-  color:#0891b2; background:none;
-  border:1px solid transparent; border-radius:6px;
-  padding:6px 12px; cursor:pointer; transition:background .12s, border-color .12s;
+  font-family:inherit; font-size:13px; font-weight:600; line-height:1;
+  color:#fff; background:#0d6e6b;
+  border:none; border-radius:6px;
+  padding:6px 16px; cursor:pointer; transition:background .12s;
 }
-.pcard-run-go:hover{ background:#ecfeff; border-color:#a5f3fc; }
-.pcard-run-go:active{ background:#cffafe; }
-.pcard-run-go:disabled, .pcard-run-go-disabled{ opacity:.5; cursor:default; }
-.pcard-runbar .loom-run-field{ margin-left:6px; }      /* Steps sits next to the button */
-.pcard-runbar .pcard-run-note{ margin-left:10px; }     /* read-only note next to the button */
+.pcard-run-go:hover{ background:#0a5754; }
+.pcard-run-go:disabled, .pcard-run-go-disabled{ opacity:.6; cursor:not-allowed; }
+.pcard-runbar .loom-run-field{ margin-left:2px; font-size:13px; }   /* Steps label next to the button */
+.pcard-runbar .pcard-run-time{ width:64px; margin-left:2px; }
+.pcard-runbar .pcard-run-note{ margin-left:6px; }     /* read-only note next to the button */
 .pcard-run-out{ font-size:0.8em; color:#64748b; }
+/* OUTPUTS section head → teal, matching the loom's OUTPUTS toggle (.loom-outputs-toggle). */
+.pcard-sec-outputs > .pcard-sec-head .pcard-sec-name{ color:#0d6e6b; }
 :root[data-theme="dark"] .pcard-runbar{ background:var(--surface-1, #0f1728); border-color:var(--border-faint); }
-:root[data-theme="dark"] .pcard-run-go:hover{ background:rgba(8,145,178,.15); border-color:#0e7490; }
+:root[data-theme="dark"] .pcard-run-go:hover{ background:#0a5754; }
 
 /* resizable sections: capped, scrollable body + a drag grip (dbl-click = fit) */
 .pcard-sec-resizable.pcard-sec-open > .pcard-sec-body{ max-height:var(--pch,300px); overflow:auto; }
@@ -1994,6 +2007,58 @@ body.pcard-sec-resizing{ cursor:ns-resize; user-select:none; }
 .pcard-sec-feature > .pcard-sec-head:hover{ background:#f4efff; }
 .pcard-sec-feature > .pcard-sec-head .pcard-sec-caret{ color:#7c3aed; }
 .pcard-sec-feature > .pcard-sec-head .pcard-sec-name{ color:#6d28d9; }
+/* The single loom toggle is the full-width "graph" bar; hide the separate
+   "Explore" accordion head on composite cards. */
+.pcard-composite .pcard-sec-explore > .pcard-sec-head{ display:none; }
+.pcard-composite .pcard-sec-feature{ background:transparent; }
+/* Full-width "graph" bar — the ONE control that opens the loom. Styled to match
+   the loom's own collapsed graph grip so the handoff (card bar → loom's own grip)
+   is seamless: same height, ground, centered handle + "▸ graph" label. */
+.pcard-graph-bar{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; height:22px; padding:0; border:1px solid #e5e7eb; border-left:0; border-right:0;
+  background:#eef2f7; color:#64748b; cursor:pointer; user-select:none;
+}
+.pcard-graph-bar:hover{ background:#e6edf5; }
+.pcard-graph-bar-handle{ width:40px; height:4px; border-radius:999px; background:#cbd5e1; }
+.pcard-graph-bar:hover .pcard-graph-bar-handle{ background:#94a3b8; }
+.pcard-graph-bar-label{ font-size:11px; font-weight:600; letter-spacing:.02em; }
+/* The card-level bar is only the pre-mount trigger. Once the loom is open it owns
+   run + outputs + the graph grip, so hide the card-level bar (one control shows). */
+.pcard-composite.pcard-loom-open > .loom-card > .pcard-acc > .pcard-graph-bar{ display:none; }
+/* Collapse-the-bar button (⤢): only useful once the loom is open. */
+.pcard-hdr-collapse{
+  border:1px solid #e5e7eb; background:#fff; color:#64748b; cursor:pointer;
+  font-size:12px; line-height:1; padding:3px 8px; border-radius:6px; flex:none;
+  align-self:center; margin-left:auto;
+}
+.pcard-hdr-collapse:hover{ border-color:#4bb3ae; color:#0d6e6b; }
+.pcard-loom-open:not(.pcard-hdr-hidden) .pcard-hdr-collapse{ display:inline-block; }
+/* Restore strip — visible only while the bar is collapsed (the restore button
+   itself lives inside .pcard-top, so hide the header/summary, not the wrapper). */
+.pcard-hdr-restore{ display:none; }
+.pcard-hdr-hidden .pcard-header,
+.pcard-hdr-hidden .pcard-summary,
+.pcard-hdr-hidden .pcard-json-view{ display:none; }
+.pcard-hdr-hidden .pcard-hdr-restore{
+  display:block; width:100%; text-align:left; border:none; border-bottom:1px solid #e5e7eb;
+  background:#f8fafc; color:#0d6e6b; cursor:pointer; font:inherit; font-size:11px;
+  font-weight:700; padding:4px 12px;
+}
+.pcard-hdr-hidden .pcard-hdr-restore:hover{ background:#eef6f4; }
+/* Popped-out card: "Pop back in" sits in the header action row (top-right),
+   where the now-hidden ↗ pop-out button was. */
+.popcard-mode .pcard-popout{ display:none; }
+.popcard-backin-hdr{
+  border:1px solid #b7ebe3; background:#ecfdf9; color:#0d6e6b; cursor:pointer;
+  font-size:12px; font-weight:700; line-height:1; padding:4px 11px; border-radius:6px;
+  margin-left:8px; flex:none; white-space:nowrap;
+}
+.popcard-backin-hdr:hover{ background:#d5f2ee; border-color:#4bb3ae; }
+/* (Study→Model maximize fills the whole window by setting the embed iframe's
+   geometry via INLINE !important in walkthrough.js's pcard-maximize handler —
+   an id-selector !important rule on #study-detail-frame can't be beaten from a
+   class rule, so this is done inline rather than in CSS.) */
 .pcard-sec-hint{
   font-size:0.78em; font-weight:600; color:#7c3aed;
   background:#f1e9ff; border:1px solid #e2d3ff; border-radius:999px;
@@ -2106,6 +2171,10 @@ body.pcard-sec-resizing{ cursor:ns-resize; user-select:none; }
 .pcard-sec-wide > .pcard-sec-body{ padding:0; }
 .pcard-sec-wide .pcard-loom{ margin:0; }
 .pcard-sec-wide .ccard-loom-frame{ width:100%; min-height:340px; }
+/* Composite loom frame is auto-height (JS sizes it to the loom's content via
+   explore:autoheight, floored at 120px). Drop the 340px min so a collapsed graph
+   + closed outputs shrinks to a compact strip instead of leaving white space. */
+.pcard-composite .ccard-loom-frame{ min-height:0; }
 .pcard-composite .loom-card-composite{ position:relative; }
 .pcard-composite .composite-ws-tag{ margin-left:8px; }
 :root[data-theme="dark"] .proc-kind-composite ~ .composite-ws-tag{ opacity:0.9; }
@@ -3250,6 +3319,22 @@ body.col-resizing .col-resizer::after { background: #6366f1; }
 @keyframes inv-run-pulse {
   0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
 }
+:root[data-theme="dark"] .inv-run-progress{ background:var(--surface-2); border-color:var(--border); }
+:root[data-theme="dark"] .inv-run-progress-banner{ color:var(--text); }
+:root[data-theme="dark"] .inv-run-progress-banner.inv-run-error,
+:root[data-theme="dark"] .inv-run-err{ color:#fca5a5; }
+:root[data-theme="dark"] .inv-run-item{ background:var(--surface); border-color:var(--border); }
+:root[data-theme="dark"] .inv-run-arrow{ color:var(--text-muted); }
+:root[data-theme="dark"] .inv-run-queued{ background:var(--surface); border-color:var(--border); color:var(--text-muted); }
+:root[data-theme="dark"] .inv-run-queued .inv-run-icon{ color:var(--text-muted); }
+:root[data-theme="dark"] .inv-run-running{ background:rgba(59,130,246,0.16); border-color:rgba(59,130,246,0.4); color:#93c5fd; }
+:root[data-theme="dark"] .inv-run-running .inv-run-icon{ color:#93c5fd; }
+:root[data-theme="dark"] .inv-run-done{ background:rgba(22,163,74,0.16); border-color:rgba(22,163,74,0.4); color:#86efac; }
+:root[data-theme="dark"] .inv-run-done .inv-run-icon{ color:#86efac; }
+:root[data-theme="dark"] .inv-run-failed{ background:rgba(220,38,38,0.16); border-color:rgba(220,38,38,0.4); color:#fca5a5; }
+:root[data-theme="dark"] .inv-run-failed .inv-run-icon{ color:#fca5a5; }
+:root[data-theme="dark"] .inv-run-blocked{ background:rgba(245,158,11,0.15); color:#fcd34d; border-color:rgba(245,158,11,0.35); }
+:root[data-theme="dark"] .inv-run-skipped{ background:var(--surface-3); border-color:var(--border); color:var(--text-muted); }
 
 /* ─── Investigation-level comparative viz strip ─────────────────────── */
 .inv-comparative-viz {
@@ -4004,7 +4089,7 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 .tool-matches { display: flex; flex-direction: column; gap: 4px; }
 .tool-row + .tool-row { margin-top: 8px; }
 .viewer-target-list { display: flex; flex-direction: column; gap: 4px; }
-.explorer { display:flex; flex-direction:column; gap:10px; }
+
 /* top bar: run picker · view tabs · pop-out */
 .exp-topbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center;
   padding-bottom:8px; border-bottom:1px solid #2a313c; }
@@ -4029,12 +4114,11 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 .exp-view { flex:1 1 auto; min-width:0; min-height:460px;
   background:#0e1116; border:1px solid #1d2530; border-radius:6px; }
 .exp-view svg { display:block; margin:0 auto; }
-.explorer-loading { color:#8896a5; font-size:0.9em; padding:8px 0; }
+
 /* full-window standalone page */
-.explorer-standalone { position:fixed; inset:0; padding:14px 18px; box-sizing:border-box;
-  display:flex; flex-direction:column; background:#0b0e12; }
-.explorer-standalone .explorer { flex:1 1 auto; min-height:0; }
-.explorer-standalone .exp-body { flex:1 1 auto; min-height:0; }
+
+.explorer-standalone 
+
 .explorer-standalone .exp-view { height:100%; }
 .exp-rail #ts-obs, .exp-rail #ts-search { width:100%; }
 .exp-rail #ts-obs { height:220px; }
@@ -4315,21 +4399,6 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   border-radius: 5px; padding: 3px 11px; cursor: pointer;
 }
 .ccard-loom-live-btn:hover { background: #047857; }
-/* Drag-to-resize grip at the bottom of an embedded loom — grow/shrink the panel
-   (and the card with it). Full-width bar so the gesture is obvious. */
-.ccard-loom-resize {
-  flex: 0 0 11px; cursor: ns-resize; background: #eef2f7;
-  border-top: 1px solid #d5dde8; position: relative; touch-action: none;
-  user-select: none;
-}
-.ccard-loom-resize::before {
-  content: ''; position: absolute; left: 50%; top: 50%;
-  width: 34px; height: 3px; margin: -1.5px 0 0 -17px; border-radius: 2px;
-  background: #9aa7b8;
-}
-.ccard-loom-resize:hover { background: #e2e8f2; }
-.ccard-loom-resize:hover::before { background: #6b7a90; }
-.ccard-loom-frame.is-resizing { user-select: none; }
 .ccard {
   display: flex; flex-direction: column; gap: 7px;
   border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;
@@ -4459,18 +4528,14 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 /* Rail toggle switch (sun ↔ moon sliding pill). */
 .viv-rail-footer{ padding:10px 16px; border-top:1px solid #ececec; display:flex; }
 .viv-rail.viv-rail-collapsed .viv-rail-footer{ justify-content:center; padding:10px 4px; }
-/* Theme-toggle footer only: a compact, low-key corner. The pill is invisible
-   until the corner is hovered (or keyboard-focused), so it's unobtrusive and
-   gives the studies list more room. Its own class so the shared .viv-rail-footer
-   (reused by the GitHub account chip) is untouched. */
+/* Theme-toggle footer. Previously dimmed-until-hover (and invisible-until-hover
+   before that) on the theory that a quiet corner control is "unobtrusive" —
+   in practice a real user reported not finding it at either opacity; a control
+   nobody can find is not a control. Full opacity at rest, always. Its own class
+   so the shared .viv-rail-footer (reused by the GitHub account chip) is
+   untouched. */
 .viv-rail-theme-footer{ padding:0 16px 6px; border-top:none; align-items:center; }
 .viv-rail.viv-rail-collapsed .viv-rail-theme-footer{ padding:0 4px 6px; }
-.viv-rail-theme-footer .viv-theme-toggle{
-  opacity:0; transform:scale(0.94); transform-origin:left center;
-  transition:opacity .16s ease, transform .16s ease;
-}
-.viv-rail-theme-footer:hover .viv-theme-toggle,
-.viv-rail-theme-footer:focus-within .viv-theme-toggle{ opacity:1; transform:none; }
 .viv-theme-toggle{
   position:relative; display:inline-flex; align-items:center; justify-content:space-between;
   width:56px; height:26px; padding:0 7px; border-radius:14px;
@@ -4484,6 +4549,12 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
   background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.28); transition:left .18s ease;
 }
+/* Low-priority control: hidden until the rail-bottom corner is hovered (or the
+   toggle itself is keyboard-focused), so it stays out of the studies list's way.
+   The footer keeps its box, so the invisible button is still a hover target. */
+.viv-rail-theme-footer .viv-theme-toggle{ opacity:0; transition:opacity .15s ease; }
+.viv-rail-theme-footer:hover .viv-theme-toggle,
+.viv-theme-toggle:focus-visible{ opacity:1; }
 
 /* ── Dark theme (dark-blue) ──────────────────────────────────────────────
    The whole palette lives in the variables below — tweak the look from one
@@ -4885,3 +4956,120 @@ body.col-resizing .registry-table.reg-table-fill th, body.col-resizing .registry
 :root[data-theme="dark"] .about-block h2{ color:#93c5fd; }
 :root[data-theme="dark"] .about-link-ghost{ color:#93c5fd; }
 :root[data-theme="dark"] .about-link-ghost:hover{ background:rgba(59,130,246,.12); }
+
+/* Study Overview — Claim / Test / Result spine (study-ui) */
+.study-overview .ctr-block { margin: 0 0 30px; }
+.study-overview .ctr-h { margin: 0 0 9px; }
+.study-overview .ctr-text {
+  font-size: 1.06em; line-height: 1.68; color: var(--ink, #1e293b);
+  max-width: none; margin: 0;
+}
+.study-overview .ctr-result {
+  border-left: 3px solid var(--accent, #10b981);
+  padding-left: 16px; margin-left: -1px;
+}
+.study-overview .ctr-evidence { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.study-overview .ctr-chip {
+  display: inline-flex; flex-direction: column; gap: 1px;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 11px;
+}
+.study-overview .ctr-chip-k {
+  font-size: 0.64em; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--gray, #64748b); font-weight: 700;
+}
+.study-overview .ctr-chip-v { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82em; color: #1e293b; }
+:root[data-theme="dark"] .study-overview .ctr-chip,
+.theme-dark .study-overview .ctr-chip { background: #1a2433; border-color: #2b3a4f; }
+:root[data-theme="dark"] .study-overview .ctr-chip-v,
+.theme-dark .study-overview .ctr-chip-v { color: #e2e8f0; }
+
+/* Overview enrich: context / meta / findings (study-ui) */
+.study-overview .ctr-context {
+  margin-top: 12px; font-size: 0.95em; line-height: 1.62;
+  color: var(--gray, #64748b); padding-left: 14px; border-left: 2px solid var(--line, #e5e7eb);
+}
+.study-overview .ctr-meta { margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
+.study-overview .ctr-meta-row { font-size: 0.9em; color: var(--ink-2, #475569); }
+.study-overview .ctr-meta-k {
+  display: inline-block; min-width: 74px; font-size: 0.72em; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--gray, #94a3b8); font-weight: 700;
+}
+.study-overview .ctr-meta-item { color: var(--ink-2, #475569); }
+.study-overview .ctr-dot { color: var(--line, #cbd5e1); margin: 0 6px; }
+.study-overview .ctr-findings { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.study-overview .ctr-find {
+  position: relative; padding-left: 22px; font-size: 0.98em; line-height: 1.55; color: var(--ink, #1e293b);
+}
+.study-overview .ctr-find::before {
+  content: "✓"; position: absolute; left: 0; top: 0; font-weight: 700; color: var(--accent, #10b981);
+}
+.study-overview .ctr-find-contradicts::before { content: "✗"; color: #dc2626; }
+.study-overview .ctr-find-partial::before { content: "◐"; color: #d97706; }
+.study-overview .ctr-find-novel::before { content: "◆"; color: #6366f1; }
+
+/* Overview: assessment badges (study-ui) */
+.study-overview .ctr-assess { margin-top: 16px; }
+.study-overview .ctr-badge {
+  display: inline-block; padding: 1px 9px; border-radius: 9999px; font-size: 0.74em;
+  font-weight: 700; letter-spacing: 0.02em; background: #e2e8f0; color: #475569; margin-right: 6px;
+}
+.study-overview .ctr-badge-accepted { background: #dcfce7; color: #166534; }
+.study-overview .ctr-badge-investigating { background: #fef9c3; color: #854d0e; }
+.study-overview .ctr-badge-refuted { background: #fee2e2; color: #991b1b; }
+.study-overview .ctr-vch {
+  display: inline-block; font-size: 0.76em; color: var(--gray, #64748b); font-family: ui-monospace, monospace;
+  background: #f1f5f9; border-radius: 5px; padding: 1px 7px; margin-right: 5px;
+}
+
+/* Overview: result figure (study-ui) */
+.study-overview .ctr-figure {
+  margin: 16px 0 4px; padding: 14px; background: #fff;
+  border: 1px solid var(--line, #e5e7eb); border-radius: 12px; max-width: 720px;
+}
+.study-overview .ctr-figure svg { display: block; width: 100%; height: auto; }
+/* The centerpiece is an <img> data-URI (see study_page.render_study_detail_html):
+   loom figures embed <foreignObject> HTML that overflows an inlined <svg>, so it
+   is rasterized to an <img> and scaled shrink-only. */
+.study-overview .ctr-figure img.ctr-figure-img { display: block; max-width: 100%; height: auto; }
+:root[data-theme="dark"] .study-overview .ctr-figure,
+.theme-dark .study-overview .ctr-figure { background: #0f1720; border-color: #2b3a4f; }
+
+/* Investigation intro — full what_is_this as prose (study-ui) */
+.inv-brief-intro { margin: 14px 0 6px; max-width: none; }
+.inv-brief-intro p { margin: 0 0 0.92em; line-height: 1.66; color: var(--ink-2, #334155); }
+.inv-brief-intro p:last-child { margin-bottom: 0; }
+.inv-brief-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.inv-brief-meta .inv-brief-meta-item { font-size: 0.9em; color: var(--gray, #64748b); }
+
+/* ── Composite tier badges (Draft / Executable / Live) + figure-group headers ── */
+.ccard-tier{
+  display:inline-block; font-size:0.62rem; font-weight:800; letter-spacing:.04em;
+  text-transform:uppercase; padding:1px 7px; border-radius:999px; vertical-align:middle;
+  margin-left:2px;
+}
+.ccard-tier-draft{ color:#7c3aed; background:#f3effe; border:1px solid #ddd0fb; }
+.ccard-tier-exec{  color:#0d6e6b; background:#ecfdf9; border:1px solid #b7ebe3; }
+.ccard-tier-live{  color:#b45309; background:#fef6e7; border:1px solid #fcd9a3; }
+.composite-figure-group{
+  grid-column:1 / -1; margin:16px 2px 2px; padding:0 0 4px;
+  border-bottom:2px solid #e5e7eb;
+}
+.composite-figure-group:first-child{ margin-top:2px; }
+.composite-figure-group span{
+  font-size:0.74rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  color:#0d6e6b;
+}
+:root[data-theme="dark"] .composite-figure-group{ border-bottom-color:var(--border); }
+:root[data-theme="dark"] .composite-figure-group span{ color:#5eead4; }
+
+/* Model tab — formatted composite config ("the model file", e.g. Smoldyn). */
+.model-source{ margin-top:10px; display:flex; flex-direction:column; gap:12px; }
+.model-source-head{ font-size:0.85em; margin-bottom:4px; }
+.model-source-pre{
+  margin:0; padding:12px 14px; border:1px solid var(--border);
+  border-radius:8px; background:var(--surface-2, #f6f8fa);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size:12px; line-height:1.5; white-space:pre; overflow-x:auto;
+  color:var(--text, #1f2328); max-height:420px; overflow-y:auto;
+}
+:root[data-theme="dark"] .model-source-pre{ background:#0f141b; color:#d5dae2; }

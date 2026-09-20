@@ -46,6 +46,41 @@
     return bp + path;
   }
 
+  // Simulations list. Snapshot mode has no query-filtered endpoint — publish.py
+  // bakes the WHOLE workspace list to /api/simulations.json — so callers fetch
+  // that and filter by study_slug client-side (simulationsFilter). Live keeps
+  // the server-side ?study= filter. (The generic apiUrl() can't do this: it only
+  // prefixes the base path, so `/api/simulations?study=X` 404s on a static host.)
+  function simulationsUrl(slug) {
+    return cfg().mode === "snapshot"
+      ? _base() + "/api/simulations.json"
+      : "/api/simulations" + (slug ? "?study=" + encodeURIComponent(slug) : "");
+  }
+  function simulationsFilter(rows, slug) {
+    if (!slug || cfg().mode !== "snapshot") return rows || [];
+    return (rows || []).filter(function (r) { return r && r.study_slug === slug; });
+  }
+
+  // Study Results preview. Snapshot mode has no query-filtered endpoint —
+  // publish.py bakes each study's preview to /api/study-results/<slug>.json —
+  // so callers fetch the static file. Live keeps the server-side ?study= query.
+  // (The generic apiUrl() can't do this: it only prefixes the base path, so
+  // `/api/study-results?study=X` 404s on a static host.)
+  function resultsUrl(slug) {
+    return cfg().mode === "snapshot"
+      ? _base() + "/api/study-results/" + encodeURIComponent(slug) + ".json"
+      : "/api/study-results?study=" + encodeURIComponent(slug);
+  }
+
+  // Study Readouts (design-time emit contract). Snapshot mode reads the baked
+  // per-study file (publish.py); live keeps the ?study= query. Same split as
+  // resultsUrl / simulationsUrl.
+  function readoutsUrl(slug) {
+    return cfg().mode === "snapshot"
+      ? _base() + "/api/study-readouts/" + encodeURIComponent(slug) + ".json"
+      : "/api/study-readouts?study=" + encodeURIComponent(slug);
+  }
+
   async function _get(url) {
     // GitHub Pages / Fastly returns 429 (occasionally 503) under per-IP rate
     // limiting when the hosted snapshot fires its burst of parallel /api/*.json
@@ -163,10 +198,14 @@
       : "/api/composite-resolve?id=" + encodeURIComponent(id);
   }
 
-  function _simulationsUrl() {
-    return cfg().mode === "snapshot"
-      ? _base() + "/api/simulations.json"
-      : "/api/simulations";
+  function _simulationsUrl(opts) {
+    if (cfg().mode === "snapshot") return _base() + "/api/simulations.json";
+    var qs = [];
+    // Local-first load: fetch the fast local index first (include_remote=false),
+    // then a second call merges in the slow remote (GovCloud) runs.
+    if (opts && opts.includeRemote === false) qs.push("include_remote=false");
+    if (opts && opts.refresh) qs.push("refresh=true");
+    return "/api/simulations" + (qs.length ? "?" + qs.join("&") : "");
   }
 
   function _visualizationClassesUrl() {
@@ -202,6 +241,17 @@
 
     /** Prefix a root-absolute "/api/…" path with the base path (live + snapshot). */
     apiUrl: apiUrl,
+
+    /** Simulations-list URL (snapshot: full baked list; live: ?study= filtered). */
+    simulationsUrl: simulationsUrl,
+    /** Keep only a study's runs (snapshot returns the whole workspace). */
+    simulationsFilter: simulationsFilter,
+
+    /** Study Results preview URL (snapshot: baked per-study file; live: ?study=). */
+    resultsUrl: resultsUrl,
+
+    /** Study Readouts URL (snapshot: baked per-study file; live: ?study=). */
+    readoutsUrl: readoutsUrl,
 
     /**
      * Return the URL for the saved-visualizations payload (Analyses gallery).
@@ -364,8 +414,8 @@
      * Local mode:    fetches GET /api/simulations
      * Snapshot mode: fetches /api/simulations.json from the static bundle
      */
-    async loadSimulations() {
-      return _get(_simulationsUrl());
+    async loadSimulations(opts) {
+      return _get(_simulationsUrl(opts));
     },
 
     /**
