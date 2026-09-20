@@ -1,6 +1,6 @@
 {
   "particles": {
-    "LAitfVAf": {
+    "JACt8UQS": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "LAitfVAf",
+      "id": "JACt8UQS",
       "position": [
-        44.648524944846336,
-        44.08983052869044
+        38.216304225074985,
+        47.20602520503085
       ],
-      "mass": 0.31711592016721674,
+      "mass": 0.027066454268133155,
       "local": {},
       "exchange": {},
       "sub_masses": {},

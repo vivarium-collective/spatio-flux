@@ -1,6 +1,6 @@
 {
   "particles": {
-    "KGaYHqxk": {
+    "cX3Xbxdx": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "KGaYHqxk",
+      "id": "cX3Xbxdx",
       "position": [
-        39.732315190828125,
-        12.075114151096034
+        6.230880042922688,
+        19.423104395203588
       ],
-      "mass": 3.312082438724081,
+      "mass": 6.821794664160994,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -1207,21 +1207,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -1245,8 +1245,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"
