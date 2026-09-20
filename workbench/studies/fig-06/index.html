@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Study: fig-06</title>
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/style.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/progress-track.css">
+<!-- Inherit the workbench light/dark theme (this page loads in an iframe;
+     same-origin, so it shares the parent's localStorage 'viv.theme'). -->
+<script>(function(){try{var t=localStorage.getItem('viv.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+<main class="study-page">
+<header class="study-header">
+  <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
+  <h1 class="study-title">
+    <span class="study-name" id="study-name" data-slug="fig-06" title="fig-06">Fig 6 — orchestration patterns</span>
+    
+    <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
+    
+  </h1>
+  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
+    
+    <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
+    <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
+    
+    <button type="button" id="study-run-composite" class="btn-mini" title="Dispatch a specific process-bigraph composite_id to the remote compute backend (pbg-native multi_node/mbp, or the Nextflow campaign path) — advanced, independent of this study's own pinned baseline">⚙ Dispatch composite</button>
+  </span>
+  </div>
+  <div class="study-status-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
+    
+    
+    <span class="status-pill status-complete" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">complete</span>
+    
+
+    
+    <div id="readiness-panel" data-slug="fig-06"></div>
+
+    
+    
+    
+    
+    
+    
+    <details class="status-detail-panel" aria-label="Six-gate lifecycle status">
+      <summary>
+        <span class="status-stepper-more">status</span>
+        
+        <span class="status-stepper">
+          
+          <span class="status-step gate-step axis-design_status gate-state-not-assessed" title="Gate 1 · Plan">
+            <span class="dot"></span>1&nbsp;·&nbsp;Plan
+          </span>
+          
+          <span class="status-step gate-step axis-simulation_status gate-state-not-assessed set" title="Gate 2 · Execution">
+            <span class="dot"></span>2&nbsp;·&nbsp;Execution
+          </span>
+          
+          <span class="status-step gate-step axis-evaluation_status gate-state-passed-with-conditions set" title="Gate 3 · Evidence">
+            <span class="dot"></span>3&nbsp;·&nbsp;Evidence
+          </span>
+          
+          <span class="status-step gate-step axis-evaluation_status gate-state-not-assessed set" title="Gate 4 · Quality">
+            <span class="dot"></span>4&nbsp;·&nbsp;Quality
+          </span>
+          
+          <span class="status-step gate-step axis-gate_status gate-state-not-assessed set" title="Gate 5 · Decision">
+            <span class="dot"></span>5&nbsp;·&nbsp;Decision
+          </span>
+          
+          <span class="status-step gate-step axis-expert_review_status gate-state-not-assessed" title="Gate 6 · Release">
+            <span class="dot"></span>6&nbsp;·&nbsp;Release
+          </span>
+          
+          
+        </span>
+      </summary>
+      <div class="status-stepper-body">
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">1 · Plan</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">2 · Execution</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-not-assessed" title="no runs in runs.db">◆ computed: not_run</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
+          <span class="status-detail-axis">3 · Evidence</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-passed-with-conditions" title="nothing run to evaluate + visualization readiness gate (V4)">◆ computed: not_evaluated</span>
+          
+          
+          
+          <span class="gate-viz-gap-note" style="font-size:0.86em;color:#92400e">visualization gap: no interactive figure (only static images)</span>
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">4 · Quality</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-not-assessed" title="nothing run to evaluate">◆ computed: not_evaluated</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">5 · Decision</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          <span class="gate-computed-chip gate-state-not-assessed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: not_started</span>
+          
+          
+          
+        </div>
+        
+        <div class="status-detail-row gate-row gate-state-not-assessed">
+          <span class="status-detail-axis">6 · Release</span>
+          <span class="status-chip gate-state-not-assessed">not set</span>
+          
+          
+        </div>
+        
+        
+      </div>
+    </details>
+    
+  </div>
+</header>
+
+
+
+
+
+
+
+
+
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> What orchestration patterns does Fig 6 depict?</p>
+
+<nav class="study-tabs" aria-label="Study sections">
+  
+  <div class="act-cluster" data-act="study">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="study" data-gate-state="passed-with-conditions"></span>
+      <span class="act-label">The Study</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar active" data-kind="overview" onclick="_setStudyTab('overview')">Overview</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="design">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="design" data-gate-state="not-assessed"></span>
+      <span class="act-label">Design</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="compose"  onclick="_setStudyTab('compose')">Model</button>
+      <button class="study-pillar" data-kind="readouts" onclick="_setStudyTab('readouts')">Readouts</button>
+      
+      <button class="study-pillar" data-kind="simulate"  onclick="_setStudyTab('simulate')">Simulations</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="evidence">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed-with-conditions"></span>
+      <span class="act-label">Evidence</span>
+    </div>
+    <div class="act-tabs">
+      
+      <button class="study-pillar" data-kind="results"   onclick="_setStudyTab('results')">Results</button>
+      <button class="study-pillar" data-kind="analyses"  onclick="_setStudyTab('analyses')">Analyses</button>
+      <button class="study-pillar" data-kind="visualize" onclick="_setStudyTab('visualize')">Visualizations</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="assurance">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="assurance" data-gate-state="not-assessed"></span>
+      <span class="act-label">Assurance</span>
+    </div>
+    <div class="act-tabs">
+      <button class="study-pillar" data-kind="tests" onclick="_setStudyTab('tests')">Tests</button>
+      
+      <button class="study-pillar" data-kind="audit" onclick="_setStudyTab('audit')">Audit</button>
+      <button class="study-pillar" data-kind="build" onclick="_setStudyTab('build')">Build</button>
+    </div>
+  </div>
+  <div class="act-cluster" data-act="decision">
+    <div class="act-header">
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="not-assessed"></span>
+      <span class="act-label">Decision</span>
+    </div>
+    <div class="act-tabs">
+      
+      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Decide</button>
+    </div>
+  </div>
+</nav>
+<style>
+/* Task 4: header restructure — kind tag, promoted question, tightened status row.
+   The 6-axis stepper + gate-status colors below are carried over verbatim from
+   the pre-restructure Pass A styling (the <details> markup was repositioned,
+   not rebuilt). */
+.study-kind-tag{display:inline-block;font-size:0.5em;font-weight:600;padding:3px 9px;border-radius:9999px;vertical-align:middle;margin-left:8px;background:#f1f5f9;color:#475569;text-transform:capitalize}
+.study-kind-tag.study-kind-biological{background:#ecfdf5;color:#065f46}
+.study-kind-tag.study-kind-computational{background:#eff6ff;color:#1e40af}
+.study-kind-tag.study-kind-theoretical{background:#faf5ff;color:#6b21a8}
+.study-question-headline{margin:6px 0 0 0;font-size:1.05em;line-height:1.5;color:#1e293b;font-family:Georgia,"Times New Roman",serif}
+.study-question-headline .q-glyph{display:inline-block;font-size:0.78em;font-weight:700;font-family:ui-monospace,monospace;color:#64748b;background:#f1f5f9;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.study-status-row{font-size:0.95em}
+.status-detail-panel{margin:0;padding:2px 0;background:transparent;border:none;border-radius:0;font-size:0.92em}
+.status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
+.status-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;background:#e2e8f0;color:#334155;font-family:ui-monospace,monospace}
+/* gate_status colors per Pass A spec: blocked=gray, needs_calibration=amber, passed=green, failed=red, stale=purple */
+.gate-status-blocked          { background:#e5e7eb; color:#374151 }
+.gate-status-needs_calibration{ background:#fef3c7; color:#92400e }
+.gate-status-passed           { background:#d1fae5; color:#065f46 }
+.gate-status-failed           { background:#fee2e2; color:#991b1b }
+.gate-status-stale            { background:#ede9fe; color:#5b21b6 }
+.status-pill.gate-status{font-weight:500}
+/* Compact one-line lifecycle stepper; full per-axis rows behind the "status ▾" expander. */
+.status-detail-panel > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-detail-panel > summary::-webkit-details-marker{display:none}
+.status-stepper{display:flex;gap:13px;flex-wrap:wrap;align-items:center;flex:1}
+.status-step{display:inline-flex;align-items:center;gap:5px;font-size:0.82em;color:#94a3b8;white-space:nowrap}
+.status-step .dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.set{color:#334155}
+.status-step.set .dot{background:#10b981;box-shadow:none}
+.status-step .step-val{font-family:ui-monospace,monospace;font-size:0.92em;color:#64748b}
+.status-step.gate-status-blocked .dot{background:#9ca3af;box-shadow:none}
+.status-step.gate-status-needs_calibration .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
+/* Fable G2 (§13.2 gate-state vocab; §9.3 palette: grey/green/amber/red/violet).
+   One palette for the gate-ladder stepper dots + detail rows AND (via the
+   [data-gate-state] selectors below) the act-rail dots, so "how urgent is
+   this gate" reads identically in both places. Rules below `.status-step.set
+   .dot` on purpose so a "set" gate's real state wins over the generic green. */
+.status-step.gate-state-not-assessed .dot{background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.gate-state-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-state-passed-with-conditions .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-state-blocked .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-state-waived .dot{background:#8b5cf6;box-shadow:none}
+.status-chip.gate-state-not-assessed{background:#e2e8f0;color:#334155}
+.status-chip.gate-state-passed{background:#d1fae5;color:#065f46}
+.status-chip.gate-state-passed-with-conditions{background:#fef3c7;color:#92400e}
+.status-chip.gate-state-blocked{background:#fee2e2;color:#991b1b}
+.status-chip.gate-state-waived{background:#ede9fe;color:#5b21b6}
+.gate-computed-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-left:6px;font-family:ui-monospace,monospace;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.gate-divergence-chip-inline{display:inline-block;font-size:0.78em;font-weight:700;padding:2px 9px;border-radius:9999px;margin-left:6px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e}
+.act-gate-dot[data-gate-state="passed"]{background:#10b981;box-shadow:none}
+.act-gate-dot[data-gate-state="passed-with-conditions"]{background:#f59e0b;box-shadow:none}
+.act-gate-dot[data-gate-state="blocked"]{background:#ef4444;box-shadow:none}
+.act-gate-dot[data-gate-state="waived"]{background:#8b5cf6;box-shadow:none}
+.status-stepper-more{font-size:0.82em;font-weight:600;color:#475569;white-space:nowrap}
+.status-detail-panel[open] .status-stepper-more::after{content:" \25be"}
+.status-detail-panel:not([open]) .status-stepper-more::after{content:" \25b8"}
+.status-stepper-body{margin-top:6px;padding-top:6px;border-top:1px solid #eef2f6}
+.phase-pill{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-right:6px;font-weight:500;background:#e0e7ff;color:#3730a3}
+.phase-design   { background:#e0e7ff; color:#3730a3 }
+.phase-build    { background:#fef3c7; color:#92400e }
+.phase-simulate { background:#dbeafe; color:#1e40af }
+.phase-evaluate { background:#fce7f3; color:#9d174d }
+.phase-decide   { background:#d1fae5; color:#065f46 }
+.classification-pill{display:inline-block;font-size:0.7em;padding:1px 8px;border-radius:9999px;margin-right:4px;font-weight:500}
+.classification-primary    { background:#fee2e2; color:#991b1b }
+.classification-supporting { background:#dbeafe; color:#1e40af }
+.classification-diagnostic { background:#fef3c7; color:#92400e }
+.classification-regression { background:#e5e7eb; color:#374151 }
+.sim-status-pill{display:inline-block;font-size:0.72em;padding:1px 8px;border-radius:9999px;margin-left:4px}
+.sim-status-ready  { background:#d1fae5; color:#065f46 }
+.sim-status-gated  { background:#fef3c7; color:#92400e }
+.sim-status-running{ background:#dbeafe; color:#1e40af }
+.sim-status-ran    { background:#d1fae5; color:#065f46 }
+.purpose-callout{margin-bottom:10px;padding:10px 14px;border-radius:4px;line-height:1.55}
+.purpose-callout strong{margin-right:6px}
+.followup-list{display:flex;flex-direction:column;gap:10px}
+.followup-card{padding:10px 14px;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.93em}
+.followup-card.followup-kind-existing{border-left-color:#3b82f6;background:#eff6ff}
+.followup-card.followup-kind-infrastructure_fix{border-left-color:#dc2626;background:#fef2f2}
+.followup-card.followup-kind-calibration_task{border-left-color:#f59e0b;background:#fefce8}
+.followup-card.followup-kind-expert_question{border-left-color:#a855f7;background:#faf5ff}
+.followup-card.followup-kind-new{border-left-color:#10b981;background:#f0fdf4}
+.followup-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.followup-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+.followup-effort{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-family:ui-monospace,monospace}
+.followup-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+.followup-status.status-blocked{background:#fef3c7;color:#92400e}
+.followup-status.status-done{background:#d1fae5;color:#065f46}
+.followup-title{flex:1;font-size:1em}
+.followup-why,.followup-unblocks,.followup-acceptance,.followup-hypothesis{margin:4px 0 0 0;font-size:0.92em;line-height:1.45}
+.followup-hypothesis{padding:6px 10px;background:#fff;border-radius:3px;border:1px dashed #cbd5e1}
+.btn-seed-followup{font-size:0.85em;padding:4px 12px;border:1px solid #3b82f6;background:#fff;color:#3b82f6;border-radius:4px;cursor:pointer}
+.btn-seed-followup:hover{background:#3b82f6;color:#fff}
+/* ── One flowing figure gallery (Fable §4.5, Task V2) ──────────────────
+   The native gallery, embedded-HTML previews, and latest-run charts all
+   render as the same `.figure-card`: a bordered figure container + a muted
+   caption-row footer (source chip + title + optional run link), instead of
+   three differently-chrome'd sections under their own headings. The three
+   async mounts stay separate (`#native-gallery-panel`, the embed cards,
+   `#viz-charts-panel`) but each is a flex column with the same gap, so they
+   read as one continuous gallery. */
+.figure-gallery{display:flex;flex-direction:column;gap:16px}
+.figure-mount{display:flex;flex-direction:column;gap:16px}
+.charts-panel{display:flex;flex-direction:column;gap:16px}
+.figure-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
+.figure-media-frame{display:block;width:100%;border:0;background:#fff}
+.figure-media-frame--native{height:480px}
+.figure-media-frame--embed{min-height:200px}
+/* SVGs/PNGs scale to fit their card; preserves aspect ratio so a 1400×484
+   chart shrinks instead of overflowing horizontally + clipping. */
+.figure-card svg,.figure-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}
+/* Loom figure SVGs (with <foreignObject> HTML that WebKit won't scale when
+   inlined) are rendered as <img> data-URIs by study-detail.js so the browser
+   rasterizes + scales the whole figure. max-width shrinks a too-wide figure;
+   no width:100%, so small figures keep their native size instead of upscaling. */
+.figure-card img.figure-svg-img{display:block;max-width:100%;height:auto}
+.figure-desc{margin:8px 12px 0;font-size:0.85em;color:#475569}
+.figure-caption-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;font-size:0.85em;color:#475569;border-top:1px solid #f1f5f9;background:#f8fafc}
+.figure-source-chip{font-size:0.68em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#64748b;flex-shrink:0}
+.figure-title{font-weight:600;color:#334155;flex:1;min-width:100px}
+.figure-run-link,.figure-open-link{font-size:0.85em;color:#2563eb;text-decoration:none;white-space:nowrap;cursor:pointer}
+.figure-run-link:hover,.figure-open-link:hover{text-decoration:underline}
+.chart-caption{font-size:0.83em;color:#475569;margin:8px 12px 0;line-height:1.4}
+/* findings */
+.findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
+.finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
+.finding-card.finding-status-confirms{border-left-color:#10b981}
+.finding-card.finding-status-partial{border-left-color:#f59e0b}
+.finding-card.finding-status-contradicts{border-left-color:#dc2626}
+.finding-card.finding-status-novel{border-left-color:#8b5cf6}
+/* C2: compact ledger row (<summary>) + native <details> evidence drawer */
+.finding-details{border:none}
+.finding-details>summary{list-style:none;cursor:pointer}
+.finding-details>summary::-webkit-details-marker{display:none}
+.finding-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.finding-chip{font-size:0.78em;color:#475569;background:#f1f5f9;padding:2px 8px;border-radius:9999px;white-space:nowrap}
+.finding-drawer{margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0}
+.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.finding-status-glyph{font-size:1.2em;width:24px;text-align:center}
+.finding-status-confirms .finding-status-glyph{color:#10b981}
+.finding-status-partial .finding-status-glyph{color:#f59e0b}
+.finding-status-contradicts .finding-status-glyph{color:#dc2626}
+.finding-status-novel .finding-status-glyph{color:#8b5cf6}
+.finding-id{font-family:ui-monospace,monospace;font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px}
+.finding-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-weight:500}
+.finding-status-text{font-size:0.78em;color:#64748b;margin-left:auto;font-style:italic}
+.finding-statement{font-size:1em;line-height:1.5;font-weight:500;color:#0f172a;margin:4px 0 8px 0}
+.finding-claim{flex:1;min-width:200px;margin:0}
+.finding-evidence,.finding-expected{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}
+.finding-exp-summary{font-size:0.9em;color:#475569;padding:6px 10px;background:#fafbff;border-left:3px solid #6366f1;border-radius:3px;margin:6px 0;line-height:1.5}
+.finding-explanation{font-size:0.92em;color:#1e293b;margin:6px 0;line-height:1.5}
+.finding-explanation em{color:#475569;font-style:normal;font-weight:600}
+.finding-expert{margin:6px 0;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}
+.finding-expert summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}
+.finding-expert-quote{border-left:3px solid #6366f1;margin:6px 0 4px 0;padding:6px 10px;background:#fafbff;font-style:italic;color:#1e1b4b;font-size:0.92em;line-height:1.5}
+.finding-expert-note{font-size:0.88em;color:#475569;margin-top:4px;font-style:italic}
+.finding-next{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.9em;margin-top:8px;line-height:1.5}
+.finding-next strong{color:#065f46}
+/* discovery implications */
+.di-group{margin:14px 0}
+.di-group h3{margin:0 0 6px 0;font-size:0.95em}
+.di-uncertainties{display:flex;flex-wrap:wrap;gap:16px;margin:8px 0}
+.di-unc{flex:1;min-width:220px}
+.di-unc h4{margin:0 0 4px 0;font-size:0.88em}
+.di-unc-resolved h4{color:#065f46}
+.di-unc-remaining h4{color:#92400e}
+.di-unc ul{margin:0 0 0 18px;padding:0;font-size:0.9em;line-height:1.45}
+.di-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.92em}
+.di-card-stmt{font-size:0.98em;line-height:1.5}
+.di-card-why{margin:4px 0 0 0;color:#475569;line-height:1.45}
+.di-card-line{margin:4px 0 0 0;font-size:0.88em;color:#475569;line-height:1.4}
+.di-lbl{color:#475569;font-weight:600;font-size:0.85em}
+.di-mech-card{border-left-color:#a855f7;background:#faf5ff}
+.di-mech-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.di-update-chip{font-size:0.7em;text-transform:uppercase;letter-spacing:0.04em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}
+.di-conf-change{font-size:0.78em;color:#475569;font-family:ui-monospace,monospace}
+.di-approval-badge{font-size:0.68em;text-transform:uppercase;letter-spacing:0.04em;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e}
+.di-fup-card{border-left-color:#10b981;background:#f0fdf4}
+.di-gain-high{background:#d1fae5;color:#065f46}
+.di-gain-medium{background:#fef3c7;color:#92400e}
+.di-gain-low{background:#e5e7eb;color:#374151}
+.di-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+
+/* ── Dark theme ──────────────────────────────────────────────────────
+   Same idiom as vivarium_workbench/static/style.css's own dark block:
+   var(--token) for structural neutrals, rgba(hue,alpha) + a reused light
+   fg-tint per semantic family (green=passed/confirms, amber=needs_calib/
+   gated/blocked-phase, red=failed/contradicts, blue=simulate/supporting/
+   info, indigo=design/effort, purple=stale/waived/novel, pink=evaluate).
+   Solid saturated dot-fills (emerald/amber/red/purple on .status-step
+   .dot / .act-gate-dot) are left unchanged — small solid marks already
+   read fine on dark, same call already made for .ptrack-fill. */
+:root[data-theme="dark"] .study-kind-tag{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .study-kind-tag.study-kind-biological{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .study-kind-tag.study-kind-computational{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .study-kind-tag.study-kind-theoretical{background:rgba(124,58,237,0.16);color:#c4b5fd}
+:root[data-theme="dark"] .study-question-headline{color:var(--text)}
+:root[data-theme="dark"] .study-question-headline .q-glyph{color:var(--text-muted);background:var(--surface-3)}
+:root[data-theme="dark"] .status-detail-axis{color:var(--text-muted)}
+:root[data-theme="dark"] .status-chip{background:var(--surface-3);color:var(--text)}
+:root[data-theme="dark"] .gate-status-blocked{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .gate-status-needs_calibration{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .gate-status-passed{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .gate-status-failed{background:rgba(220,38,38,0.16);color:#fca5a5}
+:root[data-theme="dark"] .gate-status-stale{background:rgba(124,58,237,0.16);color:#c4b5fd}
+:root[data-theme="dark"] .status-step{color:var(--text-muted)}
+:root[data-theme="dark"] .status-step .dot{background:var(--border-2);box-shadow:inset 0 0 0 1px var(--border)}
+:root[data-theme="dark"] .status-step.set{color:var(--text)}
+:root[data-theme="dark"] .status-step .step-val{color:var(--text-muted)}
+:root[data-theme="dark"] .status-step.gate-status-blocked .dot{background:var(--text-muted);box-shadow:none}
+:root[data-theme="dark"] .status-step.gate-state-not-assessed .dot{background:var(--border-2);box-shadow:inset 0 0 0 1px var(--border)}
+:root[data-theme="dark"] .status-chip.gate-state-not-assessed{background:var(--surface-3);color:var(--text)}
+:root[data-theme="dark"] .status-chip.gate-state-passed{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .status-chip.gate-state-passed-with-conditions{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .status-chip.gate-state-blocked{background:rgba(220,38,38,0.16);color:#fca5a5}
+:root[data-theme="dark"] .status-chip.gate-state-waived{background:rgba(124,58,237,0.16);color:#c4b5fd}
+:root[data-theme="dark"] .gate-computed-chip{background:rgba(59,130,246,0.16);border-color:rgba(59,130,246,0.4);color:#93c5fd}
+:root[data-theme="dark"] .gate-divergence-chip-inline{background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.35);color:#fcd34d}
+:root[data-theme="dark"] .status-stepper-more{color:var(--text-muted)}
+:root[data-theme="dark"] .status-stepper-body{border-top-color:var(--border-faint)}
+:root[data-theme="dark"] .phase-pill{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .phase-design{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .phase-build{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .phase-simulate{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .phase-evaluate{background:rgba(219,39,119,0.18);color:#f9a8d4}
+:root[data-theme="dark"] .phase-decide{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .classification-primary{background:rgba(220,38,38,0.16);color:#fca5a5}
+:root[data-theme="dark"] .classification-supporting{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .classification-diagnostic{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .classification-regression{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .sim-status-ready{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .sim-status-gated{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .sim-status-running{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .sim-status-ran{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .followup-card{border-color:var(--border);border-left-color:var(--text-muted);background:var(--surface-2)}
+:root[data-theme="dark"] .followup-card.followup-kind-existing{background:rgba(59,130,246,0.16)}
+:root[data-theme="dark"] .followup-card.followup-kind-infrastructure_fix{background:rgba(220,38,38,0.16)}
+:root[data-theme="dark"] .followup-card.followup-kind-calibration_task{background:rgba(245,158,11,0.15)}
+:root[data-theme="dark"] .followup-card.followup-kind-expert_question{background:rgba(124,58,237,0.16)}
+:root[data-theme="dark"] .followup-card.followup-kind-new{background:rgba(16,185,129,0.14)}
+:root[data-theme="dark"] .followup-kind{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .followup-effort{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .followup-status{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .followup-status.status-blocked{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .followup-status.status-done{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .followup-hypothesis{background:var(--surface-2);border-color:var(--border-2)}
+:root[data-theme="dark"] .btn-seed-followup{background:var(--surface-2);border-color:#3b82f6;color:#93c5fd}
+:root[data-theme="dark"] .figure-card{border-color:var(--border);background:var(--surface)}
+:root[data-theme="dark"] .figure-media-frame{background:var(--surface)}
+:root[data-theme="dark"] .figure-desc{color:var(--text-muted)}
+:root[data-theme="dark"] .figure-caption-row{color:var(--text-muted);border-top-color:var(--border-faint);background:var(--surface-2)}
+:root[data-theme="dark"] .figure-source-chip{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .figure-title{color:var(--text)}
+:root[data-theme="dark"] .figure-run-link,
+:root[data-theme="dark"] .figure-open-link{color:var(--link)}
+:root[data-theme="dark"] .chart-caption{color:var(--text-muted)}
+:root[data-theme="dark"] .findings-section{background:var(--surface-2);border-color:rgba(99,102,241,0.3)}
+:root[data-theme="dark"] .finding-card{border-color:var(--border);background:var(--surface)}
+:root[data-theme="dark"] .finding-chip{color:var(--text-muted);background:var(--surface-3)}
+:root[data-theme="dark"] .finding-drawer{border-top-color:var(--border-2)}
+:root[data-theme="dark"] .finding-id{color:var(--text-muted);background:var(--surface-3)}
+:root[data-theme="dark"] .finding-kind{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .finding-status-text{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-statement{color:var(--text)}
+:root[data-theme="dark"] .finding-evidence,
+:root[data-theme="dark"] .finding-expected{color:var(--text-muted);background:var(--surface-2);border-left-color:var(--text-muted)}
+:root[data-theme="dark"] .finding-exp-summary{color:var(--text-muted);background:var(--surface-2)}
+:root[data-theme="dark"] .finding-explanation{color:var(--text)}
+:root[data-theme="dark"] .finding-explanation em{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-expert{background:var(--surface-2);border-color:var(--border)}
+:root[data-theme="dark"] .finding-expert summary{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-expert-quote{background:var(--surface-2);color:var(--text)}
+:root[data-theme="dark"] .finding-expert-note{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-next{background:rgba(16,185,129,0.14)}
+:root[data-theme="dark"] .finding-next strong{color:#6ee7b7}
+:root[data-theme="dark"] .di-unc-resolved h4{color:#6ee7b7}
+:root[data-theme="dark"] .di-unc-remaining h4{color:#fcd34d}
+:root[data-theme="dark"] .di-card{border-color:var(--border);border-left-color:var(--text-muted);background:var(--surface-2)}
+:root[data-theme="dark"] .di-card-why{color:var(--text-muted)}
+:root[data-theme="dark"] .di-card-line{color:var(--text-muted)}
+:root[data-theme="dark"] .di-lbl{color:var(--text-muted)}
+:root[data-theme="dark"] .di-mech-card{background:rgba(124,58,237,0.16)}
+:root[data-theme="dark"] .di-update-chip{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .di-conf-change{color:var(--text-muted)}
+:root[data-theme="dark"] .di-approval-badge{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .di-fup-card{background:rgba(16,185,129,0.14)}
+:root[data-theme="dark"] .di-gain-high{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .di-gain-medium{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .di-gain-low{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .di-chip{background:var(--surface-3);color:var(--text-muted)}
+</style>
+
+<style>
+/* ── Study Overview redesign: narrative order + progressive disclosure ── */
+.is-hidden{display:none !important}
+.narrative-field{margin:6px 0}
+.add-field-btn{background:none;border:1px dashed #cbd5e1;color:#64748b;font-size:0.82em;
+  padding:4px 12px;border-radius:6px;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+.add-field-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.conclusion-block{border-top:2px solid #e2e8f0;padding-top:14px;margin-top:22px}
+/* Markdown-rendered conclusion blob: flows full-width (reflows authored hard-wraps), keeps paragraphs + ordered list. */
+.conclusion-md{color:#1e293b}
+.conclusion-md > :first-child{margin-top:0}
+.conclusion-md > :last-child{margin-bottom:0}
+.conclusion-md p{margin:0 0 10px}
+.conclusion-md ol,.conclusion-md ul{margin:0 0 10px;padding-left:22px}
+.conclusion-md li{margin:2px 0}
+.conclusion-md code{background:#eef2f7;padding:1px 4px;border-radius:3px;font-size:0.92em}
+.conclusion-md pre{background:#eef2f7;padding:8px 10px;border-radius:4px;overflow-x:auto;white-space:pre-wrap}
+.conclusion-insight{font-size:1.02em;line-height:1.55;color:#1e293b;margin:2px 0 12px;font-weight:500}
+.computed-tag{display:inline-block;font-size:0.68em;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.04em;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;
+  padding:1px 7px;border-radius:9999px;margin-left:8px;vertical-align:middle}
+.conclusion-tags{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.tag-control{display:inline-flex;align-items:center;gap:6px}
+.tag-k{font-size:0.72em;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;font-weight:600}
+.tag-select,.tag-input{font-size:0.85em;padding:3px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.tag-input{min-width:220px}
+:root[data-theme="dark"] .add-field-btn{border-color:var(--border-2);color:var(--text-muted)}
+:root[data-theme="dark"] .add-field-btn:hover{border-color:rgba(59,130,246,.5);color:#93c5fd;background:rgba(59,130,246,0.16)}
+:root[data-theme="dark"] .conclusion-block{border-top-color:var(--border)}
+:root[data-theme="dark"] .conclusion-md{color:var(--text)}
+:root[data-theme="dark"] .conclusion-md code{background:var(--surface-3)}
+:root[data-theme="dark"] .conclusion-md pre{background:var(--surface-3)}
+:root[data-theme="dark"] .conclusion-insight{color:var(--text)}
+:root[data-theme="dark"] .computed-tag{color:var(--text-muted);background:var(--surface-3);border-color:var(--border)}
+:root[data-theme="dark"] .tag-k{color:var(--text-muted)}
+:root[data-theme="dark"] .tag-select,
+:root[data-theme="dark"] .tag-input{border-color:var(--border-2);background:var(--field);color:var(--text)}
+</style>
+<section class="study-tab-panel active" data-kind="overview" id="panel-overview">
+  <div class="study-overview">
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Claim</h2>
+      <p class="ctr-text">image present</p>
+      
+    </div>
+
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Test</h2>
+      <p class="ctr-text"></p>
+      
+      <div class="ctr-meta">
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>fig-6-orchestration</code></div>
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">orchestration-patterns figure present</span></div>
+      </div>
+      
+    </div>
+
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Result</h2>
+      <p class="ctr-text"></p>
+      
+      <figure class="ctr-figure"><img class="ctr-figure-img" alt="result figure" loading="lazy" style="display:block;max-width:100%;height:auto" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221320%22%20height%3D%22400%22%20viewBox%3D%220%200%201320%20400%22%20font-family%3D%22Inter%2C%20Helvetica%2C%20Arial%2C%20sans-serif%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3Cmarker%20id%3D%22ar%22%20viewBox%3D%220%200%2010%2010%22%20refX%3D%228.5%22%20refY%3D%225%22%20markerWidth%3D%225.5%22%20markerHeight%3D%225.5%22%20orient%3D%22auto-start-reverse%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C0%20L10%2C5%20L0%2C10%20z%22%20fill%3D%22%23475569%22/%3E%0A%20%20%20%20%3C/marker%3E%0A%20%20%20%20%3Cmarker%20id%3D%22arD%22%20viewBox%3D%220%200%2010%2010%22%20refX%3D%228.5%22%20refY%3D%225%22%20markerWidth%3D%227.5%22%20markerHeight%3D%227.5%22%20orient%3D%22auto-start-reverse%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C0%20L10%2C5%20L0%2C10%20z%22%20fill%3D%22%238b5cf6%22/%3E%0A%20%20%20%20%3C/marker%3E%0A%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20.panel%20%7B%20fill%3A%23ffffff%3B%20%7D%0A%20%20%20%20%20%20.title%20%7B%20font%3A%20700%2017px%20Georgia%2C%20%27Times%20New%20Roman%27%2C%20serif%3B%20fill%3A%23111827%3B%20%7D%0A%20%20%20%20%20%20.proc%20%20%7B%20fill%3A%23ffffff%3B%20stroke%3A%236366f1%3B%20stroke-width%3A2.2%3B%20%7D%0A%20%20%20%20%20%20.store%20%7B%20fill%3A%23ffffff%3B%20stroke%3A%2322c55e%3B%20stroke-width%3A2.2%3B%20%7D%0A%20%20%20%20%20%20.name%20%20%7B%20font%3A%20700%2014px%20Inter%2C%20system-ui%2C%20sans-serif%3B%20fill%3A%231e293b%3B%20text-anchor%3Amiddle%3B%20%7D%0A%20%20%20%20%20%20.nm2%20%20%20%7B%20font%3A%20700%2013px%20Inter%2C%20system-ui%2C%20sans-serif%3B%20fill%3A%231e293b%3B%20text-anchor%3Amiddle%3B%20%7D%0A%20%20%20%20%20%20.sub%20%20%20%7B%20font%3A%2011px%20ui-monospace%2C%20monospace%3B%20fill%3A%2394a3b8%3B%20text-anchor%3Amiddle%3B%20%7D%0A%20%20%20%20%20%20.lbl%20%20%20%7B%20font%3A%20italic%2012px%20ui-monospace%2C%20monospace%3B%20fill%3A%2364748b%3B%20%7D%0A%20%20%20%20%20%20.wire%20%20%7B%20fill%3Anone%3B%20stroke%3A%23475569%3B%20stroke-width%3A2.6%3B%20%7D%0A%20%20%20%20%20%20.wireT%20%7B%20fill%3Anone%3B%20stroke%3A%23475569%3B%20stroke-width%3A4.5%3B%20%7D%0A%20%20%20%20%20%20.pwire%20%7B%20fill%3Anone%3B%20stroke%3A%238b5cf6%3B%20stroke-width%3A1.7%3B%20stroke-dasharray%3A5%204%3B%20%7D%0A%20%20%20%20%20%20.axis%20%20%7B%20stroke%3A%23334155%3B%20stroke-width%3A2.2%3B%20fill%3Anone%3B%20%7D%0A%20%20%20%20%20%20.tick%20%20%7B%20stroke%3A%23334155%3B%20stroke-width%3A2%3B%20%7D%0A%20%20%20%20%20%20.port%20%20%7B%20fill%3A%23ffffff%3B%20stroke%3A%2322c55e%3B%20stroke-width%3A2%3B%20%7D%0A%20%20%20%20%3C/style%3E%0A%20%20%3C/defs%3E%0A%0A%20%20%3Crect%20width%3D%221320%22%20height%3D%22400%22%20fill%3D%22%23ffffff%22/%3E%0A%0A%20%20%3C%21--%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20a.%20multi-timestepping%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20--%3E%0A%20%20%3Cg%20id%3D%22panel-a%22%3E%0A%20%20%20%20%3Ctext%20class%3D%22title%22%20x%3D%2234%22%20y%3D%2242%22%3Ea.%20%20multi-timestepping%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20top%20temporal%20process%20%2B%20its%20coarse%20time%20axis%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%2232%22%20y%3D%2278%22%20width%3D%22126%22%20height%3D%2258%22%20rx%3D%220%22/%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22103%22%3Etemporal%3C/text%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22121%22%3Eprocess%3C/text%3E%0A%20%20%20%20%3Cline%20class%3D%22axis%22%20x1%3D%22158%22%20y1%3D%22107%22%20x2%3D%22372%22%20y2%3D%22107%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%23334155%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22182%22%20y1%3D%22100%22%20x2%3D%22182%22%20y2%3D%22114%22/%3E%3Cline%20x1%3D%22222%22%20y1%3D%22100%22%20x2%3D%22222%22%20y2%3D%22114%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22262%22%20y1%3D%22100%22%20x2%3D%22262%22%20y2%3D%22114%22/%3E%3Cline%20x1%3D%22302%22%20y1%3D%22100%22%20x2%3D%22302%22%20y2%3D%22114%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22342%22%20y1%3D%22100%22%20x2%3D%22342%22%20y2%3D%22114%22/%3E%0A%20%20%20%20%3C/g%3E%0A%0A%20%20%20%20%3C%21--%20shared%20store%20hub%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22214%22%20y%3D%22188%22%20width%3D%22120%22%20height%3D%2260%22%20rx%3D%2212%22/%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%22274%22%20y%3D%22213%22%3Eshared%3C/text%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%22274%22%20y%3D%22231%22%3Estore%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20bottom%20temporal%20process%20%2B%20its%20fine%20time%20axis%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%2232%22%20y%3D%22300%22%20width%3D%22126%22%20height%3D%2258%22%20rx%3D%220%22/%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22325%22%3Etemporal%3C/text%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22343%22%3Eprocess%3C/text%3E%0A%20%20%20%20%3Cline%20class%3D%22axis%22%20x1%3D%22158%22%20y1%3D%22329%22%20x2%3D%22372%22%20y2%3D%22329%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%23334155%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22176%22%20y1%3D%22322%22%20x2%3D%22176%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22194%22%20y1%3D%22322%22%20x2%3D%22194%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22212%22%20y1%3D%22322%22%20x2%3D%22212%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22230%22%20y1%3D%22322%22%20x2%3D%22230%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22248%22%20y1%3D%22322%22%20x2%3D%22248%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22266%22%20y1%3D%22322%22%20x2%3D%22266%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22284%22%20y1%3D%22322%22%20x2%3D%22284%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22302%22%20y1%3D%22322%22%20x2%3D%22302%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22320%22%20y1%3D%22322%22%20x2%3D%22320%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22338%22%20y1%3D%22322%22%20x2%3D%22338%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22356%22%20y1%3D%22322%22%20x2%3D%22356%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Ctext%20class%3D%22lbl%22%20x%3D%22372%22%20y%3D%22349%22%20text-anchor%3D%22end%22%3Etime%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20read/write%20coupling%20at%20EACH%20update%20tick%20along%20the%20whole%20timeline%3A%20one%0A%20%20%20%20%20%20%20%20%20dashed%20arrow%20per%20timestep%2C%20fanning%20from%20the%20shared-store%20hub.%20Coarse%20dt%0A%20%20%20%20%20%20%20%20%20up%20top%20%285%20ticks%29%2C%20a%20finer%20dt%20below%20%2811%20ticks%29%20%E2%86%92%20more%2C%20tighter%20arrows.%20--%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L182%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L222%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L262%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L302%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L342%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L176%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L194%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L212%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L230%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L248%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L266%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L284%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L302%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L320%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L338%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L356%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20b.%20workflow%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20--%3E%0A%20%20%3Cg%20id%3D%22panel-b%22%3E%0A%20%20%20%20%3Ctext%20class%3D%22title%22%20x%3D%22430%22%20y%3D%2242%22%3Eb.%20%20workflow%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20nodes%3A%20stores%20as%20loom%20rounded-rects%2C%20steps%20as%20processes%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22514%22%20y%3D%2260%22%20width%3D%2232%22%20height%3D%2224%22%20rx%3D%227%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22494%22%20y%3D%22100%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22530%22%20y%3D%22123%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22489%22%20y%3D%22160%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22521%22%20y%3D%22160%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22553%22%20y%3D%22160%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22432%22%20y%3D%22204%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22468%22%20y%3D%22227%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22556%22%20y%3D%22204%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22592%22%20y%3D%22227%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22441%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22477%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22565%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22601%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22494%22%20y%3D%22308%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22530%22%20y%3D%22331%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22489%22%20y%3D%22368%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22521%22%20y%3D%22368%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22553%22%20y%3D%22368%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%0A%20%20%20%20%3C%21--%20DAG%20wires%20%28top%20-%3E%20down%29%3A%20longer%20runs%2C%20wider%20fan%2C%20no%20overlap%20--%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M530%2C84%20L530%2C100%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M520%2C136%20L502%2C158%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M530%2C136%20L530%2C158%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M540%2C136%20L558%2C158%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M496%2C176%20L472%2C202%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M564%2C176%20L588%2C202%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M462%2C240%20L452%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M474%2C240%20L486%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M586%2C240%20L574%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M598%2C240%20L610%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M488%2C280%20L512%2C306%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M572%2C280%20L548%2C306%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M520%2C344%20L502%2C366%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M530%2C344%20L530%2C366%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M540%2C344%20L558%2C366%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20c.%20event-driven%20graph%20rewrite%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20--%3E%0A%20%20%3Cg%20id%3D%22panel-c%22%3E%0A%20%20%20%20%3Ctext%20class%3D%22title%22%20x%3D%22676%22%20y%3D%2242%22%3Ec.%20%20event-driven%20graph%20rewrite%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20three%20events%20%28processes%29%2C%20each%20in%20the%20gap%20between%20the%20two%20graph%20states%0A%20%20%20%20%20%20%20%20%20it%20rewrites%3A%20divide%201-%3E2%2C%20engulf%202-%3E3%2C%20burst%203-%3E4.%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22796%22%20y%3D%2276%22%20width%3D%2282%22%20height%3D%2234%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22837%22%20y%3D%2298%22%3Edivide%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22983%22%20y%3D%2276%22%20width%3D%2282%22%20height%3D%2234%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221024%22%20y%3D%2298%22%3Eengulf%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%221142%22%20y%3D%2276%22%20width%3D%2282%22%20height%3D%2234%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221183%22%20y%3D%2298%22%3Eburst%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20state%201%3A%20environ%20%2B%20agent%E2%82%81%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22682%22%20y%3D%22158%22%20width%3D%22104%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22734%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22702%22%20y%3D%22256%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22734%22%20y%3D%22281%22%3Eagent%E2%82%81%3C/text%3E%0A%20%20%20%20%3C%21--%20state%202%3A%20environ%20%2B%20agent%E2%82%82%20%2B%20agent%E2%82%83%20%28divided%29%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22882%22%20y%3D%22158%22%20width%3D%22116%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22940%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22884%22%20y%3D%22256%22%20width%3D%2256%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22nm2%22%20x%3D%22912%22%20y%3D%22281%22%3Eagent%E2%82%82%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22942%22%20y%3D%22256%22%20width%3D%2256%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22nm2%22%20x%3D%22970%22%20y%3D%22281%22%3Eagent%E2%82%83%3C/text%3E%0A%20%20%20%20%3C%21--%20state%203%3A%20environ%20%2B%20agent%E2%82%82%20%E2%96%B8%20agent%E2%82%83%20%28engulfed%20/%20nested%29%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221056%22%20y%3D%22158%22%20width%3D%22104%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221108%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221076%22%20y%3D%22256%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221108%22%20y%3D%22281%22%3Eagent%E2%82%82%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221076%22%20y%3D%22336%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221108%22%20y%3D%22361%22%3Eagent%E2%82%83%3C/text%3E%0A%20%20%20%20%3C%21--%20state%204%3A%20environ%20%2B%20agent%E2%82%82%20%28burst%29%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221206%22%20y%3D%22158%22%20width%3D%22104%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221258%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221226%22%20y%3D%22256%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221258%22%20y%3D%22281%22%3Eagent%E2%82%82%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20one%20arrow%20INTO%20each%20event%20%28from%20the%20prior%20state%29%20%2B%20one%20OUT%20%28to%20the%20next%0A%20%20%20%20%20%20%20%20%20state%29.%20Dashed%20%3D%20the%20rewrite%20event.%20They%20attach%20to%20the%20event%20boxes%20and%0A%20%20%20%20%20%20%20%20%20to%20the%20whitespace%20ABOVE%20each%20state%20%E2%80%94%20never%20to%20the%20store%20nodes.%20--%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M786%2C138%20C795%2C128%20801%2C120%20807%2C112%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M867%2C112%20C873%2C120%20879%2C128%20888%2C138%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M973%2C138%20C982%2C128%20988%2C120%20994%2C112%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M1054%2C112%20C1060%2C120%201066%2C128%201075%2C138%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M1132%2C138%20C1141%2C128%201147%2C120%201153%2C112%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M1213%2C112%20C1219%2C120%201225%2C128%201234%2C138%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%0A%20%20%20%20%3C%21--%20place-graph%20containment%20%28solid%29%3A%20environ%20-%3E%20agent%28s%29%3B%20the%20agent%E2%82%82%20%E2%96%B8%20agent%E2%82%83%0A%20%20%20%20%20%20%20%20%20nesting%20chain%20in%20state%203.%20--%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M734%2C200%20L734%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wireT%22%20d%3D%22M926%2C200%20C918%2C224%20916%2C238%20912%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wireT%22%20d%3D%22M954%2C200%20C962%2C224%20966%2C238%20970%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M1108%2C200%20L1108%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M1108%2C296%20L1108%2C334%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M1258%2C200%20L1258%2C254%22/%3E%0A%20%20%3C/g%3E%0A%0A%3C/svg%3E%0A"></figure>
+      
+      
+      
+      
+      
+      <div class="ctr-meta ctr-assess">
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Confidence</span>
+          <span class="ctr-badge ctr-badge-accepted">Accepted</span>
+          
+          
+        </div>
+        
+        
+      </div>
+      
+    </div>
+
+    <div id="feedback-tracked-panel"></div>
+
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="compose" id="panel-compose" hidden>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+    <h2 class="overview-label" style="margin:0">Model composition</h2>
+    
+    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'fig-06', 'paper-figures')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
+  </div>
+
+  
+  
+  <div id="model-composite-cards" class="model-composite-cards" data-study="fig-06"
+       data-study-config="">
+    <p class="muted" style="font-size:0.85em;margin:0">Loading composite card(s)…</p>
+  </div>
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  <div class="overview-section" id="model-section">
+    <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
+    
+    <div class="cond-block" data-model-composite="spatio_flux.composites.fig06-orchestration" data-model-overrides='{}'>
+      <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <strong>fig-6-orchestration</strong>
+        
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.fig06-orchestration</code>
+        <button type="button" class="action-btn" style="font-size:0.8em"
+                onclick="_openCompositeLoom('spatio_flux.composites.fig06-orchestration')">🧬 explore &amp; run ↗</button>
+        
+      </div>
+      
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="fig-6-orchestration"
+               value="spatio_flux.composites.fig06-orchestration" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="fig-6-orchestration">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="fig-6-orchestration" style="font-size:0.8em;margin-top:2px"></div>
+      
+      
+      
+      <div class="model-config-mount" style="margin-top:8px">
+        <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+  
+
+  
+  
+
+  
+
+  
+  
+  
+  
+
+
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="simulate" id="panel-simulate" hidden>
+
+<div class="overview-section" id="simulations-section">
+  <h2>Simulations</h2>
+  <div id="study-sim-table" style="overflow-x:auto"><p class="muted" style="margin:0">Loading…</p></div>
+  <div id="study-run-detail" style="margin-top:14px"></div>
+</div>
+
+</section>
+
+
+<section class="study-tab-panel" data-kind="results" id="panel-results" hidden>
+
+<div class="overview-section" id="results-section">
+  <h2>Results</h2>
+  <p class="muted">What came back from this study's runs — a per-store preview of the latest run, plus the raw emitter store (zarr/parquet/runs.db) for every run.</p>
+
+  <h4>Latest run preview</h4>
+  <p class="muted" style="font-size:0.9em">Per-store sparkline + first/last/min/max from the most recent run's emitted trajectory. This is a downsampled PREVIEW, not the full data — use the per-store or Download-all links for the complete arrays.</p>
+  <div id="results-preview" data-study="fig-06">
+    <p class="empty-message">Loading results preview…</p>
+  </div>
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:22px">
+    <span class="muted" id="exports-downloads" style="margin-right:auto;font-weight:600">Raw simulation data</span>
+    <button type="button" id="raw-data-download-all" class="btn-mini" style="display:none"
+            onclick="_downloadAllRawExports()">⬇ Download all raw data</button>
+  </div>
+  <div id="raw-data-list"><p class="empty-message">Loading runs…</p></div>
+</div>
+
+</section>
+
+
+<section class="study-tab-panel" data-kind="analyses" id="panel-analyses" hidden>
+
+<div class="overview-section" id="analyses-results-section">
+  <h2>Analyses</h2>
+  <p class="muted">Result files written by this study's analysis steps.</p>
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
+    <a id="data-download-all" class="btn-mini" style="display:none"
+       href="/api/study-analysis-zip?study=fig-06">Download all (.zip)</a>
+  </div>
+  <div id="data-files" data-study="fig-06">
+    <p class="empty-message">Loading result files…</p>
+  </div>
+</div>
+
+</section>
+
+<section class="study-tab-panel" data-kind="readouts" id="panel-readouts" hidden>
+  <div class="observables-section">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 class="section-title" style="margin-right:auto">Readouts</h3>
+    </div>
+    <p class="muted">The Design-time emit <strong>contract</strong>: what the emitter is
+    configured to persist, which store paths it declares, and the shape of what lands on
+    disk. No observed values here — see Results for what actually came back from a run.</p>
+
+    <h4>Emitter &amp; config</h4>
+    <p class="muted" style="font-size:0.9em">The emitter class, its write-path module, emit
+    interval/buffer, output location, and emit scope — from
+    <code>lib/emitters.py</code> and this study's (or the workspace's)
+    <code>runtime.default_emitter</code>.</p>
+    <div id="readouts-emitter" data-study="fig-06">
+      <p class="empty-message">Loading emitter configuration…</p>
+    </div>
+
+    <h4>Emitted paths</h4>
+    <p class="muted" style="font-size:0.9em">Each row is an emitter <code>store_path</code>
+    the composite will save; authored entries in <code>study.yaml</code> add names,
+    descriptions, and units on top.</p>
+
+    
+    <div id="readouts-download" style="margin:0 0 16px 0"></div>
+
+    <div id="readouts-table" data-study="fig-06">
+      <p class="empty-message">Loading readouts from the composite emit plan…</p>
+    </div>
+
+    <h4>Outputs &amp; shapes</h4>
+    <p class="muted" style="font-size:0.9em">Store path, dtype, shape
+    <code>(n_steps, …)</code>, units, and a best-effort byte estimate for each emitted
+    leaf.</p>
+    <div id="readouts-shapes" data-study="fig-06">
+      <p class="empty-message">Loading output shapes…</p>
+    </div>
+
+    
+    <details style="margin-top: 1.4em;">
+      <summary class="muted">How observables tie to Expected Behavior</summary>
+      <p style="font-size: 0.9em;">Observables can be referenced by name in an
+      <code>expected_behavior[i].measure</code> block (e.g. <code>kind: bulk_count, id:
+      "MONOMER0-160[c]"</code>). When the dashboard validates a study, it cross-checks
+      that every <code>measure</code> resolves to a declared observable, or to a
+      built-in helper.</p>
+    </details>
+    
+  </div>
+</section>
+
+<section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
+
+  <div class="overview-section study-figures figure-gallery" id="visualize-section">
+
+    
+    
+    <div class="viz-actions-row" style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+      <button type="button" class="btn-mini" onclick="window._vivStudyFiguresFromCard(event, 'fig-06')" title="Download this study's visualizations (figure panels + its composite) as a zip">↓ visualizations</button>
+    </div>
+    
+
+    <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
+
+    
+    
+
+    <div id="viz-charts-panel" class="charts-panel figure-mount"></div>
+
+    
+    <p id="figures-empty-message" class="empty-message" style="display:none">No figures yet.</p>
+  </div>
+</section>
+
+<section class="study-tab-panel" data-kind="tests" id="panel-tests" hidden>
+  <h2>Tests</h2>
+  <p class="muted" style="margin:0 0 12px 0"><strong>The bar.</strong> What must be true for this model to count as correct — the acceptance criteria, their bands, and the report cards that grade them.</p>
+
+  
+  
+
+  
+  
+  
+
+  
+  <div class="tests-gate-summary" id="tests-gate-summary"><p class="empty-message">Loading gate summary…</p></div>
+
+  
+
+  
+  
+
+  
+  
+
+  <div class="behavioral-tests-section" style="margin-top:22px">
+    <h3 class="section-title">Behavioral tests</h3>
+    <div class="tests-header">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <button id="run-tests-btn" class="btn-primary">Run tests</button>
+        <div class="tests-summary muted" id="tests-summary">— no test results yet —</div>
+      </div>
+      <div class="tests-config" style="margin-top: 6px;">
+        <span class="badge">auto_discover: <code id="tests-auto-discover">true</code></span>
+        <span class="badge">data_source: <code id="tests-data-source">latest_run</code></span>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-0"
+        data-test-kind="behavioral"
+        
+        data-pytest-node=""
+        data-classification="unclassified"
+        data-result="pending"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #f1f5f9; color: #475569">⏳ pending</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">(unnamed)</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;"></div>
+      
+      
+      
+      
+      
+    </li>
+    
+  </ul>
+  
+  </div>
+</section>
+
+
+<section class="study-tab-panel" data-kind="audit" id="panel-audit" hidden>
+  <h2>Audit</h2>
+  <p class="muted" style="margin:0 0 12px 0"><strong>Is the bar sound?</strong> Whether the tests themselves are rigorous and matched to the problem — sufficiency, where the model was sourced, and the rigor + reproducibility scorecards.</p>
+
+  <div class="checks-band">
+    <div class="check-group check-group-sufficiency" id="audit-sufficiency" data-check-group="sufficiency">
+      <p class="empty-message">Loading sufficiency checks…</p>
+    </div>
+
+    <div class="check-group check-group-quality" id="check-group-quality" data-check-group="quality" style="margin-top:16px">
+      <p class="empty-message">Loading quality checks…</p>
+    </div>
+
+    <div class="check-group check-group-reproducibility" id="check-group-reproducibility" data-check-group="reproducibility" style="margin-top:16px">
+      <p class="empty-message">Loading reproducibility checks…</p>
+    </div>
+
+    
+    <div class="check-group check-group-sourcing" id="audit-sourcing" data-check-group="sourcing" style="margin-top:16px">
+      <p class="empty-message">Loading sourcing…</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="study-tab-panel" data-kind="build" id="panel-build" hidden>
+  <h2>Build</h2>
+  <p class="muted" style="margin:0 0 12px 0"><strong>Was it earned?</strong> The agentic model-building loop that iterated the model to clear the bar — the draft, the frozen tests, the iteration-by-iteration trajectory, and the result (or an honest give-up).</p>
+
+  <div id="build-loop-state"><p class="empty-message">Loading loop provenance…</p></div>
+</section>
+
+<section class="study-tab-panel" data-kind="conclusions" id="panel-conclusions" hidden>
+
+  
+  
+  
+  
+  
+
+  
+  <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
+    
+    <p class="muted small verdict-attribution" style="margin:0 0 8px 0" title="actor kind: unattributed">
+      <span class="actor-glyph">○</span> unattributed
+    </p>
+
+    
+    
+    
+
+    <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
+      <h3 class="overview-label">⚖️ Verdicts — three-track outcome
+        <span class="narrative-card-hint">(regression / empirical / explanatory)</span>
+      </h3>
+      <div class="narrative-grid">
+        <label class="narrative-row">
+          <span class="narrative-label">Regression compatibility</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="regression_compatibility"
+                title="Computed from run status (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from run status</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Regression basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Empirical validation</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="biological_validation"
+                title="Computed from the gate evaluator (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Empirical basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.biological_validation.basis"
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Explanatory gain</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="explanatory_gain"
+                title="Computed from interpretation-tier findings (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from interpretation-tier findings</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Explanatory basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+        </label>
+      </div>
+    </div>
+
+    
+    
+    
+
+    
+    
+    
+
+  </div>
+
+  
+  
+
+  
+  <div class="overview-section"><h2 class="overview-label">Evidence</h2>
+
+    
+    
+    
+    
+    
+
+  </div>
+
+  
+  <div class="overview-section"><h2 class="overview-label">Follow-ups &amp; decisions</h2>
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+  </div>
+
+  
+  
+
+</section>
+
+</main>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "258f691fa6398a55bbc01c0edd4166a02de68c54", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/258f691fa6398a55bbc01c0edd4166a02de68c54", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-09-20 17:10 UTC"} };</script>
+<script src="/spatio-flux/workbench/assets/data-source.js"></script>
+<script>
+window._studyName = "fig-06";
+window._study = null;  // populated by _bootstrapStudy() in study-detail.js
+
+// Save handler for the Conditions → Model settings editable rows.
+// POSTs to /api/study-expert-input-set (route kept for back-compat)
+// which patches study.yaml in place.
+// On success: flashes "saved" + updates the row's data-current attribute.
+// On failure: flashes the error (HTTP body) for ~5s.
+function _saveExpertInput(studyName, eiName, btn) {
+  var row = btn.closest('tr');
+  var input = row && row.querySelector('.cond-ei-input');
+  var flash = row && row.querySelector('.cond-ei-flash');
+  if (!input || !flash) return;
+  var raw = (input.value || '').trim();
+  // Coerce numeric inputs so yaml carries the right type
+  var val = raw;
+  if (input.type === 'number' && raw !== '') {
+    var n = Number(raw);
+    if (!isNaN(n)) val = n;
+  } else if (raw === '') {
+    val = null;
+  }
+  btn.disabled = true;
+  flash.className = 'cond-ei-flash';
+  flash.style.display = '';
+  flash.textContent = 'saving…';
+  fetch('/api/study/' + encodeURIComponent(studyName), {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({expert_input: {name: eiName, current: val}}),
+  }).then(function(r) {
+    return r.text().then(function(t) { return {ok: r.ok, status: r.status, body: t}; });
+  }).then(function(res) {
+    if (res.ok) {
+      flash.className = 'cond-ei-flash saved';
+      flash.textContent = '✓ saved';
+      setTimeout(function() { flash.style.display = 'none'; }, 2500);
+    } else {
+      flash.className = 'cond-ei-flash error';
+      flash.textContent = '✗ ' + (res.body || ('HTTP ' + res.status));
+    }
+  }).catch(function(err) {
+    flash.className = 'cond-ei-flash error';
+    flash.textContent = '✗ ' + String(err);
+  }).finally(function() {
+    btn.disabled = false;
+  });
+}
+
+// ── Seed a child study from this study's discovery_implications /
+//    follow_up_studies and make it appear in the investigation graph ──────
+// Both POST /api/study-seed-followup. On success they flash an inline
+// confirmation on the clicked button, then refresh the surface the user is
+// in: when embedded inside the investigation iframe, ask the parent to
+// re-render the investigation detail (and reload as a fallback); standalone,
+// reload the page so the seeded child is reflected.
+//
+// NOTE: these are defined AFTER /study-detail.js loads (see the script order
+// below) so they take precedence over the legacy _seedFollowupStudy there,
+// which navigates away instead of refreshing the embedded investigation.
+function _flashSeedBtn(btn, text, ok) {
+  if (!btn) return;
+  btn.textContent = text;
+  btn.style.borderColor = ok ? '#10b981' : '#dc2626';
+  btn.style.color = ok ? '#065f46' : '#991b1b';
+}
+function _afterSeedRefresh() {
+  // Embedded inside the investigation iframe → refresh the parent's graph.
+  if (window.parent && window.parent !== window) {
+    try {
+      if (window.parent._refreshInvestigationDetail) {
+        window.parent._refreshInvestigationDetail();
+        return;
+      }
+    } catch (e) { /* cross-origin or missing — fall through to reload */ }
+    try { window.parent.location.reload(); return; } catch (e) { /* fall through */ }
+  }
+  location.reload();
+}
+function _seedFollowup(payload, btn) {
+  var orig = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; _flashSeedBtn(btn, '… seeding', true); }
+  fetch('/api/study-seed-followup', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  }).then(function(r) {
+    return r.json().then(function(d) { return {ok: r.ok, status: r.status, body: d}; })
+      .catch(function() { return {ok: r.ok, status: r.status, body: {}}; });
+  }).then(function(res) {
+    if (!res.ok || (res.body && res.body.error)) {
+      _flashSeedBtn(btn, '✗ ' + ((res.body && res.body.error) || ('HTTP ' + res.status)), false);
+      if (btn) btn.disabled = false;
+      return;
+    }
+    _flashSeedBtn(btn, '✓ added', true);
+    setTimeout(_afterSeedRefresh, 600);
+  }).catch(function(err) {
+    _flashSeedBtn(btn, '✗ ' + String(err), false);
+    if (btn) btn.disabled = false;
+  });
+}
+function _seedFollowupStudy(parent, idx) {
+  _seedFollowup({parent: parent, followup_idx: idx}, window.event && window.event.target);
+}
+function _seedFollowupProposal(parent, proposalId) {
+  _seedFollowup({parent: parent, proposal_id: proposalId}, window.event && window.event.target);
+}
+window._seedFollowupStudy = _seedFollowupStudy;
+window._seedFollowupProposal = _seedFollowupProposal;
+</script>
+<script src="/spatio-flux/workbench/assets/configure-run.js"></script>
+<script src="/spatio-flux/workbench/assets/sim-table.js"></script>
+<!-- composite-card.js: shared composite-card renderer (extracted from
+     walkthrough.js, study-spine-reorg Task 6) — the Model tab uses
+     _renderCompositeCardFull to show the SAME rich card the Modules/
+     Composites view uses, with full semantic detail (config schema +
+     declared observables). Loaded before study-detail.js, which calls it. -->
+<!-- loom-embed.js: _openCompositeLoomInline + helpers (from walkthrough.js,
+     which this iframe does NOT load). composite-card.js's _pcardToggleSec needs
+     it to MOUNT a composite's loom — without it, opening a composite from a
+     Model card stays stuck on "Resolving composite…". -->
+<script src="/spatio-flux/workbench/assets/loom-embed.js"></script>
+<script src="/spatio-flux/workbench/assets/composite-card.js"></script>
+<script src="/spatio-flux/workbench/assets/study-detail.js"></script>
+<script>
+// Re-assert the refresh-aware seed handlers AFTER study-detail.js (which
+// defines its own navigate-away _seedFollowupStudy). The embedded
+// investigation view prefers staying in place over a full navigation.
+window._seedFollowupStudy = _seedFollowupStudy;
+window._seedFollowupProposal = _seedFollowupProposal;
+</script>
+<script>
+(function () {
+  // Task 8: the Configure & Run mount and the remote-run (smsvpctest) panel
+  // were both removed from the Simulate tab — launching now lives entirely
+  // in the header buttons (Reproduce / Run current spec). This block used
+  // to also mount ConfigureRun into the (now-deleted) mount div and, in an
+  // else-if, relabel the remote-run card via window._initRemoteRunPinned()
+  // if pinned mode was enabled; Fable A #7 deleted that now-fully-dormant
+  // remote-run subsystem from study-detail.js (its DOM anchors — the
+  // #remote-run-panel/-btn/-progress mounts — never existed in this
+  // template to begin with), so the else-if branch is gone too. Only the
+  // still-relevant header-button snapshot handling remains below, now
+  // unconditional (it used to be gated behind a lookup of that deleted div).
+  //
+  // Read-only bundle: there's no live backend to run on — hide the header
+  // run buttons in a published read-only snapshot (reproducible-rerun-spine
+  // Task 4 / G2: both equally inert with no live backend to launch against).
+  if (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.mode === "snapshot") {
+    var reproduceBtn = document.getElementById("study-reproduce");
+    if (reproduceBtn) reproduceBtn.style.display = "none";
+    var runCurrentBtn = document.getElementById("study-run-current-spec");
+    if (runCurrentBtn) runCurrentBtn.style.display = "none";
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "86DDnVbC": {
+    "q9IIEOnC": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "86DDnVbC",
+      "id": "q9IIEOnC",
       "position": [
-        42.364503262764195,
-        24.344868558190054
+        44.57764886346272,
+        47.46894029601109
       ],
-      "mass": 0.6891632553382171,
+      "mass": 0.22777574927049102,
       "local": {},
       "exchange": {},
       "sub_masses": {},

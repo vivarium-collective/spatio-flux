@@ -1,6 +1,6 @@
 {
   "particles": {
-    "5w-hnteR": {
+    "LAitfVAf": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "5w-hnteR",
+      "id": "LAitfVAf",
       "position": [
-        42.48528888421719,
-        40.81465511283693
+        44.648524944846336,
+        44.08983052869044
       ],
-      "mass": 0.4317449496748353,
+      "mass": 0.31711592016721674,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -634,21 +634,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -672,8 +672,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

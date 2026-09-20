@@ -644,6 +644,51 @@ _save_viz('fig-05', 'Figure_5_composite', _render_one('image:visualizations/figu
 # **Claim.** image present
 
 # ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `fig-6-orchestration` | `spatio_flux.composites.fig06-orchestration` | 0 | — |
+
+# ### Specification (process-bigraph) — load, inspect, edit
+#
+# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
+
+# **Composite `spatio_flux.composites.fig06-orchestration`** — `spec_spatio_flux_composites_fig06_orchestration` (a plain, editable dict)
+
+from viva_superpowers.composite_spec import load_spec
+spec_spatio_flux_composites_fig06_orchestration = load_spec(REPO / 'spatio_flux/composites/fig06-orchestration.composite.json')
+describe_spec(spec_spatio_flux_composites_fig06_orchestration)
+
+# === Edit parameters for composite 'fig06-orchestration' ===
+# Each line is the spec's CURRENT value — change any, then run the Run cell
+# below. The spec is a plain dict, so you may also add or remove keys.
+
+# process 'multi_timestepping'  (local:BigraphLink)
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['interval'] = 0.5
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['summary'] = 'Multi-timestepping — temporal processes each updating at their own interval, reading/writing a shared store at their ticks.'
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['contract']['status'] = 'draft - no update'
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['contract']['summary'] = 'Multi-timestepping — temporal processes on their own intervals over a shared store.'
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['contract']['description'] = 'Pattern (a): several temporal processes each advance on their own time interval, reading and writing a shared store at their update ticks.'
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['contract']['ports']['in'] = 'the shared store this process reads'
+spec_spatio_flux_composites_fig06_orchestration['state']['multi_timestepping']['config']['contract']['ports']['out'] = 'the shared store this process writes'
+
+# process 'workflow'  (local:BigraphLink)
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['summary'] = 'Workflow — a DAG of step processes over intermediate stores.'
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['contract']['status'] = 'draft - no update'
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['contract']['summary'] = 'Workflow — a DAG of step processes over intermediate stores.'
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['contract']['description'] = 'Pattern (b): step processes form a directed acyclic graph, each consuming and producing intermediate stores.'
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['contract']['ports']['in'] = 'an upstream intermediate store'
+spec_spatio_flux_composites_fig06_orchestration['state']['workflow']['config']['contract']['ports']['out'] = 'a downstream intermediate store'
+
+# process 'event_rewrite'  (local:BigraphLink)
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['summary'] = 'Event-driven graph rewrite — divide / engulf / burst events restructuring environ + agent subgraphs.'
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['contract']['status'] = 'draft - no update'
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['contract']['summary'] = 'Event-driven graph rewrite — divide / engulf / burst events restructure the graph.'
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['contract']['description'] = 'Pattern (c): discrete events (divide, engulf, burst) restructure the environ + agent subgraphs.'
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['contract']['ports']['in'] = 'the agent subgraph this event reads'
+spec_spatio_flux_composites_fig06_orchestration['state']['event_rewrite']['config']['contract']['ports']['out'] = 'the restructured subgraph this event writes'
 
 # ### Run
 #
