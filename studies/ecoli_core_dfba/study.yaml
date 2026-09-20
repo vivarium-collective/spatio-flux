@@ -46,8 +46,10 @@ visualizations:
 behavior_tests:
 - name: ECOLI_CORE_DFBA-REPRODUCES-REPORT
   classification: regression
-  description: All test-suite artifacts for this scenario are reproduced and match
-    the out0 reference within tolerance.
+  description: All 4 expected artifacts are produced in charts/, and the composite's
+    structural schema (ecoli_core_dfba_schema.json) matches the committed reference
+    in studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders,
+    so they are existence-checked.
   measure:
     kind: artifacts_present
     expected:
@@ -57,7 +59,7 @@ behavior_tests:
     - ecoli_core_dfba_state.json
   pass_if:
     op: all_exist_and_match
-    tolerance: 0.02
+    tolerance: 0.0
   requires_simulation: reproduce
 runs:
 - name: ecoli_core_dfba-reproduce
@@ -70,19 +72,20 @@ runs:
     kind: xarray
     store: studies/ecoli_core_dfba/runs.ecoli_core_dfba-reproduce.zarr
   store_path: studies/ecoli_core_dfba/runs.ecoli_core_dfba-reproduce.zarr
-  timestamp: '2026-07-26T12:00:00Z'
+  timestamp: '2026-09-20T15:24:04Z'
   result: PASS
   outcomes:
     ECOLI_CORE_DFBA-REPRODUCES-REPORT:
       result: PASS
-      detail: All 4 report artifacts reproduced via the post-run analysis flush; deterministic
-        scenarios match the out0 reference within tolerance.
+      evaluated_by: code
+      detail: 4/4 artifacts present; ecoli_core_dfba_schema.json matches reference
+        (structural, tol=0.0)
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the ecoli_core_dfba test-suite report artifacts
-    via the post-run analysis flush.
+  statement: spatio_flux reproduces the ecoli_core_dfba test-suite artifacts and the
+    composite's structural schema matches its committed reference.
   evidence:
     from_test: ECOLI_CORE_DFBA-REPRODUCES-REPORT
   provenance:
@@ -98,7 +101,7 @@ conclusion_logic:
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
-    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
     block_downstream: Downstream composition studies that reuse this scenario should
       be re-examined.

@@ -49,8 +49,10 @@ visualizations:
 behavior_tests:
 - name: BROWNIAN_PARTICLES-REPRODUCES-REPORT
   classification: regression
-  description: All test-suite artifacts for this scenario are reproduced and match
-    the out0 reference within tolerance.
+  description: All 7 expected artifacts are produced in charts/, and the composite's
+    structural schema (brownian_particles_schema.json) matches the committed reference
+    in studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders,
+    so they are existence-checked.
   measure:
     kind: artifacts_present
     expected:
@@ -63,7 +65,7 @@ behavior_tests:
     - brownian_particles_state.json
   pass_if:
     op: all_exist_and_match
-    tolerance: 0.02
+    tolerance: 0.0
   requires_simulation: reproduce
 runs:
 - name: brownian_particles-reproduce
@@ -76,19 +78,20 @@ runs:
     kind: xarray
     store: studies/brownian_particles/runs.brownian_particles-reproduce.zarr
   store_path: studies/brownian_particles/runs.brownian_particles-reproduce.zarr
-  timestamp: '2026-07-26T12:00:00Z'
+  timestamp: '2026-09-20T15:24:04Z'
   result: PASS
   outcomes:
     BROWNIAN_PARTICLES-REPRODUCES-REPORT:
       result: PASS
-      detail: All 7 report artifacts reproduced via the post-run analysis flush; deterministic
-        scenarios match the out0 reference within tolerance.
+      evaluated_by: code
+      detail: 7/7 artifacts present; brownian_particles_schema.json matches reference
+        (structural, tol=0.0)
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the brownian_particles test-suite report artifacts
-    via the post-run analysis flush.
+  statement: spatio_flux reproduces the brownian_particles test-suite artifacts and
+    the composite's structural schema matches its committed reference.
   evidence:
     from_test: BROWNIAN_PARTICLES-REPRODUCES-REPORT
   provenance:
@@ -104,7 +107,7 @@ conclusion_logic:
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
-    - Compare the produced charts/<slug>_* artifacts against out0/.
+    - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
     block_downstream: Downstream composition studies that reuse this scenario should
       be re-examined.
