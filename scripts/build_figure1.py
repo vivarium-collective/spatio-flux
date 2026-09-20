@@ -71,14 +71,25 @@ MARGIN = 26            # outer figure margin
 BOTTOM = 18            # inner margin below the illustration
 CARD_RX = 18           # card corner radius
 
-PAD = 26               # header inner padding (badge + text inset)
-BADGE = 34             # letter-badge square
-TITLE_FS = 25          # title font size (was 14)
-TITLE_LH = 30          # title line height
-SUB_FS = 15            # subtitle font size (was ~11)
-SUB_LH = 20            # subtitle line height
-TITLE_GAP = 12         # gap between title block and subtitle
-HEADER_GAP = 16        # gap between subtitle block and the illustration
+# Header — editorial layout: an accent letter badge anchors the top-left, the
+# title sits in a left-aligned column beside it (restrained dark ink, not a loud
+# all-accent centered banner), a short accent rule carries the colour-coding, and
+# the subtitle sits below in muted grey.
+PAD = 28               # header inner padding
+BADGE = 30             # letter-badge square
+BADGE_GAP = 15         # gap from badge to the text column
+TITLE_FS = 22          # title font size
+TITLE_LH = 27          # title line height
+TITLE_INK = "#1b2432"  # near-black title (accent is reserved for the badge/rule)
+SUB_FS = 14            # subtitle font size
+SUB_LH = 19            # subtitle line height
+SUB_INK = "#5c6672"    # muted grey subtitle
+RULE_W = 34            # length of the accent rule under the title
+RULE_H = 3             # thickness of the accent rule
+BADGE_DROP = 3         # badge top offset so it optically aligns with the title cap
+TITLE_GAP = 13         # title block -> accent rule
+RULE_GAP = 12          # accent rule -> subtitle
+HEADER_GAP = 20        # subtitle -> illustration
 
 
 def _q(tag: str) -> str:
@@ -112,45 +123,59 @@ def _wrap(text: str, max_w: float, fs: float, bold: bool) -> list[str]:
     return lines
 
 
+def _text_x() -> float:
+    return PAD + BADGE + BADGE_GAP
+
+
 def _header_lines(panel: dict, text_w: float):
     title = _wrap(panel["title"], text_w, TITLE_FS, bold=True)
     sub = _wrap(panel["subtitle"], text_w, SUB_FS, bold=False)
     return title, sub
 
 
+def _title_block(title_lines) -> float:
+    return max(BADGE, TITLE_LH * len(title_lines))
+
+
 def _header_height(title_lines, sub_lines) -> float:
-    return (PAD + max(BADGE, TITLE_LH * len(title_lines))
-            + TITLE_GAP + SUB_LH * len(sub_lines) + HEADER_GAP)
+    return (PAD + _title_block(title_lines) + TITLE_GAP + RULE_H + RULE_GAP
+            + SUB_LH * len(sub_lines) + HEADER_GAP)
 
 
-def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, cx: float) -> str:
-    accent, sub_fill = panel["accent"], "#42474d"
-    # letter badge — top-left
-    by = PAD
+def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: float) -> str:
+    accent = panel["accent"]
+    tx = _text_x()
     parts = [
-        f'<rect x="{PAD}" y="{by}" width="{BADGE}" height="{BADGE}" rx="9" fill="{accent}"/>',
-        f'<text x="{PAD + BADGE/2:.1f}" y="{by + BADGE/2 + 6.5:.1f}" text-anchor="middle" '
-        f'font-size="19" font-weight="700" fill="#ffffff">{panel["id"]}</text>',
+        # accent letter badge, top-left
+        f'<rect x="{PAD}" y="{PAD + BADGE_DROP}" width="{BADGE}" height="{BADGE}" '
+        f'rx="8" fill="{accent}"/>',
+        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 6:.1f}" '
+        f'text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff">'
+        f'{panel["id"]}</text>',
     ]
-    # title — accent-coloured, centred, starts level with the badge
-    ty = by + TITLE_FS + 1
+    # title — restrained dark ink, left-aligned column beside the badge
     for i, line in enumerate(title_lines):
         parts.append(
-            f'<text x="{cx:.1f}" y="{ty + i*TITLE_LH:.1f}" text-anchor="middle" '
-            f'font-size="{TITLE_FS}" font-weight="700" fill="{accent}">{escape(line)}</text>')
-    # subtitle — muted, centred, below the title block
-    sy = by + max(BADGE, TITLE_LH * len(title_lines)) + TITLE_GAP + SUB_FS
+            f'<text x="{tx:.1f}" y="{PAD + TITLE_FS + i*TITLE_LH:.1f}" '
+            f'font-size="{TITLE_FS}" font-weight="700" letter-spacing="-0.01em" '
+            f'fill="{TITLE_INK}">{escape(line)}</text>')
+    # short accent rule — carries the panel colour-coding without a loud title
+    ry = PAD + _title_block(title_lines) + TITLE_GAP
+    parts.append(
+        f'<rect x="{tx:.1f}" y="{ry:.1f}" width="{RULE_W}" height="{RULE_H}" '
+        f'rx="{RULE_H/2:.1f}" fill="{accent}"/>')
+    # subtitle — muted grey, left-aligned in the same column
+    sy = ry + RULE_H + RULE_GAP + SUB_FS
     for i, line in enumerate(sub_lines):
         parts.append(
-            f'<text x="{cx:.1f}" y="{sy + i*SUB_LH:.1f}" text-anchor="middle" '
-            f'font-size="{SUB_FS}" font-weight="400" fill="{sub_fill}">{escape(line)}</text>')
+            f'<text x="{tx:.1f}" y="{sy + i*SUB_LH:.1f}" font-size="{SUB_FS}" '
+            f'font-weight="400" fill="{SUB_INK}">{escape(line)}</text>')
     return "".join(parts)
 
 
 def build_figure1() -> Path:
-    cw = PANEL_W - 2 * SIDE          # illustration width inside a card
-    text_w = PANEL_W - 2 * PAD       # header text wrap width
-    cx = PANEL_W / 2                 # card centre (for centred header text)
+    cw = PANEL_W - 2 * SIDE            # illustration width inside a card
+    text_w = PANEL_W - _text_x() - PAD  # header text column width (beside the badge)
 
     # Pre-pass: wrap headers, measure image + header heights, size all cards equal.
     prepared = []
@@ -186,7 +211,7 @@ def build_figure1() -> Path:
             "rx": str(CARD_RX), "fill": p["tint"], "stroke": p["stroke"],
             "stroke-width": "1.4"})
         g.append(ET.fromstring(
-            f'<g xmlns="{SVG_NS}">' + _draw_header(p, title_lines, sub_lines, header_h, cx) + "</g>"))
+            f'<g xmlns="{SVG_NS}">' + _draw_header(p, title_lines, sub_lines, header_h, 0) + "</g>"))
         img = ET.SubElement(g, _q("image"))
         img.set("href", _data_uri(png))
         img.set("x", str(SIDE)); img.set("y", f"{header_h:.1f}")
