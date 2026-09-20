@@ -1,59 +1,84 @@
 #!/usr/bin/env python
-"""Compose Figure 1 from a hand-designed SVG scaffold, swapping the loom panels
-into a / b / c and keeping panel d (the community drawing) + every panel's
-header text.
+"""Compose Figure 1 (panels a / b / c) — publication-ready.
 
-Reproducible remake: reads the committed scaffold
-``investigations/paper-figures/inputs/figure1-scaffold.svg``, and for panels
-A / B / C keeps the 5 header elements (background, letter badge, title, caption)
-while REPLACING the illustration with the study's loom panel PNG. Panel D
-(community) is left untouched. Writes
+The a / b / c illustrations are the study's loom-rendered panel PNGs
+(``studies/fig-01/visualizations/fig01{a,b,c}-*.png``). This script draws a
+fresh, uniform header (letter badge + accent-coloured title + subtitle) over
+each panel and scales the illustration to fill the card, then writes
 ``studies/fig-01/visualizations/figure_1.svg``.
 
-The loom panel PNGs must already be rendered (scripts/render_loom_svgs.mjs or the
-per-panel one-offs) — this only stitches. Run:
+Headers are drawn here (not kept from the scaffold) so title/subtitle text,
+typography and spacing are fully controlled. Edit ``PANELS`` to change copy or
+colour; edit the layout constants to change size.
 
     python scripts/build_figure1.py
+
+The loom panel PNGs must already be rendered (they are committed under
+studies/fig-01/visualizations/); this only stitches.
 """
 from __future__ import annotations
 
 import base64
 import xml.etree.ElementTree as ET
+from html import escape
 from pathlib import Path
 
 from PIL import Image
 
 WS = Path(__file__).resolve().parents[1]
-SCAFFOLD = WS / "investigations" / "paper-figures" / "inputs" / "figure1-scaffold.svg"
 VIZ = WS / "studies" / "fig-01" / "visualizations"
 
 SVG_NS = "http://www.w3.org/2000/svg"
 ET.register_namespace("", SVG_NS)
 ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
+FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
 
-# Panel group id → the loom PNG panel to swap in. a←1a, b←1b, c←1c; panel d
-# (community) is deliberately absent → kept verbatim from the scaffold.
-PANEL_LOOM = {
-    "Panel A - Different formalisms":   "fig01a-draft-processes.png",
-    "Panel B - Composition interfaces": "fig01b-multiscale-composite.png",
-    "Panel C - Process Bigraph":        "fig01c-study-workflow.png",
-}
-# Every panel opens with the SAME 5 header elements (verified across A–D):
-#   [0] background rect (320×740)
-#   [1] letter-badge rect   [2] letter-badge text
-#   [3] title <g> (2 lines) [4] caption <g> (2 lines)
-# …then the illustration. Keep the header, drop the rest.
-HEADER_KEEP = 5
-# Tight per-panel layout (removes white space): each card is sized to its loom
-# image so the image FILLS it — no letterbox — with small margins, and the cards
-# sit close together. PANEL_W stays 320 (the header text needs it); SIDE/TOP are
-# the small inner margins, GAP the space between cards, MARGIN the outer border.
-PANEL_W = 320
-SIDE = 6      # inner left/right margin around the image
-TOP = 102     # image top (below the header: 2-line title + 3-line caption, enlarged)
-BOTTOM = 8    # inner margin below the image
-GAP = 16      # between A / B / C  (was 40)
-MARGIN = 20   # outer figure margin
+# ── Per-panel content + colour ───────────────────────────────────────────────
+# loom: the illustration PNG. tint/stroke: the card. accent: badge + title.
+PANELS = [
+    {
+        "id": "a",
+        "loom": "fig01a-draft-processes.png",
+        "tint": "#fdecea", "stroke": "#e6a8a0", "accent": "#d33a2c",
+        "title": "Every subsystem gets its own best model",
+        "subtitle": ("Domain experts model each mechanism in the formalism that "
+                     "fits it — ODEs, FBA, PDEs, agent-based, learned dynamics — "
+                     "each with its own variables and scale."),
+    },
+    {
+        "id": "b",
+        "loom": "fig01b-multiscale-composite.png",
+        "tint": "#e8f0fe", "stroke": "#a9c4f5", "accent": "#2b5bd0",
+        "title": "Process Bigraphs make coupling explicit",
+        "subtitle": ("Typed interfaces and explicit wiring let independent models "
+                     "share state and run across scales as one system."),
+    },
+    {
+        "id": "c",
+        "loom": "fig01c-study-workflow.png",
+        "tint": "#fef7e0", "stroke": "#e6d9a8", "accent": "#2f6b3f",
+        "title": "Compositions become reusable simulations",
+        "subtitle": ("A declarative spec runs on a shared engine — executable, "
+                     "testable, shareable, and recomposable."),
+    },
+]
+
+# ── Layout (all in SVG user units) ──────────────────────────────────────────
+PANEL_W = 500          # card width (was 320) — wider cards → larger, readable illustrations
+SIDE = 14              # inner L/R margin around the illustration
+GAP = 30               # between cards
+MARGIN = 26            # outer figure margin
+BOTTOM = 18            # inner margin below the illustration
+CARD_RX = 18           # card corner radius
+
+PAD = 26               # header inner padding (badge + text inset)
+BADGE = 34             # letter-badge square
+TITLE_FS = 25          # title font size (was 14)
+TITLE_LH = 30          # title line height
+SUB_FS = 15            # subtitle font size (was ~11)
+SUB_LH = 20            # subtitle line height
+TITLE_GAP = 12         # gap between title block and subtitle
+HEADER_GAP = 16        # gap between subtitle block and the illustration
 
 
 def _q(tag: str) -> str:
@@ -70,163 +95,108 @@ def _aspect(png: Path) -> float:
     return w / h
 
 
-# ── Unified bottom callout for a / b / c — icon-top columns, one keyword each ─
-# A three-line abstract of the paper (per-column UPPERCASE keyword + support):
-#   a  STATE / DYNAMICS / SCALE                       (why composition is hard)
-#   b  INTERFACES / STORES / WIRING / ORCHESTRATION   (what's made explicit)
-#   c  SUBSTITUTE / RECOMBINE / REPRODUCE / SHARE     (what becomes possible)
-# All three share the SAME height + grammar; no box header, no tagline.
-SHARE_PANEL = "Panel C - Process Bigraph"
-BOTTOM_H = 44  # uniform height of every a/b/c bottom callout (icon + keyword only)
+def _wrap(text: str, max_w: float, fs: float, bold: bool) -> list[str]:
+    """Greedy word-wrap using an average glyph-width estimate for Helvetica."""
+    char_w = fs * (0.60 if bold else 0.53)
+    max_chars = max(8, int(max_w / char_w))
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        trial = f"{cur} {w}".strip()
+        if len(trial) <= max_chars or not cur:
+            cur = trial
+        else:
+            lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
+    return lines
 
 
-def _db(x, y, c):  # a database cylinder (STATE + SHARED STORES)
-    return (f'<g fill="{c}" fill-opacity="0.12" stroke="{c}" stroke-width="1.7" stroke-linejoin="round">'
-            f'<ellipse cx="{x}" cy="{y-6}" rx="8" ry="3"/><path d="M{x-8} {y-6} v12 a8 3 0 0 0 16 0 v-12"/></g>'
-            f'<g fill="none" stroke="{c}" stroke-width="1.3" opacity="0.6">'
-            f'<path d="M{x-8} {y-1} a8 3 0 0 0 16 0"/><path d="M{x-8} {y+3.5} a8 3 0 0 0 16 0"/></g>')
+def _header_lines(panel: dict, text_w: float):
+    title = _wrap(panel["title"], text_w, TITLE_FS, bold=True)
+    sub = _wrap(panel["subtitle"], text_w, SUB_FS, bold=False)
+    return title, sub
 
 
-# ---- Panel A icons — State / Dynamics / Scale -------------------------------
-def _ic_dynamics(x, y, c):  # a small molecular / process network
-    return (f'<g stroke="{c}" stroke-width="1.5"><line x1="{x}" y1="{y-6}" x2="{x-7}" y2="{y+3}"/>'
-            f'<line x1="{x}" y1="{y-6}" x2="{x+7}" y2="{y+3}"/><line x1="{x-7}" y1="{y+3}" x2="{x+7}" y2="{y+3}"/>'
-            f'<line x1="{x}" y1="{y-6}" x2="{x}" y2="{y+7}"/></g>'
-            f'<g fill="#ffffff" stroke="{c}" stroke-width="1.6"><circle cx="{x}" cy="{y-6}" r="2.6"/>'
-            f'<circle cx="{x-7}" cy="{y+3}" r="2.6"/><circle cx="{x+7}" cy="{y+3}" r="2.6"/><circle cx="{x}" cy="{y+7}" r="2.3"/></g>')
+def _header_height(title_lines, sub_lines) -> float:
+    return (PAD + max(BADGE, TITLE_LH * len(title_lines))
+            + TITLE_GAP + SUB_LH * len(sub_lines) + HEADER_GAP)
 
 
-def _ic_scale(x, y, c):     # stacked layers (molecules → cells → tissues)
-    return (f'<g fill="{c}" fill-opacity="0.14" stroke="{c}" stroke-width="1.6" stroke-linejoin="round">'
-            f'<path d="M{x} {y-8} l9 4.5 l-9 4.5 l-9 -4.5 z"/><path d="M{x} {y-1} l9 4.5 l-9 4.5 l-9 -4.5 z"/></g>')
-
-
-# ---- Panel B icons — Interfaces / Stores / Wiring / Orchestration -----------
-def _ic_interfaces(x, y, c):  # a typed-interface bar with ports
-    return (f'<line x1="{x}" y1="{y-8}" x2="{x}" y2="{y+8}" stroke="{c}" stroke-width="1.8"/>'
-            f'<g stroke="{c}" stroke-width="1.6" stroke-linecap="round"><line x1="{x}" y1="{y-4}" x2="{x-7}" y2="{y-4}"/>'
-            f'<line x1="{x}" y1="{y+4}" x2="{x-7}" y2="{y+4}"/><line x1="{x}" y1="{y}" x2="{x+7}" y2="{y}"/></g>'
-            f'<g fill="{c}"><circle cx="{x-7}" cy="{y-4}" r="1.9"/><circle cx="{x-7}" cy="{y+4}" r="1.9"/>'
-            f'<circle cx="{x+7}" cy="{y}" r="1.9"/></g>')
-
-
-def _ic_wiring(x, y, c):    # two interlocking chain links
-    return (f'<g fill="none" stroke="{c}" stroke-width="1.9" stroke-linecap="round">'
-            f'<rect x="{x-9}" y="{y-3.6}" width="10" height="7.2" rx="3.6"/>'
-            f'<rect x="{x-1}" y="{y-3.6}" width="10" height="7.2" rx="3.6"/></g>')
-
-
-def _ic_orchestration(x, y, c):  # orchestration — timing / a clock
-    return (f'<circle cx="{x}" cy="{y}" r="8.5" fill="none" stroke="{c}" stroke-width="1.7"/>'
-            f'<path d="M{x} {y} V{y-5} M{x} {y} L{x+4} {y+2}" fill="none" stroke="{c}" stroke-width="1.7" stroke-linecap="round"/>'
-            f'<g fill="{c}"><circle cx="{x}" cy="{y-8.5}" r="1.1"/><circle cx="{x+8.5}" cy="{y}" r="1.1"/>'
-            f'<circle cx="{x}" cy="{y+8.5}" r="1.1"/><circle cx="{x-8.5}" cy="{y}" r="1.1"/></g>')
-
-
-# ---- Panel C icons — Substitute / Recombine / Reproduce / Share -------------
-def _ic_substitute(x, y, c):  # two opposed swap arrows
-    return (f'<g fill="none" stroke="{c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
-            f'<path d="M{x-8} {y-3} h13 m-3.5 -3.5 l3.5 3.5 l-3.5 3.5"/>'
-            f'<path d="M{x+8} {y+3.5} h-13 m3.5 -3.5 l-3.5 3.5 l3.5 3.5"/></g>')
-
-
-def _ic_recombine(x, y, c):  # a puzzle piece
-    return (f'<path d="M{x-7.5} {y-7.5} h4.5 a2.2 2.2 0 0 1 4.6 0 h4.4 v4.4 a2.2 2.2 0 0 0 0 4.6 v4.5 '
-            f'h-4.4 a2.2 2.2 0 0 1 -4.6 0 h-4.5 v-4.5 a2.2 2.2 0 0 0 0 -4.6 z" '
-            f'fill="{c}" fill-opacity="0.14" stroke="{c}" stroke-width="1.6" stroke-linejoin="round"/>')
-
-
-def _ic_reproduce(x, y, c):  # a play button on a card (run anywhere)
-    return (f'<rect x="{x-9}" y="{y-7}" width="18" height="14" rx="2.6" fill="{c}" fill-opacity="0.1" '
-            f'stroke="{c}" stroke-width="1.6"/>'
-            f'<path d="M{x-2.6} {y-3.6} l6 3.6 l-6 3.6 z" fill="{c}"/>')
-
-
-def _ic_share(x, y, c):     # three community members
-    def person(px, py):
-        return (f'<circle cx="{px}" cy="{py}" r="2.3" fill="{c}"/>'
-                f'<path d="M{px-3.4} {py+6.2} a3.4 3.4 0 0 1 6.8 0 z" fill="{c}"/>')
-    return person(x, y - 3) + person(x - 7.5, y + 1.5) + person(x + 7.5, y + 1.5)
-
-
-# Content per box: (icon, KEYWORD). Just the icon + keyword — no support text.
-BOTTOM_A = [(_db, "STATE"), (_ic_dynamics, "DYNAMICS"), (_ic_scale, "SCALE")]
-BOTTOM_B = [(_ic_interfaces, "TYPED INTERFACES"), (_db, "SHARED STORES"),
-            (_ic_wiring, "EXPLICIT WIRING"), (_ic_orchestration, "ORCHESTRATION")]
-BOTTOM_C = [(_ic_substitute, "SUBSTITUTE"), (_ic_recombine, "RECOMBINE"),
-            (_ic_reproduce, "REPRODUCE"), (_ic_share, "SHARE")]
-
-
-def _bottom_callout(w, items, fill, border, accent):
-    n = len(items)
-    col = w / n
-    # keyword font shrinks a touch when the longest keyword is wide (4-col boxes).
-    kw_fs = 7.1 if max(len(k) for _, k in items) > 8 else 8.4
-    parts = [f'<rect x="1" y="2" width="{w - 2}" height="{BOTTOM_H - 4}" rx="10" '
-             f'fill="{fill}" stroke="{border}" stroke-width="1.3"/>']
-    icon_cy = 17
-    for i, (icon, keyword) in enumerate(items):
-        cx = col * (i + 0.5)
-        parts.append(icon(cx, icon_cy, accent))
-        parts.append(f'<text x="{cx:.0f}" y="{icon_cy + 18:.1f}" text-anchor="middle" font-size="{kw_fs}" '
-                     f'font-weight="700" letter-spacing="0.03em" fill="{accent}">{keyword}</text>')
-    return ET.fromstring(f'<g xmlns="{SVG_NS}">' + "".join(parts) + "</g>")
-
-
-# Per-panel bottom block. Disabled: the panel headers + graphs already carry the
-# heterogeneity / composition / reuse story, so no bottom callout is drawn.
-# (The _bottom_callout + BOTTOM_A/B/C content above are kept for easy re-enable.)
-def _bottom_block(panel_id: str, w: int):
-    return None, 0
+def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, cx: float) -> str:
+    accent, sub_fill = panel["accent"], "#42474d"
+    # letter badge — top-left
+    by = PAD
+    parts = [
+        f'<rect x="{PAD}" y="{by}" width="{BADGE}" height="{BADGE}" rx="9" fill="{accent}"/>',
+        f'<text x="{PAD + BADGE/2:.1f}" y="{by + BADGE/2 + 6.5:.1f}" text-anchor="middle" '
+        f'font-size="19" font-weight="700" fill="#ffffff">{panel["id"]}</text>',
+    ]
+    # title — accent-coloured, centred, starts level with the badge
+    ty = by + TITLE_FS + 1
+    for i, line in enumerate(title_lines):
+        parts.append(
+            f'<text x="{cx:.1f}" y="{ty + i*TITLE_LH:.1f}" text-anchor="middle" '
+            f'font-size="{TITLE_FS}" font-weight="700" fill="{accent}">{escape(line)}</text>')
+    # subtitle — muted, centred, below the title block
+    sy = by + max(BADGE, TITLE_LH * len(title_lines)) + TITLE_GAP + SUB_FS
+    for i, line in enumerate(sub_lines):
+        parts.append(
+            f'<text x="{cx:.1f}" y="{sy + i*SUB_LH:.1f}" text-anchor="middle" '
+            f'font-size="{SUB_FS}" font-weight="400" fill="{sub_fill}">{escape(line)}</text>')
+    return "".join(parts)
 
 
 def build_figure1() -> Path:
-    tree = ET.parse(SCAFFOLD)
-    root = tree.getroot()
-    # Drop panel D (community) — Figure 1 is now just A / B / C.
-    for panel in root.findall(_q("g")):
-        if panel.get("id", "") == "Panel D - Community":
-            root.remove(panel)
-    cw = PANEL_W - 2 * SIDE  # image width inside a card
-    # Each loom image fills the card WIDTH at its native aspect (no letterbox).
-    # Pre-pass: measure every panel's natural content height, then give ALL cards
-    # the SAME height (the tallest) — the images sit top-aligned and any leftover
-    # space is the card's own tint, not white, so the three panels line up.
-    panels = [p for p in root.findall(_q("g")) if PANEL_LOOM.get(p.get("id", ""))]
-    info = []
-    for panel in panels:
-        png = VIZ / PANEL_LOOM[panel.get("id", "")]
+    cw = PANEL_W - 2 * SIDE          # illustration width inside a card
+    text_w = PANEL_W - 2 * PAD       # header text wrap width
+    cx = PANEL_W / 2                 # card centre (for centred header text)
+
+    # Pre-pass: wrap headers, measure image + header heights, size all cards equal.
+    prepared = []
+    header_h = 0.0
+    for p in PANELS:
+        png = VIZ / p["loom"]
         if not png.is_file():
             raise SystemExit(f"missing loom panel PNG: {png} — render the panels first")
-        ch = round(cw / _aspect(png))
-        block, block_h = _bottom_block(panel.get("id", ""), cw)  # A/B callout, C Share & Reuse
-        natural_h = TOP + ch + (8 + block_h if block is not None else 0) + BOTTOM
-        info.append((panel, png, ch, block, block_h, natural_h))
-    panel_h = max(n for *_, n in info)  # common height for all three cards
+        title_lines, sub_lines = _header_lines(p, text_w)
+        header_h = max(header_h, _header_height(title_lines, sub_lines))
+        img_h = round(cw / _aspect(png))
+        prepared.append((p, png, title_lines, sub_lines, img_h))
+
+    panel_h = round(header_h + max(ih for *_, ih in prepared) + BOTTOM)
+
+    # Build the SVG.
+    n = len(prepared)
+    fig_w = MARGIN + n * PANEL_W + (n - 1) * GAP + MARGIN
+    fig_h = MARGIN + panel_h + MARGIN
+    root = ET.Element(_q("svg"), {
+        "width": str(fig_w), "height": str(fig_h),
+        "viewBox": f"0 0 {fig_w} {fig_h}", "font-family": FONT,
+    })
+    ET.SubElement(root, _q("rect"), {"x": "0", "y": "0", "width": str(fig_w),
+                                     "height": str(fig_h), "fill": "#ffffff"})
+
     x = MARGIN
-    for panel, png, ch, block, block_h, _ in info:
-        panel.find(_q("rect")).set("height", str(panel_h))  # background rect = first <rect>
-        for extra in list(panel)[HEADER_KEEP:]:
-            panel.remove(extra)  # drop the scaffold's placeholder illustration
-        img = ET.SubElement(panel, _q("image"))
+    for p, png, title_lines, sub_lines, img_h in prepared:
+        g = ET.SubElement(root, _q("g"), {"id": f"Panel {p['id']}",
+                                          "transform": f"translate({x},{MARGIN})"})
+        ET.SubElement(g, _q("rect"), {
+            "x": "0", "y": "0", "width": str(PANEL_W), "height": str(panel_h),
+            "rx": str(CARD_RX), "fill": p["tint"], "stroke": p["stroke"],
+            "stroke-width": "1.4"})
+        g.append(ET.fromstring(
+            f'<g xmlns="{SVG_NS}">' + _draw_header(p, title_lines, sub_lines, header_h, cx) + "</g>"))
+        img = ET.SubElement(g, _q("image"))
         img.set("href", _data_uri(png))
-        img.set("x", str(SIDE)); img.set("y", str(TOP))
-        img.set("width", str(cw)); img.set("height", str(ch))
-        img.set("preserveAspectRatio", "none")  # box == image aspect → fills, no distortion
-        if block is not None:  # bottom-align the block so all three line up at the base
-            block.set("transform", f"translate({SIDE},{panel_h - BOTTOM - block_h})")
-            panel.append(block)
-        panel.set("transform", f"translate({x},{MARGIN})")  # pull the cards together
+        img.set("x", str(SIDE)); img.set("y", f"{header_h:.1f}")
+        img.set("width", str(cw)); img.set("height", str(img_h))
+        img.set("preserveAspectRatio", "xMidYMin meet")
         x += PANEL_W + GAP
-    max_h = panel_h
-    swapped = len(info)
-    fig_w = MARGIN + swapped * PANEL_W + (swapped - 1) * GAP + MARGIN
-    fig_h = MARGIN + max_h + MARGIN
-    root.set("width", str(fig_w)); root.set("height", str(fig_h))
-    root.set("viewBox", f"0 0 {fig_w} {fig_h}")
+
     out = VIZ / "figure_1.svg"
-    tree.write(out, encoding="utf-8", xml_declaration=True)
-    print(f"composed {out.relative_to(WS)} — {swapped} tight panels (A/B/C), dropped panel D")
+    ET.ElementTree(root).write(out, encoding="utf-8", xml_declaration=True)
+    print(f"composed {out.relative_to(WS)} — {n} panels, {fig_w}x{fig_h}, header {header_h:.0f}px")
     return out
 
 
