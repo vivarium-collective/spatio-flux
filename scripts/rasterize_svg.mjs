@@ -5,9 +5,21 @@
 //
 //   node scripts/rasterize_svg.mjs <in.svg> <out.png> [scale=2]
 import { createRequire } from 'module';
-import { readFileSync, writeFileSync } from 'fs';
-const require = createRequire(
-  '/Users/eranagmon/code/vivarium-workbench--loom-polish/vivarium_workbench/loom/package.json');
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { globSync } from 'fs';
+import { homedir } from 'os';
+// playwright lives in a workbench loom worktree's node_modules. Discover one
+// that actually has it installed (VW_LOOM overrides), instead of hardcoding a
+// worktree path that may have been removed.
+function findLoomPkg() {
+  if (process.env.VW_LOOM && existsSync(`${process.env.VW_LOOM}/node_modules/playwright`))
+    return `${process.env.VW_LOOM}/package.json`;
+  const cands = globSync(`${homedir()}/code/vivarium-workbench*/vivarium_workbench/loom`);
+  for (const d of cands) if (existsSync(`${d}/node_modules/playwright`)) return `${d}/package.json`;
+  console.error('rasterize_svg: no workbench loom node_modules with playwright found; set VW_LOOM');
+  process.exit(2);
+}
+const require = createRequire(findLoomPkg());
 const { chromium } = require('playwright');
 
 const [, , inPath, outPath, scaleArg] = process.argv;
