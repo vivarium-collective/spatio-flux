@@ -152,8 +152,8 @@ def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: floa
         # accent letter badge, top-left
         f'<rect x="{PAD}" y="{PAD + BADGE_DROP}" width="{BADGE}" height="{BADGE}" '
         f'rx="8" fill="{accent}"/>',
-        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 6:.1f}" '
-        f'text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff">'
+        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 7:.1f}" '
+        f'text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff">'
         f'{panel["id"]}</text>',
     ]
     # title — restrained dark ink, left-aligned column beside the badge
@@ -215,7 +215,7 @@ def build_figure1() -> Path:
         ET.SubElement(g, _q("rect"), {
             "x": "0", "y": "0", "width": str(panel_w), "height": str(_card_h(img_h)),
             "rx": str(CARD_RX), "fill": p["tint"], "stroke": p["stroke"],
-            "stroke-width": "2"})
+            "stroke-width": "2.5"})
         g.append(ET.fromstring(
             f'<g xmlns="{SVG_NS}">' + _draw_header(p, title_lines, sub_lines, header_h, 0) + "</g>"))
         img = ET.SubElement(g, _q("image"))
