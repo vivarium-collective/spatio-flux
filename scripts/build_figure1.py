@@ -40,7 +40,7 @@ PANELS = [
         "id": "a",
         "hscale": 1.4,
         "loom": "fig01a-draft-processes.png",
-        "tint": "#fdecea", "stroke": "#e6a8a0", "accent": "#d33a2c",
+        "tint": "#ffffff", "stroke": "#e9c6c1", "accent": "#d33a2c",
         "title": "Every subsystem gets its own best model",
         "subtitle": ("Domain experts model each mechanism in the formalism that "
                      "fits it — ODEs, FBA, PDEs, agent-based, learned dynamics — "
@@ -50,7 +50,7 @@ PANELS = [
         "id": "b",
         "hscale": 1.4,
         "loom": "fig01b-multiscale-composite.png",
-        "tint": "#e8f0fe", "stroke": "#a9c4f5", "accent": "#2b5bd0",
+        "tint": "#ffffff", "stroke": "#c3d4f5", "accent": "#2b5bd0",
         "title": "Process Bigraphs make coupling explicit",
         "subtitle": ("Typed interfaces and explicit wiring let independent models "
                      "share state and run across scales as one system."),
@@ -59,7 +59,7 @@ PANELS = [
         "id": "c",
         "hscale": 1.4,
         "loom": "fig01c-study-workflow.png",
-        "tint": "#fef7e0", "stroke": "#e6d9a8", "accent": "#2f6b3f",
+        "tint": "#ffffff", "stroke": "#d7c591", "accent": "#2f6b3f",
         "title": "Compositions become reusable simulations",
         "subtitle": ("A declarative spec runs on a shared engine — executable, "
                      "testable, shareable, and recomposable."),
@@ -81,11 +81,11 @@ CARD_RX = 18           # card corner radius
 PAD = 28               # header inner padding
 BADGE = 30             # letter-badge square
 BADGE_GAP = 15         # gap from badge to the text column
-TITLE_FS = 26          # title font size
-TITLE_LH = 32          # title line height
+TITLE_FS = 31          # title font size
+TITLE_LH = 38          # title line height
 TITLE_INK = "#1b2432"  # near-black title (accent is reserved for the badge/rule)
-SUB_FS = 19            # subtitle font size
-SUB_LH = 26            # subtitle line height
+SUB_FS = 23            # subtitle font size
+SUB_LH = 31            # subtitle line height
 SUB_INK = "#4a5460"    # subtitle grey (a touch darker for readability)
 RULE_W = 34            # length of the accent rule under the title
 RULE_H = 3             # thickness of the accent rule
@@ -152,8 +152,8 @@ def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: floa
         # accent letter badge, top-left
         f'<rect x="{PAD}" y="{PAD + BADGE_DROP}" width="{BADGE}" height="{BADGE}" '
         f'rx="8" fill="{accent}"/>',
-        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 6:.1f}" '
-        f'text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff">'
+        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 7:.1f}" '
+        f'text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff">'
         f'{panel["id"]}</text>',
     ]
     # title — restrained dark ink, left-aligned column beside the badge
@@ -215,7 +215,7 @@ def build_figure1() -> Path:
         ET.SubElement(g, _q("rect"), {
             "x": "0", "y": "0", "width": str(panel_w), "height": str(_card_h(img_h)),
             "rx": str(CARD_RX), "fill": p["tint"], "stroke": p["stroke"],
-            "stroke-width": "1.4"})
+            "stroke-width": "2.5"})
         g.append(ET.fromstring(
             f'<g xmlns="{SVG_NS}">' + _draw_header(p, title_lines, sub_lines, header_h, 0) + "</g>"))
         img = ET.SubElement(g, _q("image"))

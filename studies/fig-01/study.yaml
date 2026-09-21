@@ -20,6 +20,9 @@ baseline:
 - name: 1b-multiscale
   composite: spatio_flux.composites.fig01b-multiscale-composite
   params: {}
+- name: 1c-study-workflow
+  composite: spatio_flux.composites.fig01c-study-workflow
+  params: {}
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
