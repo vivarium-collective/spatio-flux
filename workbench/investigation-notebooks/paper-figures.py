@@ -157,6 +157,7 @@ def _render_one(address, config, runs_db, study_yaml):
 # | --- | --- | --- | --- |
 # | `1a-draft-processes` | `spatio_flux.composites.fig01a-draft-processes` | 0 | — |
 # | `1b-multiscale` | `spatio_flux.composites.fig01b-multiscale-composite` | 0 | — |
+# | `1c-study-workflow` | `spatio_flux.composites.fig01c-study-workflow` | 0 | — |
 
 # ### Specification (process-bigraph) — load, inspect, edit
 #
@@ -270,6 +271,73 @@ describe_spec(spec_spatio_flux_composites_fig01b_multiscale_composite)
 # === Edit parameters for composite 'fig01b-multiscale-composite' ===
 # Each line is the spec's CURRENT value — change any, then run the Run cell
 # below. The spec is a plain dict, so you may also add or remove keys.
+
+# **Composite `spatio_flux.composites.fig01c-study-workflow`** — `spec_spatio_flux_composites_fig01c_study_workflow` (a plain, editable dict)
+
+from viva_superpowers.composite_spec import load_spec
+spec_spatio_flux_composites_fig01c_study_workflow = load_spec(REPO / 'spatio_flux/composites/fig01c-study-workflow.composite.json')
+describe_spec(spec_spatio_flux_composites_fig01c_study_workflow)
+
+# === Edit parameters for composite 'fig01c-study-workflow' ===
+# Each line is the spec's CURRENT value — change any, then run the Run cell
+# below. The spec is a plain dict, so you may also add or remove keys.
+
+# process 'preprocess'  (local:Preprocess)
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['summary'] = 'Pre-processing — prepare the simulation conditions'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['status'] = 'draft - no update dynamics yet'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['summary'] = 'Pre-processing — prepare the simulation conditions'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['description'] = "The workflow's pre-step: reads the experimental datasets and the model specification (JSON) and derives the initial conditions / parameters shared by the parallel simulation ensemble."
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['ports']['datasets'] = 'experimental datasets'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['ports']['spec'] = 'model specification (JSON)'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['ports']['conditions'] = 'prepared simulation conditions'
+
+# process 'emitter'  (local:Emitter)
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['summary'] = 'Emitter — capture simulation state to storage'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['status'] = 'draft - no update dynamics yet'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['summary'] = 'Emitter — capture simulation state to storage'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['method'] = 'Emitter'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['description'] = 'Subscribes to the running simulation ensemble and records their observed state each timestep to a store — the standard process-bigraph emitter that persists a run.'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['ports']['simulations'] = 'the running simulations'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['ports']['emitter_data'] = 'captured emitter output'
+
+# process 'load_results'  (local:LoadResults)
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['summary'] = 'Load results — read emitted data into a results table'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['status'] = 'draft - no update dynamics yet'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['summary'] = 'Load results — read emitted data into a results table'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['method'] = 'Data loader'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['description'] = "Reads the emitter's stored output and materializes it as a tidy results table that the downstream analysis steps consume."
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['ports']['emitter_data'] = 'stored emitter output'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['ports']['results'] = 'tidy results table'
+
+# process 'analyses'  (local:Analyses)
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['summary'] = 'Analyses — quantify the simulation ensemble'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['status'] = 'draft - no update dynamics yet'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['summary'] = 'Analyses — quantify the simulation ensemble'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['description'] = 'A workflow post-step: aggregates the parallel simulation outputs into quantitative analysis results (summary statistics, derived observables).'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['ports']['runs'] = 'the parallel simulation outputs'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['ports']['results'] = 'analysis results'
+
+# process 'visualizations'  (local:Visualizations)
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['summary'] = 'Visualizations — render figures from the results'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['status'] = 'draft - no update dynamics yet'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['summary'] = 'Visualizations — render figures from the results'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['description'] = 'A workflow post-step: reads the simulation outputs and renders the figures (plots, snapshots, animations).'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['ports']['runs'] = 'the parallel simulation outputs'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['ports']['figures'] = 'rendered figures'
+
+# process 'tests'  (local:Tests)
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['interval'] = 1.0
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['summary'] = 'Tests — check results against expected behavior'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['status'] = 'draft - no update dynamics yet'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['summary'] = 'Tests — check results against expected behavior'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['description'] = "A workflow post-step: evaluates the simulation outputs against the study's acceptance criteria and emits a pass / fail report."
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['ports']['runs'] = 'the parallel simulation outputs'
+spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['ports']['report'] = 'test report (pass / fail)'
 
 # ### Run
 #
