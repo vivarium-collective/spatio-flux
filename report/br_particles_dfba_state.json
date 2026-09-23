@@ -1,6 +1,6 @@
 {
   "particles": {
-    "08VTMLWT": {
+    "n3gYNR45": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "08VTMLWT",
+      "id": "n3gYNR45",
       "position": [
-        35.26260567022238,
-        34.111307909875
+        38.14253867366187,
+        25.3115394375789
       ],
-      "mass": 0.6706404909819883,
+      "mass": 0.30622187110329596,
       "local": {},
       "exchange": {},
       "sub_masses": {},
@@ -634,21 +634,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -672,8 +672,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

@@ -619,6 +619,18 @@
   </div>
 
   
+  <div class="overview-section" id="study-analyses-section">
+    <h3>Analyses to run <span class="muted" style="font-size:0.85em;font-weight:normal">— which of the workspace's <code>ANALYSIS_REGISTRY</code> entries to compute on dispatch</span></h3>
+    <div id="study-analyses-list" data-study="fig-06">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading analyses…</span></div>
+    </div>
+    <div style="margin-top:8px">
+      <button class="action-btn" type="button" onclick="_saveStudyAnalyses()">Save analyses</button>
+      <span id="study-analyses-status" style="margin-left:8px;font-size:0.9em;color:#555"></span>
+    </div>
+  </div>
+
+  
   
   
 
@@ -643,9 +655,13 @@
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
-        <input type="text" class="baseline-composite-input" data-baseline-name="fig-6-orchestration"
-               value="spatio_flux.composites.fig06-orchestration" placeholder="pkg.composites.name"
-               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        
+        <select class="baseline-composite-input" data-baseline-name="fig-6-orchestration"
+                data-current="spatio_flux.composites.fig06-orchestration"
+                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px">
+          <option value="spatio_flux.composites.fig06-orchestration" selected>spatio_flux.composites.fig06-orchestration</option>
+          
+        </select>
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
                 data-baseline-name="fig-6-orchestration">Set composite</button>
       </div>
@@ -1026,7 +1042,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "e16496afcbdfeb5f351b10ed60326d3095a7bae4", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/e16496afcbdfeb5f351b10ed60326d3095a7bae4", "branch": "main", "lockfile": "uv.lock@e9e60c1e8f1c", "generated_at": "2026-09-21 15:15 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "b6d69d0c5491962015fbb22e35a5699f67c649a9", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/b6d69d0c5491962015fbb22e35a5699f67c649a9", "branch": "main", "lockfile": "uv.lock@4fbef4f1cc50", "generated_at": "2026-09-23 18:07 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "fig-06";
@@ -1153,6 +1169,7 @@ window._seedFollowupProposal = _seedFollowupProposal;
      Model card stays stuck on "Resolving composite…". -->
 <script src="/spatio-flux/workbench/assets/loom-embed.js"></script>
 <script src="/spatio-flux/workbench/assets/composite-card.js"></script>
+<script src="/spatio-flux/workbench/assets/checklist-select.js"></script>
 <script src="/spatio-flux/workbench/assets/study-detail.js"></script>
 <script>
 // Re-assert the refresh-aware seed handlers AFTER study-detail.js (which

@@ -1,235 +1,127 @@
 {
-  "particles": {
-    "IAYRIWzI": {
-      "monod_kinetics": {
-        "address": {
-          "protocol": "local",
-          "data": "MonodKinetics"
-        },
-        "config": {
-          "reactions": {
-            "assimilate_glucose": {
-              "reactant": "glucose",
-              "product": "mass",
-              "km": 0.5,
-              "vmax": 0.4,
-              "yield": 0.2
-            },
-            "overflow_to_acetate": {
-              "reactant": "glucose",
-              "product": "acetate",
-              "km": 0.5,
-              "vmax": 0.3,
-              "yield": 0.5
-            },
-            "assimilate_acetate": {
-              "reactant": "acetate",
-              "product": "mass",
-              "km": 0.6,
-              "vmax": 0.3,
-              "yield": 0.2
-            }
-          }
-        },
-        "_inputs": "biomass:mass|substrates:map[concentration]",
-        "_outputs": "biomass:mass_delta|substrates:map[concentration_delta]",
-        "inputs": {
-          "substrates": [
-            "local"
-          ],
-          "biomass": [
-            "mass"
-          ]
-        },
-        "outputs": {
-          "substrates": [
-            "exchange"
-          ],
-          "biomass": [
-            "mass"
-          ]
-        },
-        "interval": 1.0,
-        "_contract": {
-          "summary": "Monod kinetics \u2014 substrate-saturating growth",
-          "description": "",
-          "inputs": {},
-          "outputs": {},
-          "config": {},
-          "math": [
-            "\\mu=\\mu_{\\max}\\,\\frac{s}{K_s+s},\\qquad \\dot X=\\mu X,\\ \\ \\dot s=-\\mu X/Y"
-          ],
-          "symbols": {
-            "\u03bc_max": "max growth rate",
-            "K_s": "half-saturation const",
-            "Y": "biomass yield"
-          },
-          "assumptions": [],
-          "references": [],
-          "face": {
-            "inputs": {
-              "biomass": {
-                "_type": "mass",
-                "_units": "gDW"
-              },
-              "substrates": {
-                "_type": "map",
-                "_value": {
-                  "_type": "concentration",
-                  "_units": "mM"
-                }
-              }
-            },
-            "outputs": {
-              "biomass": "mass_delta",
-              "substrates": "map[concentration_delta]"
-            }
-          },
-          "amendments": []
-        }
-      },
-      "id": "IAYRIWzI",
-      "position": [
-        4.158640898356536,
-        27.13941920438237
-      ],
-      "mass": 0.47194855776681,
-      "local": {},
-      "exchange": {},
-      "sub_masses": {},
-      "shape": "circle",
-      "velocity": [
-        0.0,
-        0.0
-      ],
-      "inertia": 0.0,
-      "friction": 0.0,
-      "elasticity": 0.0,
-      "radius": 0.0
-    }
-  },
+  "particles": {},
   "global_time": 0.0,
   "fields": {
     "glucose": [
       [
-        5.772074933341528,
-        5.177845940691599,
-        7.054205730524831,
-        8.414502866692908,
-        6.211210131501241,
-        8.413437181110876,
-        5.317782502930362,
-        9.575251345809901,
-        5.046403193695359,
-        9.551476447225598
+        6.66370402701021,
+        8.086405092242023,
+        7.720418848058914,
+        6.432875484289162,
+        5.847000773998542,
+        5.104076883485982,
+        5.00265714806412,
+        8.6362741989051,
+        5.089916371686146,
+        8.736324859293198
       ],
       [
-        6.877413032584401,
-        9.841341091986905,
-        9.385113769891088,
-        5.817456621968988,
-        8.363440748921757,
-        5.229384837711465,
-        7.765600960683803,
-        9.416888991550017,
-        9.252807302838178,
-        5.067499755137732
+        7.5743864563953185,
+        6.589358136991234,
+        9.70395241137048,
+        6.9204625166760945,
+        9.240332553169823,
+        6.962966850358997,
+        6.382207237276065,
+        7.79365816542873,
+        8.150784542474073,
+        8.771430831757927
       ],
       [
-        7.732623709464294,
-        6.0679353159432905,
-        6.386211165524799,
-        6.152957987721791,
-        9.443117415539177,
-        8.326703128635106,
-        9.065725889984709,
-        6.817731600537031,
-        8.262595043487106,
-        7.934260191306551
+        7.839260364892471,
+        7.575461437163501,
+        8.786590465719925,
+        8.147429725221281,
+        9.644471840291331,
+        8.62081775840342,
+        9.384441434496992,
+        8.607595674530963,
+        7.511385676938867,
+        5.025675651628687
       ],
       [
-        7.698971511246489,
-        7.789266696358052,
-        6.749637223281573,
-        5.21087070114735,
-        5.109686368147778,
-        9.261560562143202,
-        9.301638430463917,
-        7.036284028284947,
-        9.999613713315446,
-        6.4461128452600285
+        6.993836877051875,
+        8.100156587396805,
+        5.928269405020473,
+        5.797166485686494,
+        9.136188280860557,
+        5.705569586414222,
+        9.340220002552345,
+        6.764291256944733,
+        9.961219733324793,
+        8.328075027908906
       ],
       [
-        5.536840026016308,
-        5.939914213567452,
-        5.288833487057898,
-        8.26702429218489,
-        6.282415576762581,
-        8.125541485276969,
-        5.258763605865871,
-        5.668493956460235,
-        6.883654570626899,
-        5.22849234665609
+        7.157940811542062,
+        9.974047263009714,
+        6.3856163868209554,
+        8.89699794058539,
+        7.064159946076978,
+        5.765816290089749,
+        9.650072448358763,
+        9.300116748678061,
+        5.151874806763936,
+        6.354217889488552
       ],
       [
-        8.443178066481595,
-        5.708219161692492,
-        9.384149702963011,
-        5.714108973215789,
-        8.935256987215725,
-        8.925394996291438,
-        5.1359564976125345,
-        8.69434924749934,
-        9.433213949897736,
-        7.149007360921528
+        6.789736351663997,
+        8.886592403828287,
+        7.661024545825139,
+        5.857737844984096,
+        9.888188838006986,
+        9.043833692390109,
+        9.019687948089592,
+        9.367939520993128,
+        7.101692195998819,
+        6.798630602927804
       ],
       [
-        6.8285880165882205,
-        5.748180551566832,
-        5.997104254764848,
-        5.746956547179348,
-        8.811829326282885,
-        8.391102621149145,
-        8.164037477767756,
-        9.298230601597076,
-        9.172441226669488,
-        5.005948578845363
+        8.265328512343935,
+        8.873442128402331,
+        8.798573604049654,
+        5.168805500932965,
+        8.549027200832935,
+        8.4768751448791,
+        8.87788948463179,
+        8.70057596485188,
+        7.823944633474415,
+        9.783588947743333
       ],
       [
-        8.561759569321907,
-        8.612798197384734,
-        5.116077291872407,
-        6.315537675128319,
-        5.009672839737113,
-        6.8234460356283115,
-        5.8099297479202425,
-        6.938257837083879,
-        9.07294338996492,
-        9.441323996852574
+        6.823501138116873,
+        8.52436588026701,
+        6.830642614047868,
+        5.803812581192587,
+        5.927135132652902,
+        7.02502737774712,
+        8.034245160331487,
+        8.308698192556454,
+        8.895495474062281,
+        9.084647235324887
       ],
       [
-        8.271648195869147,
-        6.62072681032223,
-        7.204009831704999,
-        7.958113073263171,
-        8.162963294396034,
-        5.163470817785533,
-        8.052702154011964,
-        6.014403100889712,
-        6.4652114708947686,
-        5.045572537152591
+        8.8411715033595,
+        5.3539705898287835,
+        7.4628793407726635,
+        8.378579084215861,
+        6.5033525764030315,
+        8.123501570851099,
+        8.010276631201563,
+        7.553295655509436,
+        5.347958873691992,
+        7.785560728367211
       ],
       [
-        6.28862578382457,
-        5.672507451351268,
-        6.108232249322354,
-        9.539453385262187,
-        7.872081555083053,
-        8.645928454001915,
-        6.886657638974469,
-        5.341586488100111,
-        9.789228688213958,
-        9.157063196633029
+        6.946273636283917,
+        6.975080629430447,
+        9.186719308091375,
+        5.378512542792863,
+        9.371000780782065,
+        6.592255790302502,
+        7.493548793774885,
+        6.738338107798201,
+        6.857945180030946,
+        5.416209649182355
       ]
     ],
     "acetate": [
@@ -582,8 +474,8 @@
       "sub_mass_split": "equal",
       "max_particles": 0
     },
-    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
-    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_inputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
+    "_outputs": "particles:map[id:string|position:tuple[set_float,set_float]|mass:mass|local:map[concentration]|exchange:map[count]|sub_masses:map[mass]|_inherit:particle|shape:enum[circle,segment]|velocity:tuple[set_float,set_float]|inertia:set_float|friction:set_float|elasticity:set_float|radius:set_float]",
     "inputs": {
       "particles": [
         "particles"
@@ -629,21 +521,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -667,8 +559,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "mNvcFb0v": {
+    "DUabpoWK": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "mNvcFb0v",
+      "id": "DUabpoWK",
       "position": [
-        45.11279743274392,
-        48.691810970942434
+        1.6404444071136726,
+        41.156761525146266
       ],
-      "mass": 9.818290025431795,
+      "mass": 9.128657712063928,
       "local": {},
       "exchange": {},
       "sub_masses": {},

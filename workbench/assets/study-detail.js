@@ -1593,7 +1593,7 @@
     // Enforcement: the run opens in the Composite Explorer only when its
     // composite is a registered composite; otherwise we surface the gap.
     var explore = (runId && row.spec_id && row.composite_registered)
-      ? '<a class="action-btn" href="/?focus=composite-explore&id=' + encodeURIComponent(row.spec_id) + '&run_id=' + encodeURIComponent(runId) + '#composite-explore">↗ Open run in Composite Explorer</a>'
+      ? '<a class="action-btn" href="' + (window.__BASE_PATH__ || '') + '/?focus=composite-explore&id=' + encodeURIComponent(row.spec_id) + '&run_id=' + encodeURIComponent(runId) + '#composite-explore">↗ Open run in Composite Explorer</a>'
       : '<span style="color:#b91c1c;font-size:0.85em">⚠ ' + (row.spec_id
           ? 'composite <code>' + e(row.spec_id) + '</code> is not registered — cannot open in the Explorer'
           : 'no composite associated with this run') + '</span>';
@@ -1914,11 +1914,47 @@
   // which despite its name resolves any study by name via study_dir() — flat
   // studies/<name>/ preferred over legacy investigations/<name>/, so this works
   // for an ungrouped study exactly like a grouped one).
+  //
+  // item 69 (#3, folded in) — populate #study-analyses-list from the live
+  // /api/visualization-classes registry (filtered to kind === 'analysis'),
+  // preserving any name already declared in window._study.analyses[].name
+  // even if the current registry doesn't have it — same honest-degrade
+  // convention as _populateBaselineCompositeSelects above, and the identical
+  // fix item 69 phase 2 made for the legacy per-investigation panel
+  // (walkthrough.js _loadInvAnalyses). window._study is the parsed
+  // /api/study/{slug} payload (extra="allow" pass-through of spec.yaml), so
+  // analyses[] is read directly — no raw-file scrape needed here.
+  function _loadStudyAnalyses() {
+    var mount = document.getElementById('study-analyses-list');
+    if (!mount || !window.ChecklistSelect) return;
+    var declared = ((window._study || {}).analyses || [])
+      .map(function (a) { return a && a.name; }).filter(Boolean);
+    fetch('/api/visualization-classes').then(function (r) { return r.json(); })
+      .then(function (data) { return (data && data.classes || []).filter(function (c) { return c.kind === 'analysis'; }); })
+      .catch(function () { return []; })
+      .then(function (classes) {
+        var known = {};
+        var items = classes.map(function (c) {
+          known[c.name] = true;
+          return { value: c.name, label: c.name, selected: declared.indexOf(c.name) >= 0, title: c.doc };
+        });
+        declared.forEach(function (n) {
+          if (!known[n]) items.push({ value: n, label: n, selected: true, flagged: true });
+        });
+        window.ChecklistSelect.render(mount, {
+          items: items,
+          filterPlaceholder: 'Filter analyses…',
+          emptyText: 'No analyses registered — install a workspace that provides ANALYSIS_REGISTRY entries.',
+        });
+      });
+  }
+  window._loadStudyAnalyses = _loadStudyAnalyses;
+
   function _saveStudyAnalyses() {
-    var el = document.getElementById('study-analyses-list');
+    var mount = document.getElementById('study-analyses-list');
     var status = document.getElementById('study-analyses-status');
-    if (!el) return;
-    var names = el.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!mount || !window.ChecklistSelect) return;
+    var names = window.ChecklistSelect.selected(mount);
     var analyses = names.map(function (n) { return {name: n, params: {}}; });
     if (status) status.textContent = 'Saving…';
     api('POST', '/api/study-set-analyses', {investigation: studyName(), analyses: analyses})
@@ -1939,7 +1975,7 @@
     // study-rename handler (_post_study_rename_for_test) uses body key "study"
     api('POST', '/api/study-rename', {study: studyName(), new_name: n})
       .then(function(res) {
-        if (res.status === 200) window.location = '/studies/' + n;
+        if (res.status === 200) window.location = (window.__BASE_PATH__ || '') + '/studies/' + n;
         else alert(res.body.error || 'Rename failed');
       });
   });
@@ -2529,6 +2565,38 @@
     return el;
   }
 
+  // item 53: "Stop campaign" — mirrors configure-run.js's local-engine
+  // _stopRun (disable, "Stopping…", let the next poll tick reflect the
+  // terminal state; no optimistic UI beyond that). Calls the proxy added for
+  // this item, /api/remote-run-cancel -> SmsApiClient.cancel_simulation ->
+  // viva-api's real DELETE /api/v1/simulations/{id}/cancel, which walks every
+  // seed's own dependsOn chain for a chain-dispatch row (see that handler's
+  // own docstring / backlog item 53's file for the full design — this button
+  // has zero cancel logic of its own, purely a proxy + confirm).
+  function _stopCampaign(runId, btn) {
+    var e = escapeHtmlForTests;
+    if (!window.confirm('Stop campaign ' + runId + '? This cancels every seed still in flight.')) return;
+    btn.disabled = true; btn.textContent = 'Stopping…';
+    api('POST', '/api/remote-run-cancel', { simulation_id: runId })
+      .then(function (res) {
+        if (res.status !== 200) {
+          btn.disabled = false; btn.textContent = '■ Stop campaign';
+          var el = _chainProgressEl();
+          if (el) el.innerHTML += ' <span class="inv-run-err">stop failed: ' +
+            e((res.body && (res.body.error || res.body.reason)) || res.status) + '</span>';
+          return;
+        }
+        // Success: leave the button disabled/"Stopping…" — the next
+        // _pollChainProgress tick (still scheduled) will see the now-terminal
+        // status and re-render without the button at all.
+      })
+      .catch(function (err) {
+        btn.disabled = false; btn.textContent = '■ Stop campaign';
+        var el = _chainProgressEl();
+        if (el) el.innerHTML += ' <span class="inv-run-err">' + e(String(err)) + '</span>';
+      });
+  }
+
   function _renderChainProgress(d) {
     var el = _chainProgressEl();
     if (!el) return;
@@ -2540,16 +2608,24 @@
       el.textContent = '⚠ progress unavailable (sms-api unreachable)';
       return;
     }
+    var e = escapeHtmlForTests;
     var total = d.seeds_total, done = d.seeds_succeeded, failed = d.seeds_failed,
         inProgress = d.seeds_in_progress;
-    if (total == null) { el.textContent = 'run ' + d.simulation_id + ': ' + d.phase; return; }
-    var pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    var bar = '';
-    var filled = Math.round((pct / 100) * 20);
-    for (var i = 0; i < 20; i++) bar += (i < filled ? '█' : '░');
-    var failedTxt = failed ? (', ' + failed + ' failed') : '';
-    el.textContent = '[' + bar + '] ' + pct + '%  ' + done + '/' + total + ' seeds' + failedTxt +
-      (d.terminal ? ' — done' : ' — ' + inProgress + ' in progress');
+    var stopBtnHtml = d.terminal ? '' :
+      ' <button type="button" class="btn-mini study-stop-campaign-btn">■ Stop campaign</button>';
+    if (total == null) {
+      el.innerHTML = 'run ' + e(String(d.simulation_id)) + ': ' + e(String(d.phase)) + stopBtnHtml;
+    } else {
+      var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      var bar = '';
+      var filled = Math.round((pct / 100) * 20);
+      for (var i = 0; i < 20; i++) bar += (i < filled ? '█' : '░');
+      var failedTxt = failed ? (', ' + failed + ' failed') : '';
+      el.innerHTML = '[' + bar + '] ' + pct + '%  ' + done + '/' + total + ' seeds' + failedTxt +
+        (d.terminal ? ' — done' : ' — ' + inProgress + ' in progress') + stopBtnHtml;
+    }
+    var sb = el.querySelector('.study-stop-campaign-btn');
+    if (sb) sb.onclick = function () { _stopCampaign(d.simulation_id, sb); };
   }
 
   function _pollChainProgress(runId) {
@@ -2707,7 +2783,7 @@
     if (!btn.dataset.study) return;
     if (!confirm('Delete this study and all its runs?')) return;
     api('POST', '/api/investigation-delete', {name: studyName()})
-      .then(function() { window.location = '/studies'; });
+      .then(function() { window.location = (window.__BASE_PATH__ || '') + '/studies'; });
   });
 
   // --- Baseline ---
@@ -4725,6 +4801,8 @@
     _renderFeedbackTrackedPanel();
     _renderReadinessPanel();
     _populateConclusionVerdictBadges();
+    _populateBaselineCompositeSelects();
+    _loadStudyAnalyses();
     // Open the Overview tab on load — unless a ?tab=<kind> deep-link asks
     // for a specific tab. Needs-attention items link here with
     // ?tab=conclusions so a click lands on the verdict that triggered the alert.
@@ -4734,6 +4812,32 @@
       if (_q && document.querySelector('.study-pillar[data-kind="' + _q + '"]')) _tab = _q;
     } catch (_e) { /* no URLSearchParams — keep overview */ }
     _setStudyTab(_tab);
+  }
+
+  // ── item 69 — baseline composite select: populate from the live registry,
+  //    preserving each row's currently-declared composite as the selected
+  //    option (including a ref that doesn't resolve — never silently drop the
+  //    user's declared value, same honest-degrade approach as the composite
+  //    explorer's own "not found in registry" handling). ────────────────────
+  function _populateBaselineCompositeSelects() {
+    var selects = document.querySelectorAll('select.baseline-composite-input');
+    if (!selects.length) return;
+    if (!window.DataSource) return;
+    window.DataSource.loadComposites().then(function (data) {
+      var composites = (data && data.composites) || [];
+      selects.forEach(function (sel) {
+        var current = sel.getAttribute('data-current') || '';
+        var known = composites.some(function (c) { return c.id === current; });
+        var opts = '<option value="">— select a composite —</option>';
+        if (current && !known) {
+          opts += '<option value="' + _esc(current) + '" selected>' + _esc(current) + ' (not in registry)</option>';
+        }
+        opts += composites.map(function (c) {
+          return '<option value="' + _esc(c.id) + '"' + (c.id === current ? ' selected' : '') + '>' + _esc(c.id) + '</option>';
+        }).join('');
+        sel.innerHTML = opts;
+      });
+    }).catch(function () { /* leave the pre-JS single-option selects as-is on network error */ });
   }
 
   // ── C2 — conclusion verdicts: read precomputed block from window._study.derived ─
