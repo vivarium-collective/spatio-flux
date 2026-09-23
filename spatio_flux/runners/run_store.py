@@ -2,7 +2,7 @@
 
 The workbench's SimulationsDB / run-history uses the zarr store format
 ``studies/<slug>/runs.<run_id>.zarr`` (the interchangeable XArray/zarr emitter
-convention — NOT SQLite). The canonical ``pbg_emitters.XArrayEmitter`` is shaped
+convention — NOT SQLite). The canonical ``viva_emitters.XArrayEmitter`` is shaped
 for v2ecoli's ``{time, agents:{id:{listeners}}}`` whole-cell state; spatio-flux's
 state is ``{global_time, fields, particles}``, so we write an equivalent
 self-describing zarr directly with xarray (same store format + provenance root
