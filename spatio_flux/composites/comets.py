@@ -20,7 +20,10 @@ from spatio_flux.composites._constants import (
 )
 
 
+from spatio_flux.composites._constants import CORE_EXTENSIONS
+
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="comets_diffusion",
     description=(
         "The classic COMETS field-only scenario: per-site dFBA on a lattice "
@@ -71,6 +74,7 @@ def comets_diffusion(core=None, *, dissolved_model_id="ecoli core",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="comets_spatial_dfba",
     description=(
         "The field-only COMETS scenario driven by a single vectorized dFBA "
@@ -126,6 +130,7 @@ def comets_spatial_dfba(core=None, *, model_id="ecoli core",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="comets_br_particles_kinetics",
     description=(
         "A COMETS-style scenario coupling lattice dFBA fields, advection–"
@@ -195,6 +200,7 @@ def comets_br_particles_kinetics(
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="comets_br_particles_dfba",
     description=(
         "The full COMETS-style composite: per-site lattice dFBA and advection–"
@@ -266,6 +272,7 @@ def comets_br_particles_dfba(
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="comets_nt_particles_dfba",
     description=(
         "Pymunk rigid-body particles that collide and settle under gravity "

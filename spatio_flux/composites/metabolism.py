@@ -7,7 +7,10 @@ from spatio_flux.processes import get_dfba_process_from_registry, MODEL_REGISTRY
 from spatio_flux.processes.monod_kinetics import MODEL_REGISTRY_KINETICS, get_monod_kinetics_process_from_config
 
 
+from spatio_flux.composites._constants import CORE_EXTENSIONS
+
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="ecoli_core_dfba",
     description=(
         "Dynamic FBA of a single E. coli core cell in a well-mixed medium, "
@@ -42,6 +45,7 @@ def ecoli_core_dfba(core=None, *, model_id="ecoli core",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="monod_kinetics",
     description=(
         "Monod uptake and growth kinetics on a well-mixed pool of glucose and "
@@ -67,6 +71,7 @@ def monod_kinetics(core=None, *, model_id="overflow_metabolism",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="ecoli_dfba",
     description=(
         "Dynamic FBA of a single E. coli cell using the genome-scale iAF1260 "
@@ -94,6 +99,7 @@ def ecoli_dfba(core=None, *, model_id="ecoli",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="yeast_dfba",
     description=(
         "Dynamic FBA of a single yeast cell using the genome-scale iMM904 "
@@ -119,6 +125,7 @@ def yeast_dfba(core=None, *, model_id="yeast", glucose=5.0, biomass=0.1):
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="community_dfba",
     description=(
         "A well-mixed microbial community where several dFBA species and a "
@@ -159,6 +166,7 @@ def community_dfba(core=None, *, dt=1.0, kinetic_model_id="acetate_only",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="dfba_kinetics_community",
     description=(
         "A well-mixed community pairing a dFBA population with a Monod-kinetic "

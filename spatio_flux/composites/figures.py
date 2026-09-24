@@ -14,7 +14,10 @@ from __future__ import annotations
 from pbg_superpowers.composite_generator import composite_generator
 
 
+from spatio_flux.composites._constants import CORE_EXTENSIONS
+
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="fig01c-study-workflow",
     description=(
         "Fig 1c — study workflow: a draft Preprocess step configures three parallel "

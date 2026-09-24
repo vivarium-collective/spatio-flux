@@ -15,7 +15,10 @@ from spatio_flux.composites._constants import (
 )
 
 
+from spatio_flux.composites._constants import CORE_EXTENSIONS
+
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="spatial_many_dfba",
     description=(
         "A spatial microenvironment where every lattice site runs its own "
@@ -42,6 +45,7 @@ def spatial_many_dfba(core=None, *, model_id="ecoli core",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="spatial_dfba_process",
     description=(
         "A spatial microenvironment where a single vectorized dFBA process "
@@ -87,6 +91,7 @@ def spatial_dfba_process(core=None, *, n_bins=[5, 6]):
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="diffusion_process",
     description=(
         "Finite-volume diffusion and advection of solute fields on a 2D "
