@@ -17,7 +17,10 @@ from spatio_flux.composites._constants import (
 )
 
 
+from spatio_flux.composites._constants import CORE_EXTENSIONS
+
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="brownian_particles",
     description=(
         "Brownian motion of mass-carrying agents in continuous space — the "
@@ -52,6 +55,7 @@ def brownian_particles(core=None, *, n_bins=list(SQUARE_BINS),
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="br_particles_kinetics",
     description=(
         "Brownian agents diffuse through a lattice of glucose and acetate, "
@@ -102,6 +106,7 @@ def br_particles_kinetics(core=None, *, model_id="overflow_metabolism",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="br_particles_dfba",
     description=(
         "Brownian agents each run an internal dFBA model, exchanging glucose "
@@ -158,6 +163,7 @@ def br_particles_dfba(core=None, *, particle_model_id="ecoli core",
 
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="newtonian_particles",
     description=(
         "Rigid-body particles under gravity that collide and crowd in "

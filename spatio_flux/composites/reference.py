@@ -13,7 +13,10 @@ from spatio_flux.composites._constants import (
 )
 
 
+from spatio_flux.composites._constants import CORE_EXTENSIONS
+
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="spatioflux_reference_demo",
     description=(
         "The flagship SpatioFlux reference model: Newtonian particles, each "
@@ -119,6 +122,7 @@ def spatioflux_reference_demo(
 # wrapper just declares the alternate default.
 
 @composite_generator(
+    core_extensions=CORE_EXTENSIONS,
     name="reference_demo_x2y2",
     description=(
         "The SpatioFlux reference model on a finer field lattice with doubled "

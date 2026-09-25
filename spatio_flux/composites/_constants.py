@@ -71,3 +71,24 @@ def build_model_grid(n_bins, model_positions=None):
                 model_grid[y][x] = model_id
 
     return model_grid
+
+
+# ---------------------------------------------------------------------------
+# Generator core_extensions
+# ---------------------------------------------------------------------------
+def _register_spatio_flux_types(core):
+    """Register spatio-flux's custom types (set_float / the positive types /
+    Position / …) on the core that will realize a composite. Imported lazily to
+    avoid a circular import at module load (spatio_flux/__init__ imports the
+    composites package)."""
+    from spatio_flux import register_types
+    return register_types(core)
+
+
+# Applied as ``core_extensions`` on every ``@composite_generator`` below, so the
+# dashboard registers spatio-flux's types on whatever core realizes the composite
+# (see process_bigraph.composite_generator.apply_core_extensions). Without this a
+# bare ``allocate_core()`` — e.g. the Composites-tab drill-in / preview — can't
+# parse ``map[set_float]``. spatio-flux's PROCESSES don't need chaining: they are
+# auto-discovered by ``allocate_core()``.
+CORE_EXTENSIONS = [_register_spatio_flux_types]
