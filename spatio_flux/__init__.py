@@ -117,7 +117,15 @@ TYPES_DICT = {
 # -----------------------------------------------------------------------------
 
 def register_types(core):
-    core.register_types(TYPES_DICT)
+    # Register only keys not already present, deferring to a sibling package
+    # that registered the same type first. bigraph_schema discovery
+    # (recursive_dynamic_import) calls register_types on every importable dist,
+    # so when e.g. viva-munk has already registered "positive_float" as a schema
+    # instance, clobbering it with our raw class breaks resolve() with
+    # "cannot resolve types, not schemas". This mirrors viva-munk's own guard.
+    missing = {k: v for k, v in TYPES_DICT.items() if k not in core.registry}
+    if missing:
+        core.register_types(missing)
     return core
 
 
