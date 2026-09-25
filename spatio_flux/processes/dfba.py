@@ -18,10 +18,17 @@ from pathlib import Path
 # starting simultaneously on the same node) race and the second one
 # crashes with FileExistsError. Patch mkdir to always tolerate
 # already-existing dirs before importing cobra.
-_orig_mkdir = pathlib.Path.mkdir
-def _safe_mkdir(self, mode=0o777, parents=False, exist_ok=False):
-    return _orig_mkdir(self, mode=mode, parents=parents, exist_ok=True)
-pathlib.Path.mkdir = _safe_mkdir
+# Guard against re-patching: if the module body runs a second time (e.g.
+# importlib.reload, a dev autoreloader, or tooling that re-execs the module in
+# place), an unguarded patch would re-capture `_orig_mkdir` from the ALREADY
+# patched Path.mkdir, making the wrapper call itself → infinite recursion /
+# RecursionError on the next mkdir(). The sentinel makes patching idempotent.
+if not getattr(pathlib.Path.mkdir, "_spatio_flux_safe_mkdir", False):
+    _orig_mkdir = pathlib.Path.mkdir
+    def _safe_mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        return _orig_mkdir(self, mode=mode, parents=parents, exist_ok=True)
+    _safe_mkdir._spatio_flux_safe_mkdir = True
+    pathlib.Path.mkdir = _safe_mkdir
 
 import cobra
 from cobra.io import load_model
