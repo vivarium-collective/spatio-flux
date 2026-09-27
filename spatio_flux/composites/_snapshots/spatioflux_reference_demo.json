@@ -152,10 +152,15 @@
             "_type": "wires"
           }
         },
+        "elasticity": "set_float",
+        "friction": "set_float",
+        "inertia": "set_float",
+        "radius": "set_float",
         "sub_masses": {
           "ecoli_1": "mass",
           "ecoli_2": "mass"
-        }
+        },
+        "velocity": "tuple[set_float,set_float]"
       }
     }
   },
