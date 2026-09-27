@@ -58,11 +58,9 @@ ROW_GAP_ABOVE = {1: 16, 2: 16, 3: 16}
 # aspect (preserveAspectRatio=none), so the plots come out a bit shorter + wider
 # and the whole b/c/d row is shorter — the main lever for fitting Figure 7 on the
 # page. Timeseries tolerate a modest horizontal stretch.
-WIDEN_ASPECT = {
-    "fig07b-monod-kinetics.png": 1.85,
-    "fig07c-dfba.png": 1.85,
-    "fig07d-hybrid-community.png": 1.85,
-}
+# The b/c/d sim plots are now regenerated at their natural (undistorted) aspect
+# with large fonts, so they no longer need to be stretched to fill the row.
+WIDEN_ASPECT = {}
 # Whole-row scale applied AFTER justification (row is centered at the reduced
 # size). Row 3 = g / h (Brownian loom + traces) — shrunk further to shorten it.
 ROW_SCALE = {3: 0.8}

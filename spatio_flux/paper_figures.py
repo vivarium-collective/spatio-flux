@@ -765,8 +765,10 @@ def fig04_process_state() -> dict:
     """Fig 4: a single process schematic — a rectangle with typed input ports
     (in_1: species, in_2: params) and output ports (out_1: ss_species, out_2:
     rates), config type steady_state, and update function (in_1,in_2)→(out_1,out_2)."""
+    proc = _proc(ProcessSchematic, {}, {})
+    proc["address"] = ""  # Fig 4: hide the local:ProcessSchematic address label
     return {
-        "process": _proc(ProcessSchematic, {}, {}),
+        "process": proc,
     }
 
 

@@ -4,23 +4,23 @@
       <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
     </marker>
     <marker id="arD" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#8b5cf6"/>
+      <path d="M0,0 L10,5 L0,10 z" fill="#7a5a86"/>
     </marker>
     <style>
       .panel { fill:#ffffff; }
-      .title { font: 700 17px Georgia, 'Times New Roman', serif; fill:#111827; }
-      .proc  { fill:#ffffff; stroke:#6366f1; stroke-width:2.2; }
-      .store { fill:#ffffff; stroke:#22c55e; stroke-width:2.2; }
-      .name  { font: 700 14px Inter, system-ui, sans-serif; fill:#1e293b; text-anchor:middle; }
-      .nm2   { font: 700 13px Inter, system-ui, sans-serif; fill:#1e293b; text-anchor:middle; }
+      .title { font: 700 17px Georgia, 'Times New Roman', serif; fill:#16324f; }
+      .proc  { fill:#eef2f6; stroke:#16324f; stroke-width:2.2; }
+      .store { fill:#ffffff; stroke:#1f7a72; stroke-width:2.2; }
+      .name  { font: 700 14px Inter, system-ui, sans-serif; fill:#16324f; text-anchor:middle; }
+      .nm2   { font: 700 13px Inter, system-ui, sans-serif; fill:#16324f; text-anchor:middle; }
       .sub   { font: 11px ui-monospace, monospace; fill:#94a3b8; text-anchor:middle; }
       .lbl   { font: italic 12px ui-monospace, monospace; fill:#64748b; }
       .wire  { fill:none; stroke:#475569; stroke-width:2.6; }
       .wireT { fill:none; stroke:#475569; stroke-width:4.5; }
-      .pwire { fill:none; stroke:#8b5cf6; stroke-width:1.7; stroke-dasharray:5 4; }
+      .pwire { fill:none; stroke:#7a5a86; stroke-width:1.7; stroke-dasharray:5 4; }
       .axis  { stroke:#334155; stroke-width:2.2; fill:none; }
       .tick  { stroke:#334155; stroke-width:2; }
-      .port  { fill:#ffffff; stroke:#22c55e; stroke-width:2; }
+      .port  { fill:#ffffff; stroke:#1f7a72; stroke-width:2; }
     </style>
   </defs>
 

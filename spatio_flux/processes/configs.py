@@ -648,6 +648,17 @@ def get_community_dfba_particle_composition(
         mass_name: 'mass' for mass_name in models.keys()
     }
 
+    # Physics attributes are ABSOLUTE per-tick writes from the Newtonian/pymunk
+    # process, so they need replace (set_float) semantics. Left untyped they infer
+    # as plain accumulating `float`, so radius runs away (~220 in a 50-unit box)
+    # and Fig 8b's particles render as a solid fill instead of discrete cells.
+    # These match the declared `complex_particle` type in spatio_flux/__init__.py.
+    processes["radius"] = "set_float"
+    processes["velocity"] = "tuple[set_float,set_float]"
+    processes["elasticity"] = "set_float"
+    processes["inertia"] = "set_float"
+    processes["friction"] = "set_float"
+
     return {
         "particles": {
             "_type": "map",

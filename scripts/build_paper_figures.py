@@ -50,7 +50,7 @@ PAD = 26
 # Per-panel size overrides — a fraction of ROW_H for a specific panel (by
 # filename stem), so a schematic that would otherwise dominate its row can be
 # scaled down. Shorter panels are centered vertically within the row band.
-PANEL_SCALE = {"fig03a-store": 0.6, "fig05a-process-graph": 0.52}
+PANEL_SCALE = {"fig03a-store": 0.6, "fig05a-process-graph": 0.9, "fig05b-composite-process": 1.4}
 
 
 def _panel_png(study_dir: Path, viz: dict) -> Path | None:
@@ -119,9 +119,12 @@ def _shelf(study: str):
     if cur:
         rows.append(cur)
 
+    # Each row is as tall as its TALLEST panel — a PANEL_SCALE > 1 panel makes its
+    # row taller than ROW_H rather than overflowing a fixed band (which clipped it).
+    row_heights = [max(sh for _, _, sh in row) for row in rows]
     fig_w = max(sum(sw + GAP for _, sw, _ in row) - GAP for row in rows) + 2 * PAD
-    fig_h = len(rows) * (ROW_H + LABEL_H + GAP) - GAP + 2 * PAD
-    return rows, fig_w, fig_h
+    fig_h = sum(rh + LABEL_H + GAP for rh in row_heights) - GAP + 2 * PAD
+    return rows, fig_w, fig_h, row_heights
 
 
 def build_figure(study: str) -> Path | None:
@@ -130,7 +133,7 @@ def build_figure(study: str) -> Path | None:
     shelf = _shelf(study)
     if shelf is None:
         return None
-    rows, fig_w, fig_h = shelf
+    rows, fig_w, fig_h, row_heights = shelf
 
     title = f"Figure {_fig_num(study)}"
     parts = [
@@ -140,7 +143,8 @@ def build_figure(study: str) -> Path | None:
     ]
     li = 0
     y = float(PAD)
-    for row in rows:
+    for ri, row in enumerate(rows):
+        row_h = row_heights[ri]
         x = float(PAD)
         for p, sw, sh in row:
             label = chr(ord("a") + li)
@@ -149,13 +153,13 @@ def build_figure(study: str) -> Path | None:
                 f'<text x="{x:.0f}" y="{y + 26:.0f}" font-family="Georgia, \'Times New Roman\', serif" '
                 f'font-size="30" font-weight="bold" fill="#111827">{label}.</text>'
             )
-            img_y = y + LABEL_H + (ROW_H - sh) / 2   # center shorter panels in the row band
+            img_y = y + LABEL_H + (row_h - sh) / 2   # center shorter panels in the row band
             parts.append(
                 f'<image href="{_data_uri(p)}" x="{x:.0f}" y="{img_y:.0f}" '
                 f'width="{sw:.0f}" height="{sh:.0f}" preserveAspectRatio="xMidYMid meet"/>'
             )
             x += sw + GAP
-        y += ROW_H + LABEL_H + GAP
+        y += row_h + LABEL_H + GAP
     parts.append(f'<!-- {title}: {li} panels from studies/{study} -->')
     parts.append("</svg>")
 
@@ -194,14 +198,15 @@ def build_figure_png(study: str) -> Path | None:
     shelf = _shelf(study)
     if shelf is None:
         return None
-    rows, fig_w, fig_h = shelf
+    rows, fig_w, fig_h, row_heights = shelf
 
     canvas = Image.new("RGB", (round(fig_w), round(fig_h)), "#ffffff")
     draw = ImageDraw.Draw(canvas)
     font = _label_font(30)
     li = 0
     y = float(PAD)
-    for row in rows:
+    for ri, row in enumerate(rows):
+        row_h = row_heights[ri]
         x = float(PAD)
         for p, sw, sh in row:
             label = f"{chr(ord('a') + li)}."
@@ -209,9 +214,9 @@ def build_figure_png(study: str) -> Path | None:
             draw.text((round(x), round(y)), label, fill="#111827", font=font)
             with Image.open(p) as im:
                 panel = im.convert("RGBA").resize((round(sw), round(sh)), Image.LANCZOS)
-                canvas.paste(panel, (round(x), round(y + LABEL_H + (ROW_H - sh) / 2)), panel)
+                canvas.paste(panel, (round(x), round(y + LABEL_H + (row_h - sh) / 2)), panel)
             x += sw + GAP
-        y += ROW_H + LABEL_H + GAP
+        y += row_h + LABEL_H + GAP
 
     vd = _viz_dir(study)
     vd.mkdir(parents=True, exist_ok=True)
