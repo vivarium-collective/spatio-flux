@@ -173,11 +173,11 @@ describe_spec(spec_spatio_flux_composites_fig01a_draft_processes)
 # Each line is the spec's CURRENT value — change any, then run the Run cell
 # below. The spec is a plain dict, so you may also add or remove keys.
 
-# process 'gene_expression'  (local:GeneExpression)
+# process 'gene_expression'  ()
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['interval'] = 1.0
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['summary'] = 'Gene expression — ordinary differential equations'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['summary'] = 'Gene expression — ordinary differential equations'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['summary'] = ''
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['method'] = 'ODE'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['description'] = 'Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['math'] = ['\\frac{d\\,\\text{mrna}}{dt} = \\alpha\\,\\text{dna} - \\gamma_m\\,\\text{mrna}', '\\frac{d\\,\\text{protein}}{dt} = \\beta\\,\\text{mrna} - \\gamma_p\\,\\text{protein}']
@@ -193,11 +193,11 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['ports']['mrna'] = 'mRNA'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['gene_expression']['config']['contract']['ports']['protein'] = 'protein'
 
-# process 'metabolism'  (local:Metabolism)
+# process 'metabolism'  ()
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['interval'] = 1.0
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['summary'] = 'Metabolism — Flux Balance Analysis (FBA)'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['summary'] = 'Metabolism — Flux Balance Analysis (FBA)'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['summary'] = ''
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['method'] = 'Flux Balance Analysis'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['description'] = 'Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['math'] = ['\\text{maximize}\\quad Z = c^{\\mathsf{T}} v \\quad\\text{s.t.}\\quad S\\,v = 0', 'v_{\\min} \\le v \\le v_{\\max}(\\text{enzymes},\\,\\text{energy})', '\\Delta\\,\\text{metabolites} = S_{\\text{ex}}\\,v\\,\\Delta t']
@@ -211,11 +211,11 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['confi
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['ports']['energy'] = 'available energy'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['metabolism']['config']['contract']['ports']['metabolites'] = 'produced metabolites'
 
-# process 'morphogen_gradient'  (local:Diffusion)
+# process 'morphogen_gradient'  ()
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['interval'] = 1.0
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['summary'] = 'Morphogen gradient — reaction–diffusion PDE'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['summary'] = 'Morphogen gradient — reaction–diffusion PDE'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['summary'] = ''
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['method'] = 'Reaction–Diffusion'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['description'] = 'A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['math'] = ['\\frac{\\partial\\,\\text{field}}{\\partial t} = D\\,\\nabla^2\\,\\text{field} + S(x) - \\lambda\\,\\text{field}']
@@ -225,11 +225,11 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['symbols']['λ'] = 'decay rate'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['morphogen_gradient']['config']['contract']['ports']['field'] = 'morphogen concentration field'
 
-# process 'multicellular_interactions'  (local:ABM)
+# process 'multicellular_interactions'  ()
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['interval'] = 1.0
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['summary'] = 'Multicellular interactions — Agent-Based Model'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['summary'] = 'Multicellular interactions — Agent-Based Model'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['summary'] = ''
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['method'] = 'Agent-Based Model'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['description'] = 'Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['math'] = ['\\vec{x}_i(t{+}\\Delta t) = \\vec{x}_i + \\left[\\mu\\, f_{\\text{int}} + \\chi\\, \\nabla\\text{field}\\right]\\Delta t + \\sqrt{2 D_m\\,\\Delta t}\\;\\xi_i', 'P_{\\text{kill}} = \\left(1 - e^{-k_{\\text{kill}}\\,\\Delta t}\\right)\\mathbf{1}_{\\lVert \\vec{x}_i - \\vec{x}_j \\rVert < d}']
@@ -246,11 +246,11 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_inter
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['ports']['population'] = 'cell population {x⃗ᵢ}'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['multicellular_interactions']['config']['contract']['ports']['field'] = 'local morphogen field'
 
-# process 'neural_dynamics'  (local:NeuralDynamics)
+# process 'neural_dynamics'  ()
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['interval'] = 1.0
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['summary'] = 'Learned dynamics — neural-network surrogate'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['summary'] = 'Learned dynamics — neural-network surrogate'
+spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['summary'] = ''
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['method'] = 'Neural Network'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['description'] = "A machine-learning formalism: a neural network f_θ, trained on trajectory data, predicts the state's time-derivative (a neural ODE) — a fast, differentiable stand-in for an unknown or expensive mechanism."
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['math'] = ['\\frac{d\\,\\text{state}}{dt} = f_\\theta(\\text{state}),\\quad f_\\theta = \\mathrm{NN}(\\theta)', '\\theta^\\ast = \\arg\\min_\\theta \\sum_k \\lVert \\widehat{\\text{state}}_\\theta(t_k) - \\text{state}_k \\rVert^2']
@@ -574,7 +574,7 @@ describe_spec(spec_spatio_flux_composites_fig04_process)
 # Each line is the spec's CURRENT value — change any, then run the Run cell
 # below. The spec is a plain dict, so you may also add or remove keys.
 
-# process 'process'  (local:ProcessSchematic)
+# process 'process'  ()
 spec_spatio_flux_composites_fig04_process['state']['process']['config']['interval'] = 1.0
 spec_spatio_flux_composites_fig04_process['state']['process']['config']['summary'] = 'A typed function signature whose update method emits a delta Δ'
 spec_spatio_flux_composites_fig04_process['state']['process']['config']['contract']['status'] = 'draft - no update dynamics yet'

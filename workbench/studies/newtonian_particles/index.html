@@ -683,16 +683,6 @@
   </div>
 
   
-  <div class="overview-section" id="study-analyses-section">
-    <h3>Analyses to run <span class="muted" style="font-size:0.85em;font-weight:normal">— which of the workspace's <code>ANALYSIS_REGISTRY</code> entries to compute on dispatch</span></h3>
-    <div id="study-analyses-list" data-study="newtonian_particles">
-      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading analyses…</span></div>
-    </div>
-    <div style="margin-top:8px">
-      <button class="action-btn" type="button" onclick="_saveStudyAnalyses()">Save analyses</button>
-      <span id="study-analyses-status" style="margin-left:8px;font-size:0.9em;color:#555"></span>
-    </div>
-  </div>
 
   
   
@@ -801,6 +791,18 @@
 
 
 <section class="study-tab-panel" data-kind="analyses" id="panel-analyses" hidden>
+
+  
+  <div class="overview-section" id="study-analyses-section">
+    <h3>Analyses to run <span class="muted" style="font-size:0.85em;font-weight:normal">— which of the workspace's <code>ANALYSIS_REGISTRY</code> entries to compute on dispatch</span></h3>
+    <div id="study-analyses-list" data-study="newtonian_particles">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading analyses…</span></div>
+    </div>
+    <div style="margin-top:8px">
+      <button class="action-btn" type="button" onclick="_saveStudyAnalyses()">Save analyses</button>
+      <span id="study-analyses-status" style="margin-left:8px;font-size:0.9em;color:#555"></span>
+    </div>
+  </div>
 
 <div class="overview-section" id="analyses-results-section">
   <h2>Analyses</h2>
@@ -1205,7 +1207,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "3029f2e8feff7735643729ba4d7ba3f7189298e5", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/3029f2e8feff7735643729ba4d7ba3f7189298e5", "branch": "main", "lockfile": "uv.lock@934842a501c0", "generated_at": "2026-09-25 18:05 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "a9f6297778b65249731405f139be934af5ea1bd4", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/a9f6297778b65249731405f139be934af5ea1bd4", "branch": "main", "lockfile": "uv.lock@934842a501c0", "generated_at": "2026-09-27 15:40 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script>
 window._studyName = "newtonian_particles";

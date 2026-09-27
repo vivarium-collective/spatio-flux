@@ -1,6 +1,6 @@
 {
   "particles": {
-    "AH5uAbgK": {
+    "kerEGIPm": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "AH5uAbgK",
+      "id": "kerEGIPm",
       "position": [
-        46.65259077167773,
-        27.50174464975375
+        16.308591788417974,
+        2.3646351044391887
       ],
-      "mass": 0.331305213395089,
+      "mass": 0.594700704482223,
       "local": {},
       "exchange": {},
       "sub_masses": {}

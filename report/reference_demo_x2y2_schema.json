@@ -34,12 +34,14 @@
         "priority": 0.0
       },
       "sub_masses": "map[mass]",
+      "radius": "set_float",
+      "velocity": "tuple[set_float,set_float]",
+      "elasticity": "set_float",
+      "inertia": "set_float",
+      "friction": "set_float",
       "shape": "string",
       "mass": "overwrite[mass]",
-      "radius": "float",
       "position": "tuple[set_float,set_float]",
-      "velocity": "tuple[float,float]",
-      "elasticity": "float",
       "id": "string",
       "local": "map[concentration]",
       "exchange": "map[count]"

@@ -1,6 +1,6 @@
 {
   "particles": {
-    "0yrXv71j": {
+    "Io2X247D": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "0yrXv71j",
+      "id": "Io2X247D",
       "position": [
-        29.878539911482942,
-        48.238205288507814
+        14.173089771714647,
+        23.39506918930383
       ],
-      "mass": 7.678016376229451,
+      "mass": 2.946856242131301,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -1198,21 +1198,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -1236,8 +1236,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"
