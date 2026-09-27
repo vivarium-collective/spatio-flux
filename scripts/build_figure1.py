@@ -149,12 +149,11 @@ def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: floa
     accent = panel["accent"]
     tx = _text_x()
     parts = [
-        # accent letter badge, top-left
-        f'<rect x="{PAD}" y="{PAD + BADGE_DROP}" width="{BADGE}" height="{BADGE}" '
-        f'rx="8" fill="{accent}"/>',
-        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 7:.1f}" '
-        f'text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff">'
-        f'{panel["id"]}</text>',
+        # panel letter — plain bold serif label (matches the "a." labels on the
+        # other paper figures) rather than a coloured badge.
+        f'<text x="{PAD}" y="{PAD + TITLE_FS:.1f}" '
+        f'font-family="Georgia, \'Times New Roman\', serif" font-size="30" '
+        f'font-weight="bold" fill="#111827">{panel["id"]}.</text>',
     ]
     # title — restrained dark ink, left-aligned column beside the badge
     for i, line in enumerate(title_lines):
