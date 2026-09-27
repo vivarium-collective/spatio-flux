@@ -103,7 +103,7 @@
     "tissue.cell_population.cell.rna_degradation": {
       "x": 1314.1329090464665,
       "y": 2062.126117327234,
-      "w": 514,
+      "w": 534,
       "h": 303,
       "pc": 87
     },
@@ -162,6 +162,7 @@
     "stores": "auto",
     "config": "auto",
     "contract": "off",
+    "symbols": "auto",
     "figures": "auto",
     "address": "auto"
   },

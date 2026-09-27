@@ -1,51 +1,54 @@
 {
- "v": 1,
- "positions": {
-  "spatial_dFBA": {
-   "x": 670.1521827009328,
-   "y": 251.53696443083942,
-   "w": 560,
-   "h": 190
+  "v": 1,
+  "positions": {
+    "spatial_dFBA": {
+      "x": 660.6294304604965,
+      "y": 107.33528764708764,
+      "w": 637,
+      "h": 278
+    },
+    "fields": {
+      "x": 276.06294783372516,
+      "y": 41.10800127392386
+    },
+    "fields.glucose": {
+      "x": 480,
+      "y": 466
+    },
+    "fields.acetate": {
+      "x": 815.4415727088208,
+      "y": 468.7207863544104
+    },
+    "fields.biomass": {
+      "x": 150,
+      "y": 466
+    },
+    "diffusion": {
+      "x": 668.5435705037924,
+      "y": -187.85527095034186,
+      "w": 629,
+      "h": 289
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
+    }
   },
-  "fields": {
-   "x": 346.8033930483958,
-   "y": 204.3551825385485
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "off",
+    "contract": "on",
+    "figures": "auto",
+    "address": "auto"
   },
-  "fields.glucose": {
-   "x": 480,
-   "y": 466
-  },
-  "fields.acetate": {
-   "x": 810,
-   "y": 466
-  },
-  "fields.biomass": {
-   "x": 150,
-   "y": 466
-  },
-  "diffusion": {
-   "x": 672.6247500354079,
-   "y": 69.2590395414419,
-   "w": 470,
-   "h": 175
-  },
-  "global_time": {
-   "x": 12,
-   "y": 12
-  }
- },
- "collapsed": [],
- "hidden": [
-  "global_time"
- ],
- "mode": "flow-down",
- "detail": null,
- "collapse": false,
- "hyperedges": false,
- "detailOverrides": {
-  "ports": "none",
-  "stores": "auto",
-  "config": "off",
-  "contract": "on"
- }
+  "fontScale": 1.5
 }

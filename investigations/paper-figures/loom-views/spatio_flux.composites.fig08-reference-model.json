@@ -1,147 +1,148 @@
 {
- "v": 1,
- "positions": {
-  "monod_kinetics[0,0]": {
-   "x": 533.049,
-   "y": 310,
-   "w": 560,
-   "h": 210
+  "v": 1,
+  "positions": {
+    "monod_kinetics[0,0]": {
+      "x": 533.049,
+      "y": 310,
+      "w": 560,
+      "h": 210
+    },
+    "fields": {
+      "x": 1149.808,
+      "y": -132.773
+    },
+    "fields.glucose": {
+      "x": 1330,
+      "y": 124.685
+    },
+    "fields.acetate": {
+      "x": 1620,
+      "y": 123.611
+    },
+    "fields.dissolved biomass": {
+      "x": 850,
+      "y": 107.883
+    },
+    "diffusion": {
+      "x": 602.321,
+      "y": -131.872,
+      "w": 470,
+      "h": 235
+    },
+    "particles": {
+      "x": 2020,
+      "y": -113.354
+    },
+    "particles.p_2411e1": {
+      "x": 1805.499,
+      "y": 122.884
+    },
+    "particles.p_2411e1.shape": {
+      "x": 2650,
+      "y": 638.022
+    },
+    "particles.p_2411e1.mass": {
+      "x": 2020,
+      "y": 430.066
+    },
+    "particles.p_2411e1.radius": {
+      "x": 2650,
+      "y": 416.333
+    },
+    "particles.p_2411e1.position": {
+      "x": 2360,
+      "y": 421.023
+    },
+    "particles.p_2411e1.velocity": {
+      "x": 2930,
+      "y": 415.061
+    },
+    "particles.p_2411e1.elasticity": {
+      "x": 2930,
+      "y": 630.737
+    },
+    "particles.p_2411e1.sub_masses": {
+      "x": 1402.185,
+      "y": 383.821,
+      "w": 252,
+      "h": 106
+    },
+    "particles.p_2411e1.sub_masses.ecoli_1": {
+      "x": 1343.375,
+      "y": 595.091
+    },
+    "particles.p_2411e1.sub_masses.ecoli_2": {
+      "x": 1493.614,
+      "y": 772.596
+    },
+    "particles.p_2411e1.ecoli_1 dFBA": {
+      "x": 470,
+      "y": 520,
+      "w": 580,
+      "h": 235
+    },
+    "particles.p_2411e1.ecoli_2 dFBA": {
+      "x": 470,
+      "y": 880,
+      "w": 580,
+      "h": 235
+    },
+    "particles.p_2411e1.aggregate_mass": {
+      "x": 1786.25,
+      "y": 668.706,
+      "w": 481,
+      "h": 204
+    },
+    "particles.p_2411e1.local": {
+      "x": 1133.247,
+      "y": 364.576
+    },
+    "particles.p_2411e1.exchange": {
+      "x": 1700,
+      "y": 372.015
+    },
+    "particle_exchange": {
+      "x": 1471.088,
+      "y": -175.903,
+      "w": 480,
+      "h": 230
+    },
+    "particle_division": {
+      "x": 2850,
+      "y": 129.205,
+      "w": 540,
+      "h": 175
+    },
+    "enforce_boundaries": {
+      "x": 2830,
+      "y": -136.881,
+      "w": 470,
+      "h": 185
+    },
+    "newtonian_particles": {
+      "x": 2250,
+      "y": -166.73,
+      "w": 540,
+      "h": 215
+    },
+    "global_time": {
+      "x": 14.64,
+      "y": 14.64
+    }
   },
-  "fields": {
-   "x": 1149.808,
-   "y": -132.773
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "flow-down",
+  "detail": null,
+  "collapse": true,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "auto",
+    "config": "auto",
+    "contract": "on"
   },
-  "fields.glucose": {
-   "x": 1330,
-   "y": 124.685
-  },
-  "fields.acetate": {
-   "x": 1620,
-   "y": 123.611
-  },
-  "fields.dissolved biomass": {
-   "x": 850,
-   "y": 107.883
-  },
-  "diffusion": {
-   "x": 602.321,
-   "y": -131.872,
-   "w": 470,
-   "h": 235
-  },
-  "particles": {
-   "x": 2020,
-   "y": -113.354
-  },
-  "particles.p_2411e1": {
-   "x": 1805.499,
-   "y": 122.884
-  },
-  "particles.p_2411e1.shape": {
-   "x": 2650,
-   "y": 638.022
-  },
-  "particles.p_2411e1.mass": {
-   "x": 2020,
-   "y": 430.066
-  },
-  "particles.p_2411e1.radius": {
-   "x": 2650,
-   "y": 416.333
-  },
-  "particles.p_2411e1.position": {
-   "x": 2360,
-   "y": 421.023
-  },
-  "particles.p_2411e1.velocity": {
-   "x": 2930,
-   "y": 415.061
-  },
-  "particles.p_2411e1.elasticity": {
-   "x": 2930,
-   "y": 630.737
-  },
-  "particles.p_2411e1.sub_masses": {
-   "x": 1402.185,
-   "y": 383.821,
-   "w": 252,
-   "h": 106
-  },
-  "particles.p_2411e1.sub_masses.ecoli_1": {
-   "x": 1343.375,
-   "y": 595.091
-  },
-  "particles.p_2411e1.sub_masses.ecoli_2": {
-   "x": 1493.614,
-   "y": 772.596
-  },
-  "particles.p_2411e1.ecoli_1 dFBA": {
-   "x": 470,
-   "y": 520,
-   "w": 580,
-   "h": 235
-  },
-  "particles.p_2411e1.ecoli_2 dFBA": {
-   "x": 470,
-   "y": 880,
-   "w": 580,
-   "h": 235
-  },
-  "particles.p_2411e1.aggregate_mass": {
-   "x": 1786.25,
-   "y": 668.706,
-   "w": 481,
-   "h": 204
-  },
-  "particles.p_2411e1.local": {
-   "x": 1133.247,
-   "y": 364.576
-  },
-  "particles.p_2411e1.exchange": {
-   "x": 1700,
-   "y": 372.015
-  },
-  "particle_exchange": {
-   "x": 1471.088,
-   "y": -175.903,
-   "w": 480,
-   "h": 230
-  },
-  "particle_division": {
-   "x": 2850,
-   "y": 129.205,
-   "w": 540,
-   "h": 175
-  },
-  "enforce_boundaries": {
-   "x": 2830,
-   "y": -136.881,
-   "w": 470,
-   "h": 185
-  },
-  "newtonian_particles": {
-   "x": 2250,
-   "y": -166.73,
-   "w": 540,
-   "h": 215
-  },
-  "global_time": {
-   "x": 14.64,
-   "y": 14.64
-  }
- },
- "collapsed": [],
- "hidden": [
-  "global_time"
- ],
- "mode": "flow-down",
- "detail": null,
- "collapse": true,
- "hyperedges": false,
- "detailOverrides": {
-  "ports": "none",
-  "stores": "auto",
-  "config": "auto",
-  "contract": "on"
- }
+  "fontScale": 1.0
 }

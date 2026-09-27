@@ -9,14 +9,14 @@
   "state": {
     "gene_expression": {
       "_type": "process",
-      "address": "local:GeneExpression",
+      "address": "",
       "_draft": true,
       "config": {
         "interval": 1.0,
         "summary": "Gene expression \u2014 ordinary differential equations",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Gene expression \u2014 ordinary differential equations",
+          "summary": "",
           "method": "ODE",
           "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
           "math": [
@@ -49,7 +49,7 @@
         "protein": "concentration"
       },
       "_contract": {
-        "summary": "Gene expression \u2014 ordinary differential equations",
+        "summary": "",
         "description": "Transcription + translation as coupled ODEs: DNA templates mRNA; mRNA templates protein; each species turns over.",
         "status": "draft - no update dynamics yet",
         "method": "ODE",
@@ -81,14 +81,14 @@
     },
     "metabolism": {
       "_type": "process",
-      "address": "local:Metabolism",
+      "address": "",
       "_draft": true,
       "config": {
         "interval": 1.0,
         "summary": "Metabolism \u2014 Flux Balance Analysis (FBA)",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Metabolism \u2014 Flux Balance Analysis (FBA)",
+          "summary": "",
           "method": "Flux Balance Analysis",
           "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
           "math": [
@@ -119,7 +119,7 @@
         "metabolites": "concentration"
       },
       "_contract": {
-        "summary": "Metabolism \u2014 Flux Balance Analysis (FBA)",
+        "summary": "",
         "description": "Constraint-based steady-state flux optimization: maximize a biomass / objective flux subject to mass balance and flux bounds. Enzyme levels and energy set the bounds.",
         "status": "draft - no update dynamics yet",
         "method": "Flux Balance Analysis",
@@ -150,14 +150,14 @@
     },
     "morphogen_gradient": {
       "_type": "process",
-      "address": "local:Diffusion",
+      "address": "",
       "_draft": true,
       "config": {
         "interval": 1.0,
         "summary": "Morphogen gradient \u2014 reaction\u2013diffusion PDE",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Morphogen gradient \u2014 reaction\u2013diffusion PDE",
+          "summary": "",
           "method": "Reaction\u2013Diffusion",
           "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
           "math": [
@@ -181,7 +181,7 @@
         "field": "concentration"
       },
       "_contract": {
-        "summary": "Morphogen gradient \u2014 reaction\u2013diffusion PDE",
+        "summary": "",
         "description": "A diffusing morphogen field with a local source and first-order decay sets up a spatial gradient across the tissue.",
         "status": "draft - no update dynamics yet",
         "method": "Reaction\u2013Diffusion",
@@ -207,14 +207,14 @@
     },
     "multicellular_interactions": {
       "_type": "process",
-      "address": "local:ABM",
+      "address": "",
       "_draft": true,
       "config": {
         "interval": 1.0,
         "summary": "Multicellular interactions \u2014 Agent-Based Model",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Multicellular interactions \u2014 Agent-Based Model",
+          "summary": "",
           "method": "Agent-Based Model",
           "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
           "math": [
@@ -247,7 +247,7 @@
         "population": "cell_count"
       },
       "_contract": {
-        "summary": "Multicellular interactions \u2014 Agent-Based Model",
+        "summary": "",
         "description": "Off-lattice agents move under interaction forces, chemotaxis up the morphogen gradient, and stochastic noise; contact-range interactions can remove cells.",
         "status": "draft - no update dynamics yet",
         "method": "Agent-Based Model",
@@ -281,14 +281,14 @@
     },
     "neural_dynamics": {
       "_type": "process",
-      "address": "local:NeuralDynamics",
+      "address": "",
       "_draft": true,
       "config": {
         "interval": 1.0,
         "summary": "Learned dynamics \u2014 neural-network surrogate",
         "contract": {
           "status": "draft - no update dynamics yet",
-          "summary": "Learned dynamics \u2014 neural-network surrogate",
+          "summary": "",
           "method": "Neural Network",
           "description": "A machine-learning formalism: a neural network f_\u03b8, trained on trajectory data, predicts the state's time-derivative (a neural ODE) \u2014 a fast, differentiable stand-in for an unknown or expensive mechanism.",
           "math": [
@@ -315,7 +315,7 @@
         "state": "concentration"
       },
       "_contract": {
-        "summary": "Learned dynamics \u2014 neural-network surrogate",
+        "summary": "",
         "description": "A machine-learning formalism: a neural network f_\u03b8, trained on trajectory data, predicts the state's time-derivative (a neural ODE) \u2014 a fast, differentiable stand-in for an unknown or expensive mechanism.",
         "status": "draft - no update dynamics yet",
         "method": "Neural Network",

@@ -1,54 +1,58 @@
 {
- "v": 1,
- "positions": {
-  "particles": {
-   "x": 250.64235677376143,
-   "y": 419.97085651323965
+  "v": 1,
+  "positions": {
+    "particles": {
+      "x": 147.35268422968082,
+      "y": 665.7290429112245
+    },
+    "particles.particle_1": {
+      "x": 135.1360201511335,
+      "y": 1033.5062972292192
+    },
+    "particles.particle_1.id": {
+      "x": 0,
+      "y": 1270
+    },
+    "particles.particle_1.position": {
+      "x": 190,
+      "y": 1270
+    },
+    "particles.particle_1.mass": {
+      "x": 380,
+      "y": 1270
+    },
+    "brownian_movement": {
+      "x": 433.6166496558143,
+      "y": 393.83601646861604,
+      "w": 715,
+      "h": 391
+    },
+    "enforce_boundaries": {
+      "x": 421.7481016463805,
+      "y": 824.0757927316353,
+      "w": 715,
+      "h": 358
+    },
+    "global_time": {
+      "x": 12,
+      "y": 12
+    }
   },
-  "particles.particle": {
-   "x": 200,
-   "y": 624.8813440581215
+  "collapsed": [],
+  "hidden": [
+    "global_time"
+  ],
+  "mode": "flow-down",
+  "detail": "glyph",
+  "collapse": true,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "none",
+    "stores": "type",
+    "config": "off",
+    "contract": "on",
+    "figures": "auto",
+    "address": "auto"
   },
-  "particles.particle.id": {
-   "x": 30,
-   "y": 878.4658598353782
-  },
-  "particles.particle.position": {
-   "x": 260,
-   "y": 878.4658598353782
-  },
-  "particles.particle.mass": {
-   "x": 490,
-   "y": 878.4658598353782
-  },
-  "brownian_movement": {
-   "x": 494.1657680437237,
-   "y": 514.9342532444347,
-   "w": 620,
-   "h": 165
-  },
-  "enforce_boundaries": {
-   "x": 482.2972200342898,
-   "y": 706.5392688021641,
-   "w": 560
-  },
-  "global_time": {
-   "x": 12,
-   "y": 12
-  }
- },
- "collapsed": [],
- "hidden": [
-  "global_time"
- ],
- "mode": "flow-down",
- "detail": "glyph",
- "collapse": false,
- "hyperedges": false,
- "detailOverrides": {
-  "ports": "none",
-  "stores": "type",
-  "config": "off",
-  "contract": "on"
- }
+  "fontScale": 1.7
 }

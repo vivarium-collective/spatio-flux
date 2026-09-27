@@ -73,13 +73,9 @@ for (const [slug, id, name, flags = {}] of RUN_JOBS) {
   // if one exists — this makes the render REPRODUCIBLE anywhere, independent of
   // the machine-local .pbg/loom-views. Loaded via ?view= (highest priority); the
   // per-panel flags below still override it (they apply after the view).
-  const viewFile = `${WS}/investigations/paper-figures/loom-views/${id}.json`;
-  if (existsSync(viewFile)) {
-    try {
-      const view = JSON.parse(readFileSync(viewFile, 'utf-8'));
-      params.push('view=' + LZ.compressToEncodedURIComponent(JSON.stringify(view)));
-    } catch { /* corrupt view file → fall back to the server default */ }
-  }
+  // Per-panel flags FIRST, so a large ?view= (many nodes → long LZ string) can't
+  // push them past a URL-length limit and get dropped (that silently disabled
+  // font/contract/detail on big collapsed figures like fig-08).
   if (flags.detail) params.push(`detail=${flags.detail}`);
   if (flags.collapse) params.push('collapse=1');
   if (flags.hyperedges) params.push('hyperedges=1');
@@ -91,6 +87,15 @@ for (const [slug, id, name, flags = {}] of RUN_JOBS) {
   if (flags.font) params.push(`font=${flags.font}`);
   if (flags.figure) params.push(`figure=${flags.figure}`);
   if (flags.layout) params.push(`layout=${flags.layout}`);
+  // Committed default view (positions + saved detail mix) LAST — makes the render
+  // reproducible; the per-panel flags above still override it (applied after).
+  const viewFile = `${WS}/investigations/paper-figures/loom-views/${id}.json`;
+  if (existsSync(viewFile)) {
+    try {
+      const view = JSON.parse(readFileSync(viewFile, 'utf-8'));
+      params.push('view=' + LZ.compressToEncodedURIComponent(JSON.stringify(view)));
+    } catch { /* corrupt view file → fall back to the server default */ }
+  }
   const url = `${BASE}/bigraph-loom/?id=${encodeURIComponent(id)}&${params.join('&')}`;
   const outPng = `${WS}/studies/${slug}/visualizations/${name}.png`;
   try {
