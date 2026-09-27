@@ -81,11 +81,11 @@ CARD_RX = 18           # card corner radius
 PAD = 28               # header inner padding
 BADGE = 30             # letter-badge square
 BADGE_GAP = 15         # gap from badge to the text column
-TITLE_FS = 31          # title font size
-TITLE_LH = 38          # title line height
+TITLE_FS = 35          # title font size
+TITLE_LH = 43          # title line height
 TITLE_INK = "#1b2432"  # near-black title (accent is reserved for the badge/rule)
-SUB_FS = 23            # subtitle font size
-SUB_LH = 31            # subtitle line height
+SUB_FS = 26            # subtitle font size
+SUB_LH = 35            # subtitle line height
 SUB_INK = "#4a5460"    # subtitle grey (a touch darker for readability)
 RULE_W = 34            # length of the accent rule under the title
 RULE_H = 3             # thickness of the accent rule
@@ -149,12 +149,11 @@ def _draw_header(panel: dict, title_lines, sub_lines, header_h: float, _cx: floa
     accent = panel["accent"]
     tx = _text_x()
     parts = [
-        # accent letter badge, top-left
-        f'<rect x="{PAD}" y="{PAD + BADGE_DROP}" width="{BADGE}" height="{BADGE}" '
-        f'rx="8" fill="{accent}"/>',
-        f'<text x="{PAD + BADGE/2:.1f}" y="{PAD + BADGE_DROP + BADGE/2 + 7:.1f}" '
-        f'text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff">'
-        f'{panel["id"]}</text>',
+        # panel letter — plain bold serif label (matches the "a." labels on the
+        # other paper figures) rather than a coloured badge.
+        f'<text x="{PAD}" y="{PAD + TITLE_FS:.1f}" '
+        f'font-family="Georgia, \'Times New Roman\', serif" font-size="30" '
+        f'font-weight="bold" fill="#111827">{panel["id"]}.</text>',
     ]
     # title — restrained dark ink, left-aligned column beside the badge
     for i, line in enumerate(title_lines):

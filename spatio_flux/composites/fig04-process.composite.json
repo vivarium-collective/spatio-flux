@@ -9,7 +9,7 @@
   "state": {
     "process": {
       "_type": "process",
-      "address": "local:ProcessSchematic",
+      "address": "",
       "_draft": true,
       "config": {
         "interval": 1.0,
