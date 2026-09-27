@@ -1,54 +1,55 @@
 {
- "v": 1,
- "positions": {
-  "gene_expression": {
-   "x": -67.91064288231473,
-   "y": -202.49279123607818,
-   "w": 699,
-   "h": 339,
-   "pc": 98
+  "v": 1,
+  "positions": {
+    "gene_expression": {
+      "x": -260.10426122610954,
+      "y": -1345.3737486176492,
+      "w": 1038,
+      "h": 626,
+      "pc": 118
+    },
+    "metabolism": {
+      "x": -259.1544416975364,
+      "y": -702.2367777414976,
+      "w": 1034,
+      "h": 488,
+      "pc": 145
+    },
+    "morphogen_gradient": {
+      "x": -255.9893031449058,
+      "y": -196.77247343491285,
+      "w": 1030,
+      "h": 372,
+      "pc": 124
+    },
+    "multicellular_interactions": {
+      "x": -256.1923414057584,
+      "y": 189.80425047140625,
+      "w": 1034,
+      "h": 500,
+      "pc": 126
+    },
+    "neural_dynamics": {
+      "x": -256.48644948094915,
+      "y": 711.3122868858738,
+      "w": 1033,
+      "h": 474,
+      "pc": 94
+    }
   },
-  "metabolism": {
-   "x": -68.23537311629752,
-   "y": 86.12601125543472,
-   "w": 700,
-   "h": 322,
-   "pc": 120
+  "collapsed": [],
+  "hidden": [],
+  "mode": "hierarchy",
+  "detail": "contract",
+  "collapse": false,
+  "hyperedges": false,
+  "detailOverrides": {
+    "ports": "types",
+    "stores": "auto",
+    "config": "off",
+    "contract": "full",
+    "figures": "auto",
+    "address": "off"
   },
-  "morphogen_gradient": {
-   "x": -67.58769319827206,
-   "y": 362.50157981294143,
-   "w": 696,
-   "h": 274,
-   "pc": 124
-  },
-  "multicellular_interactions": {
-   "x": -67.7907314591248,
-   "y": 600.5482442775506,
-   "w": 699,
-   "h": 316,
-   "pc": 126
-  },
-  "neural_dynamics": {
-   "x": -62.080146439134296,
-   "y": 871.774632253721,
-   "w": 694,
-   "h": 347,
-   "pc": 94
-  }
- },
- "collapsed": [],
- "hidden": [],
- "mode": "hierarchy",
- "detail": "contract",
- "collapse": false,
- "hyperedges": false,
- "detailOverrides": {
-  "ports": "types",
-  "stores": "auto",
-  "config": "off",
-  "contract": "on",
-  "figures": "auto"
- },
- "fontScale": 1
+  "fontScale": 1.5
 }

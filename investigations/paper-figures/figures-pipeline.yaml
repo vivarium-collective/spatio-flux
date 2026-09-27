@@ -23,7 +23,7 @@ panels:
   # No `flags` here on purpose: fig-01's saved default views are the single
   # source of truth for the detail mix (tier, ports, contract, figures). The
   # render applies each committed view verbatim — nothing is forced on top.
-  - {study: fig-01, output: fig01a-draft-processes,      loom: spatio_flux.composites.fig01a-draft-processes, flags: {font: 1.15}}
+  - {study: fig-01, output: fig01a-draft-processes,      loom: spatio_flux.composites.fig01a-draft-processes}
   - {study: fig-01, output: fig01b-multiscale-composite, loom: spatio_flux.composites.fig01b-multiscale-composite}
   # 1c is served as a GENERATOR (drillable sub-composites); its spec input is the
   # generator source, not a static composite json.
