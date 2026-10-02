@@ -1,10 +1,16 @@
+# Build with hatchling so the wheel can force-include this module's workspace
+# content (workspace.yaml + studies/ + investigations/) INSIDE the package dir.
+# vivarium-workbench's federation (lib/federation._imported_module_roots)
+# discovers an installed module's studies by looking for a workspace.yaml at the
+# installed PACKAGE dir — so the content must land at spatio_flux/workspace.yaml,
+# not at the wheel top level. Matches viva-munk #24 / viva-tumor-tcell #5.
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
 
 [project]
 name = "spatio-flux"
-version = "1.5.2"
+version = "1.5.3"
 description = "A demonstration of process composition rebuilding and extending COMETS by composing functional components"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
@@ -33,11 +39,21 @@ dev = [
 #process-bigraph = { path = "../process-bigraph", editable = true }
 #bigraph-viz = { path = "../bigraph-viz", editable = true }
 
-# Make sure all subpackages are included
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["spatio_flux*"]
-exclude = ["tests*", "docs*"]
+# Ship the whole spatio_flux/ import package (every subpackage).
+[tool.hatch.build.targets.wheel]
+packages = ["spatio_flux"]
+
+# Ship the module's workspace content INSIDE the installed package so a
+# wheel/PyPI install surfaces its studies + investigations read-only in the
+# vivarium-workbench (federation's installed-module discovery). workspace.yaml
+# lands at spatio_flux/workspace.yaml (the federation root); studies/ and
+# investigations/ are its default-layout subdirs. Only tracked content ships;
+# the gitignored run stores (runs.db, parquet-runs/, charts/, viz/, *.zarr) are
+# absent from a clean checkout and do not ship.
+[tool.hatch.build.targets.wheel.force-include]
+"workspace.yaml" = "spatio_flux/workspace.yaml"
+"studies" = "spatio_flux/studies"
+"investigations" = "spatio_flux/investigations"
 
 [tool.pytest.ini_options]
 # Put the repo root on sys.path so tests can import both `spatio_flux` and
