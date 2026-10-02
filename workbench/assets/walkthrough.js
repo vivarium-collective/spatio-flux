@@ -391,12 +391,16 @@
         var pr = panel.getBoundingClientRect(), fr = frame.getBoundingClientRect();
         chrome = Math.max(0, Math.round(fr.top - pr.top));   // the embed's own header
       }
-      var h = Math.max(minH || 480, Math.round(window.innerHeight - chrome - 24));
+      // a bottom-docked AI panel takes height from the pane (published as --viv-ai-bottom)
+      var aiBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--viv-ai-bottom')) || 0;
+      var h = Math.max(minH || 480, Math.round(window.innerHeight - chrome - 24 - aiBottom));
       frame.style.height = h + 'px';
     };
     fit();
     if (!frame._fitBound) {
       window.addEventListener('resize', fit);
+      window.addEventListener('viv:ai-layout', fit);      // the AI panel docked/undocked/resized
+      window.addEventListener('viv:panel-layout', fit);   // any dockable panel (chat OR code) changed
       frame._fitBound = true;
     }
   }
@@ -471,7 +475,17 @@
       try {
         var doc = frame.contentDocument;
         if (doc && doc.body && window.ResizeObserver && !frame._roFit) {
-          frame._roFit = new ResizeObserver(function () { fit(true); });
+          // Debounce the refit. A CONTINUOUS container resize — e.g. dragging the
+          // left rail, which reflows the content width every frame — would otherwise
+          // run fit() (a height:0 + scrollHeight measure + scroll-restore, i.e. two
+          // forced iframe reflows) on EVERY frame for EVERY visible embed, which is
+          // what makes the rail drag stutter. Coalesce to one fit ~80ms after the
+          // size settles; late async growth is still covered by the catch-up poll.
+          var _roFitT = 0;
+          frame._roFit = new ResizeObserver(function () {
+            if (_roFitT) clearTimeout(_roFitT);
+            _roFitT = setTimeout(function () { _roFitT = 0; fit(true); }, 80);
+          });
           frame._roFit.observe(doc.body);
           // Observe documentElement too: a tab switch / async chart render can
           // grow the document without changing body's observed box, so a
@@ -764,8 +778,8 @@
     // unavailable in a static bundle → redirect to simulation-setup (composites list).
     if (document.body.classList.contains('snapshot')) {
       // 'github' (Source page) IS available in snapshot now — it's the published
-      // workspace switcher (repo navigator + Sync-to-local). Only 'studies'
-      // (the legacy flat list) redirects to the investigations view.
+      // workspace switcher (repo navigator + Sync-to-local). 'studies' (the legacy
+      // flat list) redirects to the investigations view.
       if (pageId === 'studies') {
         pageId = 'investigations';
       }
@@ -952,7 +966,7 @@
   function _loadInputs() {
     var el = document.getElementById('inputs-api-render');
     if (!el) return;
-    el.innerHTML = '<p class="muted" style="font-style:italic">Loading…</p>';
+    el.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading inputs…') : '<p class="muted" style="font-style:italic">Loading inputs…</p>';
     // Prefer the Sources-page picker selection over the git-branch-current slug.
     var _slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
     var _pInputs = window.DataSource
@@ -1513,7 +1527,7 @@
     var dlEl = document.getElementById('ds-preview-download');
     if (titleEl) titleEl.textContent = key;
     if (dlEl) dlEl.setAttribute('href', url);
-    if (bodyEl) bodyEl.textContent = 'Loading…';
+    if (bodyEl) bodyEl.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : 'Loading…';
     openModal('modal-ds-preview');
     fetch(url)
       .then(function(r) {
@@ -3618,11 +3632,43 @@
         if (j && j.ok) {
           card._lastOutputs = j.outputs;
           if (typeof _ensureOutputsOpen === 'function') _ensureOutputsOpen(card);
-          var dl = card.querySelector('.pcard-dl'); if (dl) { dl.disabled = false; dl.title = 'Download outputs (JSON)'; }
-          out.innerHTML = '<div class="loom-run-ok">✓ ran — outputs' +
-            '<button class="btn-mini loom-copy-btn" onclick="_copyRunOutput(this)" title="Copy outputs JSON">⧉ Copy</button></div>' +
-            _jsonViewer(j.outputs) +
-            '<pre class="loom-run-raw" hidden>' + _esc(JSON.stringify(j.outputs, null, 2)) + '</pre>';
+          // Distinguish a run that produced actual VALUES from one that returned
+          // only structure. A single isolated update() on the default empty
+          // state is common for multi-entity processes: they return a delta
+          // keyed per agent/cell/field entry, so with zero agents/cells the
+          // output is a "shell" like {agents:{}} / {cells:{}} / {fields:{}} —
+          // ok:true, non-empty at the top level, but with no leaf data. A bare
+          // Object.keys()==0 check misses those shells, so walk for any leaf: a
+          // scalar (incl. 0 / false / "") is data; an empty container is not.
+          var _hasData = function (v) {
+            if (v === null || v === undefined) return false;
+            if (Array.isArray(v)) return v.some(_hasData);
+            if (typeof v === 'object') return Object.keys(v).some(function (k) { return _hasData(v[k]); });
+            return true;
+          };
+          var _o = j.outputs;
+          if (!_hasData(_o)) {
+            // Shell (e.g. {agents:{}}) vs literal {}/null/[] — show the shell's
+            // structure in a collapsible so the user sees WHAT came back empty.
+            var _literalEmpty = (_o === null || _o === undefined) ||
+              (Array.isArray(_o) ? _o.length === 0 :
+                (typeof _o === 'object' ? Object.keys(_o).length === 0 : false));
+            var _rawDetails = _literalEmpty ? '' :
+              '<details style="margin-top:4px"><summary style="cursor:pointer">raw output</summary>' +
+              '<pre style="font-size:0.8em;white-space:pre-wrap;margin:4px 0 0">' +
+              _esc(JSON.stringify(_o, null, 2)) + '</pre></details>';
+            out.innerHTML = '<div class="loom-run-ok">✓ ran — no data produced</div>' +
+              '<div class="muted" style="font-size:0.85em;margin-top:4px">The process ran but returned no values. ' +
+              'Many processes emit a delta keyed per agent/cell/field entry, so a single run on the default empty ' +
+              'state has nothing to populate — seed state (agents, a sized field) in Configure, or run it inside ' +
+              'its composite. This is expected, not an error.' + _rawDetails + '</div>';
+          } else {
+            var dl = card.querySelector('.pcard-dl'); if (dl) { dl.disabled = false; dl.title = 'Download outputs (JSON)'; }
+            out.innerHTML = '<div class="loom-run-ok">✓ ran — outputs' +
+              '<button class="btn-mini loom-copy-btn" onclick="_copyRunOutput(this)" title="Copy outputs JSON">⧉ Copy</button></div>' +
+              _jsonViewer(j.outputs) +
+              '<pre class="loom-run-raw" hidden>' + _esc(JSON.stringify(j.outputs, null, 2)) + '</pre>';
+          }
         } else {
           var stage = (j && j.stage) ? '[' + j.stage + '] ' : '';
           out.innerHTML = '<div class="loom-run-err">✗ ' + _esc(stage) + _esc((j && j.error) || 'run failed') + '</div>' +
@@ -4123,19 +4169,26 @@
   }
 
   // Composite ordering for the Sort control. Composites carry study info under
-  // `studies` (an object with .studies/.success_pct) and `workspace_local`
-  // instead of a process's `study_participation`/`source`, and have no
-  // Temporal/Step kind or use-count — so they get their own comparator.
+  // `studies` (an object with .studies/.success_pct) instead of a process's
+  // `study_participation`, and have no Temporal/Step kind or use-count — so they
+  // get their own comparator.
+  //
+  // Workspace-vs-imported: `workspace_local` is unreliable (the API reports it
+  // False even for a workspace's own composite), so editable-vs-imported is read
+  // off `read_only` (imported modules are read-only) — with workspace_local as an
+  // OR fallback. "Most used" ranks by study count (ecoli_baseline, with the most
+  // studies, floats to the top) rather than merely keeping workspace entries first.
   function _compositeSortCmp(a, b, key) {
     function studies(c) { return ((c.study_participation || c.studies || {}).studies) || 0; }
     function succ(c) { var s = (c.study_participation || c.studies || {}).success_pct; return s == null ? -1 : s; }
+    function wsRank(c) { return ((c.workspace_local === true) || (c.read_only === false)) ? 0 : 1; }
     var byName = String(a.name || '').localeCompare(String(b.name || ''));
-    var wsFirst = (a.workspace_local ? 0 : 1) - (b.workspace_local ? 0 : 1);
+    var wsFirst = wsRank(a) - wsRank(b);   // workspace/editable composites before imported
     if (key === 'name') return byName;
-    if (key === 'studies') return (studies(b) - studies(a)) || byName;
-    if (key === 'success') return (succ(b) - succ(a)) || byName;
+    if (key === 'studies') return (studies(b) - studies(a)) || wsFirst || byName;
+    if (key === 'success') return (succ(b) - succ(a)) || wsFirst || byName;
     if (key === 'source') return wsFirst || byName;
-    return wsFirst || byName;   // 'use' (default) / 'kind' — keep workspace-first, then name
+    return (studies(b) - studies(a)) || wsFirst || byName;   // 'use' (default) — most-referenced (by studies) first
   }
 
   function _registryEntryMatches(p) {
@@ -5191,7 +5244,7 @@
     if (window._marketLoading) return;
     window._marketLoading = true;
     var host = document.getElementById('market-results');
-    if (host) host.innerHTML = '<p class="empty-state">Loading&hellip;</p>';
+    if (host) host.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>';
     window._marketByType = { composite: [], study: [], investigation: [], process: [] };
     window._marketItems = [];
     var rebuild = function () {
@@ -5924,7 +5977,7 @@
     });
     if (!repos.length) {
       var loaded = (window._marketItems && window._marketItems.length) || (window._marketCatalog && window._marketCatalog.length);
-      return loaded ? '<p class="empty-state">No repositories match.</p>' : '<p class="empty-state">Loading&hellip;</p>';
+      return loaded ? '<p class="empty-state">No repositories match.</p>' : (window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>');
     }
     if (zoom === 'list') return _marketRepoTable(repos);
     var render = zoom === 'detail' ? _marketRepoDetail : _marketRepoCard;
@@ -6033,7 +6086,7 @@
     // within-category order (e.g. processes by use). So "All" reads as grouped.
     filtered.sort(function (a, b) { return _MARKET_CAT_ORDER[_marketCatOf(a)] - _MARKET_CAT_ORDER[_marketCatOf(b)]; });
     if (!filtered.length) {
-      host.innerHTML = items.length ? '<p class="empty-state">No matches.</p>' : '<p class="empty-state">Loading&hellip;</p>';
+      host.innerHTML = items.length ? '<p class="empty-state">No matches.</p>' : (window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>');
       return;
     }
     var html = '';
@@ -6860,7 +6913,20 @@
     // no duplicate call needed here.
 
     // Populate the Investigations rail section (V4).
-    _vivRefreshInvestigationsRail();
+    var _railReady = _vivRefreshInvestigationsRail();
+
+    // Item 70 phase 3: dismiss the post-switch splash (index.html.j2's
+    // inline body script), if it was shown, the instant the rail's real
+    // fetch resolves — the first real post-reload content, not a fabricated
+    // timer. No-op on a normal load (the splash element never exists).
+    var _splash = document.getElementById('viv-switch-splash');
+    if (_splash) {
+      (function (splash, ready) {
+        var dismiss = function () { if (splash.parentNode) splash.parentNode.removeChild(splash); };
+        if (ready && typeof ready.then === 'function') ready.then(dismiss).catch(dismiss);
+        else dismiss();
+      })(_splash, _railReady);
+    }
 
     // (The GitHub Branches tab has been removed.)
   });
@@ -6950,21 +7016,36 @@
     var railLeft = rail.getBoundingClientRect().left;
     var lastW = _vivRailSavedWidth();
 
+    // mousemove fires far faster than the display refreshes; writing --rail-w on
+    // every event forces a synchronous reflow of the whole rail each time, which on
+    // a workspace with a large study list (e.g. sms-ecoli) makes the drag stutter.
+    // Coalesce to at most ONE style write per animation frame: mousemove only records
+    // the target state (cheap), and rAF applies it. lastW is tracked synchronously so
+    // the saved width on mouse-up is always the latest pointer position.
+    var _raf = 0, _pending = null;
+    function _flush() {
+      _raf = 0;
+      if (!_pending) return;
+      if (_pending.collapsed) { rail.classList.add('viv-rail-collapsed'); }
+      else { rail.classList.remove('viv-rail-collapsed'); _vivRailApplyWidth(rail, _pending.w); }
+    }
     function _move(e) {
       var raw = e.clientX - railLeft;         // desired width: left edge → pointer
       if (raw < _RAIL_COLLAPSE_AT) {          // snap into the collapsed bar look
-        rail.classList.add('viv-rail-collapsed');
-        return;
+        _pending = { collapsed: true };
+      } else {
+        var w = Math.min(_RAIL_MAX, Math.max(_RAIL_MIN, raw));
+        if (Math.abs(w - _RAIL_NORMAL) <= _RAIL_SNAP) w = _RAIL_NORMAL;  // snap to normal
+        lastW = w;
+        _pending = { collapsed: false, w: w };
       }
-      rail.classList.remove('viv-rail-collapsed');
-      var w = Math.min(_RAIL_MAX, Math.max(_RAIL_MIN, raw));
-      if (Math.abs(w - _RAIL_NORMAL) <= _RAIL_SNAP) w = _RAIL_NORMAL;  // snap to normal
-      lastW = w;
-      _vivRailApplyWidth(rail, w);
+      if (!_raf) _raf = requestAnimationFrame(_flush);
     }
     function _up() {
       document.removeEventListener('mousemove', _move);
       document.removeEventListener('mouseup', _up);
+      if (_raf) { cancelAnimationFrame(_raf); _raf = 0; }
+      _flush();                               // apply the final pointer position now
       rail.classList.remove('viv-rail-resizing');
       document.body.classList.remove('viv-rail-resizing-active');
       var collapsed = rail.classList.contains('viv-rail-collapsed');
@@ -7015,7 +7096,10 @@
           : apiFetch('GET', '/api/investigation-summaries').then(function(r) { return r.json(); })
         ).catch(function() { return {investigations: []}; })
       : Promise.resolve({investigations: []});
-    Promise.all([p1, p2]).then(function(arr) {
+    // Returned (item 70 phase 3): this is the first real post-page-load
+    // fetch to settle, so the post-switch splash dismiss hook (below, in the
+    // DOMContentLoaded handler) can wait on it instead of a timer.
+    return Promise.all([p1, p2]).then(function(arr) {
       window._investigations = arr[0].investigations || [];
       window._isetIndex      = arr[1].investigations || [];
       if (hasIsetUI && window._isetIndex.length) {
@@ -7050,10 +7134,15 @@
         }
       }
       if (!match) {
-        host.innerHTML =
-          '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">' +
-          'Loading study…' +
-          '</p>';
+        if (window.ProgressTrack) {
+          window.ProgressTrack.loading(host, 'Loading study…');
+          host.firstElementChild.classList.add('viv-loading-compact');
+        } else {
+          host.innerHTML =
+            '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">' +
+            'Loading study…' +
+            '</p>';
+        }
         return;
       }
       var topic = (match.topic && match.topic.trim()) ? match.topic.trim() : 'Ungrouped';
@@ -7576,7 +7665,7 @@
     var ids = Array.from(window._ceCompareSet);
     if (ids.length < 2) return;
     var body = document.getElementById('ce-compare-body');
-    body.innerHTML = '<p class="empty-state">Loading&hellip;</p>';
+    body.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>';
     Promise.all(ids.map(function(id) {
       return apiFetch('GET', '/api/composite-run/' + encodeURIComponent(id))
         .then(function(r) { return r.json(); });
@@ -7922,7 +8011,7 @@
   function _legacyLoadCompositeSvg(ref) {
     var el = document.getElementById('composite-explore-svg-legacy');
     if (!el) return;
-    el.innerHTML = '<p style="color:#888">Loading SVG…</p>';
+    el.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading SVG…') : '<p style="color:#888">Loading SVG…</p>';
     apiFetch('GET', '/api/composite-resolve?id=' + encodeURIComponent(ref))
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -8300,9 +8389,48 @@
   window._isetIndex = [];        // [{name, title, status, studies:[slug, ...]}]
   window._currentIset = null;    // name of the iset currently open in detail view
 
+  // ── Shared, identity-memoized indexes over the workspace's studies/isets ──
+  // Membership resolution used to be an Array.find per member slug inside render
+  // loops → O(N^2) on large workspaces (sms-ecoli). These maps make it O(1); they
+  // rebuild only when the underlying array is REPLACED (a data (re)load swaps the
+  // reference), so no load-site wiring is needed. Same idiom the rail uses.
+  var _sbnCache = null, _sbnSrc;
+  function _studyByName() {
+    var src = window._investigations || [];
+    if (src !== _sbnSrc) {
+      _sbnSrc = src; _sbnCache = {};
+      src.forEach(function(s) { if (s && s.name) _sbnCache[s.name] = s; });
+    }
+    return _sbnCache;
+  }
+  var _ibnCache = null, _ibnSrc;
+  function _isetByName() {
+    var src = window._isetIndex || [];
+    if (src !== _ibnSrc) {
+      _ibnSrc = src; _ibnCache = {};
+      src.forEach(function(i) { if (i && i.name) _ibnCache[i.name] = i; });
+    }
+    return _ibnCache;
+  }
+  var _ifsCache = null, _ifsSrc;
+  function _investigationForStudyMap() {
+    var src = window._isetIndex || [];
+    if (src !== _ifsSrc) {
+      _ifsSrc = src; _ifsCache = {};
+      // First iset wins (a study can belong to several; matches the old .find order).
+      src.forEach(function(iset) {
+        (iset.studies || []).forEach(function(slug) { if (!(slug in _ifsCache)) _ifsCache[slug] = iset.name; });
+      });
+    }
+    return _ifsCache;
+  }
+
   function _loadInvestigationSets() {
     var list = document.getElementById('investigations-list');
-    if (list) list.innerHTML = '<p class="empty-state">Loading…</p>';
+    if (list) {
+      if (window.ProgressTrack) window.ProgressTrack.loading(list);
+      else list.innerHTML = '<p class="empty-state">Loading…</p>';
+    }
     var _p = window.DataSource
       ? window.DataSource.loadIsetList()
       : fetch('/api/investigation-summaries', {headers: {Accept: 'application/json'}})
@@ -8639,11 +8767,9 @@
 
   // Member study objects for an investigation (from the client studies index).
   function _isetStudyObjs(iset) {
+    var byName = _studyByName();   // O(1) per slug (was Array.find → O(N) per slug)
     return ((iset && iset.studies) || [])
-      .map(function(slug) {
-        return (window._investigations || []).find(function(s) { return s.name === slug; })
-          || { name: slug };
-      });
+      .map(function(slug) { return byName[slug] || { name: slug }; });
   }
 
   function _setIsetSort(value) {
@@ -9120,7 +9246,7 @@
   // Investigation title for a slug (Studies table's Investigation column).
   function _isetTitleForSlug(inv) {
     if (!inv) return 'Ungrouped';
-    var it = (window._isetIndex || []).find(function (i) { return i.name === inv; });
+    var it = _isetByName()[inv];   // O(1)
     return (it && (it.title || it.name)) || inv;
   }
   function _fmtStudyDate(iso) {
@@ -9271,13 +9397,12 @@
     }
     var cards = document.querySelectorAll('#investigations-list .investigation-set-card');
 
-    // iset slug -> member study objects, for study-aware matching.
+    // iset slug -> member study objects, for study-aware matching (O(1) lookups).
+    var byName = _studyByName();
     var studiesByIset = {};
     (window._isetIndex || []).forEach(function(iset) {
       studiesByIset[iset.name] = (iset.studies || [])
-        .map(function(slug) {
-          return (window._investigations || []).find(function(s) { return s.name === slug; });
-        }).filter(Boolean);
+        .map(function(slug) { return byName[slug]; }).filter(Boolean);
     });
 
     function _cardMatches(card, requireAll) {
@@ -9314,6 +9439,14 @@
     if (empty) empty.style.display = anyVisible ? 'none' : '';
   }
   window._filterInvestigations = _filterInvestigations;
+  // Debounced input handler (the filter is show/hide, but still O(cards) per call —
+  // coalesce fast typing). _filterInvestigations stays immediate for programmatic use.
+  var _invFilterTimer = 0;
+  function _filterInvestigationsInput() {
+    if (_invFilterTimer) clearTimeout(_invFilterTimer);
+    _invFilterTimer = setTimeout(function() { _invFilterTimer = 0; _filterInvestigations(); }, 130);
+  }
+  window._filterInvestigationsInput = _filterInvestigationsInput;
 
   // Close/Reopen an investigation: POST the new status, then reload the list.
   // Resilient — never throws; surfaces a brief inline error on the button.
@@ -9773,7 +9906,7 @@
     document.getElementById('investigations-list').style.display = 'none';
     document.getElementById('investigation-detail-view').style.display = '';
     document.getElementById('investigation-detail-title').textContent = name;
-    document.getElementById('investigation-detail-description').textContent = 'Loading…';
+    document.getElementById('investigation-detail-description').innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : 'Loading…';
 
     // Route through DataSource so snapshot mode reads api/investigation/<name>.json from
     // the static bundle instead of hitting the live /api/investigation/<name> endpoint
@@ -10024,7 +10157,7 @@
       if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
       if (!res.ok) {
         var errMsg = 'Rerun failed: ' + ((res.body && res.body.error) || res.status);
-        if (typeof _showToast === 'function') _showToast(errMsg); else alert(errMsg);
+        if (typeof _showToast === 'function') _showToast(errMsg, { danger: true }); else alert(errMsg);
         if (panel) panel.innerHTML = '<div class="inv-run-progress-banner inv-run-error">' + _h(errMsg) + '</div>';
         return;
       }
@@ -10053,7 +10186,7 @@
     }).catch(function(err) {
       if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
       var netMsg = 'Network error: ' + err;
-      if (typeof _showToast === 'function') _showToast(netMsg); else alert(netMsg);
+      if (typeof _showToast === 'function') _showToast(netMsg, { danger: true }); else alert(netMsg);
       if (panel) panel.innerHTML = '<div class="inv-run-progress-banner inv-run-error">' + _h(netMsg) + '</div>';
     });
   }
@@ -11203,8 +11336,8 @@
     // simply absent (404). A bare `<a download>` to a 404 silently does nothing,
     // which reads as a broken button. Fetch first: download the blob when it
     // exists, otherwise tell the user why there's nothing to grab.
-    function _notify(msg) {
-      if (typeof _showToast === 'function') _showToast(msg); else window.alert(msg);
+    function _notify(msg, opts) {
+      if (typeof _showToast === 'function') _showToast(msg, opts); else window.alert(msg);
     }
     fetch(url).then(function (r) {
       if (!r.ok) {
@@ -11221,7 +11354,7 @@
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       window.setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
     }).catch(function (e) {
-      _notify('Figures download failed: ' + e);
+      _notify('Figures download failed: ' + e, { danger: true });
     });
   };
   // A study's ↓ notebook is its parent investigation's runnable notebook (there
@@ -12164,10 +12297,7 @@
   // Back-compat shim for any old callers (sidebar groups still use this).
   // The investigation a study belongs to (from the iset index), or '' if none.
   function _investigationForStudy(slug) {
-    var iset = (window._isetIndex || []).find(function(i) {
-      return (i.studies || []).indexOf(slug) !== -1;
-    });
-    return iset ? iset.name : '';
+    return _investigationForStudyMap()[slug] || '';   // O(1) reverse lookup
   }
 
   // Is `slug` a member of investigation `invName`? Used so opening a study from
@@ -12175,7 +12305,7 @@
   // several investigations; _investigationForStudy returns only the FIRST).
   function _studyInInvestigation(slug, invName) {
     if (!invName) return false;
-    var iset = (window._isetIndex || []).find(function(i) { return i.name === invName; });
+    var iset = _isetByName()[invName];   // O(1)
     return !!(iset && (iset.studies || []).indexOf(slug) !== -1);
   }
   window._studyInInvestigation = _studyInInvestigation;
@@ -12321,6 +12451,7 @@
     if (!container || container.__vivSortable) return;
     container.__vivSortable = true;
     var dragEl = null;
+    var _dragRaf = 0, _dragY = 0;    // coalesce dragover geometry reads to one per frame
     container.addEventListener('dragstart', function (e) {
       var handle = e.target.closest ? e.target.closest(handleSel) : null;
       if (!handle) return;
@@ -12336,12 +12467,22 @@
       if (!dragEl || !container.contains(dragEl)) return;
       e.preventDefault();
       e.stopPropagation();
-      var after = _dragAfterElement(container, itemSel, e.clientY);
-      if (after == null) container.appendChild(dragEl);
-      else if (after !== dragEl) container.insertBefore(dragEl, after);
+      // _dragAfterElement reads getBoundingClientRect() for every row (a forced
+      // reflow). dragover fires continuously, so coalesce to one reposition per
+      // animation frame instead of per event — smooth even with many rows.
+      _dragY = e.clientY;
+      if (_dragRaf) return;
+      _dragRaf = requestAnimationFrame(function () {
+        _dragRaf = 0;
+        if (!dragEl || !container.contains(dragEl)) return;
+        var after = _dragAfterElement(container, itemSel, _dragY);
+        if (after == null) container.appendChild(dragEl);
+        else if (after !== dragEl) container.insertBefore(dragEl, after);
+      });
     });
     container.addEventListener('drop', function (e) { if (dragEl) { e.preventDefault(); e.stopPropagation(); } });
     container.addEventListener('dragend', function () {
+      if (_dragRaf) { cancelAnimationFrame(_dragRaf); _dragRaf = 0; }
       if (!dragEl) return;
       dragEl.classList.remove('viv-rail-dragging');
       dragEl = null;
@@ -12410,7 +12551,10 @@
     var nameColor = opts.indent ? '#64748b' : '#374151';
     var tip = _esc(s.name) + ' — ' + _esc(status) + (s.blocked ? ' (blocked)' : '');
     var grip = opts.orderable ? _railGrip('viv-rail-grip-study') : '';
-    return '<a class="viv-rail-sublink" data-study-name="' + _esc(s.name) + '" draggable="false" ' +
+    // Stamp the precomputed (lowercased) search haystack so the live filter can
+    // show/hide this row by a substring scan without rebuilding any DOM.
+    var hay = _esc(_studyHay(s, opts.groupTitle));
+    return '<a class="viv-rail-sublink" data-study-name="' + _esc(s.name) + '" data-rail-hay="' + hay + '" draggable="false" ' +
            'onclick="event.preventDefault();_openStudyEmbeddedNewTab(\'' + _esc(s.name) + '\');return false;" ' +
            'href="#" title="' + tip + '" ' +
            'style="display:flex;align-items:center;gap:6px;padding:4px 14px 4px ' + indent + ';color:' + nameColor + ';text-decoration:none;font-size:' + fontSize + ';">' +
@@ -12429,25 +12573,28 @@
     if (!Array.isArray(window._investigations) || !window._investigations.length) {
       // No studies in memory yet → fall back to the legacy render until they arrive.
       if (typeof _renderRailInvestigationsLegacy === 'function') return _renderRailInvestigationsLegacy();
-      host.innerHTML = '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">Loading…</p>';
+      if (window.ProgressTrack) {
+        window.ProgressTrack.loading(host);
+        host.firstElementChild.classList.add('viv-loading-compact');
+      } else {
+        host.innerHTML = '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">Loading…</p>';
+      }
       if (typeof _loadInvestigations === 'function') _loadInvestigations();
       return;
     }
-
-    var memberSet = {};         // studySlug -> [isetName, ...]
-    window._isetIndex.forEach(function(iset) {
-      (iset.studies || []).forEach(function(slug) {
-        (memberSet[slug] = memberSet[slug] || []).push(iset.name);
-      });
-    });
 
     // Group studies: each iset gets its members; leftovers go to "Ungrouped".
     var groups = [];   // [{name, title, studies: [study, ...]}]
     var seen = {};
     var _studyOrderMap = _loadStudyOrder();
+    // Index studies by name ONCE so membership resolution is O(1) per slug. A
+    // per-slug Array.find made every rail render O(N^2) — the dominant cost of a
+    // rebuild on large workspaces (e.g. sms-ecoli).
+    var _studyByName = {};
+    (window._investigations || []).forEach(function(s) { _studyByName[s.name] = s; });
     window._isetIndex.forEach(function(iset) {
       var members = (iset.studies || [])
-        .map(function(slug) { return window._investigations.find(function(s) { return s.name === slug; }); })
+        .map(function(slug) { return _studyByName[slug]; })
         .filter(Boolean);
       members.forEach(function(s) { seen[s.name] = true; });
       // Order within group: the user's saved drag order first, then anything
@@ -12495,12 +12642,15 @@
       // Collapsed unless active, or the caller forces it open (first group when
       // there is no active investigation), so the rail opens on something.
       var collapsed = (isActive || forceOpen) ? '' : ' collapsed';
+      // Remember the default collapse state so the live filter can restore it when
+      // the search is cleared (it force-opens matching groups while searching).
+      var defaultCollapsed = collapsed ? ' data-default-collapsed="1"' : '';
       var activeCls = isActive ? ' rail-iset-active' : '';
       var clickName = g._ungrouped
         ? ''
         : ' onclick="window._railOpenInvestigationDetail(\'' + _esc(g.name) + '\');event.stopPropagation();"';
       var nameStyle = g._ungrouped ? '' : 'cursor:pointer;';
-      return '<div class="viv-rail-investigations-group' + collapsed + activeCls + '" data-iset="' + _esc(g.name) + '">'
+      return '<div class="viv-rail-investigations-group' + collapsed + activeCls + '" data-iset="' + _esc(g.name) + '"' + defaultCollapsed + '>'
         + '<div class="viv-rail-investigations-group-header" onclick="_vivToggleInvGroup(this)"'
         + ' title="' + _esc(g.title || g.name) + (g._ungrouped ? '' : ' — open investigation') + '">'
         + (g._ungrouped ? '' : _railGrip('viv-rail-grip-inv'))
@@ -12511,7 +12661,7 @@
         + '</div>'
         + '<div class="viv-rail-investigations-group-items">'
         + (g.studies.length
-            ? g.studies.map(function(s) { return _railStudyItem(s, { indent: true, orderable: !g._ungrouped }); }).join('')
+            ? g.studies.map(function(s) { return _railStudyItem(s, { indent: true, orderable: !g._ungrouped, groupTitle: g.title }); }).join('')
             : '<div class="viv-rail-empty" style="font-size:0.82em;color:#94a3b8;'
               + 'padding:4px 14px 4px 28px;font-style:italic">No studies</div>')
         + '</div>'
@@ -12523,64 +12673,76 @@
     // title), so e.g. "basal simulation" finds the `basal` study in the
     // v2ecoli-vEcoli comparison investigation. While searching, non-matching
     // groups are hidden and matching groups are force-expanded so hits show.
+    // Render the FULL list once (all groups, all studies) with default collapse
+    // states. The live search then shows/hides rows in place (_applyRailStudyFilter),
+    // so typing never rebuilds this DOM — the expensive part on large workspaces.
+    var groupsHtml = ordered.map(function(g, i) {
+      // With no active investigation, open the first group so the rail isn't
+      // entirely collapsed on load.
+      return _railGroupHtml(g, !hasActive && i === 0);
+    }).join('');
+
+    var ungroupedHtml = ungrouped.length
+      ? _railGroupHtml({ name: '__ungrouped__', title: 'Ungrouped', studies: ungrouped, _ungrouped: true }, false)
+      : '';
+
+    host.innerHTML = (groupsHtml + ungroupedHtml)
+      || '<div class="viv-rail-empty" style="font-size:0.85em;color:#94a3b8;'
+       + 'padding:6px 14px;font-style:italic">No studies yet.</div>';
+    _wireRailDnd();                 // the full list is always present → always sortable
+    _applyRailStudyFilter();        // re-apply any active query via show/hide
+  }
+
+  // Apply the current study-search query by showing/hiding already-rendered rows —
+  // NO DOM rebuild. Groups with no visible row are hidden; matching groups are
+  // force-opened; clearing the query restores each group's default collapse state.
+  function _applyRailStudyFilter() {
+    var host = document.getElementById('viv-rail-investigations');
+    if (!host) return;
     var q = (window._railStudyQuery || '').trim().toLowerCase();
     var tokens = q ? q.split(/\s+/) : [];
     var searching = tokens.length > 0;
+    var rail = document.getElementById('viv-rail');
+    if (rail) rail.classList.toggle('viv-rail-searching', searching);
 
-    // AND-first, OR-fallback. Prefer studies matching EVERY token (precise); but
-    // if nothing matches all tokens, fall back to matching ANY token so a natural
-    // phrase like "basal simulation" still surfaces the `basal` study even when
-    // "simulation" appears in none of its fields. Consider grouped + ungrouped.
-    var requireAll = searching && (
-      ordered.some(function(g) {
-        return g.studies.some(function(s) { return _studyMatchesQuery(s, g.title, tokens, true); });
-      }) ||
-      ungrouped.some(function(s) { return _studyMatchesQuery(s, 'Ungrouped', tokens, true); })
-    );
+    var items = Array.prototype.slice.call(host.querySelectorAll('.viv-rail-sublink[data-rail-hay]'));
+    // AND-first, OR-fallback (mirrors the previous render-time semantics): prefer
+    // rows matching EVERY token, but if none do, fall back to matching ANY.
+    var requireAll = searching && items.some(function(el) {
+      return _tokensMatch(el.getAttribute('data-rail-hay') || '', tokens, true);
+    });
+    items.forEach(function(el) {
+      var show = !searching || _tokensMatch(el.getAttribute('data-rail-hay') || '', tokens, requireAll);
+      el.classList.toggle('viv-rail-hidden', !show);
+    });
 
-    // Investigation groups (middle).
-    var groupsHtml = ordered.map(function(g, i) {
-      var studies = g.studies;
+    var anyVisible = false;
+    Array.prototype.forEach.call(host.querySelectorAll('.viv-rail-investigations-group'), function(group) {
       if (searching) {
-        studies = g.studies.filter(function(s) {
-          return _studyMatchesQuery(s, g.title, tokens, requireAll);
-        });
-        if (!studies.length) return '';   // hide groups with no match
-        g = { name: g.name, title: g.title, studies: studies };
+        var vis = group.querySelector('.viv-rail-sublink[data-rail-hay]:not(.viv-rail-hidden)');
+        group.classList.toggle('viv-rail-hidden', !vis);
+        if (vis) { group.classList.remove('collapsed'); anyVisible = true; }   // force-open matches
+      } else {
+        group.classList.remove('viv-rail-hidden');
+        group.classList.toggle('collapsed', group.hasAttribute('data-default-collapsed'));
       }
-      // While searching, force groups open so matches are visible. Otherwise:
-      // with no active investigation, open the first group so the rail isn't
-      // entirely collapsed on load.
-      return _railGroupHtml(g, searching || (!hasActive && i === 0));
-    }).join('');
+    });
 
-    // Ungrouped studies (bottom): a collapsible "Ungrouped" folder, like the
-    // investigation groups (collapsed by default; force-open while searching).
-    var ungroupedList = searching
-      ? ungrouped.filter(function(s) { return _studyMatchesQuery(s, 'Ungrouped', tokens, requireAll); })
-      : ungrouped;
-    var ungroupedHtml = '';
-    if (ungroupedList.length) {
-      ungroupedHtml = _railGroupHtml(
-        { name: '__ungrouped__', title: 'Ungrouped', studies: ungroupedList, _ungrouped: true },
-        searching
-      );
+    var note = document.getElementById('viv-rail-nomatch');
+    if (searching && !anyVisible) {
+      if (!note) {
+        note = document.createElement('div');
+        note.id = 'viv-rail-nomatch';
+        note.className = 'viv-rail-empty';
+        note.setAttribute('style', 'font-size:0.85em;color:#94a3b8;padding:6px 14px;font-style:italic');
+        host.appendChild(note);
+      }
+      note.textContent = 'No studies match “' + q + '”.';
+    } else if (note) {
+      note.remove();
     }
-
-    var html = groupsHtml + ungroupedHtml;
-
-    if (!html && searching) {
-      html = '<div class="viv-rail-empty" style="font-size:0.85em;color:#94a3b8;'
-           + 'padding:6px 14px;font-style:italic">No studies match “' + _esc(q) + '”.</div>';
-    }
-
-    host.innerHTML = html
-      || '<div class="viv-rail-empty" style="font-size:0.85em;color:#94a3b8;'
-       + 'padding:6px 14px;font-style:italic">No studies yet.</div>';
-    // Make the freshly-rendered groups + their studies drag-sortable (unless
-    // we're filtering — reordering search results would be confusing).
-    if (!searching) _wireRailDnd();
   }
+  window._applyRailStudyFilter = _applyRailStudyFilter;
 
   // A study matches the rail search when EVERY whitespace-delimited token of the
   // query is a substring of its combined searchable text (study fields + the
@@ -12614,10 +12776,12 @@
     return _tokensMatch(_studyHay(s, groupTitle), tokens, requireAll);
   }
 
-  // Study-search input handler: store the query and re-render the rail groups.
+  // Study-search input handler: record the query and filter in place by showing/
+  // hiding already-rendered rows. No rebuild → cheap enough to run per keystroke
+  // (so no debounce needed), and instant feedback even on large workspaces.
   window._filterRailStudies = function(value) {
     window._railStudyQuery = String(value || '');
-    _renderRailInvestigationGroups();
+    _applyRailStudyFilter();
   };
 
   // Per-workspace localStorage key for the remembered investigation. The URL
@@ -12679,6 +12843,14 @@
   // ── DAG helpers ─────────────────────────────────────────────────────
   // Build a children map (reverse of parent_studies) and a depth map
   // (BFS from roots) for the topological sort + Depends-on/Blocks chips.
+  // Memoized DAG: _renderInvestigations runs on every search keystroke, but the
+  // dependency graph only changes when the investigation list is replaced. Cache it
+  // by array identity so keystroke re-renders don't rebuild the BFS each time.
+  var _dagCache = null, _dagSrc;
+  function _memoInvestigationDag(all) {
+    if (all !== _dagSrc) { _dagSrc = all; _dagCache = _buildInvestigationDag(all); }
+    return _dagCache;
+  }
   function _buildInvestigationDag(all) {
     var childrenMap = {};
     all.forEach(function(inv) { childrenMap[inv.name] = []; });
@@ -12724,7 +12896,7 @@
     var grid = document.getElementById('investigations-grid');
     if (!grid) return;
     var f = window._investigationsFilter;
-    var dag = _buildInvestigationDag(window._investigations);
+    var dag = _memoInvestigationDag(window._investigations);
     window._investigationsChildren = dag.children;
     window._investigationsDepth = dag.depth;
     // Same shared engine + AND-first/OR-fallback as the rail / Investigations tab.
@@ -12906,11 +13078,14 @@
   }
   window._setInvestigationsView = _setInvestigationsView;
 
-  // Search input live-filter
+  // Search input live-filter (debounced: _renderInvestigations rebuilds the whole
+  // grid, so coalesce fast typing into one render).
+  var _invSearchTimer = 0;
   document.addEventListener('input', function(e) {
     if (e.target && e.target.id === 'investigations-search') {
       window._investigationsFilter.search = e.target.value;
-      _renderInvestigations();
+      if (_invSearchTimer) clearTimeout(_invSearchTimer);
+      _invSearchTimer = setTimeout(function() { _invSearchTimer = 0; _renderInvestigations(); }, 130);
     }
   });
 
@@ -12957,7 +13132,7 @@
     var detail = document.getElementById('investigation-detail');
     if (detail) {
       detail.style.display = '';
-      detail.innerHTML = '<p class="empty-state">Loading…</p>';
+      detail.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading…</p>';
     }
     // Switch the Investigations page into single-study focus mode: hide the
     // grid + toolbar + chips and let the detail panel take the full width.
@@ -13213,7 +13388,7 @@
       '</div>' +
       '<div class="investigation-detail-panel" data-tab="interventions">' +
         '<div id="inv-interventions-host">' +
-          '<p class="empty-state">Loading interventions…</p>' +
+          (window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading interventions…') : '<p class="empty-state">Loading interventions…</p>') +
         '</div>' +
       '</div>' +
       '<div class="investigation-detail-panel" data-tab="runs">' +
@@ -16100,7 +16275,7 @@
     _ceStopRunPoll();  // clear any prior interval
     var myToken = ++window._cePollToken;
     var el = document.getElementById('ce-test-results');
-    if (el) el.innerHTML = '<p class="empty-state">Loading run&hellip;</p>';
+    if (el) el.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading run…') : '<p class="empty-state">Loading run&hellip;</p>';
 
     function tick() {
       Promise.all([

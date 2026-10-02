@@ -1,6 +1,6 @@
 {
   "particles": {
-    "kerEGIPm": {
+    "6vdI6CWe": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "kerEGIPm",
+      "id": "6vdI6CWe",
       "position": [
-        16.308591788417974,
-        2.3646351044391887
+        22.9172803093521,
+        42.8093756850236
       ],
-      "mass": 0.594700704482223,
+      "mass": 0.7845611623964279,
       "local": {},
       "exchange": {},
       "sub_masses": {}

@@ -45,16 +45,23 @@
       '" title="emitter / persistence format">' + esc(t) + "</span>";
   }
 
+  // Where the run RAN: its remote deployment while its data is remote, and the backend it ran on once landed
+  // (row.ran_on — a landed run's data is local, so it has no remote_origin, but it did not run here).
   function originLabel(row) {
     var o = row && row.remote_origin;
-    return o ? String(o.deployment || "remote") : "local";
+    if (o) return String(o.deployment || "remote");
+    return (row && row.ran_on) ? String(row.ran_on) : "local";
   }
 
   function originPill(row) {
     var o = row && row.remote_origin;
+    if (!o && row && row.ran_on) {
+      return '<span class="origin-pill origin-remote" title="' +
+        esc("Ran on " + row.ran_on + "; results landed into this workspace") + '">' + esc(row.ran_on) + "</span>";
+    }
     if (!o) return '<span class="origin-pill origin-local" title="local run">local</span>';
     var dep = originLabel(row);
-    var tip = "Remote run on " + dep + " (AWS GovCloud)" +
+    var tip = "Remote run on " + dep +
       (o.simulation_id != null ? " — sim " + o.simulation_id : "") +
       (o.experiment_id ? "\nexperiment: " + o.experiment_id : "") +
       (o.s3_uri ? "\nS3: " + o.s3_uri : "");
@@ -237,13 +244,13 @@
       if (res.status === 200 && b.url) window.open(b.url, "_blank", "noopener");
       else {
         var msg = "Launch failed: " + (b.error || res.status);
-        if (typeof _showToast === "function") _showToast(msg); else alert(msg);
+        if (typeof _showToast === "function") _showToast(msg, { danger: true }); else alert(msg);
       }
     }).catch(function (err) {
       btn.disabled = false;
       btn.textContent = origLabel;
       var msg = "Launch failed: " + err;
-      if (typeof _showToast === "function") _showToast(msg); else alert(msg);
+      if (typeof _showToast === "function") _showToast(msg, { danger: true }); else alert(msg);
     });
   }
   document.addEventListener("click", _onToolLaunchClick, true);
@@ -284,10 +291,18 @@
     // Actions are grouped VIEW / DOWNLOAD / RE-RUN with a short inline description
     // so the overflow menu reads without hovering. Each entry: {group, html, desc}.
     var out = [];
-    function add(group, html, desc) { if (html) out.push({ group: group, html: html, desc: desc }); }
+    function add(group, html, desc, cls) { if (html) out.push({ group: group, html: html, desc: desc, cls: cls }); }
 
     // --- VIEW ---
     add("VIEW", viz, "Open the run's figures");
+    // ⏱ Trace — the run's trace timeline in Perfetto (perfetto-open.js). Any
+    // status: a failed or stuck run's trace is the one you most want to see.
+    // `viva-trace-action` keeps it hidden until the deployment advertises
+    // viva-v1-trace; the delegated handler reads the id from the <tr>.
+    add("VIEW", (remoteSimId != null && !isSnapshot)
+      ? '<button type="button" class="action-btn js-authoring trace-remote-btn viva-trace-action" ' +
+        'title="Open this run\'s trace timeline in Perfetto">⏱ Trace</button>' : "",
+      "Trace timeline in Perfetto", "viva-trace-action");
     add("VIEW", (completed && hasRun) ? _art("report", "📋 Report", "Open this run's report card", false) : "",
       "Open the report card");
 
@@ -308,6 +323,15 @@
     }
     add("DOWNLOAD", analysisFiles,
       remoteSimId != null ? "analyses.json — lands from the deployment, then downloads" : "analyses.json");
+    // ⬇ Land results — a run dispatched to a /viva/v1 backend (serve --backend-base-url) is recorded by the
+    // backend's own run id (a string, e.g. "simulation-E9Ec819"), and its results are brought into this study's
+    // run store on request (POST /api/remote-run-land). Shown at any status: the server answers an unfinished
+    // run with a plain "not finished yet" rather than downloading anything.
+    var vivaRunId = (typeof remoteSimId === "string" && !/^\d+$/.test(remoteSimId)) ? remoteSimId : null;
+    add("DOWNLOAD", (vivaRunId && !isSnapshot && study(row))
+      ? '<button type="button" class="action-btn js-authoring land-viva-btn" ' +
+        'title="Bring this run\'s results from the backend into this study">⬇ Land results</button>' : "",
+      "Bring the run's results into this study");
     add("DOWNLOAD", (row.run_id && (row.store_path || row.db_path))
       ? '<a class="action-btn js-authoring" title="Download this run\'s raw emitter data (.zip)" ' +
         'href="' + BP + '/api/simulation-run-download?run_id=' + runIdEnc + '" download style="text-decoration:none;">⬇ Raw data</a>' : "",
@@ -358,7 +382,8 @@
         '<div class="sim-action-menu-header" style="font-size:10px;text-transform:uppercase;' +
         'letter-spacing:.05em;color:#94a3b8;padding:6px 8px 2px;">' + g[1] + '</div>' +
         items.map(function (a) {
-          return '<div class="sim-action-menu-item" style="display:flex;align-items:center;gap:6px;">' +
+          return '<div class="sim-action-menu-item' + (a.cls ? ' ' + esc(a.cls) : '') +
+            '" style="display:flex;align-items:center;gap:6px;">' +
             a.html +
             (a.desc ? '<span class="sim-action-desc" style="color:#94a3b8;font-size:11px;">' +
               esc(a.desc) + '</span>' : '') +
@@ -393,7 +418,7 @@
       var body = res.body || {};
       if (!res.ok) {
         var errMsg = "Rerun failed: " + (body.error || res.status);
-        if (typeof _showToast === "function") _showToast(errMsg);
+        if (typeof _showToast === "function") _showToast(errMsg, { danger: true });
         else alert(errMsg);
         return;
       }
@@ -406,7 +431,7 @@
     }).catch(function (err) {
       if (btnEl) { btnEl.disabled = false; btnEl.textContent = origLabel || "↻ Rerun"; }
       var netMsg = "Rerun failed: network error — " + err;
-      if (typeof _showToast === "function") _showToast(netMsg);
+      if (typeof _showToast === "function") _showToast(netMsg, { danger: true });
       else alert(netMsg);
     });
   }
@@ -467,7 +492,7 @@
       var b = res.body || {};
       if (!res.ok) {
         var em = "Land failed: " + (b.error || res.status);
-        if (typeof _showToast === "function") _showToast(em); else alert(em);
+        if (typeof _showToast === "function") _showToast(em, { danger: true }); else alert(em);
         return;
       }
       var n = b.ptools || 0;
@@ -479,10 +504,47 @@
     }).catch(function (err) {
       _reset();
       var nm = "Land failed: network error — " + err;
-      if (typeof _showToast === "function") _showToast(nm); else alert(nm);
+      if (typeof _showToast === "function") _showToast(nm, { danger: true }); else alert(nm);
     });
   }
   window._landRemote = _landRemote;
+
+  // Land a /viva/v1 run's results into its study (POST /api/remote-run-land {study, simulation_id: <run id>}),
+  // then refresh so the landed run replaces its pending row. Same delegated, read-from-<tr> idiom as ⬇ Land.
+  function _landVivaRun(studySlug, vivaRunId, btn) {
+    if (!studySlug || !vivaRunId) return;
+    var orig = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "… landing"; btn.title = ""; }
+    // Never a blocking dialog (this file has no toast to fall back on): success refreshes the table, where the
+    // landed run replaces its pending row; a refusal stays on the button, with the reason as its tooltip.
+    function _refused(reason) {
+      if (btn) { btn.disabled = false; btn.textContent = "⚠ Not landed"; btn.title = reason; }
+      if (window.console) console.warn("Land " + vivaRunId + ": " + reason);
+    }
+    fetch((window.__BASE_PATH__ || "") + "/api/remote-run-land", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ study: studySlug, simulation_id: vivaRunId }),
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; })
+        .catch(function () { return { ok: r.ok, status: r.status, body: {} }; });
+    }).then(function (res) {
+      if (!res.ok) { _refused((res.body || {}).error || ("HTTP " + res.status)); return; }
+      if (btn) { btn.disabled = false; btn.textContent = orig || "⬇ Land results"; }
+      if (typeof window._initSimulations === "function") window._initSimulations(true);
+      if (typeof window._loadStudySims === "function") window._loadStudySims(true);
+    }).catch(function (err) { _refused("network error — " + err); });
+  }
+  window._landVivaRun = _landVivaRun;
+
+  function _onLandVivaClick(e) {
+    var btn = e.target.closest(".land-viva-btn");
+    if (!btn) return;
+    e.stopPropagation();
+    var tr = btn.closest("tr[data-remote-sim-id]");
+    if (!tr) return;
+    _landVivaRun(tr.getAttribute("data-study") || "", tr.getAttribute("data-remote-sim-id") || "", btn);
+  }
+  document.addEventListener("click", _onLandVivaClick, true);
 
   function _onLandButtonClick(e) {
     var btn = e.target.closest(".land-remote-btn");

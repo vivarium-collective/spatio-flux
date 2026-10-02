@@ -57,22 +57,35 @@
     if (state.cm) { try { state.cm.setOption('mode', cmMode(lang)); } catch (e) {} }
   }
 
-  // ── expand / collapse ──
-  function isOpen() { var r = rail(); return r && !r.classList.contains('viv-code-collapsed'); }
-  function open() {
-    var r = rail(); if (!r) return;
-    r.classList.remove('viv-code-collapsed');
-    document.body.classList.add('viv-code-open');
-    try { localStorage.setItem('viv.code.open', '1'); } catch (e) {}
-    if (state.cm) setTimeout(function () { try { state.cm.refresh(); } catch (e) {} }, 30);
+  // ── expand / collapse (delegated to the shared dockable-panel engine) ──
+  // The rail is a VivPanelDock panel (like the chat): dockable left/right/bottom,
+  // drag-re-dockable by its header, resizable, launched from the left nav rail. The
+  // controller (dockCtl) is created in init(); these thin wrappers keep the old
+  // ProcessCode API (open/collapse/toggle) working for the rest of this file.
+  var dockCtl = null;
+  function isOpen() { return dockCtl ? dockCtl.isOpen() : false; }
+  // Mirror the panel's --viv-code-w onto <body> so the fill-the-pane (maximized)
+  // CSS — which pins a RIGHT-docked rail fixed and shrinks the card by that width —
+  // tracks a user-resized rail, not just the 460px default (see style.css
+  // .pcard-maximized + .viv-code-open).
+  function _syncRailWidth() {
+    try {
+      var r = rail(); if (!r) return;
+      var w = getComputedStyle(r).getPropertyValue('--viv-code-w').trim();
+      if (w) document.body.style.setProperty('--viv-code-w', w);
+    } catch (e) {}
   }
-  function collapse() {
-    var r = rail(); if (!r) return;
-    r.classList.add('viv-code-collapsed');
-    document.body.classList.remove('viv-code-open');
-    try { localStorage.setItem('viv.code.open', '0'); } catch (e) {}
+  function _refreshCm() { if (state.cm) setTimeout(function () { try { state.cm.refresh(); } catch (e) {} }, 30); }
+  function open() { if (dockCtl) dockCtl.open(); }
+  function collapse() { if (dockCtl) dockCtl.close(); }
+  function toggle() { if (dockCtl) dockCtl.toggle(); }
+  function dockMenu(anchor) { if (dockCtl) dockCtl.openDockMenu(anchor); }
+  // Open the current source in a separate window, then close the in-page rail.
+  function popout() {
+    if (!window.VivPanelDock) return;
+    window.VivPanelDock.popout('code', state.popout || {});
+    collapse();
   }
-  function toggle() { if (isOpen()) collapse(); else open(); }
 
   function refreshDirty() {
     var saveBtn = $('viv-code-save'), revertBtn = $('viv-code-revert');
@@ -249,6 +262,7 @@
   // ── public open() entrypoints ──
   function openProcess(address) {
     if (!address) return;
+    state.popout = { address: address };          // remembered so Pop out can reopen this view
     load({
       title: address.split(/[.:]/).pop() || 'Process',
       subtitle: address,
@@ -261,6 +275,7 @@
   function openComposite(desc) {
     desc = desc || {};
     var id = desc.id || '';
+    state.popout = { composite: id, module: desc.module || '', source_path: desc.source_path || '' };
     var q = '/api/composites/source?id=' + encodeURIComponent(id) +
       '&module=' + encodeURIComponent(desc.module || '') +
       '&source_path=' + encodeURIComponent(desc.source_path || '');
@@ -428,36 +443,36 @@
       .catch(function (e) { state.loading = false; setStatus('Save failed: ' + e, 'error'); refreshDirty(); });
   }
 
-  // ── drag-to-resize (panel grows leftward) ──
-  function initResize() {
-    var handle = $('viv-code-resize-handle'), r = rail();
-    if (!handle || !r) return;
-    var startX = 0, startW = 0, dragging = false;
-    try {
-      var saved = parseInt(localStorage.getItem('viv.code.width') || '0', 10);
-      if (saved >= 320 && saved <= 1100) r.style.setProperty('--viv-code-w', saved + 'px');
-    } catch (e) {}
-    handle.addEventListener('mousedown', function (ev) {
-      dragging = true; startX = ev.clientX; startW = r.getBoundingClientRect().width;
-      document.body.style.userSelect = 'none'; ev.preventDefault();
-    });
-    window.addEventListener('mousemove', function (ev) {
-      if (!dragging) return;
-      var w = Math.max(320, Math.min(1100, startW + (startX - ev.clientX)));
-      r.style.setProperty('--viv-code-w', w + 'px');
-      if (state.cm) { try { state.cm.refresh(); } catch (e) {} }
-    });
-    window.addEventListener('mouseup', function () {
-      if (!dragging) return;
-      dragging = false; document.body.style.userSelect = '';
-      try { localStorage.setItem('viv.code.width', String(Math.round(rail().getBoundingClientRect().width))); } catch (e) {}
-    });
-  }
+  // Code glyph for the drag ghost while re-docking.
+  var CODE_GHOST = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" ' +
+    'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+    '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
 
   function init() {
-    if (!rail()) return;
-    initResize();
-    try { if (localStorage.getItem('viv.code.open') === '1') open(); } catch (e) {}
+    var r = rail(); if (!r) return;
+    // Needs the shared dock engine (+ its dock math). If either failed to load, the
+    // rail simply stays hidden — better than a half-wired panel.
+    if (!window.VivPanelDock || !window.VivChatCore) return;
+    var layout = document.querySelector('.viv-layout');
+    var mainEl = layout && layout.querySelector('.viv-main');
+    if (!layout || !mainEl) return;
+    dockCtl = window.VivPanelDock.make({
+      panel: r, layout: layout, mainEl: mainEl, key: 'code',
+      label: 'Process code', ghostIcon: CODE_GHOST,
+      launcher: document.getElementById('viv-code-toggle'),
+      resizeHandle: 'viv-code-resize-handle',
+      dragHandles: ['.viv-code-head'],
+      defaultDock: 'right', defaultSize: { side: 460, bottom: 320 },
+      onOpen: function () { _syncRailWidth(); _refreshCm(); },
+      onResize: function () { _syncRailWidth(); _refreshCm(); },
+      onDock: function () { _refreshCm(); },
+    });
+    var tog = document.getElementById('viv-code-toggle');
+    if (tog) tog.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      if (dockCtl.didDrag && dockCtl.didDrag()) return;   // a drag-to-dock isn't a toggle click
+      dockCtl.toggle();
+    });
   }
 
   window.ProcessCode = {
@@ -469,6 +484,8 @@
     create: create,
     toggle: toggle,
     collapse: collapse,
+    popout: popout,
+    dockMenu: dockMenu,
     save: save,
     revert: revert,
     init: init,

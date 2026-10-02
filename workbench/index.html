@@ -2,7 +2,9 @@
 <html lang="en"><head>
 <meta charset="UTF-8"><title>spatio_flux</title>
 <link rel="stylesheet" href="/spatio-flux/workbench/assets/style.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/chat.css">
 <link rel="stylesheet" href="/spatio-flux/workbench/assets/snapshot-readonly.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/progress-track.css">
 <!-- Apply the saved light/dark theme before first paint (no flash of light). -->
 <script>(function(){try{var t=localStorage.getItem('viv.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <!-- item 41: when this tab was spawned via ?workspace=/?build= (workspace-picker.js's
@@ -16,6 +18,18 @@
      blocking script, so the window.fetch override is in place before any other
      script or inline fetch runs — every same-origin request then carries this
      tab's X-VW-Session header. -->
+<!-- Pop-out windows (panel-dock.js) open this same page with ?popout=<kind>&session=<id>.
+     Seed the parent tab's session id BEFORE session.js runs (it only mints when none is
+     stored) so the popped window's API calls bind to the SAME workspace. -->
+<script>
+  (function () {
+    try {
+      var p = new URLSearchParams(location.search);
+      var sid = p.get('session');
+      if (sid && p.get('popout')) sessionStorage.setItem('viv-session-id', sid);
+    } catch (e) { /* private mode / no URL support — falls back to default workspace */ }
+  })();
+</script>
 <script src="/spatio-flux/workbench/assets/session.js"></script>
 <script>
 // Per-workspace branding (rail logo, title, brand text) is resolved
@@ -746,6 +760,30 @@ a.viv-bs-commit:hover { text-decoration: underline; }
 :root[data-theme="dark"] .viv-bs-busy { color: #93c5fd; background: rgba(59,130,246,0.16); border-color: rgba(59,130,246,0.4); }
 </style>
 </head><body>
+<script>
+(function () {
+  // Item 70 phase 3: a local in-place workspace switch (workspace-picker.js)
+  // sets this flag right before location.reload() — show the branded splash
+  // immediately, before any other script loads, so the reload's boot gap
+  // never shows a blank/unstyled page. progress-track.css (which styles
+  // .viv-switch-splash) is already linked above, so it's available by the
+  // time body starts rendering. Dismissed by walkthrough.js, not a timer.
+  try {
+    if (!sessionStorage.getItem('viv-switch-splash')) return;
+    sessionStorage.removeItem('viv-switch-splash');
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var el = document.createElement('div');
+    el.className = 'viv-switch-splash';
+    el.id = 'viv-switch-splash';
+    var img = document.createElement('img');
+    img.className = 'viv-switch-splash-logo';
+    img.alt = 'Vivarium';
+    img.src = 'assets/vivarium-logo' + (dark ? '-dark' : '') + '.png';
+    el.appendChild(img);
+    document.body.appendChild(el);
+  } catch (e) { /* sessionStorage unavailable (private mode) — skip the splash */ }
+})();
+</script>
 
 <!-- item 41: hidden unless <html data-ws-boot="1"> (set pre-paint, above, when this
      tab was spawned via ?workspace=/?build=). Covers the wrong first paint while
@@ -947,6 +985,34 @@ a.viv-bs-commit:hover { text-decoration: underline; }
         </span>
         <span class="viv-rail-link-label">Analysis</span>
       </a>
+      <!-- AI: toggles the docked chat panel on the right (docs/ai-chat.md). Not a page,
+           and deliberately NOT a .menu-link (so page switches don't clear its state).
+           Live-only — hidden in the read-only snapshot (snapshot-readonly.css). -->
+      <a href="#" id="viv-ai-toggle" class="viv-rail-link" role="button" aria-pressed="false" title="Chat">
+        <span class="viv-rail-link-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="viv-rail-link-svg">
+            <rect x="5" y="8" width="14" height="10" rx="2.5"/>
+            <path d="M12 4.5 V8"/>
+            <circle cx="12" cy="3.6" r="0.9"/>
+            <circle cx="9.5" cy="13" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="14.5" cy="13" r="1" fill="currentColor" stroke="none"/>
+            <path d="M3 12 V15 M21 12 V15"/>
+          </svg>
+        </span>
+        <span class="viv-rail-link-label">Chat</span>
+      </a>
+      <!-- Code: toggles the process-code panel (dockable left/right/bottom like the chat,
+           via panel-dock.js). Like VivaChat, NOT a .menu-link (page switches leave its
+           state alone) and live-only (hidden in the read-only snapshot). -->
+      <a href="#" id="viv-code-toggle" class="viv-rail-link" role="button" aria-pressed="false" title="Process code">
+        <span class="viv-rail-link-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="viv-rail-link-svg">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </span>
+        <span class="viv-rail-link-label">Code</span>
+      </a>
       <!-- The Branch page (#github) is no longer a rail item — it's reached by
            clicking the workspace source display at the top of the rail (see
            #viv-workspace-switcher). Hash route #github kept for back-compat. -->
@@ -967,7 +1033,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
                       color:#374151;border:1px solid #e5e7eb;border-radius:4px;background:#fff;box-sizing:border-box;" />
       </div>
       <div id="viv-rail-investigations">
-        <p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">Loading…</p>
+        <div class="viv-loading viv-loading-compact"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading…</span></div>
       </div>
     </div>
 
@@ -1026,7 +1092,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
        Single source of truth for the datasets/references/expert-docs lists;
        the management panels below provide the add/edit actions + bib explorer. -->
   <div id="inputs-api-render" class="panel">
-    <p class="muted" style="font-style:italic">Loading…</p>
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading inputs…</span></div>
   </div>
 
 </section>
@@ -1246,8 +1312,8 @@ a.viv-bs-commit:hover { text-decoration: underline; }
       </div>
     </div>
 
-    <div class="registry-tab-panel active" data-kind="composite"     id="registry-composites-container"><p class="empty-state">Loading&hellip;</p></div>
-    <div class="registry-tab-panel"        data-kind="process"       id="registry-processes-container"><p class="empty-state">Loading&hellip;</p></div>
+    <div class="registry-tab-panel active" data-kind="composite"     id="registry-composites-container"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading&hellip;</span></div></div>
+    <div class="registry-tab-panel"        data-kind="process"       id="registry-processes-container"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading&hellip;</span></div></div>
     <div class="registry-tab-panel"        data-kind="emitter"       id="registry-emitters-container"></div>
     <div class="registry-tab-panel"        data-kind="visualization" id="registry-visualizations-container"></div>
     <div class="registry-tab-panel"        data-kind="analysis"      id="registry-analyses-container"></div>
@@ -1289,7 +1355,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
     <div class="cbt-top">
       <input id="investigations-filter" type="search" class="viv-search card-browse-search"
              placeholder="Search…"
-             aria-label="Search investigations and studies" oninput="_filterInvestigations()">
+             aria-label="Search investigations and studies" oninput="_filterInvestigationsInput()">
       
       <span class="cols-ctl-slot" data-cols-surface="isets" title="Cards columns"></span>
       <span id="iset-zoom-toolbar" style="display:inline-flex;align-items:center">
@@ -1324,7 +1390,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
   <!-- List view: grouped investigation cards (Active / Closed). The grid lives on
        the per-group .investigations-grid wrappers built by _renderInvestigationSets. -->
   <div id="investigations-list">
-    <p class="empty-state">Loading…</p>
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading…</span></div>
   </div>
   </div>
 
@@ -1511,7 +1577,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
            .study-tabs (inside the iframe) actually sticks to the iframe top
            as the user scrolls through Overview → Build → … → Decide. -->
       <iframe id="investigation-study-embed-frame" src="" title="Study detail"
-              style="width:100%; height:calc(100vh - 220px); min-height:600px;
+              style="width:100%; height:calc(100vh - 220px - var(--viv-ai-bottom, 0px) - var(--viv-code-bottom, 0px)); min-height:600px;
                      border:0; display:block"></iframe>
     </div>
   </div>
@@ -1742,7 +1808,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
       </div>
     </div>
     <iframe id="study-detail-frame" src="" title="Study detail"
-            style="width:100%; height:calc(100vh - 220px); min-height:560px; border:0; display:block"></iframe>
+            style="width:100%; height:calc(100vh - 220px - var(--viv-ai-bottom, 0px) - var(--viv-code-bottom, 0px)); min-height:560px; border:0; display:block"></iframe>
   </div>
 </section>
 
@@ -1782,7 +1848,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
     <button id="sim-refresh" class="icon-btn" title="Refresh" aria-label="Refresh">&#8635;</button>
   </div>
 
-  <div id="sim-loading" style="color: #6b7280; padding: 12px;">Loading…</div>
+  <div id="sim-loading" class="viv-loading" style="padding: 12px;"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading simulations…</span></div>
   <div id="sim-empty"   style="color: #6b7280; padding: 12px; display: none;">
     No simulation runs found.
   </div>
@@ -1977,7 +2043,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
 
 <!-- ===== PAGE: COMPOSITE EXPLORER ===== -->
 <section id="page-composite-explore" class="page" data-page="composite-explore">
-  <div id="ce-loading" class="empty-state">Loading composite&hellip;</div>
+  <div id="ce-loading" class="empty-state"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading composite&hellip;</span></div></div>
 
   <div id="ce-main" style="display:none">
 
@@ -2002,7 +2068,7 @@ a.viv-bs-commit:hover { text-decoration: underline; }
       <iframe id="composite-explore-frame"
               src="/spatio-flux/workbench/bigraph-loom/index.html"
               title="Composite Explorer"
-              style="width:100%;height:calc(100vh - 84px);min-height:520px;border:1px solid #ddd;background:#fff"></iframe>
+              style="width:100%;height:calc(100vh - 84px - var(--viv-ai-bottom, 0px) - var(--viv-code-bottom, 0px));min-height:520px;border:1px solid #ddd;background:#fff"></iframe>
     </div>
 
   </div>
@@ -2012,27 +2078,75 @@ a.viv-bs-commit:hover { text-decoration: underline; }
 
   </div> <!-- /.viv-main -->
 
-  <!-- RIGHT RAIL: process code — collapsible editable Python source for the
-       selected registry process/step. Global across tabs; collapsed by default
-       to a thin edge tab (see .viv-code-collapsed CSS + process-code.js). -->
-  <aside id="viv-code-rail" class="viv-code-rail viv-code-collapsed" aria-label="Process code">
-    <button class="viv-code-edge" id="viv-code-edge" type="button"
-            title="Show process code" aria-label="Show process code"
-            onclick="window.ProcessCode&&ProcessCode.toggle()">
-      <span class="viv-code-edge-label">&lt;/&gt; Code</span>
-    </button>
+  <!-- AI panel: the built-in chat, docked on the RIGHT (docs/ai-chat.md). static/chat.js builds the
+     chat into #viv-ai; the settings sheet below is what the gear opens (static/ai-login.js).
+     Live-only — hidden in the read-only snapshot. -->
+<aside id="viv-ai-panel" class="viv-ai-panel" hidden aria-label="VivaChat">
+  <div class="vp-resize" id="viv-ai-resize" title="Drag to resize"></div>
+  <div class="vp-root" id="viv-ai"></div>
+  <div id="viv-ai-card" class="vp-settings" hidden>
+    <div class="vp-settings-head">
+      <button class="vp-icon" id="viv-ai-back" type="button" title="Back to chat" aria-label="Back to chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <strong>AI Settings</strong>
+    </div>
+    <div class="vp-form">
+      <div class="vp-field"><span>Model</span>
+        <button id="viv-ai-model" class="vp-pill vp-select" type="button" aria-haspopup="menu" title="Choose a provider and model"></button>
+      </div>
+      <div class="vp-hint" id="viv-ai-status">checking…</div>
+      <div id="viv-ai-key-row">
+        <label class="vp-field"><span>API key</span>
+          <input id="viv-ai-key" class="vp-input" type="password" placeholder="paste to save or replace"
+                 autocomplete="off" spellcheck="false">
+        </label>
+        <div class="vp-hint" id="viv-ai-storage"></div>
+      </div>
+      <label class="vp-field" id="viv-ai-url-row" hidden><span>Base URL</span>
+        <input id="viv-ai-url" class="vp-input" type="text" placeholder="http://localhost:11434/v1"
+               autocomplete="off" spellcheck="false">
+      </label>
+      <div class="vp-actions">
+        <button id="viv-ai-save" class="vp-btn vp-primary" type="button">Save &amp; test</button>
+        <button id="viv-ai-use" class="vp-btn" type="button" hidden>Use this model</button>
+        <button id="viv-ai-remove" class="vp-btn" type="button" hidden>Remove key</button>
+      </div>
+      <div class="vp-msg" id="viv-ai-msg"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- PROCESS CODE PANEL: editable Python source for the selected registry
+       process/step. Global across tabs; a dockable panel (left/right/bottom, like
+       the chat) built on panel-dock.js, launched from the left rail's "Code" tab,
+       and hidden until opened. -->
+  <aside id="viv-code-rail" class="viv-code-rail" aria-label="Process code" hidden>
     <div class="viv-code-panel">
       <div class="viv-code-resize-handle" id="viv-code-resize-handle"
            role="separator" aria-orientation="vertical" aria-label="Resize code panel"
            title="Drag to resize"></div>
-      <div class="viv-code-head">
+      <!-- Header doubles as the drag handle; the icon controls mirror the chat panel's
+           header (same .vp-head / .vp-icon chrome + identical pop-out / dock / close icons)
+           so the two tool panels read as one system. -->
+      <div class="viv-code-head vp-head" title="Drag to dock left / right / bottom">
         <div class="viv-code-title">
           <strong id="viv-code-name">Code</strong>
           <code id="viv-code-addr" class="viv-code-addr"></code>
         </div>
-        <button class="viv-code-close" type="button" title="Collapse"
-                aria-label="Collapse code panel"
-                onclick="window.ProcessCode&&ProcessCode.toggle()">&times;</button>
+        <span class="vp-spacer"></span>
+        <button class="vp-icon" type="button" data-act="popout" title="Open in a separate window" aria-label="Pop out"
+                onclick="window.ProcessCode&&ProcessCode.popout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+        </button>
+        <button class="vp-icon" type="button" data-act="dock" title="Move panel" aria-label="Move panel"
+                onclick="window.ProcessCode&&ProcessCode.dockMenu(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+        </button>
+        <button class="vp-icon" type="button" title="Close" aria-label="Close code panel"
+                onclick="window.ProcessCode&&ProcessCode.toggle()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
       <!-- New-file bar: shown only while authoring a new artifact. -->
       <div class="viv-code-newbar" id="viv-code-newbar" hidden>
@@ -2395,7 +2509,7 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
      DataSource global that renderers call to fetch narrative data.
      local-server mode (default) fetches from the same-origin /api/* endpoints.
      Hosted mode (sub-projects #2/#3) will set a different config here. -->
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "a9f6297778b65249731405f139be934af5ea1bd4", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/a9f6297778b65249731405f139be934af5ea1bd4", "branch": "main", "lockfile": "uv.lock@934842a501c0", "generated_at": "2026-09-27 15:40 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "cce514cf47258479b57ca8d90af4c8e04800a6d2", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/cce514cf47258479b57ca8d90af4c8e04800a6d2", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-02 17:18 UTC"} };</script>
 <!-- Derive the global URL prefix from the (possibly publish-injected) config.
      Many renderers prefix workspace-root-absolute links (/studies/, /api/)
      with window.__BASE_PATH__ so they resolve when the read-only bundle is
@@ -2407,12 +2521,20 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 <script>window.__BASE_PATH__ = (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.basePath) || "";</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/render-helpers.js"></script>
+<script src="/spatio-flux/workbench/assets/toast.js"></script>
 <script src="/spatio-flux/workbench/assets/client.js" onerror="/* live mode unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/aig-graph.js" onerror="/* aig-graph unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/audit.js" onerror="/* audit view unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/col-resize.js"></script>
+<!-- chat-core.js provides the shared dock math (VivChatCore); panel-dock.js the shared
+     dockable-panel engine (VivPanelDock). Both must load BEFORE process-code.js and
+     chat.js, which build their panels on them. -->
+<script src="/spatio-flux/workbench/assets/chat-core.js" onerror="/* chat/dock core unavailable */"></script>
+<script src="/spatio-flux/workbench/assets/panel-dock.js" onerror="/* dockable panels unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/process-code.js" onerror="/* process-code panel unavailable */"></script>
+<script src="/spatio-flux/workbench/assets/perfetto-open.js" onerror="/* trace action unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/sim-table.js"></script>
+<script src="/spatio-flux/workbench/assets/progress-track.js"></script>
 <!-- composite-card.js: the shared composite-card renderer (extracted from
      walkthrough.js, study-spine-reorg Task 6) — MUST load before
      walkthrough.js, which now calls these functions as globals rather than
@@ -2426,6 +2548,10 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 <script src="/spatio-flux/workbench/assets/checklist-select.js" onerror="/* checklist-select unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/walkthrough.js" onerror="/* walkthrough unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/github-login.js" onerror="/* github-login unavailable */"></script>
+<!-- chat-core.js already loaded above (shared by panel-dock.js + process-code.js). -->
+<script src="/spatio-flux/workbench/assets/ai-models.js" onerror="/* chat unavailable */"></script>
+<script src="/spatio-flux/workbench/assets/chat.js" onerror="/* chat unavailable */"></script>
+<script src="/spatio-flux/workbench/assets/ai-login.js" onerror="/* ai-login unavailable */"></script>
 <!-- workspace-switcher.js is intentionally not loaded: the left-rail dropdown
      it used to drive has been repurposed into the investigation switcher
      (investigation-switcher.js). The /api/workspaces endpoints remain available

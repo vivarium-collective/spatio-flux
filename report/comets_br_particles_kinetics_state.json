@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Io2X247D": {
+    "2YqiQJJQ": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "Io2X247D",
+      "id": "2YqiQJJQ",
       "position": [
-        14.173089771714647,
-        23.39506918930383
+        49.603239301732735,
+        41.04729449710563
       ],
-      "mass": 2.946856242131301,
+      "mass": 1.9183794775066016,
       "local": {},
       "exchange": {},
       "sub_masses": {}
