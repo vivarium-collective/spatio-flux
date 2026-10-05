@@ -204,24 +204,52 @@ def _load_base_model(model_file):
     if cached is not None:
         return cached
 
-    base_dir = Path(__file__).resolve().parent
-    models_dir = base_dir / '..' / 'models'
-    full_path = (models_dir / model_file).resolve()
+    models_dir = (Path(__file__).resolve().parent / '..' / 'models').resolve()
 
-    try:
-        if model_file.endswith('.xml'):
-            if not full_path.exists():
-                raise FileNotFoundError(f"SBML file not found at: {full_path}")
+    if model_file.endswith('.xml'):
+        full_path = (models_dir / model_file).resolve()
+        if not full_path.exists():
+            # The genome-scale SBML models are bundled inside the installed
+            # package (spatio_flux/models/*.xml) as of spatio-flux 1.5.3. A
+            # missing file almost always means an older/slimmer spatio-flux is
+            # pinned (the 1.5.0 wheel shipped no models), or a model_file name
+            # that isn't one of the bundled set. Fail loud with the resolved
+            # path and an actionable hint — do NOT let this collapse into a
+            # cryptic cobra/libSBML parse error or a silent empty run.
+            available = (
+                sorted(p.name for p in models_dir.glob('*.xml'))
+                if models_dir.is_dir() else []
+            )
+            if available:
+                hint = f"Bundled models available here: {', '.join(available)}."
+            else:
+                hint = (
+                    f"No SBML models are bundled in this install ({models_dir}) "
+                    f"— upgrade to spatio-flux>=1.5.3, whose wheel ships the "
+                    f"genome-scale models inside the package."
+                )
+            raise FileNotFoundError(
+                f"SBML model {model_file!r} not found at {full_path}. {hint}"
+            )
+        try:
             model = cobra.io.read_sbml_model(str(full_path))
-        else:
-            # cache=False bypasses cobra.io.web._cached_load, which uses
-            # diskcache (pickle deserialization, CVE-affected). Our own
-            # _BASE_MODEL_CACHE above already memoizes within the process.
+        except Exception as e:
+            raise ValueError(
+                f"Failed to parse SBML model at {full_path}: {e}. The file "
+                f"exists but could not be read as a valid SBML model."
+            ) from e
+    else:
+        # cache=False bypasses cobra.io.web._cached_load, which uses
+        # diskcache (pickle deserialization, CVE-affected). Our own
+        # _BASE_MODEL_CACHE above already memoizes within the process.
+        try:
             model = load_model(model_file, cache=False)
-    except Exception:
-        raise ValueError(
-            f"Failed to load model from {model_file}. "
-            f"Ensure it is a valid SBML file or registered model name.")
+        except Exception as e:
+            raise ValueError(
+                f"Failed to load named model {model_file!r}: {e}. Expected a "
+                f"bundled SBML file (e.g. 'iAF1260.xml') or a cobra built-in "
+                f"model name (e.g. 'textbook', 'e_coli_core')."
+            ) from e
 
     _BASE_MODEL_CACHE[model_file] = model
     return model
