@@ -1,6 +1,6 @@
 {
   "particles": {
-    "6vdI6CWe": {
+    "f7ROX1Bi": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "6vdI6CWe",
+      "id": "f7ROX1Bi",
       "position": [
-        22.9172803093521,
-        42.8093756850236
+        13.679114950251542,
+        40.14397315752953
       ],
-      "mass": 0.7845611623964279,
+      "mass": 0.6908213300253035,
       "local": {},
       "exchange": {},
       "sub_masses": {}
