@@ -2517,7 +2517,7 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
      DataSource global that renderers call to fetch narrative data.
      local-server mode (default) fetches from the same-origin /api/* endpoints.
      Hosted mode (sub-projects #2/#3) will set a different config here. -->
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "59b7591f26e5af241c7c50180fe1bf41440ee539", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/59b7591f26e5af241c7c50180fe1bf41440ee539", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-05 11:48 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "4aff21698b147366917bc267bcd84f69714750a1", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/4aff21698b147366917bc267bcd84f69714750a1", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-07 04:18 UTC"} };</script>
 <!-- Derive the global URL prefix from the (possibly publish-injected) config.
      Many renderers prefix workspace-root-absolute links (/studies/, /api/)
      with window.__BASE_PATH__ so they resolve when the read-only bundle is
@@ -2530,6 +2530,7 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/render-helpers.js"></script>
 <script src="/spatio-flux/workbench/assets/toast.js"></script>
+<script src="/spatio-flux/workbench/assets/server-reload.js" onerror="/* reload watcher unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/client.js" onerror="/* live mode unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/aig-graph.js" onerror="/* aig-graph unavailable */"></script>
 <script src="/spatio-flux/workbench/assets/audit.js" onerror="/* audit view unavailable */"></script>

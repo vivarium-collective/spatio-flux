@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_605318": {
+    "p_155c4f": {
       "id": "",
       "position": [
-        24.649268027747333,
-        34.2545763791351
+        17.358784553842938,
+        14.368049690604774
       ],
-      "mass": 0.01735398840614928,
+      "mass": 0.019085126257803908,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
         -0.0,
-        0.0
+        -0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 0.6068468271536183
+      "radius": 0.6363952842337764
     }
   },
   "newtonian_particles": {
