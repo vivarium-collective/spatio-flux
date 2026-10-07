@@ -180,6 +180,20 @@ def resolve(current: Count, update: MassDelta, path=()):
     return current
 
 
+@resolve.dispatch
+def resolve(current: Float, update: ConcentrationDelta, path=()):
+    # Catch-all for any other Float store, e.g. a sibling package's own
+    # "concentration" class (viva-munk's VMConcentration) when it registered the
+    # name first — register_types defers to it, so our processes' deltas land on
+    # a store class we don't own. The store type wins, as in the rules above.
+    return current
+
+
+@resolve.dispatch
+def resolve(current: Float, update: MassDelta, path=()):
+    return current
+
+
 # ---------------------------------------------------------------------
 # Apply methods: state update semantics
 # ---------------------------------------------------------------------

@@ -56,6 +56,24 @@ def test_delta_types_render_and_resolve_fast():
     assert core.render(core.access("mass_delta")) == "mass_delta"
 
 
+def test_deltas_resolve_against_foreign_float_store():
+    # A sibling package (viva-munk) can register its own "concentration" class
+    # first; register_types then defers to it. Deltas must still resolve onto it
+    # (store wins) instead of raising "cannot resolve types".
+    from dataclasses import dataclass
+    from bigraph_schema.schema import Float
+    from bigraph_schema.methods import resolve
+    from spatio_flux.types.positive import ConcentrationDelta, MassDelta
+
+    @dataclass(kw_only=True)
+    class ForeignConcentration(Float):
+        pass
+
+    store = ForeignConcentration(_units="mM")
+    assert resolve(store, ConcentrationDelta()) is store
+    assert resolve(store, MassDelta()) is store
+
+
 def test_diffusion_fields_are_positive_array():
     from spatio_flux.processes.diffusion_advection import DiffusionAdvection
     inst = DiffusionAdvection.__new__(DiffusionAdvection)
