@@ -24,14 +24,14 @@
         "interval": 1.0
       },
       "aggregate_mass": {
-        "_type": "step",
+        "_type": "process",
         "address": "string",
         "config": "node",
         "_inputs": "sub_masses:map[mass]",
         "_outputs": "total_mass:overwrite[mass]",
         "inputs": "wires",
         "outputs": "wires",
-        "priority": 0.0
+        "interval": 1.0
       },
       "sub_masses": "map[mass]",
       "radius": "set_float",
@@ -1103,7 +1103,7 @@
     "_type": "step",
     "address": "local:RAMEmitter",
     "config": "node",
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",

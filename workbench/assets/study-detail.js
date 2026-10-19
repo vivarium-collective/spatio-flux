@@ -104,26 +104,59 @@
     document.querySelectorAll('.study-tab-panel').forEach(function (p) {
       p.classList.toggle('active', p.dataset.kind === kind);
     });
-    if (kind === 'tests') { _loadTestsPanel(window._study); }
-    if (kind === 'readouts') { _loadReadouts(); _loadReadoutsDownloadPointer(); }
-    if (kind === 'visualize') { _loadCharts('viz-charts-panel'); _loadNativeGallery(); _loadRemoteFigures(); }
-    if (kind === 'compose') { _loadModelConfig(); _loadModelCards(); }
-    // Study-spine reorg (spec §1, §3.2/3.3/3.4): Simulations keeps only the
-    // runs table now; the analysis-files zip + raw-data bulk that used to
-    // trigger here moved onto their own Evidence panels (Analyses/Results).
-    if (kind === 'simulate') { _loadStudySims(); }
-    if (kind === 'analyses') { _loadAnalyses(); _loadRemoteAnalyses(); }
-    if (kind === 'results') { _loadResults(); }
-    // Study-spine reorg (spec §1, §3.7/§3.8): Audit + Build complete the
-    // Assurance trio — dispatched the same way as the other lazy-loaded
-    // panels above.
-    if (kind === 'audit') { _loadAudit(window._study); }
-    if (kind === 'build') { _loadBuild(window._study); }
+    // 5-tab study layout (Phase 1): removed tabs' loaders now fire from the tab
+    // that re-homed them, so every re-homed panel's content loads when its new
+    // home opens (and never shows an empty box on a subtab switch).
+    //  • Visualizations gallery  -> its own Visualizations tab (visualize)
+    //  • Readouts + Build        -> Model (compose)
+    //  • Results + Analyses      -> Simulations subtabs (simulate)
+    //  • Tests                   -> Audit
+    if (kind === 'visualize') {
+      _loadCharts('viz-charts-panel'); _loadNativeGallery(); _loadRemoteFigures();
+    }
+    if (kind === 'compose') {
+      _loadModelConfig(); _loadModelCards();
+      _loadReadouts(); _loadReadoutsDownloadPointer();
+      _loadBuild(window._study);
+    }
+    if (kind === 'simulate') {
+      _loadStudySims();
+      _loadResults();
+      _loadAnalyses(); _loadRemoteAnalyses();
+    }
+    if (kind === 'audit') {
+      _loadTestsPanel(window._study);
+      _loadAudit(window._study);
+    }
+    if (kind === 'conclusions') {
+      // Decide tab leads with the plan/lifecycle stepper (server-rendered) +
+      // the same readiness gaps as Audit, surfaced here at the top.
+      if (window._renderAuditReadiness) window._renderAuditReadiness(window._study);
+    }
     // Textareas measured 0 while their tab was hidden; re-fit the now-visible
     // panel's auto-grow boxes so they show all content without a scrollbar.
     if (window._autoGrowTextareas) window._autoGrowTextareas();
   }
   window._setStudyTab = _setStudyTab;
+
+  // Simulations secondary subtabs (Runs | Results | Analysis). The three inner
+  // panels all live inside #panel-simulate and their loaders already fire when
+  // the Simulations tab opens (see dispatch above), so this only toggles which
+  // inner panel is visible — vanilla show/hide, matching the top-level pillars.
+  function _setSimSubtab(sub) {
+    document.querySelectorAll('.sim-subtab').forEach(function (b) {
+      var on = b.dataset.subtab === sub;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.sim-subpanel').forEach(function (p) {
+      var on = p.dataset.subpanel === sub;
+      p.classList.toggle('active', on);
+      p.hidden = !on;
+    });
+    if (window._autoGrowTextareas) window._autoGrowTextareas();
+  }
+  window._setSimSubtab = _setSimSubtab;
 
   // Cross-tab link helper (Fable §6 #15, Task C1): a link on any tab can
   // point at an anchor that lives inside a DIFFERENT, currently-hidden tab
@@ -132,11 +165,19 @@
   // target is inside a display:none panel. Reuses _setStudyTab for the
   // actual show/hide (no duplicated switch logic) and then scrolls once the
   // panel is visible. C2 (findings ledger) wires the primary callers.
+  // 5-tab layout: when the anchor lives inside a Simulations subpanel
+  // (Results/Analysis), also activate that subtab so the scroll target isn't
+  // left inside a hidden subpanel.
   function _gotoStudyTab(kind, anchor) {
     _setStudyTab(kind);
     if (!anchor) return;
     var el = document.getElementById(anchor);
-    if (!el || !el.scrollIntoView) return;
+    if (!el) return;
+    if (kind === 'simulate') {
+      var sp = el.closest && el.closest('.sim-subpanel');
+      if (sp && sp.dataset.subpanel) _setSimSubtab(sp.dataset.subpanel);
+    }
+    if (!el.scrollIntoView) return;
     try { el.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch (e) {}
   }
   window._gotoStudyTab = _gotoStudyTab;
@@ -155,7 +196,6 @@
     _readoutsLoaded = true;
     var host = document.getElementById('readouts-table');
     var emitterHost = document.getElementById('readouts-emitter');
-    var shapesHost = document.getElementById('readouts-shapes');
     if (!host) return;
     var slug = host.getAttribute('data-study') || studyName();
     if (!slug) return;
@@ -169,16 +209,13 @@
         if (emitterHost) emitterHost.innerHTML = _renderEmitterBlock(j && j.emitter);
         if (!j || !Array.isArray(j.rows)) {
           host.innerHTML = '<p class="empty-message">Readouts unavailable.</p>';
-          if (shapesHost) shapesHost.innerHTML = '<p class="empty-message">Output shapes unavailable.</p>';
           return;
         }
         host.innerHTML = _renderReadoutsTable(j);
-        if (shapesHost) shapesHost.innerHTML = _renderReadoutsShapesTable(j.rows);
       })
       .catch(function() {
         host.innerHTML = '<p class="empty-message">Readouts unavailable.</p>';
         if (emitterHost) emitterHost.innerHTML = '<p class="empty-message">Emitter configuration unavailable.</p>';
-        if (shapesHost) shapesHost.innerHTML = '<p class="empty-message">Output shapes unavailable.</p>';
       });
   }
 
@@ -186,56 +223,27 @@
   // emit scope. `em` may be absent/partial (a study spec that failed to
   // parse never reaches the emitter block) — degrade to an empty note rather
   // than throw.
+  // Compact one-line emitter summary: kind · how often · what it emits → output.
+  // Auto-filled from the composite's resolved default emitter (always computable).
   function _renderEmitterBlock(em) {
     var e = escapeHtmlForTests;
-    var dash = '<span class="muted">—</span>';
     if (!em || !em.name) {
-      return '<p class="empty-message">No emitter configuration declared.</p>';
+      return '<p class="muted" style="font-size:0.88em">Emitter: default (unresolved).</p>';
     }
-    var errNote = em.error ? '<p class="muted" style="color:#92400e">' + e(em.error) + '</p>' : '';
-    var rows = [
-      ['Emitter', (em.class_name ? '<code>' + e(em.class_name) + '</code> (' + e(em.name) + ')' : '<code>' + e(em.name) + '</code>')],
-      ['Module', em.module ? '<code style="font-size:0.85em;">' + e(em.module) + '</code>' : dash],
-      ['Output kind', em.output_kind ? e(em.output_kind) : dash],
-      ['Emit interval', (em.interval === null || em.interval === undefined) ? dash : (e(String(em.interval)) + ' tick(s)')],
-      ['Buffer', (em.buffer === null || em.buffer === undefined) ? dash : (e(String(em.buffer)) + ' emits')],
-      ['Output dir', em.output_dir ? '<code style="font-size:0.85em;">' + e(em.output_dir) + '</code>' : dash],
-      ['Emit scope', em.scope ? e(em.scope) : dash],
-    ];
-    var body = rows.map(function (r) {
-      return '<tr style="border-bottom:1px solid #f1f5f9;">'
-        + '<td style="padding:6px; font-weight:600; width:140px; vertical-align:top;">' + r[0] + '</td>'
-        + '<td style="padding:6px; vertical-align:top;">' + r[1] + '</td></tr>';
-    }).join('');
-    return errNote + '<table class="observables-table" style="width:100%; border-collapse: collapse;"><tbody>' + body + '</tbody></table>';
-  }
-
-  // Block 3: Outputs & shapes — store path / dtype / shape / units / bytes,
-  // one row per confirmed emit leaf (rows without a `shape` — derived /
-  // not-in-plan / unverified — are omitted; they have no verified structure
-  // to describe, and already show up flagged in the Emitted paths block).
-  function _renderReadoutsShapesTable(rows) {
-    var e = escapeHtmlForTests;
-    var shaped = (rows || []).filter(function (o) { return o.store_path && Array.isArray(o.shape); });
-    if (!shaped.length) {
-      return '<p class="empty-message">No output shapes available (composite unbuilt, or no emitted paths).</p>';
-    }
-    var head = '<table class="observables-table" style="width:100%; border-collapse: collapse;"><thead><tr>'
-      + ['Store path', 'dtype', 'Shape', 'Units', 'Bytes'].map(function (h) {
-          return '<th style="text-align:left; padding:6px; border-bottom:1px solid #e2e8f0;">' + h + '</th>';
-        }).join('') + '</tr></thead><tbody>';
-    var body = shaped.map(function (o) {
-      var dims = o.shape.map(function (d) { return String(d); });
-      var shapeStr = '(' + dims.join(', ') + (dims.length === 1 ? ',' : '') + ')';
-      return '<tr style="border-bottom:1px solid #f1f5f9;">'
-        + '<td style="padding:6px;"><code style="font-size:0.85em;">' + e(o.store_path) + '</code></td>'
-        + '<td style="padding:6px;">' + e(o.dtype || '') + '</td>'
-        + '<td style="padding:6px;"><code style="font-size:0.85em;">' + e(shapeStr) + '</code></td>'
-        + '<td style="padding:6px;">' + e(o.units || '') + '</td>'
-        + '<td style="padding:6px;">' + (o.bytes != null ? e(_fmtBytes(o.bytes)) : '<span class="muted">—</span>') + '</td>'
-        + '</tr>';
-    }).join('');
-    return head + body + '</tbody></table>';
+    var kind = em.class_name || em.name;
+    var every = (em.interval === 1) ? 'every tick'
+      : (em.interval === null || em.interval === undefined) ? 'default cadence'
+      : ('every ' + e(String(em.interval)) + ' ticks');
+    var scope = (em.scope === 'declared') ? 'declared observables' : e(em.scope || 'declared observables');
+    var out = em.output_dir ? (' <span class="muted">&rarr;</span> <code style="font-size:0.82em">' + e(em.output_dir) + '</code>') : '';
+    var errNote = em.error ? ' <span class="muted" style="color:#92400e">(' + e(em.error) + ')</span>' : '';
+    var sep = '<span class="muted">·</span>';
+    return '<div style="font-size:0.9em;color:#475569;display:flex;align-items:center;gap:7px;flex-wrap:wrap">'
+      + '<span style="font-weight:600;color:#334155">Emitter</span>'
+      + '<code style="font-size:0.82em">' + e(kind) + '</code>'
+      + sep + '<span>' + every + '</span>'
+      + sep + '<span>' + scope + '</span>'
+      + out + errNote + '</div>';
   }
 
   // ── Readouts tab: pointer to the raw-data downloads that live under Results ──
@@ -268,7 +276,7 @@
         var withData = sims.filter(function (s) { return s.run_id && (s.store_path || s.db_path); });
         host.innerHTML = withData.length
           ? '<p class="muted">⬇ Download this study\'s raw run data → '
-            + '<a href="#" onclick="_gotoStudyTab(\'results\',\'exports-downloads\');return false;">Results</a></p>'
+            + '<a href="#" onclick="_gotoStudyTab(\'simulate\',\'exports-downloads\');return false;">Simulations › Results</a></p>'
           : '';
       })
       .catch(function () { host.innerHTML = ''; });
@@ -288,8 +296,9 @@
     var e = escapeHtmlForTests;
     var files = (j && j.files) || [];
     if (!files.length) {
-      return '<p class="empty-message">No result files yet. Analysis steps write '
-        + '<code>.csv</code>/<code>.tsv</code> files here once this study has run.</p>';
+      return '<p class="empty-message">No derived result files. Analysis steps write '
+        + '<code>.csv</code>/<code>.tsv</code> tables here when a study runs them; this study’s '
+        + 'evidence is assessed by its behavior-test report cards — see <strong>Tests</strong>.</p>';
     }
     // Group by parent dir so ptools/ and per-run analysis tables read cleanly.
     var groups = {}, order = [];
@@ -564,6 +573,8 @@
   // silently did nothing. Define it here (the shell loads study-detail.js).
   // Probe first: the zip only holds declared IMAGE files, and in a snapshot an
   // absent file 404s; a bare <a download> to a 404 reads as a broken button.
+  // (The "↓ Figures" jump button + _vivStudyJumpToFigures were removed — the
+  // figures now live in their own Visualizations tab, opened via _setStudyTab.)
   window._vivStudyFiguresFromCard = function (ev, slug) {
     if (ev && ev.stopPropagation) ev.stopPropagation();
     var c = window.__DASH_CONFIG__ || {};
@@ -680,7 +691,7 @@
       _loadCharts('viz-charts-panel');
       return {
         count: 0,
-        html: '<p class="muted" style="margin:0;font-size:0.85em">figures load on the Visualizations tab</p>',
+        html: '<p class="muted" style="margin:0;font-size:0.85em">figures load on the Overview tab</p>',
       };
     }
     return {
@@ -715,7 +726,7 @@
     }
     return '<p class="muted" style="margin:0;font-size:0.85em">' + n + ' report card'
       + (n === 1 ? '' : 's') + ' for this study — '
-      + '<a href="#" onclick="_gotoStudyTab(\'tests\');return false;">view on the Tests tab</a></p>';
+      + '<a href="#" onclick="_gotoStudyTab(\'audit\');return false;">view on the Audit tab</a></p>';
   }
 
   // Task E3: compact results/analysis line — surfaces values already known
@@ -799,12 +810,75 @@
       .catch(function () { panel.innerHTML = ''; _remoteFiguresLoaded = false; });
   }
   window._loadRemoteFigures = _loadRemoteFigures;
+  // Overview "key figure": embed this study's first native-gallery panel (the
+  // headline plotly) inline on the Overview, isolated in an iframe so its
+  // bundled plotly doesn't touch the page. Degrades to hidden when no run/panel.
+  var _overviewKeyFigureLoaded = false;
+  function _loadOverviewKeyFigure() {
+    var host = document.getElementById('overview-key-figure');
+    if (!host || _overviewKeyFigureLoaded) return;
+    _overviewKeyFigureLoaded = true;
+    fetch(window.DataSource.nativeGalleryUrl(studyName()))
+      .then(function (r) { return r.ok ? r.json() : { panels: {} }; })
+      .then(function (d) {
+        var panels = (d && d.panels) || {};
+        var names = Object.keys(panels);
+        if (!names.length) { host.style.display = 'none'; return; }
+        var ifr = document.createElement('iframe');
+        ifr.setAttribute('title', names[0]);
+        ifr.setAttribute('loading', 'lazy');
+        ifr.srcdoc = panels[names[0]];
+        host.innerHTML = '';
+        host.appendChild(ifr);
+        var cap = document.createElement('div');
+        cap.className = 'ov-keyfig-cap';
+        cap.textContent = 'Key figure — ' + names[0] + ' · full set in Visualizations';
+        host.appendChild(cap);
+      })
+      .catch(function () { host.style.display = 'none'; });
+  }
+
+  // Grow each native figure iframe to its full content height so the figure
+  // shows in full instead of scrolling inside a fixed-height window. srcdoc
+  // iframes are same-origin, so we can read the rendered height; Plotly lays out
+  // asynchronously, so we re-measure on load, after a few delays, and via a
+  // ResizeObserver on the iframe body.
+  function _autosizeNativeFrames(host) {
+    var frames = host.querySelectorAll('iframe.figure-media-frame--native');
+    Array.prototype.forEach.call(frames, function (ifr) {
+      function fit() {
+        try {
+          var doc = ifr.contentDocument || (ifr.contentWindow && ifr.contentWindow.document);
+          if (!doc || !doc.body) return;
+          var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+          if (h > 40) ifr.style.height = (h + 6) + 'px';
+        } catch (e) { /* cross-origin shouldn't happen for srcdoc */ }
+      }
+      ifr.addEventListener('load', function () {
+        fit();
+        [150, 450, 1000, 2000].forEach(function (ms) { setTimeout(fit, ms); });
+        try {
+          var doc = ifr.contentDocument;
+          if (doc && doc.body && window.ResizeObserver) {
+            new ResizeObserver(fit).observe(doc.body);
+          }
+        } catch (e) { /* no-op */ }
+      });
+      // Already-complete (e.g. cached) frames never fire a fresh load event.
+      try {
+        if (ifr.contentDocument && ifr.contentDocument.readyState === 'complete') {
+          fit(); [150, 450, 1000].forEach(function (ms) { setTimeout(fit, ms); });
+        }
+      } catch (e) { /* no-op */ }
+    });
+  }
+
   function _loadNativeGallery() {
     var host = document.getElementById('native-gallery-panel');
     if (!host || _nativeGalleryLoaded) return;
     _nativeGalleryLoaded = true;
     var slug = studyName();
-    fetch('/api/study-native-gallery/' + encodeURIComponent(slug))
+    fetch(window.DataSource.nativeGalleryUrl(slug))
       // Check r.ok before r.json(): a non-OK response (404 in a static snapshot
       // where this live-only endpoint is absent, or 5xx from an errored live
       // route) is treated as "no panels" -> the clean empty state below, not the
@@ -849,6 +923,7 @@
             + '</div>';
         }).join('');
         _wireFigureRunLinks(host);
+        _autosizeNativeFrames(host);
         _figuresSourceState.native = true;
         _updateFiguresEmptyState();
         _nativeGalleryRunId = runId || null;  // Task E3: settled
@@ -971,6 +1046,35 @@
   // The per-store PREVIEW of the latest run (sparkline + first/last/min/max)
   // is _loadResultsPreview above; _loadResults triggers both.
   var _rawDataLoaded = false;
+  // Compact run-summary header for the Results tab: run count, completed,
+  // latest run + when, step count, emitter — all from the /api/simulations rows.
+  function _renderResultsSummary(rows, esc) {
+    esc = esc || function (x) { return String(x == null ? '' : x); };
+    if (!rows || !rows.length) {
+      return '<p class="muted" style="font-size:0.88em">No runs yet — launch one from <strong>Simulations</strong>.</p>';
+    }
+    var done = rows.filter(function (r) { return String(r.status || '').toLowerCase() === 'completed'; }).length;
+    var latest = rows.slice().sort(function (a, b) {
+      return (new Date(b.created || b.started || 0)) - (new Date(a.created || a.started || 0));
+    })[0] || rows[rows.length - 1];
+    var emitters = {};
+    rows.forEach(function (r) { if (r.emitter_type) emitters[r.emitter_type] = 1; });
+    var emList = Object.keys(emitters);
+    var chips = [];
+    chips.push('<strong>' + rows.length + '</strong> run' + (rows.length === 1 ? '' : 's'));
+    chips.push('<span style="color:#059669;font-weight:600">' + done + '</span> completed');
+    if (latest) {
+      var lbl = latest.sim_name || latest.label || latest.run_id || '';
+      chips.push('latest <code style="font-size:0.82em">' + esc(lbl) + '</code>');
+      var when = latest.created || latest.started;
+      if (when) chips.push('<span class="muted">' + esc(String(when).slice(0, 16).replace('T', ' ')) + '</span>');
+      if (latest.n_steps != null) chips.push(esc(String(latest.n_steps)) + ' steps');
+    }
+    if (emList.length) chips.push('emitter <code style="font-size:0.82em">' + esc(emList.join(', ')) + '</code>');
+    return '<div style="font-size:0.9em;color:#475569;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      + chips.join('<span class="muted">·</span>') + '</div>';
+  }
+
   function _loadResults(force) {
     _loadResultsPreview(force);
     var mount = document.getElementById('raw-data-list');
@@ -985,6 +1089,8 @@
     fetch(url).then(function (r) { return r.text(); }).then(function (t) {
       var d = {}; try { d = t ? JSON.parse(t) : {}; } catch (e) {}
       var rows = (DS && DS.simulationsFilter) ? DS.simulationsFilter(d.simulations || [], slug) : (d.simulations || []);
+      var summaryHost = document.getElementById('results-summary');
+      if (summaryHost) summaryHost.innerHTML = _renderResultsSummary(rows, esc);
       if (!rows.length) {
         mount.innerHTML = '<p class="empty-message">No runs with persisted data yet.</p>';
         if (bulkBtn) bulkBtn.style.display = 'none';
@@ -1200,10 +1306,17 @@
     var html = '<div class="model-source">';
     procs.forEach(function (p) {
       var addr = String(p.address).split(':').pop();
+      // Structured, scannable config view (chip grids for scalar dicts, tables
+      // for uniform-object arrays like a CPM contact matrix, type-colored
+      // values) — falls back to the flat YAML <pre> if composite-card.js's
+      // _configView isn't loaded.
+      var cfgBody = (typeof window._jsonViewer === 'function')
+        ? window._jsonViewer(p.config)
+        : '<pre class="model-source-pre">' + esc(_yamlish(p.config, 0)) + '</pre>';
       html += '<div class="model-source-block">' +
         '<div class="model-source-head"><strong>' + esc(p.name) + '</strong>' +
         (addr ? ' <span class="muted">— ' + esc(addr) + '</span>' : '') + '</div>' +
-        '<pre class="model-source-pre">' + esc(_yamlish(p.config, 0)) + '</pre>' +
+        '<div class="model-source-body">' + cfgBody + '</div>' +
         '</div>';
     });
     html += '</div>';
@@ -1238,8 +1351,8 @@
     wrap.innerHTML =
       '<details class="model-config-used" open style="margin:0">' +
       '<summary class="muted" style="font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer">' +
-      'Config used <span style="font-weight:400;text-transform:none">— source of truth: <code>' + esc(ref) + '</code>, run by both arms</span></summary>' +
-      '<pre class="study-config-pre" style="font-size:0.8em;line-height:1.45;background:var(--surface-2,#f6f8fa);border:1px solid var(--border,#e1e4e8);border-radius:6px;padding:8px 10px;margin:4px 0 0;overflow:auto;max-height:420px">Resolving ' + esc(ref) + ' …</pre></details>';
+      'Run parameters <span style="font-weight:400;text-transform:none">— the knobs this study runs the model with (source of truth: <code>' + esc(ref) + '</code>, run by both arms)</span></summary>' +
+      '<div class="study-config-pre cfgv-host" style="font-size:0.8em;line-height:1.45;background:var(--surface-2,#f6f8fa);border:1px solid var(--border,#e1e4e8);border-radius:6px;padding:8px 10px;margin:4px 0 0;overflow:auto;max-height:420px">Resolving ' + esc(ref) + ' …</div></details>';
     mount.appendChild(wrap);
     var pre = wrap.querySelector('.study-config-pre');
     var api = (window.DataSource && window.DataSource.apiUrl)
@@ -1254,7 +1367,8 @@
         // config itself, the experiment definition a reader cares about.
         var shown = {};
         Object.keys(j.content).forEach(function (k) { if (k[0] !== '_') shown[k] = j.content[k]; });
-        pre.textContent = _yamlish(shown);
+        if (typeof window._jsonViewer === 'function') { pre.innerHTML = window._jsonViewer(shown); }
+        else { pre.style.whiteSpace = 'pre'; pre.textContent = _yamlish(shown); }
       })
       .catch(function () { if (pre) pre.textContent = ref + ' (could not load config)'; });
   }
@@ -1262,6 +1376,15 @@
   function _loadModelCards(force) {
     var mount = document.getElementById('model-composite-cards');
     if (!mount) return;
+    // Planned design (Design phase): render the declared contract + proposed
+    // mechanisms/methods at the top of the Model tab, so a study with no built
+    // composite yet still shows its planned model/interface. Idempotent slot.
+    var _pdSpec = window._study || {};
+    var _pdHtml = _pdContractHtml(_pdSpec.contract, 'Typed interface — ports, units, bounds + conservation predicates') +
+                  _pdListHtml('Proposed mechanisms', _pdSpec.proposed_mechanisms) +
+                  _pdListHtml('Proposed models & methods', _pdSpec.proposed_models_methods);
+    var _pdSlotEl = _pdSlot(document.getElementById('panel-compose'), 'model-planned-design');
+    if (_pdSlotEl) _pdSlotEl.innerHTML = _pdHtml;
     if (_modelCardsLoaded && !force) return;
     _modelCardsLoaded = true;
     var panel = document.getElementById('panel-compose');
@@ -1337,13 +1460,30 @@
       // the same thing shown twice (or the confusing run_config vs whole_config
       // split). Only shown for single-model studies with no canonical config.
       if (!_hasStudyCfg && _cfgObj && Object.keys(_cfgObj).length) {
+        var _cfgUsedBody = (typeof window._jsonViewer === 'function')
+          ? window._jsonViewer(_cfgObj)
+          : '<pre style="white-space:pre;margin:0">' + esc(_yamlish(_cfgObj)) + '</pre>';
         _cfgUsedHtml = '<details class="model-config-used" open style="margin:0 0 8px 0">' +
-          '<summary class="muted" style="font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer">Config used</summary>' +
-          '<pre class="model-config-used-pre" style="font-size:0.8em;line-height:1.45;background:var(--surface-2,#f6f8fa);border:1px solid var(--border,#e1e4e8);border-radius:6px;padding:8px 10px;margin:4px 0 0;overflow:auto;max-height:360px">' +
-          esc(_yamlish(_cfgObj)) + '</pre></details>';
+          '<summary class="muted" style="font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer">Run parameters <span style="font-weight:400;text-transform:none">— the knobs this study runs the model with</span></summary>' +
+          '<div class="model-config-used-pre cfgv-host" style="font-size:0.8em;line-height:1.45;background:var(--surface-2,#f6f8fa);border:1px solid var(--border,#e1e4e8);border-radius:6px;padding:8px 10px;margin:4px 0 0;overflow:auto;max-height:360px">' +
+          _cfgUsedBody + '</div></details>';
       }
-      wrap.innerHTML = '<div class="muted" style="font-size:0.78em;font-weight:600;margin:0 0 4px 2px;text-transform:uppercase;letter-spacing:0.02em">' +
-        entry.labels.map(esc).join(' · ') + '</div>' +
+      // Header for this model: the COMPOSITE being configured (its short name),
+      // not the raw uppercased study slug (which read as a cryptic
+      // "REPRO-FIG5-VIRAL-LOAD"). Any arm labels that add real info beyond the
+      // study slug / composite id (e.g. a variant name) are appended.
+      var _studySlug = (typeof studyName === 'function' ? (studyName() || '') : '').toLowerCase();
+      var _shortId = String(entry.id).split('.').pop();
+      var _armExtra = entry.labels.filter(function (l) {
+        var lc = String(l || '').toLowerCase();
+        return lc && lc !== _studySlug && lc !== _shortId.toLowerCase() && lc !== 'baseline';
+      });
+      var _armHdr = '<div class="model-arm-head" style="display:flex;gap:7px;align-items:baseline;margin:0 0 5px 2px">' +
+        '<span style="font-size:0.68em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted,#8a94a0)">Composite</span>' +
+        '<code style="font-size:0.86em;font-weight:600">' + esc(_shortId) + '</code>' +
+        (_armExtra.length ? '<span class="muted" style="font-size:0.8em">· ' + _armExtra.map(esc).join(' · ') + '</span>' : '') +
+        '</div>';
+      wrap.innerHTML = _armHdr +
         _cfgUsedHtml +
         '<p class="muted" style="font-size:0.85em;margin:0">Resolving composite…</p>';
       mount.appendChild(wrap);
@@ -1370,7 +1510,8 @@
             Object.keys(_cfgObj).forEach(function (k) {
               if (k !== 'whole_config' && k !== 'config_file') merged[k] = _cfgObj[k];
             });
-            _preEl.textContent = _yamlish(merged);
+            if (typeof window._jsonViewer === 'function') { _preEl.innerHTML = window._jsonViewer(merged); }
+            else { _preEl.style.whiteSpace = 'pre'; _preEl.textContent = _yamlish(merged); }
           })
           .catch(function () { /* keep the bare-path fallback already rendered */ });
       }
@@ -1427,9 +1568,10 @@
           _renderCompositeSource(cfgHost, body.state, esc);
           if (cfgHost.firstChild) {
             var head = document.createElement('div');
-            head.className = 'muted';
-            head.style.cssText = 'font-size:0.78em;font-weight:600;margin:2px 0 4px 2px;text-transform:uppercase;letter-spacing:0.02em';
-            head.textContent = 'Configuration';
+            head.style.cssText = 'margin:8px 0 4px 2px';
+            head.innerHTML =
+              '<div class="muted" style="font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.02em">Model configuration</div>' +
+              '<div class="muted" style="font-size:0.76em;font-weight:400;opacity:0.82;margin-top:1px">The fully resolved composite — each process’s complete config (what the run parameters above expand into).</div>';
             wrap.insertBefore(cfgHost, cardEl);
             wrap.insertBefore(head, cfgHost);
           }
@@ -1940,6 +2082,15 @@
       .then(function (data) { return (data && data.classes || []).filter(function (c) { return c.kind === 'analysis'; }); })
       .catch(function () { return []; })
       .then(function (classes) {
+        // No ANALYSIS_REGISTRY entries and nothing declared → the dispatch-time
+        // analysis picker is N/A for this workspace; hide the whole control
+        // rather than show an empty "No analyses registered / Save" block.
+        var section = document.getElementById('study-analyses-section');
+        if (!classes.length && !declared.length) {
+          if (section) section.style.display = 'none';
+          return;
+        }
+        if (section) section.style.display = '';
         var known = {};
         var items = classes.map(function (c) {
           known[c.name] = true;
@@ -2615,6 +2766,14 @@
   // fill instead of popping between polls.
   var _chainProgressStart = null;
 
+  // Whether THIS workspace has a remote compute backend (viva-api/sms-api)
+  // configured. A local-only workspace (a bench process-bigraph workspace) has
+  // none — so the remote-dispatch affordances (⚙ Dispatch composite + the remote
+  // chain-progress poller below) must stay hidden and the UI must not even mention
+  // sms-api. Resolved once from /api/source/remote-health by _gateRemoteDispatch();
+  // default false so a local workspace is never coupled to a remote it lacks.
+  var _remoteConfigured = false;
+
   function _chainProgressEl() {
     var el = document.getElementById('study-chain-progress');
     if (!el) {
@@ -2738,6 +2897,10 @@
   }
 
   function _pollChainProgress(runId) {
+    // Local-only workspace: there is no remote backend to report chain progress,
+    // so never poll /api/remote-run-chain-progress (it would surface a spurious
+    // "sms-api unreachable"). Local runs track progress via the Runs tab refresh.
+    if (!_remoteConfigured) return;
     if (_chainProgressTimer) { clearTimeout(_chainProgressTimer); _chainProgressTimer = null; }
     // A legacy run is an integer simulation id; a /viva/v1 run (serve --backend-base-url)
     // carries the backend's opaque string id, asked for as run_id.
@@ -2806,6 +2969,25 @@
     if (!panel) return;
     panel.style.display = (panel.style.display === 'none') ? '' : 'none';
   });
+
+  // Gate the remote-dispatch affordances on whether this workspace actually has a
+  // remote compute backend configured. ⚙ Dispatch composite targets viva-api/AWS
+  // Batch/Nextflow; a local-only workspace has no such backend, so the button (and
+  // the sms-api progress poller) must not appear — the study view must not even
+  // know about sms-api. Default-hidden; revealed only once /api/source/remote-health
+  // confirms `configured:true`. In a published snapshot the fetch simply fails →
+  // stays hidden, matching the snapshot-mode run-button hide.
+  (function _gateRemoteDispatch() {
+    var dispatchBtn = document.getElementById('study-run-composite');
+    if (dispatchBtn) dispatchBtn.style.display = 'none';
+    if (typeof _isSnapshot === 'function' && _isSnapshot()) return;
+    api('GET', '/api/source/remote-health')
+      .then(function (r) {
+        _remoteConfigured = !!(r && r.status === 200 && r.body && r.body.configured);
+        if (_remoteConfigured && dispatchBtn) dispatchBtn.style.display = '';
+      })
+      .catch(function () { _remoteConfigured = false; });
+  })();
 
   // #cp-dispatch's own click (rendered dynamically inside _compositePanelEl,
   // so bound here via delegation rather than at panel-creation time) with the
@@ -2887,6 +3069,189 @@
       });
   });
 
+  // Gate "↻ Reproduce" on whether the latest run is actually replayable. It
+  // replays a run's recorded manifest via /api/study-reproduce → cli_runs.find_run,
+  // which only scans study runs.db + the workspace composite-runs.db. A study whose
+  // runs come from the canonical runner (store_path under canonical-runs/, db_path
+  // null — the norm for a bench workspace like this one) is NOT in those DBs, so
+  // reproduce 404s "run not found". Rather than offer a button that always errors,
+  // hide it unless the latest run is reproducible (db_path set, e.g. dashboard-
+  // managed runs in v2ecoli). "Run current spec" (re-derive + launch) stays as the
+  // reliable action. Default-hidden; revealed only once a replayable run is seen.
+  (function _gateReproduce() {
+    var rbtn = document.getElementById('study-reproduce');
+    if (!rbtn) return;
+    rbtn.style.display = 'none';
+    if (typeof _isSnapshot === 'function' && _isSnapshot()) return;
+    var slug = studyName();
+    var _ds = window.DataSource;
+    var url = (_ds && _ds.simulationsUrl) ? _ds.apiUrl(_ds.simulationsUrl(slug))
+      : '/api/simulations?study=' + encodeURIComponent(slug);
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var sims = (_ds && _ds.simulationsFilter) ? _ds.simulationsFilter((d && d.simulations) || [], slug) : ((d && d.simulations) || []);
+        var latest = sims.length ? sims[0] : null;
+        // Replayable iff find_run can locate it: a study/composite runs.db row
+        // (db_path set), not a canonical-runs-only output.
+        if (latest && latest.run_id && latest.db_path) rbtn.style.display = '';
+      })
+      .catch(function () { /* leave hidden — err on the side of not offering a broken action */ });
+  })();
+
+  // Narrative navigation: "Next study →" follows this investigation's leads-to
+  // chain. Works in BOTH contexts: embedded in the investigation graph view (it
+  // delegates to the parent so the graph highlight + embedded tab stay in sync),
+  // AND standalone (opened from the Studies sidebar) — where it computes "next"
+  // from the investigation itself and navigates directly. Hidden only on a
+  // genuinely terminal study or outside any investigation.
+  // Study navigator: ← prev / next → along the investigation chain, plus a
+  // "⇄ Studies" jump menu to ANY study (grouped: this study's parents it builds
+  // on, what it leads to, and all). Prev/next prefer the typed DAG edges
+  // (parent_studies) and fall back to declared order. Works standalone (full
+  // page nav) and embedded in the graph view (opens a tab in the parent).
+  (function _wireStudyNav() {
+    var nav = document.getElementById('study-nav');
+    if (!nav) return;
+    // When shown EMBEDDED inside the investigation view (in an iframe), the
+    // graph bar owns study navigation (its own ←/⇄/→ drives this iframe), so the
+    // in-header navigator is redundant — hide it. On the STANDALONE study page
+    // (window.parent === window) there is no graph bar, so keep it.
+    var _embedded = false;
+    try { _embedded = window.parent && window.parent !== window; } catch (e) { _embedded = false; }
+    if (_embedded) { nav.style.display = 'none'; return; }
+    var prevBtn = document.getElementById('study-prev');
+    var nextBtn = document.getElementById('study-next');
+    var jumpBtn = document.getElementById('study-jump-btn');
+    var jumpMenu = document.getElementById('study-jump-menu');
+    var current = studyName();
+    var base = (window.__BASE_PATH__ || '');
+
+    function _go(slug) {
+      if (!slug) return;
+      try {
+        var p = window.parent;
+        if (p && p !== window && typeof p._openStudyEmbeddedNewTab === 'function') {
+          p._openStudyEmbeddedNewTab(slug); return;
+        }
+      } catch (e) { /* fall through to standalone */ }
+      window.location = base + '/studies/' + encodeURIComponent(slug);
+    }
+
+    var inv = nav.getAttribute('data-investigation') || (window._study && window._study.investigation);
+    if (!inv) { nav.style.display = 'none'; return; }
+
+    fetch(base + '/api/investigation/' + encodeURIComponent(inv))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { nav.style.display = 'none'; return; }
+        var studies = d.studies || d.members || [];
+        var nameOf = function (s) { return (typeof s === 'string') ? s : (s && (s.name || s.slug || s.study)); };
+        var titleOf = function (s) { return (s && typeof s === 'object' && s.title) ? s.title : nameOf(s); };
+        var order = studies.map(nameOf).filter(Boolean);
+        if (!order.length) { nav.style.display = 'none'; return; }
+        var byName = {}; studies.forEach(function (s) { var n = nameOf(s); if (n) byName[n] = s; });
+        var parentsOf = function (n) {
+          var s = byName[n]; var ps = (s && s.parent_studies) || [];
+          return ps.map(function (pk) { return (pk && typeof pk === 'object') ? (pk.study || pk.name || pk.slug) : pk; }).filter(Boolean);
+        };
+        var curParents = parentsOf(current).filter(function (n) { return byName[n]; });
+        var curChildren = order.filter(function (n) { return parentsOf(n).indexOf(current) >= 0; });
+        var idx = order.indexOf(current);
+        var prev = (idx > 0) ? order[idx - 1] : (curParents[0] || null);
+        var next = curChildren[0] || ((idx >= 0 && idx < order.length - 1) ? order[idx + 1] : null);
+
+        nav.style.display = 'inline-flex';
+        if (prev) { prevBtn.disabled = false; prevBtn.title = 'Previous: ' + prev; prevBtn.onclick = function () { _go(prev); }; }
+        else { prevBtn.disabled = true; prevBtn.title = 'No previous study'; }
+        if (next) { nextBtn.disabled = false; nextBtn.title = 'Next: ' + next; nextBtn.onclick = function () { _go(next); }; }
+        else { nextBtn.disabled = true; nextBtn.title = 'No next study'; }
+
+        function _item(n) {
+          return '<button type="button" class="study-jump-item' + (n === current ? ' current' : '')
+            + '" data-slug="' + _esc(n) + '">' + _esc(titleOf(byName[n]) || n) + '</button>';
+        }
+        var html = '';
+        if (curParents.length) html += '<div class="study-jump-group">Builds on</div>' + curParents.map(_item).join('');
+        if (curChildren.length) html += '<div class="study-jump-group">Leads to</div>' + curChildren.map(_item).join('');
+        html += '<div class="study-jump-group">All studies</div>' + order.map(_item).join('');
+        jumpMenu.innerHTML = html;
+        jumpMenu.querySelectorAll('.study-jump-item').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var slug = b.getAttribute('data-slug');
+            jumpMenu.style.display = 'none'; jumpBtn.setAttribute('aria-expanded', 'false');
+            if (slug && slug !== current) _go(slug);
+          });
+        });
+        jumpBtn.onclick = function (ev) {
+          ev.stopPropagation();
+          var open = jumpMenu.style.display !== 'none' && jumpMenu.style.display !== '';
+          jumpMenu.style.display = open ? 'none' : 'block';
+          jumpBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+        };
+        document.addEventListener('click', function (e) {
+          if (!e.target.closest || !e.target.closest('.study-jump-wrap')) {
+            jumpMenu.style.display = 'none'; jumpBtn.setAttribute('aria-expanded', 'false');
+          }
+        }, true);
+      })
+      .catch(function () { nav.style.display = 'none'; });
+  })();
+
+  // Export menu (Phase 4): the "⬇ Export ▾" button in the Overview panel's
+  // section toolbar opens a small dropdown (Download figures / Download
+  // notebook). The menu items keep the original handlers (wired inline in the
+  // template via _vivStudyFiguresFromCard / _vivStudyNotebookFromCard); this
+  // only toggles the dropdown open/closed with the same outside-click pattern
+  // the study navigator's jump menu uses.
+  (function _wireStudyExportMenu() {
+    var btn = document.getElementById('study-export-btn');
+    var menu = document.getElementById('study-export-menu');
+    if (!btn || !menu) return;
+    // Pop the menu OUT of the horizontally-scrolling .study-tabs bar. That nav
+    // is overflow-x:auto, which CLIPS an absolutely-positioned dropdown — so the
+    // menu opened INSIDE the bar and had to be scrolled to. Fixed positioning,
+    // right-aligned under the button, escapes the clip and overlays the page,
+    // matching the investigation-level ↓ Export dropdown.
+    function _place() {
+      var r = btn.getBoundingClientRect();
+      menu.style.position = 'fixed';
+      menu.style.top = (r.bottom + 4) + 'px';
+      menu.style.left = 'auto';
+      menu.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
+    }
+    btn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var open = menu.style.display !== 'none' && menu.style.display !== '';
+      if (open) {
+        menu.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        menu.style.display = 'block';
+        _place();
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+    // Keep it anchored while open (the fixed menu would otherwise drift from the
+    // button on scroll/resize); cheap and only runs while the menu is open.
+    ['scroll', 'resize'].forEach(function (evt) {
+      window.addEventListener(evt, function () {
+        if (menu.style.display === 'block') _place();
+      }, true);
+    });
+    // Close after choosing an item (the item's own onclick runs the download).
+    menu.querySelectorAll('[role="menuitem"]').forEach(function (it) {
+      it.addEventListener('click', function () {
+        menu.style.display = 'none'; btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.study-export-wrap')) {
+        menu.style.display = 'none'; btn.setAttribute('aria-expanded', 'false');
+      }
+    }, true);
+  })();
+
   // btn-delete has class "btn-delete danger" — selector ".btn-delete" still matches.
   // Handler _post_investigation_delete uses body key "name".
   bindAll('.btn-delete', function(btn) {
@@ -2934,10 +3299,8 @@
 
   // --- Runs ---
   bindAll('.btn-view-run', function(btn) {
-    // Per-run viewer: open the study-level Results view.
-    _setStudyTab('visualize');
-    var panel = document.getElementById('panel-visualize');
-    if (panel && panel.scrollIntoView) { try { panel.scrollIntoView({block: 'start'}); } catch (e) {} }
+    // Per-run viewer: open the study-level Visualizations tab (#visualize-section).
+    _gotoStudyTab('visualize', 'visualize-section');
   });
 
   // study-run-delete → _post_investigation_run_delete
@@ -3736,13 +4099,80 @@
   // Quality, Reproducibility) plus the Sourcing sub-panel. Quality/
   // Reproducibility MOVED here from the Tests panel's old _loadTestsPanel
   // (spec §3.6/§3.7); their loaders are unchanged, just dispatched from here.
+  // Readiness gaps as the actionable TOP of Audit — the same deterministic
+  // report linter the header "⚠ N readiness gaps" dropdown reads (_reportLint),
+  // but expanded and grouped by check, so the exact fixes to make the study
+  // release-ready lead the audit. Re-computes from the live linter (responsive
+  // to the current study state), AI-free.
+  // Readiness gaps render into BOTH the Audit tab (#audit-readiness) and the top
+  // of the Decide tab (#decide-readiness) — same deterministic linter, shown
+  // wherever the mount exists. Per-host guard so each populates once, whichever
+  // tab opens first.
+  function _renderAuditReadiness(spec) {
+    var hosts = ['audit-readiness', 'decide-readiness']
+      .map(function (id) { return document.getElementById(id); })
+      .filter(function (h) { return h && !h._readinessDone; });
+    if (!hosts.length) return;
+    var _setAll = function (html) { hosts.forEach(function (h) { h.innerHTML = html; h._readinessDone = true; }); };
+    var slug = hosts[0].getAttribute('data-slug') || (spec && spec.name) || studyName() || '';
+    _reportLint().then(function (j) {
+      var findings = (j.findings || []).filter(function (f) { return (f.study || '') === slug; });
+      if (!findings.length) {
+        _setAll('<div style="display:flex;align-items:center;gap:8px;padding:10px 13px;'
+          + 'border:1px solid #bbf7d0;background:#f0fdf4;border-radius:8px;font-size:0.9em;color:#166534">'
+          + '<strong>✓ Ready</strong><span style="color:#166534">no readiness gaps — the report '
+          + 'linter finds nothing to fix.</span></div>');
+        return;
+      }
+      var sev = { error: 0, warning: 0, info: 0 };
+      findings.forEach(function (f) { var s = f.severity || 'info'; if (sev[s] != null) sev[s]++; else sev.info++; });
+      var gaps = sev.error + sev.warning;
+      var byCheck = {};
+      findings.forEach(function (f) { var c = f.check || 'other'; (byCheck[c] = byCheck[c] || []).push(f); });
+      var checks = Object.keys(byCheck).sort(function (a, b) { return byCheck[b].length - byCheck[a].length; });
+      var groups = checks.map(function (c) {
+        var items = byCheck[c].map(function (f) {
+          var s = f.severity || 'info';
+          var dot = s === 'error' ? '#dc2626' : (s === 'warning' ? '#f59e0b' : '#3b82f6');
+          var fix = f.fix || f.hint || f.suggestion || '';
+          var loc = f.field_path ? ' <code style="font-size:0.78em;color:#94a3b8">' + _esc(f.field_path) + '</code>' : '';
+          return '<li style="margin-top:5px;line-height:1.4"><span style="color:' + dot + ';font-weight:700">●</span> '
+            + _esc(f.message || '') + loc
+            + (fix ? '<div class="muted" style="margin:2px 0 0 16px;font-size:0.92em">→ ' + _esc(fix) + '</div>' : '')
+            + '</li>';
+        }).join('');
+        return '<div style="margin-top:10px"><code>' + _esc(c) + '</code> '
+          + '<span class="muted" style="font-size:0.82em">(' + byCheck[c].length + ')</span>'
+          + '<ul style="margin:3px 0 0 18px;font-size:0.9em;padding:0;list-style:none">' + items + '</ul></div>';
+      }).join('');
+      var headColor = sev.error ? '#dc2626' : (sev.warning ? '#92400e' : '#1e40af');
+      var counts = [];
+      if (sev.error) counts.push(sev.error + ' error' + (sev.error === 1 ? '' : 's'));
+      if (sev.warning) counts.push(sev.warning + ' warning' + (sev.warning === 1 ? '' : 's'));
+      if (sev.info) counts.push(sev.info + ' note' + (sev.info === 1 ? '' : 's'));
+      _setAll(
+        '<div style="border:1px solid #fde68a;background:#fffbeb;border-radius:8px;padding:12px 14px">'
+        + '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">'
+        + '<strong style="color:' + headColor + ';font-size:1.02em">⚠ ' + gaps + ' readiness gap'
+        + (gaps === 1 ? '' : 's') + ' to close</strong>'
+        + '<span class="muted" style="font-size:0.82em">' + _esc(counts.join(' · ')) + '</span>'
+        + '<span class="muted" style="font-size:0.82em;margin-left:auto">code-computed — report linter (deterministic)</span>'
+        + '</div>' + groups + '</div>');
+    }).catch(function () { /* allow retry on next tab open (no host marked done) */ });
+  }
+  window._renderAuditReadiness = _renderAuditReadiness;
+
   function _loadAudit(spec) {
+    _renderAuditReadiness(spec);
     _loadAuditSufficiency(spec);
     _loadQualityChecks(spec);
     _loadReproducibilityChecks(spec);
     _loadAuditSourcing(spec);
   }
   window._loadAudit = _loadAudit;
+
+  // (The typed-interface contract table used to render here too; it was a
+  // duplicate of the Model tab's and now lives in Model only.)
 
   // ── Build tab (Assurance) — model-build loop provenance ──────────────────
   // GET /api/study-loop-state?study=<slug> → viva_superpowers.loop_state
@@ -3842,9 +4272,17 @@
   function _buildPanelHtml(state) {
     var e = escapeHtmlForTests;
     if (!state || !state.present) {
-      var reason = (state && state.reason)
-        || 'This study was not built via the agentic model-building loop (/viva-model-build).';
-      return '<p class="empty-message">' + e(reason) + '</p>';
+      // Directly-authored studies have no loop artifact (.pbg/loop/<study>.json
+      // is written only by /viva-model-build). Explain that plainly and point to
+      // where the model + its bar actually live, instead of a bare dead-end.
+      return '<div class="empty-message">'
+        + '<p>This model was <strong>authored directly</strong> — wrapped and composed via '
+        + '<code>/viva-expert</code> — not iterated through the <code>/viva-model-build</code> loop '
+        + 'that records a draft → frozen-tests → iteration trajectory. There is no loop '
+        + 'provenance to show here.</p>'
+        + '<p style="margin-top:8px">See <strong>Model</strong> for the composite structure and '
+        + '<strong>Tests</strong> for the behavior tests this model has to clear.</p>'
+        + '</div>';
     }
     var history = state.history || [];
     var sc = _BUILD_STATE_COLORS[state.state] || { bg: '#f1f5f9', fg: '#475569' };
@@ -3874,7 +4312,36 @@
     if (history.length) {
       html += _renderMarginMatrix(history) || _renderIterationLadder(history);
     }
+    // Agent notes + conversation — the loop's running commentary, rendered only
+    // when the loop recorded it (viva_superpowers.loop_state).
+    html += _renderBuildNotes(state);
     return html;
+  }
+
+  // Agent notes (free text / list) + the build conversation (role-tagged turns),
+  // surfaced when the loop artifact carries them. Absent → renders nothing.
+  function _renderBuildNotes(state) {
+    var e = escapeHtmlForTests;
+    var out = '';
+    var notes = state && state.notes;
+    if (notes) {
+      var txt = Array.isArray(notes) ? notes.join('\n') : String(notes);
+      out += '<div style="margin-top:14px"><strong style="font-size:0.9em">Agent notes</strong>'
+        + '<div style="margin-top:4px;font-size:0.86em;white-space:pre-wrap;color:#475569">' + e(txt) + '</div></div>';
+    }
+    var conv = state && state.conversation;
+    if (Array.isArray(conv) && conv.length) {
+      var turns = conv.map(function (m) {
+        var role = (m && m.role) ? m.role : '';
+        var text = (m && (m.text || m.content)) ? (m.text || m.content) : (typeof m === 'string' ? m : '');
+        return '<li style="padding:6px 0;border-top:1px solid #f1f5f9;font-size:0.85em">'
+          + (role ? '<strong>' + e(role) + ':</strong> ' : '') + e(text) + '</li>';
+      }).join('');
+      out += '<details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:0.88em">'
+        + 'Build conversation (' + conv.length + ')</summary>'
+        + '<ul style="list-style:none;padding-left:0;margin:6px 0 0">' + turns + '</ul></details>';
+    }
+    return out;
   }
 
   var _buildLoaded = false;
@@ -4165,18 +4632,27 @@
       ? '<div style="margin-top:6px;font-size:0.92em;color:#334155">' + e(String(test.description)) + '</div>'
       : '';
 
-    // 3. Band + measured.
+    // 3. Band + measured — carry the test's declared UNITS onto both the
+    // expected range and the measured value so the card reads as a quantity
+    // (e.g. "expected within [40, 91] °C · measured: 59 °C"), not a bare number.
     var passIf = test.pass_if || test.expect || null;
+    var units = (test.units != null && String(test.units).trim()) ? String(test.units).trim() : '';
+    var dimless = (units === '' || units === 'dimensionless' || units === '1');
+    var uSuffix = dimless ? '' : (' ' + units);
     var bandText = _humanPassIf(passIf);
+    if (bandText && uSuffix) bandText += uSuffix;
     var mv = outcome ? outcome.measured_value : null;
     var mvText;
     if (mv == null) mvText = '—  (not yet graded)';
-    else if (typeof mv === 'number') mvText = _fmtNum(mv);
+    else if (typeof mv === 'number') mvText = _fmtNum(mv) + uSuffix;
     else if (typeof mv === 'object') { try { mvText = JSON.stringify(mv); } catch (err) { mvText = String(mv); } }
     else mvText = String(mv);
+    var unitTag = (units && dimless)
+      ? ' <span class="muted" style="font-size:0.9em">· ' + e(units) + '</span>' : '';
     var bandLine = '<div style="margin-top:8px;font-size:0.85em;color:#475569">'
       + (bandText ? e(bandText) : '<span class="muted">no pass_if band declared</span>')
       + ' <span style="margin-left:10px"><strong>measured:</strong> ' + e(mvText) + '</span>'
+      + unitTag
       + '</div>';
 
     // 4. Margin bar — fixed: this MUST read axis.meter (check() already
@@ -4196,7 +4672,8 @@
     var cites = (passIf && passIf.cites) || test.cites || [];
     var anchor = (passIf && passIf.calibration_anchor) || test.calibration_anchor || null;
     var evidenceBits = [];
-    if (prov.note) evidenceBits.push('<span class="muted">basis:</span> ' + e(String(prov.note)));
+    var basisNote = prov.note || test.band_basis || null;
+    if (basisNote) evidenceBits.push('<span class="muted">basis:</span> ' + e(String(basisNote)));
     if (Array.isArray(cites) && cites.length) {
       evidenceBits.push('<span class="muted">cites:</span> ' + e(cites.join('; ')));
     }
@@ -4682,6 +5159,75 @@
     });
   }
 
+  // ── Planned-design helpers (Design-phase studies) ───────────────────────
+  // A study is authored at Design before any composite is built. Render its
+  // declared bigraph-schema contract (typed-ports face + conservation
+  // predicates), proposed mechanisms, and proposed models/methods so the
+  // Model + Audit tabs show the PLANNED design instead of a blank "no
+  // composite yet" panel. Pure render; all strings escaped.
+  function _pdBounds(sch) {
+    var lo = (sch && sch._min != null) ? sch._min : null;
+    var hi = (sch && sch._max != null) ? sch._max : null;
+    if (lo == null && hi == null) return '—';
+    return (lo == null ? '−∞' : lo) + ' .. ' + (hi == null ? '∞' : hi);
+  }
+  function _pdPortRows(face, dir) {
+    var ports = (face && face[dir]) || {};
+    return Object.keys(ports).map(function (n) {
+      var s = ports[n] || {};
+      return '<tr><td><code>' + _esc(n) + '</code></td><td class="muted">' + _esc(dir) +
+        '</td><td>' + _esc(s._type || '—') + '</td><td>' + _esc(s._units || '—') +
+        '</td><td class="muted">' + _esc(_pdBounds(s)) + '</td></tr>';
+    }).join('');
+  }
+  function _pdContractHtml(contract, title) {
+    contract = contract || {};
+    var face = contract.face || {};
+    var rows = _pdPortRows(face, 'inputs') + _pdPortRows(face, 'outputs');
+    var conds = contract.conditions || [];
+    if (!rows && !conds.length) return '';
+    var h = '<div class="overview-section planned-contract" style="margin-top:14px">' +
+      '<h2 class="overview-label">' + _esc(title || '§ Contract — declared interface') + '</h2>';
+    if (rows) {
+      h += '<table class="planned-contract-table" style="width:100%;border-collapse:collapse;font-size:0.9em">' +
+        '<thead><tr style="text-align:left;color:#475569;border-bottom:1px solid #e2e8f0">' +
+        '<th style="padding:3px 6px">port</th><th style="padding:3px 6px">dir</th>' +
+        '<th style="padding:3px 6px">type</th><th style="padding:3px 6px">units</th>' +
+        '<th style="padding:3px 6px">bounds</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+    if (conds.length) {
+      h += '<div style="margin-top:8px"><strong style="font-size:0.9em">Conservation predicates</strong>' +
+        '<ul style="margin:4px 0 0 0">' + conds.map(function (c) {
+          c = c || {};
+          return '<li><code>' + _esc(c.name || c.kind || 'invariant') + '</code>' +
+            (c.expr ? ' <span class="muted">— ' + _esc(c.expr) + '</span>' : '') + '</li>';
+        }).join('') + '</ul></div>';
+    }
+    if (contract.note) h += '<p class="muted" style="font-size:0.82em;margin-top:6px">' + _esc(contract.note) + '</p>';
+    return h + '</div>';
+  }
+  function _pdListHtml(title, arr) {
+    arr = Array.isArray(arr) ? arr : [];
+    if (!arr.length) return '';
+    return '<div class="overview-section" style="margin-top:14px">' +
+      '<h2 class="overview-label">' + _esc(title) + '</h2>' +
+      '<ul style="margin:4px 0 0 0">' + arr.map(function (x) {
+        return '<li>' + _esc(String(x)) + '</li>';
+      }).join('') + '</ul></div>';
+  }
+  // Ensure a slot div with `id` exists in `parent` (prepended, or appended when
+  // atEnd), so repeated renders reuse it rather than stacking.
+  function _pdSlot(parent, id, atEnd) {
+    if (!parent) return null;
+    var el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = id;
+      if (atEnd) parent.appendChild(el); else parent.insertBefore(el, parent.firstChild);
+    }
+    return el;
+  }
+
   function _renderFeedbackTrackedPanel() {
     var container = document.getElementById('feedback-tracked-panel');
     if (!container) return;               // anchor missing — template version mismatch
@@ -4908,22 +5454,60 @@
     return !!window._study;
   }
 
+  // Open questions / decisions (Overview) — surface the study's
+  // expert_questions so the reviewer sees what this study needs decided.
+  function _renderPlanningOverview() {
+    var eq = Array.isArray((window._study || {}).expert_questions)
+      ? window._study.expert_questions : [];
+    var slot = _pdSlot(document.getElementById('panel-overview'), 'overview-expert-questions', true);
+    if (!slot) return;
+    slot.innerHTML = eq.length
+      ? '<div class="overview-section" style="margin-top:18px">' +
+          '<h2 class="overview-label">Open questions / decisions</h2>' +
+          '<ul style="margin:4px 0 0 0">' + eq.map(function (x) {
+            return '<li>' + _esc(String(x)) + '</li>';
+          }).join('') + '</ul></div>'
+      : '';
+  }
+
+  // 5-tab layout: a ?tab=<kind> deep-link (or a #hash) naming a tab that was
+  // folded into another now resolves to its new home — and, for Results/
+  // Analyses, to the right Simulations subtab. Returns {tab, sub?}.
+  var _REMOVED_TAB_HOME = {
+    readouts:   { tab: 'compose' },
+    build:      { tab: 'compose' },
+    tests:      { tab: 'audit' },
+    results:    { tab: 'simulate', sub: 'results' },
+    analyses:   { tab: 'simulate', sub: 'analysis' }
+  };
+  function _resolveStudyTab(kind) {
+    if (!kind) return null;
+    if (_REMOVED_TAB_HOME[kind]) return _REMOVED_TAB_HOME[kind];
+    if (document.querySelector('.study-pillar[data-kind="' + kind + '"]')) return { tab: kind };
+    return null;
+  }
+
   function _runStudyInit() {
     // All renderers that need window._study to be populated.
+    _renderPlanningOverview();
     _renderFeedbackTrackedPanel();
-    _renderReadinessPanel();
+    _renderStudyAxisMarkers();
     _populateConclusionVerdictBadges();
     _populateBaselineCompositeSelects();
     _loadStudyAnalyses();
     // Open the Overview tab on load — unless a ?tab=<kind> deep-link asks
     // for a specific tab. Needs-attention items link here with
     // ?tab=conclusions so a click lands on the verdict that triggered the alert.
-    var _tab = 'overview';
+    // A deep-link to a now-folded tab (results/analyses/tests/build/readouts)
+    // redirects to its new home (and subtab). `visualize` is a real tab again.
+    var _resolved = { tab: 'overview' };
     try {
       var _q = new URLSearchParams(window.location.search).get('tab');
-      if (_q && document.querySelector('.study-pillar[data-kind="' + _q + '"]')) _tab = _q;
+      var _r = _resolveStudyTab(_q);
+      if (_r) _resolved = _r;
     } catch (_e) { /* no URLSearchParams — keep overview */ }
-    _setStudyTab(_tab);
+    _setStudyTab(_resolved.tab);
+    if (_resolved.sub) _setSimSubtab(_resolved.sub);
   }
 
   // ── item 69 — baseline composite select: populate from the live registry,
@@ -4977,8 +5561,8 @@
   }
 
 
-  // Memoized GET /api/report-lint — sole consumer is the readiness panel
-  // below (fetched once, cached for the page's lifetime).
+  // Memoized GET /api/report-lint — consumed by the Audit tab's readiness panel
+  // (_renderAuditReadiness); fetched once, cached for the page's lifetime.
   var _reportLintPromise = null;
   function _reportLint() {
     if (!_reportLintPromise) {
@@ -4989,63 +5573,159 @@
     return _reportLintPromise;
   }
 
-  // Readiness panel: inline "⚠ N readiness gaps" / "✓ ready" link in the
-  // header status row, click-to-expand. Fetches the deterministic report
-  // linter (GET /api/report-lint), filters to THIS study, and buckets by
-  // severity. AI-free — pure deterministic output, connected to its source
-  // (the linter) and labeled as such. Sole consumer of _reportLint.
-  function _renderReadinessPanel() {
-    var container = document.getElementById('readiness-panel');
-    if (!container || container.dataset.rendered) return;
-    container.dataset.rendered = '1';
-    var slug = container.getAttribute('data-slug') || studyName() || '';
-    _reportLint()
-      .then(function (j) {
-        var findings = (j.findings || []).filter(function (f) {
-          return (f.study || '') === slug;
-        });
-        var sev = { error: 0, warning: 0, info: 0 };
-        findings.forEach(function (f) {
-          var s = f.severity || 'info';
-          if (sev[s] != null) sev[s]++; else sev.info++;
-        });
-        var gaps = sev.error + sev.warning;
-        var head, col;
-        if (!findings.length) { head = '✓ ready'; col = '#166534'; }
-        else if (gaps) { head = '⚠ ' + gaps + ' readiness gap' + (gaps === 1 ? '' : 's'); col = '#92400e'; }
-        else { head = 'ℹ ' + sev.info + ' note' + (sev.info === 1 ? '' : 's'); col = '#1e40af'; }
+  // ── Two-axis study markers (Progress × Verdict) ──────────────────────────
+  // The study header shows the SAME two-axis ontology as the investigation-graph
+  // study cards, for continuity. The ontology tables are duplicated here (small,
+  // intentional) because walkthrough.js is NOT guaranteed loaded on the
+  // standalone study page. Mirrors walkthrough.js _EXEC_META / _VERDICT_META /
+  // _VERDICT_ALIASES and the client-side derivation. AI-free — reads only the
+  // study's own fields. Unlike the graph cards, each marker is CLICKABLE and
+  // opens a popover that interrogates the underlying signals.
+  var _EXEC_META = {
+    proposed:  { color: '#94a3b8', icon: '○', label: 'Proposed' },
+    planned:   { color: '#2563eb', icon: '◔', label: 'Planned' },
+    running:   { color: '#ca8a04', icon: '◑', label: 'Running' },
+    completed: { color: '#475569', icon: '●', label: 'Completed' },
+    failed:    { color: '#dc2626', icon: '⊘', label: 'Failed' },
+  };
+  var _VERDICT_META = {
+    supported:    { color: '#16a34a', icon: '◆', label: 'Supported' },
+    qualified:    { color: '#0d9488', icon: '◇', label: 'Qualified' },
+    inconclusive: { color: '#64748b', icon: '◐', label: 'Inconclusive' },
+    refuted:      { color: '#dc2626', icon: '✗', label: 'Refuted' },
+  };
+  var _VERDICT_PENDING = { color: '#94a3b8', icon: '·', label: 'Pending' };
+  var _VERDICT_ALIASES = {
+    supported: 'supported', qualified: 'qualified', inconclusive: 'inconclusive',
+    refuted: 'refuted', 'honest-negative': 'refuted', 'honest_negative': 'refuted',
+    mixed: 'inconclusive',
+  };
 
-        if (!findings.length) {
-          container.innerHTML = '<span class="readiness-inline" style="font-size:0.85em;color:' + col + '" '
-            + 'title="code-computed by the report linter (deterministic)">' + head + '</span>';
-          return;
-        }
-        // Compact link; click toggles the gap breakdown below the status row.
-        var byCheck = {};
-        findings.forEach(function (f) { var c = f.check || 'other'; (byCheck[c] = byCheck[c] || []).push(f); });
-        var checks = Object.keys(byCheck).sort(function (a, b) { return byCheck[b].length - byCheck[a].length; });
-        var breakdown = checks.map(function (c) { return byCheck[c].length + '× ' + _esc(c); }).join(' &nbsp;·&nbsp; ');
-        var groups = checks.map(function (c) {
-          var items = byCheck[c].map(function (f) {
-            var s = f.severity || 'info';
-            var dot = s === 'error' ? '#dc2626' : (s === 'warning' ? '#f59e0b' : '#3b82f6');
-            return '<li style="margin-top:3px"><span style="color:' + dot + ';font-weight:700">●</span> ' + _esc(f.message || '') + '</li>';
-          }).join('');
-          return '<div style="margin-top:9px"><code>' + _esc(c) + '</code> '
-            + '<span class="muted" style="font-size:0.82em">(' + byCheck[c].length + ')</span>'
-            + '<ul style="margin:3px 0 0 18px;font-size:0.9em;padding:0">' + items + '</ul></div>';
-        }).join('');
-        container.innerHTML =
-          '<details class="readiness-inline">'
-          + '<summary style="font-size:0.85em;color:' + col + ';cursor:pointer;list-style:none;outline:none" '
-          + 'title="code-computed by the report linter (deterministic) — click to expand">' + head + '</summary>'
-          + '<div style="margin-top:6px;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85em" class="readiness-inline-body">'
-          + '<div class="muted" style="font-size:0.9em">' + breakdown + '</div>'
-          + groups
-          + '</div>'
-          + '</details>';
-      })
-      .catch(function () { container.dataset.rendered = ''; });
+  function _lc(v) { return String(v == null ? '' : v).trim().toLowerCase(); }
+
+  // Derive the execution (Progress) state — same rules as walkthrough._execState.
+  // An authored window._study.execution_status wins.
+  function _studyExecState(s) {
+    s = s || {};
+    var ex = _lc(s.execution_status);
+    if (_EXEC_META[ex]) return ex;
+    var gate = _lc(s.gate_status), sim = _lc(s.simulation_status),
+        ev = _lc(s.evaluation_status),
+        life = _lc(s.effective_status || s.status);
+    if (sim === 'failed' || life === 'invalid' || life === 'failed') return 'failed';
+    if (['passed', 'failed', 'needs_calibration', 'stale'].indexOf(gate) >= 0) return 'completed';
+    if (sim === 'ran' && (ev === 'evaluated' || ev === 'failed_evaluation')) return 'completed';
+    if (['complete', 'completed', 'ran', 'decided', 'evaluated'].indexOf(life) >= 0) return 'completed';
+    if (sim === 'running' || ['running', 'analyzing', 'in_progress'].indexOf(life) >= 0) return 'running';
+    var conf = _lc(s.confidence);
+    if (conf === 'accepted') return 'completed';
+    if (conf === 'investigating') return 'running';
+    if (life === 'planned' || conf === 'planned') return s.proposed === true ? 'proposed' : 'planned';
+    if (s.proposed === true) return 'proposed';
+    return 'planned';
+  }
+
+  // Derive the Verdict state — authored window._study.verdict wins (through the
+  // legacy aliases: honest-negative→refuted, mixed→inconclusive); else fall back
+  // to report.verdict text. Returns null → the Pending marker.
+  function _studyVerdictState(s) {
+    s = s || {};
+    var raw = _lc(s.verdict);
+    if (_VERDICT_ALIASES[raw]) return _VERDICT_ALIASES[raw];
+    var rv = _lc(s.report && s.report.verdict);
+    if (_VERDICT_ALIASES[rv]) return _VERDICT_ALIASES[rv];
+    return null;
+  }
+
+  // One marker = a clickable pill (glyph + label) that toggles its own popover.
+  // `rows` is [[label, value], …]; missing signals are omitted by the caller.
+  function _axisMarkerHtml(id, meta, axisLabel, rows) {
+    var e = _esc;
+    var body = rows.length
+      ? rows.map(function (r) {
+          return '<div style="display:flex;gap:8px;justify-content:space-between;margin-top:4px">'
+            + '<span class="muted">' + e(r[0]) + '</span>'
+            + '<span style="font-family:ui-monospace,monospace">' + e(r[1]) + '</span></div>';
+        }).join('')
+      : '<div class="muted" style="margin-top:4px">No further signals recorded.</div>';
+    return '<span class="study-axis-wrap" style="position:relative;display:inline-flex">'
+      + '<button type="button" id="' + id + '-btn" class="study-axis-marker" aria-haspopup="true" aria-expanded="false" '
+      + 'style="display:inline-flex;align-items:center;gap:4px;font-size:0.82em;font-weight:700;cursor:pointer;'
+      + 'white-space:nowrap;border-radius:9999px;padding:2px 10px;color:' + meta.color + ';'
+      + 'background:' + meta.color + '14;border:1px solid ' + meta.color + '40" '
+      + 'title="' + e(axisLabel) + ' — click to interrogate">'
+      + '<span style="font-size:1.1em;line-height:1">' + meta.icon + '</span>' + e(meta.label) + '</button>'
+      + '<div id="' + id + '-popover" role="dialog" style="display:none;position:absolute;left:0;top:100%;margin-top:6px;'
+      + 'background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);'
+      + 'z-index:70;min-width:230px;max-width:340px;padding:10px 12px;font-size:0.82em;color:#334155;'
+      + 'white-space:normal;text-align:left;font-weight:400">'
+      + '<div style="font-weight:700;color:' + meta.color + '">' + meta.icon + ' ' + e(axisLabel) + ': ' + e(meta.label) + '</div>'
+      + body + '</div></span>';
+  }
+
+  function _wireAxisPopover(id) {
+    var btn = document.getElementById(id + '-btn');
+    var pop = document.getElementById(id + '-popover');
+    if (!btn || !pop) return;
+    btn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var open = pop.style.display !== 'none' && pop.style.display !== '';
+      // Close any sibling popover first.
+      document.querySelectorAll('.study-axis-wrap [role="dialog"]').forEach(function (p) { p.style.display = 'none'; });
+      document.querySelectorAll('.study-axis-marker').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+      pop.style.display = open ? 'none' : 'block';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.study-axis-wrap')) {
+        pop.style.display = 'none'; btn.setAttribute('aria-expanded', 'false');
+      }
+    }, true);
+  }
+
+  // Render the Progress + Verdict markers into #study-axis-markers from
+  // window._study, each with an interactive popover.
+  function _renderStudyAxisMarkers() {
+    var container = document.getElementById('study-axis-markers');
+    if (!container || container.dataset.rendered) return;
+    var s = window._study || {};
+    container.dataset.rendered = '1';
+
+    // Progress popover: derived state + the underlying lifecycle signals.
+    var exState = _studyExecState(s);
+    var exMeta = _EXEC_META[exState] || _EXEC_META.planned;
+    var exRows = [];
+    [['status', s.status], ['simulation_status', s.simulation_status],
+     ['evaluation_status', s.evaluation_status], ['gate_status', s.gate_status],
+     ['confidence', s.confidence]].forEach(function (r) {
+      if (r[1] != null && String(r[1]).trim() !== '') exRows.push([r[0], String(r[1])]);
+    });
+
+    // Verdict popover: derived state + what it rests on.
+    var vState = _studyVerdictState(s);
+    var vMeta = vState ? _VERDICT_META[vState] : _VERDICT_PENDING;
+    var vRows = [];
+    if (s.verdict) vRows.push(['verdict', String(s.verdict)]);
+    if (s.report && s.report.verdict) vRows.push(['report.verdict', String(s.report.verdict)]);
+    var cv = s.conclusion_verdicts || {};
+    [['regression_compatibility', 'regression'], ['biological_validation', 'biology'],
+     ['explanatory_gain', 'insight']].forEach(function (t) {
+      var trk = cv[t[0]];
+      if (trk && trk.result) vRows.push([t[1], String(trk.result)]);
+    });
+    if (s.confidence) vRows.push(['confidence', String(s.confidence)]);
+    var findings = Array.isArray(s.findings) ? s.findings : [];
+    findings.slice(0, 2).forEach(function (f, i) {
+      var txt = (f && (f.statement || f.summary)) || '';
+      if (txt) vRows.push(['finding ' + (i + 1), String(txt).slice(0, 80) + (String(txt).length > 80 ? '…' : '')]);
+    });
+
+    container.innerHTML =
+      _axisMarkerHtml('study-progress-marker', exMeta, 'Progress', exRows)
+      + ' '
+      + _axisMarkerHtml('study-verdict-marker', vMeta, 'Verdict', vRows);
+    _wireAxisPopover('study-progress-marker');
+    _wireAxisPopover('study-verdict-marker');
   }
 
   // Entry point: fetch the spec if needed, then run init.
@@ -5069,6 +5749,7 @@
     var h = (window.location.hash || '');
     if (h.indexOf('#run-') === 0 || h === '#runs') {
       _setStudyTab('simulate');
+      _setSimSubtab('runs');   // run rows live in the Runs subpanel
       if (h.indexOf('#run-') === 0) {
         var el = document.getElementById(h.slice(1));  // id="run-<runId>"
         if (el && el.scrollIntoView) { try { el.scrollIntoView({block: 'center'}); el.style.outline = '2px solid #2b6cb0'; } catch (e) {} }

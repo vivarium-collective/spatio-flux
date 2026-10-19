@@ -1,6 +1,6 @@
 {
   "particles": {
-    "WGGZl0jM": {
+    "nTP3CvoJ": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "WGGZl0jM",
+      "id": "nTP3CvoJ",
       "position": [
-        48.74774129652978,
-        15.512198018313422
+        20.823469623433983,
+        37.69721709615552
       ],
-      "mass": 0.21588820233098777,
+      "mass": 0.7313936310894861,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -625,21 +625,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -663,8 +663,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

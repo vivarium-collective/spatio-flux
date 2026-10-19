@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Study: fig-06</title>
 <link rel="stylesheet" href="/spatio-flux/workbench/assets/style.css">
 <link rel="stylesheet" href="/spatio-flux/workbench/assets/progress-track.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/responsive.css">
 <!-- Inherit the workbench light/dark theme (this page loads in an iframe;
      same-origin, so it shares the parent's localStorage 'viv.theme'; the
      'storage' event, which the browser fires here when the parent toggles,
@@ -15,131 +17,28 @@
 <body>
 <main class="study-page">
 <header class="study-header">
-  <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
-  <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="fig-06" title="fig-06">Fig 6 — orchestration patterns</span>
-    
-    <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
+  <div style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
+  <div style="display:flex; align-items:center; gap:12px; min-width:0; flex-wrap:wrap">
+  <h1 class="study-title" style="margin:0">
+    <span class="study-name" id="study-name" data-slug="fig-06" data-study-kind="computational" title="fig-06">Fig 6 — orchestration patterns</span>
     
   </h1>
-  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
     
-    <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
-    <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
-    
-    <button type="button" id="study-run-composite" class="btn-mini" title="Dispatch a specific process-bigraph composite_id to the remote compute backend (pbg-native multi_node/mbp, or the Nextflow campaign path) — advanced, independent of this study's own pinned baseline">⚙ Dispatch composite</button>
-  </span>
+    <span id="study-axis-markers" data-slug="fig-06" style="display:inline-flex; gap:8px; align-items:center; flex-wrap:wrap"></span>
   </div>
-  <div class="study-status-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
-    
-    
-    <span class="status-pill status-complete" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">complete</span>
-    
-
-    
-    <div id="readiness-panel" data-slug="fig-06"></div>
-
+  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0; align-items:center;">
     
     
     
-    
-    
-    
-    <details class="status-detail-panel" aria-label="Six-gate lifecycle status">
-      <summary>
-        <span class="status-stepper-more">status</span>
-        
-        <span class="status-stepper">
-          
-          <span class="status-step gate-step axis-design_status gate-state-not-assessed" title="Gate 1 · Plan">
-            <span class="dot"></span>1&nbsp;·&nbsp;Plan
-          </span>
-          
-          <span class="status-step gate-step axis-simulation_status gate-state-not-assessed set" title="Gate 2 · Execution">
-            <span class="dot"></span>2&nbsp;·&nbsp;Execution
-          </span>
-          
-          <span class="status-step gate-step axis-evaluation_status gate-state-passed-with-conditions set" title="Gate 3 · Evidence">
-            <span class="dot"></span>3&nbsp;·&nbsp;Evidence
-          </span>
-          
-          <span class="status-step gate-step axis-evaluation_status gate-state-not-assessed set" title="Gate 4 · Quality">
-            <span class="dot"></span>4&nbsp;·&nbsp;Quality
-          </span>
-          
-          <span class="status-step gate-step axis-gate_status gate-state-not-assessed set" title="Gate 5 · Decision">
-            <span class="dot"></span>5&nbsp;·&nbsp;Decision
-          </span>
-          
-          <span class="status-step gate-step axis-expert_review_status gate-state-not-assessed" title="Gate 6 · Release">
-            <span class="dot"></span>6&nbsp;·&nbsp;Release
-          </span>
-          
-          
-        </span>
-      </summary>
-      <div class="status-stepper-body">
-        
-        <div class="status-detail-row gate-row gate-state-not-assessed">
-          <span class="status-detail-axis">1 · Plan</span>
-          <span class="status-chip gate-state-not-assessed">not set</span>
-          
-          
-        </div>
-        
-        <div class="status-detail-row gate-row gate-state-not-assessed">
-          <span class="status-detail-axis">2 · Execution</span>
-          <span class="status-chip gate-state-not-assessed">not set</span>
-          
-          <span class="gate-computed-chip gate-state-not-assessed" title="no runs in runs.db">◆ computed: not_run</span>
-          
-          
-          
-        </div>
-        
-        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
-          <span class="status-detail-axis">3 · Evidence</span>
-          <span class="status-chip gate-state-not-assessed">not set</span>
-          
-          <span class="gate-computed-chip gate-state-passed-with-conditions" title="nothing run to evaluate + visualization readiness gate (V4)">◆ computed: not_evaluated</span>
-          
-          
-          
-          <span class="gate-viz-gap-note" style="font-size:0.86em;color:#92400e">visualization gap: no interactive figure (only static images)</span>
-          
-        </div>
-        
-        <div class="status-detail-row gate-row gate-state-not-assessed">
-          <span class="status-detail-axis">4 · Quality</span>
-          <span class="status-chip gate-state-not-assessed">not set</span>
-          
-          <span class="gate-computed-chip gate-state-not-assessed" title="nothing run to evaluate">◆ computed: not_evaluated</span>
-          
-          
-          
-        </div>
-        
-        <div class="status-detail-row gate-row gate-state-not-assessed">
-          <span class="status-detail-axis">5 · Decision</span>
-          <span class="status-chip gate-state-not-assessed">not set</span>
-          
-          <span class="gate-computed-chip gate-state-not-assessed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: not_started</span>
-          
-          
-          
-        </div>
-        
-        <div class="status-detail-row gate-row gate-state-not-assessed">
-          <span class="status-detail-axis">6 · Release</span>
-          <span class="status-chip gate-state-not-assessed">not set</span>
-          
-          
-        </div>
-        
-        
-      </div>
-    </details>
-    
+    <span id="study-nav" class="study-nav" data-investigation="paper-figures" style="display:none">
+      <button type="button" id="study-prev" class="btn-mini study-nav-btn" title="Previous study" aria-label="Previous study">←</button>
+      <span class="study-jump-wrap" style="position:relative;display:inline-flex">
+        <button type="button" id="study-jump-btn" class="btn-mini study-nav-btn" aria-haspopup="true" aria-expanded="false" title="Jump to any study in this investigation">⇄ Studies</button>
+        <div id="study-jump-menu" role="menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);z-index:70;min-width:240px;max-width:360px;max-height:380px;overflow:auto;padding:4px"></div>
+      </span>
+      <button type="button" id="study-next" class="btn-mini study-nav-btn" title="Next study" aria-label="Next study">→</button>
+    </span>
+  </span>
   </div>
 </header>
 
@@ -155,74 +54,57 @@
 
 <nav class="study-tabs" aria-label="Study sections">
   
-  <div class="act-cluster" data-act="study">
-    <div class="act-header">
-      <span class="act-gate-dot" data-gate="study" data-gate-state="passed-with-conditions"></span>
-      <span class="act-label">The Study</span>
+  <button class="study-pillar active" data-kind="overview" onclick="_setStudyTab('overview')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span class="pillar-label">Overview</span>
+  </button>
+  <button class="study-pillar" data-kind="visualize" onclick="_setStudyTab('visualize')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/></svg>
+    <span class="pillar-label">Visualizations</span>
+  </button>
+  <button class="study-pillar" data-kind="compose" onclick="_setStudyTab('compose')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="17" cy="19" r="2"/><line x1="10.1" y1="10.7" x2="6.4" y2="7.2"/><line x1="14" y1="11.2" x2="17.2" y2="8.4"/><line x1="12.9" y1="13.9" x2="16.1" y2="17.3"/></svg>
+    <span class="pillar-label">Model</span>
+  </button>
+  <button class="study-pillar" data-kind="simulate" onclick="_setStudyTab('simulate')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>
+    <span class="pillar-label">Simulations</span>
+  </button>
+  <button class="study-pillar" data-kind="audit" onclick="_setStudyTab('audit')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>
+    <span class="pillar-label">Audit</span>
+  </button>
+  <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="9" r="2.2"/><path d="M6 8.2v7.6"/><path d="M6 12h6a4 4 0 0 0 4-4V11"/></svg>
+    <span class="pillar-label">Decide</span>
+  </button>
+  
+  <span class="study-dl study-export-wrap" style="margin-left:auto; align-self:center; position:relative; display:inline-flex">
+    <button type="button" id="study-export-btn" class="btn-mini study-dl-btn" aria-haspopup="true" aria-expanded="false" title="Download this study's figures or a runnable notebook">↓ Export ▾</button>
+    <div id="study-export-menu" role="menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);z-index:70;min-width:200px;padding:4px">
+      <button type="button" id="study-dl-figures" role="menuitem" class="study-jump-item" onclick="window._vivStudyFiguresFromCard(event, 'fig-06')">Download figures</button>
+      <button type="button" id="study-dl-notebook" role="menuitem" class="study-jump-item" onclick="window._vivStudyNotebookFromCard(event, 'fig-06', 'paper-figures')">Download notebook</button>
     </div>
-    <div class="act-tabs">
-      <button class="study-pillar active" data-kind="overview" onclick="_setStudyTab('overview')">Overview</button>
-    </div>
-  </div>
-  <div class="act-cluster" data-act="design">
-    <div class="act-header">
-      <span class="act-gate-dot" data-gate="design" data-gate-state="not-assessed"></span>
-      <span class="act-label">Design</span>
-    </div>
-    <div class="act-tabs">
-      <button class="study-pillar" data-kind="compose"  onclick="_setStudyTab('compose')">Model</button>
-      <button class="study-pillar" data-kind="readouts" onclick="_setStudyTab('readouts')">Readouts</button>
-      
-      <button class="study-pillar" data-kind="simulate"  onclick="_setStudyTab('simulate')">Simulations</button>
-    </div>
-  </div>
-  <div class="act-cluster" data-act="evidence">
-    <div class="act-header">
-      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed-with-conditions"></span>
-      <span class="act-label">Evidence</span>
-    </div>
-    <div class="act-tabs">
-      
-      <button class="study-pillar" data-kind="results"   onclick="_setStudyTab('results')">Results</button>
-      <button class="study-pillar" data-kind="analyses"  onclick="_setStudyTab('analyses')">Analyses</button>
-      <button class="study-pillar" data-kind="visualize" onclick="_setStudyTab('visualize')">Visualizations</button>
-    </div>
-  </div>
-  <div class="act-cluster" data-act="assurance">
-    <div class="act-header">
-      <span class="act-gate-dot" data-gate="assurance" data-gate-state="not-assessed"></span>
-      <span class="act-label">Assurance</span>
-    </div>
-    <div class="act-tabs">
-      <button class="study-pillar" data-kind="tests" onclick="_setStudyTab('tests')">Tests</button>
-      
-      <button class="study-pillar" data-kind="audit" onclick="_setStudyTab('audit')">Audit</button>
-      <button class="study-pillar" data-kind="build" onclick="_setStudyTab('build')">Build</button>
-    </div>
-  </div>
-  <div class="act-cluster" data-act="decision">
-    <div class="act-header">
-      <span class="act-gate-dot" data-gate="decision" data-gate-state="not-assessed"></span>
-      <span class="act-label">Decision</span>
-    </div>
-    <div class="act-tabs">
-      
-      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Decide</button>
-    </div>
-  </div>
+  </span>
 </nav>
 <style>
 /* Task 4: header restructure — kind tag, promoted question, tightened status row.
    The 6-axis stepper + gate-status colors below are carried over verbatim from
    the pre-restructure Pass A styling (the <details> markup was repositioned,
    not rebuilt). */
+/* Prominent, easy-access downloads in the study header (moved off the graph
+   cards). Filled accent so they read as the primary "grab this study" CTAs,
+   distinct from the outlined run/reproduce launch buttons beside them. */
+.study-dl-btn{background:#1976d2;color:#fff;border-color:#1976d2;font-weight:600}
+.study-dl-btn:hover{background:#1565c0;border-color:#1565c0}
+:root[data-theme="dark"] .study-dl-btn{background:#3b82f6;border-color:#3b82f6;color:#fff}
+:root[data-theme="dark"] .study-dl-btn:hover{background:#2563eb;border-color:#2563eb}
 .study-kind-tag{display:inline-block;font-size:0.5em;font-weight:600;padding:3px 9px;border-radius:9999px;vertical-align:middle;margin-left:8px;background:#f1f5f9;color:#475569;text-transform:capitalize}
 .study-kind-tag.study-kind-biological{background:#ecfdf5;color:#065f46}
 .study-kind-tag.study-kind-computational{background:#eff6ff;color:#1e40af}
 .study-kind-tag.study-kind-theoretical{background:#faf5ff;color:#6b21a8}
 .study-question-headline{margin:6px 0 0 0;font-size:1.05em;line-height:1.5;color:#1e293b;font-family:Georgia,"Times New Roman",serif}
 .study-question-headline .q-glyph{display:inline-block;font-size:0.78em;font-weight:700;font-family:ui-monospace,monospace;color:#64748b;background:#f1f5f9;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:middle}
-.study-status-row{font-size:0.95em}
 .status-detail-panel{margin:0;padding:2px 0;background:transparent;border:none;border-radius:0;font-size:0.92em}
 .status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
 .status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
@@ -248,6 +130,11 @@
 .status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
 .status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
 .status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
+/* "You are here": the current lifecycle stage in the gate ladder (replaces the
+   old standalone phase pill — one clear, design-connected stage indicator). */
+.status-step.gate-current{color:#1e3a5f;font-weight:600;background:#eff6ff;border-radius:9999px;padding:1px 10px;box-shadow:inset 0 0 0 1px #bfdbfe}
+.status-step.gate-current .dot{background:#2563eb;box-shadow:none}
+.gate-current-tag{font-size:0.78em;font-weight:700;color:#2563eb;margin-left:6px;text-transform:uppercase;letter-spacing:0.04em}
 /* Fable G2 (§13.2 gate-state vocab; §9.3 palette: grey/green/amber/red/violet).
    One palette for the gate-ladder stepper dots + detail rows AND (via the
    [data-gate-state] selectors below) the act-rail dots, so "how urgent is
@@ -322,7 +209,7 @@
 .charts-panel{display:flex;flex-direction:column;gap:16px}
 .figure-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
 .figure-media-frame{display:block;width:100%;border:0;background:#fff}
-.figure-media-frame--native{height:480px}
+.figure-media-frame--native{height:auto;min-height:320px}  /* JS (_autosizeNativeFrames) grows this to the figure's full content height */
 .figure-media-frame--embed{min-height:200px}
 /* SVGs/PNGs scale to fit their card; preserves aspect ratio so a 1400×484
    chart shrinks instead of overflowing horizontally + clipping. */
@@ -598,6 +485,7 @@
 :root[data-theme="dark"] .tag-input{border-color:var(--border-2);background:var(--field);color:var(--text)}
 </style>
 <section class="study-tab-panel active" data-kind="overview" id="panel-overview">
+  
   <div class="study-overview">
 
     
@@ -611,28 +499,74 @@
     
     
 
+    
+    <style>
+      .study-overview .ov-metrics{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 4px}
+      .study-overview .ov-metric{flex:1 1 120px;min-width:110px;border:1px solid var(--border,#e5e7eb);
+        border-radius:8px;padding:9px 12px;background:var(--surface-2,#f8fafc)}
+      .study-overview .ov-metric-v{font-size:1.15em;font-weight:700;color:#0f172a;line-height:1.1}
+      .study-overview .ov-metric-k{font-size:0.72em;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.02em}
+      .study-overview .ov-metric-pass{border-left:3px solid #10b981}
+      .study-overview .ov-metric-warn{border-left:3px solid #d97706}
+      .study-overview .ov-metric-fail{border-left:3px solid #b91c1c}
+      .study-overview .ov-methods{margin:4px 0 0 0;padding-left:18px}
+      .study-overview .ov-methods li{font-size:0.86em;color:#475569;line-height:1.45;margin:3px 0}
+      .study-overview .ov-tablink{font-size:0.8em;font-weight:600;text-decoration:none;color:#2563eb;margin-left:6px}
+      .study-overview .ov-tablink:hover{text-decoration:underline}
+      .study-overview .ov-keyfig{margin:12px 0 0}
+      .study-overview .ov-keyfig iframe{width:100%;height:440px;border:1px solid var(--border,#e5e7eb);border-radius:8px;background:#fff}
+      .study-overview .ov-keyfig-cap{font-size:0.75em;color:#94a3b8;margin:5px 2px 0}
+      /* provenance: citation chips + anchors + sources list */
+      .study-overview .ov-cite{display:inline-flex;align-items:center;font-size:0.7em;font-weight:600;
+        line-height:1.3;padding:1px 7px;border-radius:9999px;background:#eff6ff;color:#1d4ed8;
+        white-space:nowrap;text-decoration:none;border:1px solid transparent;margin:0 2px 2px 0}
+      .study-overview a.ov-cite:hover{border-color:#1d4ed8;text-decoration:none}
+      .study-overview .ov-cite.unknown{background:#f1f5f9;color:#64748b}
+      .study-overview .ov-anchor{padding:8px 0;border-bottom:1px solid var(--border,#e5e7eb);font-size:0.9em}
+      .study-overview .ov-anchor:last-child{border-bottom:none}
+      .study-overview .ov-anchor-exp{color:#0f172a;font-weight:600}
+      .study-overview .ov-anchor-obs{font-family:ui-monospace,Menlo,monospace;font-size:0.82em;color:#475569}
+      .study-overview .ov-anchor-src{color:#64748b;font-size:0.85em;margin-top:2px}
+      .study-overview .ov-anchor-met{color:#065f46;font-weight:600}
+      .study-overview .ov-sources{display:grid;gap:2px;margin-top:8px}
+      .study-overview .ov-src{padding:6px 10px;border-bottom:1px solid var(--border,#f1f5f9);font-size:0.85em;scroll-margin-top:90px}
+      .study-overview .ov-src:target{background:#eff6ff;border-radius:6px}
+      .study-overview .ov-src .ov-src-k{font-family:ui-monospace,Menlo,monospace;font-size:0.82em;color:#94a3b8}
+      .study-overview .ov-src .ov-src-t{color:#334155}
+    </style>
+
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Claim</h2>
       <p class="ctr-text">image present</p>
       
     </div>
 
+    
+
     <div class="ctr-block">
-      <h2 class="overview-label ctr-h">Test</h2>
+      <h2 class="overview-label ctr-h">Model &amp; approach</h2>
       <p class="ctr-text"></p>
-      
       <div class="ctr-meta">
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>fig-6-orchestration</code></div>
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">orchestration-patterns figure present</span></div>
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>fig-6-orchestration</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">1 behavior test</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
-      
     </div>
+
+    
+    
+    
+    
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Result</h2>
       <p class="ctr-text"></p>
       
+      
+      
       <figure class="ctr-figure"><img class="ctr-figure-img" alt="result figure" loading="lazy" style="display:block;max-width:100%;height:auto" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221320%22%20height%3D%22400%22%20viewBox%3D%220%200%201320%20400%22%20font-family%3D%22Inter%2C%20Helvetica%2C%20Arial%2C%20sans-serif%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3Cmarker%20id%3D%22ar%22%20viewBox%3D%220%200%2010%2010%22%20refX%3D%228.5%22%20refY%3D%225%22%20markerWidth%3D%225.5%22%20markerHeight%3D%225.5%22%20orient%3D%22auto-start-reverse%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C0%20L10%2C5%20L0%2C10%20z%22%20fill%3D%22%23475569%22/%3E%0A%20%20%20%20%3C/marker%3E%0A%20%20%20%20%3Cmarker%20id%3D%22arD%22%20viewBox%3D%220%200%2010%2010%22%20refX%3D%228.5%22%20refY%3D%225%22%20markerWidth%3D%227.5%22%20markerHeight%3D%227.5%22%20orient%3D%22auto-start-reverse%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C0%20L10%2C5%20L0%2C10%20z%22%20fill%3D%22%237a5a86%22/%3E%0A%20%20%20%20%3C/marker%3E%0A%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20.panel%20%7B%20fill%3A%23ffffff%3B%20%7D%0A%20%20%20%20%20%20.title%20%7B%20font%3A%20700%2017px%20Georgia%2C%20%27Times%20New%20Roman%27%2C%20serif%3B%20fill%3A%2316324f%3B%20%7D%0A%20%20%20%20%20%20.proc%20%20%7B%20fill%3A%23eef2f6%3B%20stroke%3A%2316324f%3B%20stroke-width%3A2.2%3B%20%7D%0A%20%20%20%20%20%20.store%20%7B%20fill%3A%23ffffff%3B%20stroke%3A%231f7a72%3B%20stroke-width%3A2.2%3B%20%7D%0A%20%20%20%20%20%20.name%20%20%7B%20font%3A%20700%2014px%20Inter%2C%20system-ui%2C%20sans-serif%3B%20fill%3A%2316324f%3B%20text-anchor%3Amiddle%3B%20%7D%0A%20%20%20%20%20%20.nm2%20%20%20%7B%20font%3A%20700%2013px%20Inter%2C%20system-ui%2C%20sans-serif%3B%20fill%3A%2316324f%3B%20text-anchor%3Amiddle%3B%20%7D%0A%20%20%20%20%20%20.sub%20%20%20%7B%20font%3A%2011px%20ui-monospace%2C%20monospace%3B%20fill%3A%2394a3b8%3B%20text-anchor%3Amiddle%3B%20%7D%0A%20%20%20%20%20%20.lbl%20%20%20%7B%20font%3A%20italic%2012px%20ui-monospace%2C%20monospace%3B%20fill%3A%2364748b%3B%20%7D%0A%20%20%20%20%20%20.wire%20%20%7B%20fill%3Anone%3B%20stroke%3A%23475569%3B%20stroke-width%3A2.6%3B%20%7D%0A%20%20%20%20%20%20.wireT%20%7B%20fill%3Anone%3B%20stroke%3A%23475569%3B%20stroke-width%3A4.5%3B%20%7D%0A%20%20%20%20%20%20.pwire%20%7B%20fill%3Anone%3B%20stroke%3A%237a5a86%3B%20stroke-width%3A1.7%3B%20stroke-dasharray%3A5%204%3B%20%7D%0A%20%20%20%20%20%20.axis%20%20%7B%20stroke%3A%23334155%3B%20stroke-width%3A2.2%3B%20fill%3Anone%3B%20%7D%0A%20%20%20%20%20%20.tick%20%20%7B%20stroke%3A%23334155%3B%20stroke-width%3A2%3B%20%7D%0A%20%20%20%20%20%20.port%20%20%7B%20fill%3A%23ffffff%3B%20stroke%3A%231f7a72%3B%20stroke-width%3A2%3B%20%7D%0A%20%20%20%20%3C/style%3E%0A%20%20%3C/defs%3E%0A%0A%20%20%3Crect%20width%3D%221320%22%20height%3D%22400%22%20fill%3D%22%23ffffff%22/%3E%0A%0A%20%20%3C%21--%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20a.%20multi-timestepping%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20--%3E%0A%20%20%3Cg%20id%3D%22panel-a%22%3E%0A%20%20%20%20%3Ctext%20class%3D%22title%22%20x%3D%2234%22%20y%3D%2242%22%3Ea.%20%20multi-timestepping%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20top%20temporal%20process%20%2B%20its%20coarse%20time%20axis%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%2232%22%20y%3D%2278%22%20width%3D%22126%22%20height%3D%2258%22%20rx%3D%220%22/%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22103%22%3Etemporal%3C/text%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22121%22%3Eprocess%3C/text%3E%0A%20%20%20%20%3Cline%20class%3D%22axis%22%20x1%3D%22158%22%20y1%3D%22107%22%20x2%3D%22372%22%20y2%3D%22107%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%23334155%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22182%22%20y1%3D%22100%22%20x2%3D%22182%22%20y2%3D%22114%22/%3E%3Cline%20x1%3D%22222%22%20y1%3D%22100%22%20x2%3D%22222%22%20y2%3D%22114%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22262%22%20y1%3D%22100%22%20x2%3D%22262%22%20y2%3D%22114%22/%3E%3Cline%20x1%3D%22302%22%20y1%3D%22100%22%20x2%3D%22302%22%20y2%3D%22114%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22342%22%20y1%3D%22100%22%20x2%3D%22342%22%20y2%3D%22114%22/%3E%0A%20%20%20%20%3C/g%3E%0A%0A%20%20%20%20%3C%21--%20shared%20store%20hub%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22214%22%20y%3D%22188%22%20width%3D%22120%22%20height%3D%2260%22%20rx%3D%2212%22/%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%22274%22%20y%3D%22213%22%3Eshared%3C/text%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%22274%22%20y%3D%22231%22%3Estore%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20bottom%20temporal%20process%20%2B%20its%20fine%20time%20axis%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%2232%22%20y%3D%22300%22%20width%3D%22126%22%20height%3D%2258%22%20rx%3D%220%22/%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22325%22%3Etemporal%3C/text%3E%0A%20%20%20%20%3Ctext%20class%3D%22nm2%22%20x%3D%2295%22%20y%3D%22343%22%3Eprocess%3C/text%3E%0A%20%20%20%20%3Cline%20class%3D%22axis%22%20x1%3D%22158%22%20y1%3D%22329%22%20x2%3D%22372%22%20y2%3D%22329%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%23334155%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22176%22%20y1%3D%22322%22%20x2%3D%22176%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22194%22%20y1%3D%22322%22%20x2%3D%22194%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22212%22%20y1%3D%22322%22%20x2%3D%22212%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22230%22%20y1%3D%22322%22%20x2%3D%22230%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22248%22%20y1%3D%22322%22%20x2%3D%22248%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22266%22%20y1%3D%22322%22%20x2%3D%22266%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22284%22%20y1%3D%22322%22%20x2%3D%22284%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22302%22%20y1%3D%22322%22%20x2%3D%22302%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22320%22%20y1%3D%22322%22%20x2%3D%22320%22%20y2%3D%22336%22/%3E%3Cline%20x1%3D%22338%22%20y1%3D%22322%22%20x2%3D%22338%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22356%22%20y1%3D%22322%22%20x2%3D%22356%22%20y2%3D%22336%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Ctext%20class%3D%22lbl%22%20x%3D%22372%22%20y%3D%22349%22%20text-anchor%3D%22end%22%3Etime%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20read/write%20coupling%20at%20EACH%20update%20tick%20along%20the%20whole%20timeline%3A%20one%0A%20%20%20%20%20%20%20%20%20dashed%20arrow%20per%20timestep%2C%20fanning%20from%20the%20shared-store%20hub.%20Coarse%20dt%0A%20%20%20%20%20%20%20%20%20up%20top%20%285%20ticks%29%2C%20a%20finer%20dt%20below%20%2811%20ticks%29%20%E2%86%92%20more%2C%20tighter%20arrows.%20--%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L182%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L222%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L262%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L302%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C188%20L342%2C116%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L176%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L194%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L212%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L230%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L248%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L266%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L284%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L302%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L320%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L338%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M274%2C248%20L356%2C320%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20b.%20workflow%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20--%3E%0A%20%20%3Cg%20id%3D%22panel-b%22%3E%0A%20%20%20%20%3Ctext%20class%3D%22title%22%20x%3D%22430%22%20y%3D%2242%22%3Eb.%20%20workflow%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20nodes%3A%20stores%20as%20loom%20rounded-rects%2C%20steps%20as%20processes%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22514%22%20y%3D%2260%22%20width%3D%2232%22%20height%3D%2224%22%20rx%3D%227%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22494%22%20y%3D%22100%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22530%22%20y%3D%22123%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22489%22%20y%3D%22160%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22521%22%20y%3D%22160%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22553%22%20y%3D%22160%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22432%22%20y%3D%22204%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22468%22%20y%3D%22227%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22556%22%20y%3D%22204%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22592%22%20y%3D%22227%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22441%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22477%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22565%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22601%22%20y%3D%22264%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22494%22%20y%3D%22308%22%20width%3D%2272%22%20height%3D%2236%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22530%22%20y%3D%22331%22%3Estep%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22489%22%20y%3D%22368%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22521%22%20y%3D%22368%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%3Crect%20class%3D%22store%22%20x%3D%22553%22%20y%3D%22368%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%225%22/%3E%0A%0A%20%20%20%20%3C%21--%20DAG%20wires%20%28top%20-%3E%20down%29%3A%20longer%20runs%2C%20wider%20fan%2C%20no%20overlap%20--%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M530%2C84%20L530%2C100%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M520%2C136%20L502%2C158%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M530%2C136%20L530%2C158%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M540%2C136%20L558%2C158%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M496%2C176%20L472%2C202%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M564%2C176%20L588%2C202%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M462%2C240%20L452%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M474%2C240%20L486%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M586%2C240%20L574%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M598%2C240%20L610%2C262%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M488%2C280%20L512%2C306%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M572%2C280%20L548%2C306%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M520%2C344%20L502%2C366%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M530%2C344%20L530%2C366%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M540%2C344%20L558%2C366%22%20marker-end%3D%22url%28%23ar%29%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20c.%20event-driven%20graph%20rewrite%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%20--%3E%0A%20%20%3Cg%20id%3D%22panel-c%22%3E%0A%20%20%20%20%3Ctext%20class%3D%22title%22%20x%3D%22676%22%20y%3D%2242%22%3Ec.%20%20event-driven%20graph%20rewrite%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20three%20events%20%28processes%29%2C%20each%20in%20the%20gap%20between%20the%20two%20graph%20states%0A%20%20%20%20%20%20%20%20%20it%20rewrites%3A%20divide%201-%3E2%2C%20engulf%202-%3E3%2C%20burst%203-%3E4.%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22796%22%20y%3D%2276%22%20width%3D%2282%22%20height%3D%2234%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22837%22%20y%3D%2298%22%3Edivide%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%22983%22%20y%3D%2276%22%20width%3D%2282%22%20height%3D%2234%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221024%22%20y%3D%2298%22%3Eengulf%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22proc%22%20x%3D%221142%22%20y%3D%2276%22%20width%3D%2282%22%20height%3D%2234%22%20rx%3D%220%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221183%22%20y%3D%2298%22%3Eburst%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20state%201%3A%20environ%20%2B%20agent%E2%82%81%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22682%22%20y%3D%22158%22%20width%3D%22104%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22734%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22702%22%20y%3D%22256%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22734%22%20y%3D%22281%22%3Eagent%E2%82%81%3C/text%3E%0A%20%20%20%20%3C%21--%20state%202%3A%20environ%20%2B%20agent%E2%82%82%20%2B%20agent%E2%82%83%20%28divided%29%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22882%22%20y%3D%22158%22%20width%3D%22116%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%22940%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22884%22%20y%3D%22256%22%20width%3D%2256%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22nm2%22%20x%3D%22912%22%20y%3D%22281%22%3Eagent%E2%82%82%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%22942%22%20y%3D%22256%22%20width%3D%2256%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22nm2%22%20x%3D%22970%22%20y%3D%22281%22%3Eagent%E2%82%83%3C/text%3E%0A%20%20%20%20%3C%21--%20state%203%3A%20environ%20%2B%20agent%E2%82%82%20%E2%96%B8%20agent%E2%82%83%20%28engulfed%20/%20nested%29%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221056%22%20y%3D%22158%22%20width%3D%22104%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221108%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221076%22%20y%3D%22256%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221108%22%20y%3D%22281%22%3Eagent%E2%82%82%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221076%22%20y%3D%22336%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221108%22%20y%3D%22361%22%3Eagent%E2%82%83%3C/text%3E%0A%20%20%20%20%3C%21--%20state%204%3A%20environ%20%2B%20agent%E2%82%82%20%28burst%29%20--%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221206%22%20y%3D%22158%22%20width%3D%22104%22%20height%3D%2242%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221258%22%20y%3D%22184%22%3Eenvironment%3C/text%3E%0A%20%20%20%20%3Crect%20class%3D%22store%22%20x%3D%221226%22%20y%3D%22256%22%20width%3D%2264%22%20height%3D%2240%22%20rx%3D%2210%22/%3E%3Ctext%20class%3D%22name%22%20x%3D%221258%22%20y%3D%22281%22%3Eagent%E2%82%82%3C/text%3E%0A%0A%20%20%20%20%3C%21--%20one%20arrow%20INTO%20each%20event%20%28from%20the%20prior%20state%29%20%2B%20one%20OUT%20%28to%20the%20next%0A%20%20%20%20%20%20%20%20%20state%29.%20Dashed%20%3D%20the%20rewrite%20event.%20They%20attach%20to%20the%20event%20boxes%20and%0A%20%20%20%20%20%20%20%20%20to%20the%20whitespace%20ABOVE%20each%20state%20%E2%80%94%20never%20to%20the%20store%20nodes.%20--%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M786%2C138%20C795%2C128%20801%2C120%20807%2C112%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M867%2C112%20C873%2C120%20879%2C128%20888%2C138%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M973%2C138%20C982%2C128%20988%2C120%20994%2C112%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M1054%2C112%20C1060%2C120%201066%2C128%201075%2C138%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M1132%2C138%20C1141%2C128%201147%2C120%201153%2C112%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22pwire%22%20d%3D%22M1213%2C112%20C1219%2C120%201225%2C128%201234%2C138%22%20marker-end%3D%22url%28%23arD%29%22/%3E%0A%0A%20%20%20%20%3C%21--%20place-graph%20containment%20%28solid%29%3A%20environ%20-%3E%20agent%28s%29%3B%20the%20agent%E2%82%82%20%E2%96%B8%20agent%E2%82%83%0A%20%20%20%20%20%20%20%20%20nesting%20chain%20in%20state%203.%20--%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M734%2C200%20L734%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wireT%22%20d%3D%22M926%2C200%20C918%2C224%20916%2C238%20912%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wireT%22%20d%3D%22M954%2C200%20C962%2C224%20966%2C238%20970%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M1108%2C200%20L1108%2C254%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M1108%2C296%20L1108%2C334%22/%3E%0A%20%20%20%20%3Cpath%20class%3D%22wire%22%20d%3D%22M1258%2C200%20L1258%2C254%22/%3E%0A%20%20%3C/g%3E%0A%0A%3C/svg%3E%0A"></figure>
+      
       
       
       
@@ -653,6 +587,29 @@
 
     <div id="feedback-tracked-panel"></div>
 
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
+  <div class="overview-section" id="overview-figures-section">
+
+
+  <div class="overview-section study-figures figure-gallery" id="visualize-section">
+
+    
+
+    <div id="native-gallery-panel" class="figure-mount"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading figures…</span></div></div>
+
+    
+    
+
+    <div id="viz-charts-panel" class="charts-panel figure-mount"></div>
+
+    
+    <p id="figures-empty-message" class="empty-message" style="display:none">No figures yet.</p>
+  </div>
   </div>
 </section>
 
@@ -735,29 +692,82 @@
   
 
 
+
+  
+  <div class="overview-section" id="model-readouts-section">
+    <h3>Readouts</h3>
+
+  <div class="observables-section">
+    
+    <div id="readouts-emitter" data-study="fig-06" style="margin:0 0 14px">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading emitter…</span></div>
+    </div>
+
+    
+    <div id="readouts-download" style="margin:0 0 12px 0"></div>
+
+    <div id="readouts-table" data-study="fig-06">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readouts from the composite emit plan…</span></div>
+    </div>
+
+    
+    <details style="margin-top: 1.4em;">
+      <summary class="muted">How observables tie to Expected Behavior</summary>
+      <p style="font-size: 0.9em;">Observables can be referenced by name in an
+      <code>expected_behavior[i].measure</code> block (e.g. <code>kind: bulk_count, id:
+      "MONOMER0-160[c]"</code>). When the dashboard validates a study, it cross-checks
+      that every <code>measure</code> resolves to a declared observable, or to a
+      built-in helper.</p>
+    </details>
+    
+  </div>
+  </div>
+
+  
+  <details class="model-advanced" style="margin-top:18px">
+    <summary style="cursor:pointer;font-weight:600;color:#475569">Advanced — build provenance</summary>
+    <div style="margin-top:12px">
+
+  <p class="muted" style="margin:0 0 12px 0"><strong>How the model was built</strong> — the <code>/viva-model-build</code> loop trajectory (draft, frozen tests, iteration edits, result) and the agent's notes, when it was built that way.</p>
+
+  <div id="build-loop-state"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading loop provenance…</span></div></div>
+    </div>
+  </details>
 </section>
 
 
 
 <section class="study-tab-panel" data-kind="simulate" id="panel-simulate" hidden>
+  <div class="sim-subtabs" role="tablist" style="display:flex;gap:4px;margin:0 0 16px 0;border-bottom:1px solid #e2e8f0">
+    <button type="button" class="sim-subtab active" data-subtab="runs" role="tab" aria-selected="true" onclick="_setSimSubtab('runs')">Runs</button>
+    <button type="button" class="sim-subtab" data-subtab="results" role="tab" aria-selected="false" onclick="_setSimSubtab('results')">Results</button>
+    <button type="button" class="sim-subtab" data-subtab="analysis" role="tab" aria-selected="false" onclick="_setSimSubtab('analysis')">Analysis</button>
+  </div>
+
+  <div class="sim-subpanel active" data-subpanel="runs" id="sim-subpanel-runs">
+
+
+<div id="sim-run-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px 0">
+  <button type="button" id="study-run-current-spec" class="action-btn" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
+  <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
+  
+  <button type="button" id="study-run-composite" class="btn-mini" title="Dispatch a specific process-bigraph composite_id to the remote compute backend (pbg-native multi_node/mbp, or the Nextflow campaign path) — advanced, independent of this study's own pinned baseline">⚙ Dispatch composite</button>
+</div>
 
 <div class="overview-section" id="simulations-section">
-  <h2>Simulations</h2>
   <div id="study-sim-table" style="overflow-x:auto"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading simulations…</span></div></div>
   <div id="study-run-detail" style="margin-top:14px"></div>
 </div>
 
-</section>
+  </div>
 
-
-<section class="study-tab-panel" data-kind="results" id="panel-results" hidden>
+  <div class="sim-subpanel" data-subpanel="results" id="sim-subpanel-results" hidden>
 
 <div class="overview-section" id="results-section">
-  <h2>Results</h2>
-  <p class="muted">What came back from this study's runs — a per-store preview of the latest run, plus the raw emitter store (zarr/parquet/runs.db) for every run.</p>
+  
+  <div id="results-summary" data-study="fig-06" style="margin:0 0 16px"></div>
 
-  <h4>Latest run preview</h4>
-  <p class="muted" style="font-size:0.9em">Per-store sparkline + first/last/min/max from the most recent run's emitted trajectory. This is a downsampled PREVIEW, not the full data — use the per-store or Download-all links for the complete arrays. For a cross-engine comparison run, this shows how closely the simulators agree, model by model, instead.</p>
+  <h4>Latest run preview <span class="muted" style="font-size:0.8em;font-weight:normal">— downsampled sparkline + first/last/min/max per store</span></h4>
   <div id="results-preview" data-study="fig-06">
     <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading results preview…</span></div>
   </div>
@@ -770,10 +780,9 @@
   <div id="raw-data-list"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading runs…</span></div></div>
 </div>
 
-</section>
+  </div>
 
-
-<section class="study-tab-panel" data-kind="analyses" id="panel-analyses" hidden>
+  <div class="sim-subpanel" data-subpanel="analysis" id="sim-subpanel-analysis" hidden>
 
   
   <div class="overview-section" id="study-analyses-section">
@@ -788,8 +797,8 @@
   </div>
 
 <div class="overview-section" id="analyses-results-section">
-  <h2>Analyses</h2>
-  <p class="muted">Result files written by this study's analysis steps.</p>
+  <p class="muted" style="margin:0 0 12px 0">Derived result files (<code>.csv</code>/<code>.tsv</code>) computed from the runs —
+  distinct from <strong>Results</strong>, which holds the raw emitted arrays.</p>
 
   <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
     <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
@@ -801,85 +810,16 @@
   </div>
 </div>
 
-</section>
-
-<section class="study-tab-panel" data-kind="readouts" id="panel-readouts" hidden>
-  <div class="observables-section">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-      <h3 class="section-title" style="margin-right:auto">Readouts</h3>
-    </div>
-    <p class="muted">The Design-time emit <strong>contract</strong>: what the emitter is
-    configured to persist, which store paths it declares, and the shape of what lands on
-    disk. No observed values here — see Results for what actually came back from a run.</p>
-
-    <h4>Emitter &amp; config</h4>
-    <p class="muted" style="font-size:0.9em">The emitter class, its write-path module, emit
-    interval/buffer, output location, and emit scope — from
-    <code>lib/emitters.py</code> and this study's (or the workspace's)
-    <code>runtime.default_emitter</code>.</p>
-    <div id="readouts-emitter" data-study="fig-06">
-      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading emitter configuration…</span></div>
-    </div>
-
-    <h4>Emitted paths</h4>
-    <p class="muted" style="font-size:0.9em">Each row is an emitter <code>store_path</code>
-    the composite will save; authored entries in <code>study.yaml</code> add names,
-    descriptions, and units on top.</p>
-
-    
-    <div id="readouts-download" style="margin:0 0 16px 0"></div>
-
-    <div id="readouts-table" data-study="fig-06">
-      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readouts from the composite emit plan…</span></div>
-    </div>
-
-    <h4>Outputs &amp; shapes</h4>
-    <p class="muted" style="font-size:0.9em">Store path, dtype, shape
-    <code>(n_steps, …)</code>, units, and a best-effort byte estimate for each emitted
-    leaf.</p>
-    <div id="readouts-shapes" data-study="fig-06">
-      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading output shapes…</span></div>
-    </div>
-
-    
-    <details style="margin-top: 1.4em;">
-      <summary class="muted">How observables tie to Expected Behavior</summary>
-      <p style="font-size: 0.9em;">Observables can be referenced by name in an
-      <code>expected_behavior[i].measure</code> block (e.g. <code>kind: bulk_count, id:
-      "MONOMER0-160[c]"</code>). When the dashboard validates a study, it cross-checks
-      that every <code>measure</code> resolves to a declared observable, or to a
-      built-in helper.</p>
-    </details>
-    
   </div>
 </section>
 
-<section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
 
-  <div class="overview-section study-figures figure-gallery" id="visualize-section">
 
-    
-    
-    <div class="viz-actions-row" style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-      <button type="button" class="btn-mini" onclick="window._vivStudyFiguresFromCard(event, 'fig-06')" title="Download this study's visualizations (figure panels + its composite) as a zip">↓ visualizations</button>
-    </div>
-    
+<section class="study-tab-panel" data-kind="audit" id="panel-audit" hidden>
+  <div class="overview-section" id="audit-tests-section">
+    <h3>Tests — the bar</h3>
 
-    <div id="native-gallery-panel" class="figure-mount"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading figures…</span></div></div>
-
-    
-    
-
-    <div id="viz-charts-panel" class="charts-panel figure-mount"></div>
-
-    
-    <p id="figures-empty-message" class="empty-message" style="display:none">No figures yet.</p>
-  </div>
-</section>
-
-<section class="study-tab-panel" data-kind="tests" id="panel-tests" hidden>
-  <h2>Tests</h2>
-  <p class="muted" style="margin:0 0 12px 0"><strong>The bar.</strong> What must be true for this model to count as correct — the acceptance criteria, their bands, and the report cards that grade them.</p>
+  <p class="muted" style="margin:0 0 12px 0"><strong>The bar</strong> — what must be true for this model to count as correct: the acceptance criteria, their bands, and the report cards that grade them.</p>
 
   
   
@@ -951,12 +891,14 @@
   </ul>
   
   </div>
-</section>
+  </div>
 
+  <p class="muted" style="margin:0 0 12px 0"><strong>Is the bar sound?</strong> The concrete readiness gaps to close first, then whether the test set itself is rigorous and matched to the problem — sufficiency, sourcing, and the rigor + reproducibility scorecards.</p>
 
-<section class="study-tab-panel" data-kind="audit" id="panel-audit" hidden>
-  <h2>Audit</h2>
-  <p class="muted" style="margin:0 0 12px 0"><strong>Is the bar sound?</strong> Whether the tests themselves are rigorous and matched to the problem — sufficiency, where the model was sourced, and the rigor + reproducibility scorecards.</p>
+  
+  <div id="audit-readiness" data-slug="fig-06" style="margin:0 0 18px 0">
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readiness…</span></div>
+  </div>
 
   <div class="checks-band">
     <div class="check-group check-group-sufficiency" id="audit-sufficiency" data-check-group="sufficiency">
@@ -979,14 +921,65 @@
 </section>
 
 
-<section class="study-tab-panel" data-kind="build" id="panel-build" hidden>
-  <h2>Build</h2>
-  <p class="muted" style="margin:0 0 12px 0"><strong>Was it earned?</strong> The agentic model-building loop that iterated the model to clear the bar — the draft, the frozen tests, the iteration-by-iteration trajectory, and the result (or an honest give-up).</p>
-
-  <div id="build-loop-state"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading loop provenance…</span></div></div>
-</section>
 
 <section class="study-tab-panel" data-kind="conclusions" id="panel-conclusions" hidden>
+
+  
+  
+  
+  <div class="overview-section decide-lifecycle">
+    <h2 class="overview-label">Plan &amp; lifecycle</h2>
+    <div class="status-stepper">
+      
+      <span class="status-step  gate-status-not-assessed gate-current">
+        <span class="dot"></span>1 · Plan
+        
+        <span class="gate-current-tag">you are here</span>
+      </span>
+      
+      <span class="status-step  gate-status-not-assessed">
+        <span class="dot"></span>2 · Execution
+        
+        
+      </span>
+      
+      <span class="status-step  gate-status-passed-with-conditions">
+        <span class="dot"></span>3 · Evidence
+        
+        
+      </span>
+      
+      <span class="status-step  gate-status-not-assessed">
+        <span class="dot"></span>4 · Quality
+        
+        
+      </span>
+      
+      <span class="status-step  gate-status-not-assessed">
+        <span class="dot"></span>5 · Decision
+        
+        
+      </span>
+      
+      <span class="status-step  gate-status-not-assessed">
+        <span class="dot"></span>6 · Release
+        
+        
+      </span>
+      
+      
+      <span class="status-step ">
+        <span class="dot"></span>Implementation
+      </span>
+    </div>
+  </div>
+  
+
+  
+  <div class="overview-section decide-readiness-section">
+    <h2 class="overview-label">Readiness gaps</h2>
+    <div id="decide-readiness" data-slug="fig-06"></div>
+  </div>
 
   
   
@@ -1055,6 +1048,23 @@
     
     
     
+    <div class="decide-section" style="margin-top:18px">
+      <h3 class="overview-label">Computed gate verdict</h3>
+      <p class="muted" style="margin:0 0 8px 0;font-size:0.88em">The coded gate
+        evaluator's result from the behavior-test outcomes — the evaluation the
+        conclusion rests on.</p>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="gate-status-not_started" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">not_started</span>
+        <span class="muted small">evaluated by code</span>
+        <span class="muted small">0/0 passed</span>
+      </div>
+      
+    </div>
+    
+
+    
+    
+    
 
     
     
@@ -1098,7 +1108,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "4aff21698b147366917bc267bcd84f69714750a1", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/4aff21698b147366917bc267bcd84f69714750a1", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-07 04:18 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "6d62f082d7381187dbd4ced11e390322440249bb", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/6d62f082d7381187dbd4ced11e390322440249bb", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-19 14:58 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/toast.js"></script>
 <script>

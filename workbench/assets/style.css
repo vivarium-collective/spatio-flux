@@ -28,6 +28,27 @@ main{padding:20px;margin:0 auto}
   box-sizing:border-box;
 }
 #investigation-dag-shell{ width: 100% !important; }
+/* Expand (snap-to-top) mode: grow the graph pane to nearly the full viewport so the
+   whole graph is easy to read, without going browser-fullscreen. Overrides the
+   inline height; the workbench rail/tabs stay available above/around it. */
+#investigation-dag-shell.aig-expanded{
+  height: 90vh !important; max-height: 90vh !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.28); scroll-margin-top: 8px;
+}
+/* Browser-fullscreen (⛶): the wrapper (toolbar + shell) fills the screen so the
+   graph controls stay available. The shell flexes to fill the space below the
+   toolbar (its inline/auto-fit height is overridden with !important). */
+#investigation-dag-fs:fullscreen,
+#investigation-dag-fs:-webkit-full-screen{
+  background:#fff; box-sizing:border-box; padding:10px 16px 14px;
+  width:100vw; height:100vh; display:flex; flex-direction:column; overflow:hidden;
+}
+#investigation-dag-fs:fullscreen .aig-toolbar,
+#investigation-dag-fs:-webkit-full-screen .aig-toolbar{ flex:0 0 auto; }
+#investigation-dag-fs:fullscreen #investigation-dag-shell,
+#investigation-dag-fs:-webkit-full-screen #investigation-dag-shell{
+  flex:1 1 auto; height:auto !important; max-height:none !important; resize:none;
+}
 #investigation-study-embed-panel{
   width: 100% !important; max-width: none !important;
   margin-top: 16px !important;
@@ -43,8 +64,13 @@ main{padding:20px;margin:0 auto}
 }
 #investigation-study-embed-frame{
   width: 100% !important;
-  height: 85vh !important;
-  min-height: 600px !important;
+  /* Height is set by _fitEmbedToContent (auto-grow to the study's content height,
+     floored at the viewport height) so the embedded study flows into the page's
+     SINGLE scrollbar. Do NOT force a fixed viewport height (e.g. 85vh !important)
+     here — that overrides the JS height and re-introduces the iframe's own inner
+     scrollbar (the double-scrollbar the user saw). */
+  display: block;
+  min-height: 600px;
 }
 main.study-page{max-width:none;padding:12px 16px;width:100%;box-sizing:border-box}
 
@@ -1114,20 +1140,24 @@ body.viv-rail-resizing-active #viv-rail-studies-section{ contain:layout; }
   display:block;
   transition:transform 0.2s;
 }
-/* Collapsed: the toggle overlays the whole header, hidden until the header is
-   hovered — so the Vivarium logo shows by default and the expand icon appears
-   only on mouse-over (logo dims behind it). Click it to expand. */
+/* Collapsed: the Vivarium logo shows clean by default and is NOT covered; the
+   collapse/expand toggle is hidden and REVEALS on hover over the header (or when
+   keyboard-focused). On hover the logo dims so the expand icon reads over it. */
 .viv-rail.viv-rail-collapsed .viv-rail-toggle{
   top:0; left:0; right:0; bottom:0; transform:none;
   width:auto; height:auto;
   border-radius:8px;
-  opacity:0; transition:opacity 0.12s;
-  z-index:3;
+  opacity:0; pointer-events:none;
+  transition:opacity 0.12s, background 0.12s, color 0.12s;
+  z-index:3; color:#64748b;
 }
-.viv-rail.viv-rail-collapsed .viv-rail-header:hover .viv-rail-toggle{
-  opacity:1; background:rgba(249,250,251,0.94);
-  border-color:#e5e7eb; color:#1f2937;
+.viv-rail.viv-rail-collapsed .viv-rail-header:hover .viv-rail-toggle,
+.viv-rail.viv-rail-collapsed .viv-rail-toggle:focus-visible{
+  opacity:1; pointer-events:auto;
+  background:rgba(238,242,255,0.96);
+  border-color:#c7d2fe; color:#3730a3;
 }
+.viv-rail.viv-rail-collapsed .viv-rail-logo{ opacity:1 }
 .viv-rail.viv-rail-collapsed .viv-rail-header:hover .viv-rail-logo{ opacity:0.12 }
 
 /* Collapsed-rail state ----------------------------------------------------- */
@@ -1367,6 +1397,28 @@ body.viv-rail-resizing-active #viv-rail-studies-section{ contain:layout; }
   margin-left:4px;
 }
 
+/* Resources tab — segmented category nav + search. Reuses the detail-tab look
+   (.investigation-detail-tabs/-tab/.tab-count-badge) so it matches the study +
+   investigation sub-tabs; the controls row owns the underline and seats the
+   search box to the right. */
+.res-controls{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  border-bottom:1px solid #e5e7eb; margin:4px 0 16px;
+}
+.res-controls .res-tabs{
+  border-bottom:0; margin:0; flex:1 1 auto; flex-wrap:wrap; gap:20px;
+}
+.res-search{
+  flex:0 0 auto; width:220px; max-width:100%;
+  padding:6px 10px; margin-bottom:8px;
+  border:1px solid #d1d5db; border-radius:6px;
+  font:inherit; font-size:0.9em; color:#1f2937; background:#fff;
+}
+.res-search:focus{
+  outline:none; border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,0.15);
+}
+@media (max-width:640px){ .res-search{ width:100%; } }
+
 /* Study Detail page shell — gives breathing room around the content
    in both the standalone /studies/<name> view and inside the
    Investigations iframe (where body margin:0 used to push text
@@ -1486,6 +1538,9 @@ body.viv-rail-resizing-active #viv-rail-studies-section{ contain:layout; }
 .proc-kind-temporal{  background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
 .proc-kind-step{      background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
 .proc-kind-composite{ background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; }
+/* Face process-count badge — neutral/informative (not a kind marker). */
+.pcard-proc-count{ background:#eef2f7; color:#475569; border:1px solid #e2e8f0; font-weight:600; }
+:root[data-theme="dark"] .pcard-proc-count{ background:rgba(148,163,184,0.18); color:#cbd5e1; border-color:rgba(148,163,184,0.35); }
 .proc-kind-other{ background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; }
 :root[data-theme="dark"] .proc-kind-other{ background:var(--surface-3); color:var(--text-muted); border-color:var(--border); }
 /* static contract rows (non-runnable kinds): name·type only, single column */
@@ -1905,9 +1960,28 @@ textarea.loom-in-field{
 .pcard-header .pcard-json-btn + .pcard-popout{ margin-left:6px; }   /* sit side by side */
 .pcard-json-view{
   margin-top:8px; border:1px solid #eef2f7; border-radius:9px; background:#fbfcfe;
-  max-height:340px; overflow:auto; padding:8px 10px;
+  /* Drag the bottom edge to extend the JSON view to see the whole thing; defaults
+     to a comfortable height, resizable up to most of the viewport. */
+  height:340px; min-height:140px; max-height:88vh; overflow:auto; padding:8px 10px;
+  resize:vertical;
 }
-.pcard-json-toolbar{ display:flex; gap:8px; margin:0 0 6px; position:sticky; top:-8px; }
+.pcard-json-toolbar{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 6px; padding:2px 0; position:sticky; top:-8px; z-index:2; background:#fbfcfe; }
+/* "⛶ Fill screen" — expand the JSON panel in place to fill the content area
+   (right of the rail), pinned to the top. The child grows its own iframe to the
+   viewport bottom (see _cfgJsonFillFrame), so inset:0 here fills that area; the
+   workbench rail stays visible beside it. Flex column: toolbar pinned, the tree
+   flex-fills and scrolls — no forced whitespace. */
+.pcard-json-view.pcard-json-max{
+  position:fixed; inset:0; z-index:1000; margin:0;
+  width:auto; height:auto; max-height:none; border-radius:0; resize:none;
+  display:flex; flex-direction:column; overflow:hidden; background:#fbfcfe;
+  box-shadow:0 0 0 1px var(--border, #e1e4e8);
+}
+.pcard-json-view.pcard-json-max .pcard-json-body{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+.pcard-json-view.pcard-json-max .json-viewer{ flex:1 1 auto; min-height:0; overflow:auto; }
+:root[data-theme="dark"] .pcard-json-view.pcard-json-max{ background:var(--surface-2); }
+body.pcard-json-max-open{ overflow:hidden; }
+:root[data-theme="dark"] .pcard-json-toolbar{ background:var(--surface-2); }
 :root[data-theme="dark"] .pcard-json-btn{ border-color:var(--border-2); color:var(--text-muted); }
 :root[data-theme="dark"] .pcard-json-btn:hover{ background:var(--active); color:#c7d2fe; }
 :root[data-theme="dark"] .pcard-json-view{ background:var(--surface-2); border-color:var(--border); }
@@ -2135,6 +2209,12 @@ body.pcard-sec-resizing{ cursor:ns-resize; user-select:none; }
   font-family:ui-monospace,Menlo,monospace; font-size:0.72em; color:#7c8698;
   background:#f1f5f9; border:1px solid #e6ebf1; border-radius:4px; padding:0 5px; flex:none; white-space:nowrap;
 }
+/* The param/port physical unit, a small accent pill beside the type tag. */
+.cfg-units{
+  font-family:ui-monospace,Menlo,monospace; font-size:0.72em; color:var(--accent,#0f766b);
+  background:var(--accent-soft,rgba(15,118,107,0.1)); border-radius:4px; padding:0 5px; flex:none; white-space:nowrap; margin-left:2px;
+}
+:root[data-theme="dark"] .cfg-units{ background:rgba(63,185,165,0.15); color:var(--accent,#3fb9a5); }
 .cfg-row-input{ min-width:0; }
 .cfg-list .cfg-row-input input[type="text"],
 .cfg-list .cfg-row-input input[type="number"],
@@ -2818,6 +2898,79 @@ body.pcard-splitting iframe{ pointer-events:none; }
 }
 .inv-brief-meta-item em { font-style: normal; font-weight: 700; color: #334155; margin-right: 5px; }
 .inv-brief-meta-item + .inv-brief-meta-item::before { content: "·"; margin: 0 9px; color: #cbd5e1; }
+
+/* Plan-progress board — cumulative gates A→E, live status (lib/plan_board) */
+.inv-plan-board { margin: 4px 0 18px; }
+.inv-plan-board-title {
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #64748b; margin: 0 0 8px;
+}
+.inv-plan-gates {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;
+}
+.inv-plan-gate {
+  flex: 1 1 140px; min-width: 128px;
+  border: 1px solid var(--border, #e2e6eb); border-top: 3px solid #cbd5e1;
+  border-radius: 8px; padding: 9px 11px; background: #fff;
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.inv-plan-gate.inv-gate-passed   { border-top-color: #10b981; }
+.inv-plan-gate.inv-gate-progress { border-top-color: #f59e0b; }
+.inv-plan-gate.inv-gate-blocked  { border-top-color: #ef4444; }
+.inv-plan-gate.inv-gate-pending  { border-top-color: #cbd5e1; opacity: 0.82; }
+.inv-plan-gate.inv-gate-qualified { border-top-color: #0ea5e9; }
+.inv-plan-gate.inv-gate-refuted   { border-top-color: #e11d48; }
+.inv-plan-gate.inv-gate-optional { border-style: dashed; }
+/* Off-spine branch (e.g. a tested-and-refuted side-question) — dashed + slightly
+   recessed so it doesn't read as spine progress. */
+.inv-plan-gate.inv-gate-branch { border-style: dashed; opacity: 0.92; }
+.inv-gate-head { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.inv-gate-id {
+  font-weight: 800; font-size: 0.95em; color: #0f172a;
+  background: #f1f5f9; border-radius: 5px; padding: 0 6px; line-height: 1.4;
+}
+.inv-gate-name { font-size: 0.82em; font-weight: 600; color: #334155; }
+.inv-gate-opt { font-size: 0.62em; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
+.inv-gate-status {
+  font-size: 0.68em; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  border-radius: 9999px; padding: 2px 8px; align-self: flex-start;
+}
+.inv-gate-status-passed    { background: #d1fae5; color: #065f46; }
+.inv-gate-status-progress  { background: #fef3c7; color: #92400e; }
+.inv-gate-status-blocked   { background: #fee2e2; color: #991b1b; }
+.inv-gate-status-pending   { background: #f1f5f9; color: #64748b; }
+.inv-gate-status-qualified { background: #e0f2fe; color: #075985; }
+.inv-gate-status-refuted   { background: #ffe4e6; color: #9f1239; }
+.inv-gate-branch-tag { font-size: 0.62em; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
+.inv-gate-members { font-size: 0.72em; color: #64748b; }
+/* Compact plan board — the "Plan progress" brief tab: slim one-row gate chips
+   instead of the full always-open board under the brief. */
+.inv-plan-board-compact { margin: 2px 0 0; }
+.inv-plan-board-compact .inv-plan-gates { gap: 6px; }
+.inv-plan-board-compact .inv-plan-gate {
+  flex: 0 1 auto; min-width: 0;
+  border-top-width: 2px; border-radius: 7px; padding: 5px 10px;
+  flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.inv-plan-board-compact .inv-gate-head { gap: 5px; }
+.inv-plan-board-compact .inv-gate-id { font-size: 0.8em; padding: 0 5px; }
+.inv-plan-board-compact .inv-gate-name { font-size: 0.76em; }
+.inv-plan-board-compact .inv-gate-status { font-size: 0.6em; padding: 1px 7px; }
+.inv-plan-board-compact .inv-gate-members { font-size: 0.68em; margin-left: auto; }
+/* Verdict brief tab — colored VS pill above the verdict prose. */
+.inv-brief-verdict-tab .inv-vs-pill { display: inline-block; margin: 0 0 8px; }
+.inv-brief-verdict-tab .inv-brief-verdict-text { line-height: 1.6; }
+/* Competing-frameworks fold — a trailing note inside the Hypothesis & evidence
+   tab (folded in; no longer a standalone, usually-thin tab). */
+.inv-brief-frameworks-fold { margin: 14px 0 0; padding-top: 10px; border-top: 1px solid #eef2f6; }
+.inv-brief-frameworks-label {
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #94a3b8; margin: 0 0 6px;
+}
+.inv-brief-frameworks { margin: 0; padding-left: 18px; }
 .inv-brief-tabs {
   display: flex; flex-wrap: wrap; gap: 2px;
   border-bottom: 1px solid #e2e8f0; margin: 0 0 14px;
@@ -2831,6 +2984,16 @@ body.pcard-splitting iframe{ pointer-events:none; }
 }
 .inv-brief-tab:hover { color: #334155; background: #f8fafc; }
 .inv-brief-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+/* Decisions tab — highlighted (amber) to draw attention when decisions are open. */
+.inv-brief-tab-attn { color: #b45309; }
+.inv-brief-tab-attn:hover { color: #92400e; background: #fffbeb; }
+.inv-brief-tab-attn.active { color: #b45309; border-bottom-color: #b45309; }
+.inv-brief-tab-badge {
+  display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 10px;
+  font-size: 0.78em; font-weight: 700; line-height: 1.6; vertical-align: baseline;
+  background: #e2e8f0; color: #475569;
+}
+.inv-brief-tab-badge.attn { background: #b45309; color: #fff; }
 .inv-brief-panels { font-family: -apple-system, "Segoe UI", sans-serif; }
 .inv-brief-prose { font-size: 0.95em; line-height: 1.62; color: #334155; }
 .inv-brief-prose p { margin: 0 0 10px; }
@@ -3636,7 +3799,7 @@ body.col-resizing .col-resizer::after { background: #6366f1; }
    `.panel` card, leaving a buffer margin around the operating space. Registry and
    Investigations fill the pane flush — match that by stripping the card chrome
    from these pages' outermost panel (nested panels keep their chrome). */
-#page-workspace-inputs > .panel,
+#page-resources .registry-tab-panel[data-restab="inputs"] > .panel,
 #page-simulation-setup > .panel,
 #page-visualizations > .panel {
   background: none; border: none; border-radius: 0; padding: 0; margin: 0;
@@ -4134,6 +4297,158 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 .tool-row + .tool-row { margin-top: 8px; }
 .viewer-target-list { display: flex; flex-direction: column; gap: 4px; }
 
+/* ===== Resources tab =====================================================
+   Curated structured scientific resources, grouped by type. Cards reuse the
+   generic surface tokens (var(--panel)/var(--border)) so dark mode follows the
+   shared .res-card rule; the sub-blocks below add the bespoke structure
+   (Martini mapping, reaction-universe summary, caveats, citation chips). */
+.resources-gallery { display: flex; flex-direction: column; gap: 22px; }
+.res-manifest-head { margin-bottom: 4px; }
+.res-manifest-title { margin: 0; display: inline; font-size: 1.25em; }
+.res-manifest-ver { margin-left: 8px; font-size: 0.78em; color: var(--gray); }
+.res-manifest-desc { margin: 6px 0 0; max-width: 70ch; }
+.res-section { }
+.res-section-title { font-size: 1.02em; margin: 0 0 10px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.res-count { font-size: 0.72em; color: var(--gray); font-weight: 600;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0 7px; }
+/* Cards: readable 1–2 columns, never 3–4 tiny ones. Each card gets at least
+   ~400px (min(100%, 400px) so it still collapses to 1-up on a phone). */
+.res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+  gap: 14px; align-items: start; }
+/* Reaction pathways are prose-heavy (role/caveats/tables) → full width, with a
+   second column only on a genuinely wide viewport. */
+.res-section[data-res-type="reaction-pathway"] .res-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 640px), 1fr)); }
+/* Evidence datasets carry an internal 2-column measured/predicted chain → give
+   each card room so that chain isn't squeezed. */
+.res-section[data-res-type="evidence-dataset"] .res-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr)); }
+/* A stacked prose field: label on its own line, value full-width beneath — the
+   fix for long prose (Role in campaign, ΔG span, caution, …) that used to wrap
+   one character per line in a cramped 2nd grid column. */
+.res-field { margin: 8px 0; min-width: 0; }
+.res-field + .res-field { margin-top: 6px; }
+.res-field-k { display: block; font-size: 0.72em; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--gray); font-weight: 600; margin-bottom: 2px; }
+.res-field-v { display: block; font-size: 0.88em; line-height: 1.5; overflow-wrap: anywhere; }
+.res-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+  background: var(--panel); }
+.res-card-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.res-card-name { font-size: 0.98em; }
+.res-abbr { font-family: ui-monospace, Menlo, monospace; font-size: 0.8em; color: var(--gray); }
+.res-badge { margin-left: auto; font-size: 0.68em; text-transform: uppercase;
+  letter-spacing: 0.04em; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1px 8px; color: var(--gray); white-space: nowrap; }
+.res-summary { margin: 6px 0 10px; font-size: 0.86em; }
+.res-desc { font-size: 0.86em; margin: 8px 0; }
+.res-sub { font-size: 0.74em; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--gray); font-weight: 600; margin: 12px 0 6px; }
+/* Short scalar pairs only. auto-fit with a 220px floor keyed to CARD width
+   (not the viewport) so a pair never shrinks into a 1-char-per-line column; a
+   pair that doesn't fit drops to its own row instead. Prose belongs in
+   .res-field (stacked), never here. */
+.res-kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 4px 18px; }
+.res-kv { display: flex; gap: 6px; font-size: 0.84em; line-height: 1.4; min-width: 0; }
+.res-kv-k { color: var(--gray); flex: 0 0 auto; }
+.res-kv-v { color: inherit; min-width: 0; overflow-wrap: anywhere; }
+.res-martini, .res-network { margin-top: 10px; padding: 10px; border: 1px solid var(--border);
+  border-radius: 6px; background: var(--bg); }
+.res-martini .res-sub, .res-network .res-sub { margin-top: 0; }
+.res-beads { margin: 8px 0 0; padding-left: 20px; font-size: 0.82em;
+  font-family: ui-monospace, Menlo, monospace; }
+.res-beads li { margin: 2px 0; }
+.res-headline { font-weight: 600; font-size: 0.9em; margin-bottom: 8px; }
+.res-notes { margin: 10px 0 0; font-size: 0.82em; font-style: italic; color: var(--gray); }
+.res-table { width: 100%; border-collapse: collapse; margin: 6px 0 2px; font-size: 0.82em; }
+.res-table th { text-align: left; font-weight: 600; background: var(--bg);
+  border-bottom: 1px solid var(--border); padding: 4px 7px; }
+.res-table td { border-bottom: 1px solid var(--border); padding: 4px 7px; vertical-align: top; }
+.res-eq { font-family: ui-monospace, Menlo, monospace; }
+/* Honesty caveats — rendered prominently, never hidden. */
+.res-caveats { margin: 12px 0 2px; padding: 10px 12px; border: 1px solid #f59e0b;
+  border-left-width: 4px; border-radius: 6px; background: #fffbeb; }
+.res-caveats-lbl { font-weight: 700; font-size: 0.8em; color: #b45309;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.res-caveats ul { margin: 0; padding-left: 18px; font-size: 0.84em; }
+.res-caveats li { margin: 3px 0; }
+.res-prov { margin-top: 10px; font-size: 0.76em; word-break: break-word; }
+/* Citation chips — cross-link to the paper-reference card with the matching id. */
+.res-cites { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.res-cites-lbl { font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--gray); font-weight: 600; }
+.res-cite { font-size: 0.78em; padding: 1px 8px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg); color: var(--accent); cursor: pointer;
+  text-decoration: none; }
+.res-cite:hover { border-color: var(--accent); }
+.res-cite-missing { color: var(--gray); cursor: default; font-style: italic; }
+.res-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+.res-tag { font-size: 0.74em; padding: 1px 7px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg); color: var(--gray); }
+.res-authors { margin: 6px 0 2px; font-size: 0.85em; }
+.res-title { margin: 2px 0; font-size: 0.86em; font-weight: 600; }
+.res-venue { font-size: 0.82em; font-style: italic; color: var(--gray); }
+.res-links { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 10px; }
+.res-link { font-size: 0.8em; color: var(--accent); }
+.res-flag { font-size: 0.68em; text-transform: uppercase; letter-spacing: 0.03em;
+  border-radius: 10px; padding: 1px 8px; white-space: nowrap; }
+.res-flag-ok { background: #ecfdf5; color: #047857; }
+.res-flag-warn { background: #fffbeb; color: #b45309; }
+.res-paper { scroll-margin-top: 80px; }
+/* References-list entries are the cross-link targets now (paper-reference cards
+   were folded in), so they need the same scroll offset + flash affordance. */
+.res-ref-anchor { scroll-margin-top: 80px; }
+.res-ref-flash { box-shadow: 0 0 0 2px var(--accent); transition: box-shadow 0.2s; }
+
+/* evidence-dataset — a provenance-chain card: original measurement vs model
+   prediction (or pending), condition vector, caution, and provenance/status
+   badges. Reuses the shared surface + .res-caveats for the caution block. */
+.res-ev-qa-banner { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 12px;
+  padding: 10px 14px; border: 1px solid var(--accent); border-left-width: 4px;
+  border-radius: 6px; background: var(--bg); }
+.res-ev-qa-lbl { font-size: 0.68em; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--accent); flex: 0 0 auto; padding-top: 2px; }
+.res-ev-qa-text { font-size: 0.86em; line-height: 1.5; }
+.res-evidence .res-ev-badges { margin-left: auto; display: flex; flex-wrap: wrap; gap: 5px; }
+.res-ev-badge { font-size: 0.66em; text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 600; border-radius: 10px; padding: 1px 8px; white-space: nowrap;
+  border: 1px solid var(--border); }
+/* provenance_class badges — closer to field evidence = cooler/stronger. */
+.res-ev-prov[data-prov="FIELD"]          { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.res-ev-prov[data-prov="LAB-DIRECT"]     { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.res-ev-prov[data-prov="LAB-ANALOG"]     { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
+.res-ev-prov[data-prov="MODEL"]          { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+.res-ev-prov[data-prov="RECONSTRUCTION"] { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+.res-ev-prov[data-prov="HYPOTHESIS"]     { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+/* status badges — catalogued → digitized → wired progression. */
+.res-ev-status[data-status="catalogued"] { background: var(--bg); color: var(--gray); }
+.res-ev-status[data-status="digitized"]  { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+.res-ev-status[data-status="wired"]      { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.res-ev-cite { margin: 2px 0 8px; font-size: 0.8em; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.res-ev-bibkey { font-family: ui-monospace, Menlo, monospace; color: var(--gray); }
+.res-ev-chain { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 10px 0 2px; }
+@media (min-width: 480px) { .res-ev-chain { grid-template-columns: 1fr 1fr; } }
+.res-ev-col { padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); }
+.res-ev-predicted { border-style: dashed; }
+.res-ev-col .res-sub { margin-top: 0; }
+.res-ev-kv { grid-template-columns: 1fr; }
+.res-ev-none { margin: 2px 0 0; font-size: 0.84em; }
+.res-ev-pending-mark { font-size: 0.86em; font-weight: 600; color: #b45309; }
+.res-ev-pending { background: #fffbeb; border-color: #fde68a; border-style: dashed; }
+.res-ev-cond { margin-top: 10px; }
+.res-ev-cvrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.res-ev-cvpair { font-size: 0.78em; padding: 1px 8px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg); white-space: nowrap; }
+.res-ev-cvk { color: var(--gray); margin-right: 5px; }
+.res-ev-meta { margin-top: 10px; }
+.res-ev-species { font-style: italic; }
+.res-ev-feeds { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.res-study-chip { cursor: pointer; color: var(--accent); text-decoration: none; }
+.res-study-chip:hover { border-color: var(--accent); }
+.res-ev-caution { margin-top: 12px; }
+.res-ev-caution-text { margin: 0; font-size: 0.86em; line-height: 1.5; }
+
 /* top bar: run picker · view tabs · pop-out */
 .exp-topbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center;
   padding-bottom:8px; border-bottom:1px solid #2a313c; }
@@ -4213,6 +4528,40 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 }
 .study-pillar:hover { color: #334155; }
 .study-pillar.active { color: #1e293b; border-bottom-color: #2563eb; }
+
+/* 5-tab study layout: one LEFT-aligned row of icon+label tabs, no per-act group
+   headers. Each .study-pillar sets its inline-SVG icon beside the label (not
+   stacked) for a tighter, more type-driven bar that matches the page theme; the
+   icon inherits currentColor so it tints with the active/inactive text color.
+   These override the old act-cluster flex rules on .study-tabs above. */
+.study-tabs { justify-content: flex-start; align-items: stretch; gap: 2px; }
+.study-tabs .study-pillar {
+  display: inline-flex; flex-direction: row; align-items: center; gap: 7px;
+  padding: 9px 15px 8px;
+  font-weight: 600; font-size: 0.82rem; letter-spacing: 0.01em;
+  color: #64748b; border-radius: 7px 7px 0 0;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.study-tabs .study-pillar:hover { color: #334155; background: #f8fafc; }
+.study-tabs .study-pillar.active { color: #1e293b; font-weight: 700; }
+.study-pillar .pillar-icon { display: block; color: currentColor; width: 16px; height: 16px; flex-shrink: 0; }
+.study-pillar .pillar-label { display: block; line-height: 1; }
+.study-pillar.active .pillar-icon { color: #2563eb; }
+
+/* Simulations secondary subtabs (Runs | Results | Analysis) — lightweight,
+   matching the page's existing tab style at a smaller scale. */
+.sim-subtab {
+  border: 0; background: none; cursor: pointer; padding: 6px 14px;
+  font-weight: 600; font-size: 0.9rem; color: #64748b;
+  border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.sim-subtab:hover { color: #334155; }
+.sim-subtab.active { color: #1e293b; border-bottom-color: #2563eb; }
+.sim-subpanel[hidden] { display: none; }
+
+/* Model tab: collapsed "Advanced — build provenance" section */
+.model-advanced { border-top: 1px solid #e5e7eb; padding-top: 12px; }
+.model-advanced > summary { color: #475569; }
 .study-subnav { display: flex; gap: 2px; flex-wrap: wrap; margin: 0 0 10px; padding: 4px 0 0; }
 .study-subnav .study-tab {
   border: 0; background: none; cursor: pointer; padding: 4px 11px; border-radius: 9999px;
@@ -4362,12 +4711,389 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* ── Investigation-graph toolbar ───────────────────────────────────────────── */
+/* One grouped control bar under the graph lead: segmented button clusters for
+   orientation / zoom / view, two clearly labeled sliders (Detail = semantic
+   zoom band, Width = study-card width), and an Export menu. Replaces the old
+   row of float:right icon-flanked spans. Orientation button active-state is set
+   inline by _syncGraphOrientToggleUI; the download menu keeps the .aig-dl-ctl
+   hook its outside-click handler relies on. */
+.aig-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 2px 0 10px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  font-size: 0.86em;
+  color: #475569;
+}
+.aig-tb-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+/* While a study is open, hide the investigation PROSE (verdict / question /
+   description / decision cockpit + tab blocks) so only the graph region remains;
+   the graph then floats as a dockable window (below), out of normal flow, so the
+   study column reclaims the full width/height. Removing the class restores each
+   child to its own inline/default display (the back-link + title row keep their
+   own inline display:none set by _renderInvestigationDetailInto). */
+#investigation-detail-view.inv-study-open > * { display: none !important; }
+#investigation-detail-view.inv-study-open > #investigation-dag-fs { display: block !important; }
+/* …but the "Investigation overview" toggle must still be able to reveal the prose
+   ABOVE the graph while a study is open. When the overview is expanded
+   (not .inv-overview-collapsed), un-hide the intro + decision-cockpit blocks so
+   #inv-overview-toggle actually does something in the study-open state. They
+   precede the graph in the DOM, so they appear above it. */
+#investigation-detail-view.inv-study-open:not(.inv-overview-collapsed) > #investigation-intro,
+#investigation-detail-view.inv-study-open:not(.inv-overview-collapsed) > #investigation-decision-cockpit { display: block !important; }
+
+/* Collapsible "Investigation overview" (inline view, NO study open): the prose
+   blocks (#investigation-intro + #investigation-decision-cockpit) are hidden by
+   default behind #inv-overview-toggle so the graph renders prominently + top-
+   aligned right after the title + toggle. The study-open state hides everything
+   but the graph anyway (rule above), so this only governs the inline view. */
+/* The toggle is a toolbar button (.aig-tb-btn) — left-most item of the inline
+   graph toolbar. A subtle fill marks it as the overview control. */
+#inv-overview-toggle { font-weight: 600; }
+#investigation-detail-view.inv-overview-collapsed > #investigation-intro,
+#investigation-detail-view.inv-overview-collapsed > #investigation-decision-cockpit { display: none; }
+/* Inline-graph collapse: drag the graph↔study divider all the way up (or the bar)
+   to collapse the whole inline graph (toolbar + shell) to a single clickable
+   "Investigation graph" bar; click it to expand. */
+.aig-collapsed-bar { display: none; }
+#investigation-dag-fs.aig-collapsed .aig-toolbar,
+#investigation-dag-fs.aig-collapsed #investigation-dag-shell,
+#investigation-dag-fs.aig-collapsed .aig-dock-grip { display: none !important; }
+#investigation-dag-fs.aig-collapsed .aig-collapsed-bar {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;
+  padding: 8px 12px; color: #475569; font-weight: 600; font-size: 0.9em;
+}
+#investigation-dag-fs.aig-collapsed .aig-collapsed-bar:hover { background: #eef2ff; color: #3730a3; }
+/* Needs-attention: a compact chip in the toolbar (no big banner). All-clear is a
+   quiet green pill; the needs state is an amber/red clickable pill. */
+.aig-na-chip-host { display: inline-flex; align-items: center; }
+.aig-na-chip {
+  display: inline-flex; align-items: center; gap: 5px; border-radius: 9999px;
+  padding: 2px 10px; font-size: 0.8em; font-weight: 600; white-space: nowrap;
+  border: 1px solid transparent;
+}
+.aig-na-chip.aig-na-clear { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.aig-na-chip.aig-na-flag { background: #fffbeb; color: #92400e; border-color: #fcd34d; cursor: pointer; }
+.aig-na-chip.aig-na-flag.aig-na-high { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+.aig-na-chip.aig-na-flag:hover { filter: brightness(0.97); }
+
+/* ── Unified investigation header bar ──────────────────────────────────────
+   Every control in the investigation header (← All investigations, ▸ Investigation
+   overview, ↓ report / notebook / figures, ▶ Run current spec, and the needs-
+   attention chip) shares one neutral slate look — same size, same shape — matching
+   the "▸ Investigation graph" collapsed bar. No blue. */
+.inv-header-bar { gap: 8px; flex-wrap: wrap; }
+.inv-header-bar .btn-mini,
+.inv-header-bar .aig-na-chip {
+  font-size: 0.82em;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 4px 11px;
+  margin: 0;                        /* spacing comes from the flex gap */
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.inv-header-bar .aig-na-chip { display: inline-flex; align-items: center; gap: 5px; }
+.inv-header-bar .btn-mini:hover,
+.inv-header-bar .aig-na-chip:hover { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+.inv-header-bar .btn-mini:disabled { opacity: 0.55; cursor: default; }
+.inv-header-bar .btn-mini:disabled:hover { background: #f8fafc; color: #475569; border-color: #e5e7eb; }
+/* Keep only a quiet status tint on the chip's glyph/text so the pill still reads
+   as a status without breaking the shared shape. */
+.inv-header-bar .aig-na-chip.aig-na-clear { color: #166534; }
+.inv-header-bar .aig-na-chip.aig-na-flag { color: #92400e; }
+.inv-header-bar .aig-na-chip.aig-na-flag.aig-na-high { color: #991b1b; }
+#ws-actions { display: inline-flex; align-items: center; gap: 8px; }
+:root[data-theme="dark"] .inv-header-bar .btn-mini,
+:root[data-theme="dark"] .inv-header-bar .aig-na-chip {
+  background: rgba(148,163,184,0.12); border-color: rgba(148,163,184,0.3); color: #cbd5e1;
+}
+:root[data-theme="dark"] .inv-header-bar .btn-mini:hover,
+:root[data-theme="dark"] .inv-header-bar .aig-na-chip:hover { background: rgba(148,163,184,0.22); color: #e2e8f0; }
+
+/* ── Dockable investigation graph (while a study is embedded) ──
+   The graph region (#investigation-dag-fs) becomes a position:fixed floating
+   panel; the #aig-dock-ctl control switches collapsed ⇄ docked (and ⛶ exits the
+   study). Out of normal flow, so the study beneath gets the full column. Sizes
+   are explicit so the state change animates (prefers-reduced-motion disables it;
+   dragging also disables it, via .aig-dragging). The docked panel is draggable
+   by its header and resizable by the corner grip; its rect is remembered. */
+#investigation-dag-fs.aig-dock {
+  position: fixed; z-index: 60; top: 10px; right: 10px;
+  background: var(--panel, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+  display: flex; flex-direction: column; overflow: hidden;
+  transition: width .18s ease, height .18s ease, top .18s ease, right .18s ease, left .18s ease, box-shadow .18s ease;
+}
+@media (prefers-reduced-motion: reduce) { #investigation-dag-fs.aig-dock { transition: none; } }
+#investigation-dag-fs.aig-dock.aig-dragging,
+#investigation-dag-fs.aig-dock.aig-resizing { transition: none; }
+#investigation-dag-fs.aig-dock-collapsed { width: 320px; height: 86px; }
+/* Docked default size — NO !important, so the inline width/height the JS resize
+   writes wins over it. Custom corner grips (.aig-dock-grip) do the resizing. */
+#investigation-dag-fs.aig-dock-docked { width: 400px; height: 360px; }
+/* Resize grips — only in the docked state, above the graph shell so they get the
+   pointer. */
+.aig-dock-grip { display: none; position: absolute; width: 18px; height: 18px; z-index: 10; }
+#investigation-dag-fs.aig-dock-docked .aig-dock-grip { display: block; }
+.aig-dock-grip[data-grip="se"] { right: 0; bottom: 0; cursor: nwse-resize; }
+.aig-dock-grip[data-grip="sw"] { left: 0; bottom: 0; cursor: nesw-resize; }
+.aig-dock-grip[data-grip="se"]::after {
+  content: ''; position: absolute; right: 3px; bottom: 3px; width: 9px; height: 9px;
+  border-right: 2px solid #94a3b8; border-bottom: 2px solid #94a3b8;
+}
+.aig-dock-grip[data-grip="sw"]::after {
+  content: ''; position: absolute; left: 3px; bottom: 3px; width: 9px; height: 9px;
+  border-left: 2px solid #94a3b8; border-bottom: 2px solid #94a3b8;
+}
+/* No title bar in the popup: the toolbar is the top row + the DRAG HANDLE (drag
+   empty toolbar space; interactive controls keep their own cursor). */
+#investigation-dag-fs.aig-dock .aig-toolbar {
+  margin: 0; border: none; border-bottom: 1px solid var(--border, #eef2f7);
+  border-radius: 0; background: transparent; padding: 6px 8px;
+}
+#investigation-dag-fs.aig-dock-docked .aig-toolbar { cursor: move; }
+#investigation-dag-fs.aig-dock-docked .aig-toolbar button,
+#investigation-dag-fs.aig-dock-docked .aig-toolbar input,
+#investigation-dag-fs.aig-dock-docked .aig-toolbar select,
+#investigation-dag-fs.aig-dock-docked .aig-toolbar a { cursor: default; }
+#investigation-dag-fs.aig-dock-docked .aig-toolbar input[type="range"] { cursor: pointer; }
+#investigation-dag-fs.aig-dock #investigation-dag-shell {
+  flex: 1 1 auto; height: auto !important; min-height: 0 !important; max-height: none !important;
+  resize: none; border: none; border-radius: 0; margin: 0;
+}
+/* The dock control owns the state while floating — hide the legacy expand seg. */
+#investigation-dag-fs.aig-dock #aig-legacy-expand-seg { display: none; }
+/* Inline-only controls are hidden in the docked popup (any dock state). */
+#investigation-dag-fs.aig-dock #inv-overview-toggle,
+#investigation-dag-fs.aig-dock #aig-needs-attention-chip { display: none; }
+/* Docked: compact — show dock control + navigator + Zoom/Detail/Width; hide the
+   heavier Layout/Legend/Export groups. */
+#investigation-dag-fs.aig-dock-docked #aig-layout-group,
+#investigation-dag-fs.aig-dock-docked .dag-legend-wrap,
+#investigation-dag-fs.aig-dock-docked .aig-dl-ctl { display: none; }
+/* Collapsed: show ONLY the dock control + study navigator; graph hidden. */
+#investigation-dag-fs.aig-dock-collapsed .aig-toolbar > *:not(#aig-dock-ctl):not(#aig-study-nav) { display: none; }
+#investigation-dag-fs.aig-dock-collapsed #investigation-dag-shell { display: none !important; }
+/* Dock state control (three segmented buttons in the panel header). */
+.aig-dock-ctl { margin-left: auto; display: inline-flex; }
+.aig-dock-ctl > button {
+  border: 1px solid var(--border, #e2e8f0); border-left: none; background: #fff; color: #64748b;
+  cursor: pointer; padding: 2px 8px; font-size: 0.9em; line-height: 1.3;
+}
+.aig-dock-ctl > button:first-child { border-left: 1px solid var(--border, #e2e8f0); border-radius: 6px 0 0 6px; }
+.aig-dock-ctl > button:last-child { border-radius: 0 6px 6px 0; }
+.aig-dock-ctl > button:hover { background: #eef2ff; color: #3730a3; }
+.aig-dock-ctl > button.active { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+/* Graph-bar study navigator jump menu items (reuses the study-nav look). */
+.aig-study-jump-item {
+  display: block; width: 100%; text-align: left; border: none; background: transparent;
+  padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.92em; color: #334155;
+}
+.aig-study-jump-item:hover { background: #eef2ff; }
+.aig-study-jump-item.current { font-weight: 700; color: #1d4ed8; }
+.aig-study-jump-group {
+  font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.04em;
+  color: #94a3b8; padding: 6px 10px 2px; font-weight: 700;
+}
+.aig-tb-group + .aig-tb-group {
+  padding-left: 12px;
+  border-left: 1px solid #e2e8f0;
+}
+.aig-tb-right { margin-left: auto; }
+.aig-tb-group.aig-tb-right { padding-left: 0; border-left: none; }
+.aig-tb-label {
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.aig-tb-seg {
+  display: inline-flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+.aig-tb-seg > button {
+  /* Same font as the other toolbar buttons; keeps the segmented 2-up shape. */
+  border: none;
+  border-left: 1px solid #e5e7eb;
+  background: transparent;
+  color: #475569;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.82em;
+  line-height: 1.4;
+}
+.aig-tb-seg > button:first-child { border-left: none; }
+.aig-tb-seg > button:hover { background: #eef2ff; color: #3730a3; }
+.aig-tb-seg > button:focus-visible { outline: 2px solid #6366f1; outline-offset: -2px; }
+.aig-tb-btn {
+  /* Matches .inv-header-bar .btn-mini so the whole investigation view reads as
+     one consistent button set (same size, weight, fill, border, hover). */
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 4px 11px;
+  cursor: pointer;
+  font-size: 0.82em;
+  line-height: 1.4;
+}
+.aig-tb-btn:hover { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+.aig-tb-link {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.82em;
+  text-decoration: underline dotted;
+  padding: 0 2px;
+}
+.aig-tb-link:hover { color: #64748b; }
+.aig-tb-slider {
+  width: 104px;
+  cursor: pointer;
+  vertical-align: middle;
+  accent-color: #2563eb;
+}
+.aig-tb-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.aig-tb-slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+/* Full-width resize bar below the inline graph — grab anywhere on it to change
+   the graph height (replaces the old bottom-right corner grip). */
+#aig-resize-bar {
+  height: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: row-resize;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  touch-action: none;           /* let pointer drag own the gesture */
+}
+#aig-resize-bar:hover,
+#aig-resize-bar.dragging { background: #e2e8f0; }
+#aig-resize-bar:focus-visible { outline: 2px solid #6366f1; outline-offset: -2px; }
+.aig-resize-grip {
+  display: block;
+  width: 44px;
+  height: 4px;
+  border-radius: 9999px;
+  background: #cbd5e1;
+}
+#aig-resize-bar:hover .aig-resize-grip,
+#aig-resize-bar.dragging .aig-resize-grip { background: #94a3b8; }
+/* Hidden while the graph is collapsed to its bar, docked, or in the side panel. */
+#investigation-dag-fs.aig-collapsed #aig-resize-bar,
+#investigation-dag-fs.aig-dock #aig-resize-bar,
+.viv-graph-body #aig-resize-bar { display: none; }
+
+/* The primary unified-zoom slider is wider than the fine-tune sliders so it
+   reads as the main control. */
+.aig-tb-slider-wide { width: 180px; }
+/* ⚙ Display popover: the fine-tune sliders stack as labelled rows. */
+.aig-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+.aig-settings-row + .aig-settings-row { border-top: 1px solid #f1f5f9; }
+.aig-settings-row .aig-tb-label { width: 48px; }
+.aig-settings-row .aig-tb-slider { flex: 1 1 auto; width: auto; }
+@media (max-width: 640px) {
+  .aig-tb-group + .aig-tb-group { padding-left: 0; border-left: none; }
+  .aig-tb-right { margin-left: 0; }
+  .aig-tb-slider { width: 84px; }
+  .aig-tb-slider-wide { width: 120px; }
+}
+
 /* Investigation-graph semantic zoom: status-badge click affordance + band tweaks. */
 .aig-status-badge { border-radius: 3px; padding: 0 2px; }
 .aig-status-badge:hover { background: rgba(0,0,0,0.06); }
 .aig-status-badge:focus-visible { outline: 2px solid #6366f1; outline-offset: 1px; }
 /* Far (overview) band: tighter cards so the whole DAG reads at a glance. */
 #investigation-dag-shell.aig-zoom-far .iset-dag-node { padding: 6px 8px; }
+
+/* The study currently open in the detail panel below — highlighted in the graph
+   so "which node am I looking at" is unambiguous. Set/cleared by _wsOpenStudyTab
+   and re-applied on every _renderInvestigationDag from window._wsStudyTabs.active. */
+.iset-dag-node.aig-node-active {
+  position: relative;
+  box-shadow: 0 0 0 3px #2563eb, 0 6px 18px rgba(37,99,235,0.28) !important;
+  border-color: #2563eb !important;
+}
+.iset-dag-node.aig-node-active::after {
+  content: "open"; position: absolute; top: -9px; right: 10px;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #fff; background: #2563eb; padding: 1px 7px; border-radius: 9999px;
+}
+/* SELECTED (one click) — a distinct violet highlight that STACKS with the blue
+   "open" ring (one uses outline, the other box-shadow) so a study can show both.
+   The "selected" badge sits top-LEFT, opposite the "open" badge top-right. */
+.iset-dag-node.aig-node-selected {
+  outline: 2px solid #7c3aed; outline-offset: 2px;
+  border-color: #7c3aed !important;
+}
+.iset-dag-node.aig-node-selected:not(.aig-node-active) {
+  box-shadow: 0 6px 18px rgba(124,58,237,0.20) !important;
+}
+.iset-dag-node.aig-node-selected::before {
+  content: "selected"; position: absolute; top: -9px; left: 10px;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #fff; background: #7c3aed; padding: 1px 7px; border-radius: 9999px; z-index: 1;
+}
+/* When a study is BOTH open and selected, the "open" marker wins — drop the
+   redundant "selected" outline + badge so the card isn't double-flagged. */
+.iset-dag-node.aig-node-active.aig-node-selected { outline: none; }
+.iset-dag-node.aig-node-active.aig-node-selected::before { content: none; }
 
 /* ── Composites page: compact, informative cards ──────────────────────────── */
 .ccard-grid {
@@ -4584,7 +5310,11 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   position:relative; display:inline-flex; align-items:center; justify-content:space-between;
   width:56px; height:26px; padding:0 7px; border-radius:14px;
   border:1px solid #d8dee6; background:#eef1f5; cursor:pointer;
+  /* Hidden until hovered (keeps its box so the footer stays a hover target). */
+  opacity:0; transition:opacity .14s;
 }
+.viv-rail-theme-footer:hover .viv-theme-toggle,
+.viv-theme-toggle:focus-visible{ opacity:1; }
 .viv-theme-ico{ display:inline-flex; align-items:center; justify-content:center; width:13px; height:13px; z-index:1; }
 .viv-theme-ico svg{ width:13px; height:13px; display:block; }
 .viv-theme-sun{ color:#f59e0b; }
@@ -4669,7 +5399,39 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 :root[data-theme="dark"] .loom-card,
 :root[data-theme="dark"] .investigation-card,
 :root[data-theme="dark"] .analyses-card,
+:root[data-theme="dark"] .res-card,
 :root[data-theme="dark"] .tool-card{ background:var(--surface); border-color:var(--border); color:var(--text); }
+/* Resources tab — dark overrides. Cards get the shared surface above; the
+   sub-surfaces (Martini mapping, network summary, provenance), tables and
+   citation chips need their own recede/contrast tokens. */
+:root[data-theme="dark"] .res-martini,
+:root[data-theme="dark"] .res-network{ background:var(--surface-2); border-color:var(--border); }
+:root[data-theme="dark"] .res-cite,
+:root[data-theme="dark"] .res-tag{ background:var(--surface-3); border-color:var(--border); color:var(--link); }
+:root[data-theme="dark"] .res-tag{ color:var(--text-muted); }
+:root[data-theme="dark"] .res-badge{ background:var(--surface-3); border-color:var(--border); color:var(--text-muted); }
+:root[data-theme="dark"] .res-caveats{ background:rgba(180,83,9,0.18); border-color:#b45309; color:#fcd9a8; }
+:root[data-theme="dark"] .res-table th{ background:var(--surface-2); }
+:root[data-theme="dark"] .res-section-title{ color:var(--heading); border-color:var(--border); }
+:root[data-theme="dark"] .res-flag-ok{ background:rgba(16,122,107,0.22); color:#6ee7cf; }
+:root[data-theme="dark"] .res-flag-warn{ background:rgba(180,83,9,0.22); color:#fcd9a8; }
+:root[data-theme="dark"] .res-ref-flash{ box-shadow:0 0 0 2px var(--accent); }
+/* evidence-dataset — dark overrides. Sub-surfaces (provenance-chain columns,
+   condition-vector chips, QA banner) + the provenance/status/pending badges. */
+:root[data-theme="dark"] .res-ev-qa-banner{ background:var(--surface-2); border-color:var(--accent); }
+:root[data-theme="dark"] .res-ev-col{ background:var(--surface-2); border-color:var(--border); }
+:root[data-theme="dark"] .res-ev-cvpair{ background:var(--surface-3); border-color:var(--border); }
+:root[data-theme="dark"] .res-ev-badge{ background:var(--surface-3); border-color:var(--border); color:var(--text-muted); }
+:root[data-theme="dark"] .res-ev-prov[data-prov="FIELD"]          { background:rgba(16,122,107,0.22); color:#6ee7cf; }
+:root[data-theme="dark"] .res-ev-prov[data-prov="LAB-DIRECT"]     { background:rgba(29,78,216,0.24); color:#93c5fd; }
+:root[data-theme="dark"] .res-ev-prov[data-prov="LAB-ANALOG"]     { background:rgba(3,105,161,0.24); color:#7dd3fc; }
+:root[data-theme="dark"] .res-ev-prov[data-prov="MODEL"]          { background:rgba(109,40,217,0.26); color:#c4b5fd; }
+:root[data-theme="dark"] .res-ev-prov[data-prov="RECONSTRUCTION"] { background:rgba(194,65,12,0.24); color:#fdba74; }
+:root[data-theme="dark"] .res-ev-prov[data-prov="HYPOTHESIS"]     { background:rgba(185,28,28,0.26); color:#fca5a5; }
+:root[data-theme="dark"] .res-ev-status[data-status="digitized"]  { background:rgba(180,83,9,0.22); color:#fcd9a8; }
+:root[data-theme="dark"] .res-ev-status[data-status="wired"]      { background:rgba(16,122,107,0.22); color:#6ee7cf; }
+:root[data-theme="dark"] .res-ev-pending{ background:rgba(180,83,9,0.18); border-color:#b45309; }
+:root[data-theme="dark"] .res-ev-pending-mark{ color:#fcd9a8; }
 :root[data-theme="dark"] .loom-config,
 :root[data-theme="dark"] .loom-sec-out,
 :root[data-theme="dark"] .reg-ip,
@@ -4720,6 +5482,19 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 :root[data-theme="dark"] .loom-out-ports .loom-port{ background:var(--surface-3); border-color:var(--border-2); }
 :root[data-theme="dark"] .loom-port-name{ color:#9db4e6; }
 
+/* "Methods · Simulations" study-card block (aig-graph.js _methodsBlockHtml) —
+   light mode. The block/header/label/value base look is set inline to match
+   the evidence-chain block; these classes carry the fidelity chip styling and
+   give the dark overrides below a handle. */
+.aig-methods-block{ /* container look set inline (matches evidence-chain) */ }
+.aig-methods-val{ word-break:break-word; }
+.aig-fidelity-chip{
+  display:inline-block; padding:0 7px; border-radius:9999px;
+  font-size:0.92em; font-weight:600; line-height:1.5; white-space:nowrap;
+}
+.aig-fidelity-chip.aig-fidelity-real{ background:#ccfbf1; color:#0f766e; }   /* teal — wraps a genuine simulator */
+.aig-fidelity-chip.aig-fidelity-repro{ background:#fef3c7; color:#92400e; }  /* amber — coarse-grained reproduction */
+
 /* Investigation view: biology story, graph canvas, and study-DAG node cards. */
 :root[data-theme="dark"] .inv-bio-story{ background:var(--surface-2) !important; border-color:var(--border) !important; color:var(--text); }
 :root[data-theme="dark"] .aig-zoom-mid,
@@ -4728,8 +5503,14 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 :root[data-theme="dark"] .aig-orient-tb{ background:var(--bg) !important; }
 :root[data-theme="dark"] .iset-dag-node{ background:var(--surface) !important; border-color:var(--border) !important; color:var(--text); }
 :root[data-theme="dark"] .iset-dag-node .aig-claim-row:hover{ background:var(--hover); }
-:root[data-theme="dark"] #investigation-dag-lead{ color:var(--text-muted) !important; }
-:root[data-theme="dark"] #investigation-dag-lead strong{ color:var(--text) !important; }
+/* "Methods · Simulations" block — dark. Inline base colours are overridden with
+   theme tokens (mirrors the .iset-dag-node / .aig-claim-row dark handling). */
+:root[data-theme="dark"] .aig-methods-block{ border-top-color:var(--border) !important; }
+:root[data-theme="dark"] .aig-methods-head{ color:var(--text) !important; }
+:root[data-theme="dark"] .aig-methods-label{ color:var(--text-muted) !important; }
+:root[data-theme="dark"] .aig-methods-val{ color:var(--text) !important; }
+:root[data-theme="dark"] .aig-fidelity-chip.aig-fidelity-real{ background:#124b43 !important; color:#5eead4 !important; }
+:root[data-theme="dark"] .aig-fidelity-chip.aig-fidelity-repro{ background:#3f2d12 !important; color:#fcd34d !important; }
 :root[data-theme="dark"] .inv-lead-details summary{ color:var(--text-muted) !important; }
 :root[data-theme="dark"] .viv-info-chip{ background:var(--surface-3) !important; color:var(--text-muted) !important; border-color:var(--border) !important; }
 /* Inquiry brief (investigation opening) — dark. Accent --vs keeps its vivid
@@ -4740,6 +5521,14 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 :root[data-theme="dark"] .inv-brief-framing{ color:var(--text-muted); }
 :root[data-theme="dark"] .inv-brief-meta{ color:var(--text-muted); }
 :root[data-theme="dark"] .inv-brief-meta-item em{ color:var(--text); }
+:root[data-theme="dark"] .inv-plan-board-title{ color:var(--text-muted); }
+:root[data-theme="dark"] .inv-plan-gate{ background:var(--panel); border-color:var(--border); }
+:root[data-theme="dark"] .inv-gate-id{ background:var(--surface-2); color:var(--heading); }
+:root[data-theme="dark"] .inv-gate-name{ color:var(--text); }
+:root[data-theme="dark"] .inv-gate-members{ color:var(--text-muted); }
+:root[data-theme="dark"] .inv-gate-branch-tag{ color:var(--text-muted); }
+:root[data-theme="dark"] .inv-brief-frameworks-fold{ border-top-color:var(--border); }
+:root[data-theme="dark"] .inv-brief-frameworks-label{ color:var(--text-muted); }
 :root[data-theme="dark"] .inv-brief-meta-item + .inv-brief-meta-item::before{ color:var(--border-2); }
 :root[data-theme="dark"] .inv-brief-tabs{ border-bottom-color:var(--border); }
 :root[data-theme="dark"] .inv-brief-tab{ color:var(--text-muted); }
@@ -4831,6 +5620,11 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 :root[data-theme="dark"] .finding-title,
 :root[data-theme="dark"] .overview-section h2,
 :root[data-theme="dark"] .overview-section h3{ color:var(--heading) !important; }
+/* 5-tab icon row + Simulations subtabs: active accent in dark mode. */
+:root[data-theme="dark"] .study-pillar.active .pillar-icon{ color:#3b82f6; }
+:root[data-theme="dark"] .sim-subtab{ color:var(--text-muted); }
+:root[data-theme="dark"] .sim-subtab.active{ color:var(--heading); border-bottom-color:#3b82f6; }
+:root[data-theme="dark"] .model-advanced{ border-top-color:var(--border); }
 :root[data-theme="dark"] .status-detail-axis,
 :root[data-theme="dark"] .narrative-label,
 :root[data-theme="dark"] .finding-evidence,
@@ -5131,6 +5925,14 @@ body.col-resizing .registry-table.reg-table-fill th, body.col-resizing .registry
   color:var(--text, #1f2328); max-height:420px; overflow-y:auto;
 }
 :root[data-theme="dark"] .model-source-pre{ background:#0f141b; color:#d5dae2; }
+/* Framed container for the structured config view (_configView) that replaced
+   the flat <pre> in a process's "Configuration" block. */
+.model-source-body{
+  border:1px solid var(--border, #e1e4e8); border-radius:8px;
+  background:var(--surface-2, #f6f8fa); padding:10px 12px;
+  max-height:460px; overflow:auto;
+}
+:root[data-theme="dark"] .model-source-body{ background:#0f141b; }
 
 /* ── Right rail: editable process code panel (process-code.js) ─────────────── */
 .viv-code-rail{
@@ -5152,6 +5954,10 @@ body.col-resizing .registry-table.reg-table-fill th, body.col-resizing .registry
   flex:0 0 var(--viv-code-h, 320px); width:auto; height:var(--viv-code-h, 320px); min-height:0;
   border-left:none; border-top:1px solid var(--border, #e2e6eb);
 }
+.viv-code-rail[data-dock="top"]{
+  flex:0 0 var(--viv-code-h, 320px); width:auto; height:var(--viv-code-h, 320px); min-height:0;
+  border-left:none; border-bottom:1px solid var(--border, #e2e6eb);
+}
 /* The header is the drag handle. */
 .viv-code-head{ cursor:grab; }
 body.vp-dragging .viv-code-head{ cursor:grabbing; }
@@ -5165,6 +5971,9 @@ body.vp-dragging .viv-code-head{ cursor:grabbing; }
 .viv-code-rail[data-dock="left"] .viv-code-resize-handle{ left:auto; right:0; }
 .viv-code-rail[data-dock="bottom"] .viv-code-resize-handle{
   left:0; right:0; top:0; bottom:auto; width:auto; height:6px; cursor:row-resize;
+}
+.viv-code-rail[data-dock="top"] .viv-code-resize-handle{
+  left:0; right:0; top:auto; bottom:0; width:auto; height:6px; cursor:row-resize;
 }
 
 /* Header chrome matches the chat panel's .vp-head (it carries both classes): a
@@ -5180,13 +5989,97 @@ body.vp-dragging .viv-code-head{ cursor:grabbing; }
   word-break:break-all; margin-top:1px;
 }
 
+/* ── Dockable investigation-graph panel (graph-panel.js, on VivPanelDock) ───────
+   Mirrors the Code panel's docking rules; hosts the relocated #investigation-dag-fs.
+   Docks left / right (width) and bottom / top (height); default right. */
+.viv-graph-panel{
+  --viv-graph-w:480px;
+  flex:0 0 var(--viv-graph-w); width:var(--viv-graph-w);
+  display:flex; flex-direction:column;
+  background:var(--panel, #fff); border-left:1px solid var(--border, #e2e6eb);
+  position:relative; overflow:hidden;
+  transition:flex-basis .18s ease, width .18s ease;
+}
+.viv-graph-panel .viv-graph-panel-inner{ display:flex; flex-direction:column; height:100%; min-width:0; flex:1; }
+.viv-graph-panel[hidden]{ display:none !important; }
+.viv-graph-panel[data-dock="left"]{ border-left:none; border-right:1px solid var(--border, #e2e6eb); }
+.viv-graph-panel[data-dock="bottom"]{
+  flex:0 0 var(--viv-graph-h, 340px); width:auto; height:var(--viv-graph-h, 340px); min-height:0;
+  border-left:none; border-top:1px solid var(--border, #e2e6eb);
+}
+.viv-graph-panel[data-dock="top"]{
+  flex:0 0 var(--viv-graph-h, 340px); width:auto; height:var(--viv-graph-h, 340px); min-height:0;
+  border-left:none; border-bottom:1px solid var(--border, #e2e6eb);
+}
+.viv-graph-head{
+  cursor:grab; display:flex; align-items:center; gap:8px;
+  padding:8px 8px 8px 14px; border-bottom:1px solid var(--c-border, #e2e6eb);
+}
+body.vp-dragging .viv-graph-head{ cursor:grabbing; }
+.viv-graph-title{ min-width:0; }
+.viv-graph-title strong{ display:block; font-size:0.9rem; }
+.viv-graph-sub{ display:block; font-size:0.72rem; font-weight:400; color:var(--c-muted, #64748b); }
+.viv-graph-resize-handle{
+  position:absolute; top:0; left:0; bottom:0; width:6px;
+  cursor:col-resize; z-index:6; background:transparent; transition:background .12s ease;
+}
+.viv-graph-resize-handle:hover{ background:#c7d2fe; }
+.viv-graph-panel[data-dock="left"] .viv-graph-resize-handle{ left:auto; right:0; }
+.viv-graph-panel[data-dock="bottom"] .viv-graph-resize-handle{
+  left:0; right:0; top:0; bottom:auto; width:auto; height:6px; cursor:row-resize;
+}
+.viv-graph-panel[data-dock="top"] .viv-graph-resize-handle{
+  left:0; right:0; top:auto; bottom:0; width:auto; height:6px; cursor:row-resize;
+}
+/* Body hosts the relocated graph, which FILLS the panel (no fixed-height box that
+   leaves dead space / a cut-off graph). The toolbar takes its natural height and
+   the shell flexes to fill the rest; the graph pans/zooms inside it. */
+.viv-graph-body{ flex:1 1 auto; min-height:0; min-width:0; overflow:hidden; position:relative; display:flex; }
+.viv-graph-body #investigation-dag-fs{
+  display:flex; flex-direction:column; flex:1 1 auto; min-height:0; min-width:0;
+}
+/* The inline "Investigation graph" lead is redundant in the panel (its header
+   already says "Graph"); drop it so the graph gets the space. */
+.viv-graph-body #investigation-dag-lead{ display:none; }
+.viv-graph-body #investigation-dag-shell{
+  flex:1 1 auto; height:auto !important; min-height:0 !important; max-height:none !important;
+  resize:none;
+}
+.viv-graph-empty{ padding:18px 16px; font-size:0.85rem; color:var(--c-muted, #64748b); }
+/* The panel has no separate header — the graph toolbar is the single bar. Its
+   the single dock button (◧) is ALWAYS visible — inline AND docked — and opens
+   the dock-side menu; no button swap. The toolbar is the drag handle. */
+.viv-graph-body .aig-toolbar{ cursor:grab; }
+.viv-graph-body .aig-toolbar button,
+.viv-graph-body .aig-toolbar input,
+.viv-graph-body .aig-toolbar select,
+.viv-graph-body .aig-toolbar a{ cursor:default; }
+.viv-graph-body .aig-toolbar input[type="range"]{ cursor:pointer; }
+body.vp-dragging .viv-graph-body .aig-toolbar{ cursor:grabbing; }
+/* Collapsed: the panel shrinks to a thin edge strip showing only the expand
+   handle (click it, or drag the resize edge back out, to expand). Set by the
+   collapse button or by dragging the resize edge inward past the threshold. */
+.viv-graph-expand{ display:none; }
+.viv-graph-panel.vp-collapsed{ flex:0 0 auto !important; }
+.viv-graph-panel.vp-collapsed[data-dock="left"],
+.viv-graph-panel.vp-collapsed[data-dock="right"]{ width:16px !important; }
+.viv-graph-panel.vp-collapsed[data-dock="top"],
+.viv-graph-panel.vp-collapsed[data-dock="bottom"]{ height:16px !important; min-height:0 !important; }
+.viv-graph-panel.vp-collapsed .viv-graph-body{ display:none !important; }
+.viv-graph-panel.vp-collapsed .viv-graph-expand{
+  display:block; width:100%; height:100%; border:none; background:transparent;
+  cursor:pointer; color:#64748b; font-size:0.95em; line-height:1; padding:0;
+}
+.viv-graph-panel.vp-collapsed .viv-graph-expand:hover{ background:#eef2ff; color:#3730a3; }
+
 /* ── Pop-out window (?popout=<kind>): show only the popped panel, full-window ──
    panel-dock.js adds body.viv-popout + .viv-popout-<kind> and opens that panel.
    A fixed, opaque, full-window panel (z-index) simply covers the rest of the SPA
    that loaded behind it, so no per-element hiding is needed. */
 body.viv-popout{ overflow:hidden; }
 body.viv-popout-chat #viv-ai-panel,
-body.viv-popout-code  #viv-code-rail{
+body.viv-popout-code #viv-code-rail,
+body.viv-popout-graph #viv-graph-panel{
   display:flex !important; position:fixed !important; inset:0 !important;
   width:auto !important; height:auto !important; max-width:none !important;
   border:0 !important; outline:0 !important; z-index:5000;
@@ -5195,7 +6088,8 @@ body.viv-popout-code  #viv-code-rail{
 body.viv-popout [data-act="dock"],
 body.viv-popout [data-act="popout"],
 body.viv-popout .vp-resize,
-body.viv-popout .viv-code-resize-handle{ display:none !important; }
+body.viv-popout .viv-code-resize-handle,
+body.viv-popout .viv-graph-resize-handle{ display:none !important; }
 
 /* Shared dock dropdown (panel-dock.js) — reuses the chat's .vp-pop / .vp-pop-item
    chrome so the chat and code dock menus are visually identical. */
@@ -5339,6 +6233,27 @@ body.pcard-maximized.viv-code-open .viv-code-rail[data-dock="right"]{
 .contract-sub { font-weight: 600; opacity: 0.7; margin-top: 6px; }
 .contract-finding.is-error { color: #b91c1c; }
 .contract-finding.is-warning { color: #b45309; }
+.contract-finding.is-info { color: #475569; }
+/* per-process roll-up rows in the composite contract panel */
+.contract-proc { margin-top: 4px; padding: 3px 0 3px 8px; border-left: 2px solid #e5e7eb; font-size: 0.9em; }
+.contract-proc.is-fail { border-left-color: #fecaca; }
+.contract-proc.is-incomplete { border-left-color: #fde68a; }
+.contract-proc.is-pass { border-left-color: #a7f3d0; }
+.contract-proc .contract-finding { margin-left: 4px; opacity: 0.85; }
+/* per-process completeness breakdown (typed ports · predicates) */
+.contract-cmpl { margin: 3px 0 0 4px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.92em; }
+.cmpl-part { padding: 0 6px; border-radius: 3px; }
+.cmpl-part.is-ok { background: #ecfdf5; color: #047857; }
+.cmpl-part.is-gap { background: #fff7ed; color: #b45309; }
+.contract-cmpl-missing { margin: 2px 0 0 4px; font-size: 0.88em; color: #92400e; }
+/* composite-level "to improve" action list */
+.contract-improve { margin-top: 8px; }
+.contract-improve-item { margin: 2px 0 0 4px; font-size: 0.92em; }
+:root[data-theme="dark"] .cmpl-part.is-ok { background: #06281d; color: #6ee7b7; }
+:root[data-theme="dark"] .cmpl-part.is-gap { background: #2a2109; color: #fcd34d; }
+:root[data-theme="dark"] .contract-cmpl-missing { color: #fcd34d; }
+:root[data-theme="dark"] .contract-proc { border-left-color: #374151; }
+:root[data-theme="dark"] .contract-finding.is-info { color: #94a3b8; }
 :root[data-theme="dark"] .contract-pass { background: #06281d; color: #6ee7b7; border-color: #065f46; }
 :root[data-theme="dark"] .contract-fail { background: #2a0f0f; color: #fca5a5; border-color: #7f1d1d; }
 :root[data-theme="dark"] .contract-incomplete { background: #2a2109; color: #fcd34d; border-color: #78350f; }

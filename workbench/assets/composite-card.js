@@ -21,8 +21,7 @@
 // deep interactive subsystems tied to Registry/Modules page state — inline
 // Run (_runComposite/_pollCompositeRun/_collectCardConfig/
 // _applyCompositeConfig/_resetCompositeConfig), pop-out window
-// (_popoutCard), the composite JSON viewer (_toggleCompositeJson/
-// _copyCompositeJson) and Share-link (_shareCompositeFromHeader), and the
+// (_popoutCard), Share-link (_shareCompositeFromHeader), and the
 // live bigraph-loom embed (_openCompositeLoomInline). Those buttons remain
 // in a rendered card wherever it's mounted, but on a page that doesn't also
 // load walkthrough.js (e.g. Study Detail) clicking them is an inert no-op
@@ -85,7 +84,26 @@
     var esc = _esc;
     var rows = [];
     rows.push('<div class="contract-status-line">Status: <b>' + esc(ca.status) + '</b>' +
-      (typeof ca.grade === 'number' ? ' · ' + Math.round(ca.grade * 100) + '% declared' : '') + '</div>');
+      (typeof ca.grade === 'number' ? ' · completeness ' + Math.round(ca.grade * 100) + '%' : '') + '</div>');
+    // Explain the grade: typed ports (75%) + declared predicate conditions (25%),
+    // with the concrete pieces still missing. Mirrors the composite panel.
+    var c = ca.completeness;
+    if (c) {
+      rows.push('<div class="contract-sub muted">completeness = typed ports (75%) + declared predicate conditions (25%)</div>');
+      var parts = [];
+      if (typeof c.ports_total === 'number') {
+        var ok = c.ports_total && c.ports_typed === c.ports_total;
+        parts.push('<span class="cmpl-part ' + (ok ? 'is-ok' : 'is-gap') + '">ports ' +
+          c.ports_typed + '/' + c.ports_total + ' typed</span>');
+      }
+      parts.push('<span class="cmpl-part ' + (c.has_predicates ? 'is-ok' : 'is-gap') + '">predicates ' +
+        (c.n_predicates || 0) + '</span>');
+      rows.push('<div class="contract-cmpl">' + parts.join(' · ') + '</div>');
+      if ((c.missing || []).length) {
+        rows.push('<div class="contract-cmpl-missing">to reach 100%: ' +
+          c.missing.map(function (m) { return esc(m); }).join('; ') + '</div>');
+      }
+    }
     function portRows(side, ports) {
       var ks = Object.keys(ports || {});
       if (!ks.length) return '';
@@ -105,9 +123,12 @@
             ': <code>' + esc(c.expr || '') + '</code></div>';
         }).join('') + '</div>');
     }
-    if ((ca.findings || []).length) {
+    // Drop the library's own "completeness grade" info finding — the breakdown
+    // above already shows it, more usefully.
+    var findings = (ca.findings || []).filter(function (f) { return f.code !== 'completeness'; });
+    if (findings.length) {
       rows.push('<div class="contract-findings"><div class="contract-sub">findings</div>' +
-        ca.findings.map(function (f) {
+        findings.map(function (f) {
           return '<div class="contract-finding is-' + esc(f.severity) + '">' +
             esc(f.severity) + ' <code>' + esc(f.code) + '</code> ' + esc(f.where || '') + ' — ' + esc(f.message || '') + '</div>';
         }).join('') + '</div>');
@@ -115,8 +136,85 @@
     return rows.filter(Boolean).join('');
   }
 
+  // Render the REAL composite audit (from /api/composite-contract-audit):
+  // overall status, the Phase-2 wiring findings, then a per-process roll-up.
+  // Shape: {status, grade, n_processes, processes:[{name,status,grade,findings}],
+  //         wiring:{status, findings:[{severity,code,where,message}]}, notice?}.
+  function _compositeContractPanelBody(a) {
+    if (!a || !a.status) return '<div class="contract-status-line muted">No audit data.</div>';
+    var esc = _esc;
+    function findingRows(fs) {
+      return (fs || []).map(function (f) {
+        return '<div class="contract-finding is-' + esc(f.severity) + '">' +
+          esc(f.severity) + ' <code>' + esc(f.code || '') + '</code> ' +
+          esc(f.where || '') + ' — ' + esc(f.message || '') + '</div>';
+      }).join('');
+    }
+    // Per-process completeness is 75% typed ports + 25% declared predicates;
+    // render it as that arithmetic so the grade is self-explaining, and drop the
+    // library's own "completeness grade" info finding (we show it better here).
+    function completenessLine(c) {
+      if (!c) return '';
+      var parts = [];
+      if (typeof c.ports_total === 'number') {
+        var ok = c.ports_total && c.ports_typed === c.ports_total;
+        parts.push('<span class="cmpl-part ' + (ok ? 'is-ok' : 'is-gap') + '">ports ' +
+          c.ports_typed + '/' + c.ports_total + ' typed</span>');
+      }
+      parts.push('<span class="cmpl-part ' + (c.has_predicates ? 'is-ok' : 'is-gap') + '">predicates ' +
+        (c.n_predicates || 0) + '</span>');
+      var line = '<div class="contract-cmpl">' + parts.join(' · ') + '</div>';
+      if ((c.missing || []).length) {
+        line += '<div class="contract-cmpl-missing">to reach 100%: ' +
+          c.missing.map(function (m) { return esc(m); }).join('; ') + '</div>';
+      }
+      return line;
+    }
+    function nonCompletenessFindings(fs) {
+      return (fs || []).filter(function (f) { return f.code !== 'completeness'; });
+    }
+    var rows = [];
+    rows.push('<div class="contract-status-line">Status: <b>' + esc(a.status) + '</b>' +
+      (typeof a.grade === 'number' ? ' · completeness ' + Math.round(a.grade * 100) + '%' : '') +
+      (typeof a.n_processes === 'number' ? ' · ' + a.n_processes + ' process' + (a.n_processes === 1 ? '' : 'es') : '') +
+      '</div>');
+    rows.push('<div class="contract-sub muted">completeness = typed ports (75%) + declared predicate conditions (25%)</div>');
+    if (a.notice) rows.push('<div class="contract-sub muted">' + esc(a.notice) + '</div>');
+    // Composite-level "to improve" — the concrete, deduplicated actions.
+    if ((a.improve || []).length) {
+      rows.push('<div class="contract-improve"><div class="contract-sub">to improve</div>' +
+        a.improve.map(function (it) {
+          return '<div class="contract-improve-item">▸ ' + esc(it.action) +
+            ' <span class="muted">(' + it.n_processes + ' process' + (it.n_processes === 1 ? '' : 'es') + ')</span></div>';
+        }).join('') + '</div>');
+    }
+    // Phase 2 — wiring / interface
+    var w = a.wiring || {};
+    var wf = w.findings || [];
+    rows.push('<div class="contract-ports"><div class="contract-sub">wiring: <b>' +
+      esc(w.status || 'n/a') + '</b></div>' +
+      (wf.length ? findingRows(wf)
+                 : '<div class="contract-port muted">all shared stores type-consistent</div>') +
+      '</div>');
+    // Phase 1 — per-process roll-up
+    if ((a.processes || []).length) {
+      rows.push('<div class="contract-findings"><div class="contract-sub">processes</div>' +
+        a.processes.map(function (p) {
+          var extra = nonCompletenessFindings(p.findings);
+          return '<div class="contract-proc is-' + esc(p.status) + '">' +
+            '<code>' + esc(p.name) + '</code> <b>' + esc(p.status) + '</b>' +
+            (typeof p.grade === 'number' ? ' · ' + Math.round(p.grade * 100) + '%' : '') +
+            completenessLine(p.completeness) +
+            (extra.length ? findingRows(extra) : '') +
+            '</div>';
+        }).join('') + '</div>');
+    }
+    return rows.filter(Boolean).join('');
+  }
+
   window._contractBadge = _contractBadge;
   window._contractPanelBody = _contractPanelBody;
+  window._compositeContractPanelBody = _compositeContractPanelBody;
 
   // TIER of a figure composite — draft interface / executable compilation / live
   // topology rewrite — inferred from its display name (see the meta-modelers
@@ -303,13 +401,25 @@
   }
   window._maximizeCardFromHeader = _maximizeCardFromHeader;
 
-  // "{ } JSON" — reveal the composite's full resolved JSON spec. The onclick
-  // references _toggleCompositeJson (Modules-page-only) — inert elsewhere.
+  // "{ } JSON" — reveal the composite's full resolved JSON spec. _toggleCompositeJson
+  // now lives in this file (below), so the button works on every page the card
+  // mounts on (Modules page AND the Study Detail Model tab).
   function _compositeJsonBtn() {
     return '<button class="pcard-json-btn" type="button" title="View the full composite JSON spec" ' +
       'onclick="event.stopPropagation();_toggleCompositeJson(this)">{ } JSON</button>';
   }
   window._compositeJsonBtn = _compositeJsonBtn;
+
+  // "§ Contract" — reveal the contract-audit panel (status/ports/conditions/
+  // findings) in a hidden inline view, toggled from the header exactly like the
+  // JSON button. Replaces the always-open accordion section. Rendered only when
+  // the card carries a contract_audit; the small header badge still shows the
+  // status at a glance. Inert where _toggleCompositeContract isn't defined.
+  function _compositeContractBtn() {
+    return '<button class="pcard-json-btn pcard-contract-btn" type="button" title="View this composite\'s contract audit" ' +
+      'onclick="event.stopPropagation();_toggleCompositeContract(this)">§ Contract</button>';
+  }
+  window._compositeContractBtn = _compositeContractBtn;
 
   // "</> Code" — open the code rail for this card. Header-styled variant, used by
   // the full cards; the grid/table views inline their own smaller buttons.
@@ -324,6 +434,17 @@
       'onclick="event.stopPropagation();window.ProcessCode&&ProcessCode.open(\'' + _esc(address) + '\')">&lt;/&gt; Code</button>';
   }
   window._processCodeBtn = _processCodeBtn;
+
+  // "§ Contract" — reveal the process's contract-audit panel from the header,
+  // exactly like the composite card's § Contract button, replacing the always-
+  // open CONTRACT accordion section. The per-process audit is already inline on
+  // the card (p.contract_audit), so the toggle just shows a pre-rendered panel —
+  // no fetch. Inert where _toggleProcessContract isn't defined.
+  function _processContractBtn() {
+    return '<button class="pcard-json-btn pcard-contract-btn" type="button" title="View this process\'s contract audit" ' +
+      'onclick="event.stopPropagation();_toggleProcessContract(this)">§ Contract</button>';
+  }
+  window._processContractBtn = _processContractBtn;
 
   // "🔗 Share" — copy a shareable link to this composite's interactive
   // bigraph view. The onclick references _shareCompositeFromHeader
@@ -517,6 +638,8 @@
     // available on pages that also load walkthrough.js's live-loom glue).
     var embed = sec.querySelector('.ccard-loom-embed');
     if (embed && typeof _openCompositeLoomInline === 'function') _openCompositeLoomInline(embed);
+    // Fill the face process-count badge when a composite card is first expanded.
+    if (card && card.classList.contains('pcard-composite')) _ensureCompositeProcCount(card);
     // Outputs section: lazy-fill the declared-observables checklist on first open.
     if (card && card.classList.contains('pcard-composite') && sec.getAttribute('data-sec') === 'outputs') {
       _loadCompositeObservables(card);
@@ -607,11 +730,13 @@
       input = '<input type="text" ' + attr + 'json" value="' + _esc(jv) + '" placeholder="JSON / null">';
     }
     var typeLabel = opts.type || '';
+    var units = opts.units || '';   // physical unit (from the param/port _units)
     var desc = (opts.description || '').trim();
     return '<div class="cfg-row"' + (desc ? ' title="' + _esc(desc) + '"' : '') + '>' +
         '<div class="cfg-row-name">' +
           '<span class="cfg-key">' + _esc(key) + '</span>' +
           (typeLabel ? '<span class="cfg-type">' + _esc(typeLabel) + '</span>' : '') +
+          (units ? '<span class="cfg-units" title="unit: ' + _esc(units) + '">' + _esc(units) + '</span>' : '') +
         '</div>' +
         '<div class="cfg-row-input">' + input + '</div>' +
         (desc ? '<div class="cfg-row-desc">' + _esc(desc) + '</div>' : '') +
@@ -680,6 +805,101 @@
   }
   window._syncOutEmitter = _syncOutEmitter;
 
+  // Count the PROCESS/STEP instances inside a resolved composite state (the
+  // bigraph the Explore graph renders). Emitters are excluded — the registry
+  // treats them as a separate kind (their own tab), not model processes. A
+  // process/step node is counted as a unit (we don't descend into its ports/
+  // config). The count is read off the RESOLVED state, so it reflects the
+  // applied config (a config that structurally adds/removes a process updates it).
+  function _countCompositeProcs(state) {
+    var n = 0;
+    (function walk(node) {
+      if (!node || typeof node !== 'object') return;
+      if (Array.isArray(node)) { node.forEach(walk); return; }
+      var t = node._type;
+      if (t === 'process' || t === 'step') {
+        if (!/emitter/i.test(String(node.address || node.instance || ''))) n++;
+        return;   // count the process as one unit; its children are ports/config
+      }
+      for (var k in node) {
+        if (!Object.prototype.hasOwnProperty.call(node, k) || k.charAt(0) === '_') continue;
+        walk(node[k]);
+      }
+    })(state);
+    return n;
+  }
+  window._countCompositeProcs = _countCompositeProcs;
+
+  // Fill/update a composite card's process count, in the meta line next to the
+  // param count: "composite · N params · M processes".
+  function _setCompositeProcCount(card, n) {
+    if (!card || typeof n !== 'number') return;
+    var span = card.querySelector('[data-role="proc-count"]');
+    if (span) span.innerHTML = ' · <strong>' + n + '</strong> process' + (n === 1 ? '' : 'es');
+  }
+  window._setCompositeProcCount = _setCompositeProcCount;
+
+  // ` data-nproc="N"` for a card whose registry record carried a server-counted
+  // process count (env_worker → discover_all_composites → c.n_processes); empty
+  // otherwise, so the card falls back to the lazy composite-resolve count.
+  function _nprocAttr(c) {
+    return (c && typeof c.n_processes === 'number') ? ' data-nproc="' + c.n_processes + '"' : '';
+  }
+  window._nprocAttr = _nprocAttr;
+
+  // Resolve the composite ONCE (per card) just to count its processes and fill the
+  // face badge. The composites LIST carries no process count (these are live
+  // generators with no committed state), and a full resolve is too costly to run
+  // for every list row — so this fires lazily, when the card's graph is first
+  // shown (and again on Apply via _applyCompositeConfig's re-resolve).
+  function _ensureCompositeProcCount(card) {
+    if (!card || card._procCountLoaded) return;
+    card._procCountLoaded = true;
+    // Prefer the server-precomputed count (registry's n_processes, baked into the
+    // card as data-nproc at render). It needs no resolve round-trip, so the count
+    // also shows in the published static bundle, where /api/composite-resolve is
+    // absent and the fetch below would simply no-op.
+    var pre = card.getAttribute('data-nproc');
+    if (pre !== null && pre !== '' && !isNaN(+pre)) { _setCompositeProcCount(card, +pre); return; }
+    var id = card.getAttribute('data-address'); if (!id) { card._procCountLoaded = false; return; }
+    fetch(_api('/api/composite-resolve?id=' + encodeURIComponent(id)))
+      .then(function (r) { return r.json(); })
+      .then(function (d) { var st = (d && d.state) ? d.state : d; _setCompositeProcCount(card, _countCompositeProcs(st)); })
+      .catch(function () { card._procCountLoaded = false; });   // allow a retry
+  }
+  window._ensureCompositeProcCount = _ensureCompositeProcCount;
+
+  // Auto-fill each composite card's "· N processes" (next to the param count) as
+  // soon as the card is on screen — without needing to open a section. An
+  // IntersectionObserver resolves only cards that actually become visible (so the
+  // whole composite list is never mass-resolved), and a MutationObserver picks up
+  // cards from every render path (full card, popout, re-render). _ensureCompositeProcCount
+  // is idempotent (its own _procCountLoaded guard), so this never double-resolves.
+  (function _autoCompositeProcCount() {
+    if (typeof IntersectionObserver === 'undefined' || typeof MutationObserver === 'undefined') return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { io.unobserve(e.target); _ensureCompositeProcCount(e.target); }
+      });
+    }, { rootMargin: '150px' });
+    // Both the full card (.pcard-composite) and the grid card (.registry-card,
+    // data-kind=composite) carry data-address; resolve the count for either.
+    var SEL = '.pcard-composite[data-address], .registry-card[data-kind="composite"][data-address]';
+    function observe(card) { if (card && !card._procCountObserved) { card._procCountObserved = true; io.observe(card); } }
+    function scan(root) {
+      if (!root || root.nodeType !== 1) return;
+      if (root.matches && root.matches(SEL)) observe(root);
+      if (root.querySelectorAll) root.querySelectorAll(SEL).forEach(observe);
+    }
+    function start() {
+      scan(document.body);
+      new MutationObserver(function (muts) {
+        muts.forEach(function (m) { m.addedNodes.forEach(scan); });
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+    if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+  })();
+
   // Lazy-fill the Outputs observables checklist from the composite's DECLARED
   // emit paths (composite-resolve → state._declared_emit_paths). All checked by
   // default; global_time is always emitted (time axis) so it's shown pinned/
@@ -693,6 +913,8 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var st = (d && d.state) ? d.state : d;
+        // Fill the card's "· N processes" meta from the resolved bigraph (initial load).
+        try { _setCompositeProcCount(card, _countCompositeProcs(st)); } catch (e) {}
         var paths = (st && Array.isArray(st._declared_emit_paths)) ? st._declared_emit_paths : [];
         var toggles = paths.filter(function (p) { return p && p !== 'global_time'; });
         if (!toggles.length) {
@@ -842,18 +1064,16 @@
   function _renderCompositeCardGrid(c) {
     var addr = c.module ? (c.module + '.' + c.name) : c.id;
     var desc = (c.description || '').trim(), short = desc ? desc.split('\n')[0] : '';
-    var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
     var stats = _regStatsHtml(c);
     var selCls = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
     var idA = _esc(c.id);
-    // A little more info on the card: process + parameter counts, and tags.
+    // Param count + the live process count next to it. c.requires.processes is empty
+    // for generators, so the real count is filled from the resolved bigraph by the
+    // IntersectionObserver (data-role="proc-count") when the card is visible.
     var np = (c.parameters && typeof c.parameters === 'object') ? Object.keys(c.parameters).length : 0;
-    var nproc = (c.requires && c.requires.processes) ? c.requires.processes.length : 0;
-    var metaBits = [];
-    if (nproc) metaBits.push(nproc + ' process' + (nproc === 1 ? '' : 'es'));
-    if (np) metaBits.push(np + ' param' + (np === 1 ? '' : 's'));
-    var meta = metaBits.length
-      ? '<div class="reg-card-meta" style="font-size:11px;color:#6b7280;margin:2px 0 4px">' + metaBits.join(' · ') + '</div>' : '';
+    var meta = '<div class="reg-card-meta" style="font-size:11px;color:#6b7280;margin:2px 0 4px">' +
+      (np ? '<strong>' + np + '</strong> param' + (np === 1 ? '' : 's') : 'composite') +
+      '<span data-role="proc-count"></span></div>';
     var tags = Array.isArray(c.tags) ? c.tags.slice(0, 3) : [];
     var tagHtml = tags.length
       ? '<div class="reg-card-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">' +
@@ -873,15 +1093,15 @@
         'title="View / edit this composite\'s source (spec YAML or its generator)" ' +
         'style="height:26px;padding:0 9px;font-size:12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:5px;cursor:pointer">&lt;/&gt; Code</button>' +
     '</div>';
-    return '<div class="registry-card' + selCls + '" data-address="' + idA + '" data-kind="composite"' +
+    return '<div class="registry-card' + selCls + '" data-address="' + idA + '" data-kind="composite"' + _nprocAttr(c) +
         ' onclick="_selectRegistryEntry(\'' + idA + '\')" ondblclick="_enterMaxcardMode(\'' + idA + '\',\'composite\')"' +
         ' title="Double-click to Explore (maximized bigraph)">' +
       '<div class="reg-card-row">' +
         '<div class="reg-card-main">' +
-          '<div class="reg-card-head"><strong class="reg-card-name">' + _esc(c.name) + '</strong>' + _compositeBadge() + _compositeTierBadge(c) + _contractBadge(c.contract_audit) + wsPill + '</div>' +
+          '<div class="reg-card-head"><strong class="reg-card-name">' + _esc(c.name) + '</strong></div>' +
           '<code class="reg-card-addr">' + _esc(addr) + '</code>' +
           meta +
-          (short ? '<p class="reg-card-desc">' + _esc(short) + '</p>' : '') +
+          (desc ? '<p class="reg-card-desc pcard-desc-clamp" onclick="event.stopPropagation();_pcardToggleDesc(this)" title="Click to read the full description">' + _esc(desc) + '</p>' : '') +
           tagHtml +
           _runCmdChip(c.run_command) +
           actions +
@@ -998,10 +1218,13 @@
   function _renderCompositeCardFull(c) {
     _scheduleRunTargetBadges();
     var params = (c.parameters && typeof c.parameters === 'object') ? c.parameters : {};
+    // The raw config_schema (from the env worker) still carries each param's
+    // _units even when the parameters mapping dropped it — read it as a fallback
+    // so the Registry card shows the unit beside the type.
+    var cfgSchema = (c.config_schema && typeof c.config_schema === 'object') ? c.config_schema : {};
     var pKeys = Object.keys(params), nCfg = pKeys.length;
     var desc = (c.description || '').trim();
     var sel = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
-    var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
     var roPill = c.read_only ? '<span class="tag-pill" style="background:#fef2f2;color:#b91c1c;margin-left:6px">read-only</span>' : '';
 
     var chip = function (k) { return '<code class="pcard-chip">' + _esc(k) + '</code>'; };
@@ -1014,7 +1237,8 @@
     var cfgFields = nCfg
       ? pKeys.map(function (k) {
           var pv = params[k] || {};
-          return _runField(k, ('default' in pv) ? pv.default : null, { type: pv.type, description: pv.description });
+          var sch = cfgSchema[k] || {};
+          return _runField(k, ('default' in pv) ? pv.default : null, { type: pv.type, units: pv.units || pv._units || sch._units, description: pv.description });
         }).join('')
       : '<p class="muted" style="font-size:0.82em">No parameters.</p>';
 
@@ -1038,11 +1262,15 @@
     var addr = c.module ? (c.module + '.' + c.name) : c.id;
 
     return '<div class="registry-entry registry-entry-full loom-runnable pcard pcard-accordion pcard-composite' + sel +
-        '" data-address="' + _esc(c.id) + '" data-kind="composite">' +
+        '" data-address="' + _esc(c.id) + '" data-kind="composite"' + _nprocAttr(c) + '>' +
       '<div class="loom-card loom-card-stack loom-card-composite">' +
         '<div class="pcard-top">' +
           '<div class="pcard-header pcard-title" onclick="_pinCardTop(this)" ondblclick="event.stopPropagation();_maximizeCardFromHeader(this)" title="Click to pin to top · double-click to maximize">' +
-            '<span class="loom-name">' + _esc(c.name) + '</span>' + _compositeBadge() + _compositeTierBadge(c) + _contractBadge(c.contract_audit) + wsPill + roPill +
+            // Clean face: the title, then only the read-only pill. The "Composite"
+            // kind badge, the composite-tier badge, the inline contract marker, and the
+            // "workspace" tag were removed as redundant/obvious here; the process count
+            // now sits next to the param count in the meta line below.
+            '<span class="loom-name">' + _esc(c.name) + '</span>' + roPill +
             '<span class="pcard-runtarget" data-role="runtarget" title="checking where a Run will execute…" ' +
               'style="display:inline-block;margin-left:8px;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600;' +
               'background:#eef1f4;color:#8a97a4;vertical-align:middle">Runs: …</span>' +
@@ -1058,6 +1286,7 @@
             '<button class="pcard-hdr-collapse" type="button" onclick="event.stopPropagation();_toggleCardHeader(this)" title="Collapse this bar to maximize the view">⌃</button>' +
             _shareCompositeBtn() +
             _compositeJsonBtn() +
+            (c.contract_audit ? _compositeContractBtn() : '') +
             _compositeCodeBtn(c.id) +
             _cardMaximizeBtn() +
             _cardPopoutBtn(c.id, 'composite') +
@@ -1067,7 +1296,7 @@
           '<button class="pcard-hdr-restore" type="button" onclick="_toggleCardHeader(this)" title="Show the composite bar">▸ ' + _esc(c.name) + '</button>' +
           '<div class="pcard-summary">' +
             '<div class="pcard-desc-col">' +
-              '<div class="pcard-contract-meta" data-role="contract-meta">composite · <strong>' + nCfg + '</strong> param' + (nCfg === 1 ? '' : 's') + '</div>' +
+              '<div class="pcard-contract-meta" data-role="contract-meta">composite · <strong>' + nCfg + '</strong> param' + (nCfg === 1 ? '' : 's') + '<span data-role="proc-count"></span></div>' +
               (function () { var s = _regStatsHtml(c); return s ? '<div class="reg-card-stats pcard-usage">' + s + '</div>' : ''; })() +
               (desc ? '<p class="loom-desc pcard-desc-clamp" onclick="_pcardToggleDesc(this)" title="Click to expand / collapse">' + _esc(desc) + '</p>' : '') +
               // Same copy-pasteable "how to run this" chip as the grid card, so
@@ -1078,6 +1307,17 @@
           '<div class="pcard-json-view" data-role="composite-json" hidden>' +
             '<div class="pcard-json-body"></div>' +
           '</div>' +
+          // Contract-audit panel — hidden until the header "§ Contract" button
+          // toggles it (mirrors the JSON view). The REAL composite audit (a
+          // per-process roll-up + wiring check) is expensive — it builds the
+          // composite's core — so it's fetched lazily on first open from
+          // /api/composite-contract-audit, not baked into the card. The card's
+          // own c.contract_audit is the coreless stub ("unavailable").
+          (c.contract_audit
+            ? '<div class="pcard-json-view pcard-contract-view" data-role="composite-contract" hidden>' +
+                '<div class="pcard-contract-body"></div>' +
+              '</div>'
+            : '') +
         '</div>' +
         '<div class="pcard-acc">' +
           // Card-owned Cloud-run status chip. When a Run dispatches to the Cloud
@@ -1110,11 +1350,348 @@
           // Run/Step · Outputs), lazy-mounted on first open. Graph collapsed at
           // first so run + outputs lead.
           _pcardSection('explore', 'Explore', '<span class="pcard-sec-hint">◆ Configure · run · outputs — click to open</span>', _compositeLoomExplore(c), { wide: true, feature: true }) +
-          // Composites carry {status:'unavailable'} today (4A deferred composite audit): neutral state until it lands.
-          (c.contract_audit ? _pcardSection('contract', 'Contract', _contractBadge(c.contract_audit), _contractPanelBody(c.contract_audit)) : '') +
+          // Contract audit now lives in a header-toggled panel (the "§ Contract"
+          // button + .pcard-contract-view above), not an always-open accordion.
         '</div>' +
       '</div>' +
     '</div>';
   }
   window._renderCompositeCardFull = _renderCompositeCardFull;
+
+  // ---------------------------------------------------------------------------
+  // Composite JSON viewer — MOVED here from walkthrough.js so the "{ } JSON"
+  // header button works on EVERY page the card mounts on (the Study Detail
+  // Model tab doesn't load walkthrough.js, where these used to live, so the
+  // button was a dead no-op there). composite-card.js loads before
+  // walkthrough.js, so walkthrough.js's own bare references to these names
+  // keep resolving via the global scope chain.
+  // ---------------------------------------------------------------------------
+  function _jsonNode(key, val, depth) {
+    var keyHtml = (key !== null) ? '<span class="jt-key">' + _esc(key) + '</span><span class="jt-colon">:</span> ' : '';
+    if (val === null) return '<div class="jt-row">' + keyHtml + '<span class="jt-null">null</span></div>';
+    if (Array.isArray(val)) {
+      if (!val.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">[ ]</span></div>';
+      var ob = depth < 2 ? ' open' : '';
+      var ab = val.map(function (v, i) { return _jsonNode(String(i), v, depth + 1); }).join('');
+      return '<details class="jt-branch"' + ob + '><summary>' + keyHtml +
+        '<span class="jt-punct">[</span><span class="jt-count">' + val.length + '</span><span class="jt-punct">]</span></summary>' +
+        '<div class="jt-children">' + ab + '</div></details>';
+    }
+    if (typeof val === 'object') {
+      var keys = Object.keys(val);
+      if (!keys.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">{ }</span></div>';
+      var oo = depth < 2 ? ' open' : '';
+      var ob2 = keys.map(function (k) { return _jsonNode(k, val[k], depth + 1); }).join('');
+      return '<details class="jt-branch"' + oo + '><summary>' + keyHtml +
+        '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + '</span><span class="jt-punct">}</span></summary>' +
+        '<div class="jt-children">' + ob2 + '</div></details>';
+    }
+    var t = typeof val;
+    var cls = t === 'number' ? 'jt-num' : (t === 'boolean' ? 'jt-bool' : 'jt-str');
+    var disp = t === 'string' ? '"' + _esc(val) + '"' : _esc(String(val));
+    return '<div class="jt-row">' + keyHtml + '<span class="' + cls + '">' + disp + '</span></div>';
+  }
+  function _jsonViewer(value) {
+    return '<div class="json-viewer">' + _jsonNode(null, value, 0) + '</div>';
+  }
+  window._jsonViewer = _jsonViewer;
+
+  function _toggleCompositeJson(btn) {
+    var card = btn.closest('.registry-entry-full'); if (!card) return;
+    var panel = card.querySelector('[data-role="composite-json"]'); if (!panel) return;
+    var show = panel.hidden;
+    panel.hidden = !show;
+    btn.classList.toggle('active', show);
+    if (!show || panel._loaded) return;
+    panel._loaded = true;
+    var id = card.getAttribute('data-address');
+    if (id) panel.setAttribute('data-cid', id);   // so the fill-screen modal / download can name itself
+    var body = panel.querySelector('.pcard-json-body');
+    if (body) body.innerHTML = '<span class="muted" style="font-size:0.85em">Resolving composite JSON…</span>';
+    var url = (typeof _compositeStateUrl === 'function')
+      ? _compositeStateUrl(id)
+      : _api('/api/composite-resolve?id=' + encodeURIComponent(id));
+    fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+      var doc = (j && j.state) ? j.state : j;
+      if (body) {
+        var live = !document.body.classList.contains('snapshot');
+        body.innerHTML =
+          '<div class="pcard-json-toolbar">' +
+            '<button class="btn-mini" type="button" onclick="_copyCompositeJson(this)">⧉ Copy</button>' +
+            '<button class="btn-mini" type="button" onclick="_downloadCompositeJson(this)">⬇ Download</button>' +
+            '<a class="btn-mini" href="' + _esc(url) + '" target="_blank" rel="noopener">Raw ↗</a>' +
+            '<button class="btn-mini" type="button" onclick="_cfgJsonExpandAll(this,true)">⊕ Expand all</button>' +
+            '<button class="btn-mini" type="button" onclick="_cfgJsonExpandAll(this,false)">⊖ Collapse all</button>' +
+            '<button class="btn-mini pcard-json-max-btn" type="button" onclick="_toggleCompositeJsonMax(this)" title="Expand to fill the view (Esc to exit)">⛶ Fill screen</button>' +
+            (live ? '<button class="btn-mini pcard-json-state-btn" type="button" onclick="_loadCompositeInitialState(this)" ' +
+              'title="Run the composite 1 step and load the real state (lattice dims/fields, cell positions/types, immune agents) — the declared document shows these empty at rest">▸ Load initial state</button>' : '') +
+            '<span class="pcard-json-state-note muted" style="font-size:0.78em;align-self:center"></span>' +
+          '</div>' +
+          _jsonViewer(doc) +
+          '<pre class="pcard-json-raw" hidden>' + _esc(JSON.stringify(doc, null, 2)) + '</pre>';
+      }
+      panel._json = doc;
+    }).catch(function (e) {
+      if (body) body.innerHTML = '<span class="loom-run-err">Failed to load JSON: ' + _esc(String(e)) + '</span>';
+      panel._loaded = false;
+    });
+  }
+  window._toggleCompositeJson = _toggleCompositeJson;
+
+  function _copyCompositeJson(btn) {
+    var panel = btn.closest('[data-role="composite-json"]');
+    var pre = panel && panel.querySelector('.pcard-json-raw');
+    if (!pre) return;
+    var txt = pre.textContent || '';
+    var done = function () { var o = btn.textContent; btn.textContent = '✓ Copied'; setTimeout(function () { btn.textContent = o; }, 1200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(done);
+    else done();
+  }
+  window._copyCompositeJson = _copyCompositeJson;
+
+  // "⬇ Download" — save the currently-shown JSON (the declared document, or the
+  // loaded post-run state) as a .json file.
+  function _downloadCompositeJson(btn) {
+    var panel = btn.closest('[data-role="composite-json"]'); if (!panel) return;
+    var raw = panel.querySelector('.pcard-json-raw');
+    var txt = (panel._json != null) ? JSON.stringify(panel._json, null, 2) : (raw ? raw.textContent : '');
+    if (!txt) return;
+    var card = btn.closest('.registry-entry-full');
+    var id = (card && card.getAttribute('data-address')) || 'composite';
+    var base = String(id).split('.').pop() || 'composite';
+    var name = base + (panel._stateLoaded ? '-state' : '') + '.json';
+    try {
+      var blob = new Blob([txt], { type: 'application/json' });
+      var href = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = href; a.download = name; a.style.display = 'none';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(href); }, 150);
+      var o = btn.textContent; btn.textContent = '✓ Saved'; setTimeout(function () { btn.textContent = o; }, 1200);
+    } catch (e) { /* download blocked — Raw ↗ remains available */ }
+  }
+  window._downloadCompositeJson = _downloadCompositeJson;
+
+  // "⛶ Fill screen" — expand the JSON to fill the CONTENT AREA (the column to
+  // the right of the workbench rail), from its top down to the viewport bottom,
+  // with the rail still on the side. NOT a modal, NOT OS fullscreen.
+  //
+  // Why it's built in the TOP document: the Model tab renders inside a study
+  // "porthole" iframe that a ResizeObserver sizes to its CONTENT height. A
+  // position:fixed overlay inside that iframe is out of flow, so the porthole
+  // never grows (and resets any height we set) → the overlay fills only a short
+  // box with whitespace below. So instead the child (same-origin) builds the
+  // overlay in window.top.document, positioned over its own iframe's rect and
+  // extending to the viewport bottom — independent of the porthole's height.
+  // Everything is inline-styled + self-injected CSS, so it's immune to a stale
+  // cached stylesheet.
+  function _topCtx() {
+    var fe = null; try { fe = window.frameElement; } catch (e) { fe = null; }
+    try {
+      if (fe && fe.ownerDocument && fe.ownerDocument.body) {
+        var win = fe.ownerDocument.defaultView || window;
+        void win.innerHeight;  // force the cross-origin check
+        return { doc: fe.ownerDocument, win: win, fe: fe };
+      }
+    } catch (e) { /* cross-origin — fall back */ }
+    return { doc: document, win: window, fe: null };
+  }
+  function _ensureTreeCss(doc) {
+    if (doc.getElementById('cfg-json-tree-style')) return;
+    var css = [
+      '#cfg-json-top-overlay .json-viewer{max-height:none;height:auto;overflow:visible;background:transparent;border:0;border-radius:0;padding:0;margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.55;color:#1f2328;}',
+      '#cfg-json-top-overlay .json-viewer .jt-row,#cfg-json-top-overlay .json-viewer .jt-branch>summary{display:flex;gap:4px;align-items:baseline;padding:1px 0;}',
+      '#cfg-json-top-overlay .json-viewer .jt-children{padding-left:14px;border-left:1px solid #eceff2;margin-left:3px;}',
+      '#cfg-json-top-overlay .json-viewer .jt-key{color:#57606a;font-weight:600;}',
+      '#cfg-json-top-overlay .json-viewer .jt-colon{color:#8a94a0;}',
+      '#cfg-json-top-overlay .json-viewer .jt-num{color:#0550ae;}',
+      '#cfg-json-top-overlay .json-viewer .jt-str{color:#0a7d33;}',
+      '#cfg-json-top-overlay .json-viewer .jt-bool{color:#8250df;}',
+      '#cfg-json-top-overlay .json-viewer .jt-null{color:#8a94a0;font-style:italic;}',
+      '#cfg-json-top-overlay .json-viewer .jt-punct{color:#8a94a0;}',
+      '#cfg-json-top-overlay .json-viewer .jt-count{font-size:10px;color:#8a94a0;background:#eef1f4;border-radius:9px;padding:0 6px;margin:0 2px;}',
+      '#cfg-json-top-overlay .json-viewer .jt-branch>summary{cursor:pointer;list-style:none;}',
+      '#cfg-json-top-overlay .json-viewer details>summary::-webkit-details-marker{display:none;}',
+    ].join('\n');
+    var st = doc.createElement('style'); st.id = 'cfg-json-tree-style'; st.textContent = css;
+    (doc.head || doc.documentElement).appendChild(st);
+  }
+  function _closeTopOverlay() {
+    // search this doc AND the top doc
+    [document, (function () { try { return window.top.document; } catch (e) { return null; } })()].forEach(function (doc) {
+      if (!doc) return;
+      var el = doc.getElementById('cfg-json-top-overlay');
+      if (el) { if (el._reflow && el._win) el._win.removeEventListener('resize', el._reflow); if (el._esc && el._edoc) el._edoc.removeEventListener('keydown', el._esc); if (el.parentNode) el.parentNode.removeChild(el); }
+    });
+    _syncMaxBtns();
+  }
+  function _syncMaxBtns() {
+    var open = false;
+    try { open = !!(window.top.document.getElementById('cfg-json-top-overlay')); } catch (e) { open = !!document.getElementById('cfg-json-top-overlay'); }
+    document.querySelectorAll('.pcard-json-max-btn').forEach(function (b) {
+      b.textContent = open ? '⤡ Exit' : '⛶ Fill screen'; b.classList.toggle('active', open);
+    });
+  }
+  function _openTopOverlay(data, name, panel) {
+    var ctx = _topCtx(), doc = ctx.doc, win = ctx.win, fe = ctx.fe;
+    _closeTopOverlay();
+    _ensureTreeCss(doc);
+    var cur = data;   // current data shown (swapped in when initial state loads)
+    var text = function () { try { return JSON.stringify(cur, null, 2); } catch (e) { return String(cur); } };
+    // composite address for the "Load initial state" run (card attr, then data-cid)
+    var cardEl = panel && panel.closest ? panel.closest('.registry-entry-full') : null;
+    var cid = (cardEl && cardEl.getAttribute('data-address')) || (panel && panel.getAttribute && panel.getAttribute('data-cid')) || name;
+    var live = !!(panel && panel.querySelector && panel.querySelector('.pcard-json-state-btn'));
+    var ov = doc.createElement('div'); ov.id = 'cfg-json-top-overlay';
+    ov.style.cssText = 'position:fixed;z-index:2147483000;background:#fbfcfe;border-left:1px solid #e1e4e8;' +
+      'box-shadow:-3px 0 16px rgba(0,0,0,.10);display:flex;flex-direction:column;overflow:hidden;';
+    var place = function () {
+      var left = 0, top = 0, width = win.innerWidth, h = win.innerHeight;
+      if (fe) { var r = fe.getBoundingClientRect(); left = Math.max(0, r.left); top = Math.max(0, r.top); width = r.width; h = win.innerHeight - top; }
+      ov.style.left = left + 'px'; ov.style.top = top + 'px'; ov.style.width = width + 'px'; ov.style.height = Math.max(300, h) + 'px';
+    };
+    place();
+    var bar = doc.createElement('div');
+    bar.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid #e1e4e8;background:#f6f8fa;font-family:system-ui,sans-serif;';
+    var title = doc.createElement('strong'); title.style.cssText = 'font-size:13px;margin-right:6px;'; title.textContent = name + ' — JSON';
+    bar.appendChild(title);
+    function mk(label, fn) {
+      var b = doc.createElement('button'); b.type = 'button'; b.textContent = label;
+      b.style.cssText = 'font-size:12px;padding:3px 9px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;color:#334155;';
+      b.addEventListener('click', fn); bar.appendChild(b); return b;
+    }
+    mk('⧉ Copy', function () { var s = this, o = s.textContent, d = function () { s.textContent = '✓ Copied'; setTimeout(function () { s.textContent = o; }, 1200); }; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text()).then(d).catch(d); else d(); });
+    mk('⬇ Download', function () { var s = this, o = s.textContent; try { var bl = new Blob([text()], { type: 'application/json' }); var u = URL.createObjectURL(bl); var a = doc.createElement('a'); a.href = u; a.download = name.split('.').pop() + '.json'; a.style.display = 'none'; doc.body.appendChild(a); a.click(); setTimeout(function () { doc.body.removeChild(a); URL.revokeObjectURL(u); }, 150); s.textContent = '✓ Saved'; setTimeout(function () { s.textContent = o; }, 1200); } catch (e) {} });
+    mk('⊕ Expand all', function () { ov.querySelectorAll('.json-viewer details').forEach(function (d) { d.open = true; }); });
+    mk('⊖ Collapse all', function () { ov.querySelectorAll('.json-viewer details').forEach(function (d) { d.open = false; }); });
+    var stateNote = doc.createElement('span'); stateNote.style.cssText = 'font-size:11px;color:#64748b;';
+    if (live) {
+      var loaded = !!(panel && panel._stateLoaded);
+      var sbtn = mk(loaded ? '✓ initial state' : '▸ Load initial state', function () {
+        var self = this; if (self._busy) return; self._busy = true;
+        var o0 = self.textContent; self.disabled = true; self.textContent = 'running 1 step…';
+        stateNote.textContent = 'building the composite core…';
+        _fetchInitialState(cid, function (t) { stateNote.textContent = t || ''; }).then(function (state) {
+          cur = state;
+          bodyEl.innerHTML = (typeof _jsonViewer === 'function') ? _jsonViewer(state) : '<pre>' + _esc(JSON.stringify(state, null, 2)) + '</pre>';
+          _applyInitialState(panel, state);
+          self.disabled = false; self._busy = false; self.textContent = '✓ initial state'; self.classList.add('active');
+          stateNote.textContent = '● loaded state after 1 step';
+        }).catch(function (e) {
+          self.disabled = false; self._busy = false; self.textContent = o0;
+          stateNote.textContent = String(e && e.message || e);
+        });
+      });
+      if (loaded) sbtn.classList.add('active');
+      sbtn.title = 'Run the composite 1 step and load the real state (lattice dims/fields, cell positions/types, immune agents) — the declared document shows these empty at rest';
+      bar.appendChild(stateNote);
+    }
+    var spacer = doc.createElement('span'); spacer.style.cssText = 'flex:1 1 auto'; bar.appendChild(spacer);
+    mk('⤡ Exit', _closeTopOverlay);
+    var bodyEl = doc.createElement('div');
+    bodyEl.style.cssText = 'flex:1 1 auto;min-height:0;overflow:auto;padding:12px 16px;';
+    bodyEl.innerHTML = (typeof _jsonViewer === 'function') ? _jsonViewer(cur) : '<pre>' + _esc(text()) + '</pre>';
+    ov.appendChild(bar); ov.appendChild(bodyEl);
+    doc.body.appendChild(ov);
+    ov._reflow = place; ov._win = win; win.addEventListener('resize', place);
+    var escFn = function (e) { if (e.key === 'Escape') _closeTopOverlay(); };
+    ov._esc = escFn; ov._edoc = doc; doc.addEventListener('keydown', escFn);
+    _syncMaxBtns();
+  }
+  function _toggleCompositeJsonMax(btn) {
+    var panel = btn.closest('[data-role="composite-json"]'); if (!panel) return;
+    var open = false;
+    try { open = !!(window.top.document.getElementById('cfg-json-top-overlay')); } catch (e) { open = !!document.getElementById('cfg-json-top-overlay'); }
+    if (open) { _closeTopOverlay(); return; }
+    var data = (panel._json != null) ? panel._json : null;
+    if (data == null) { var raw = panel.querySelector('.pcard-json-raw'); try { data = raw ? JSON.parse(raw.textContent) : null; } catch (e) { data = null; } }
+    _openTopOverlay(data, panel.getAttribute('data-cid') || 'composite', panel);
+  }
+  window._toggleCompositeJsonMax = _toggleCompositeJsonMax;
+
+  // Expand / collapse every <details> node in a JSON panel's tree at once.
+  function _cfgJsonExpandAll(btn, open) {
+    var panel = btn.closest('[data-role="composite-json"]'); if (!panel) return;
+    panel.querySelectorAll('.json-viewer details').forEach(function (d) { d.open = open; });
+  }
+  window._cfgJsonExpandAll = _cfgJsonExpandAll;
+
+  // "▸ Load initial state" — the declared composite document shows its stores
+  // empty at rest (process-bigraph fills lattice dims/fields, cell positions,
+  // etc. only on the first process step). This runs the composite ONE step via
+  // the loom run API (composite-test-run → poll status → fetch the emitted
+  // observables = the loaded per-store state) and swaps the viewer to show the
+  // real, populated values. Runs the BASE composite (the same document the JSON
+  // viewer shows) — the study's run knobs (replicas/steps/fracs/…) are
+  // ensemble-driver params, not composite parameters, so they are NOT passed
+  // (build_generator rejects unknown parameter names).
+  // Core: run the BASE composite one step via the loom run API, poll to
+  // completion, and resolve to the emitted observables (= the loaded per-store
+  // state). onPhase(text) reports progress. Shared by the inline card button and
+  // the fill-screen overlay button.
+  function _fetchInitialState(id, onPhase) {
+    onPhase = onPhase || function () {};
+    return new Promise(function (resolve, reject) {
+      var req = { id: id, steps: 1, label: 'model-tab-initial-state' };
+      fetch(_api('/api/composite-test-run'), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req),
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!j || !j.run_id) throw new Error((j && j.error) || 'run did not start');
+        var runId = j.run_id, tries = 0;
+        (function poll() {
+          fetch(_api('/api/composite-run/' + encodeURIComponent(runId) + '/status'))
+            .then(function (r) { return r.json(); })
+            .then(function (s) {
+              var st = s && s.status;
+              if (st === 'completed') {
+                onPhase('loading state…');
+                fetch(_api('/api/composite-run/' + encodeURIComponent(runId) + '/artifact/observables'))
+                  .then(function (r) { if (!r.ok) throw new Error('no observables artifact'); return r.json(); })
+                  .then(resolve)
+                  .catch(function () { reject(new Error('run finished but no state artifact')); });
+              } else if (st === 'failed' || st === 'orphaned') {
+                var errLines = (s && s.error ? String(s.error).split('\n') : []).filter(function (l) { return l.trim(); });
+                reject(new Error('run failed: ' + (errLines.length ? errLines[errLines.length - 1].slice(0, 200) : 'see Runs tab')));
+              } else if (tries++ < 180) {
+                onPhase((st || 'running') + '… step ' + (s && s.progress_step != null ? s.progress_step : '?'));
+                setTimeout(poll, 1000);
+              } else { reject(new Error('timed out waiting for the run')); }
+            })
+            .catch(function () { if (tries++ < 180) setTimeout(poll, 1000); else reject(new Error('timed out')); });
+        })();
+      }).catch(function (e) { reject(e instanceof Error ? e : new Error(String(e && e.message || e))); });
+    });
+  }
+
+  // Swap a composite-json panel's tree/raw/state to the loaded state and mark it.
+  function _applyInitialState(panel, state) {
+    if (!panel) return;
+    var viewer = panel.querySelector('.json-viewer');
+    if (viewer) viewer.outerHTML = _jsonViewer(state);
+    var raw = panel.querySelector('.pcard-json-raw'); if (raw) raw.textContent = JSON.stringify(state, null, 2);
+    panel._json = state; panel._stateLoaded = true;
+    var ibtn = panel.querySelector('.pcard-json-state-btn');
+    if (ibtn) { ibtn.classList.add('active'); ibtn.textContent = '✓ initial state'; ibtn.disabled = false; }
+  }
+
+  function _loadCompositeInitialState(btn) {
+    var panel = btn.closest('[data-role="composite-json"]'); if (!panel) return;
+    var card = btn.closest('.registry-entry-full'); if (!card) return;
+    var id = card.getAttribute('data-address');
+    var note = panel.querySelector('.pcard-json-state-note');
+    var orig = btn.textContent;
+    var setNote = function (t) { if (note) note.textContent = t || ''; };
+    var reset = function (label, ms) { btn.textContent = label || orig; btn.disabled = false; if (label && ms) setTimeout(function () { btn.textContent = orig; }, ms); };
+    btn.disabled = true; btn.textContent = 'running 1 step…'; setNote('building the composite core…');
+    _fetchInitialState(id, setNote).then(function (state) {
+      _applyInitialState(panel, state);
+      reset('✓ initial state'); btn.classList.add('active');
+      setNote('● loaded state after 1 step');
+    }).catch(function (e) {
+      var msg = String(e && e.message || e);
+      reset(/^run failed|^timed out/.test(msg) ? msg.split(':')[0] : 'could not run', 3500);
+      setNote(msg);
+    });
+  }
+  window._loadCompositeInitialState = _loadCompositeInitialState;
 })();
