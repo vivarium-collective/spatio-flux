@@ -3,10 +3,36 @@ name: paper-figures
 title: Process Bigraph paper — figures
 created: '2026-08-09'
 status: running
-executive: One study per figure of the Process Bigraph paper. Each study describes the figure and checks
-  that its bigraph-loom image is generated (shown under Visualizations as an SVG). Fig 2 is conceptual
-  (no composite). Figs 7.1–7.3 and Fig 8 are the runnable spatio-flux composites; some paper figures
-  (e.g. Figs 5–6) live elsewhere and are not built here.
+executive:
+  what_is_this: >
+    One study per figure of the Process Bigraph paper. Each study describes the
+    figure and checks that its bigraph-loom image is generated (shown under
+    Visualizations as an SVG). Fig 2 is conceptual (no composite); Figs 7.1–7.3
+    and Fig 8 are the runnable spatio-flux composites; some paper figures (e.g.
+    Figs 5–6) live elsewhere and are not built here.
+  verdict: >
+    All eight figure studies generate their committed SVG/PNG artifacts; the
+    runnable composites (Figs 7–8) additionally reproduce their simulation output.
+    The paper's figures are regenerable from the framework via
+    `scripts/build_all_figures.py`.
+  verdict_status: established
+  decisions_needed: []
+# Methods/figures investigation — biology is not the subject, so the biological
+# narrative section is explicitly opted out (linter contract).
+narrative_spine_skip: [biological_story]
+narrative_spine_skip_reason: >
+  paper-figures documents and regenerates the Process Bigraph paper's figures;
+  it is a methods/presentation investigation with no biological claim of its own.
+scientific_argument:
+  main_claim: >
+    The Process Bigraph paper's figures are not hand-drawn — each is generated
+    from a real framework artifact (a bigraph-loom schematic, or, for Figs 7–8, a
+    runnable spatio-flux composite with its simulation output), so the paper's
+    visual claims are reproducible from the codebase.
+  support: >
+    Diagram figures render their committed bigraph-loom SVGs; the runnable-composite
+    figures (7–8) reuse the spatio-flux-test-suite composites and their out0-checked
+    output, so the figures and the reference application share one source of truth.
 studies:
 - fig-01
 - fig-02
