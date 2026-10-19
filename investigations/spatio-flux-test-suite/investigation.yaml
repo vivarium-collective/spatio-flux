@@ -3,18 +3,36 @@ name: spatio-flux-test-suite
 title: "Spatio-Flux Test Suite — compositional multiscale scenarios"
 created: '2026-07-26'
 status: running
-executive: |
-  The spatio-flux reference application reproduced as one investigation: 19
-  studies, each a composition scenario from the original test suite, arranged
-  standalone processes → pairs → triples → reference demos.
-scientific_argument: |
-  Independently developed processes (dFBA, Monod kinetics, diffusion-advection,
-  Brownian and Newtonian particles) compose through typed shared state. Running
-  the standalone processes first, then their combinations, demonstrates that
-  composition is additive and inspectable.
+executive:
+  what_is_this: |
+    The spatio-flux reference application reproduced as one investigation: 19
+    studies, each a composition scenario from the original test suite, arranged
+    standalone processes → pairs → triples → reference demos.
+  verdict: >
+    All 19 composition scenarios pass their regression behavior tests in CI —
+    each produces its expected artifacts and its composite's structural schema
+    matches the committed reference, standalone processes through the full
+    spatio-flux reference demo. The reference app is faithfully modernised into a
+    workbench investigation with a live report + read-only dashboard — composition
+    is additive, inspectable, and reproducible from the codebase.
+  verdict_status: established
+  decisions_needed: []
+scientific_argument:
+  main_claim: >
+    Independently developed processes (dFBA, Monod kinetics, diffusion–advection,
+    Brownian and Newtonian particles) compose through typed shared state; running
+    the standalone processes first, then their combinations, demonstrates that
+    composition is additive and inspectable.
+  support: >
+    The DAG (standalone → pairs → triples → reference demos) is documentation of
+    composition order, not an execution gate — every study runs independently and
+    its output is checked against the out0 oracle, so a passing combination is
+    evidence the constituent processes compose without hidden coupling.
 biological_story: |
   Metabolism, spatial transport, and particle dynamics coupled on a shared
-  lattice reproduce COMETS-style spatial dFBA and particle–field exchange.
+  lattice reproduce COMETS-style spatial dFBA and particle–field exchange: cells
+  consume and secrete metabolites into diffusing extracellular fields, and
+  particle populations advect and react on the same grid.
 studies:
 - monod_kinetics
 - ecoli_core_dfba
