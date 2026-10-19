@@ -744,12 +744,27 @@ class ParticleDivision(Step):
         return {'particles': out}
 
 
-class ParticleTotalMass(Step):
+class ParticleTotalMass(Process):
     """
     Sum per-particle scalar submasses into a single `mass` for ONE particle.
 
     Intended to be placed inside each particle's subtree, where `submasses`
     is a map of float-valued contributions.
+
+    A Process (non-zero interval), not a zero-time Step. It lives inside the
+    `particles` map and reads `sub_masses` / writes `mass` on its own particle
+    — paths UNDER the `particles` container. The particle sub-system also has
+    several zero-time Steps that read AND restructure the whole `particles`
+    container (ManageBoundaries, ParticleDivision, ParticleExchange). A
+    container-restructuring Step and this deeper sub_masses→mass wiring form a
+    mutual read/write dependency (the container write is an ancestor of the
+    member read, and vice-versa) that process-bigraph's zero-time step-DAG
+    cycle check (paper Supplement 1, §3.8.4) rejects. The whole-container Steps
+    do NOT cycle with each other (self-loop skip), so taking this one derived
+    aggregator out of the zero-time DAG — running it on the particle interval —
+    breaks every such cycle with a single, localized change. `total_mass` then
+    refreshes once per interval (a derived sum) instead of in the same
+    zero-time cascade; division reads it on the following tick.
     """
     config_schema = {}
 
@@ -765,7 +780,7 @@ class ParticleTotalMass(Step):
     def initial_state(self, config=None):
         return {}
 
-    def update(self, state):
+    def update(self, state, interval):
         submasses = state.get("sub_masses", {}) or {}
 
         total = 0.0
