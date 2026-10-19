@@ -4,7 +4,11 @@
       "_type": "map",
       "_value": {
         "aggregate_mass": {
-          "_type": "step",
+          "_type": "process",
+          "interval": {
+            "_type": "float",
+            "_default": 1.0
+          },
           "address": {
             "_default": "local:ParticleTotalMass",
             "_type": "string"

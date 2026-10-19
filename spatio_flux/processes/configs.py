@@ -461,8 +461,9 @@ def get_mass_total_step(
         mass_key="mass",
 ):
     return {
-        '_type': 'step',
+        '_type': 'process',
         'address': 'local:ParticleTotalMass',
+        'interval': 1.0,
         'config': {
             'mass_sources': mass_sources or [],
             'mass_key': mass_key
@@ -628,11 +629,18 @@ def get_community_dfba_particle_composition(
             ),
         }
 
-    # add a mass step
+    # Aggregate per-particle submasses into the particle's total mass.
+    # A Process (interval 1.0), not a zero-time Step: as a Step its deeper
+    # sub_masses→mass wiring forms a dependency cycle with the whole-`particles`
+    # container-restructuring Steps (boundaries / division / exchange) that
+    # process-bigraph's zero-time step-DAG check rejects. Running it on the
+    # particle interval takes it out of that DAG and breaks every such cycle
+    # with one localized change; total_mass refreshes once per tick.
     processes['aggregate_mass'] = {
-        '_type': 'step',
+        '_type': 'process',
         'address': make_default("string", "local:ParticleTotalMass"),
         'config': make_default("node", {}),
+        'interval': make_default("float", 1.0),
         'inputs': make_default("wires", {'sub_masses': ['sub_masses']}),
         'outputs': make_default("wires", {'total_mass': [particle_mass_id]})
     }
