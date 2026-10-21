@@ -8,23 +8,13 @@ confidence: Accepted
 claim: image generated
 purpose:
   question: What does Fig 7 depict, and do its three panels' bigraph-loom images generate?
-  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community
-    dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics);
-    7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA
-    process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement
-    + enforce-boundaries). Each rendered in bigraph-loom.'
-  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under
+  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared
+    `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial
+    dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles
+    (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in
+    bigraph-loom.'
+  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under 
     Visualizations, one run per panel.
-baseline:
-- name: 7-1-community-dfba
-  composite: spatio_flux.composites.fig07-1-community-dfba
-  params: {}
-- name: 7-2-comets
-  composite: spatio_flux.composites.fig07-2-comets
-  params: {}
-- name: 7-3-brownian-particles
-  composite: spatio_flux.composites.fig07-3-brownian-particles
-  params: {}
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
@@ -55,7 +45,6 @@ visualizations:
 - name: Figure 7 (composite)
   address: image:visualizations/figure_7.svg
   chart: image
-variants: []
 interventions: []
 runs:
 - name: spatio_flux.composites.fig07-1-community-dfba__1786323957__36c785
@@ -122,3 +111,16 @@ pipeline_gate:
     blocked_by: []
     evaluated_by: code
     diverges_from_authored: false
+conditions:
+  baseline:
+    name: 7-1-community-dfba
+    composite: spatio_flux.composites.fig07-1-community-dfba
+    params: {}
+  variants:
+  - name: 7-2-comets
+    composite: spatio_flux.composites.fig07-2-comets
+    params: {}
+  - name: 7-3-brownian-particles
+    composite: spatio_flux.composites.fig07-3-brownian-particles
+    params: {}
+  model_settings: []

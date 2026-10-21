@@ -7,22 +7,13 @@ status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 1 — draft processes + multiscale composite depict, and does
-    its bigraph-loom image generate?
-  mechanism: Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen
-    Gradient, Multicellular Interactions) and the multiscale draft composite (tissue
-    > cells > cell > molecules), rendered in bigraph-loom.
-  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
-baseline:
-- name: 1a-draft-processes
-  composite: spatio_flux.composites.fig01a-draft-processes
-  params: {}
-- name: 1b-multiscale
-  composite: spatio_flux.composites.fig01b-multiscale-composite
-  params: {}
-- name: 1c-study-workflow
-  composite: spatio_flux.composites.fig01c-study-workflow
-  params: {}
+  question: What does Fig 1 — draft processes + multiscale composite depict, and does its 
+    bigraph-loom image generate?
+  mechanism: Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen 
+    Gradient, Multicellular Interactions) and the multiscale draft composite (tissue > 
+    cells > cell > molecules), rendered in bigraph-loom.
+  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under 
+    Visualizations.
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
@@ -38,7 +29,6 @@ visualizations:
 - name: Figure 1 (composite)
   address: image:visualizations/figure_1.svg
   chart: image
-variants: []
 interventions: []
 runs:
 - name: spatio_flux.composites.fig01a-draft-processes__1786323944__20b26c
@@ -72,3 +62,16 @@ pipeline_gate:
     blocked_by: []
     evaluated_by: code
     diverges_from_authored: false
+conditions:
+  baseline:
+    name: 1a-draft-processes
+    composite: spatio_flux.composites.fig01a-draft-processes
+    params: {}
+  variants:
+  - name: 1b-multiscale
+    composite: spatio_flux.composites.fig01b-multiscale-composite
+    params: {}
+  - name: 1c-study-workflow
+    composite: spatio_flux.composites.fig01c-study-workflow
+    params: {}
+  model_settings: []

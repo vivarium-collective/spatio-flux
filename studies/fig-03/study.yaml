@@ -7,19 +7,13 @@ status: complete
 confidence: Accepted
 claim: image generated
 purpose:
-  question: What does Fig 3 — store diagram + place graph depict, and does its
+  question: What does Fig 3 — store diagram + place graph depict, and does its 
     bigraph-loom image generate?
-  mechanism: A store diagram (a single `cell` store holding an `ecoli` data type,
-    shown in full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃
-    ribo, mucin}, with EPS a sibling of cell), rendered in bigraph-loom.
-  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under Visualizations.
-baseline:
-- name: 3a-store
-  composite: spatio_flux.composites.fig03a-store
-  params: {}
-- name: 3b-place-graph
-  composite: spatio_flux.composites.fig03b-place-graph
-  params: {}
+  mechanism: A store diagram (a single `cell` store holding an `ecoli` data type, shown in
+    full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃ ribo, mucin}, 
+    with EPS a sibling of cell), rendered in bigraph-loom.
+  expected_outcome: The figure's bigraph-loom SVG(s) generate and appear under 
+    Visualizations.
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
@@ -32,7 +26,6 @@ visualizations:
 - name: Figure 3 (composite)
   address: image:visualizations/figure_3.svg
   chart: image
-variants: []
 interventions: []
 runs:
 - name: spatio_flux.composites.fig03a-store__1786323952__30c709
@@ -80,3 +73,13 @@ pipeline_gate:
     blocked_by: []
     evaluated_by: code
     diverges_from_authored: false
+conditions:
+  baseline:
+    name: 3a-store
+    composite: spatio_flux.composites.fig03a-store
+    params: {}
+  variants:
+  - name: 3b-place-graph
+    composite: spatio_flux.composites.fig03b-place-graph
+    params: {}
+  model_settings: []

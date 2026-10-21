@@ -8,14 +8,10 @@ implementation_status: complete
 simulation_status: ran
 evaluation_status: evaluated
 gate_status: passed
-baseline:
-- name: baseline
-  composite: spatio_flux.composites.particles.newtonian_particles
-  params: {}
 purpose:
-  question: 'Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding
-    in continuous space. Use to validate contact dynamics + boundary enforcement.'
-  mechanism: Runs the spatio_flux.composites.particles.newtonian_particles composite
+  question: 'Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding in
+    continuous space. Use to validate contact dynamics + boundary enforcement.'
+  mechanism: Runs the spatio_flux.composites.particles.newtonian_particles composite 
     (standalone process).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
 pipeline_gate:
@@ -46,10 +42,10 @@ visualizations:
 behavior_tests:
 - name: NEWTONIAN_PARTICLES-REPRODUCES-REPORT
   classification: regression
-  description: All 6 expected artifacts are produced in charts/, and the composite's
-    structural schema (newtonian_particles_schema.json) matches the committed reference
-    in studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders,
-    so they are existence-checked.
+  description: All 6 expected artifacts are produced in charts/, and the composite's 
+    structural schema (newtonian_particles_schema.json) matches the committed reference in
+    studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders, so 
+    they are existence-checked.
   measure:
     kind: artifacts_present
     expected:
@@ -80,14 +76,14 @@ runs:
     NEWTONIAN_PARTICLES-REPRODUCES-REPORT:
       result: PASS
       evaluated_by: code
-      detail: 6/6 artifacts present; newtonian_particles_schema.json matches reference
+      detail: 6/6 artifacts present; newtonian_particles_schema.json matches reference 
         (structural, tol=0.0)
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the newtonian_particles test-suite artifacts and
-    the composite's structural schema matches its committed reference.
+  statement: spatio_flux reproduces the newtonian_particles test-suite artifacts and the 
+    composite's structural schema matches its committed reference.
   evidence:
     from_test: NEWTONIAN_PARTICLES-REPRODUCES-REPORT
   provenance:
@@ -95,15 +91,21 @@ findings:
     - newtonian_particles-reproduce
 conclusion_logic:
   if_primary_tests_pass:
-    implementation_status: The newtonian_particles scenario is faithfully reproduced
-      by the investigation's post-run analysis flush.
-    biological_validation: Validates that the composition reproduces the reference
-      test-suite artifacts; it does not add new biological claims beyond the original
+    implementation_status: The newtonian_particles scenario is faithfully reproduced by 
+      the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference 
+      test-suite artifacts; it does not add new biological claims beyond the original 
       scenario.
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
     - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
-    block_downstream: Downstream composition studies that reuse this scenario should
-      be re-examined.
+    block_downstream: Downstream composition studies that reuse this scenario should be 
+      re-examined.
+conditions:
+  baseline:
+    name: baseline
+    composite: spatio_flux.composites.particles.newtonian_particles
+    params: {}
+  model_settings: []
