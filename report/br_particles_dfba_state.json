@@ -1,6 +1,6 @@
 {
   "particles": {
-    "zPkIv8JX": {
+    "dJbwITaH": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "zPkIv8JX",
+      "id": "dJbwITaH",
       "position": [
-        22.13341912749745,
-        0.11026083781284224
+        20.335589870489002,
+        33.55380239721796
       ],
-      "mass": 0.025794231786905753,
+      "mass": 0.8971764798173361,
       "local": {},
       "exchange": {},
       "sub_masses": {}
