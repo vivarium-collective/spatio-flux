@@ -1,6 +1,6 @@
 {
   "particles": {
-    "5xixzlSU": {
+    "Nq740yTS": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "5xixzlSU",
+      "id": "Nq740yTS",
       "position": [
-        11.641271638843076,
-        48.50723253235782
+        47.97331147391915,
+        40.81424655297143
       ],
-      "mass": 0.40399175362857137,
+      "mass": 0.4567138123837047,
       "local": {},
       "exchange": {},
       "sub_masses": {}
