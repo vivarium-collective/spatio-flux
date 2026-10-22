@@ -23,7 +23,7 @@ dependencies = [
     "imageio",
     "ipython",
     "matplotlib",
-    "pbg-superpowers>=0.16",  # re-exports process_bigraph.composite_generator (core_extensions)
+    "pbg-superpowers>=0.23.0",  # >=0.23 drops the _emitter_node_from_decl import removed in process-bigraph #258
     "pymunk",
     "scipy",
 ]

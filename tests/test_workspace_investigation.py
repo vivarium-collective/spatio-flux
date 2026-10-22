@@ -77,8 +77,18 @@ def test_every_baseline_composite_resolves():
     from pbg_superpowers.composite_generator import _REGISTRY
     known = set(_REGISTRY.keys())
     for slug, spec in _load_studies().items():
-        ref = spec["baseline"][0]["composite"]
-        assert ref in known, f"{slug}: composite not found: {ref}"
+        # Canonical v4 studies keep the model under conditions.baseline (a dict,
+        # or a list of arms for a multi-arm study); fall back to the legacy
+        # top-level baseline[] list for un-migrated specs.
+        cond = (spec.get("conditions") or {}).get("baseline")
+        if isinstance(cond, dict):
+            refs = [cond.get("composite")]
+        elif isinstance(cond, list):
+            refs = [a.get("composite") for a in cond if isinstance(a, dict)]
+        else:
+            refs = [b.get("composite") for b in (spec.get("baseline") or []) if isinstance(b, dict)]
+        for ref in refs:
+            assert ref in known, f"{slug}: composite not found: {ref}"
 
 
 def test_prerequisites_reference_real_slugs_and_are_acyclic():
