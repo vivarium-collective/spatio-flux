@@ -43,7 +43,7 @@ def collect_report_inputs(ws_root):
         if not os.path.exists(study_yaml):
             continue
         spec = yaml.safe_load(open(study_yaml))
-        base = spec["baseline"][0]
+        base = ((spec.get("conditions") or {}).get("baseline") or (spec.get("baseline") or [{}])[0])
         descriptions[slug] = _description_for(base["composite"])
         simulations[slug] = base.get("params", {})
         tpath = os.path.join(ws_root, "studies", slug, f"{slug}_timing.json")

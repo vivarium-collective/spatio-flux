@@ -95,7 +95,7 @@ PANELS = [
 def _baseline(slug):
     """(composite ref, params) from studies/<slug>/study.yaml — authoritative."""
     spec = yaml.safe_load((WS / "studies" / slug / "study.yaml").read_text())
-    b = spec["baseline"][0]
+    b = ((spec.get("conditions") or {}).get("baseline") or (spec.get("baseline") or [{}])[0])
     return b["composite"], b.get("params", {}) or {}
 
 

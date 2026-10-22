@@ -40,7 +40,9 @@ def _load_baseline(slug):
         raise SystemExit(f"no study.yaml for slug: {slug}")
     with open(path) as f:
         spec = yaml.safe_load(f)
-    baseline = spec["baseline"][0]
+    # Canonical v4 studies keep the baseline under conditions.baseline (a dict);
+    # fall back to the legacy top-level `baseline` list for un-migrated specs.
+    baseline = (spec.get("conditions") or {}).get("baseline") or (spec.get("baseline") or [{}])[0]
     return baseline["composite"], baseline.get("params", {})
 
 
