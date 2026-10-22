@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Nq740yTS": {
+    "xIM3sE72": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "Nq740yTS",
+      "id": "xIM3sE72",
       "position": [
-        47.97331147391915,
-        40.81424655297143
+        44.17673738823613,
+        21.873989979985364
       ],
-      "mass": 0.4567138123837047,
+      "mass": 0.9596606458968336,
       "local": {},
       "exchange": {},
       "sub_masses": {}
