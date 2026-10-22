@@ -105,3 +105,5 @@ conditions:
     params:
       model_id: overflow_metabolism
   model_settings: []
+question: 'Field-only baseline: Monod uptake/growth on a well-mixed substrate pool (no spatial
+  lattice, no particles). Use to sanity-check kinetics + mass balance.'

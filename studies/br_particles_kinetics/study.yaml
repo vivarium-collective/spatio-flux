@@ -115,3 +115,5 @@ conditions:
     composite: spatio_flux.composites.particles.br_particles_kinetics
     params: {}
   model_settings: []
+question: "Particle–field coupling (kinetics): Brownian agents sample local lattice concentrations
+  and apply Monod-style exchange, modifying both particle mass and fields."

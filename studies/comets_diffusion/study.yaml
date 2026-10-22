@@ -111,3 +111,5 @@ conditions:
     composite: spatio_flux.composites.comets.comets_diffusion
     params: {}
   model_settings: []
+question: "Two-phase coupling (no particles): spatial dFBA on a lattice with advection–diffusion
+  of substrates + biomass. The classic COMETS field-only scenario."

@@ -105,3 +105,5 @@ conditions:
     composite: spatio_flux.composites.metabolism.community_dfba
     params: {}
   model_settings: []
+question: 'Multi-agent well-mixed community: several independent dFBA instances share the same
+  extracellular pools, creating competition / cross-feeding dynamics without space.'

@@ -106,3 +106,5 @@ conditions:
     composite: spatio_flux.composites.metabolism.dfba_kinetics_community
     params: {}
   model_settings: []
+question: 'Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents in a shared
+  environment. Demonstrates heterogeneous process composition under one schema.'

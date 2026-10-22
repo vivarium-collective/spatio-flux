@@ -75,3 +75,5 @@ conditions:
     composite: spatio_flux.composites.fig01c-study-workflow
     params: {}
   model_settings: []
+question: What does Fig 1 — draft processes + multiscale composite depict, and does its 
+  bigraph-loom image generate?

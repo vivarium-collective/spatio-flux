@@ -118,3 +118,6 @@ conditions:
     composite: spatio_flux.composites.comets.comets_br_particles_kinetics
     params: {}
   model_settings: []
+question: 'Three-way coupling: spatial dFBA fields + Brownian particle agents that run Monod
+  kinetics locally + diffusion. End-to-end smoke test of the COMETS-style composite stack with
+  kinetic agents.'

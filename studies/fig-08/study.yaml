@@ -60,3 +60,5 @@ conditions:
     composite: spatio_flux.composites.fig08-reference-model
     params: {}
   model_settings: []
+question: What does Fig 8 — the spatio-flux reference model depict, and does its 
+  bigraph-loom image generate?

@@ -107,3 +107,5 @@ conditions:
     params:
       model_id: ecoli core
   model_settings: []
+question: 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own
+  dFBA instance. Useful for validating lattice indexing + per-site state isolation.'

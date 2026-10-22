@@ -66,3 +66,5 @@ conditions:
     composite: spatio_flux.composites.fig02b-processes
     params: {}
   model_settings: []
+question: What does Fig 2 — Milner bigraph (a) + process bigraph (b) depict, and does its 
+  bigraph-loom image generate?

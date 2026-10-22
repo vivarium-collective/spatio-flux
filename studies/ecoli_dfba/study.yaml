@@ -107,3 +107,5 @@ conditions:
       glucose: 10.0
       formate: 5.0
   model_settings: []
+question: 'Single-cell metabolism (large model): dynamic FBA using iAF1260 with tracked extracellular
+  fields (glucose/formate) and biomass. Stress-tests solver + exchange wiring.'

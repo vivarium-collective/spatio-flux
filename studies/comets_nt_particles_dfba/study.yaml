@@ -121,3 +121,5 @@ conditions:
     composite: spatio_flux.composites.comets.comets_nt_particles_dfba
     params: {}
   model_settings: []
+question: 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS
+  fields diffuse; particles run metabolism (via exchange) against local concentrations.'

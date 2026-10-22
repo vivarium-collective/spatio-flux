@@ -109,3 +109,5 @@ conditions:
     composite: spatio_flux.composites.particles.newtonian_particles
     params: {}
   model_settings: []
+question: 'Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding in
+  continuous space. Use to validate contact dynamics + boundary enforcement.'

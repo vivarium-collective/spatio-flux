@@ -116,3 +116,5 @@ conditions:
     params:
       particle_model_id: ecoli core
   model_settings: []
+question: 'Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion
+  couples to fields and biomass accumulates into particle mass/size.'

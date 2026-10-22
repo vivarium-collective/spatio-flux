@@ -45,3 +45,4 @@ conditions:
     composite: spatio_flux.composites.fig05b-composite-process
     params: {}
   model_settings: []
+question: What do Fig 5a and Fig 5b depict, and do their bigraph-loom images generate?

@@ -30,3 +30,4 @@ conditions:
     composite: spatio_flux.composites.fig06-orchestration
     params: {}
   model_settings: []
+question: What orchestration patterns does Fig 6 depict?

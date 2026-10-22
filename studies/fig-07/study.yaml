@@ -124,3 +124,4 @@ conditions:
     composite: spatio_flux.composites.fig07-3-brownian-particles
     params: {}
   model_settings: []
+question: What does Fig 7 depict, and do its three panels' bigraph-loom images generate?

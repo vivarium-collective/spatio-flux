@@ -120,3 +120,4 @@ conditions:
       - 20
       - 20
   model_settings: []
+question: Different resolution for the spatio-flux reference demo

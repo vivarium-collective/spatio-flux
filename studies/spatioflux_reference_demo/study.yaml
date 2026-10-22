@@ -122,3 +122,5 @@ conditions:
       - 10
       - 10
   model_settings: []
+question: "SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field
+  exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated division."

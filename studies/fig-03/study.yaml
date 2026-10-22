@@ -83,3 +83,5 @@ conditions:
     composite: spatio_flux.composites.fig03b-place-graph
     params: {}
   model_settings: []
+question: What does Fig 3 — store diagram + place graph depict, and does its bigraph-loom 
+  image generate?

@@ -113,3 +113,5 @@ conditions:
     composite: spatio_flux.composites.particles.brownian_particles
     params: {}
   model_settings: []
+question: 'Particle-only baseline: Brownian motion of agents with mass in continuous space (no
+  fields, no metabolism). Checks integrator + particle state schema.'

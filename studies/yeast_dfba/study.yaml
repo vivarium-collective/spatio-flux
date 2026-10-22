@@ -106,3 +106,5 @@ conditions:
       model_id: yeast
       glucose: 5.0
   model_settings: []
+question: 'Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular glucose
+  and biomass. Cross-model check of the dFBA pipeline.'

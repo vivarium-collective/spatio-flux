@@ -116,3 +116,5 @@ conditions:
     composite: spatio_flux.composites.comets.comets_br_particles_dfba
     params: {}
   model_settings: []
+question: "Full COMETS-style spatial composite: lattice dFBA + advection–diffusion + Brownian
+  particles with internal dFBA + division. End-to-end coupled scenario."

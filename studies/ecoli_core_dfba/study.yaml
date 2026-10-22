@@ -107,3 +107,5 @@ conditions:
       glucose: 10.0
       acetate: 0.0
   model_settings: []
+question: 'Single-cell metabolism baseline: dynamic FBA for E. coli core with external glucose/acetate
+  and biomass over time (no space, no particles).'

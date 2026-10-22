@@ -37,3 +37,4 @@ conditions:
     composite: spatio_flux.composites.fig04-process
     params: {}
   model_settings: []
+question: What does Fig 4 depict, and does its bigraph-loom image generate?

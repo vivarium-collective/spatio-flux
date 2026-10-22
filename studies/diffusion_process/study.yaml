@@ -101,3 +101,5 @@ conditions:
     composite: spatio_flux.composites.spatial.diffusion_process
     params: {}
   model_settings: []
+question: 'Field transport primitive: finite-volume diffusion/advection on a 2D lattice. Use
+  to validate boundary conditions, stability, and transport timescales.'

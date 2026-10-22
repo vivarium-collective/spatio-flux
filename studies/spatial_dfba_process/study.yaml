@@ -111,3 +111,5 @@ conditions:
     composite: spatio_flux.composites.spatial.spatial_dfba_process
     params: {}
   model_settings: []
+question: 'Spatial microenvironment (vectorized dFBA): one spatial dFBA process updates all
+  lattice sites as a single structured state. Demonstrates batched execution + field coupling.'
