@@ -8,17 +8,9 @@ implementation_status: complete
 simulation_status: ran
 evaluation_status: evaluated
 gate_status: passed
-baseline:
-- name: baseline
-  composite: spatio_flux.composites.reference.spatioflux_reference_demo
-  params:
-    n_bins:
-    - 10
-    - 10
 purpose:
-  question: "SpatioFlux demonstration reference composite: Newtonian motile particles\
-    \ + particle\u2013field exchange + internal multi-dFBA + Monod/diffusion fields\
-    \ + mass-aggregated division."
+  question: "SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field
+    exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated division."
   mechanism: Runs the spatio_flux.composites.reference.spatioflux_reference_demo composite
     (reference demo).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
@@ -57,9 +49,9 @@ visualizations:
 behavior_tests:
 - name: SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT
   classification: regression
-  description: All 8 expected artifacts are produced in charts/, and the composite's
-    structural schema (spatioflux_reference_demo_schema.json) matches the committed
-    reference in studies/<slug>/reference/. State/figures embed RNG or non-deterministic
+  description: All 8 expected artifacts are produced in charts/, and the composite's 
+    structural schema (spatioflux_reference_demo_schema.json) matches the committed 
+    reference in studies/<slug>/reference/. State/figures embed RNG or non-deterministic 
     renders, so they are existence-checked.
   measure:
     kind: artifacts_present
@@ -86,21 +78,22 @@ runs:
   emitter:
     kind: xarray
     store: studies/spatioflux_reference_demo/runs.spatioflux_reference_demo-reproduce.zarr
-  store_path: studies/spatioflux_reference_demo/runs.spatioflux_reference_demo-reproduce.zarr
+  store_path: 
+    studies/spatioflux_reference_demo/runs.spatioflux_reference_demo-reproduce.zarr
   timestamp: '2026-09-20T15:24:04Z'
   result: PASS
   outcomes:
     SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT:
       result: PASS
       evaluated_by: code
-      detail: 8/8 artifacts present; spatioflux_reference_demo_schema.json matches
+      detail: 8/8 artifacts present; spatioflux_reference_demo_schema.json matches 
         reference (structural, tol=0.0)
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the spatioflux_reference_demo test-suite artifacts
-    and the composite's structural schema matches its committed reference.
+  statement: spatio_flux reproduces the spatioflux_reference_demo test-suite artifacts and
+    the composite's structural schema matches its committed reference.
   evidence:
     from_test: SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT
   provenance:
@@ -110,13 +103,24 @@ conclusion_logic:
   if_primary_tests_pass:
     implementation_status: The spatioflux_reference_demo scenario is faithfully reproduced
       by the investigation's post-run analysis flush.
-    biological_validation: Validates that the composition reproduces the reference
-      test-suite artifacts; it does not add new biological claims beyond the original
+    biological_validation: Validates that the composition reproduces the reference 
+      test-suite artifacts; it does not add new biological claims beyond the original 
       scenario.
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
     - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
-    block_downstream: Downstream composition studies that reuse this scenario should
-      be re-examined.
+    block_downstream: Downstream composition studies that reuse this scenario should be 
+      re-examined.
+conditions:
+  baseline:
+    name: baseline
+    composite: spatio_flux.composites.reference.spatioflux_reference_demo
+    params:
+      n_bins:
+      - 10
+      - 10
+  model_settings: []
+question: "SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field
+  exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated division."

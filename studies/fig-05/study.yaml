@@ -8,21 +8,12 @@ confidence: Accepted
 claim: image generated
 purpose:
   question: What do Fig 5a and Fig 5b depict, and do their bigraph-loom images generate?
-  mechanism: 'Two readings of composition. 5a — a process graph: processes
-    (metabolism, gene_expression) connected to shared stores (metab, enzymes, DNA)
-    through typed ports, with arrow directions showing the input/output wiring.
-    5b — a composite process: a `cell` process exposing external ports (nutrients,
-    signals in; shape out) that bridge to an internal process bigraph (express /
-    grow / transport over cyto / mem / nuc stores), rendered as a drillable
-    sub-composite.'
+  mechanism: 'Two readings of composition. 5a — a process graph: processes (metabolism, gene_expression)
+    connected to shared stores (metab, enzymes, DNA) through typed ports, with arrow directions
+    showing the input/output wiring. 5b — a composite process: a `cell` process exposing external
+    ports (nutrients, signals in; shape out) that bridge to an internal process bigraph (express
+    / grow / transport over cyto / mem / nuc stores), rendered as a drillable sub-composite.'
   expected_outcome: Both bigraph-loom SVGs generate and appear under Visualizations.
-baseline:
-- name: 5a-process-graph
-  composite: spatio_flux.composites.fig05a-process-graph
-  params: {}
-- name: 5b-composite-process
-  composite: spatio_flux.composites.fig05b-composite-process
-  params: {}
 expected_behavior:
 - bigraph-loom images generated correctly
 visualizations:
@@ -35,7 +26,6 @@ visualizations:
 - name: Figure 5 (composite)
   address: image:visualizations/figure_5.svg
   chart: image
-variants: []
 interventions: []
 runs: []
 simulation_set: []
@@ -45,3 +35,14 @@ pipeline_gate:
     blocked_by: []
     evaluated_by: code
     diverges_from_authored: false
+conditions:
+  baseline:
+    name: 5a-process-graph
+    composite: spatio_flux.composites.fig05a-process-graph
+    params: {}
+  variants:
+  - name: 5b-composite-process
+    composite: spatio_flux.composites.fig05b-composite-process
+    params: {}
+  model_settings: []
+question: What do Fig 5a and Fig 5b depict, and do their bigraph-loom images generate?
