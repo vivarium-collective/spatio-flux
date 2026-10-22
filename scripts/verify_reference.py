@@ -87,7 +87,7 @@ def _write_outcome(slug, result, detail):
     test_name = f"{slug.upper()}-REPRODUCES-REPORT"
     run_id = f"{slug}-reproduce"
     store_path = f"studies/{slug}/runs.{run_id}.zarr"
-    composite = spec["baseline"][0]["composite"]
+    composite = ((spec.get("conditions") or {}).get("baseline") or (spec.get("baseline") or [{}])[0])["composite"]
     passed = result == "PASS"
 
     spec["simulation_status"] = "ran"
