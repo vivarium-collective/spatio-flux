@@ -1,4 +1,5 @@
 {
+  "global_time_precision": 1,
   "schema": {
     "particles": {
       "_type": "map",

@@ -5,6 +5,8 @@ on:
     paths:
       - 'spatio_flux/**'
       - 'tests/**'
+      - 'studies/**'
+      - 'workspace.yaml'
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/unit-tests.yml'
@@ -14,6 +16,8 @@ on:
     paths:
       - 'spatio_flux/**'
       - 'tests/**'
+      - 'studies/**'
+      - 'workspace.yaml'
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/unit-tests.yml'
@@ -37,3 +41,23 @@ jobs:
 
       - name: Run pytest
         run: uv run pytest tests/ -q
+
+      - name: Publish render check (no study would 404)
+        # The deploy (publish-report-and-workbench.yml) builds the read-only
+        # workbench snapshot and refuses to publish if any study fails to render
+        # ('the snapshot would 404 on opening them'). That guard runs AFTER
+        # merge, so a study-render break reaches the live workbench before anyone
+        # sees it. Run the SAME snapshot build here, as a PR gate, so the break
+        # is caught before merge. Mirror the deploy's modern-stack install so the
+        # gate tests exactly what will deploy.
+        run: |
+          uv pip install --upgrade "pbg-superpowers>=0.16" "bigraph-schema>=1.4.3"
+          uv pip install --reinstall-package vivarium-workbench \
+            "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
+          source .venv/bin/activate
+          if vivarium-workbench-publish --help >/dev/null 2>&1; then
+            vivarium-workbench-publish --workspace . --out "${RUNNER_TEMP:-/tmp}/render-check" \
+              --base-path /spatio-flux/workbench --interactive-url ""
+          else
+            echo "vivarium-workbench-publish unavailable — skipping render check."
+          fi

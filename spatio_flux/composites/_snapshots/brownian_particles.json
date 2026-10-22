@@ -1,4 +1,5 @@
 {
+  "global_time_precision": 1,
   "state": {
     "brownian_movement": {
       "_type": "process",
