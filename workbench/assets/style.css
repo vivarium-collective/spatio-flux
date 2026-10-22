@@ -1004,6 +1004,65 @@ body.viv-rail-resizing-active #viv-rail-studies-section{ contain:layout; }
    Keeps a long study list cheap to lay out on large workspaces. */
 .viv-rail-sublink { content-visibility: auto; contain-intrinsic-size: 0 30px; }
 .viv-rail-sublink:hover { background:#f3f4f6; }
+
+/* The study currently open in the porthole: a clear accent so you always know
+   where you are while stepping through the list. */
+.viv-rail-sublink.rail-study-active {
+  background: #e0e7ff;
+  font-weight: 600;
+  color: #3730a3 !important;
+  box-shadow: inset 3px 0 0 #4f46e5;
+}
+.viv-rail-sublink.rail-study-active:hover { background: #dbe1fe; }
+:root[data-theme="dark"] .viv-rail-sublink.rail-study-active {
+  background: #312e81; color: #c7d2fe !important; box-shadow: inset 3px 0 0 #818cf8;
+}
+
+/* Prev/next study stepper — a full-width opaque band that STAYS PINNED at the
+   top of the Studies rail (position:sticky) so the study list scrolls beneath it
+   and you can't scroll past the stepper. The bordered card sits inside the band. */
+#viv-rail-study-stepper {
+  position: sticky; top: 0; z-index: 6;
+  padding: 2px 12px 6px; background: #fafafa; box-shadow: 0 1px 0 #ececec;
+}
+.viv-rail-step-card {
+  display: flex; align-items: center; gap: 8px; padding: 3px 6px;
+  border: 1px solid #e5e7eb; border-radius: 7px; background: #f8fafc;
+}
+#viv-rail-study-stepper button {
+  flex: none; width: 24px; height: 22px; line-height: 1; padding: 0;
+  border: 1px solid #d1d5db; border-radius: 5px; background: #fff;
+  color: #4f46e5; font-size: 0.8em; cursor: pointer;
+}
+#viv-rail-study-stepper button:hover:not(:disabled) { background: #eef2ff; border-color: #a5b4fc; }
+#viv-rail-study-stepper button:disabled { color: #cbd5e1; cursor: default; }
+#viv-rail-study-stepper #viv-rail-step-pos {
+  flex: 1; text-align: center; font-size: 0.78em; color: #64748b; font-variant-numeric: tabular-nums;
+}
+:root[data-theme="dark"] #viv-rail-study-stepper { background: var(--rail); box-shadow: 0 1px 0 var(--border-faint); }
+:root[data-theme="dark"] .viv-rail-step-card { background: #1e293b; border-color: #334155; }
+:root[data-theme="dark"] #viv-rail-study-stepper button { background: #0f172a; border-color: #334155; color: #a5b4fc; }
+
+/* Opening a study docks its detail view in #ws-study-panel. A one-shot flash
+   (indigo ring + fade) cues that the study just opened; _wsOpenStudyTab also
+   nudges the panel up only when it's crammed at the very bottom (otherwise the
+   scroll position is left untouched). */
+#ws-study-panel.ws-study-panel-flash {
+  animation: wsStudyPanelFlash 1.3s ease-out 1;
+}
+@keyframes wsStudyPanelFlash {
+  0%   { box-shadow: 0 0 0 3px rgba(99,102,241,0.55), 0 10px 28px rgba(79,70,229,0.28); }
+  60%  { box-shadow: 0 0 0 3px rgba(99,102,241,0.30), 0 10px 28px rgba(79,70,229,0.14); }
+  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+}
+:root[data-theme="dark"] #ws-study-panel.ws-study-panel-flash {
+  animation: wsStudyPanelFlashDark 1.3s ease-out 1;
+}
+@keyframes wsStudyPanelFlashDark {
+  0%   { box-shadow: 0 0 0 3px rgba(129,140,248,0.65), 0 10px 28px rgba(79,70,229,0.4); }
+  60%  { box-shadow: 0 0 0 3px rgba(129,140,248,0.35), 0 10px 28px rgba(79,70,229,0.2); }
+  100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
+}
 /* Live study-search filters by showing/hiding rows (walkthrough.js
    _applyRailStudyFilter) instead of rebuilding the list. */
 .viv-rail-hidden { display: none !important; }
@@ -1046,9 +1105,6 @@ body.viv-rail-resizing-active #viv-rail-studies-section{ contain:layout; }
 /* The item being dragged fades; a dragged group also shows a dashed outline. */
 .viv-rail-dragging { opacity: 0.45; }
 .viv-rail-investigations-group.viv-rail-dragging { outline: 1px dashed #94a3b8; outline-offset: -1px; }
-/* Header magnifier lit while the search field is open. */
-.viv-rail-search-btn.viv-rail-search-active { color: #2563eb; }
-
 .viv-rail-section-subheader {
   font-size: 0.68em;
   text-transform: uppercase;
@@ -1131,10 +1187,6 @@ body.viv-rail-resizing-active #viv-rail-studies-section{ contain:layout; }
 .viv-rail-toggle:hover{
   background:#f3f4f6; color:#1f2937; border-color:#e5e7eb;
 }
-/* Search magnifier sits just left of the collapse toggle (both are absolutely
-   positioned in the header); it's irrelevant when the rail is collapsed. */
-.viv-rail-search-btn{ right:40px; }
-.viv-rail.viv-rail-collapsed .viv-rail-search-btn{ display:none; }
 .viv-rail-toggle-svg{
   width:16px; height:16px;
   display:block;
@@ -4315,7 +4367,7 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 /* Cards: readable 1–2 columns, never 3–4 tiny ones. Each card gets at least
    ~400px (min(100%, 400px) so it still collapses to 1-up on a phone). */
 .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
-  gap: 14px; align-items: start; }
+  gap: 10px; align-items: start; }
 /* Reaction pathways are prose-heavy (role/caveats/tables) → full width, with a
    second column only on a genuinely wide viewport. */
 .res-section[data-res-type="reaction-pathway"] .res-grid {
@@ -4327,40 +4379,48 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 /* A stacked prose field: label on its own line, value full-width beneath — the
    fix for long prose (Role in campaign, ΔG span, caution, …) that used to wrap
    one character per line in a cramped 2nd grid column. */
-.res-field { margin: 8px 0; min-width: 0; }
-.res-field + .res-field { margin-top: 6px; }
+.res-field { margin: 5px 0; min-width: 0; }
+.res-field + .res-field { margin-top: 4px; }
 .res-field-k { display: block; font-size: 0.72em; text-transform: uppercase;
-  letter-spacing: 0.04em; color: var(--gray); font-weight: 600; margin-bottom: 2px; }
-.res-field-v { display: block; font-size: 0.88em; line-height: 1.5; overflow-wrap: anywhere; }
-.res-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+  letter-spacing: 0.04em; color: var(--gray); font-weight: 600; margin-bottom: 1px; }
+.res-field-v { display: block; font-size: 0.85em; line-height: 1.4; overflow-wrap: anywhere; }
+.res-card { border: 1px solid var(--border); border-radius: 6px; padding: 9px 11px;
   background: var(--panel); }
-.res-card-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
-.res-card-name { font-size: 0.98em; }
+.res-card-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.res-card-name { font-size: 0.95em; }
 .res-abbr { font-family: ui-monospace, Menlo, monospace; font-size: 0.8em; color: var(--gray); }
-.res-badge { margin-left: auto; font-size: 0.68em; text-transform: uppercase;
+.res-badge { margin-left: auto; font-size: 0.66em; text-transform: uppercase;
   letter-spacing: 0.04em; background: var(--bg); border: 1px solid var(--border);
   border-radius: 10px; padding: 1px 8px; color: var(--gray); white-space: nowrap; }
-.res-summary { margin: 6px 0 10px; font-size: 0.86em; }
-.res-desc { font-size: 0.86em; margin: 8px 0; }
-.res-sub { font-size: 0.74em; text-transform: uppercase; letter-spacing: 0.04em;
-  color: var(--gray); font-weight: 600; margin: 12px 0 6px; }
+.res-summary { margin: 3px 0 6px; font-size: 0.84em; }
+.res-desc { font-size: 0.84em; margin: 5px 0; }
+.res-sub { font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--gray); font-weight: 600; margin: 7px 0 4px; }
+/* Lead-with-identity line for data cards (lipid formula + chemical name). */
+.res-identity { display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 4px 12px; margin: 2px 0 6px; }
+.res-formula { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; font-weight: 600; }
+.res-chemname { font-size: 0.82em; color: var(--gray); }
 /* Short scalar pairs only. auto-fit with a 220px floor keyed to CARD width
    (not the viewport) so a pair never shrinks into a 1-char-per-line column; a
    pair that doesn't fit drops to its own row instead. Prose belongs in
    .res-field (stacked), never here. */
-.res-kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: 4px 18px; }
-.res-kv { display: flex; gap: 6px; font-size: 0.84em; line-height: 1.4; min-width: 0; }
+.res-kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 2px 16px; }
+.res-kv { display: flex; gap: 6px; font-size: 0.8em; line-height: 1.35; min-width: 0; }
 .res-kv-k { color: var(--gray); flex: 0 0 auto; }
 .res-kv-v { color: inherit; min-width: 0; overflow-wrap: anywhere; }
-.res-martini, .res-network { margin-top: 10px; padding: 10px; border: 1px solid var(--border);
+.res-martini, .res-network { margin-top: 6px; padding: 7px 9px; border: 1px solid var(--border);
   border-radius: 6px; background: var(--bg); }
 .res-martini .res-sub, .res-network .res-sub { margin-top: 0; }
-.res-beads { margin: 8px 0 0; padding-left: 20px; font-size: 0.82em;
+/* Martini mapping is a collapsed <details>; its summary carries .res-sub. */
+details.res-martini > summary { cursor: pointer; margin-bottom: 0; }
+details.res-martini[open] > summary { margin-bottom: 5px; }
+.res-beads { margin: 5px 0 0; padding-left: 20px; font-size: 0.78em;
   font-family: ui-monospace, Menlo, monospace; }
-.res-beads li { margin: 2px 0; }
-.res-headline { font-weight: 600; font-size: 0.9em; margin-bottom: 8px; }
-.res-notes { margin: 10px 0 0; font-size: 0.82em; font-style: italic; color: var(--gray); }
+.res-beads li { margin: 1px 0; }
+.res-headline { font-weight: 600; font-size: 0.9em; margin-bottom: 5px; }
+.res-notes { margin: 6px 0 0; font-size: 0.78em; font-style: italic; color: var(--gray); }
 .res-table { width: 100%; border-collapse: collapse; margin: 6px 0 2px; font-size: 0.82em; }
 .res-table th { text-align: left; font-weight: 600; background: var(--bg);
   border-bottom: 1px solid var(--border); padding: 4px 7px; }
@@ -4722,19 +4782,19 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 12px;
+  gap: 5px 8px;
   margin: 2px 0 10px;
-  padding: 6px 10px;
+  padding: 4px 9px;
   background: #f8fafc;
   border: 1px solid #eef2f7;
   border-radius: 8px;
-  font-size: 0.86em;
+  font-size: 0.8em;
   color: #475569;
 }
 .aig-tb-group {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
 }
 /* While a study is open, hide the investigation PROSE (verdict / question /
    description / decision cockpit + tab blocks) so only the graph region remains;
@@ -4915,18 +4975,28 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   color: #94a3b8; padding: 6px 10px 2px; font-weight: 700;
 }
 .aig-tb-group + .aig-tb-group {
-  padding-left: 12px;
+  padding-left: 8px;
   border-left: 1px solid #e2e8f0;
 }
 .aig-tb-right { margin-left: auto; }
 .aig-tb-group.aig-tb-right { padding-left: 0; border-left: none; }
 .aig-tb-label {
-  font-size: 0.8em;
+  font-size: 0.74em;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: #94a3b8;
   white-space: nowrap;
+}
+/* Compact interaction hint at the end of the toolbar — small + muted so it never
+   competes with the controls. margin-left:auto pushes it to the trailing edge;
+   it wraps to its own line (the toolbar is flex-wrap) before crowding anything. */
+.aig-tb-hint {
+  margin-left: auto;
+  font-size: 0.72em;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-style: italic;
 }
 .aig-tb-seg {
   display: inline-flex;
@@ -4942,7 +5012,7 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   background: transparent;
   color: #475569;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 3px 8px;
   cursor: pointer;
   font-size: 0.82em;
   line-height: 1.4;
@@ -4955,13 +5025,13 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
      one consistent button set (same size, weight, fill, border, hover). */
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   background: #f8fafc;
   color: #475569;
   font-weight: 600;
-  padding: 4px 11px;
+  padding: 3px 8px;
   cursor: pointer;
   font-size: 0.82em;
   line-height: 1.4;
@@ -5037,7 +5107,7 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 
 /* The primary unified-zoom slider is wider than the fine-tune sliders so it
    reads as the main control. */
-.aig-tb-slider-wide { width: 180px; }
+.aig-tb-slider-wide { width: 130px; }
 /* ⚙ Display popover: the fine-tune sliders stack as labelled rows. */
 .aig-settings-row {
   display: flex;
@@ -5075,25 +5145,58 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
   font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   color: #fff; background: #2563eb; padding: 1px 7px; border-radius: 9999px;
 }
-/* SELECTED (one click) — a distinct violet highlight that STACKS with the blue
-   "open" ring (one uses outline, the other box-shadow) so a study can show both.
-   The "selected" badge sits top-LEFT, opposite the "open" badge top-right. */
-.iset-dag-node.aig-node-selected {
+/* SELECTED (one click) — a distinct violet highlight. The blue "open" state takes
+   visual PRECEDENCE: an open card is styled blue only (blue ring + "open" badge),
+   so the violet selected styling and its badge apply only when the card is NOT
+   also open (:not(.aig-node-active)). The "selected" badge sits top-RIGHT, the
+   same corner the "open" badge uses, so the marker is in a consistent spot
+   (the two never show at once — open suppresses selected). */
+.iset-dag-node.aig-node-selected:not(.aig-node-active) {
   outline: 2px solid #7c3aed; outline-offset: 2px;
   border-color: #7c3aed !important;
-}
-.iset-dag-node.aig-node-selected:not(.aig-node-active) {
   box-shadow: 0 6px 18px rgba(124,58,237,0.20) !important;
 }
-.iset-dag-node.aig-node-selected::before {
-  content: "selected"; position: absolute; top: -9px; left: 10px;
+.iset-dag-node.aig-node-selected:not(.aig-node-active)::before {
+  content: "selected"; position: absolute; top: -9px; right: 10px;
   font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   color: #fff; background: #7c3aed; padding: 1px 7px; border-radius: 9999px; z-index: 1;
 }
-/* When a study is BOTH open and selected, the "open" marker wins — drop the
-   redundant "selected" outline + badge so the card isn't double-flagged. */
-.iset-dag-node.aig-node-active.aig-node-selected { outline: none; }
-.iset-dag-node.aig-node-active.aig-node-selected::before { content: none; }
+/* "Show full card" expand-in-place affordance — a LOCALIZED button chip, visually
+   distinct from the card body (click = select, double-click = open). A subtle
+   bordered pill with padding + hover so it reads as "click THIS element", not a
+   generic hint. It sizes to its content (inline-flex) so it never spans the whole
+   card. Clicking it expands the card IN PLACE (the full Asks/Finds/plan grow
+   downward from the card's anchored top); clicking again collapses it. */
+.aig-more-wrap { display: flex; }
+.aig-more-findings {
+  display: inline-flex; align-items: center; gap: 4px;
+  max-width: 100%; box-sizing: border-box;
+  font-size: 0.72em; font-weight: 600; line-height: 1.2;
+  color: #7c3aed; background: #f5f3ff;
+  border: 1px solid #ddd6fe; border-radius: 9999px;
+  padding: 2px 9px; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.aig-more-findings .aig-more-icon { font-weight: 400; }
+.aig-more-findings:hover { background: #ede9fe; border-color: #c4b5fd; color: #6d28d9; }
+.aig-more-findings:focus-visible { outline: 2px solid #7c3aed; outline-offset: 1px; }
+.aig-more-findings[aria-expanded="true"] { background: #ede9fe; border-color: #c4b5fd; color: #6d28d9; }
+
+/* Full detail revealed inline when the card is expanded. It grows the card
+   downward (the card's top-left stays anchored); the graph shell grows its
+   scroll extent to match so the content is reachable by scrolling. */
+.aig-full-details { word-break: break-word; overflow-wrap: anywhere; }
+.aig-full-details .aig-open-study {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 1em; font-weight: 600; font-family: inherit; line-height: 1.2;
+  color: #fff; background: #2563eb;
+  border: none; border-radius: 6px; padding: 5px 14px; cursor: pointer;
+  transition: background 0.12s ease;
+}
+.aig-full-details .aig-open-study:hover { background: #1d4ed8; }
+.aig-full-details .aig-open-study:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
 
 /* ── Composites page: compact, informative cards ──────────────────────────── */
 .ccard-grid {
@@ -5503,6 +5606,9 @@ details.overview-section[open] > summary.overview-label{ margin-bottom:8px; }
 :root[data-theme="dark"] .aig-orient-tb{ background:var(--bg) !important; }
 :root[data-theme="dark"] .iset-dag-node{ background:var(--surface) !important; border-color:var(--border) !important; color:var(--text); }
 :root[data-theme="dark"] .iset-dag-node .aig-claim-row:hover{ background:var(--hover); }
+/* In-place full-detail block — dark. Its inline base colours (slate text + light
+   divider) are overridden with theme tokens, like the node itself. */
+:root[data-theme="dark"] .aig-full-details{ color:var(--text) !important; border-top-color:var(--border) !important; }
 /* "Methods · Simulations" block — dark. Inline base colours are overridden with
    theme tokens (mirrors the .iset-dag-node / .aig-claim-row dark handling). */
 :root[data-theme="dark"] .aig-methods-block{ border-top-color:var(--border) !important; }

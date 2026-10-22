@@ -136,6 +136,13 @@
     // Textareas measured 0 while their tab was hidden; re-fit the now-visible
     // panel's auto-grow boxes so they show all content without a scrollbar.
     if (window._autoGrowTextareas) window._autoGrowTextareas();
+    // Tell the parent workspace which tab is open, so stepping to the prev/next
+    // study (rail arrows / graph nav) can re-open it on the SAME tab.
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ _vwStudyTab: kind }, window.location.origin);
+      }
+    } catch (e) { /* cross-origin / no parent — ignore */ }
   }
   window._setStudyTab = _setStudyTab;
 
@@ -4104,10 +4111,10 @@
   // but expanded and grouped by check, so the exact fixes to make the study
   // release-ready lead the audit. Re-computes from the live linter (responsive
   // to the current study state), AI-free.
-  // Readiness gaps render into BOTH the Audit tab (#audit-readiness) and the top
-  // of the Decide tab (#decide-readiness) — same deterministic linter, shown
-  // wherever the mount exists. Per-host guard so each populates once, whichever
-  // tab opens first.
+  // Readiness gaps render into the Audit tab (#audit-readiness) — the single
+  // home for the deterministic linter now (the Decide tab's #decide-readiness
+  // mount was removed). The host list stays plural/filtered so a missing mount
+  // is simply skipped. Per-host guard so each populates once.
   function _renderAuditReadiness(spec) {
     var hosts = ['audit-readiness', 'decide-readiness']
       .map(function (id) { return document.getElementById(id); })

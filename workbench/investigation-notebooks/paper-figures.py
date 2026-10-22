@@ -244,6 +244,8 @@ def _render_one(address, config, runs_db, study_yaml, overrides=None):
 
 # ## Study: Fig 1 — draft processes + multiscale composite (`fig-01`)
 #
+# **Question.** What does Fig 1 — draft processes + multiscale composite depict, and does its bigraph-loom image generate?
+#
 # **Purpose.** Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen Gradient, Multicellular Interactions) and the multiscale draft composite (tissue > cells > cell > molecules), rendered in bigraph-loom.
 #
 # **Claim.** image generated
@@ -253,8 +255,6 @@ def _render_one(address, config, runs_db, study_yaml, overrides=None):
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
 # | `1a-draft-processes` | `spatio_flux.composites.fig01a-draft-processes` | 0 | — |
-# | `1b-multiscale` | `spatio_flux.composites.fig01b-multiscale-composite` | 0 | — |
-# | `1c-study-workflow` | `spatio_flux.composites.fig01c-study-workflow` | 0 | — |
 
 # ### The model & its parameters
 #
@@ -359,83 +359,6 @@ spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['symbols']['state_k'] = 'observed state at t_k'
 spec_spatio_flux_composites_fig01a_draft_processes['state']['neural_dynamics']['config']['contract']['ports']['state'] = 'system state'
 
-# **Composite `spatio_flux.composites.fig01b-multiscale-composite`** — `spec_spatio_flux_composites_fig01b_multiscale_composite` (static spec file, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_spatio_flux_composites_fig01b_multiscale_composite = load_spec(REPO / 'spatio_flux/composites/fig01b-multiscale-composite.composite.json')
-describe_spec(spec_spatio_flux_composites_fig01b_multiscale_composite)
-
-# === Edit parameters for composite 'fig01b-multiscale-composite' ===
-# Each line is the spec's CURRENT value — change any, then run the Run cell
-# below. The spec is a plain dict, so you may also add or remove keys.
-
-# **Composite `spatio_flux.composites.fig01c-study-workflow`** — `spec_spatio_flux_composites_fig01c_study_workflow` (static spec file, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_spatio_flux_composites_fig01c_study_workflow = load_spec(REPO / 'spatio_flux/composites/fig01c-study-workflow.composite.json')
-describe_spec(spec_spatio_flux_composites_fig01c_study_workflow)
-
-# === Edit parameters for composite 'fig01c-study-workflow' ===
-# Each line is the spec's CURRENT value — change any, then run the Run cell
-# below. The spec is a plain dict, so you may also add or remove keys.
-
-# process 'preprocess'  (local:Preprocess)
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['interval'] = 1.0
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['summary'] = 'Pre-processing — prepare the simulation conditions'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['summary'] = 'Pre-processing — prepare the simulation conditions'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['description'] = "The workflow's pre-step: reads the experimental datasets and the model specification (JSON) and derives the initial conditions / parameters shared by the parallel simulation ensemble."
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['ports']['datasets'] = 'experimental datasets'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['ports']['spec'] = 'model specification (JSON)'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['preprocess']['config']['contract']['ports']['conditions'] = 'prepared simulation conditions'
-
-# process 'emitter'  (local:Emitter)
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['interval'] = 1.0
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['summary'] = 'Emitter — capture simulation state to storage'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['summary'] = 'Emitter — capture simulation state to storage'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['method'] = 'Emitter'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['description'] = 'Subscribes to the running simulation ensemble and records their observed state each timestep to a store — the standard process-bigraph emitter that persists a run.'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['ports']['simulations'] = 'the running simulations'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['emitter']['config']['contract']['ports']['emitter_data'] = 'captured emitter output'
-
-# process 'load_results'  (local:LoadResults)
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['interval'] = 1.0
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['summary'] = 'Load results — read emitted data into a results table'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['summary'] = 'Load results — read emitted data into a results table'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['method'] = 'Data loader'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['description'] = "Reads the emitter's stored output and materializes it as a tidy results table that the downstream analysis steps consume."
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['ports']['emitter_data'] = 'stored emitter output'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['load_results']['config']['contract']['ports']['results'] = 'tidy results table'
-
-# process 'analyses'  (local:Analyses)
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['interval'] = 1.0
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['summary'] = 'Analyses — quantify the simulation ensemble'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['summary'] = 'Analyses — quantify the simulation ensemble'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['description'] = 'A workflow post-step: aggregates the parallel simulation outputs into quantitative analysis results (summary statistics, derived observables).'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['ports']['runs'] = 'the parallel simulation outputs'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['analyses']['config']['contract']['ports']['results'] = 'analysis results'
-
-# process 'visualizations'  (local:Visualizations)
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['interval'] = 1.0
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['summary'] = 'Visualizations — render figures from the results'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['summary'] = 'Visualizations — render figures from the results'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['description'] = 'A workflow post-step: reads the simulation outputs and renders the figures (plots, snapshots, animations).'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['ports']['runs'] = 'the parallel simulation outputs'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['visualizations']['config']['contract']['ports']['figures'] = 'rendered figures'
-
-# process 'tests'  (local:Tests)
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['interval'] = 1.0
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['summary'] = 'Tests — check results against expected behavior'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['status'] = 'draft - no update dynamics yet'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['summary'] = 'Tests — check results against expected behavior'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['description'] = "A workflow post-step: evaluates the simulation outputs against the study's acceptance criteria and emits a pass / fail report."
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['ports']['runs'] = 'the parallel simulation outputs'
-spec_spatio_flux_composites_fig01c_study_workflow['state']['tests']['config']['contract']['ports']['report'] = 'test report (pass / fail)'
-
 # ### Run
 #
 # _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
@@ -451,10 +374,6 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 # are not implemented yet reports the error instead of crashing.
 STEPS_x_1a_draft_processes = 100
 INTERVAL_x_1a_draft_processes = 1.0
-STEPS_x_1b_multiscale = 100
-INTERVAL_x_1b_multiscale = 1.0
-STEPS_x_1c_study_workflow = 100
-INTERVAL_x_1c_study_workflow = 1.0
 
 if RERUN:
     from process_bigraph import Composite
@@ -466,22 +385,6 @@ if RERUN:
         print('ran', '1a-draft-processes', f'(spatio_flux.composites.fig01a-draft-processes) for', STEPS_x_1a_draft_processes, 'steps')
     except Exception as _e:
         print(f"1a-draft-processes not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
-            _comp = build_composite_from_spec(spec_spatio_flux_composites_fig01b_multiscale_composite, {'interval': INTERVAL_x_1b_multiscale}, core=core)
-            _comp.run(STEPS_x_1b_multiscale)
-        print('ran', '1b-multiscale', f'(spatio_flux.composites.fig01b-multiscale-composite) for', STEPS_x_1b_multiscale, 'steps')
-    except Exception as _e:
-        print(f"1b-multiscale not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
-            _comp = build_composite_from_spec(spec_spatio_flux_composites_fig01c_study_workflow, {'interval': INTERVAL_x_1c_study_workflow}, core=core)
-            _comp.run(STEPS_x_1c_study_workflow)
-        print('ran', '1c-study-workflow', f'(spatio_flux.composites.fig01c-study-workflow) for', STEPS_x_1c_study_workflow, 'steps')
-    except Exception as _e:
-        print(f"1c-study-workflow not runnable yet: {type(_e).__name__}: {_e}")
 else:
     print("RERUN=False — not re-simulating.")
 
@@ -518,6 +421,8 @@ _save_viz('fig-01', '1c_study_workflow', _render_one('image:visualizations/fig01
 _save_viz('fig-01', 'Figure_1_composite', _render_one('image:visualizations/figure_1.svg', {}, RUNS_DB, STUDY_YAML))
 
 # ## Study: Fig 2 — Milner bigraph (a) + process bigraph (b) (`fig-02`)
+#
+# **Question.** What does Fig 2 — Milner bigraph (a) + process bigraph (b) depict, and does its bigraph-loom image generate?
 #
 # **Purpose.** Contrasts a Milner bigraph (a) with a process bigraph (b). The process-bigraph panel is illustrated by the process graph (metabolism + gene expression over shared stores), rendered in bigraph-loom.
 #
@@ -633,6 +538,8 @@ _save_viz('fig-02', 'Figure_2_hypergraph_process_bigraph', _render_one('image:vi
 
 # ## Study: Fig 3 — store diagram + place graph (`fig-03`)
 #
+# **Question.** What does Fig 3 — store diagram + place graph depict, and does its bigraph-loom image generate?
+#
 # **Purpose.** A store diagram (a single `cell` store holding an `ecoli` data type, shown in full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell), rendered in bigraph-loom.
 #
 # **Claim.** image generated
@@ -642,7 +549,6 @@ _save_viz('fig-02', 'Figure_2_hypergraph_process_bigraph', _render_one('image:vi
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
 # | `3a-store` | `spatio_flux.composites.fig03a-store` | 0 | — |
-# | `3b-place-graph` | `spatio_flux.composites.fig03b-place-graph` | 0 | — |
 
 # ### The model & its parameters
 #
@@ -655,16 +561,6 @@ spec_spatio_flux_composites_fig03a_store = load_spec(REPO / 'spatio_flux/composi
 describe_spec(spec_spatio_flux_composites_fig03a_store)
 
 # === Edit parameters for composite 'fig03a-store' ===
-# Each line is the spec's CURRENT value — change any, then run the Run cell
-# below. The spec is a plain dict, so you may also add or remove keys.
-
-# **Composite `spatio_flux.composites.fig03b-place-graph`** — `spec_spatio_flux_composites_fig03b_place_graph` (static spec file, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_spatio_flux_composites_fig03b_place_graph = load_spec(REPO / 'spatio_flux/composites/fig03b-place-graph.composite.json')
-describe_spec(spec_spatio_flux_composites_fig03b_place_graph)
-
-# === Edit parameters for composite 'fig03b-place-graph' ===
 # Each line is the spec's CURRENT value — change any, then run the Run cell
 # below. The spec is a plain dict, so you may also add or remove keys.
 
@@ -683,8 +579,6 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 # are not implemented yet reports the error instead of crashing.
 STEPS_x_3a_store = 100
 INTERVAL_x_3a_store = 1.0
-STEPS_x_3b_place_graph = 100
-INTERVAL_x_3b_place_graph = 1.0
 
 if RERUN:
     from process_bigraph import Composite
@@ -696,14 +590,6 @@ if RERUN:
         print('ran', '3a-store', f'(spatio_flux.composites.fig03a-store) for', STEPS_x_3a_store, 'steps')
     except Exception as _e:
         print(f"3a-store not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
-            _comp = build_composite_from_spec(spec_spatio_flux_composites_fig03b_place_graph, {'interval': INTERVAL_x_3b_place_graph}, core=core)
-            _comp.run(STEPS_x_3b_place_graph)
-        print('ran', '3b-place-graph', f'(spatio_flux.composites.fig03b-place-graph) for', STEPS_x_3b_place_graph, 'steps')
-    except Exception as _e:
-        print(f"3b-place-graph not runnable yet: {type(_e).__name__}: {_e}")
 else:
     print("RERUN=False — not re-simulating.")
 
@@ -727,6 +613,8 @@ _save_viz('fig-03', '3b_place_graph', _render_one('image:visualizations/fig03b-p
 _save_viz('fig-03', 'Figure_3_composite', _render_one('image:visualizations/figure_3.svg', {}, RUNS_DB, STUDY_YAML))
 
 # ## Study: Fig 4 — process diagram (`fig-04`)
+#
+# **Question.** What does Fig 4 depict, and does its bigraph-loom image generate?
 #
 # **Purpose.** A single process shown as a rectangle with typed ports on its boundary — inputs in_1 (species), in_2 (params) on the left; outputs out_1 (ss_species), out_2 (rates) on the right; config type steady_state; the update function maps (in_1, in_2) → (out_1, out_2).
 #
@@ -809,6 +697,8 @@ _save_viz('fig-04', 'Figure_4_composite', _render_one('image:visualizations/figu
 
 # ## Study: Fig 5 — process graph & composite process (`fig-05`)
 #
+# **Question.** What do Fig 5a and Fig 5b depict, and do their bigraph-loom images generate?
+#
 # **Purpose.** Two readings of composition. 5a — a process graph: processes (metabolism, gene_expression) connected to shared stores (metab, enzymes, DNA) through typed ports, with arrow directions showing the input/output wiring. 5b — a composite process: a `cell` process exposing external ports (nutrients, signals in; shape out) that bridge to an internal process bigraph (express / grow / transport over cyto / mem / nuc stores), rendered as a drillable sub-composite.
 #
 # **Claim.** image generated
@@ -818,7 +708,6 @@ _save_viz('fig-04', 'Figure_4_composite', _render_one('image:visualizations/figu
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
 # | `5a-process-graph` | `spatio_flux.composites.fig05a-process-graph` | 0 | — |
-# | `5b-composite-process` | `spatio_flux.composites.fig05b-composite-process` | 0 | — |
 
 # ### The model & its parameters
 #
@@ -859,16 +748,6 @@ spec_spatio_flux_composites_fig05a_process_graph['state']['gene_expression']['co
 spec_spatio_flux_composites_fig05a_process_graph['state']['gene_expression']['config']['contract']['ports']['genes'] = 'gene template (DNA)'
 spec_spatio_flux_composites_fig05a_process_graph['state']['gene_expression']['config']['contract']['ports']['protein'] = 'produced protein (enzymes)'
 
-# **Composite `spatio_flux.composites.fig05b-composite-process`** — `spec_spatio_flux_composites_fig05b_composite_process` (static spec file, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_spatio_flux_composites_fig05b_composite_process = load_spec(REPO / 'spatio_flux/composites/fig05b-composite-process.composite.json')
-describe_spec(spec_spatio_flux_composites_fig05b_composite_process)
-
-# === Edit parameters for composite 'fig05b-composite-process' ===
-# Each line is the spec's CURRENT value — change any, then run the Run cell
-# below. The spec is a plain dict, so you may also add or remove keys.
-
 # ### Run
 #
 # _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
@@ -884,8 +763,6 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 # are not implemented yet reports the error instead of crashing.
 STEPS_x_5a_process_graph = 100
 INTERVAL_x_5a_process_graph = 1.0
-STEPS_x_5b_composite_process = 100
-INTERVAL_x_5b_composite_process = 1.0
 
 if RERUN:
     from process_bigraph import Composite
@@ -897,14 +774,6 @@ if RERUN:
         print('ran', '5a-process-graph', f'(spatio_flux.composites.fig05a-process-graph) for', STEPS_x_5a_process_graph, 'steps')
     except Exception as _e:
         print(f"5a-process-graph not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
-            _comp = build_composite_from_spec(spec_spatio_flux_composites_fig05b_composite_process, {'interval': INTERVAL_x_5b_composite_process}, core=core)
-            _comp.run(STEPS_x_5b_composite_process)
-        print('ran', '5b-composite-process', f'(spatio_flux.composites.fig05b-composite-process) for', STEPS_x_5b_composite_process, 'steps')
-    except Exception as _e:
-        print(f"5b-composite-process not runnable yet: {type(_e).__name__}: {_e}")
 else:
     print("RERUN=False — not re-simulating.")
 
@@ -928,6 +797,8 @@ _save_viz('fig-05', '5b_composite_process', _render_one('image:visualizations/fi
 _save_viz('fig-05', 'Figure_5_composite', _render_one('image:visualizations/figure_5.svg', {}, RUNS_DB, STUDY_YAML))
 
 # ## Study: Fig 6 — orchestration patterns (`fig-06`)
+#
+# **Question.** What orchestration patterns does Fig 6 depict?
 #
 # **Purpose.** Three orchestration patterns drawn in bigraph-loom style — (a) multi-timestepping: temporal processes each updating at their own time interval, reading/writing a shared store at their update ticks; (b) workflow: a DAG of step processes over intermediate stores; (c) event-driven graph rewrite: divide / engulf / burst events restructuring environ + agent subgraphs.
 #
@@ -1020,6 +891,8 @@ _save_viz('fig-06', 'Figure_6_orchestration_patterns', _render_one('image:visual
 
 # ## Study: Fig 7 — spatio-flux example composites (`fig-07`)
 #
+# **Question.** What does Fig 7 depict, and do its three panels' bigraph-loom images generate?
+#
 # **Purpose.** Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in bigraph-loom.
 #
 # **Claim.** image generated
@@ -1029,8 +902,6 @@ _save_viz('fig-06', 'Figure_6_orchestration_patterns', _render_one('image:visual
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
 # | `7-1-community-dfba` | `spatio_flux.composites.fig07-1-community-dfba` | 0 | — |
-# | `7-2-comets` | `spatio_flux.composites.fig07-2-comets` | 0 | — |
-# | `7-3-brownian-particles` | `spatio_flux.composites.fig07-3-brownian-particles` | 0 | — |
 
 # ### The model & its parameters
 #
@@ -1110,106 +981,6 @@ spec_spatio_flux_composites_fig07_1_community_dfba['state']['monod_kinetics']['c
 spec_spatio_flux_composites_fig07_1_community_dfba['state']['monod_kinetics']['config']['reactions']['assimilate_acetate']['vmax'] = 0.3
 spec_spatio_flux_composites_fig07_1_community_dfba['state']['monod_kinetics']['config']['reactions']['assimilate_acetate']['yield'] = 0.2
 
-# **Composite `spatio_flux.composites.fig07-2-comets`** — `spec_spatio_flux_composites_fig07_2_comets` (static spec file, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_spatio_flux_composites_fig07_2_comets = load_spec(REPO / 'spatio_flux/composites/fig07-2-comets.composite.json')
-describe_spec(spec_spatio_flux_composites_fig07_2_comets)
-
-# === Edit parameters for composite 'fig07-2-comets' ===
-# Each line is the spec's CURRENT value — change any, then run the Run cell
-# below. The spec is a plain dict, so you may also add or remove keys.
-
-# process 'spatial_dFBA'  (local:SpatialDFBA)
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['n_bins'] = [20, 20]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['mol_ids'] = ['glucose', 'acetate']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['model_file'] = 'textbook'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['substrate_update_reactions']['glucose'] = 'EX_glc__D_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['substrate_update_reactions']['acetate'] = 'EX_ac_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['kinetic_params']['glucose'] = [0.5, 1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['kinetic_params']['acetate'] = [0.5, 2]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['bounds']['EX_o2_e']['lower'] = -2
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['bounds']['EX_o2_e']['upper'] = None
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['bounds']['ATPM']['lower'] = 1
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli core']['bounds']['ATPM']['upper'] = 1
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli']['model_file'] = 'iAF1260.xml'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli']['substrate_update_reactions']['glucose'] = 'EX_glc__D_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli']['substrate_update_reactions']['formate'] = 'EX_for_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli']['kinetic_params']['glucose'] = [0.5, 1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['ecoli']['kinetic_params']['formate'] = [0.5, 2]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['cdiff']['model_file'] = 'iCN900.xml'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['cdiff']['substrate_update_reactions']['glucose'] = 'EX_glc__D_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['cdiff']['substrate_update_reactions']['acetate'] = 'EX_ac_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['cdiff']['kinetic_params']['glucose'] = [0.5, 1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['cdiff']['kinetic_params']['acetate'] = [0.5, 2]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['model_file'] = 'iJN746.xml'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['substrate_update_reactions']['glucose'] = 'EX_glc__D_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['substrate_update_reactions']['ammonium'] = 'EX_nh4_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['substrate_update_reactions']['glycolate'] = 'EX_glyclt_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['kinetic_params']['glucose'] = [1, 2]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['kinetic_params']['ammonium'] = [2, 4]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['pputida']['kinetic_params']['glycolate'] = [0.5, 1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['yeast']['model_file'] = 'iMM904.xml'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['yeast']['substrate_update_reactions']['glucose'] = 'EX_glc__D_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['yeast']['substrate_update_reactions']['ammonium'] = 'EX_nh4_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['yeast']['kinetic_params']['glucose'] = [0.5, 1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['yeast']['kinetic_params']['ammonium'] = [0.5, 1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['model_file'] = 'iNF517.xml'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['substrate_update_reactions']['glucose'] = 'EX_glc__D_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['substrate_update_reactions']['glutamate'] = 'EX_glu__L_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['substrate_update_reactions']['serine'] = 'EX_ser__L_e'
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['kinetic_params']['glucose'] = [0.5, 1.25]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['kinetic_params']['glutamate'] = [0.05, 0.1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['models']['llactis']['kinetic_params']['serine'] = [0.05, 0.1]
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][0] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][1] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][2] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][3] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][4] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][5] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][6] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][7] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][8] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][9] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][10] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][11] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][12] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][13] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][14] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][15] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][16] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][17] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][18] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-spec_spatio_flux_composites_fig07_2_comets['state']['spatial_dFBA']['config']['model_grid'][19] = ['ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core', 'ecoli core']
-
-# process 'diffusion'  (local:DiffusionAdvection)
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['n_bins'] = [20, 20]
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['bounds'] = [50.0, 50.0]
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['default_diffusion_rate'] = 0.1
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['default_diffusion_dt'] = 0.1
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['diffusion_coeffs']['glucose'] = 0.0
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['diffusion_coeffs']['acetate'] = 0.1
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['advection_coeffs']['glucose'] = [0, 0]
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['advection_coeffs']['acetate'] = [0, 0]
-spec_spatio_flux_composites_fig07_2_comets['state']['diffusion']['config']['boundary_conditions'] = None
-
-# **Composite `spatio_flux.composites.fig07-3-brownian-particles`** — `spec_spatio_flux_composites_fig07_3_brownian_particles` (static spec file, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_spatio_flux_composites_fig07_3_brownian_particles = load_spec(REPO / 'spatio_flux/composites/fig07-3-brownian-particles.composite.json')
-describe_spec(spec_spatio_flux_composites_fig07_3_brownian_particles)
-
-# === Edit parameters for composite 'fig07-3-brownian-particles' ===
-# Each line is the spec's CURRENT value — change any, then run the Run cell
-# below. The spec is a plain dict, so you may also add or remove keys.
-
-# process 'brownian_movement'  (local:BrownianMovement)
-spec_spatio_flux_composites_fig07_3_brownian_particles['state']['brownian_movement']['interval'] = 0.1
-spec_spatio_flux_composites_fig07_3_brownian_particles['state']['brownian_movement']['config']['bounds'] = [50.0, 50.0]
-spec_spatio_flux_composites_fig07_3_brownian_particles['state']['brownian_movement']['config']['diffusion_rate'] = 0.5
-spec_spatio_flux_composites_fig07_3_brownian_particles['state']['brownian_movement']['config']['advection_rate'] = [0, 0]
-spec_spatio_flux_composites_fig07_3_brownian_particles['state']['brownian_movement']['config']['interval'] = 0.1
-
 # ### Run
 #
 # _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
@@ -1225,10 +996,6 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 # are not implemented yet reports the error instead of crashing.
 STEPS_x_7_1_community_dfba = 100
 INTERVAL_x_7_1_community_dfba = 1.0
-STEPS_x_7_2_comets = 100
-INTERVAL_x_7_2_comets = 1.0
-STEPS_x_7_3_brownian_particles = 100
-INTERVAL_x_7_3_brownian_particles = 1.0
 
 if RERUN:
     from process_bigraph import Composite
@@ -1240,22 +1007,6 @@ if RERUN:
         print('ran', '7-1-community-dfba', f'(spatio_flux.composites.fig07-1-community-dfba) for', STEPS_x_7_1_community_dfba, 'steps')
     except Exception as _e:
         print(f"7-1-community-dfba not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
-            _comp = build_composite_from_spec(spec_spatio_flux_composites_fig07_2_comets, {'interval': INTERVAL_x_7_2_comets}, core=core)
-            _comp.run(STEPS_x_7_2_comets)
-        print('ran', '7-2-comets', f'(spatio_flux.composites.fig07-2-comets) for', STEPS_x_7_2_comets, 'steps')
-    except Exception as _e:
-        print(f"7-2-comets not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
-            _comp = build_composite_from_spec(spec_spatio_flux_composites_fig07_3_brownian_particles, {'interval': INTERVAL_x_7_3_brownian_particles}, core=core)
-            _comp.run(STEPS_x_7_3_brownian_particles)
-        print('ran', '7-3-brownian-particles', f'(spatio_flux.composites.fig07-3-brownian-particles) for', STEPS_x_7_3_brownian_particles, 'steps')
-    except Exception as _e:
-        print(f"7-3-brownian-particles not runnable yet: {type(_e).__name__}: {_e}")
 else:
     print("RERUN=False — not re-simulating.")
 
@@ -1309,6 +1060,8 @@ _save_viz('fig-07', '7h-brownian-traces.png', _render_one('image:visualizations/
 _save_viz('fig-07', 'Figure_7_composite', _render_one('image:visualizations/figure_7.svg', {}, RUNS_DB, STUDY_YAML))
 
 # ## Study: Fig 8 — spatio-flux reference model (`fig-08`)
+#
+# **Question.** What does Fig 8 — the spatio-flux reference model depict, and does its bigraph-loom image generate?
 #
 # **Purpose.** spatio-flux reference model (spatioflux_reference_demo): fields + diffusion + a Monod-kinetics array with Newtonian particles carrying per-particle dFBA (ecoli_1, ecoli_2) aggregated into particle mass, rendered in bigraph-loom.
 #

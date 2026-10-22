@@ -246,6 +246,8 @@ def _render_one(address, config, runs_db, study_yaml, overrides=None):
 
 # ## Study: `monod_kinetics`
 #
+# **Question.** Field-only baseline: Monod uptake/growth on a well-mixed substrate pool (no spatial lattice, no particles). Use to sanity-check kinetics + mass balance.
+#
 # **Purpose.** Runs the spatio_flux.composites.metabolism.monod_kinetics composite (standalone process).
 
 # ### Parameters
@@ -334,6 +336,8 @@ _save_viz('monod_kinetics', 'monod_kinetics.png', _render_one('image:charts/mono
 
 # ## Study: `ecoli_core_dfba`
 #
+# **Question.** Single-cell metabolism baseline: dynamic FBA for E. coli core with external glucose/acetate and biomass over time (no space, no particles).
+#
 # **Purpose.** Runs the spatio_flux.composites.metabolism.ecoli_core_dfba composite (standalone process).
 
 # ### Parameters
@@ -412,6 +416,8 @@ _save_viz('ecoli_core_dfba', 'ecoli_core_dfba.png', _render_one('image:charts/ec
 # | ECOLI_CORE_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['ecoli_core_dfba.png', 'ecoli_core_dfba_viz.png', 'ecoli_core_dfba_schema.json', 'ecoli_core_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `ecoli_dfba`
+#
+# **Question.** Single-cell metabolism (large model): dynamic FBA using iAF1260 with tracked extracellular fields (glucose/formate) and biomass. Stress-tests solver + exchange wiring.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.ecoli_dfba composite (standalone process).
 
@@ -492,6 +498,8 @@ _save_viz('ecoli_dfba', 'ecoli_dfba.png', _render_one('image:charts/ecoli_dfba.p
 
 # ## Study: `yeast_dfba`
 #
+# **Question.** Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular glucose and biomass. Cross-model check of the dFBA pipeline.
+#
 # **Purpose.** Runs the spatio_flux.composites.metabolism.yeast_dfba composite (standalone process).
 
 # ### Parameters
@@ -570,6 +578,8 @@ _save_viz('yeast_dfba', 'yeast_dfba.png', _render_one('image:charts/yeast_dfba.p
 
 # ## Study: `diffusion_process`
 #
+# **Question.** Field transport primitive: finite-volume diffusion/advection on a 2D lattice. Use to validate boundary conditions, stability, and transport timescales.
+#
 # **Purpose.** Runs the spatio_flux.composites.spatial.diffusion_process composite (standalone process).
 
 # ### Parameters
@@ -643,6 +653,8 @@ _save_viz('diffusion_process', 'diffusion_process.svg', _render_one('image:visua
 # | DIFFUSION_PROCESS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['diffusion_process_video.gif', 'diffusion_process_viz.png', 'diffusion_process_schema.json', 'diffusion_process_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `brownian_particles`
+#
+# **Question.** Particle-only baseline: Brownian motion of agents with mass in continuous space (no fields, no metabolism). Checks integrator + particle state schema.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.brownian_particles composite (standalone process).
 
@@ -735,6 +747,8 @@ _save_viz('brownian_particles', 'brownian_particles_mass.png', _render_one('imag
 
 # ## Study: `newtonian_particles`
 #
+# **Question.** Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding in continuous space. Use to validate contact dynamics + boundary enforcement.
+#
 # **Purpose.** Runs the spatio_flux.composites.particles.newtonian_particles composite (standalone process).
 
 # ### Parameters
@@ -820,6 +834,8 @@ _save_viz('newtonian_particles', 'newtonian_particles_mass.png', _render_one('im
 
 # ## Study: `community_dfba`
 #
+# **Question.** Multi-agent well-mixed community: several independent dFBA instances share the same extracellular pools, creating competition / cross-feeding dynamics without space.
+#
 # **Purpose.** Runs the spatio_flux.composites.metabolism.community_dfba composite (pair composition).
 
 # ### Parameters
@@ -899,6 +915,8 @@ _save_viz('community_dfba', 'community_dfba.png', _render_one('image:charts/comm
 # | COMMUNITY_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['community_dfba.png', 'community_dfba_viz.png', 'community_dfba_schema.json', 'community_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `dfba_kinetics_community`
+#
+# **Question.** Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents in a shared environment. Demonstrates heterogeneous process composition under one schema.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.dfba_kinetics_community composite (pair composition).
 
@@ -982,6 +1000,8 @@ _save_viz('dfba_kinetics_community', 'dfba_kinetics_community.png', _render_one(
 
 # ## Study: `spatial_many_dfba`
 #
+# **Question.** Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.
+#
 # **Purpose.** Runs the spatio_flux.composites.spatial.spatial_many_dfba composite (pair composition).
 
 # ### Parameters
@@ -1058,6 +1078,8 @@ _save_viz('spatial_many_dfba', 'spatial_many_dfba_timeseries.png', _render_one('
 # | SPATIAL_MANY_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['spatial_many_dfba_timeseries.png', 'spatial_many_dfba_video.gif', 'spatial_many_dfba_viz.png', 'spatial_many_dfba_schema.json', 'spatial_many_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `spatial_dfba_process`
+#
+# **Question.** Spatial microenvironment (vectorized dFBA): one spatial dFBA process updates all lattice sites as a single structured state. Demonstrates batched execution + field coupling.
 #
 # **Purpose.** Runs the spatio_flux.composites.spatial.spatial_dfba_process composite (pair composition).
 
@@ -1139,6 +1161,8 @@ _save_viz('spatial_dfba_process', 'spatial_dfba_process_model_grid.png', _render
 # | SPATIAL_DFBA_PROCESS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['spatial_dfba_process_timeseries.png', 'spatial_dfba_process_model_grid.png', 'spatial_dfba_process_video.gif', 'spatial_dfba_process_viz.png', 'spatial_dfba_process_schema.json', 'spatial_dfba_process_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `comets_diffusion`
+#
+# **Question.** Two-phase coupling (no particles): spatial dFBA on a lattice with advection–diffusion of substrates + biomass. The classic COMETS field-only scenario.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_diffusion composite (pair composition).
 
@@ -1223,6 +1247,8 @@ _save_viz('comets_diffusion', 'comets_diffusion_snapshots.png', _render_one('ima
 # | COMETS_DIFFUSION-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['comets_diffusion_timeseries.png', 'comets_diffusion_snapshots.png', 'comets_diffusion_video.gif', 'comets_diffusion_viz.png', 'comets_diffusion_schema.json', 'comets_diffusion_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `br_particles_kinetics`
+#
+# **Question.** Particle–field coupling (kinetics): Brownian agents sample local lattice concentrations and apply Monod-style exchange, modifying both particle mass and fields.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.br_particles_kinetics composite (pair composition).
 
@@ -1314,6 +1340,8 @@ _save_viz('br_particles_kinetics', 'br_particles_kinetics_mass.png', _render_one
 # | BR_PARTICLES_KINETICS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['br_particles_kinetics_video.gif', 'br_particles_kinetics_mass.png', 'br_particles_kinetics_snapshots.png', 'br_particles_kinetics_particles_traces.png', 'br_particles_kinetics_viz.png', 'br_particles_kinetics_schema.json', 'br_particles_kinetics_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `br_particles_dfba`
+#
+# **Question.** Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion couples to fields and biomass accumulates into particle mass/size.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.br_particles_dfba composite (pair composition).
 
@@ -1407,6 +1435,8 @@ _save_viz('br_particles_dfba', 'br_particles_dfba_mass.png', _render_one('image:
 # | BR_PARTICLES_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['br_particles_dfba_video.gif', 'br_particles_dfba_mass.png', 'br_particles_dfba_snapshots.png', 'br_particles_dfba_particles_traces.png', 'br_particles_dfba_viz.png', 'br_particles_dfba_schema.json', 'br_particles_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `comets_br_particles_kinetics`
+#
+# **Question.** Three-way coupling: spatial dFBA fields + Brownian particle agents that run Monod kinetics locally + diffusion. End-to-end smoke test of the COMETS-style composite stack with kinetic agents.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_br_particles_kinetics composite (triple composition).
 
@@ -1503,6 +1533,8 @@ _save_viz('comets_br_particles_kinetics', 'comets_br_particles_kinetics_mass.png
 
 # ## Study: `comets_br_particles_dfba`
 #
+# **Question.** Full COMETS-style spatial composite: lattice dFBA + advection–diffusion + Brownian particles with internal dFBA + division. End-to-end coupled scenario.
+#
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_br_particles_dfba composite (triple composition).
 
 # ### Parameters
@@ -1596,6 +1628,8 @@ _save_viz('comets_br_particles_dfba', 'comets_br_particles_dfba_mass.png', _rend
 # | COMETS_BR_PARTICLES_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['comets_br_particles_dfba_timeseries.png', 'comets_br_particles_dfba_mass.png', 'comets_br_particles_dfba_snapshots.png', 'comets_br_particles_dfba_video.gif', 'comets_br_particles_dfba_viz.png', 'comets_br_particles_dfba_schema.json', 'comets_br_particles_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `comets_nt_particles_dfba`
+#
+# **Question.** Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_nt_particles_dfba composite (triple composition).
 
@@ -1693,6 +1727,8 @@ _save_viz('comets_nt_particles_dfba', 'comets_nt_particles_dfba_mass_submasses.p
 
 # ## Study: `spatioflux_reference_demo`
 #
+# **Question.** SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated division.
+#
 # **Purpose.** Runs the spatio_flux.composites.reference.spatioflux_reference_demo composite (reference demo).
 
 # ### Parameters
@@ -1786,6 +1822,8 @@ _save_viz('spatioflux_reference_demo', 'spatioflux_reference_demo_mass_submasses
 # | SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['spatioflux_reference_demo_timeseries.png', 'spatioflux_reference_demo_mass.png', 'spatioflux_reference_demo_mass_submasses.png', 'spatioflux_reference_demo_video.gif', 'spatioflux_reference_demo_snapshots.png', 'spatioflux_reference_demo_viz.png', 'spatioflux_reference_demo_schema.json', 'spatioflux_reference_demo_state.json'] | op all_exist_and_match tolerance 0.0 |
 
 # ## Study: `reference_demo_x2y2`
+#
+# **Question.** Different resolution for the spatio-flux reference demo
 #
 # **Purpose.** Runs the spatio_flux.composites.reference.reference_demo_x2y2 composite (reference demo).
 

@@ -80,7 +80,7 @@
   </button>
   
   <span class="study-dl study-export-wrap" style="margin-left:auto; align-self:center; position:relative; display:inline-flex">
-    <button type="button" id="study-export-btn" class="btn-mini study-dl-btn" aria-haspopup="true" aria-expanded="false" title="Download this study's figures or a runnable notebook">↓ Export ▾</button>
+    <button type="button" id="study-export-btn" class="btn-mini" aria-haspopup="true" aria-expanded="false" title="Download this study's figures or a runnable notebook">↓ Export ▾</button>
     <div id="study-export-menu" role="menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);z-index:70;min-width:200px;padding:4px">
       <button type="button" id="study-dl-figures" role="menuitem" class="study-jump-item" onclick="window._vivStudyFiguresFromCard(event, 'comets_diffusion')">Download figures</button>
       <button type="button" id="study-dl-notebook" role="menuitem" class="study-jump-item" onclick="window._vivStudyNotebookFromCard(event, 'comets_diffusion', '')">Download notebook</button>
@@ -92,13 +92,6 @@
    The 6-axis stepper + gate-status colors below are carried over verbatim from
    the pre-restructure Pass A styling (the <details> markup was repositioned,
    not rebuilt). */
-/* Prominent, easy-access downloads in the study header (moved off the graph
-   cards). Filled accent so they read as the primary "grab this study" CTAs,
-   distinct from the outlined run/reproduce launch buttons beside them. */
-.study-dl-btn{background:#1976d2;color:#fff;border-color:#1976d2;font-weight:600}
-.study-dl-btn:hover{background:#1565c0;border-color:#1565c0}
-:root[data-theme="dark"] .study-dl-btn{background:#3b82f6;border-color:#3b82f6;color:#fff}
-:root[data-theme="dark"] .study-dl-btn:hover{background:#2563eb;border-color:#2563eb}
 .study-kind-tag{display:inline-block;font-size:0.5em;font-weight:600;padding:3px 9px;border-radius:9999px;vertical-align:middle;margin-left:8px;background:#f1f5f9;color:#475569;text-transform:capitalize}
 .study-kind-tag.study-kind-biological{background:#ecfdf5;color:#065f46}
 .study-kind-tag.study-kind-computational{background:#eff6ff;color:#1e40af}
@@ -537,17 +530,25 @@
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Claim</h2>
-      <p class="ctr-text"></p>
+      <p class="ctr-text">Two-phase coupling (no particles): spatial dFBA on a lattice with advection–diffusion of substrates + biomass. The classic COMETS field-only scenario.</p>
       
     </div>
 
+    
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Background</h2>
+      <div class="ctr-meta">
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item">Two-phase coupling (no particles): spatial dFBA on a lattice with advection–diffusion of substrates + biomass. The classic COMETS field-only scenario.</span></div>
+        
+      </div>
+    </div>
     
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Model &amp; approach</h2>
       <p class="ctr-text"></p>
       <div class="ctr-meta">
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>comets_diffusion</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
         <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">1 behavior test</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
         
@@ -711,7 +712,7 @@
     
     <div class="cond-block" data-model-composite="spatio_flux.composites.comets.comets_diffusion" data-model-overrides='{}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <strong>baseline</strong>
+        <strong>comets_diffusion</strong>
         
         <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.comets.comets_diffusion</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
@@ -721,16 +722,22 @@
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
         
-        <select class="baseline-composite-input" data-baseline-name="baseline"
+        <select class="baseline-composite-input" data-baseline-name="comets_diffusion"
                 data-current="spatio_flux.composites.comets.comets_diffusion"
                 style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px">
           <option value="spatio_flux.composites.comets.comets_diffusion" selected>spatio_flux.composites.comets.comets_diffusion</option>
           
         </select>
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
-                data-baseline-name="baseline">Set composite</button>
+                data-baseline-name="comets_diffusion">Set composite</button>
       </div>
-      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      <div class="baseline-composite-status muted" data-baseline-name="comets_diffusion" style="font-size:0.8em;margin-top:2px"></div>
+      
+      
+      
+      
+      
+      
       
       
       
@@ -785,16 +792,6 @@
   </div>
   </div>
 
-  
-  <details class="model-advanced" style="margin-top:18px">
-    <summary style="cursor:pointer;font-weight:600;color:#475569">Advanced — build provenance</summary>
-    <div style="margin-top:12px">
-
-  <p class="muted" style="margin:0 0 12px 0"><strong>How the model was built</strong> — the <code>/viva-model-build</code> loop trajectory (draft, frozen tests, iteration edits, result) and the agent's notes, when it was built that way.</p>
-
-  <div id="build-loop-state"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading loop provenance…</span></div></div>
-    </div>
-  </details>
 </section>
 
 
@@ -878,10 +875,13 @@
 
 
 <section class="study-tab-panel" data-kind="audit" id="panel-audit" hidden>
-  <div class="overview-section" id="audit-tests-section">
-    <h3>Tests — the bar</h3>
 
-  <p class="muted" style="margin:0 0 12px 0"><strong>The bar</strong> — what must be true for this model to count as correct: the acceptance criteria, their bands, and the report cards that grade them.</p>
+  
+  <div id="audit-readiness" data-slug="comets_diffusion" style="margin:0 0 18px 0">
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readiness…</span></div>
+  </div>
+
+  <div class="overview-section" id="audit-tests-section">
 
   
   
@@ -973,13 +973,6 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
   </div>
   </div>
 
-  <p class="muted" style="margin:0 0 12px 0"><strong>Is the bar sound?</strong> The concrete readiness gaps to close first, then whether the test set itself is rigorous and matched to the problem — sufficiency, sourcing, and the rigor + reproducibility scorecards.</p>
-
-  
-  <div id="audit-readiness" data-slug="comets_diffusion" style="margin:0 0 18px 0">
-    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readiness…</span></div>
-  </div>
-
   <div class="checks-band">
     <div class="check-group check-group-sufficiency" id="audit-sufficiency" data-check-group="sufficiency">
       <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading sufficiency checks…</span></div>
@@ -1056,10 +1049,6 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
   
 
   
-  <div class="overview-section decide-readiness-section">
-    <h2 class="overview-label">Readiness gaps</h2>
-    <div id="decide-readiness" data-slug="comets_diffusion"></div>
-  </div>
 
   
   
@@ -1273,7 +1262,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "6d62f082d7381187dbd4ced11e390322440249bb", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/6d62f082d7381187dbd4ced11e390322440249bb", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-19 14:58 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "9a80337ee29378a204bc9babfb55257d0621676c", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/9a80337ee29378a204bc9babfb55257d0621676c", "branch": "main", "lockfile": "uv.lock@61f98c9e2cec", "generated_at": "2026-10-22 02:12 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/toast.js"></script>
 <script>
