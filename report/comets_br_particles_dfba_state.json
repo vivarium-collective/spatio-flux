@@ -1,6 +1,6 @@
 {
   "particles": {
-    "xIM3sE72": {
+    "uWQJE-hM": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "xIM3sE72",
+      "id": "uWQJE-hM",
       "position": [
-        44.17673738823613,
-        21.873989979985364
+        27.26699407997486,
+        11.700249567986031
       ],
-      "mass": 0.9596606458968336,
+      "mass": 0.6436438026208691,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -13146,21 +13146,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|particles:node|fields:node",
+      "emit": "global_time:node|fields:node|particles:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|particles:node|fields:node",
+    "_inputs": "global_time:node|fields:node|particles:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "particles": [
-        "particles"
-      ],
       "fields": [
         "fields"
+      ],
+      "particles": [
+        "particles"
       ]
     },
     "outputs": {
@@ -13184,8 +13184,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "particles": "node",
-          "fields": "node"
+          "fields": "node",
+          "particles": "node"
         },
         "outputs": {
           "results": "node"
