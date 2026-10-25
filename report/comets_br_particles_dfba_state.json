@@ -1,6 +1,6 @@
 {
   "particles": {
-    "0f0ljBOE": {
+    "oO2kJ_Qc": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "0f0ljBOE",
+      "id": "oO2kJ_Qc",
       "position": [
-        32.16244351051637,
-        18.478707415665497
+        25.040403640708377,
+        5.0080198659683
       ],
-      "mass": 0.9269231551890337,
+      "mass": 0.535540835366245,
       "local": {},
       "exchange": {},
       "sub_masses": {}
