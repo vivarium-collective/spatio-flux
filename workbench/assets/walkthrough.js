@@ -774,14 +774,18 @@
   // UI feature flags (ui.composite_view, ui.auto_results)
   // -------------------------------------------------------------------------
   window._uiConfig = null;
-  apiFetch('GET', '/api/ui-config').then(function(r) { return r.json(); }).then(function(cfg) {
+  // Guard the body parse: /api/ui-config is a LIVE-server endpoint not baked into
+  // the static snapshot, so it 404s there with an HTML page. Without the r.ok check
+  // a `.json()` on that HTML throws an UNCAUGHT SyntaxError rejection (no .catch),
+  // which cascades and leaves the UI half-wired in published bundles. Degrade to {}.
+  apiFetch('GET', '/api/ui-config').then(function(r) { return r && r.ok ? r.json() : null; }).then(function(cfg) {
     window._uiConfig = cfg || {};
     // Read-only / remote-only mode: hide authoring controls (.js-authoring) via
     // CSS; the Source panel reads this flag at render time to go remote-only.
     if (window._uiConfig.readonly) document.body.classList.add('readonly');
     _applyCompositeViewMode();
     _applyAutoResultsCheckbox();
-  });
+  }).catch(function () { /* snapshot / offline: ui-config unavailable — use defaults */ });
 
   function _applyCompositeViewMode() {
     var cfg = window._uiConfig || {};
@@ -11213,7 +11217,10 @@
       tabs.push({ id:'verdict', label:'Verdict', badge: vs ? vs.toUpperCase() : '',
         html: '<div class="inv-brief-verdict-tab inv-vs-' + vsClass + '">' +
           '<span class="inv-vs-pill">' + _esc(vs.toUpperCase()) + '</span>' +
-          '<div class="inv-brief-verdict-text">' + _invInline(verdict) + '</div></div>' });
+          '<div class="inv-brief-verdict-text">' + _invInline(verdict) + '</div></div>' +
+          // Claims (RFC-0005 synthesis layer): each claim, its verdict, and what
+          // supports/challenges it — filled async by argument-graph.js.
+          '<div id="inv-verdict-claims-mount" class="inv-claims-mount"></div>' });
 
     // 3. Background — the lead intro, the driving Question + Hypothesis, and the
     // structured argument (Hypothesis & evidence folded in here per the owner).
@@ -11230,6 +11237,14 @@
         '<div class="inv-brief-frameworks-label">Hypothesis &amp; evidence</div>' + _evBody + '</div>');
     if (bgParts.length)
       tabs.push({ id:'background', label:'Background', html: bgParts.join('') });
+
+    // Narrative — the ordered scientific reading (RFC-0005): the investigation's
+    // claims arranged by explanatory dependence, with the audit gaps marked
+    // inline. A derived document, next to Background. Filled async by
+    // argument-graph.js; shows nothing if the derivation layer is unavailable.
+    tabs.push({ id:'narrative', label:'Narrative', html:
+      '<div id="inv-narrative-mount" class="inv-narrative-mount">' +
+      '<p class="muted" style="padding:16px">Loading narrative…</p></div>' });
 
     // 4. Biology — the plain-English mechanism narrative (biological_story).
     if (bio)
@@ -11261,7 +11276,10 @@
       // evaluated board as no progress. The per-outcome breakdown is in the board tally.
       var _TERMINAL = { passed: 1, met: 1, qualified: 1, refuted: 1 };
       var _evaluated = _pb.filter(function (g) { return _TERMINAL[g.status]; }).length;
-      tabs.push({ id:'plan', label:'Plan progress', html:_planHtml,
+      // The formalized synthesis spine (canonical gate verdicts rolled up from
+      // member claims) replaces this content when argument-graph.js loads the
+      // overlay; _planHtml is the sync fallback if the derivation layer is absent.
+      tabs.push({ id:'plan', label:'Plan progress', html:'<div id="inv-plan-mount">' + _planHtml + '</div>',
         badge: _pb.length ? (_evaluated + '/' + _pb.length + ' evaluated') : '' });
     }
 
@@ -11269,7 +11287,10 @@
     var _decHtml = _invDecisionTabHtml(d);
     if (_decHtml) {
       var _nDec = (((d.executive || {}).decisions_needed) || []).length;
-      tabs.push({ id: 'decisions', label: 'Decisions', html: _decHtml,
+      // The authored decisions keep their interactive Resolve cockpit; the
+      // derived open items (audit gaps, open-question claims, divergences) are
+      // filled below by argument-graph.js from the overlay.
+      tabs.push({ id: 'decisions', label: 'Decisions', html: _decHtml + '<div id="inv-decisions-mount"></div>',
         badge: _nDec ? (_nDec + ' needed') : 'all clear', attention: _nDec > 0 });
     }
 
@@ -19981,7 +20002,11 @@
   }
 
   function _refreshGitStatus() {
-    apiFetch('GET', '/api/git-status').then(function (r) { return r.json(); }).then(function (s) {
+    // Guard the body parse: /api/git-status is a LIVE-server endpoint not baked into
+    // the static snapshot (404s with an HTML page there). Without the r.ok check a
+    // `.json()` on that HTML throws an UNCAUGHT SyntaxError rejection (no .catch) —
+    // the cascade that leaves panels half-wired in published bundles. Degrade to null.
+    apiFetch('GET', '/api/git-status').then(function (r) { return r && r.ok ? r.json() : null; }).then(function (s) {
       // Legacy single-string box (still populated for any consumer that
       // reads it). The GitHub-tab settings page renders the same data into
       // individual rows via _renderGitStatusRows below.
@@ -19990,7 +20015,7 @@
       // so it doesn't duplicate that section.
       var box = document.getElementById('viv-git-status');
       if (box) { box.hidden = true; }
-      if (!s.branch) {
+      if (!s || !s.branch) {
         _renderGitStatusRows(null);
         return;
       }

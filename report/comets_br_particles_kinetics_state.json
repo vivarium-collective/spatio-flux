@@ -1,6 +1,6 @@
 {
   "particles": {
-    "NRgEMZkV": {
+    "kGIuc3Mj": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "NRgEMZkV",
+      "id": "kGIuc3Mj",
       "position": [
-        25.692975653145044,
-        40.60220953359931
+        21.912566312804504,
+        38.10765635412356
       ],
-      "mass": 2.030992451740948,
+      "mass": 8.059679533804402,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -1198,21 +1198,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -1236,8 +1236,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

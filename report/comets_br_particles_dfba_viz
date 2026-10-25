@@ -4,23 +4,23 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('particles',)" [label=<particles>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc')" [label=<oO2kJ_Qc>]
+	"('particles', 'xNCvL27S')" [label=<xNCvL27S>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'local')" [label=<local>]
+	"('particles', 'xNCvL27S', 'local')" [label=<local>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'mass')" [label=<mass>]
+	"('particles', 'xNCvL27S', 'mass')" [label=<mass>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'exchange')" [label=<exchange>]
+	"('particles', 'xNCvL27S', 'exchange')" [label=<exchange>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'position')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>position</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (25.040403640708377,…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
+	"('particles', 'xNCvL27S', 'position')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>position</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (49.60168682599539, …</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'mass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>mass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.54</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
+	"('particles', 'xNCvL27S', 'mass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>mass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 0.3</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'local')" [label=<local>]
+	"('particles', 'xNCvL27S', 'local')" [label=<local>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'exchange')" [label=<exchange>]
+	"('particles', 'xNCvL27S', 'exchange')" [label=<exchange>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'oO2kJ_Qc', 'sub_masses')" [label=<sub_masses>]
+	"('particles', 'xNCvL27S', 'sub_masses')" [label=<sub_masses>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields', 'glucose')" [label=<glucose>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -40,7 +40,7 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('results',)" [label=<results>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('particles', 'oO2kJ_Qc', 'dFBA')" [label=<dFBA>]
+	"('particles', 'xNCvL27S', 'dFBA')" [label=<dFBA>]
 	"('dFBA[0,0]',)" [label=<dFBA[*]<BR/>(x100)>]
 	"('diffusion',)" [label=<diffusion>]
 	"('brownian_movement',)" [label=<brownian_movement>]
@@ -48,19 +48,19 @@ digraph bigraph {
 	"('enforce_boundaries',)" [label=<enforce_boundaries>]
 	"('particle_exchange',)" [label=<particle_exchange>]
 	edge [style=filled]
-	"('particles',)" -> "('particles', 'oO2kJ_Qc')" [arrowhead=none constraint=true penwidth=2]
+	"('particles',)" -> "('particles', 'xNCvL27S')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'oO2kJ_Qc')" -> "('particles', 'oO2kJ_Qc', 'local')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'xNCvL27S')" -> "('particles', 'xNCvL27S', 'local')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'oO2kJ_Qc')" -> "('particles', 'oO2kJ_Qc', 'mass')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'xNCvL27S')" -> "('particles', 'xNCvL27S', 'mass')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'oO2kJ_Qc')" -> "('particles', 'oO2kJ_Qc', 'exchange')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'xNCvL27S')" -> "('particles', 'xNCvL27S', 'exchange')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'oO2kJ_Qc')" -> "('particles', 'oO2kJ_Qc', 'dFBA')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'xNCvL27S')" -> "('particles', 'xNCvL27S', 'dFBA')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'oO2kJ_Qc')" -> "('particles', 'oO2kJ_Qc', 'position')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'xNCvL27S')" -> "('particles', 'xNCvL27S', 'position')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'oO2kJ_Qc')" -> "('particles', 'oO2kJ_Qc', 'sub_masses')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'xNCvL27S')" -> "('particles', 'xNCvL27S', 'sub_masses')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
@@ -70,20 +70,20 @@ digraph bigraph {
 	edge [style=filled]
 	"('brownian_movement',)" -> "('brownian_movement', 'interval')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('particles', 'oO2kJ_Qc', 'dFBA')" {
-		"('particles', 'oO2kJ_Qc', 'local')" -> "('particles', 'oO2kJ_Qc', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'xNCvL27S', 'dFBA')" {
+		"('particles', 'xNCvL27S', 'local')" -> "('particles', 'xNCvL27S', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('enforce_boundaries',)" {
 		"('brownian_movement', 'interval')" -> "('enforce_boundaries',)" [label=<process_interval> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
-	subgraph "('particles', 'oO2kJ_Qc', 'dFBA')" {
-		"('particles', 'oO2kJ_Qc', 'exchange')" -> "('particles', 'oO2kJ_Qc', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'xNCvL27S', 'dFBA')" {
+		"('particles', 'xNCvL27S', 'exchange')" -> "('particles', 'xNCvL27S', 'dFBA')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('particles', 'oO2kJ_Qc', 'dFBA')" {
-		"('particles', 'oO2kJ_Qc', 'mass')" -> "('particles', 'oO2kJ_Qc', 'dFBA')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'xNCvL27S', 'dFBA')" {
+		"('particles', 'xNCvL27S', 'mass')" -> "('particles', 'xNCvL27S', 'dFBA')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
@@ -91,11 +91,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('dFBA[0,0]',)" {
-		"('fields', 'dissolved biomass')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {
@@ -111,11 +111,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_exchange',)" {
-		"('particles',)" -> "('particle_exchange',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
+		"('fields',)" -> "('particle_exchange',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_exchange',)" {
-		"('fields',)" -> "('particle_exchange',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+		"('particles',)" -> "('particle_exchange',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_division',)" {
@@ -133,13 +133,13 @@ digraph bigraph {
 	"('fields', 'glucose')" [color="#bdb48b"]
 	"('fields', 'acetate')" [color="#bdb48b"]
 	"('fields', 'dissolved biomass')" [color="#bdb48b"]
-	"('particles', 'oO2kJ_Qc')" [color="#9ab1a2"]
-	"('particles', 'oO2kJ_Qc', 'position')" [color="#9ab1a2"]
-	"('particles', 'oO2kJ_Qc', 'mass')" [color="#9ab1a2"]
-	"('particles', 'oO2kJ_Qc', 'sub_masses')" [color="#9ab1a2"]
-	"('particles', 'oO2kJ_Qc', 'local')" [color="#bdb48b"]
-	"('particles', 'oO2kJ_Qc', 'exchange')" [color="#bb975f"]
-	"('particles', 'oO2kJ_Qc', 'dFBA')" [color="#8b3935"]
+	"('particles', 'xNCvL27S')" [color="#9ab1a2"]
+	"('particles', 'xNCvL27S', 'position')" [color="#9ab1a2"]
+	"('particles', 'xNCvL27S', 'mass')" [color="#9ab1a2"]
+	"('particles', 'xNCvL27S', 'sub_masses')" [color="#9ab1a2"]
+	"('particles', 'xNCvL27S', 'local')" [color="#bdb48b"]
+	"('particles', 'xNCvL27S', 'exchange')" [color="#bb975f"]
+	"('particles', 'xNCvL27S', 'dFBA')" [color="#8b3935"]
 	"('particles',)" [color="#C6E3D0" style=filled]
 	"('brownian_movement',)" [color="#C6E3D0" style=filled]
 	"('particle_division',)" [color="#A9DDE3" style=filled]
@@ -152,11 +152,11 @@ digraph bigraph {
 	"('fields', 'glucose')" [color="#F3E8B3" style=filled]
 	"('fields', 'acetate')" [color="#F3E8B3" style=filled]
 	"('fields', 'dissolved biomass')" [color="#F3E8B3" style=filled]
-	"('particles', 'oO2kJ_Qc')" [color="#C6E3D0" style=filled]
-	"('particles', 'oO2kJ_Qc', 'position')" [color="#C6E3D0" style=filled]
-	"('particles', 'oO2kJ_Qc', 'mass')" [color="#C6E3D0" style=filled]
-	"('particles', 'oO2kJ_Qc', 'sub_masses')" [color="#C6E3D0" style=filled]
-	"('particles', 'oO2kJ_Qc', 'local')" [color="#F3E8B3" style=filled]
-	"('particles', 'oO2kJ_Qc', 'exchange')" [color="#F1C27A" style=filled]
-	"('particles', 'oO2kJ_Qc', 'dFBA')" [color="#B34A44" style=filled]
+	"('particles', 'xNCvL27S')" [color="#C6E3D0" style=filled]
+	"('particles', 'xNCvL27S', 'position')" [color="#C6E3D0" style=filled]
+	"('particles', 'xNCvL27S', 'mass')" [color="#C6E3D0" style=filled]
+	"('particles', 'xNCvL27S', 'sub_masses')" [color="#C6E3D0" style=filled]
+	"('particles', 'xNCvL27S', 'local')" [color="#F3E8B3" style=filled]
+	"('particles', 'xNCvL27S', 'exchange')" [color="#F1C27A" style=filled]
+	"('particles', 'xNCvL27S', 'dFBA')" [color="#B34A44" style=filled]
 }

@@ -4085,7 +4085,7 @@
     "_type": "step",
     "address": "local:RAMEmitter",
     "config": "node",
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": "wires",
     "outputs": "wires",
