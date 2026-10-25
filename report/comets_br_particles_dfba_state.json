@@ -1,6 +1,6 @@
 {
   "particles": {
-    "h5Rk6WrB": {
+    "0f0ljBOE": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "h5Rk6WrB",
+      "id": "0f0ljBOE",
       "position": [
-        31.834679181533026,
-        39.00025389678812
+        32.16244351051637,
+        18.478707415665497
       ],
-      "mass": 0.04056764202116436,
+      "mass": 0.9269231551890337,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -13146,21 +13146,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -13184,8 +13184,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"
