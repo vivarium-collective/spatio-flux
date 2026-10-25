@@ -1205,7 +1205,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "19849fd53b45572563b2ec82970e5de840764308", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/19849fd53b45572563b2ec82970e5de840764308", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-24 17:06 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "19849fd53b45572563b2ec82970e5de840764308", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/19849fd53b45572563b2ec82970e5de840764308", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-25 17:06 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/toast.js"></script>
 <script>
@@ -1363,6 +1363,13 @@ window._seedFollowupProposal = _seedFollowupProposal;
   // run buttons in a published read-only snapshot (reproducible-rerun-spine
   // Task 4 / G2: both equally inert with no live backend to launch against).
   if (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.mode === "snapshot") {
+    // The study-detail shell does NOT load walkthrough.js (which sets this on
+    // the main SPA), so set body.snapshot here. Without it every snapshot check
+    // on this page reads false — most visibly the inline bigraph-loom embed,
+    // which then mounts in LIVE mode (?id=&live=1) and hangs forever fetching
+    // /api/composite-state?ref=… against a backend the static bundle doesn't
+    // have, instead of the baked static /api/composite-state/<id>.json.
+    document.body.classList.add("snapshot");
     var reproduceBtn = document.getElementById("study-reproduce");
     if (reproduceBtn) reproduceBtn.style.display = "none";
     var runCurrentBtn = document.getElementById("study-run-current-spec");

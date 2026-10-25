@@ -1,6 +1,6 @@
 {
   "particles": {
-    "bmdQ_wQb": {
+    "8wv3uMnD": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "bmdQ_wQb",
+      "id": "8wv3uMnD",
       "position": [
-        33.23960092548958,
-        3.1015282032033076
+        44.896634903543855,
+        49.187882718965625
       ],
-      "mass": 0.5806261145299014,
+      "mass": 0.6095205745582809,
       "local": {},
       "exchange": {},
       "sub_masses": {}
