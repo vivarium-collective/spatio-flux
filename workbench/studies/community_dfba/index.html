@@ -543,7 +543,7 @@
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Claim</h2>
-      <p class="ctr-text">Multi-agent well-mixed community: several independent dFBA instances share the same extracellular pools, creating competition / cross-feeding dynamics without space.</p>
+      <p class="ctr-text">In a shared-substrate community, glucose is depleted while the E. coli-core population grows — the setting for competition and cross-feeding.</p>
       
     </div>
 
@@ -563,7 +563,7 @@
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>community_dfba</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">1 behavior test</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
         
       </div>
     </div>
@@ -583,6 +583,16 @@
         <div class="ov-metric ov-metric-pass">
           <div class="ov-metric-v">PASS</div>
           <div class="ov-metric-k">COMMUNITY_DFBA-REPRODUCES-REPORT</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">PASS</div>
+          <div class="ov-metric-k">COMMUNITY-DFBA-ECOLI-CORE-GROWS</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">PASS</div>
+          <div class="ov-metric-k">COMMUNITY-DFBA-GLUCOSE-DEPLETES</div>
         </div>
         
       </div>
@@ -638,6 +648,60 @@
             
             
             <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: op: all_exist_and_match · tolerance: 0.0</code></div>
+            
+            
+            
+            
+            
+            
+          </div>
+        </details>
+      </div>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="finding-card finding-kind-biological finding-status-confirms">
+        <details class="finding-details">
+          <summary class="finding-row">
+            <span class="finding-status-glyph">✓</span>
+            <span class="finding-claim finding-statement">Glucose is driven to exhaustion while the E. coli-core species biomass grows, establishing the shared-pool competition the scenario models.</span>
+            
+            <span class="finding-chip">via <code>COMMUNITY-DFBA-ECOLI-CORE-GROWS</code></span>
+            
+          </summary>
+          <div class="finding-drawer">
+            <div class="finding-header">
+              <span class="finding-id">F2</span>
+              <span class="finding-kind">biological</span>
+              <span class="finding-status-text">confirms literature</span>
+            </div>
+            
+            
+            <div class="finding-evidence">
+              
+              
+              via test <a href="#bt-COMMUNITY-DFBA-ECOLI-CORE-GROWS" onclick="_gotoStudyTab('audit','bt-COMMUNITY-DFBA-ECOLI-CORE-GROWS');return false;"><code>COMMUNITY-DFBA-ECOLI-CORE-GROWS</code></a> · 
+              
+              
+              
+            </div>
+            
+            
+            <div class="finding-traceability" style="font-size:0.84em;color:#475569;padding:4px 10px;margin:4px 0">
+              
+              
+              runs: <a href="#run-community_dfba-reproduce"><code>community_dfba-reproduce</code></a>
+            </div>
+            
+            
+            
+            <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: op: monotone · tolerance: 0.01</code></div>
             
             
             
@@ -984,6 +1048,112 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
       
     </li>
     
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-COMMUNITY-DFBA-ECOLI-CORE-GROWS"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="COMMUNITY-DFBA-ECOLI-CORE-GROWS"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">COMMUNITY-DFBA-ECOLI-CORE-GROWS</strong>
+        
+        <span class="muted" style="font-size:0.78em">requires: <code>reproduce</code></span>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">ecoli core increases monotonically over the run.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">evaluated_by: code</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">operator: observable_monotone/increasing</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">detail: increasing; steps [0,0.02728]; start 0.1 end 0.4609; tol 0.01</code>
+          
+        
+      </div>
+      
+      
+      <details style="margin-top: 6px; font-size: 0.82em;">
+        <summary class="muted" style="cursor: pointer;">Assertion</summary>
+        
+        <pre style="background:#fff; padding:8px; margin:4px 0 0 0; border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto;">measure: {"direction": "increasing", "kind": "observable_monotone", "observable": "ecoli core", "slug": "community_dfba"}
+pass_if: {"op": "monotone", "tolerance": 0.01}</pre>
+      </details>
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-COMMUNITY-DFBA-GLUCOSE-DEPLETES"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="COMMUNITY-DFBA-GLUCOSE-DEPLETES"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">COMMUNITY-DFBA-GLUCOSE-DEPLETES</strong>
+        
+        <span class="muted" style="font-size:0.78em">requires: <code>reproduce</code></span>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">glucose decreases monotonically as it is consumed.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">evaluated_by: code</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">operator: observable_monotone/decreasing</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">detail: decreasing; steps [-0.619,0]; start 10 end 0; tol 0.01</code>
+          
+        
+      </div>
+      
+      
+      <details style="margin-top: 6px; font-size: 0.82em;">
+        <summary class="muted" style="cursor: pointer;">Assertion</summary>
+        
+        <pre style="background:#fff; padding:8px; margin:4px 0 0 0; border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto;">measure: {"direction": "decreasing", "kind": "observable_monotone", "observable": "glucose", "slug": "community_dfba"}
+pass_if: {"op": "monotone", "tolerance": 0.01}</pre>
+      </details>
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1141,7 +1311,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         <span class="muted small">evaluated by code</span>
-        <span class="muted small">1/1 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1243,8 +1413,8 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
       
       
       <p class="muted" style="margin:0;font-size:0.9em">
-        <strong>1</strong> test outcome
-        — <span style="color:#065f46;font-weight:600">1 PASS</span> ·
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
         <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
         Per-test outcomes (measured value · evaluator · band) are canonical on the
         <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
@@ -1278,7 +1448,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "19849fd53b45572563b2ec82970e5de840764308", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/19849fd53b45572563b2ec82970e5de840764308", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-25 23:47 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "f8640446d4b25298c557ec486f2cbb7bee2e1991", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/f8640446d4b25298c557ec486f2cbb7bee2e1991", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-26 12:09 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/toast.js"></script>
 <script>

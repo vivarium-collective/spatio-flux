@@ -21,9 +21,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 #
 # _Investigation `spatio-flux-test-suite` — coder reproduction notebook._
 #
-# The spatio-flux reference application reproduced as one investigation: 19
-# studies, each a composition scenario from the original test suite, arranged
-# standalone processes → pairs → triples → reference demos.
+# The spatio-flux reference application as one investigation, now in two layers: (1) 19 reproduction studies that faithfully re-run every scenario of the original test suite (standalone processes -> pairs -> triples -> reference demos) as a hardened, quantitatively code-evaluated baseline; and (2) 7 biology-forward discovery-engine studies that extend those composites into new emergent biology — spatial growth fronts, overflow/cross-feeding substrate accumulation, spatial-vs-well-mixed substrate use, carbon-limited yield, a nutrient-starvation negative control, and division/advection phase diagrams.
 #
 # ---
 #
@@ -34,6 +32,12 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # 3. The **Setup** cell at the top is collapsed scaffolding (environment + render helpers); expand it only to inspect. Set `RERUN = False` there to render the committed `runs.db` without re-simulating.
 #
 # The prose states the **question and parameters**; the figures each run produces are the results.
+
+# **Competing frameworks**
+#
+# - **Well-mixed ODE / batch metabolism**
+# - **Field-only COMETS spatial dFBA**
+# - **Particle-based vs field-based biomass**
 
 """Setup — environment & helpers (runs automatically; open only to inspect).
 
@@ -249,6 +253,8 @@ def _render_one(address, config, runs_db, study_yaml, overrides=None):
 # **Question.** Field-only baseline: Monod uptake/growth on a well-mixed substrate pool (no spatial lattice, no particles). Use to sanity-check kinetics + mass balance.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.monod_kinetics composite (standalone process).
+#
+# **Claim.** Monod uptake kinetics drive biomass growth and near-complete glucose depletion in a well-mixed pool.
 
 # ### Parameters
 #
@@ -333,12 +339,16 @@ _save_viz('monod_kinetics', 'monod_kinetics.png', _render_one('image:charts/mono
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | MONOD_KINETICS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['monod_kinetics.png', 'monod_kinetics_viz.png', 'monod_kinetics_schema.json', 'monod_kinetics_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | MONOD-KINETICS-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=monod_kinetics observable=biomass direction=increasing | op monotone tolerance 0.01 |
+# | MONOD-KINETICS-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=monod_kinetics observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `ecoli_core_dfba`
 #
 # **Question.** Single-cell metabolism baseline: dynamic FBA for E. coli core with external glucose/acetate and biomass over time (no space, no particles).
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.ecoli_core_dfba composite (standalone process).
+#
+# **Claim.** Dynamic-FBA growth of E. coli core depletes extracellular glucose monotonically as biomass accumulates to a reproducible yield.
 
 # ### Parameters
 #
@@ -414,12 +424,16 @@ _save_viz('ecoli_core_dfba', 'ecoli_core_dfba.png', _render_one('image:charts/ec
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | ECOLI_CORE_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['ecoli_core_dfba.png', 'ecoli_core_dfba_viz.png', 'ecoli_core_dfba_schema.json', 'ecoli_core_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | ECOLI-CORE-DFBA-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=ecoli_core_dfba observable=biomass direction=increasing | op monotone tolerance 0.01 |
+# | ECOLI-CORE-DFBA-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=ecoli_core_dfba observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `ecoli_dfba`
 #
 # **Question.** Single-cell metabolism (large model): dynamic FBA using iAF1260 with tracked extracellular fields (glucose/formate) and biomass. Stress-tests solver + exchange wiring.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.ecoli_dfba composite (standalone process).
+#
+# **Claim.** Genome-scale (iAF1260) E. coli dFBA converts glucose to biomass, depleting glucose as biomass rises.
 
 # ### Parameters
 #
@@ -495,12 +509,16 @@ _save_viz('ecoli_dfba', 'ecoli_dfba.png', _render_one('image:charts/ecoli_dfba.p
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | ECOLI_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['ecoli_dfba.png', 'ecoli_dfba_viz.png', 'ecoli_dfba_schema.json', 'ecoli_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | ECOLI-DFBA-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=ecoli_dfba observable=biomass direction=increasing | op monotone tolerance 0.01 |
+# | ECOLI-DFBA-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=ecoli_dfba observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `yeast_dfba`
 #
 # **Question.** Single-cell metabolism (yeast): dynamic FBA using iMM904 with extracellular glucose and biomass. Cross-model check of the dFBA pipeline.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.yeast_dfba composite (standalone process).
+#
+# **Claim.** Genome-scale (iMM904) yeast dFBA grows on glucose, depleting it as biomass accumulates.
 
 # ### Parameters
 #
@@ -575,12 +593,16 @@ _save_viz('yeast_dfba', 'yeast_dfba.png', _render_one('image:charts/yeast_dfba.p
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | YEAST_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['yeast_dfba.png', 'yeast_dfba_viz.png', 'yeast_dfba_schema.json', 'yeast_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | YEAST-DFBA-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=yeast_dfba observable=biomass direction=increasing | op monotone tolerance 0.01 |
+# | YEAST-DFBA-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=yeast_dfba observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `diffusion_process`
 #
 # **Question.** Field transport primitive: finite-volume diffusion/advection on a 2D lattice. Use to validate boundary conditions, stability, and transport timescales.
 #
 # **Purpose.** Runs the spatio_flux.composites.spatial.diffusion_process composite (standalone process).
+#
+# **Claim.** Finite-volume transport conserves total field mass (closed boundaries) while redistributing the seeded biomass band.
 
 # ### Parameters
 #
@@ -651,12 +673,16 @@ _save_viz('diffusion_process', 'diffusion_process.svg', _render_one('image:visua
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | DIFFUSION_PROCESS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['diffusion_process_video.gif', 'diffusion_process_viz.png', 'diffusion_process_schema.json', 'diffusion_process_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | DIFFUSION-PROCESS-GLUCOSE-CONSERVED _(primary)_ | kind=mass_conserved slug=diffusion_process observable=glucose | op mass_conserved tolerance 0.0001 |
+# | DIFFUSION-PROCESS-DISSOLVED-BIOMASS-CONSERVED _(primary)_ | kind=mass_conserved slug=diffusion_process observable=dissolved biomass | op mass_conserved tolerance 0.0001 |
 
 # ## Study: `brownian_particles`
 #
 # **Question.** Particle-only baseline: Brownian motion of agents with mass in continuous space (no fields, no metabolism). Checks integrator + particle state schema.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.brownian_particles composite (standalone process).
+#
+# **Claim.** Mass-carrying agents undergo diffusive Brownian motion — mean-squared displacement grows linearly in time — while the population seeds in.
 
 # ### Parameters
 #
@@ -744,12 +770,16 @@ _save_viz('brownian_particles', 'brownian_particles_mass.png', _render_one('imag
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | BROWNIAN_PARTICLES-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['brownian_particles_video.gif', 'brownian_particles_mass.png', 'brownian_particles_snapshots.png', 'brownian_particles_particles_traces.png', 'brownian_particles_viz.png', 'brownian_particles_schema.json', 'brownian_particles_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | BROWNIAN-PARTICLES-DIFFUSIVE-MSD _(primary)_ | kind=observable_msd_linear slug=brownian_particles observable=particle_x expected=[0.0, 100.0] | op msd_linear |
+# | BROWNIAN-PARTICLES-N_PARTICLES-GROWS _(primary)_ | kind=observable_monotone slug=brownian_particles observable=n_particles direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `newtonian_particles`
 #
 # **Question.** Physics-only baseline (Pymunk): rigid-body particles with collisions/crowding in continuous space. Use to validate contact dynamics + boundary enforcement.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.newtonian_particles composite (standalone process).
+#
+# **Claim.** Rigid-body agents accumulate under gravity-driven seeding — the mechanics-only baseline.
 
 # ### Parameters
 #
@@ -831,12 +861,16 @@ _save_viz('newtonian_particles', 'newtonian_particles_mass.png', _render_one('im
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | NEWTONIAN_PARTICLES-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['newtonian_particles_mass.png', 'newtonian_particles_video.gif', 'newtonian_particles_particles_traces.png', 'newtonian_particles_viz.png', 'newtonian_particles_schema.json', 'newtonian_particles_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | NEWTONIAN-PARTICLES-N_PARTICLES-GROWS _(primary)_ | kind=observable_monotone slug=newtonian_particles observable=n_particles direction=increasing | op monotone tolerance 0.01 |
+# | NEWTONIAN-PARTICLES-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=newtonian_particles observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `community_dfba`
 #
 # **Question.** Multi-agent well-mixed community: several independent dFBA instances share the same extracellular pools, creating competition / cross-feeding dynamics without space.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.community_dfba composite (pair composition).
+#
+# **Claim.** In a shared-substrate community, glucose is depleted while the E. coli-core population grows — the setting for competition and cross-feeding.
 
 # ### Parameters
 #
@@ -913,12 +947,16 @@ _save_viz('community_dfba', 'community_dfba.png', _render_one('image:charts/comm
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | COMMUNITY_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['community_dfba.png', 'community_dfba_viz.png', 'community_dfba_schema.json', 'community_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | COMMUNITY-DFBA-ECOLI-CORE-GROWS _(primary)_ | kind=observable_monotone slug=community_dfba observable=ecoli core direction=increasing | op monotone tolerance 0.01 |
+# | COMMUNITY-DFBA-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=community_dfba observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `dfba_kinetics_community`
 #
 # **Question.** Hybrid community (well-mixed): mixes Monod-kinetic agents with dFBA agents in a shared environment. Demonstrates heterogeneous process composition under one schema.
 #
 # **Purpose.** Runs the spatio_flux.composites.metabolism.dfba_kinetics_community composite (pair composition).
+#
+# **Claim.** A dFBA population and a Monod-kinetic population coexist on a shared glucose pool; both biomasses grow as glucose is consumed.
 
 # ### Parameters
 #
@@ -997,12 +1035,17 @@ _save_viz('dfba_kinetics_community', 'dfba_kinetics_community.png', _render_one(
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | DFBA_KINETICS_COMMUNITY-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['dfba_kinetics_community.png', 'dfba_kinetics_community_viz.png', 'dfba_kinetics_community_schema.json', 'dfba_kinetics_community_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | DFBA-KINETICS-COMMUNITY-DFBA-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=dfba_kinetics_community observable=dfba biomass direction=increasing | op monotone tolerance 0.01 |
+# | DFBA-KINETICS-COMMUNITY-KINETIC-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=dfba_kinetics_community observable=kinetic biomass direction=increasing | op monotone tolerance 0.01 |
+# | DFBA-KINETICS-COMMUNITY-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=dfba_kinetics_community observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `spatial_many_dfba`
 #
 # **Question.** Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.
 #
 # **Purpose.** Runs the spatio_flux.composites.spatial.spatial_many_dfba composite (pair composition).
+#
+# **Claim.** Per-site dFBA across the lattice grows total biomass as local glucose is consumed.
 
 # ### Parameters
 #
@@ -1076,12 +1119,16 @@ _save_viz('spatial_many_dfba', 'spatial_many_dfba_timeseries.png', _render_one('
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | SPATIAL_MANY_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['spatial_many_dfba_timeseries.png', 'spatial_many_dfba_video.gif', 'spatial_many_dfba_viz.png', 'spatial_many_dfba_schema.json', 'spatial_many_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | SPATIAL-MANY-DFBA-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=spatial_many_dfba observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | SPATIAL-MANY-DFBA-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=spatial_many_dfba observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `spatial_dfba_process`
 #
 # **Question.** Spatial microenvironment (vectorized dFBA): one spatial dFBA process updates all lattice sites as a single structured state. Demonstrates batched execution + field coupling.
 #
 # **Purpose.** Runs the spatio_flux.composites.spatial.spatial_dfba_process composite (pair composition).
+#
+# **Claim.** A vectorized spatial dFBA grows total biomass across a glucose gradient as glucose is depleted.
 
 # ### Parameters
 #
@@ -1159,12 +1206,16 @@ _save_viz('spatial_dfba_process', 'spatial_dfba_process_model_grid.png', _render
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | SPATIAL_DFBA_PROCESS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['spatial_dfba_process_timeseries.png', 'spatial_dfba_process_model_grid.png', 'spatial_dfba_process_video.gif', 'spatial_dfba_process_viz.png', 'spatial_dfba_process_schema.json', 'spatial_dfba_process_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | SPATIAL-DFBA-PROCESS-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=spatial_dfba_process observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | SPATIAL-DFBA-PROCESS-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=spatial_dfba_process observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `comets_diffusion`
 #
 # **Question.** Two-phase coupling (no particles): spatial dFBA on a lattice with advection–diffusion of substrates + biomass. The classic COMETS field-only scenario.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_diffusion composite (pair composition).
+#
+# **Claim.** COMETS-style per-site dFBA on a diffusing lattice grows total biomass while depleting glucose across the field.
 
 # ### Parameters
 #
@@ -1245,12 +1296,16 @@ _save_viz('comets_diffusion', 'comets_diffusion_snapshots.png', _render_one('ima
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | COMETS_DIFFUSION-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['comets_diffusion_timeseries.png', 'comets_diffusion_snapshots.png', 'comets_diffusion_video.gif', 'comets_diffusion_viz.png', 'comets_diffusion_schema.json', 'comets_diffusion_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | COMETS-DIFFUSION-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_diffusion observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | COMETS-DIFFUSION-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=comets_diffusion observable=glucose direction=decreasing | op monotone tolerance 0.01 |
 
 # ## Study: `br_particles_kinetics`
 #
 # **Question.** Particle–field coupling (kinetics): Brownian agents sample local lattice concentrations and apply Monod-style exchange, modifying both particle mass and fields.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.br_particles_kinetics composite (pair composition).
+#
+# **Claim.** Brownian agents taking up substrate by Monod kinetics grow in total mass and divide across the lattice.
 
 # ### Parameters
 #
@@ -1338,12 +1393,16 @@ _save_viz('br_particles_kinetics', 'br_particles_kinetics_mass.png', _render_one
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | BR_PARTICLES_KINETICS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['br_particles_kinetics_video.gif', 'br_particles_kinetics_mass.png', 'br_particles_kinetics_snapshots.png', 'br_particles_kinetics_particles_traces.png', 'br_particles_kinetics_viz.png', 'br_particles_kinetics_schema.json', 'br_particles_kinetics_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | BR-PARTICLES-KINETICS-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=br_particles_kinetics observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
+# | BR-PARTICLES-KINETICS-N_PARTICLES-GROWS _(primary)_ | kind=observable_monotone slug=br_particles_kinetics observable=n_particles direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `br_particles_dfba`
 #
 # **Question.** Particle-embedded metabolism: Brownian agents carry internal dFBA; uptake/secretion couples to fields and biomass accumulates into particle mass/size.
 #
 # **Purpose.** Runs the spatio_flux.composites.particles.br_particles_dfba composite (pair composition).
+#
+# **Claim.** Brownian agents running internal dFBA accumulate biomass (total particle mass grows) and divide as they feed on the field gradient.
 
 # ### Parameters
 #
@@ -1433,12 +1492,16 @@ _save_viz('br_particles_dfba', 'br_particles_dfba_mass.png', _render_one('image:
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | BR_PARTICLES_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['br_particles_dfba_video.gif', 'br_particles_dfba_mass.png', 'br_particles_dfba_snapshots.png', 'br_particles_dfba_particles_traces.png', 'br_particles_dfba_viz.png', 'br_particles_dfba_schema.json', 'br_particles_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | BR-PARTICLES-DFBA-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=br_particles_dfba observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
+# | BR-PARTICLES-DFBA-N_PARTICLES-GROWS _(primary)_ | kind=observable_monotone slug=br_particles_dfba observable=n_particles direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `comets_br_particles_kinetics`
 #
 # **Question.** Three-way coupling: spatial dFBA fields + Brownian particle agents that run Monod kinetics locally + diffusion. End-to-end smoke test of the COMETS-style composite stack with kinetic agents.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_br_particles_kinetics composite (triple composition).
+#
+# **Claim.** COMETS lattice fields feed Monod-kinetic agents whose total mass grows alongside field biomass.
 
 # ### Parameters
 #
@@ -1530,12 +1593,16 @@ _save_viz('comets_br_particles_kinetics', 'comets_br_particles_kinetics_mass.png
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | COMETS_BR_PARTICLES_KINETICS-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['comets_br_particles_kinetics_timeseries.png', 'comets_br_particles_kinetics_mass.png', 'comets_br_particles_kinetics_snapshots.png', 'comets_br_particles_kinetics_video.gif', 'comets_br_particles_kinetics_viz.png', 'comets_br_particles_kinetics_schema.json', 'comets_br_particles_kinetics_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | COMETS-BR-PARTICLES-KINETICS-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_br_particles_kinetics observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | COMETS-BR-PARTICLES-KINETICS-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_br_particles_kinetics observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `comets_br_particles_dfba`
 #
 # **Question.** Full COMETS-style spatial composite: lattice dFBA + advection–diffusion + Brownian particles with internal dFBA + division. End-to-end coupled scenario.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_br_particles_dfba composite (triple composition).
+#
+# **Claim.** The full COMETS composite couples lattice dFBA fields to internal-dFBA agents: field biomass and total agent mass both grow as the population divides.
 
 # ### Parameters
 #
@@ -1626,12 +1693,16 @@ _save_viz('comets_br_particles_dfba', 'comets_br_particles_dfba_mass.png', _rend
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | COMETS_BR_PARTICLES_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['comets_br_particles_dfba_timeseries.png', 'comets_br_particles_dfba_mass.png', 'comets_br_particles_dfba_snapshots.png', 'comets_br_particles_dfba_video.gif', 'comets_br_particles_dfba_viz.png', 'comets_br_particles_dfba_schema.json', 'comets_br_particles_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | COMETS-BR-PARTICLES-DFBA-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_br_particles_dfba observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | COMETS-BR-PARTICLES-DFBA-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_br_particles_dfba observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `comets_nt_particles_dfba`
 #
 # **Question.** Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.
 #
 # **Purpose.** Runs the spatio_flux.composites.comets.comets_nt_particles_dfba composite (triple composition).
+#
+# **Claim.** Rigid-body dFBA agents settle among COMETS fields while field biomass and total agent mass grow.
 
 # ### Parameters
 #
@@ -1724,12 +1795,16 @@ _save_viz('comets_nt_particles_dfba', 'comets_nt_particles_dfba_mass_submasses.p
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['comets_nt_particles_dfba_timeseries.png', 'comets_nt_particles_dfba_mass.png', 'comets_nt_particles_dfba_mass_submasses.png', 'comets_nt_particles_dfba_video.gif', 'comets_nt_particles_dfba_snapshots.png', 'comets_nt_particles_dfba_viz.png', 'comets_nt_particles_dfba_schema.json', 'comets_nt_particles_dfba_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | COMETS-NT-PARTICLES-DFBA-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_nt_particles_dfba observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | COMETS-NT-PARTICLES-DFBA-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=comets_nt_particles_dfba observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `spatioflux_reference_demo`
 #
 # **Question.** SpatioFlux demonstration reference composite: Newtonian motile particles + particle–field exchange + internal multi-dFBA + Monod/diffusion fields + mass-aggregated division.
 #
 # **Purpose.** Runs the spatio_flux.composites.reference.spatioflux_reference_demo composite (reference demo).
+#
+# **Claim.** The flagship reference model grows field biomass and total agent mass as two-strain internal-dFBA agents feed and divide.
 
 # ### Parameters
 #
@@ -1820,12 +1895,16 @@ _save_viz('spatioflux_reference_demo', 'spatioflux_reference_demo_mass_submasses
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | SPATIOFLUX_REFERENCE_DEMO-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['spatioflux_reference_demo_timeseries.png', 'spatioflux_reference_demo_mass.png', 'spatioflux_reference_demo_mass_submasses.png', 'spatioflux_reference_demo_video.gif', 'spatioflux_reference_demo_snapshots.png', 'spatioflux_reference_demo_viz.png', 'spatioflux_reference_demo_schema.json', 'spatioflux_reference_demo_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | SPATIOFLUX-REFERENCE-DEMO-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=spatioflux_reference_demo observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | SPATIOFLUX-REFERENCE-DEMO-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=spatioflux_reference_demo observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
 
 # ## Study: `reference_demo_x2y2`
 #
 # **Question.** Different resolution for the spatio-flux reference demo
 #
 # **Purpose.** Runs the spatio_flux.composites.reference.reference_demo_x2y2 composite (reference demo).
+#
+# **Claim.** On a fine lattice, the reference model's field biomass and total agent mass grow as two-strain agents feed and divide.
 
 # ### Parameters
 #
@@ -1916,3 +1995,607 @@ _save_viz('reference_demo_x2y2', 'reference_demo_x2y2_mass_submasses.png', _rend
 # | test | measures | passes if |
 # | --- | --- | --- |
 # | REFERENCE_DEMO_X2Y2-REPRODUCES-REPORT _(regression)_ | kind=artifacts_present expected=['reference_demo_x2y2_timeseries.png', 'reference_demo_x2y2_mass.png', 'reference_demo_x2y2_mass_submasses.png', 'reference_demo_x2y2_video.gif', 'reference_demo_x2y2_snapshots.png', 'reference_demo_x2y2_viz.png', 'reference_demo_x2y2_schema.json', 'reference_demo_x2y2_state.json'] | op all_exist_and_match tolerance 0.0 |
+# | REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=reference_demo_x2y2 observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
+# | REFERENCE-DEMO-X2Y2-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=reference_demo_x2y2 observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
+
+# ## Study: Spatial growth front (`spatial_growth_front`)
+#
+# **Question.** When biomass is seeded at one edge of a diffusing nutrient field, does it propagate across the lattice as an emergent spatial growth front?
+#
+# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
+#
+# **Claim.** Biomass seeded at the top edge of the COMETS field forms an advection-driven growth front: it propagates down the lattice (front position advances), its centroid migrates downstream, and its spatial spread grows as the population feeds and is transported through the field.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `baseline` | `spatio_flux.composites.comets.comets_diffusion` | 0 | — |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.comets.comets_diffusion`**
+#
+# The classic COMETS field-only scenario: per-site dFBA on a lattice coupled to advection–diffusion of glucose, acetate, and dissolved biomass, with biomass seeded at the top edge.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_comets_comets_diffusion = {
+    'dissolved_model_id': 'ecoli core',
+    'n_bins'            : [10, 10],
+    'bounds'            : [50.0, 50.0],
+    'advection_rate'    : [0.0, 0.2],
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: spatial_growth_front ===
+STUDY = 'spatial_growth_front'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_baseline = 100
+INTERVAL_baseline = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_comets_comets_diffusion if 'ov_spatio_flux_composites_comets_comets_diffusion' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_comets_comets_diffusion = materialize_composite('spatio_flux.composites.comets.comets_diffusion', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_diffusion['state']}, core=core)
+            _comp.run(STEPS_baseline)
+        print('ran', 'baseline', f'(spatio_flux.composites.comets.comets_diffusion) for', STEPS_baseline, 'steps')
+    except Exception as _e:
+        print(f"baseline not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **spatial_growth_front trajectory**
+
+# spatial_growth_front trajectory
+_save_viz('spatial_growth_front', 'spatial_growth_front_trajectory', _render_one('image:charts/spatial_growth_front_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | SPATIAL-GROWTH-FRONT-ADVANCES _(primary)_ | kind=front_advances slug=spatial_growth_front observable=dissolved biomass run_id=spatial_growth_front-reproduce threshold=0.02 | op front_advances tolerance 0.0 |
+# | SPATIAL-GROWTH-FRONT-CENTROID-MIGRATES _(primary)_ | kind=centroid_shift slug=spatial_growth_front observable=dissolved biomass run_id=spatial_growth_front-reproduce axis=y min_shift=1.5 | op centroid_shift |
+# | SPATIAL-GROWTH-FRONT-SPREAD-GROWS _(primary)_ | kind=spread_grows slug=spatial_growth_front observable=dissolved biomass run_id=spatial_growth_front-reproduce | op spread_grows tolerance 0.0 |
+
+# ## Study: Spatial overflow & cross-feeding substrate (`spatial_overflow_crossfeeding`)
+#
+# **Question.** Does spatial dynamic-FBA secrete an overflow metabolite (acetate) into the field as it grows on glucose, building the substrate pool that spatial cross-feeding would draw on?
+#
+# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
+#
+# **Claim.** Spatial dFBA on the COMETS field secretes acetate (overflow metabolism) that accumulates in the field while biomass grows and glucose begins to be drawn down — establishing the acetate pool a cross-feeding partner would exploit.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `baseline` | `spatio_flux.composites.comets.comets_diffusion` | 0 | — |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.comets.comets_diffusion`**
+#
+# The classic COMETS field-only scenario: per-site dFBA on a lattice coupled to advection–diffusion of glucose, acetate, and dissolved biomass, with biomass seeded at the top edge.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_comets_comets_diffusion = {
+    'dissolved_model_id': 'ecoli core',
+    'n_bins'            : [10, 10],
+    'bounds'            : [50.0, 50.0],
+    'advection_rate'    : [0.0, 0.2],
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: spatial_overflow_crossfeeding ===
+STUDY = 'spatial_overflow_crossfeeding'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_baseline = 100
+INTERVAL_baseline = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_comets_comets_diffusion if 'ov_spatio_flux_composites_comets_comets_diffusion' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_comets_comets_diffusion = materialize_composite('spatio_flux.composites.comets.comets_diffusion', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_diffusion['state']}, core=core)
+            _comp.run(STEPS_baseline)
+        print('ran', 'baseline', f'(spatio_flux.composites.comets.comets_diffusion) for', STEPS_baseline, 'steps')
+    except Exception as _e:
+        print(f"baseline not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **spatial_overflow_crossfeeding trajectory**
+
+# spatial_overflow_crossfeeding trajectory
+_save_viz('spatial_overflow_crossfeeding', 'spatial_overflow_crossfeeding_trajectory', _render_one('image:charts/spatial_overflow_crossfeeding_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | SPATIAL-OVERFLOW-ACETATE-ACCUMULATES _(primary)_ | kind=observable_monotone slug=spatial_overflow_crossfeeding observable=acetate run_id=spatial_overflow_crossfeeding-reproduce direction=increasing | op monotone tolerance 0.02 |
+# | SPATIAL-OVERFLOW-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=spatial_overflow_crossfeeding observable=dissolved biomass run_id=spatial_overflow_crossfeeding-reproduce direction=increasing | op monotone tolerance 0.02 |
+# | SPATIAL-OVERFLOW-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=spatial_overflow_crossfeeding observable=glucose run_id=spatial_overflow_crossfeeding-reproduce direction=decreasing | op monotone tolerance 0.02 |
+
+# ## Study: Spatial structure vs well-mixed community (`spatial_vs_wellmixed_community`)
+#
+# **Question.** Does spatial structure change how completely a microbial community consumes its shared substrate, compared with the well-mixed case?
+#
+# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
+#
+# **Claim.** A well-mixed microbial community drives glucose to complete exhaustion, whereas a spatially-structured community scenario plateaus with a large standing glucose pool unconsumed at the same horizon — an observed difference in substrate-use completeness between well-mixed and spatial community scenarios.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `well-mixed` | `spatio_flux.composites.metabolism.community_dfba` | 0 | — |
+# | `spatial` | `spatio_flux.composites.spatial.spatial_dfba_process` | 0 | — |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.metabolism.community_dfba`**
+#
+# A well-mixed microbial community where several dFBA species and a Monod-kinetic population share the same extracellular substrate pools, producing competition and cross-feeding without spatial structure.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_metabolism_community_dfba = {
+    'dt'              : 1.0,
+    'kinetic_model_id': 'acetate_only',
+    'initial_biomass' : 0.1,
+    'glucose'         : 10.0,
+    'acetate'         : 0.0,
+}
+
+# **The model — `spatio_flux.composites.spatial.spatial_dfba_process`**
+#
+# A spatial microenvironment where a single vectorized dFBA process updates every lattice site at once, with six microbial species arranged in rows across a horizontal glucose gradient.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_spatial_spatial_dfba_process = {
+    'n_bins': [5, 6],
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: spatial_vs_wellmixed_community ===
+STUDY = 'spatial_vs_wellmixed_community'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_well_mixed = 100
+INTERVAL_well_mixed = 1.0
+STEPS_spatial = 100
+INTERVAL_spatial = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_metabolism_community_dfba if 'ov_spatio_flux_composites_metabolism_community_dfba' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_metabolism_community_dfba = materialize_composite('spatio_flux.composites.metabolism.community_dfba', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_community_dfba['state']}, core=core)
+            _comp.run(STEPS_well_mixed)
+        print('ran', 'well-mixed', f'(spatio_flux.composites.metabolism.community_dfba) for', STEPS_well_mixed, 'steps')
+    except Exception as _e:
+        print(f"well-mixed not runnable yet: {type(_e).__name__}: {_e}")
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_spatial_spatial_dfba_process if 'ov_spatio_flux_composites_spatial_spatial_dfba_process' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_spatial_spatial_dfba_process = materialize_composite('spatio_flux.composites.spatial.spatial_dfba_process', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_spatial_spatial_dfba_process['state']}, core=core)
+            _comp.run(STEPS_spatial)
+        print('ran', 'spatial', f'(spatio_flux.composites.spatial.spatial_dfba_process) for', STEPS_spatial, 'steps')
+    except Exception as _e:
+        print(f"spatial not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **spatial_vs_wellmixed_community-wellmixed trajectory**
+
+# spatial_vs_wellmixed_community-wellmixed trajectory
+_save_viz('spatial_vs_wellmixed_community', 'spatial_vs_wellmixed_community-wellmixed_trajectory', _render_one('image:charts/spatial_vs_wellmixed_community-wellmixed_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# **spatial_vs_wellmixed_community-spatial trajectory**
+
+# spatial_vs_wellmixed_community-spatial trajectory
+_save_viz('spatial_vs_wellmixed_community', 'spatial_vs_wellmixed_community-spatial_trajectory', _render_one('image:charts/spatial_vs_wellmixed_community-spatial_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | SPATIAL-VS-WELLMIXED-WELLMIXED-DEPLETES _(primary)_ | kind=observable_band slug=spatial_vs_wellmixed_community observable=glucose run_id=spatial_vs_wellmixed_community-wellmixed-reproduce expected=[0.0, 1.0] | op band |
+# | SPATIAL-VS-WELLMIXED-SPATIAL-RETAINS-POOL _(primary)_ | kind=observable_band slug=spatial_vs_wellmixed_community observable=glucose run_id=spatial_vs_wellmixed_community-spatial-reproduce expected=[10.0, 10000.0] | op band |
+
+# ## Study: Glucose-limitation yield response (`glucose_limitation_yield`)
+#
+# **Question.** Does the biomass yield of dynamic-FBA growth scale with the initial glucose supply — the quantitative signature of carbon limitation?
+#
+# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
+#
+# **Claim.** Final dynamic-FBA biomass scales with the initial glucose supply: a glucose-limited cell (2 mM) reaches roughly a quarter of the biomass of a glucose-replete cell (10 mM), the quantitative carbon-limitation response.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `low-glucose` | `spatio_flux.composites.metabolism.ecoli_core_dfba` | 0 | glucose=2.0, acetate=0.0 |
+# | `high-glucose` | `spatio_flux.composites.metabolism.ecoli_core_dfba` | 0 | glucose=10.0, acetate=0.0 |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.metabolism.ecoli_core_dfba`**
+#
+# Dynamic FBA of a single E. coli core cell in a well-mixed medium, tracking extracellular glucose and acetate as biomass grows — the simplest single-cell metabolism model, with no space or particles.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_metabolism_ecoli_core_dfba = {
+    'model_id': 'ecoli core',
+    'glucose' : 10.0,
+    'acetate' : 0.0,
+    'biomass' : 0.1,
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: glucose_limitation_yield ===
+STUDY = 'glucose_limitation_yield'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_low_glucose = 100
+INTERVAL_low_glucose = 1.0
+STEPS_high_glucose = 100
+INTERVAL_high_glucose = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_metabolism_ecoli_core_dfba if 'ov_spatio_flux_composites_metabolism_ecoli_core_dfba' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_metabolism_ecoli_core_dfba = materialize_composite('spatio_flux.composites.metabolism.ecoli_core_dfba', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_ecoli_core_dfba['state']}, core=core)
+            _comp.run(STEPS_low_glucose)
+        print('ran', 'low-glucose', f'(spatio_flux.composites.metabolism.ecoli_core_dfba) for', STEPS_low_glucose, 'steps')
+    except Exception as _e:
+        print(f"low-glucose not runnable yet: {type(_e).__name__}: {_e}")
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_metabolism_ecoli_core_dfba if 'ov_spatio_flux_composites_metabolism_ecoli_core_dfba' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_metabolism_ecoli_core_dfba = materialize_composite('spatio_flux.composites.metabolism.ecoli_core_dfba', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_ecoli_core_dfba['state']}, core=core)
+            _comp.run(STEPS_high_glucose)
+        print('ran', 'high-glucose', f'(spatio_flux.composites.metabolism.ecoli_core_dfba) for', STEPS_high_glucose, 'steps')
+    except Exception as _e:
+        print(f"high-glucose not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **glucose_limitation_yield-low trajectory**
+
+# glucose_limitation_yield-low trajectory
+_save_viz('glucose_limitation_yield', 'glucose_limitation_yield-low_trajectory', _render_one('image:charts/glucose_limitation_yield-low_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# **glucose_limitation_yield-high trajectory**
+
+# glucose_limitation_yield-high trajectory
+_save_viz('glucose_limitation_yield', 'glucose_limitation_yield-high_trajectory', _render_one('image:charts/glucose_limitation_yield-high_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | GLUCOSE-LIMITATION-LOW-YIELD _(primary)_ | kind=observable_band slug=glucose_limitation_yield observable=biomass run_id=glucose_limitation_yield-low-reproduce expected=[0.18, 0.4] | op band |
+# | GLUCOSE-LIMITATION-HIGH-YIELD _(primary)_ | kind=observable_band slug=glucose_limitation_yield observable=biomass run_id=glucose_limitation_yield-high-reproduce expected=[0.8, 1.15] | op band |
+
+# ## Study: Nutrient-starvation negative control (`nutrient_starvation_control`)
+#
+# **Question.** With no carbon source, does the dynamic-FBA model correctly fail to grow — the falsification control that the growth signal is real, not an artifact?
+#
+# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
+#
+# **Claim.** With zero glucose the dynamic-FBA cell does not grow: biomass stays flat within noise. The growth seen in every other study is therefore carbon-driven, not a numerical artifact — this negative control passes by rejecting growth.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `zero-glucose` | `spatio_flux.composites.metabolism.ecoli_core_dfba` | 0 | glucose=0.0, acetate=0.0 |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.metabolism.ecoli_core_dfba`**
+#
+# Dynamic FBA of a single E. coli core cell in a well-mixed medium, tracking extracellular glucose and acetate as biomass grows — the simplest single-cell metabolism model, with no space or particles.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_metabolism_ecoli_core_dfba = {
+    'model_id': 'ecoli core',
+    'glucose' : 10.0,
+    'acetate' : 0.0,
+    'biomass' : 0.1,
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: nutrient_starvation_control ===
+STUDY = 'nutrient_starvation_control'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_zero_glucose = 100
+INTERVAL_zero_glucose = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_metabolism_ecoli_core_dfba if 'ov_spatio_flux_composites_metabolism_ecoli_core_dfba' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_metabolism_ecoli_core_dfba = materialize_composite('spatio_flux.composites.metabolism.ecoli_core_dfba', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_ecoli_core_dfba['state']}, core=core)
+            _comp.run(STEPS_zero_glucose)
+        print('ran', 'zero-glucose', f'(spatio_flux.composites.metabolism.ecoli_core_dfba) for', STEPS_zero_glucose, 'steps')
+    except Exception as _e:
+        print(f"zero-glucose not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **nutrient_starvation_control trajectory**
+
+# nutrient_starvation_control trajectory
+_save_viz('nutrient_starvation_control', 'nutrient_starvation_control_trajectory', _render_one('image:charts/nutrient_starvation_control_trajectory.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | NUTRIENT-STARVATION-NO-GROWTH _(primary)_ | kind=observable_flat slug=nutrient_starvation_control observable=biomass run_id=nutrient_starvation_control-reproduce | op flat tolerance 0.02 |
+
+# ## Study: Division-threshold population regimes (`division_seeding_regimes`)
+#
+# **Question.** How does the particle population size depend on the division mass threshold in the coupled field+agent COMETS composite?
+#
+# **Purpose.** Parameter-sweep phase-diagram study (discovery engine): a real composite swept over one axis, reduced to a regime metric.
+#
+# **Claim.** Raising the division mass threshold monotonically shrinks the final particle population in the full COMETS composite — a division-controlled population-size phase relationship.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `representative` | `spatio_flux.composites.comets.comets_br_particles_dfba` | 0 | n_particles=1, add_rate=0.3, division_mass_threshold=3 |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.comets.comets_br_particles_dfba`**
+#
+# The full COMETS-style composite: per-site lattice dFBA and advection–diffusion of substrates coupled to Brownian particles that each run an internal dFBA model, exchange with the fields, and divide as biomass accumulates.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_comets_comets_br_particles_dfba = {
+    'particle_model_id'      : 'ecoli core',
+    'dissolved_model_id'     : 'ecoli core',
+    'division_mass_threshold': 3,
+    'n_particles'            : 1,
+    'add_rate'               : 0.3,
+    'n_bins'                 : [10, 10],
+    'bounds'                 : [50.0, 50.0],
+    'diffusion_rate'         : 0.5,
+    'field_advection_rate'   : [0.0, 0.2],
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: division_seeding_regimes ===
+STUDY = 'division_seeding_regimes'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_representative = 100
+INTERVAL_representative = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_comets_comets_br_particles_dfba if 'ov_spatio_flux_composites_comets_comets_br_particles_dfba' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_comets_comets_br_particles_dfba = materialize_composite('spatio_flux.composites.comets.comets_br_particles_dfba', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_br_particles_dfba['state']}, core=core)
+            _comp.run(STEPS_representative)
+        print('ran', 'representative', f'(spatio_flux.composites.comets.comets_br_particles_dfba) for', STEPS_representative, 'steps')
+    except Exception as _e:
+        print(f"representative not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **division_seeding_regimes phase diagram**
+
+# division_seeding_regimes phase diagram
+_save_viz('division_seeding_regimes', 'division_seeding_regimes_phase_diagram', _render_one('image:charts/division_seeding_regimes_phase.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | DIVISION-SEEDING-POPULATION-DECREASES _(primary)_ | kind=observable_monotone slug=division_seeding_regimes observable=final_n_particles run_id=division_seeding_regimes-reproduce direction=decreasing | op monotone tolerance 0.01 |
+
+# ## Study: Advection plume-reach phase diagram (`advection_plume_phase`)
+#
+# **Question.** How far downstream does the biomass plume reach as a function of the advection strength of the COMETS field?
+#
+# **Purpose.** Parameter-sweep phase-diagram study (discovery engine): a real composite swept over one axis, reduced to a regime metric.
+#
+# **Claim.** The downstream reach of the growing biomass plume scales monotonically with advection strength — an advection-controlled spatial-transport phase relationship.
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `representative` | `spatio_flux.composites.comets.comets_diffusion` | 0 | advection_rate=[0.0, 0.6] |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `spatio_flux.composites.comets.comets_diffusion`**
+#
+# The classic COMETS field-only scenario: per-site dFBA on a lattice coupled to advection–diffusion of glucose, acetate, and dissolved biomass, with biomass seeded at the top edge.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_spatio_flux_composites_comets_comets_diffusion = {
+    'dissolved_model_id': 'ecoli core',
+    'n_bins'            : [10, 10],
+    'bounds'            : [50.0, 50.0],
+    'advection_rate'    : [0.0, 0.2],
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: advection_plume_phase ===
+STUDY = 'advection_plume_phase'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_representative = 100
+INTERVAL_representative = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_comets_comets_diffusion if 'ov_spatio_flux_composites_comets_comets_diffusion' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_comets_comets_diffusion = materialize_composite('spatio_flux.composites.comets.comets_diffusion', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_diffusion['state']}, core=core)
+            _comp.run(STEPS_representative)
+        print('ran', 'representative', f'(spatio_flux.composites.comets.comets_diffusion) for', STEPS_representative, 'steps')
+    except Exception as _e:
+        print(f"representative not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Visualizations
+#
+# _Results are shown by the figures below, produced by the run above._
+
+# **advection_plume_phase phase diagram**
+
+# advection_plume_phase phase diagram
+_save_viz('advection_plume_phase', 'advection_plume_phase_phase_diagram', _render_one('image:charts/advection_plume_phase_phase.png', {}, RUNS_DB, STUDY_YAML))
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | ADVECTION-PLUME-REACH-INCREASES _(primary)_ | kind=observable_monotone slug=advection_plume_phase observable=plume_centroid_y run_id=advection_plume_phase-reproduce direction=increasing | op monotone tolerance 0.01 |

@@ -248,7 +248,7 @@ def _render_one(address, config, runs_db, study_yaml, overrides=None):
 #
 # **Purpose.** Four unwired draft-process cards (Gene Expression, Metabolism, Morphogen Gradient, Multicellular Interactions) and the multiscale draft composite (tissue > cells > cell > molecules), rendered in bigraph-loom.
 #
-# **Claim.** image generated
+# **Claim.** Figure 1 renders the four draft-process cards and the multiscale draft composite (tissue→cells→cell→molecules) as committed bigraph-loom diagrams.
 
 # ### Parameters
 #
@@ -426,7 +426,7 @@ _save_viz('fig-01', 'Figure_1_composite', _render_one('image:visualizations/figu
 #
 # **Purpose.** Contrasts a Milner bigraph (a) with a process bigraph (b). The process-bigraph panel is illustrated by the process graph (metabolism + gene expression over shared stores), rendered in bigraph-loom.
 #
-# **Claim.** image generated
+# **Claim.** Figure 2 renders the Milner bigraph and the process-bigraph side by side as committed bigraph-loom diagrams.
 
 # ### Parameters
 #
@@ -542,7 +542,7 @@ _save_viz('fig-02', 'Figure_2_hypergraph_process_bigraph', _render_one('image:vi
 #
 # **Purpose.** A store diagram (a single `cell` store holding an `ecoli` data type, shown in full detail) and a place graph of nested stores (cell ⊃ {nuc, cyto ⊃ ribo, mucin}, with EPS a sibling of cell), rendered in bigraph-loom.
 #
-# **Claim.** image generated
+# **Claim.** Figure 3 renders the store diagram and place graph as committed bigraph-loom diagrams.
 
 # ### Parameters
 #
@@ -618,7 +618,7 @@ _save_viz('fig-03', 'Figure_3_composite', _render_one('image:visualizations/figu
 #
 # **Purpose.** A single process shown as a rectangle with typed ports on its boundary — inputs in_1 (species), in_2 (params) on the left; outputs out_1 (ss_species), out_2 (rates) on the right; config type steady_state; the update function maps (in_1, in_2) → (out_1, out_2).
 #
-# **Claim.** image generated
+# **Claim.** Figure 4 renders the process diagram as a committed bigraph-loom diagram.
 
 # ### Parameters
 #
@@ -701,7 +701,7 @@ _save_viz('fig-04', 'Figure_4_composite', _render_one('image:visualizations/figu
 #
 # **Purpose.** Two readings of composition. 5a — a process graph: processes (metabolism, gene_expression) connected to shared stores (metab, enzymes, DNA) through typed ports, with arrow directions showing the input/output wiring. 5b — a composite process: a `cell` process exposing external ports (nutrients, signals in; shape out) that bridge to an internal process bigraph (express / grow / transport over cyto / mem / nuc stores), rendered as a drillable sub-composite.
 #
-# **Claim.** image generated
+# **Claim.** Figure 5 renders the process-graph and composite-process views as committed bigraph-loom diagrams.
 
 # ### Parameters
 #
@@ -802,7 +802,7 @@ _save_viz('fig-05', 'Figure_5_composite', _render_one('image:visualizations/figu
 #
 # **Purpose.** Three orchestration patterns drawn in bigraph-loom style — (a) multi-timestepping: temporal processes each updating at their own time interval, reading/writing a shared store at their update ticks; (b) workflow: a DAG of step processes over intermediate stores; (c) event-driven graph rewrite: divide / engulf / burst events restructuring environ + agent subgraphs.
 #
-# **Claim.** image present
+# **Claim.** Figure 6 renders the orchestration-pattern diagram as a committed bigraph-loom figure.
 
 # ### Parameters
 #
@@ -895,7 +895,7 @@ _save_viz('fig-06', 'Figure_6_orchestration_patterns', _render_one('image:visual
 #
 # **Purpose.** Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in bigraph-loom.
 #
-# **Claim.** image generated
+# **Claim.** Figure 7 renders the spatio-flux example composites as committed bigraph-loom diagrams.
 
 # ### Parameters
 #
@@ -1065,7 +1065,7 @@ _save_viz('fig-07', 'Figure_7_composite', _render_one('image:visualizations/figu
 #
 # **Purpose.** spatio-flux reference model (spatioflux_reference_demo): fields + diffusion + a Monod-kinetics array with Newtonian particles carrying per-particle dFBA (ecoli_1, ecoli_2) aggregated into particle mass, rendered in bigraph-loom.
 #
-# **Claim.** image generated
+# **Claim.** Figure 8 renders the spatio-flux reference model as a committed bigraph-loom diagram.
 
 # ### Parameters
 #

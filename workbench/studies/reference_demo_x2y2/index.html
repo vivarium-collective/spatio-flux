@@ -543,7 +543,7 @@
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Claim</h2>
-      <p class="ctr-text">Different resolution for the spatio-flux reference demo</p>
+      <p class="ctr-text">On a fine lattice, the reference model&#39;s field biomass and total agent mass grow as two-strain agents feed and divide.</p>
       
     </div>
 
@@ -563,7 +563,7 @@
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>reference_demo_x2y2</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">1 behavior test</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
         
       </div>
     </div>
@@ -583,6 +583,16 @@
         <div class="ov-metric ov-metric-pass">
           <div class="ov-metric-v">PASS</div>
           <div class="ov-metric-k">REFERENCE_DEMO_X2Y2-REPRODUCES-REPORT</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">PASS</div>
+          <div class="ov-metric-k">REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">PASS</div>
+          <div class="ov-metric-k">REFERENCE-DEMO-X2Y2-PARTICLE_MASS-GROWS</div>
         </div>
         
       </div>
@@ -638,6 +648,60 @@
             
             
             <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: op: all_exist_and_match · tolerance: 0.0</code></div>
+            
+            
+            
+            
+            
+            
+          </div>
+        </details>
+      </div>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="finding-card finding-kind-biological finding-status-confirms">
+        <details class="finding-details">
+          <summary class="finding-row">
+            <span class="finding-status-glyph">✓</span>
+            <span class="finding-claim finding-statement">Total dissolved field biomass and total agent mass both grow on the doubled-resolution lattice, confirming the reference model scales to a finer grid.</span>
+            
+            <span class="finding-chip">via <code>REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS</code></span>
+            
+          </summary>
+          <div class="finding-drawer">
+            <div class="finding-header">
+              <span class="finding-id">F2</span>
+              <span class="finding-kind">biological</span>
+              <span class="finding-status-text">confirms literature</span>
+            </div>
+            
+            
+            <div class="finding-evidence">
+              
+              
+              via test <a href="#bt-REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS" onclick="_gotoStudyTab('audit','bt-REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS');return false;"><code>REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS</code></a> · 
+              
+              
+              
+            </div>
+            
+            
+            <div class="finding-traceability" style="font-size:0.84em;color:#475569;padding:4px 10px;margin:4px 0">
+              
+              
+              runs: <a href="#run-reference_demo_x2y2-reproduce"><code>reference_demo_x2y2-reproduce</code></a>
+            </div>
+            
+            
+            
+            <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: op: monotone · tolerance: 0.01</code></div>
             
             
             
@@ -986,6 +1050,112 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
       
     </li>
     
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS</strong>
+        
+        <span class="muted" style="font-size:0.78em">requires: <code>reproduce</code></span>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">dissolved biomass increases monotonically over the run.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">evaluated_by: code</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">operator: observable_monotone/increasing</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">detail: increasing; steps [0.1308,0.152]; start 59.15 end 76.73; tol 0.01</code>
+          
+        
+      </div>
+      
+      
+      <details style="margin-top: 6px; font-size: 0.82em;">
+        <summary class="muted" style="cursor: pointer;">Assertion</summary>
+        
+        <pre style="background:#fff; padding:8px; margin:4px 0 0 0; border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto;">measure: {"direction": "increasing", "kind": "observable_monotone", "observable": "dissolved biomass", "slug": "reference_demo_x2y2"}
+pass_if: {"op": "monotone", "tolerance": 0.01}</pre>
+      </details>
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-REFERENCE-DEMO-X2Y2-PARTICLE_MASS-GROWS"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="REFERENCE-DEMO-X2Y2-PARTICLE_MASS-GROWS"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">REFERENCE-DEMO-X2Y2-PARTICLE_MASS-GROWS</strong>
+        
+        <span class="muted" style="font-size:0.78em">requires: <code>reproduce</code></span>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">particle_mass increases monotonically over the run.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">evaluated_by: code</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">operator: observable_monotone/increasing</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">detail: increasing; steps [0.009865,0.1564]; start 0.04356 end 3.676; tol 0.01</code>
+          
+        
+      </div>
+      
+      
+      <details style="margin-top: 6px; font-size: 0.82em;">
+        <summary class="muted" style="cursor: pointer;">Assertion</summary>
+        
+        <pre style="background:#fff; padding:8px; margin:4px 0 0 0; border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto;">measure: {"direction": "increasing", "kind": "observable_monotone", "observable": "particle_mass", "slug": "reference_demo_x2y2"}
+pass_if: {"op": "monotone", "tolerance": 0.01}</pre>
+      </details>
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1143,7 +1313,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         <span class="muted small">evaluated by code</span>
-        <span class="muted small">1/1 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1245,8 +1415,8 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
       
       
       <p class="muted" style="margin:0;font-size:0.9em">
-        <strong>1</strong> test outcome
-        — <span style="color:#065f46;font-weight:600">1 PASS</span> ·
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
         <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
         Per-test outcomes (measured value · evaluator · band) are canonical on the
         <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
@@ -1280,7 +1450,7 @@ pass_if: {"op": "all_exist_and_match", "tolerance": 0.0}</pre>
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "19849fd53b45572563b2ec82970e5de840764308", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/19849fd53b45572563b2ec82970e5de840764308", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-25 23:47 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "f8640446d4b25298c557ec486f2cbb7bee2e1991", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/f8640446d4b25298c557ec486f2cbb7bee2e1991", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-26 12:09 UTC"} };</script>
 <script src="/spatio-flux/workbench/assets/data-source.js"></script>
 <script src="/spatio-flux/workbench/assets/toast.js"></script>
 <script>

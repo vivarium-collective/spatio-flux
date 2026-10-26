@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study: division_seeding_regimes</title>
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/style.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/progress-track.css">
+<link rel="stylesheet" href="/spatio-flux/workbench/assets/responsive.css">
+<!-- Inherit the workbench light/dark theme (this page loads in an iframe;
+     same-origin, so it shares the parent's localStorage 'viv.theme'; the
+     'storage' event, which the browser fires here when the parent toggles,
+     keeps an already-open page in step). -->
+<script>(function(){try{var t=localStorage.getItem('viv.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script>window.addEventListener('storage',function(e){if(e.key==='viv.theme'&&(e.newValue==='dark'||e.newValue==='light'))document.documentElement.setAttribute('data-theme',e.newValue);});</script>
+</head>
+<body>
+<main class="study-page">
+<header class="study-header">
+  <div style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
+  <div style="display:flex; align-items:center; gap:12px; min-width:0; flex-wrap:wrap">
+  <h1 class="study-title" style="margin:0">
+    <span class="study-name" id="study-name" data-slug="division_seeding_regimes" data-study-kind="biological" title="division_seeding_regimes">Division-threshold population regimes</span>
+    
+  </h1>
+    
+    <span id="study-axis-markers" data-slug="division_seeding_regimes" style="display:inline-flex; gap:8px; align-items:center; flex-wrap:wrap"></span>
+  </div>
+  <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0; align-items:center;">
+    
+    
+    
+    <span id="study-nav" class="study-nav" data-investigation="spatio-flux-test-suite" style="display:none">
+      <button type="button" id="study-prev" class="btn-mini study-nav-btn" title="Previous study" aria-label="Previous study">←</button>
+      <span class="study-jump-wrap" style="position:relative;display:inline-flex">
+        <button type="button" id="study-jump-btn" class="btn-mini study-nav-btn" aria-haspopup="true" aria-expanded="false" title="Jump to any study in this investigation">⇄ Studies</button>
+        <div id="study-jump-menu" role="menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);z-index:70;min-width:240px;max-width:360px;max-height:380px;overflow:auto;padding:4px"></div>
+      </span>
+      <button type="button" id="study-next" class="btn-mini study-nav-btn" title="Next study" aria-label="Next study">→</button>
+    </span>
+  </span>
+  </div>
+</header>
+
+
+
+
+
+
+
+
+
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> How does the particle population size depend on the division mass threshold in the coupled field+agent COMETS composite?</p>
+
+<nav class="study-tabs" aria-label="Study sections">
+  
+  <button class="study-pillar active" data-kind="overview" onclick="_setStudyTab('overview')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span class="pillar-label">Overview</span>
+  </button>
+  <button class="study-pillar" data-kind="visualize" onclick="_setStudyTab('visualize')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/></svg>
+    <span class="pillar-label">Visualizations</span>
+  </button>
+  <button class="study-pillar" data-kind="compose" onclick="_setStudyTab('compose')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="17" cy="19" r="2"/><line x1="10.1" y1="10.7" x2="6.4" y2="7.2"/><line x1="14" y1="11.2" x2="17.2" y2="8.4"/><line x1="12.9" y1="13.9" x2="16.1" y2="17.3"/></svg>
+    <span class="pillar-label">Model</span>
+  </button>
+  <button class="study-pillar" data-kind="simulate" onclick="_setStudyTab('simulate')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>
+    <span class="pillar-label">Simulations</span>
+  </button>
+  <button class="study-pillar" data-kind="audit" onclick="_setStudyTab('audit')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>
+    <span class="pillar-label">Audit</span>
+  </button>
+  <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">
+    <svg class="pillar-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="9" r="2.2"/><path d="M6 8.2v7.6"/><path d="M6 12h6a4 4 0 0 0 4-4V11"/></svg>
+    <span class="pillar-label">Decide</span>
+  </button>
+  
+  <span class="study-dl study-export-wrap" style="margin-left:auto; align-self:center; position:relative; display:inline-flex">
+    <button type="button" id="study-export-btn" class="btn-mini" aria-haspopup="true" aria-expanded="false" title="Download this study's figures or a runnable notebook">↓ Export ▾</button>
+    <div id="study-export-menu" role="menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);z-index:70;min-width:200px;padding:4px">
+      <button type="button" id="study-dl-figures" role="menuitem" class="study-jump-item" onclick="window._vivStudyFiguresFromCard(event, 'division_seeding_regimes')">Download figures</button>
+      <button type="button" id="study-dl-notebook" role="menuitem" class="study-jump-item" onclick="window._vivStudyNotebookFromCard(event, 'division_seeding_regimes', 'spatio-flux-test-suite')">Download notebook</button>
+    </div>
+  </span>
+</nav>
+<style>
+/* Task 4: header restructure — kind tag, promoted question, tightened status row.
+   The 6-axis stepper + gate-status colors below are carried over verbatim from
+   the pre-restructure Pass A styling (the <details> markup was repositioned,
+   not rebuilt). */
+.study-kind-tag{display:inline-block;font-size:0.5em;font-weight:600;padding:3px 9px;border-radius:9999px;vertical-align:middle;margin-left:8px;background:#f1f5f9;color:#475569;text-transform:capitalize}
+.study-kind-tag.study-kind-biological{background:#ecfdf5;color:#065f46}
+.study-kind-tag.study-kind-computational{background:#eff6ff;color:#1e40af}
+.study-kind-tag.study-kind-theoretical{background:#faf5ff;color:#6b21a8}
+.study-question-headline{margin:6px 0 0 0;font-size:1.05em;line-height:1.5;color:#1e293b;font-family:Georgia,"Times New Roman",serif}
+.study-question-headline .q-glyph{display:inline-block;font-size:0.78em;font-weight:700;font-family:ui-monospace,monospace;color:#64748b;background:#f1f5f9;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.status-detail-panel{margin:0;padding:2px 0;background:transparent;border:none;border-radius:0;font-size:0.92em}
+.status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
+.status-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;background:#e2e8f0;color:#334155;font-family:ui-monospace,monospace}
+/* gate_status colors per Pass A spec: blocked=gray, needs_calibration=amber, passed=green, failed=red, stale=purple */
+.gate-status-blocked          { background:#e5e7eb; color:#374151 }
+.gate-status-needs_calibration{ background:#fef3c7; color:#92400e }
+.gate-status-passed           { background:#d1fae5; color:#065f46 }
+.gate-status-failed           { background:#fee2e2; color:#991b1b }
+.gate-status-stale            { background:#ede9fe; color:#5b21b6 }
+.status-pill.gate-status{font-weight:500}
+/* Compact one-line lifecycle stepper; full per-axis rows behind the "status ▾" expander. */
+.status-detail-panel > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-detail-panel > summary::-webkit-details-marker{display:none}
+.status-stepper{display:flex;gap:13px;flex-wrap:wrap;align-items:center;flex:1}
+.status-step{display:inline-flex;align-items:center;gap:5px;font-size:0.82em;color:#94a3b8;white-space:nowrap}
+.status-step .dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.set{color:#334155}
+.status-step.set .dot{background:#10b981;box-shadow:none}
+.status-step .step-val{font-family:ui-monospace,monospace;font-size:0.92em;color:#64748b}
+.status-step.gate-status-blocked .dot{background:#9ca3af;box-shadow:none}
+.status-step.gate-status-needs_calibration .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
+/* "You are here": the current lifecycle stage in the gate ladder (replaces the
+   old standalone phase pill — one clear, design-connected stage indicator). */
+.status-step.gate-current{color:#1e3a5f;font-weight:600;background:#eff6ff;border-radius:9999px;padding:1px 10px;box-shadow:inset 0 0 0 1px #bfdbfe}
+.status-step.gate-current .dot{background:#2563eb;box-shadow:none}
+.gate-current-tag{font-size:0.78em;font-weight:700;color:#2563eb;margin-left:6px;text-transform:uppercase;letter-spacing:0.04em}
+/* Fable G2 (§13.2 gate-state vocab; §9.3 palette: grey/green/amber/red/violet).
+   One palette for the gate-ladder stepper dots + detail rows AND (via the
+   [data-gate-state] selectors below) the act-rail dots, so "how urgent is
+   this gate" reads identically in both places. Rules below `.status-step.set
+   .dot` on purpose so a "set" gate's real state wins over the generic green. */
+.status-step.gate-state-not-assessed .dot{background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.gate-state-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-state-passed-with-conditions .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-state-blocked .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-state-waived .dot{background:#8b5cf6;box-shadow:none}
+.status-chip.gate-state-not-assessed{background:#e2e8f0;color:#334155}
+.status-chip.gate-state-passed{background:#d1fae5;color:#065f46}
+.status-chip.gate-state-passed-with-conditions{background:#fef3c7;color:#92400e}
+.status-chip.gate-state-blocked{background:#fee2e2;color:#991b1b}
+.status-chip.gate-state-waived{background:#ede9fe;color:#5b21b6}
+.gate-computed-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-left:6px;font-family:ui-monospace,monospace;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.gate-divergence-chip-inline{display:inline-block;font-size:0.78em;font-weight:700;padding:2px 9px;border-radius:9999px;margin-left:6px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e}
+.act-gate-dot[data-gate-state="passed"]{background:#10b981;box-shadow:none}
+.act-gate-dot[data-gate-state="passed-with-conditions"]{background:#f59e0b;box-shadow:none}
+.act-gate-dot[data-gate-state="blocked"]{background:#ef4444;box-shadow:none}
+.act-gate-dot[data-gate-state="waived"]{background:#8b5cf6;box-shadow:none}
+.status-stepper-more{font-size:0.82em;font-weight:600;color:#475569;white-space:nowrap}
+.status-detail-panel[open] .status-stepper-more::after{content:" \25be"}
+.status-detail-panel:not([open]) .status-stepper-more::after{content:" \25b8"}
+.status-stepper-body{margin-top:6px;padding-top:6px;border-top:1px solid #eef2f6}
+.phase-pill{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;margin-right:6px;font-weight:500;background:#e0e7ff;color:#3730a3}
+.phase-design   { background:#e0e7ff; color:#3730a3 }
+.phase-build    { background:#fef3c7; color:#92400e }
+.phase-simulate { background:#dbeafe; color:#1e40af }
+.phase-evaluate { background:#fce7f3; color:#9d174d }
+.phase-decide   { background:#d1fae5; color:#065f46 }
+.classification-pill{display:inline-block;font-size:0.7em;padding:1px 8px;border-radius:9999px;margin-right:4px;font-weight:500}
+.classification-primary    { background:#fee2e2; color:#991b1b }
+.classification-supporting { background:#dbeafe; color:#1e40af }
+.classification-diagnostic { background:#fef3c7; color:#92400e }
+.classification-regression { background:#e5e7eb; color:#374151 }
+.sim-status-pill{display:inline-block;font-size:0.72em;padding:1px 8px;border-radius:9999px;margin-left:4px}
+.sim-status-ready  { background:#d1fae5; color:#065f46 }
+.sim-status-gated  { background:#fef3c7; color:#92400e }
+.sim-status-running{ background:#dbeafe; color:#1e40af }
+.sim-status-ran    { background:#d1fae5; color:#065f46 }
+.purpose-callout{margin-bottom:10px;padding:10px 14px;border-radius:4px;line-height:1.55}
+.purpose-callout strong{margin-right:6px}
+.followup-list{display:flex;flex-direction:column;gap:10px}
+.followup-card{padding:10px 14px;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.93em}
+.followup-card.followup-kind-existing{border-left-color:#3b82f6;background:#eff6ff}
+.followup-card.followup-kind-infrastructure_fix{border-left-color:#dc2626;background:#fef2f2}
+.followup-card.followup-kind-calibration_task{border-left-color:#f59e0b;background:#fefce8}
+.followup-card.followup-kind-expert_question{border-left-color:#a855f7;background:#faf5ff}
+.followup-card.followup-kind-new{border-left-color:#10b981;background:#f0fdf4}
+.followup-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.followup-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+.followup-effort{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-family:ui-monospace,monospace}
+.followup-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+.followup-status.status-blocked{background:#fef3c7;color:#92400e}
+.followup-status.status-done{background:#d1fae5;color:#065f46}
+.followup-title{flex:1;font-size:1em}
+.followup-why,.followup-unblocks,.followup-acceptance,.followup-hypothesis{margin:4px 0 0 0;font-size:0.92em;line-height:1.45}
+.followup-hypothesis{padding:6px 10px;background:#fff;border-radius:3px;border:1px dashed #cbd5e1}
+.btn-seed-followup{font-size:0.85em;padding:4px 12px;border:1px solid #3b82f6;background:#fff;color:#3b82f6;border-radius:4px;cursor:pointer}
+.btn-seed-followup:hover{background:#3b82f6;color:#fff}
+/* ── One flowing figure gallery (Fable §4.5, Task V2) ──────────────────
+   The native gallery, embedded-HTML previews, and latest-run charts all
+   render as the same `.figure-card`: a bordered figure container + a muted
+   caption-row footer (source chip + title + optional run link), instead of
+   three differently-chrome'd sections under their own headings. The three
+   async mounts stay separate (`#native-gallery-panel`, the embed cards,
+   `#viz-charts-panel`) but each is a flex column with the same gap, so they
+   read as one continuous gallery. */
+.figure-gallery{display:flex;flex-direction:column;gap:16px}
+.figure-mount{display:flex;flex-direction:column;gap:16px}
+.charts-panel{display:flex;flex-direction:column;gap:16px}
+.figure-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
+.figure-media-frame{display:block;width:100%;border:0;background:#fff}
+.figure-media-frame--native{height:auto;min-height:320px}  /* JS (_autosizeNativeFrames) grows this to the figure's full content height */
+.figure-media-frame--embed{min-height:200px}
+/* Explore-module launch card: a deeper interactive module (Corpus Explorer, 3D
+   viewers, …) is linked out full-size rather than squeezed into an iframe. */
+.explore-module-card{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 18px;border:1px solid #c7d2fe;background:linear-gradient(0deg,#f5f7ff,#fff)}
+.explore-module-main{min-width:0}
+.explore-module-badge{display:inline-block;font-size:0.68rem;font-weight:700;letter-spacing:0.04em;
+  text-transform:uppercase;color:#4338ca;background:#e0e7ff;border-radius:9999px;padding:2px 9px;margin-right:8px}
+.explore-module-launch{flex:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  text-decoration:none;font-weight:600;font-size:0.9rem;color:#fff;background:#4f46e5;
+  border-radius:7px;padding:9px 16px;transition:background .12s}
+.explore-module-launch:hover{background:#4338ca}
+:root[data-theme="dark"] .explore-module-card{border-color:#3730a3;background:linear-gradient(0deg,#1e1b4b,var(--surface))}
+:root[data-theme="dark"] .explore-module-badge{color:#c7d2fe;background:#312e81}
+/* SVGs/PNGs scale to fit their card; preserves aspect ratio so a 1400×484
+   chart shrinks instead of overflowing horizontally + clipping. */
+.figure-card svg,.figure-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}
+/* Loom figure SVGs (with <foreignObject> HTML that WebKit won't scale when
+   inlined) are rendered as <img> data-URIs by study-detail.js so the browser
+   rasterizes + scales the whole figure. max-width shrinks a too-wide figure;
+   no width:100%, so small figures keep their native size instead of upscaling. */
+.figure-card img.figure-svg-img{display:block;max-width:100%;height:auto}
+.figure-desc{margin:8px 12px 0;font-size:0.85em;color:#475569}
+.figure-caption-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;font-size:0.85em;color:#475569;border-top:1px solid #f1f5f9;background:#f8fafc}
+.figure-source-chip{font-size:0.68em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#64748b;flex-shrink:0}
+.figure-title{font-weight:600;color:#334155;flex:1;min-width:100px}
+.figure-run-link,.figure-open-link{font-size:0.85em;color:#2563eb;text-decoration:none;white-space:nowrap;cursor:pointer}
+.figure-run-link:hover,.figure-open-link:hover{text-decoration:underline}
+.chart-caption{font-size:0.83em;color:#475569;margin:8px 12px 0;line-height:1.4}
+/* findings */
+.findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
+.finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
+.finding-card.finding-status-confirms{border-left-color:#10b981}
+.finding-card.finding-status-partial{border-left-color:#f59e0b}
+.finding-card.finding-status-contradicts{border-left-color:#dc2626}
+.finding-card.finding-status-novel{border-left-color:#8b5cf6}
+/* C2: compact ledger row (<summary>) + native <details> evidence drawer */
+.finding-details{border:none}
+.finding-details>summary{list-style:none;cursor:pointer}
+.finding-details>summary::-webkit-details-marker{display:none}
+.finding-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.finding-chip{font-size:0.78em;color:#475569;background:#f1f5f9;padding:2px 8px;border-radius:9999px;white-space:nowrap}
+.finding-drawer{margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0}
+.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.finding-status-glyph{font-size:1.2em;width:24px;text-align:center}
+.finding-status-confirms .finding-status-glyph{color:#10b981}
+.finding-status-partial .finding-status-glyph{color:#f59e0b}
+.finding-status-contradicts .finding-status-glyph{color:#dc2626}
+.finding-status-novel .finding-status-glyph{color:#8b5cf6}
+.finding-id{font-family:ui-monospace,monospace;font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px}
+.finding-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-weight:500}
+.finding-status-text{font-size:0.78em;color:#64748b;margin-left:auto;font-style:italic}
+.finding-statement{font-size:1em;line-height:1.5;font-weight:500;color:#0f172a;margin:4px 0 8px 0}
+.finding-claim{flex:1;min-width:200px;margin:0}
+.finding-evidence,.finding-expected{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}
+.finding-exp-summary{font-size:0.9em;color:#475569;padding:6px 10px;background:#fafbff;border-left:3px solid #6366f1;border-radius:3px;margin:6px 0;line-height:1.5}
+.finding-explanation{font-size:0.92em;color:#1e293b;margin:6px 0;line-height:1.5}
+.finding-explanation em{color:#475569;font-style:normal;font-weight:600}
+.finding-expert{margin:6px 0;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}
+.finding-expert summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}
+.finding-expert-quote{border-left:3px solid #6366f1;margin:6px 0 4px 0;padding:6px 10px;background:#fafbff;font-style:italic;color:#1e1b4b;font-size:0.92em;line-height:1.5}
+.finding-expert-note{font-size:0.88em;color:#475569;margin-top:4px;font-style:italic}
+.finding-next{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.9em;margin-top:8px;line-height:1.5}
+.finding-next strong{color:#065f46}
+/* discovery implications */
+.di-group{margin:14px 0}
+.di-group h3{margin:0 0 6px 0;font-size:0.95em}
+.di-uncertainties{display:flex;flex-wrap:wrap;gap:16px;margin:8px 0}
+.di-unc{flex:1;min-width:220px}
+.di-unc h4{margin:0 0 4px 0;font-size:0.88em}
+.di-unc-resolved h4{color:#065f46}
+.di-unc-remaining h4{color:#92400e}
+.di-unc ul{margin:0 0 0 18px;padding:0;font-size:0.9em;line-height:1.45}
+.di-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.92em}
+.di-card-stmt{font-size:0.98em;line-height:1.5}
+.di-card-why{margin:4px 0 0 0;color:#475569;line-height:1.45}
+.di-card-line{margin:4px 0 0 0;font-size:0.88em;color:#475569;line-height:1.4}
+.di-lbl{color:#475569;font-weight:600;font-size:0.85em}
+.di-mech-card{border-left-color:#a855f7;background:#faf5ff}
+.di-mech-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.di-update-chip{font-size:0.7em;text-transform:uppercase;letter-spacing:0.04em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}
+.di-conf-change{font-size:0.78em;color:#475569;font-family:ui-monospace,monospace}
+.di-approval-badge{font-size:0.68em;text-transform:uppercase;letter-spacing:0.04em;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e}
+.di-fup-card{border-left-color:#10b981;background:#f0fdf4}
+.di-gain-high{background:#d1fae5;color:#065f46}
+.di-gain-medium{background:#fef3c7;color:#92400e}
+.di-gain-low{background:#e5e7eb;color:#374151}
+.di-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
+
+/* ── Dark theme ──────────────────────────────────────────────────────
+   Same idiom as vivarium_workbench/static/style.css's own dark block:
+   var(--token) for structural neutrals, rgba(hue,alpha) + a reused light
+   fg-tint per semantic family (green=passed/confirms, amber=needs_calib/
+   gated/blocked-phase, red=failed/contradicts, blue=simulate/supporting/
+   info, indigo=design/effort, purple=stale/waived/novel, pink=evaluate).
+   Solid saturated dot-fills (emerald/amber/red/purple on .status-step
+   .dot / .act-gate-dot) are left unchanged — small solid marks already
+   read fine on dark, same call already made for .ptrack-fill. */
+:root[data-theme="dark"] .study-kind-tag{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .study-kind-tag.study-kind-biological{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .study-kind-tag.study-kind-computational{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .study-kind-tag.study-kind-theoretical{background:rgba(124,58,237,0.16);color:#c4b5fd}
+:root[data-theme="dark"] .study-question-headline{color:var(--text)}
+:root[data-theme="dark"] .study-question-headline .q-glyph{color:var(--text-muted);background:var(--surface-3)}
+:root[data-theme="dark"] .status-detail-axis{color:var(--text-muted)}
+:root[data-theme="dark"] .status-chip{background:var(--surface-3);color:var(--text)}
+:root[data-theme="dark"] .gate-status-blocked{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .gate-status-needs_calibration{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .gate-status-passed{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .gate-status-failed{background:rgba(220,38,38,0.16);color:#fca5a5}
+:root[data-theme="dark"] .gate-status-stale{background:rgba(124,58,237,0.16);color:#c4b5fd}
+:root[data-theme="dark"] .status-step{color:var(--text-muted)}
+:root[data-theme="dark"] .status-step .dot{background:var(--border-2);box-shadow:inset 0 0 0 1px var(--border)}
+:root[data-theme="dark"] .status-step.set{color:var(--text)}
+:root[data-theme="dark"] .status-step .step-val{color:var(--text-muted)}
+:root[data-theme="dark"] .status-step.gate-status-blocked .dot{background:var(--text-muted);box-shadow:none}
+:root[data-theme="dark"] .status-step.gate-state-not-assessed .dot{background:var(--border-2);box-shadow:inset 0 0 0 1px var(--border)}
+:root[data-theme="dark"] .status-chip.gate-state-not-assessed{background:var(--surface-3);color:var(--text)}
+:root[data-theme="dark"] .status-chip.gate-state-passed{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .status-chip.gate-state-passed-with-conditions{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .status-chip.gate-state-blocked{background:rgba(220,38,38,0.16);color:#fca5a5}
+:root[data-theme="dark"] .status-chip.gate-state-waived{background:rgba(124,58,237,0.16);color:#c4b5fd}
+:root[data-theme="dark"] .gate-computed-chip{background:rgba(59,130,246,0.16);border-color:rgba(59,130,246,0.4);color:#93c5fd}
+:root[data-theme="dark"] .gate-divergence-chip-inline{background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.35);color:#fcd34d}
+:root[data-theme="dark"] .status-stepper-more{color:var(--text-muted)}
+:root[data-theme="dark"] .status-stepper-body{border-top-color:var(--border-faint)}
+:root[data-theme="dark"] .phase-pill{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .phase-design{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .phase-build{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .phase-simulate{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .phase-evaluate{background:rgba(219,39,119,0.18);color:#f9a8d4}
+:root[data-theme="dark"] .phase-decide{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .classification-primary{background:rgba(220,38,38,0.16);color:#fca5a5}
+:root[data-theme="dark"] .classification-supporting{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .classification-diagnostic{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .classification-regression{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .sim-status-ready{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .sim-status-gated{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .sim-status-running{background:rgba(59,130,246,0.16);color:#93c5fd}
+:root[data-theme="dark"] .sim-status-ran{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .followup-card{border-color:var(--border);border-left-color:var(--text-muted);background:var(--surface-2)}
+:root[data-theme="dark"] .followup-card.followup-kind-existing{background:rgba(59,130,246,0.16)}
+:root[data-theme="dark"] .followup-card.followup-kind-infrastructure_fix{background:rgba(220,38,38,0.16)}
+:root[data-theme="dark"] .followup-card.followup-kind-calibration_task{background:rgba(245,158,11,0.15)}
+:root[data-theme="dark"] .followup-card.followup-kind-expert_question{background:rgba(124,58,237,0.16)}
+:root[data-theme="dark"] .followup-card.followup-kind-new{background:rgba(16,185,129,0.14)}
+:root[data-theme="dark"] .followup-kind{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .followup-effort{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .followup-status{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .followup-status.status-blocked{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .followup-status.status-done{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .followup-hypothesis{background:var(--surface-2);border-color:var(--border-2)}
+:root[data-theme="dark"] .btn-seed-followup{background:var(--surface-2);border-color:#3b82f6;color:#93c5fd}
+:root[data-theme="dark"] .figure-card{border-color:var(--border);background:var(--surface)}
+:root[data-theme="dark"] .figure-media-frame{background:var(--surface)}
+:root[data-theme="dark"] .figure-desc{color:var(--text-muted)}
+:root[data-theme="dark"] .figure-caption-row{color:var(--text-muted);border-top-color:var(--border-faint);background:var(--surface-2)}
+:root[data-theme="dark"] .figure-source-chip{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .figure-title{color:var(--text)}
+:root[data-theme="dark"] .figure-run-link,
+:root[data-theme="dark"] .figure-open-link{color:var(--link)}
+:root[data-theme="dark"] .chart-caption{color:var(--text-muted)}
+:root[data-theme="dark"] .findings-section{background:var(--surface-2);border-color:rgba(99,102,241,0.3)}
+:root[data-theme="dark"] .finding-card{border-color:var(--border);background:var(--surface)}
+:root[data-theme="dark"] .finding-chip{color:var(--text-muted);background:var(--surface-3)}
+:root[data-theme="dark"] .finding-drawer{border-top-color:var(--border-2)}
+:root[data-theme="dark"] .finding-id{color:var(--text-muted);background:var(--surface-3)}
+:root[data-theme="dark"] .finding-kind{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .finding-status-text{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-statement{color:var(--text)}
+:root[data-theme="dark"] .finding-evidence,
+:root[data-theme="dark"] .finding-expected{color:var(--text-muted);background:var(--surface-2);border-left-color:var(--text-muted)}
+:root[data-theme="dark"] .finding-exp-summary{color:var(--text-muted);background:var(--surface-2)}
+:root[data-theme="dark"] .finding-explanation{color:var(--text)}
+:root[data-theme="dark"] .finding-explanation em{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-expert{background:var(--surface-2);border-color:var(--border)}
+:root[data-theme="dark"] .finding-expert summary{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-expert-quote{background:var(--surface-2);color:var(--text)}
+:root[data-theme="dark"] .finding-expert-note{color:var(--text-muted)}
+:root[data-theme="dark"] .finding-next{background:rgba(16,185,129,0.14)}
+:root[data-theme="dark"] .finding-next strong{color:#6ee7b7}
+:root[data-theme="dark"] .di-unc-resolved h4{color:#6ee7b7}
+:root[data-theme="dark"] .di-unc-remaining h4{color:#fcd34d}
+:root[data-theme="dark"] .di-card{border-color:var(--border);border-left-color:var(--text-muted);background:var(--surface-2)}
+:root[data-theme="dark"] .di-card-why{color:var(--text-muted)}
+:root[data-theme="dark"] .di-card-line{color:var(--text-muted)}
+:root[data-theme="dark"] .di-lbl{color:var(--text-muted)}
+:root[data-theme="dark"] .di-mech-card{background:rgba(124,58,237,0.16)}
+:root[data-theme="dark"] .di-update-chip{background:rgba(99,102,241,0.16);color:#a5b4fc}
+:root[data-theme="dark"] .di-conf-change{color:var(--text-muted)}
+:root[data-theme="dark"] .di-approval-badge{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .di-fup-card{background:rgba(16,185,129,0.14)}
+:root[data-theme="dark"] .di-gain-high{background:rgba(22,163,74,0.16);color:#86efac}
+:root[data-theme="dark"] .di-gain-medium{background:rgba(245,158,11,0.15);color:#fcd34d}
+:root[data-theme="dark"] .di-gain-low{background:var(--surface-3);color:var(--text-muted)}
+:root[data-theme="dark"] .di-chip{background:var(--surface-3);color:var(--text-muted)}
+
+/* ── Cross-engine comparison view (static/comparison-view.js) ───────────
+   Heat levels are translucent hues, so one rule set reads on the light page
+   and (via the dark overrides) on the dark surfaces; values are always
+   printed in the cell, never color-only. */
+.cv-head{font-size:0.88em;margin:0 0 10px}
+.cv-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.cv-chip{border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:9999px;padding:3px 12px;font-size:0.82em;cursor:pointer}
+.cv-chip.cv-on{background:#e0e7ff;border-color:#818cf8;color:#3730a3}
+.cv-tools{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:8px}
+.cv-q{flex:1 1 220px;max-width:340px;padding:5px 9px;border:1px solid #cbd5e1;border-radius:6px;font-size:0.88em;background:#fff;color:inherit}
+.cv-prob{font-size:0.84em}
+.cv-count{margin-left:auto;font-size:0.82em}
+.cv-row{border:1px solid #e5e7eb;border-radius:6px;margin-bottom:4px}
+.cv-row>summary{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:6px 10px;cursor:pointer;font-size:0.88em}
+.cv-model{font-weight:600;font-family:ui-monospace,monospace}
+.cv-job,.cv-worst{color:#64748b}
+.cv-num{font-variant-numeric:tabular-nums;text-align:right}
+.cv-pill{display:inline-block;padding:1px 9px;border-radius:9999px;font-size:0.82em;background:#e2e8f0;color:#334155}
+.cv-ok{background:rgba(22,163,74,0.16);color:#166534}
+.cv-bad{background:rgba(220,38,38,0.14);color:#991b1b}
+.cv-b0{background:rgba(22,163,74,0.18);color:#166534}.cv-b1{background:rgba(132,204,22,0.22);color:#3f6212}
+.cv-b2{background:rgba(234,179,8,0.25);color:#854d0e}.cv-b3{background:rgba(249,115,22,0.22);color:#9a3412}
+.cv-b4{background:rgba(220,38,38,0.18);color:#991b1b}
+.cv-body{padding:4px 12px 12px}
+.cv-detail{display:flex;flex-wrap:wrap;gap:24px}
+.cv-sub{font-size:0.78em;text-transform:uppercase;letter-spacing:0.04em;color:#64748b;margin-bottom:4px}
+.cv-note{font-size:0.8em;color:#64748b;margin-top:4px}
+.cv-heat,.cv-runs{border-collapse:collapse;font-size:0.84em}
+.cv-heat th,.cv-heat td,.cv-runs th,.cv-runs td{padding:4px 9px;border:1px solid #e5e7eb}
+.cv-heat th,.cv-runs th{font-weight:600;text-align:left}
+.cv-heat td{text-align:center;font-variant-numeric:tabular-nums;min-width:64px}
+.cv-h0{background:rgba(22,163,74,0.25)}.cv-h1{background:rgba(132,204,22,0.28)}.cv-h2{background:rgba(234,179,8,0.30)}
+.cv-h3{background:rgba(249,115,22,0.30)}.cv-h4{background:rgba(220,38,38,0.30)}
+.cv-self,.cv-na{color:#94a3b8}
+.cv-err{color:#64748b;max-width:420px;word-break:break-word}
+.cv-more{margin:8px 0;padding:5px 14px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer}
+:root[data-theme="dark"] .cv-chip,:root[data-theme="dark"] .cv-more{background:var(--surface-3);border-color:var(--border-2);color:var(--text)}
+:root[data-theme="dark"] .cv-chip.cv-on{background:var(--active);border-color:#6366f1;color:#c7d2fe}
+:root[data-theme="dark"] .cv-q{background:var(--field);border-color:var(--border-2);color:var(--text)}
+:root[data-theme="dark"] .cv-row,:root[data-theme="dark"] .cv-heat th,:root[data-theme="dark"] .cv-heat td,
+:root[data-theme="dark"] .cv-runs th,:root[data-theme="dark"] .cv-runs td{border-color:var(--border)}
+:root[data-theme="dark"] .cv-job,:root[data-theme="dark"] .cv-worst,:root[data-theme="dark"] .cv-sub,
+:root[data-theme="dark"] .cv-note,:root[data-theme="dark"] .cv-err{color:var(--text-muted)}
+:root[data-theme="dark"] .cv-pill{background:var(--surface-3);color:var(--text)}
+:root[data-theme="dark"] .cv-ok,:root[data-theme="dark"] .cv-b0{background:rgba(22,163,74,0.20);color:#86efac}
+:root[data-theme="dark"] .cv-b1{background:rgba(132,204,22,0.20);color:#bef264}
+:root[data-theme="dark"] .cv-b2{background:rgba(234,179,8,0.20);color:#fde047}
+:root[data-theme="dark"] .cv-b3{background:rgba(249,115,22,0.22);color:#fdba74}
+:root[data-theme="dark"] .cv-bad,:root[data-theme="dark"] .cv-b4{background:rgba(220,38,38,0.22);color:#fca5a5}
+:root[data-theme="dark"] .cv-self,:root[data-theme="dark"] .cv-na{color:var(--text-muted)}
+</style>
+
+<style>
+/* ── Study Overview redesign: narrative order + progressive disclosure ── */
+.is-hidden{display:none !important}
+.narrative-field{margin:6px 0}
+.add-field-btn{background:none;border:1px dashed #cbd5e1;color:#64748b;font-size:0.82em;
+  padding:4px 12px;border-radius:6px;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+.add-field-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.conclusion-block{border-top:2px solid #e2e8f0;padding-top:14px;margin-top:22px}
+/* Markdown-rendered conclusion blob: flows full-width (reflows authored hard-wraps), keeps paragraphs + ordered list. */
+.conclusion-md{color:#1e293b}
+.conclusion-md > :first-child{margin-top:0}
+.conclusion-md > :last-child{margin-bottom:0}
+.conclusion-md p{margin:0 0 10px}
+.conclusion-md ol,.conclusion-md ul{margin:0 0 10px;padding-left:22px}
+.conclusion-md li{margin:2px 0}
+.conclusion-md code{background:#eef2f7;padding:1px 4px;border-radius:3px;font-size:0.92em}
+.conclusion-md pre{background:#eef2f7;padding:8px 10px;border-radius:4px;overflow-x:auto;white-space:pre-wrap}
+.conclusion-insight{font-size:1.02em;line-height:1.55;color:#1e293b;margin:2px 0 12px;font-weight:500}
+.computed-tag{display:inline-block;font-size:0.68em;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.04em;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;
+  padding:1px 7px;border-radius:9999px;margin-left:8px;vertical-align:middle}
+.conclusion-tags{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.tag-control{display:inline-flex;align-items:center;gap:6px}
+.tag-k{font-size:0.72em;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;font-weight:600}
+.tag-select,.tag-input{font-size:0.85em;padding:3px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.tag-input{min-width:220px}
+:root[data-theme="dark"] .add-field-btn{border-color:var(--border-2);color:var(--text-muted)}
+:root[data-theme="dark"] .add-field-btn:hover{border-color:rgba(59,130,246,.5);color:#93c5fd;background:rgba(59,130,246,0.16)}
+:root[data-theme="dark"] .conclusion-block{border-top-color:var(--border)}
+:root[data-theme="dark"] .conclusion-md{color:var(--text)}
+:root[data-theme="dark"] .conclusion-md code{background:var(--surface-3)}
+:root[data-theme="dark"] .conclusion-md pre{background:var(--surface-3)}
+:root[data-theme="dark"] .conclusion-insight{color:var(--text)}
+:root[data-theme="dark"] .computed-tag{color:var(--text-muted);background:var(--surface-3);border-color:var(--border)}
+:root[data-theme="dark"] .tag-k{color:var(--text-muted)}
+:root[data-theme="dark"] .tag-select,
+:root[data-theme="dark"] .tag-input{border-color:var(--border-2);background:var(--field);color:var(--text)}
+</style>
+<section class="study-tab-panel active" data-kind="overview" id="panel-overview">
+  
+  <div class="study-overview">
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    <style>
+      .study-overview .ov-metrics{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 4px}
+      .study-overview .ov-metric{flex:1 1 120px;min-width:110px;border:1px solid var(--border,#e5e7eb);
+        border-radius:8px;padding:9px 12px;background:var(--surface-2,#f8fafc)}
+      .study-overview .ov-metric-v{font-size:1.15em;font-weight:700;color:#0f172a;line-height:1.1}
+      .study-overview .ov-metric-k{font-size:0.72em;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.02em}
+      .study-overview .ov-metric-pass{border-left:3px solid #10b981}
+      .study-overview .ov-metric-warn{border-left:3px solid #d97706}
+      .study-overview .ov-metric-fail{border-left:3px solid #b91c1c}
+      .study-overview .ov-methods{margin:4px 0 0 0;padding-left:18px}
+      .study-overview .ov-methods li{font-size:0.86em;color:#475569;line-height:1.45;margin:3px 0}
+      .study-overview .ov-tablink{font-size:0.8em;font-weight:600;text-decoration:none;color:#2563eb;margin-left:6px}
+      .study-overview .ov-tablink:hover{text-decoration:underline}
+      .study-overview .ov-keyfig{margin:12px 0 0}
+      .study-overview .ov-keyfig iframe{width:100%;height:440px;border:1px solid var(--border,#e5e7eb);border-radius:8px;background:#fff}
+      .study-overview .ov-keyfig-cap{font-size:0.75em;color:#94a3b8;margin:5px 2px 0}
+      /* provenance: citation chips + anchors + sources list */
+      .study-overview .ov-cite{display:inline-flex;align-items:center;font-size:0.7em;font-weight:600;
+        line-height:1.3;padding:1px 7px;border-radius:9999px;background:#eff6ff;color:#1d4ed8;
+        white-space:nowrap;text-decoration:none;border:1px solid transparent;margin:0 2px 2px 0}
+      .study-overview a.ov-cite:hover{border-color:#1d4ed8;text-decoration:none}
+      .study-overview .ov-cite.unknown{background:#f1f5f9;color:#64748b}
+      .study-overview .ov-anchor{padding:8px 0;border-bottom:1px solid var(--border,#e5e7eb);font-size:0.9em}
+      .study-overview .ov-anchor:last-child{border-bottom:none}
+      .study-overview .ov-anchor-exp{color:#0f172a;font-weight:600}
+      .study-overview .ov-anchor-obs{font-family:ui-monospace,Menlo,monospace;font-size:0.82em;color:#475569}
+      .study-overview .ov-anchor-src{color:#64748b;font-size:0.85em;margin-top:2px}
+      .study-overview .ov-anchor-met{color:#065f46;font-weight:600}
+      .study-overview .ov-sources{display:grid;gap:2px;margin-top:8px}
+      .study-overview .ov-src{padding:6px 10px;border-bottom:1px solid var(--border,#f1f5f9);font-size:0.85em;scroll-margin-top:90px}
+      .study-overview .ov-src:target{background:#eff6ff;border-radius:6px}
+      .study-overview .ov-src .ov-src-k{font-family:ui-monospace,Menlo,monospace;font-size:0.82em;color:#94a3b8}
+      .study-overview .ov-src .ov-src-t{color:#334155}
+    </style>
+
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Claim</h2>
+      <p class="ctr-text">Raising the division mass threshold monotonically shrinks the final particle population in the full COMETS composite — a division-controlled population-size phase relationship.</p>
+      
+    </div>
+
+    
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Background</h2>
+      <div class="ctr-meta">
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item">How does the particle population size depend on the division mass threshold in the coupled field+agent COMETS composite?</span></div>
+        
+      </div>
+    </div>
+    
+
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Model &amp; approach</h2>
+      <p class="ctr-text"></p>
+      <div class="ctr-meta">
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>division_seeding_regimes</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">1 behavior test</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
+      </div>
+    </div>
+
+    
+    
+    
+    
+
+    <div class="ctr-block">
+      <h2 class="overview-label ctr-h">Result</h2>
+      <p class="ctr-text">Averaged over 3 seeds, the final population falls monotonically across division thresholds 2-&gt;8 (69-&gt;38): a higher mass bar for division yields fewer, larger cells. Single seeds are noisy (the regime only emerges on the seed average), so this is a multiseed-robust population phase relationship.</p>
+      
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">PASS</div>
+          <div class="ov-metric-k">DIVISION-SEEDING-POPULATION-DECREASES</div>
+        </div>
+        
+      </div>
+      
+      
+      
+      
+    <div class="overview-section findings-section">
+      <h2 class="overview-label">🔬 Findings — what this study taught us</h2>
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="finding-card finding-kind-biological finding-status-confirms">
+        <details class="finding-details">
+          <summary class="finding-row">
+            <span class="finding-status-glyph">✓</span>
+            <span class="finding-claim finding-statement">Averaged over 3 seeds, the final population falls monotonically across division thresholds 2-&gt;8 (69-&gt;38): a higher mass bar for division yields fewer, larger cells. Single seeds are noisy (the regime only emerges on the seed average), so this is a multiseed-robust population phase relationship.</span>
+            
+            <span class="finding-chip">via <code>DIVISION-SEEDING-POPULATION-DECREASES</code></span>
+            
+          </summary>
+          <div class="finding-drawer">
+            <div class="finding-header">
+              <span class="finding-id">F1</span>
+              <span class="finding-kind">biological</span>
+              <span class="finding-status-text">confirms literature</span>
+            </div>
+            
+            
+            <div class="finding-evidence">
+              
+              
+              via test <a href="#bt-DIVISION-SEEDING-POPULATION-DECREASES" onclick="_gotoStudyTab('audit','bt-DIVISION-SEEDING-POPULATION-DECREASES');return false;"><code>DIVISION-SEEDING-POPULATION-DECREASES</code></a> · 
+              
+              
+              
+            </div>
+            
+            
+            <div class="finding-traceability" style="font-size:0.84em;color:#475569;padding:4px 10px;margin:4px 0">
+              
+              
+              runs: <a href="#run-division_seeding_regimes-reproduce"><code>division_seeding_regimes-reproduce</code></a>
+            </div>
+            
+            
+            
+            <div class="pass_if-band muted small" style="font-size:0.82em;padding:2px 10px">judged against <code>pass_if: op: monotone · tolerance: 0.01</code></div>
+            
+            
+            
+            
+            
+            
+          </div>
+        </details>
+      </div>
+      
+      
+    </div>
+    
+      
+      
+      
+      <div class="ctr-meta ctr-assess">
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Confidence</span>
+          <span class="ctr-badge ctr-badge-accepted">Accepted</span>
+          
+          
+        </div>
+        
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Caveat</span> <span class="ctr-meta-item">One sweep axis (threshold) at fixed seeding rate; 3 seeds; a single horizon.</span></div>
+        
+      </div>
+      
+    </div>
+
+    <div id="feedback-tracked-panel"></div>
+
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
+  <div class="overview-section" id="overview-figures-section">
+
+
+  <div class="overview-section study-figures figure-gallery" id="visualize-section">
+
+    
+
+    <div id="native-gallery-panel" class="figure-mount"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading figures…</span></div></div>
+
+    
+    
+
+    <div id="viz-charts-panel" class="charts-panel figure-mount"></div>
+
+    
+    <p id="figures-empty-message" class="empty-message" style="display:none">No figures yet.</p>
+  </div>
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="compose" id="panel-compose" hidden>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+    <h2 class="overview-label" style="margin:0">Model composition</h2>
+    
+    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'division_seeding_regimes', 'spatio-flux-test-suite')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
+  </div>
+
+  
+  
+  <div id="model-composite-cards" class="model-composite-cards" data-study="division_seeding_regimes"
+       data-study-config="">
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading composite card(s)…</span></div>
+  </div>
+
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  <div class="overview-section" id="model-section">
+    <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
+    
+    <div class="cond-block" data-model-composite="spatio_flux.composites.comets.comets_br_particles_dfba" data-model-overrides='{"add_rate": 0.3, "division_mass_threshold": 3, "n_particles": 1}'>
+      <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <strong>division_seeding_regimes</strong>
+        
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">spatio_flux.composites.comets.comets_br_particles_dfba</code>
+        <button type="button" class="action-btn" style="font-size:0.8em"
+                onclick="_openCompositeLoom('spatio_flux.composites.comets.comets_br_particles_dfba')">🧬 explore &amp; run ↗</button>
+        
+      </div>
+      
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        
+        <select class="baseline-composite-input" data-baseline-name="division_seeding_regimes"
+                data-current="spatio_flux.composites.comets.comets_br_particles_dfba"
+                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px">
+          <option value="spatio_flux.composites.comets.comets_br_particles_dfba" selected>spatio_flux.composites.comets.comets_br_particles_dfba</option>
+          
+        </select>
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="division_seeding_regimes">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="division_seeding_regimes" style="font-size:0.8em;margin-top:2px"></div>
+      
+      
+      
+      
+      
+      
+        
+      
+        
+      
+        
+      
+      
+      
+      
+      <div class="model-config-mount" style="margin-top:8px">
+        <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading configuration…</span></div></div>
+      
+      
+      
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
+        
+        
+        
+        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
+      </div>
+      
+    </div>
+    
+    
+  </div>
+  
+
+  
+  
+
+  
+
+  
+  
+  
+  
+
+
+
+  
+  <div class="overview-section" id="model-readouts-section">
+    <h3>Readouts</h3>
+
+  <div class="observables-section">
+    
+    <div id="readouts-emitter" data-study="division_seeding_regimes" style="margin:0 0 14px">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading emitter…</span></div>
+    </div>
+
+    
+    <div id="readouts-download" style="margin:0 0 12px 0"></div>
+
+    <div id="readouts-table" data-study="division_seeding_regimes">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readouts from the composite emit plan…</span></div>
+    </div>
+
+    
+  </div>
+  </div>
+
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="simulate" id="panel-simulate" hidden>
+  <div class="sim-subtabs" role="tablist" style="display:flex;gap:4px;margin:0 0 16px 0;border-bottom:1px solid #e2e8f0">
+    <button type="button" class="sim-subtab active" data-subtab="runs" role="tab" aria-selected="true" onclick="_setSimSubtab('runs')">Runs</button>
+    <button type="button" class="sim-subtab" data-subtab="results" role="tab" aria-selected="false" onclick="_setSimSubtab('results')">Results</button>
+    <button type="button" class="sim-subtab" data-subtab="analysis" role="tab" aria-selected="false" onclick="_setSimSubtab('analysis')">Analysis</button>
+  </div>
+
+  <div class="sim-subpanel active" data-subpanel="runs" id="sim-subpanel-runs">
+
+
+<div id="sim-run-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px 0">
+  <button type="button" id="study-run-current-spec" class="action-btn" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
+  <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
+  
+  <button type="button" id="study-run-composite" class="btn-mini" title="Dispatch a specific process-bigraph composite_id to the remote compute backend (pbg-native multi_node/mbp, or the Nextflow campaign path) — advanced, independent of this study's own pinned baseline">⚙ Dispatch composite</button>
+</div>
+
+<div class="overview-section" id="simulations-section">
+  <div id="study-sim-table" style="overflow-x:auto"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading simulations…</span></div></div>
+  <div id="study-run-detail" style="margin-top:14px"></div>
+</div>
+
+  </div>
+
+  <div class="sim-subpanel" data-subpanel="results" id="sim-subpanel-results" hidden>
+
+<div class="overview-section" id="results-section">
+  
+  <div id="results-summary" data-study="division_seeding_regimes" style="margin:0 0 16px"></div>
+
+  <h4>Latest run preview <span class="muted" style="font-size:0.8em;font-weight:normal">— downsampled sparkline + first/last/min/max per store</span></h4>
+  <div id="results-preview" data-study="division_seeding_regimes">
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading results preview…</span></div>
+  </div>
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:22px">
+    <span class="muted" id="exports-downloads" style="margin-right:auto;font-weight:600">Raw simulation data</span>
+    <button type="button" id="raw-data-download-all" class="btn-mini" style="display:none"
+            onclick="_downloadAllRawExports()">⬇ Download all raw data</button>
+  </div>
+  <div id="raw-data-list"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading runs…</span></div></div>
+</div>
+
+  </div>
+
+  <div class="sim-subpanel" data-subpanel="analysis" id="sim-subpanel-analysis" hidden>
+
+  
+  <div class="overview-section" id="study-analyses-section">
+    <h3>Analyses to run <span class="muted" style="font-size:0.85em;font-weight:normal">— which of the workspace's <code>ANALYSIS_REGISTRY</code> entries to compute on dispatch</span></h3>
+    <div id="study-analyses-list" data-study="division_seeding_regimes">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading analyses…</span></div>
+    </div>
+    <div style="margin-top:8px">
+      <button class="action-btn" type="button" onclick="_saveStudyAnalyses()">Save analyses</button>
+      <span id="study-analyses-status" style="margin-left:8px;font-size:0.9em;color:#555"></span>
+    </div>
+  </div>
+
+<div class="overview-section" id="analyses-results-section">
+  <p class="muted" style="margin:0 0 12px 0">Derived result files (<code>.csv</code>/<code>.tsv</code>) computed from the runs —
+  distinct from <strong>Results</strong>, which holds the raw emitted arrays.</p>
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
+    <a id="data-download-all" class="btn-mini" style="display:none"
+       href="/api/study-analysis-zip?study=division_seeding_regimes">Download all (.zip)</a>
+  </div>
+  <div id="data-files" data-study="division_seeding_regimes">
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading result files…</span></div>
+  </div>
+</div>
+
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="audit" id="panel-audit" hidden>
+
+  
+  <div id="audit-readiness" data-slug="division_seeding_regimes" style="margin:0 0 18px 0">
+    <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading readiness…</span></div>
+  </div>
+
+  <div class="overview-section" id="audit-tests-section">
+
+  
+  
+
+  
+  
+  
+
+  
+  <div class="tests-gate-summary" id="tests-gate-summary"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading gate summary…</span></div></div>
+
+  
+
+  
+  
+
+  
+  
+
+  <div class="behavioral-tests-section" style="margin-top:22px">
+    <h3 class="section-title">Behavioral tests</h3>
+    <div class="tests-header">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <button id="run-tests-btn" class="btn-primary">Run tests</button>
+        <div class="tests-summary muted" id="tests-summary">— no test results yet —</div>
+      </div>
+      <div class="tests-config" style="margin-top: 6px;">
+        <span class="badge">auto_discover: <code id="tests-auto-discover">true</code></span>
+        <span class="badge">data_source: <code id="tests-data-source">latest_run</code></span>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-DIVISION-SEEDING-POPULATION-DECREASES"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="DIVISION-SEEDING-POPULATION-DECREASES"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">DIVISION-SEEDING-POPULATION-DECREASES</strong>
+        
+        <span class="muted" style="font-size:0.78em">requires: <code>reproduce</code></span>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">final particle population decreases monotonically as the division mass threshold rises.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">evaluated_by: code</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">operator: observable_monotone/decreasing</code>
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">detail: decreasing; steps [-19.33,-3.333]; start 69 end 38.33; tol 0.01</code>
+          
+        
+      </div>
+      
+      
+      <details style="margin-top: 6px; font-size: 0.82em;">
+        <summary class="muted" style="cursor: pointer;">Assertion</summary>
+        
+        <pre style="background:#fff; padding:8px; margin:4px 0 0 0; border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto;">measure: {"direction": "decreasing", "kind": "observable_monotone", "observable": "final_n_particles", "run_id": "division_seeding_regimes-reproduce", "slug": "division_seeding_regimes"}
+pass_if: {"op": "monotone", "tolerance": 0.01}</pre>
+      </details>
+      
+      
+      
+      
+    </li>
+    
+  </ul>
+  
+  </div>
+  </div>
+
+  <div class="checks-band">
+    <div class="check-group check-group-sufficiency" id="audit-sufficiency" data-check-group="sufficiency">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading sufficiency checks…</span></div>
+    </div>
+
+    <div class="check-group check-group-quality" id="check-group-quality" data-check-group="quality" style="margin-top:16px">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading quality checks…</span></div>
+    </div>
+
+    <div class="check-group check-group-reproducibility" id="check-group-reproducibility" data-check-group="reproducibility" style="margin-top:16px">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading reproducibility checks…</span></div>
+    </div>
+
+    
+    <div class="check-group check-group-sourcing" id="audit-sourcing" data-check-group="sourcing" style="margin-top:16px">
+      <div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading sourcing…</span></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="study-tab-panel" data-kind="conclusions" id="panel-conclusions" hidden>
+
+  
+  
+  
+  <div class="overview-section decide-lifecycle">
+    <h2 class="overview-label">Plan &amp; lifecycle</h2>
+    <div class="status-stepper">
+      
+      <span class="status-step  gate-status-not-assessed gate-current">
+        <span class="dot"></span>1 · Plan
+        
+        <span class="gate-current-tag">you are here</span>
+      </span>
+      
+      <span class="status-step set gate-status-passed">
+        <span class="dot"></span>2 · Execution
+        
+        
+      </span>
+      
+      <span class="status-step  gate-status-passed-with-conditions">
+        <span class="dot"></span>3 · Evidence
+        
+        
+      </span>
+      
+      <span class="status-step set gate-status-passed">
+        <span class="dot"></span>4 · Quality
+        
+        
+      </span>
+      
+      <span class="status-step set gate-status-passed">
+        <span class="dot"></span>5 · Decision
+        <span class="step-val">passed</span>
+        
+      </span>
+      
+      <span class="status-step  gate-status-not-assessed">
+        <span class="dot"></span>6 · Release
+        
+        
+      </span>
+      
+      
+      <span class="status-step ">
+        <span class="dot"></span>Implementation
+      </span>
+    </div>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+
+  
+  <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
+    
+    <p class="muted small verdict-attribution" style="margin:0 0 8px 0" title="actor kind: unattributed">
+      <span class="actor-glyph">○</span> unattributed
+    </p>
+
+    
+    
+    
+
+    <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
+      <h3 class="overview-label">⚖️ Verdicts — three-track outcome
+        <span class="narrative-card-hint">(regression / empirical / explanatory)</span>
+      </h3>
+      <div class="narrative-grid">
+        <label class="narrative-row">
+          <span class="narrative-label">Regression compatibility</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="regression_compatibility"
+                title="Computed from run status (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from run status</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Regression basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Empirical validation</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="biological_validation"
+                title="Computed from the gate evaluator (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Empirical basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.biological_validation.basis"
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Explanatory gain</span>
+          <span class="narrative-input verdict-badge-computed" data-verdict-track="explanatory_gain"
+                title="Computed from interpretation-tier findings (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">PENDING</span>
+          <span class="muted small" style="margin-left:6px">computed from interpretation-tier findings</span>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Explanatory basis</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+        </label>
+      </div>
+    </div>
+
+    
+    
+    
+    <div class="decide-section" style="margin-top:18px">
+      <h3 class="overview-label">Computed gate verdict</h3>
+      <p class="muted" style="margin:0 0 8px 0;font-size:0.88em">The coded gate
+        evaluator's result from the behavior-test outcomes — the evaluation the
+        conclusion rests on.</p>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
+        <span class="muted small">evaluated by code</span>
+        <span class="muted small">1/1 passed</span>
+      </div>
+      
+    </div>
+    
+
+    
+    
+    
+
+    
+    
+    
+
+  </div>
+
+  
+  
+  <div class="overview-section"><h2 class="overview-label">Plan &amp; assumptions</h2>
+
+    
+
+    
+
+    
+    <div class="overview-section">
+      <h3 class="overview-label">Limitations</h3>
+      <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
+      <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
+        <li style="margin:2px 0">One sweep axis (threshold) at fixed seeding rate; 3 seeds; a single horizon.</li><li style="margin:2px 0">Single-seed runs are noisy — the regime is only robust on the seed average.</li>
+      </ul>
+    </div>
+    
+
+  </div>
+  
+
+  
+  <div class="overview-section"><h2 class="overview-label">Evidence</h2>
+
+    
+    
+    
+    
+    <div class="decide-section">
+      <h3 class="overview-label">Latest run outcomes</h3>
+      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
+        baseline · seed ? ·
+        ?s simulated ·
+        ? history rows ·
+        started ?
+      </div>
+      
+      
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>1</strong> test outcome
+        — <span style="color:#065f46;font-weight:600">1 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
+      
+    </div>
+    
+    
+
+  </div>
+
+  
+  <div class="overview-section"><h2 class="overview-label">Follow-ups &amp; decisions</h2>
+
+    
+    
+
+    
+    
+    
+    <div class="overview-section" id="discovery-implications-section" style="margin-top:18px">
+      <h3 class="overview-label">Discovery implications</h3>
+      <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">Where this study's results leave the mechanism model — and what to investigate next.</p>
+
+      
+
+      
+
+      
+
+      
+      
+      
+      <div class="di-group">
+        <h3>Follow-up study proposals
+          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
+        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
+        <div class="followup-list">
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">(untitled proposal)</strong>
+              
+              
+              
+              
+            </div>
+            
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('division_seeding_regimes', "division-seeding-2d-phase")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+
+    
+    
+    
+    
+
+  </div>
+
+  
+  
+
+</section>
+
+</main>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", basePath: "/spatio-flux/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/spatio-flux/raw/main", provenance: {"repo_slug": "vivarium-collective/spatio-flux", "repo_url": "https://github.com/vivarium-collective/spatio-flux", "commit": "f8640446d4b25298c557ec486f2cbb7bee2e1991", "commit_url": "https://github.com/vivarium-collective/spatio-flux/commit/f8640446d4b25298c557ec486f2cbb7bee2e1991", "branch": "main", "lockfile": "uv.lock@2a5092264841", "generated_at": "2026-10-26 12:09 UTC"} };</script>
+<script src="/spatio-flux/workbench/assets/data-source.js"></script>
+<script src="/spatio-flux/workbench/assets/toast.js"></script>
+<script>
+window._studyName = "division_seeding_regimes";
+window._study = null;  // populated by _bootstrapStudy() in study-detail.js
+
+// Save handler for the Conditions → Model settings editable rows.
+// POSTs to /api/study-expert-input-set (route kept for back-compat)
+// which patches study.yaml in place.
+// On success: flashes "saved" + updates the row's data-current attribute.
+// On failure: flashes the error (HTTP body) for ~5s.
+function _saveExpertInput(studyName, eiName, btn) {
+  var row = btn.closest('tr');
+  var input = row && row.querySelector('.cond-ei-input');
+  var flash = row && row.querySelector('.cond-ei-flash');
+  if (!input || !flash) return;
+  var raw = (input.value || '').trim();
+  // Coerce numeric inputs so yaml carries the right type
+  var val = raw;
+  if (input.type === 'number' && raw !== '') {
+    var n = Number(raw);
+    if (!isNaN(n)) val = n;
+  } else if (raw === '') {
+    val = null;
+  }
+  btn.disabled = true;
+  flash.className = 'cond-ei-flash';
+  flash.style.display = '';
+  flash.textContent = 'saving…';
+  fetch('/api/study/' + encodeURIComponent(studyName), {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({expert_input: {name: eiName, current: val}}),
+  }).then(function(r) {
+    return r.text().then(function(t) { return {ok: r.ok, status: r.status, body: t}; });
+  }).then(function(res) {
+    if (res.ok) {
+      flash.className = 'cond-ei-flash saved';
+      flash.textContent = '✓ saved';
+      setTimeout(function() { flash.style.display = 'none'; }, 2500);
+    } else {
+      flash.className = 'cond-ei-flash error';
+      flash.textContent = '✗ ' + (res.body || ('HTTP ' + res.status));
+    }
+  }).catch(function(err) {
+    flash.className = 'cond-ei-flash error';
+    flash.textContent = '✗ ' + String(err);
+  }).finally(function() {
+    btn.disabled = false;
+  });
+}
+
+// ── Seed a child study from this study's discovery_implications /
+//    follow_up_studies and make it appear in the investigation graph ──────
+// Both POST /api/study-seed-followup. On success they flash an inline
+// confirmation on the clicked button, then refresh the surface the user is
+// in: when embedded inside the investigation iframe, ask the parent to
+// re-render the investigation detail (and reload as a fallback); standalone,
+// reload the page so the seeded child is reflected.
+//
+// NOTE: these are defined AFTER /study-detail.js loads (see the script order
+// below) so they take precedence over the legacy _seedFollowupStudy there,
+// which navigates away instead of refreshing the embedded investigation.
+function _flashSeedBtn(btn, text, ok) {
+  if (!btn) return;
+  btn.textContent = text;
+  btn.style.borderColor = ok ? '#10b981' : '#dc2626';
+  btn.style.color = ok ? '#065f46' : '#991b1b';
+}
+function _afterSeedRefresh() {
+  // Embedded inside the investigation iframe → refresh the parent's graph.
+  if (window.parent && window.parent !== window) {
+    try {
+      if (window.parent._refreshInvestigationDetail) {
+        window.parent._refreshInvestigationDetail();
+        return;
+      }
+    } catch (e) { /* cross-origin or missing — fall through to reload */ }
+    try { window.parent.location.reload(); return; } catch (e) { /* fall through */ }
+  }
+  location.reload();
+}
+function _seedFollowup(payload, btn) {
+  var orig = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; _flashSeedBtn(btn, '… seeding', true); }
+  fetch('/api/study-seed-followup', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  }).then(function(r) {
+    return r.json().then(function(d) { return {ok: r.ok, status: r.status, body: d}; })
+      .catch(function() { return {ok: r.ok, status: r.status, body: {}}; });
+  }).then(function(res) {
+    if (!res.ok || (res.body && res.body.error)) {
+      _flashSeedBtn(btn, '✗ ' + ((res.body && res.body.error) || ('HTTP ' + res.status)), false);
+      if (btn) btn.disabled = false;
+      return;
+    }
+    _flashSeedBtn(btn, '✓ added', true);
+    setTimeout(_afterSeedRefresh, 600);
+  }).catch(function(err) {
+    _flashSeedBtn(btn, '✗ ' + String(err), false);
+    if (btn) btn.disabled = false;
+  });
+}
+function _seedFollowupStudy(parent, idx) {
+  _seedFollowup({parent: parent, followup_idx: idx}, window.event && window.event.target);
+}
+function _seedFollowupProposal(parent, proposalId) {
+  _seedFollowup({parent: parent, proposal_id: proposalId}, window.event && window.event.target);
+}
+window._seedFollowupStudy = _seedFollowupStudy;
+window._seedFollowupProposal = _seedFollowupProposal;
+</script>
+<script src="/spatio-flux/workbench/assets/configure-run.js"></script>
+<script src="/spatio-flux/workbench/assets/perfetto-open.js"></script>
+<script src="/spatio-flux/workbench/assets/sim-table.js"></script>
+<!-- composite-card.js: shared composite-card renderer (extracted from
+     walkthrough.js, study-spine-reorg Task 6) — the Model tab uses
+     _renderCompositeCardFull to show the SAME rich card the Modules/
+     Composites view uses, with full semantic detail (config schema +
+     declared observables). Loaded before study-detail.js, which calls it. -->
+<!-- loom-embed.js: _openCompositeLoomInline + helpers (from walkthrough.js,
+     which this iframe does NOT load). composite-card.js's _pcardToggleSec needs
+     it to MOUNT a composite's loom — without it, opening a composite from a
+     Model card stays stuck on "Resolving composite…". -->
+<script src="/spatio-flux/workbench/assets/loom-embed.js"></script>
+<script src="/spatio-flux/workbench/assets/composite-card.js"></script>
+<script src="/spatio-flux/workbench/assets/checklist-select.js"></script>
+<script src="/spatio-flux/workbench/assets/progress-track.js"></script>
+<script src="/spatio-flux/workbench/assets/comparison-view.js"></script>
+<script src="/spatio-flux/workbench/assets/study-detail.js"></script>
+<script>
+// Re-assert the refresh-aware seed handlers AFTER study-detail.js (which
+// defines its own navigate-away _seedFollowupStudy). The embedded
+// investigation view prefers staying in place over a full navigation.
+window._seedFollowupStudy = _seedFollowupStudy;
+window._seedFollowupProposal = _seedFollowupProposal;
+</script>
+<script>
+(function () {
+  // Task 8: the Configure & Run mount and the remote-run (smsvpctest) panel
+  // were both removed from the Simulate tab — launching now lives entirely
+  // in the header buttons (Reproduce / Run current spec). This block used
+  // to also mount ConfigureRun into the (now-deleted) mount div and, in an
+  // else-if, relabel the remote-run card via window._initRemoteRunPinned()
+  // if pinned mode was enabled; Fable A #7 deleted that now-fully-dormant
+  // remote-run subsystem from study-detail.js (its DOM anchors — the
+  // #remote-run-panel/-btn/-progress mounts — never existed in this
+  // template to begin with), so the else-if branch is gone too. Only the
+  // still-relevant header-button snapshot handling remains below, now
+  // unconditional (it used to be gated behind a lookup of that deleted div).
+  //
+  // Read-only bundle: there's no live backend to run on — hide the header
+  // run buttons in a published read-only snapshot (reproducible-rerun-spine
+  // Task 4 / G2: both equally inert with no live backend to launch against).
+  if (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.mode === "snapshot") {
+    // The study-detail shell does NOT load walkthrough.js (which sets this on
+    // the main SPA), so set body.snapshot here. Without it every snapshot check
+    // on this page reads false — most visibly the inline bigraph-loom embed,
+    // which then mounts in LIVE mode (?id=&live=1) and hangs forever fetching
+    // /api/composite-state?ref=… against a backend the static bundle doesn't
+    // have, instead of the baked static /api/composite-state/<id>.json.
+    document.body.classList.add("snapshot");
+    var reproduceBtn = document.getElementById("study-reproduce");
+    if (reproduceBtn) reproduceBtn.style.display = "none";
+    var runCurrentBtn = document.getElementById("study-run-current-spec");
+    if (runCurrentBtn) runCurrentBtn.style.display = "none";
+  }
+})();
+</script>
+</body>
+</html>
