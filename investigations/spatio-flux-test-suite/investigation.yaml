@@ -60,13 +60,9 @@ studies:
 - comets_nt_particles_dfba
 - spatioflux_reference_demo
 - reference_demo_x2y2
-- spatial_growth_front
-- spatial_overflow_crossfeeding
-- spatial_vs_wellmixed_community
-- glucose_limitation_yield
 - nutrient_starvation_control
-- division_seeding_regimes
-- advection_plume_phase
+- spatial_cross_feeding_bridge
+- biofilm_settling_metabolism
 competing_frameworks:
 - name: Well-mixed ODE / batch metabolism
   relation: SpatioFlux resolves the spatial structure these omit — spatial_vs_wellmixed_community shows the spatial arrangement leaves substrate unconsumed that a well-mixed model fully depletes.

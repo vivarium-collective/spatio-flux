@@ -78,6 +78,7 @@ def _figure(slug, results, charts, tag=""):
 
 
 def main(slug, runtime=None, which=None, tag=""):
+    import numpy as _np; _np.random.seed(0)  # deterministic runs so stochastic studies reproduce
     ref, params, _ = _baseline(slug, which)
     runtime = int(runtime) if runtime else 60
     core = build_core()

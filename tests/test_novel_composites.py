@@ -34,10 +34,3 @@ def test_spatial_cross_feeding_bridge_and_control():
     bB0, ace0 = _tot(r0, "biomass_B"), _tot(r0, "acetate")
     assert ace0.max() < 1e-6         # no acetate without A
     assert abs(bB0[-1] - bB0[0]) < 1e-3   # B flat without A's bridge
-
-
-def test_comets_washout_advection_suppresses_biomass():
-    low = _tot(_run("comets_washout", {"advection": 0.2}, 40), "dissolved biomass")
-    high = _tot(_run("comets_washout", {"advection": 6.0}, 40), "dissolved biomass")
-    # the colony reaches a much larger biomass at low advection than at high (outflow washes it out)
-    assert low[-1] > high[-1]

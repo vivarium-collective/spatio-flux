@@ -1,0 +1,155 @@
+schema_version: 3
+name: spatial_cross_feeding_bridge
+investigation: spatio-flux-test-suite
+title: Spatial cross-feeding bridge
+status: complete
+phase: Evaluate
+confidence: Accepted
+claim: Strain A grows on glucose and secretes acetate that diffuses across the lattice to strain B, which grows on it — B's biomass tracks the acetate bridge and B cannot grow without A (an emergent spatial partnership).
+purpose:
+  question: Does a spatially-separated consumer (strain B) grow only where a producer (strain A) secretes a diffusing metabolite?
+  mechanism: Spatial dFBA strain A (glucose side) secretes acetate; a diffusing acetate field bridges to acetate-only strain B on the no-glucose side.
+  expected_outcome: B's biomass overlaps the acetate field more than glucose; with A absent, no acetate forms and B stays flat.
+question: Does strain B grow only where strain A's secreted acetate diffuses to it?
+conditions:
+  baseline:
+  - name: bridge
+    composite: spatio_flux.composites.novel.spatial_cross_feeding
+    params: {}
+  - name: control
+    composite: spatio_flux.composites.novel.spatial_cross_feeding
+    params:
+      a_absent: true
+  model_settings: []
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_cross_feeding_bridge
+  - '50'
+  - bridge
+  - ''
+  label: run bridge
+  default: true
+- name: reproduce-control
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_cross_feeding_bridge
+  - '50'
+  - control
+  - -control
+  label: run A-absent control
+visualizations:
+- name: cross-feeding field movie
+  address: html:viz/spatial_cross_feeding_bridge_fields.html
+  chart: html
+behavior_tests:
+- name: N1-B-TRACKS-ACETATE-BRIDGE
+  classification: primary
+  description: strain B biomass overlaps the acetate field more than the glucose field (it grows on the diffused acetate, not glucose).
+  measure:
+    kind: spatial_overlap
+    slug: spatial_cross_feeding_bridge
+    observable: biomass_B
+    prefers: acetate
+    over: glucose
+    run_id: spatial_cross_feeding_bridge-reproduce
+  pass_if:
+    op: spatial_overlap
+  requires_simulation: reproduce
+- name: N1-A-SECRETES-AND-GROWS
+  classification: primary
+  description: strain A grows on glucose (producing the acetate bridge).
+  measure:
+    kind: observable_monotone
+    slug: spatial_cross_feeding_bridge
+    observable: biomass_A
+    direction: increasing
+    run_id: spatial_cross_feeding_bridge-reproduce
+  pass_if:
+    op: monotone
+    tolerance: 0.05
+  requires_simulation: reproduce
+- name: N1-CONTROL-B-FLAT-WITHOUT-A
+  classification: primary
+  description: with strain A absent, no acetate forms and strain B does not grow (the control that the bridge is real).
+  measure:
+    kind: observable_flat
+    slug: spatial_cross_feeding_bridge
+    observable: biomass_B
+    run_id: spatial_cross_feeding_bridge-control-reproduce
+  pass_if:
+    op: flat
+    tolerance: 0.05
+  requires_simulation: reproduce-control
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  tier: interpretation
+  mechanism_origin: emergent
+  statement: "Strain B grows only where strain A's secreted acetate diffuses to it: B's biomass overlaps the acetate field, and the A-absent control produces no acetate and no B growth. This is an emergent spatial cross-feeding partnership that neither strain shows alone."
+  evidence:
+    from_test: N1-B-TRACKS-ACETATE-BRIDGE
+  provenance:
+    run_ids:
+    - spatial_cross_feeding_bridge-reproduce
+    - spatial_cross_feeding_bridge-control-reproduce
+falsifiability: If strain B grew equally with and without strain A, or overlapped glucose rather than acetate, the cross-feeding-bridge claim would be false.
+limitations:
+- B's absolute growth is modest (acetate is a poor carbon source); the claim is about the spatial dependence, not the yield.
+- Single lattice/parameterization and horizon.
+alternative_hypotheses:
+- hypothesis: B grows on residual glucose, not A's acetate.
+  excluded_by: Glucose is seeded only on A's side; the A-absent control (same glucose) yields no B growth.
+discovery_implications:
+  resolved:
+  - A spatially-separated consumer grows only on a producer's diffused metabolite — spatial cross-feeding.
+  remaining:
+  - 'Two further spatial phenomena are deferred: strain demixing/sectoring at an expanding front, and an advection washout transition (the latter did not appear — per-site dFBA growth outpaced transport at feasible advection; it needs a non-growing tracer or a much slower-growth regime).'
+  followup_study_proposals:
+  - id: range-expansion-sectoring
+    motivation: Cross-feeding shows spatial metabolic coupling between separated strains; a complementary question is whether competing strains demix into sectors at a growing colony front. Needs strain-tagged particles (strain_particle type) + a dense front.
+    candidate: comets_br_particles_dfba with two strain-tagged founder populations
+  - id: advection-washout-transition
+    motivation: A washout/Peclet survival transition did not appear with growing per-site dFBA (growth always outpaced outflow transport). Revisit with a non-growing biomass tracer or a slow-growth regime so advection can win.
+    candidate: comets_washout with a non-growing tracer / reduced growth rate
+gate_status: passed
+runs:
+- name: spatial_cross_feeding_bridge-reproduce
+  run_id: spatial_cross_feeding_bridge-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.novel.spatial_cross_feeding
+  emitter:
+    kind: xarray
+    store: studies/spatial_cross_feeding_bridge/runs.spatial_cross_feeding_bridge-reproduce.zarr
+  store_path: studies/spatial_cross_feeding_bridge/runs.spatial_cross_feeding_bridge-reproduce.zarr
+  outcomes:
+    N1-B-TRACKS-ACETATE-BRIDGE:
+      result: PASS
+      evaluated_by: code
+      operator: spatial_overlap
+      detail: 'corr(biomass_B,acetate)=0.355 > corr(biomass_B,glucose)=0 ? '
+    N1-A-SECRETES-AND-GROWS:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [-1.421e-14,2.892]; net +42.77; start 5 end 47.77; tol 0.05
+- name: spatial_cross_feeding_bridge-control-reproduce
+  run_id: spatial_cross_feeding_bridge-control-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.novel.spatial_cross_feeding
+  emitter:
+    kind: xarray
+    store: studies/spatial_cross_feeding_bridge/runs.spatial_cross_feeding_bridge-control-reproduce.zarr
+  store_path: studies/spatial_cross_feeding_bridge/runs.spatial_cross_feeding_bridge-control-reproduce.zarr
+  outcomes:
+    N1-CONTROL-B-FLAT-WITHOUT-A:
+      result: PASS
+      evaluated_by: code
+      operator: observable_flat
+      detail: amplitude 5.329e-15 vs tol 0.05 (start 5 end 5)
