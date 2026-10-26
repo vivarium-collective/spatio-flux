@@ -36,6 +36,9 @@ def _metric(results, spec):
     kind = spec["kind"]
     if kind == "n_particles":
         return float(len(results[-1].get("particles") or {}))
+    if kind == "total_field_biomass":
+        f = (results[-1].get("fields") or {}).get(spec["field"])
+        return float(np.sum(f)) if f is not None else 0.0
     if kind == "centroid_y":
         a = np.asarray((results[-1].get("fields") or {}).get(spec["field"]), dtype=float)
         tot = a.sum()
@@ -92,6 +95,13 @@ def main(slug, steps=None):
     fig.tight_layout()
     fig.savefig(os.path.join(charts, f"{slug}_phase.png"), dpi=110)
     plt.close(fig)
+    # interactive Plotly phase portrait (annotates the sharpest transition)
+    try:
+        from spatio_flux.analysis.plotly_viz import phase_portrait
+        phase_portrait(xs, ms, os.path.join("studies", slug, "viz", f"{slug}_phase.html"),
+                       xlabel=pname, ylabel=mname, title=f"{slug} phase diagram", annotate_cliff=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"plotly phase viz skipped: {e}")
     print(f"✅ {slug}: swept {pname} -> zarr {store}")
 
 
