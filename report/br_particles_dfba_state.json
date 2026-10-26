@@ -1,6 +1,6 @@
 {
   "particles": {
-    "Vw-0LRJ2": {
+    "bszHxuBR": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "Vw-0LRJ2",
+      "id": "bszHxuBR",
       "position": [
-        21.728072248953183,
-        9.95812701320396
+        0.7392689652574003,
+        30.015899177113038
       ],
-      "mass": 0.6014345819961316,
+      "mass": 0.27370080457465107,
       "local": {},
       "exchange": {},
       "sub_masses": {}

@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_18bcd3": {
+    "p_c2d43e": {
       "id": "",
       "position": [
-        25.35150506540433,
-        36.61330715602277
+        19.26400697503985,
+        13.644744738424242
       ],
-      "mass": 0.1469593366455245,
+      "mass": 0.03799123303443037,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
         -0.0,
-        0.0
+        -0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 1.7659484651084298,
+      "radius": 0.8978858525511061,
       "strain": ""
     }
   },

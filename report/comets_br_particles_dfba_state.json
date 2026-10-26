@@ -1,6 +1,6 @@
 {
   "particles": {
-    "eQMI4Qzz": {
+    "nfHOp20u": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "eQMI4Qzz",
+      "id": "nfHOp20u",
       "position": [
-        34.25202551439936,
-        19.45657175572974
+        35.078697962075324,
+        13.917556669203151
       ],
-      "mass": 0.5545222575142822,
+      "mass": 0.9168875176986319,
       "local": {},
       "exchange": {},
       "sub_masses": {}
