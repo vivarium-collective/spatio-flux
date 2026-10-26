@@ -88,7 +88,14 @@ jobs:
       - name: Build the read-only workbench snapshot
         run: |
           source .venv/bin/activate
-          vivarium-workbench-publish --workspace . --out workbench-site \
+          # ABSOLUTE --workspace: the publisher inlines a study's declared
+          # html: figure by computing its iframe_url relative to the workspace
+          # root (study_charts.discover_declared_figure_charts). A relative
+          # `.` makes `fig.relative_to(ws_root)` fall back to the bare
+          # filename, so the inliner can't find the file and the interactive
+          # figure is dropped as snapshot_unavailable. Pass "$PWD" so the
+          # Plotly panels materialize into the static snapshot.
+          vivarium-workbench-publish --workspace "$PWD" --out workbench-site \
             --base-path /spatio-flux/workbench \
             --interactive-url ""
 
