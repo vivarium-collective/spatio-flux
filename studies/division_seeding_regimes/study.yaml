@@ -85,6 +85,8 @@ findings:
   provenance:
     run_ids:
     - division_seeding_regimes-reproduce
+  tier: interpretation
+  mechanism_origin: emergent
 discovery_implications:
   resolved:
   - Final population size is set monotonically by the division mass threshold.
@@ -95,3 +97,10 @@ discovery_implications:
     motivation: A 2D sweep over division_mass_threshold x add_rate would map the full population phase diagram, not just the threshold axis.
     candidate: comets_br_particles_dfba 2D sweep
 gate_status: passed
+falsifiability: If the seed-averaged final population did not fall as the division mass threshold rose, the division-controlled-population claim would be false.
+limitations:
+- One sweep axis (threshold) at fixed seeding rate; 3 seeds; a single horizon.
+- Single-seed runs are noisy — the regime is only robust on the seed average.
+alternative_hypotheses:
+- hypothesis: The population trend is driven by the seeding rate, not the division threshold.
+  excluded_by: add_rate is held fixed across the sweep; only division_mass_threshold varies.

@@ -96,6 +96,8 @@ findings:
   provenance:
     run_ids:
     - advection_plume_phase-reproduce
+  tier: interpretation
+  mechanism_origin: emergent
 discovery_implications:
   resolved:
   - Plume downstream reach scales monotonically with advection strength.
@@ -106,3 +108,9 @@ discovery_implications:
     motivation: At fixed advection, sweeping diffusion would show whether the plume front stays sharp or disperses — a 2D transport phase diagram.
     candidate: comets_diffusion advection x diffusion sweep
 gate_status: passed
+falsifiability: If plume reach were flat or non-monotonic in advection strength, the advection-controlled-transport claim would be false.
+limitations:
+- Advection varied along one axis at fixed diffusion; a single composite and horizon.
+alternative_hypotheses:
+- hypothesis: The plume reach reflects diffusion, not advection.
+  excluded_by: Diffusion is held fixed across the sweep; only the advection vector varies.

@@ -55,6 +55,7 @@ findings:
   provenance:
     run_ids:
     - nutrient_starvation_control-reproduce
+  tier: observation
 discovery_implications:
   resolved:
   - Growth requires a carbon source; with none, the model correctly produces no biomass.
@@ -82,3 +83,9 @@ runs:
       operator: observable_flat
       detail: amplitude 0 vs tol 0.02 (start 0.1 end 0.1)
 gate_status: passed
+falsifiability: If biomass grew with zero glucose, this control would fail — and the carbon-driven interpretation of growth in every other study would be undermined.
+limitations:
+- Controls only the carbon source; other potential growth drivers (e.g. maintenance energy) are not separately clamped.
+alternative_hypotheses:
+- hypothesis: The absence of growth is a solver failure rather than biology.
+  excluded_by: The identical model with glucose present grows normally (glucose_limitation_yield), so the solver is live; only the carbon source is removed here.

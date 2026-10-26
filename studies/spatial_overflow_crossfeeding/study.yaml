@@ -81,6 +81,7 @@ findings:
     - spatial_overflow_crossfeeding-reproduce
     - spatial_overflow_crossfeeding-reproduce
     - spatial_overflow_crossfeeding-reproduce
+  tier: mechanism
 discovery_implications:
   resolved:
   - Acetate accumulates in the field as an overflow byproduct of spatial growth on glucose.
@@ -118,3 +119,10 @@ runs:
       operator: observable_monotone/decreasing
       detail: decreasing; steps [-1.163,0]; start 500.5 end 475.4; tol 0.02
 gate_status: passed
+falsifiability: If acetate stayed at zero while biomass grew on glucose, the overflow-secretion claim would be false.
+limitations:
+- Acetate accumulation is shown; its re-consumption (true cross-feeding) is not reached at this horizon.
+- Single COMETS parameterization.
+alternative_hypotheses:
+- hypothesis: The acetate rise is a numerical artifact of the field solver.
+  excluded_by: Acetate accrues as glucose is consumed and biomass grows, and the zero-carbon control (nutrient_starvation_control) produces none.

@@ -80,6 +80,8 @@ findings:
     - spatial_growth_front-reproduce
     - spatial_growth_front-reproduce
     - spatial_growth_front-reproduce
+  tier: interpretation
+  mechanism_origin: emergent
 discovery_implications:
   resolved:
   - A biomass front propagates across the COMETS lattice under advection-diffusion.
@@ -117,3 +119,9 @@ runs:
       operator: spread_grows
       detail: radius of gyration 0.5->1.84 (grows within tol 0.0)
 gate_status: passed
+falsifiability: If the biomass front position and centroid did not advance from the seed edge despite biomass growth, the 'propagating growth front' claim would be false.
+limitations:
+- A single lattice, advection, and horizon; the front velocity itself is not yet calibrated against an analytic (Fisher-KPP) prediction.
+alternative_hypotheses:
+- hypothesis: The apparent front is passive diffusion of the seeded band, not growth.
+  excluded_by: Total biomass grows many-fold over the run, so the advancing front carries newly produced biomass, not merely spread seed.

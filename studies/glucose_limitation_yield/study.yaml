@@ -90,6 +90,7 @@ findings:
     run_ids:
     - glucose_limitation_yield-low-reproduce
     - glucose_limitation_yield-high-reproduce
+  tier: mechanism
 discovery_implications:
   resolved:
   - Dynamic-FBA biomass yield scales with initial glucose.
@@ -133,3 +134,9 @@ runs:
       operator: observable_band
       detail: final 0.9556 vs band [0.8,1.15]
 gate_status: passed
+falsifiability: If final biomass were independent of the initial glucose (the same yield at 2 and 10 mM), the carbon-limitation claim would be false.
+limitations:
+- Two glucose levels (not a full dose-response); a single genome-scale core model.
+alternative_hypotheses:
+- hypothesis: The yield gap is a transient that would close with more time.
+  excluded_by: Both runs reach a biomass plateau as glucose is exhausted, so the gap is a yield limit, not a transient.
