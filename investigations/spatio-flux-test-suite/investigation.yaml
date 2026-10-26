@@ -5,36 +5,32 @@ created: '2026-07-26'
 status: running
 executive:
   what_is_this: |-
-    The spatio-flux reference application as one investigation, now in two layers: (1) 19 reproduction studies that faithfully re-run every scenario of the original test suite (standalone processes -> pairs -> triples -> reference demos) as a hardened, quantitatively code-evaluated baseline; and (2) 7 biology-forward discovery-engine studies that extend those composites into new emergent biology — spatial growth fronts, overflow/cross-feeding substrate accumulation, spatial-vs-well-mixed substrate use, carbon-limited yield, a nutrient-starvation negative control, and division/advection phase diagrams.
+    The spatio-flux reference application as one investigation, in two layers: (1) 19 reproduction studies that faithfully re-run every scenario of the original test suite as a hardened, quantitatively code-evaluated baseline; and (2) biology-forward studies that extend those composites into new emergent biology — a spatial cross-feeding partnership and a settling biofilm — plus a zero-carbon adversarial control.
   verdict: >-
-    SpatioFlux resolves emergent spatial biology its well-mixed constituents cannot: a biomass front propagates and spreads across the diffusing field; overflow metabolism secretes and accumulates acetate (the cross-feeding substrate pool); spatial structure leaves substrate unconsumed that a well-mixed community fully depletes; dynamic-FBA yield scales ~4x with carbon supply; and population size and plume reach vary monotonically with the division threshold (multiseed) and advection strength. A zero-carbon adversarial control correctly shows no growth, establishing these signals as carbon-driven biology rather than artifacts. Underneath, all 19 original composition scenarios still pass their regression tests — the reproduction baseline the new biology is built on.
+    SpatioFlux resolves emergent spatial biology its well-mixed constituents cannot. In spatial_cross_feeding_bridge, a producer strain growing on glucose secretes acetate that diffuses across the lattice to a consumer strain on the no-glucose side, which grows only on that bridge — and an A-absent control produces no acetate and no consumer growth, so the partnership is real, not incidental. In biofilm_settling_metabolism, rigid-body cells settle and pack under gravity while feeding, so per-cell growth becomes spatially structured by depth — mechanics and metabolism couple. A zero-carbon adversarial control correctly shows no growth, establishing these signals as carbon-driven biology rather than artifacts. Underneath, all 19 original composition scenarios still pass their regression plus new quantitative contracts — the reproduction baseline the new biology is built on.
   verdict_status: established
   decisions_needed: []
 scientific_argument:
   main_claim: >-
-    Independently developed processes (dFBA, Monod kinetics, diffusion-advection, Brownian and Newtonian particles) compose through typed shared state into quantitatively measurable EMERGENT SPATIAL BIOLOGY: growth fronts, spatial cross-feeding substrate pools, transport-controlled spread, and carbon-limited yield — each asserted by a code-evaluated contract on a real run, not by artifact existence alone.
+    Independently developed processes (dFBA, Monod kinetics, diffusion-advection, Brownian and Newtonian particles) compose through typed shared state into quantitatively measurable emergent spatial biology — a diffusion-bridged cross-feeding partnership between spatially separated strains, and a gravity-settled biofilm whose growth is structured by depth — each asserted by a code-evaluated contract on a real run, not by artifact existence alone.
   support: >
     The DAG (standalone → pairs → triples → reference demos) is documentation of
     composition order, not an execution gate — every study runs independently and
     its output is checked against the out0 oracle, so a passing combination is
     evidence the constituent processes compose without hidden coupling.
   evidence_for:
-  - 'spatial_growth_front: a seeded biomass front advances (front position 0->8), its centroid migrates downstream, and its spread grows — emergent spatial pattern.'
-  - 'spatial_overflow_crossfeeding: acetate accumulates as an overflow byproduct while glucose is consumed — the measured precondition for spatial cross-feeding.'
-  - 'spatial_vs_wellmixed_community: a well-mixed community depletes glucose to ~0 while the spatial arrangement leaves a large glucose pool unconsumed — spatial structure governs substrate use.'
-  - 'glucose_limitation_yield: final biomass scales ~4x between 2 and 10 mM glucose — the quantitative carbon-limitation response.'
-  - 'division_seeding_regimes / advection_plume_phase: population size falls monotonically with the division threshold (multiseed) and plume reach rises monotonically with advection — tunable phase relationships.'
-  - '19 reproduction studies: every original composition scenario passes its regression + new quantitative growth/depletion/mass-conservation/MSD contracts.'
+  - "spatial_cross_feeding_bridge: strain B's biomass overlaps the diffused acetate field more than glucose, strain A grows and secretes the acetate bridge, and the A-absent control leaves B flat — an emergent spatial cross-feeding partnership."
+  - 'biofilm_settling_metabolism: rigid-body cells settle under gravity (mean depth increases) and per-cell mass correlates with depth while the population grows — mechanics-coupled, depth-structured metabolic growth.'
+  - '19 reproduction studies: every original composition scenario passes its regression check plus a new quantitative growth / depletion / mass-conservation / MSD contract.'
+  - 'nutrient_starvation_control (adversarial): with zero glucose the model does not grow, establishing the growth signals as carbon-driven, not solver artifacts.'
   evidence_against:
-  - 'Particle studies are stochastic: single-seed sweeps are noisy (division_seeding_regimes is monotone only on a 3-seed average).'
-  - Acetate re-uptake (true cross-feeding peak-then-decline) is not yet observed — glucose is far from exhausted on the large lattice at these horizons.
-  - Lattices are coarse and horizons short; the dFBA models are reduced/core.
+  - The novel signals are modest in magnitude (acetate is a poor carbon source; the biofilm depth-structuring is weak at a few cells) and the particle studies are stochastic (biofilm uses a seeded, reproducible run).
+  - Single lattice/parameterization and horizon; reduced/core dFBA models.
   caveats:
-  - Claims are evaluated at the simulated horizons and resolutions; longer runs / finer lattices / more seeds would tighten several of them (captured as discovery_implications follow-ups).
+  - Claims are evaluated at the simulated horizons/resolutions; a washout (Péclet) survival transition was attempted but did not appear (per-site dFBA growth outpaced transport) and is deferred as a follow-up.
   key_figures:
-  - studies/spatial_growth_front/charts/spatial_growth_front_trajectory.png
-  - studies/division_seeding_regimes/charts/division_seeding_regimes_phase.png
-  - studies/advection_plume_phase/charts/advection_plume_phase_phase.png
+  - studies/spatial_cross_feeding_bridge/viz/spatial_cross_feeding_bridge_fields.html
+  - studies/biofilm_settling_metabolism/viz/biofilm_settling_metabolism_particles.html
 biological_story: |
   Metabolism, spatial transport, and particle dynamics coupled on a shared
   lattice reproduce COMETS-style spatial dFBA and particle–field exchange: cells
