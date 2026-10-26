@@ -431,9 +431,75 @@ def _flat_hook(test, reader, ws_root):
                 "observable_flat", amp)
 
 
+def _front_advances_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    tol = float(pi.get("tolerance", 0.0) or 0.0)
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    arr = np.asarray(ds[field].values, dtype=float)
+    if arr.ndim != 3:
+        return _out("FAIL", f"{field!r} is not a 2D ('time','y','x') field", "front_advances", None)
+    thr = m.get("threshold")
+    thr = float(thr) if thr is not None else 0.5 * float(np.nanmax(arr))
+    fp = front_position(ds, field, thr)
+    if len(fp) < 2:
+        return _out("FAIL", "insufficient ticks", "front_advances", len(fp))
+    diffs = np.diff(fp)
+    scale = max(float(np.max(np.abs(fp))), 1.0)
+    ok = bool(np.all(diffs >= -tol * scale)) and fp[-1] > fp[0]
+    return _out("PASS" if ok else "FAIL",
+                f"front {fp[0]:.3g}->{fp[-1]:.3g} (thr {thr:.3g}); non-decreasing within tol {tol}",
+                "front_advances", float(fp[-1]))
+
+
+def _centroid_shift_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    axis = 0 if (m.get("axis", "y") == "y") else 1
+    min_shift = float(m.get("min_shift", pi.get("min_shift", 1.0)) or 1.0)
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    if np.asarray(ds[field].values).ndim != 3:
+        return _out("FAIL", f"{field!r} is not a 2D field", "centroid_shift", None)
+    c = centroid(ds, field)[:, axis]
+    c = c[np.isfinite(c)]
+    if len(c) < 2:
+        return _out("FAIL", "insufficient centroid points", "centroid_shift", len(c))
+    shift = abs(float(c[-1] - c[0]))
+    ok = shift >= min_shift
+    return _out("PASS" if ok else "FAIL",
+                f"centroid {m.get('axis','y')} shift {shift:.3g} vs min {min_shift}",
+                "centroid_shift", shift)
+
+
+def _spread_grows_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    tol = float(pi.get("tolerance", 0.0) or 0.0)
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    if np.asarray(ds[field].values).ndim != 3:
+        return _out("FAIL", f"{field!r} is not a 2D field", "spread_grows", None)
+    rg = radius_of_gyration(ds, field)
+    ok_mask = np.isfinite(rg)
+    rg = rg[ok_mask]
+    if len(rg) < 2:
+        return _out("FAIL", "insufficient Rg points", "spread_grows", len(rg))
+    diffs = np.diff(rg)
+    scale = max(float(np.max(np.abs(rg))), 1.0)
+    ok = bool(np.all(diffs >= -tol * scale)) and rg[-1] > rg[0]
+    return _out("PASS" if ok else "FAIL",
+                f"radius of gyration {rg[0]:.3g}->{rg[-1]:.3g} (grows within tol {tol})",
+                "spread_grows", float(rg[-1]))
+
+
 def register_evaluators(registry: dict) -> None:
     """Hook consumed by ``viva_superpowers.study_evaluator.load_workspace_evaluators``."""
     registry["artifacts_present"] = _artifacts_present_hook
+    registry["front_advances"] = _front_advances_hook
+    registry["centroid_shift"] = _centroid_shift_hook
+    registry["spread_grows"] = _spread_grows_hook
     registry["observable_band"] = _band_hook
     registry["observable_monotone"] = _monotone_hook
     registry["mass_conserved"] = _mass_conserved_hook
