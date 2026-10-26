@@ -45,10 +45,8 @@ def test_investigation_lists_original_plus_discovery():
     # all 19 original reproduction studies are still listed ...
     assert {s["slug"] for s in STUDIES} <= set(inv["studies"])
     # ... plus the biology-forward discovery-engine studies were added.
-    for new in ("spatial_growth_front", "spatial_overflow_crossfeeding",
-                "spatial_vs_wellmixed_community", "glucose_limitation_yield",
-                "nutrient_starvation_control", "division_seeding_regimes",
-                "advection_plume_phase"):
+    for new in ("nutrient_starvation_control", "spatial_cross_feeding_bridge",
+                "biofilm_settling_metabolism"):
         assert new in inv["studies"], new
 
 

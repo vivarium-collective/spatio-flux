@@ -9,7 +9,7 @@ def test_collect_report_inputs_orders_by_investigation():
     assert len(slugs) >= 19                       # 19 original + discovery-engine studies
     assert slugs[0] == "monod_kinetics"          # investigation order (originals lead)
     assert "reference_demo_x2y2" in slugs
-    assert "advection_plume_phase" in slugs       # a discovery-engine study
+    assert "spatial_cross_feeding_bridge" in slugs   # a discovery-engine study
     # every study has a description (from its @composite_generator)
     assert descriptions["comets_diffusion"]
     # baseline params surfaced as the scenario config
@@ -29,7 +29,7 @@ def test_reproduce_lists_all_investigation_studies():
     slugs = study_slugs(REPO)
     assert len(slugs) >= 19
     assert "spatioflux_reference_demo" in slugs
-    assert "division_seeding_regimes" in slugs     # a discovery-engine study
+    assert "biofilm_settling_metabolism" in slugs   # a discovery-engine study
 
 
 def test_test_suite_module_retired():
