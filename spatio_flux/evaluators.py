@@ -352,6 +352,69 @@ def _peak_then_decline_hook(test, reader, ws_root):
                 "peak_then_decline", pk)
 
 
+def _first_finite(col: np.ndarray) -> float:
+    finite = np.where(np.isfinite(col))[0]
+    return float(col[finite[0]]) if finite.size else float("nan")
+
+
+def mean_squared_displacement(ds):
+    """(times, MSD) where MSD(t) = mean over particles of |pos(t) − pos(t0_particle)|²,
+    each particle referenced to its own first finite position; NaN slots ignored."""
+    if "particle_x" not in ds.data_vars:
+        raise KeyError("particle_x")
+    x = np.asarray(ds["particle_x"].values, dtype=float)  # (time, particle)
+    y = np.asarray(ds["particle_y"].values, dtype=float)
+    t = np.asarray(ds["time"].values, dtype=float)
+    n = x.shape[1]
+    x0 = np.array([_first_finite(x[:, j]) for j in range(n)])
+    y0 = np.array([_first_finite(y[:, j]) for j in range(n)])
+    msd = np.full(x.shape[0], np.nan)
+    for ti in range(x.shape[0]):
+        d2 = (x[ti] - x0) ** 2 + (y[ti] - y0) ** 2
+        vals = d2[np.isfinite(d2)]
+        if vals.size:
+            msd[ti] = float(np.mean(vals))
+    return t, msd
+
+
+def msd_slope(ds) -> float:
+    """Least-squares slope of mean-squared-displacement vs time (diffusive scaling)."""
+    t, msd = mean_squared_displacement(ds)
+    ok = np.isfinite(msd)
+    if ok.sum() < 2:
+        return 0.0
+    return float(np.polyfit(t[ok], msd[ok], 1)[0])
+
+
+def _msd_linear_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    band = m.get("expected") or pi.get("band") or [None, None]
+    min_r2 = float(pi.get("min_r2", 0.0) or 0.0)
+    slug = m.get("slug")
+    if not slug or ws_root is None:
+        return {"evaluated_by": "agent", "reason": "observable_msd_linear: measure.slug/ws_root missing"}
+    try:
+        ds = open_run(ws_root, slug, m.get("run_id"))
+    except Exception as e:  # noqa: BLE001
+        return _out("FAIL", f"cannot open run for {slug!r}: {e}", "observable_msd_linear/open", None)
+    if "particle_x" not in ds.data_vars:
+        return _out("FAIL", "run has no per-particle positions", "observable_msd_linear/resolve", None)
+    t, msd = mean_squared_displacement(ds)
+    ok = np.isfinite(msd)
+    if ok.sum() < 2:
+        return _out("FAIL", "insufficient MSD points (<2)", "observable_msd_linear", int(ok.sum()))
+    slope, intercept = np.polyfit(t[ok], msd[ok], 1)
+    pred = slope * t[ok] + intercept
+    ss_res = float(np.sum((msd[ok] - pred) ** 2))
+    ss_tot = float(np.sum((msd[ok] - np.mean(msd[ok])) ** 2))
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 1.0
+    lo, hi = band
+    in_band = (lo is None or slope >= lo) and (hi is None or slope <= hi)
+    res = "PASS" if (in_band and r2 >= min_r2) else "FAIL"
+    return _out(res, f"MSD slope {slope:.4g} (band {band}); R² {r2:.4g} (min {min_r2})",
+                "observable_msd_linear", float(slope))
+
+
 def _flat_hook(test, reader, ws_root):
     m, pi = test.get("measure") or {}, test.get("pass_if") or {}
     tol = float(pi.get("tolerance", 0.01) or 0.01)  # absolute amplitude tolerance
@@ -376,3 +439,4 @@ def register_evaluators(registry: dict) -> None:
     registry["mass_conserved"] = _mass_conserved_hook
     registry["peak_then_decline"] = _peak_then_decline_hook
     registry["observable_flat"] = _flat_hook
+    registry["observable_msd_linear"] = _msd_linear_hook
