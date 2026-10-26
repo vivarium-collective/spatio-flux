@@ -62,8 +62,12 @@ jobs:
         # pbg-superpowers>=0.16 ships the viva_superpowers module + shared
         # composite registry the workbench reads; bigraph-schema>=1.4.3 for the
         # typed/units API; vivarium-workbench@main for the publish CLI + loom.
+        # plotly: the discovery-engine studies' run_new_study emits interactive
+        # Plotly `html:` visualizations the publisher inlines (study_charts
+        # resolve_declared_figure_ref); without it, run_new_study silently skips
+        # the viz and the snapshot shows no interactive figure.
         run: |
-          uv pip install --upgrade "pbg-superpowers>=0.16" "bigraph-schema>=1.4.3"
+          uv pip install --upgrade "pbg-superpowers>=0.16" "bigraph-schema>=1.4.3" plotly
           # --reinstall-package: main's version string can match the already-synced
           # wheel, so a plain install is skipped and the snapshot ships a STALE loom /
           # publisher. Force a fresh checkout of main every publish.
