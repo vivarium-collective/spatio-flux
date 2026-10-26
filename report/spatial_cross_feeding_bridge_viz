@@ -1,0 +1,76 @@
+digraph bigraph {
+	dpi=300 overlap=false rankdir=TB splines=true
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<glucose>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<acetate>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'biomass_A')" [label=<biomass_A>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'biomass_B')" [label=<biomass_B>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields',)" [label=<fields>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'glucose')" [label=<glucose>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'acetate')" [label=<acetate>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'biomass_A')" [label=<biomass_A>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('fields', 'biomass_B')" [label=<biomass_B>]
+	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
+	"('results',)" [label=<results>]
+	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
+	"('dFBA[0,0]',)" [label=<dFBA[*]<BR/>(x100)>]
+	"('monod_kinetics[0,0]',)" [label=<monod_kinetics[*]<BR/>(x100)>]
+	"('diffusion',)" [label=<diffusion>]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'acetate')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'biomass_A')" [arrowhead=none constraint=true penwidth=2]
+	edge [style=filled]
+	"('fields',)" -> "('fields', 'biomass_B')" [arrowhead=none constraint=true penwidth=2]
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'acetate')" -> "('dFBA[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'glucose')" -> "('dFBA[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('dFBA[0,0]',)" {
+		"('fields', 'biomass_A')" -> "('dFBA[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics[0,0]',)" {
+		"('fields', 'glucose')" -> "('monod_kinetics[0,0]',)" [label=<substrates/glucose> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics[0,0]',)" {
+		"('fields', 'acetate')" -> "('monod_kinetics[0,0]',)" [label=<substrates/acetate> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('monod_kinetics[0,0]',)" {
+		"('fields', 'biomass_B')" -> "('monod_kinetics[0,0]',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('diffusion',)" {
+		"('fields',)" -> "('diffusion',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+	}
+	"('fields',)" [color="#bdb48b"]
+	"('diffusion',)" [color="#a6984a"]
+	"('dFBA[0,0]',)" [color="#8b3935"]
+	"('monod_kinetics[0,0]',)" [color="#b17e74"]
+	"('fields', 'glucose')" [color="#bdb48b"]
+	"('fields', 'acetate')" [color="#bdb48b"]
+	"('fields',)" [color="#F3E8B3" style=filled]
+	"('diffusion',)" [color="#D6C35F" style=filled]
+	"('dFBA[0,0]',)" [color="#B34A44" style=filled]
+	"('monod_kinetics[0,0]',)" [color="#E3A295" style=filled]
+	"('fields', 'glucose')" [color="#F3E8B3" style=filled]
+	"('fields', 'acetate')" [color="#F3E8B3" style=filled]
+}

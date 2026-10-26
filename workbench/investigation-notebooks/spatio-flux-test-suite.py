@@ -21,7 +21,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 #
 # _Investigation `spatio-flux-test-suite` — coder reproduction notebook._
 #
-# The spatio-flux reference application as one investigation, now in two layers: (1) 19 reproduction studies that faithfully re-run every scenario of the original test suite (standalone processes -> pairs -> triples -> reference demos) as a hardened, quantitatively code-evaluated baseline; and (2) 7 biology-forward discovery-engine studies that extend those composites into new emergent biology — spatial growth fronts, overflow/cross-feeding substrate accumulation, spatial-vs-well-mixed substrate use, carbon-limited yield, a nutrient-starvation negative control, and division/advection phase diagrams.
+# The spatio-flux reference application as one investigation, in two layers: (1) 19 reproduction studies that faithfully re-run every scenario of the original test suite as a hardened, quantitatively code-evaluated baseline; and (2) biology-forward studies that extend those composites into new emergent biology — a spatial cross-feeding partnership and a settling biofilm — plus a zero-carbon adversarial control.
 #
 # ---
 #
@@ -1998,369 +1998,6 @@ _save_viz('reference_demo_x2y2', 'reference_demo_x2y2_mass_submasses.png', _rend
 # | REFERENCE-DEMO-X2Y2-DISSOLVED-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=reference_demo_x2y2 observable=dissolved biomass direction=increasing | op monotone tolerance 0.01 |
 # | REFERENCE-DEMO-X2Y2-PARTICLE_MASS-GROWS _(primary)_ | kind=observable_monotone slug=reference_demo_x2y2 observable=particle_mass direction=increasing | op monotone tolerance 0.01 |
 
-# ## Study: Spatial growth front (`spatial_growth_front`)
-#
-# **Question.** When biomass is seeded at one edge of a diffusing nutrient field, does it propagate across the lattice as an emergent spatial growth front?
-#
-# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
-#
-# **Claim.** Biomass seeded at the top edge of the COMETS field forms an advection-driven growth front: it propagates down the lattice (front position advances), its centroid migrates downstream, and its spatial spread grows as the population feeds and is transported through the field.
-
-# ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `baseline` | `spatio_flux.composites.comets.comets_diffusion` | 0 | — |
-
-# ### The model & its parameters
-#
-# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
-
-# **The model — `spatio_flux.composites.comets.comets_diffusion`**
-#
-# The classic COMETS field-only scenario: per-site dFBA on a lattice coupled to advection–diffusion of glucose, acetate, and dissolved biomass, with biomass seeded at the top edge.
-
-# === Parameters — edit any value, then re-run from the Run cell below ===
-# Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_comets_comets_diffusion = {
-    'dissolved_model_id': 'ecoli core',
-    'n_bins'            : [10, 10],
-    'bounds'            : [50.0, 50.0],
-    'advection_rate'    : [0.0, 0.2],
-}
-
-# ### Run
-#
-# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
-
-# === Study: spatial_growth_front ===
-STUDY = 'spatial_growth_front'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-# This study has no *recorded* runs yet. RERUN builds its declared
-# composite(s) live and runs them; a composite whose module processes
-# are not implemented yet reports the error instead of crashing.
-STEPS_baseline = 100
-INTERVAL_baseline = 1.0
-
-if RERUN:
-    from process_bigraph import Composite
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_comets_comets_diffusion if 'ov_spatio_flux_composites_comets_comets_diffusion' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_comets_comets_diffusion = materialize_composite('spatio_flux.composites.comets.comets_diffusion', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_diffusion['state']}, core=core)
-            _comp.run(STEPS_baseline)
-        print('ran', 'baseline', f'(spatio_flux.composites.comets.comets_diffusion) for', STEPS_baseline, 'steps')
-    except Exception as _e:
-        print(f"baseline not runnable yet: {type(_e).__name__}: {_e}")
-else:
-    print("RERUN=False — not re-simulating.")
-
-# ### Visualizations
-#
-# _Results are shown by the figures below, produced by the run above._
-
-# **spatial_growth_front trajectory**
-
-# spatial_growth_front trajectory
-_save_viz('spatial_growth_front', 'spatial_growth_front_trajectory', _render_one('image:charts/spatial_growth_front_trajectory.png', {}, RUNS_DB, STUDY_YAML))
-
-# ### Acceptance criteria
-#
-# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
-#
-# | test | measures | passes if |
-# | --- | --- | --- |
-# | SPATIAL-GROWTH-FRONT-ADVANCES _(primary)_ | kind=front_advances slug=spatial_growth_front observable=dissolved biomass run_id=spatial_growth_front-reproduce threshold=0.02 | op front_advances tolerance 0.0 |
-# | SPATIAL-GROWTH-FRONT-CENTROID-MIGRATES _(primary)_ | kind=centroid_shift slug=spatial_growth_front observable=dissolved biomass run_id=spatial_growth_front-reproduce axis=y min_shift=1.5 | op centroid_shift |
-# | SPATIAL-GROWTH-FRONT-SPREAD-GROWS _(primary)_ | kind=spread_grows slug=spatial_growth_front observable=dissolved biomass run_id=spatial_growth_front-reproduce | op spread_grows tolerance 0.0 |
-
-# ## Study: Spatial overflow & cross-feeding substrate (`spatial_overflow_crossfeeding`)
-#
-# **Question.** Does spatial dynamic-FBA secrete an overflow metabolite (acetate) into the field as it grows on glucose, building the substrate pool that spatial cross-feeding would draw on?
-#
-# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
-#
-# **Claim.** Spatial dFBA on the COMETS field secretes acetate (overflow metabolism) that accumulates in the field while biomass grows and glucose begins to be drawn down — establishing the acetate pool a cross-feeding partner would exploit.
-
-# ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `baseline` | `spatio_flux.composites.comets.comets_diffusion` | 0 | — |
-
-# ### The model & its parameters
-#
-# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
-
-# **The model — `spatio_flux.composites.comets.comets_diffusion`**
-#
-# The classic COMETS field-only scenario: per-site dFBA on a lattice coupled to advection–diffusion of glucose, acetate, and dissolved biomass, with biomass seeded at the top edge.
-
-# === Parameters — edit any value, then re-run from the Run cell below ===
-# Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_comets_comets_diffusion = {
-    'dissolved_model_id': 'ecoli core',
-    'n_bins'            : [10, 10],
-    'bounds'            : [50.0, 50.0],
-    'advection_rate'    : [0.0, 0.2],
-}
-
-# ### Run
-#
-# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
-
-# === Study: spatial_overflow_crossfeeding ===
-STUDY = 'spatial_overflow_crossfeeding'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-# This study has no *recorded* runs yet. RERUN builds its declared
-# composite(s) live and runs them; a composite whose module processes
-# are not implemented yet reports the error instead of crashing.
-STEPS_baseline = 100
-INTERVAL_baseline = 1.0
-
-if RERUN:
-    from process_bigraph import Composite
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_comets_comets_diffusion if 'ov_spatio_flux_composites_comets_comets_diffusion' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_comets_comets_diffusion = materialize_composite('spatio_flux.composites.comets.comets_diffusion', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_diffusion['state']}, core=core)
-            _comp.run(STEPS_baseline)
-        print('ran', 'baseline', f'(spatio_flux.composites.comets.comets_diffusion) for', STEPS_baseline, 'steps')
-    except Exception as _e:
-        print(f"baseline not runnable yet: {type(_e).__name__}: {_e}")
-else:
-    print("RERUN=False — not re-simulating.")
-
-# ### Visualizations
-#
-# _Results are shown by the figures below, produced by the run above._
-
-# **spatial_overflow_crossfeeding trajectory**
-
-# spatial_overflow_crossfeeding trajectory
-_save_viz('spatial_overflow_crossfeeding', 'spatial_overflow_crossfeeding_trajectory', _render_one('image:charts/spatial_overflow_crossfeeding_trajectory.png', {}, RUNS_DB, STUDY_YAML))
-
-# ### Acceptance criteria
-#
-# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
-#
-# | test | measures | passes if |
-# | --- | --- | --- |
-# | SPATIAL-OVERFLOW-ACETATE-ACCUMULATES _(primary)_ | kind=observable_monotone slug=spatial_overflow_crossfeeding observable=acetate run_id=spatial_overflow_crossfeeding-reproduce direction=increasing | op monotone tolerance 0.02 |
-# | SPATIAL-OVERFLOW-BIOMASS-GROWS _(primary)_ | kind=observable_monotone slug=spatial_overflow_crossfeeding observable=dissolved biomass run_id=spatial_overflow_crossfeeding-reproduce direction=increasing | op monotone tolerance 0.02 |
-# | SPATIAL-OVERFLOW-GLUCOSE-DEPLETES _(primary)_ | kind=observable_monotone slug=spatial_overflow_crossfeeding observable=glucose run_id=spatial_overflow_crossfeeding-reproduce direction=decreasing | op monotone tolerance 0.02 |
-
-# ## Study: Spatial structure vs well-mixed community (`spatial_vs_wellmixed_community`)
-#
-# **Question.** Does spatial structure change how completely a microbial community consumes its shared substrate, compared with the well-mixed case?
-#
-# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
-#
-# **Claim.** A well-mixed microbial community drives glucose to complete exhaustion, whereas a spatially-structured community scenario plateaus with a large standing glucose pool unconsumed at the same horizon — an observed difference in substrate-use completeness between well-mixed and spatial community scenarios.
-
-# ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `well-mixed` | `spatio_flux.composites.metabolism.community_dfba` | 0 | — |
-# | `spatial` | `spatio_flux.composites.spatial.spatial_dfba_process` | 0 | — |
-
-# ### The model & its parameters
-#
-# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
-
-# **The model — `spatio_flux.composites.metabolism.community_dfba`**
-#
-# A well-mixed microbial community where several dFBA species and a Monod-kinetic population share the same extracellular substrate pools, producing competition and cross-feeding without spatial structure.
-
-# === Parameters — edit any value, then re-run from the Run cell below ===
-# Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_metabolism_community_dfba = {
-    'dt'              : 1.0,
-    'kinetic_model_id': 'acetate_only',
-    'initial_biomass' : 0.1,
-    'glucose'         : 10.0,
-    'acetate'         : 0.0,
-}
-
-# **The model — `spatio_flux.composites.spatial.spatial_dfba_process`**
-#
-# A spatial microenvironment where a single vectorized dFBA process updates every lattice site at once, with six microbial species arranged in rows across a horizontal glucose gradient.
-
-# === Parameters — edit any value, then re-run from the Run cell below ===
-# Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_spatial_spatial_dfba_process = {
-    'n_bins': [5, 6],
-}
-
-# ### Run
-#
-# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
-
-# === Study: spatial_vs_wellmixed_community ===
-STUDY = 'spatial_vs_wellmixed_community'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-# This study has no *recorded* runs yet. RERUN builds its declared
-# composite(s) live and runs them; a composite whose module processes
-# are not implemented yet reports the error instead of crashing.
-STEPS_well_mixed = 100
-INTERVAL_well_mixed = 1.0
-STEPS_spatial = 100
-INTERVAL_spatial = 1.0
-
-if RERUN:
-    from process_bigraph import Composite
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_metabolism_community_dfba if 'ov_spatio_flux_composites_metabolism_community_dfba' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_metabolism_community_dfba = materialize_composite('spatio_flux.composites.metabolism.community_dfba', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_community_dfba['state']}, core=core)
-            _comp.run(STEPS_well_mixed)
-        print('ran', 'well-mixed', f'(spatio_flux.composites.metabolism.community_dfba) for', STEPS_well_mixed, 'steps')
-    except Exception as _e:
-        print(f"well-mixed not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_spatial_spatial_dfba_process if 'ov_spatio_flux_composites_spatial_spatial_dfba_process' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_spatial_spatial_dfba_process = materialize_composite('spatio_flux.composites.spatial.spatial_dfba_process', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_spatial_spatial_dfba_process['state']}, core=core)
-            _comp.run(STEPS_spatial)
-        print('ran', 'spatial', f'(spatio_flux.composites.spatial.spatial_dfba_process) for', STEPS_spatial, 'steps')
-    except Exception as _e:
-        print(f"spatial not runnable yet: {type(_e).__name__}: {_e}")
-else:
-    print("RERUN=False — not re-simulating.")
-
-# ### Visualizations
-#
-# _Results are shown by the figures below, produced by the run above._
-
-# **spatial_vs_wellmixed_community-wellmixed trajectory**
-
-# spatial_vs_wellmixed_community-wellmixed trajectory
-_save_viz('spatial_vs_wellmixed_community', 'spatial_vs_wellmixed_community-wellmixed_trajectory', _render_one('image:charts/spatial_vs_wellmixed_community-wellmixed_trajectory.png', {}, RUNS_DB, STUDY_YAML))
-
-# **spatial_vs_wellmixed_community-spatial trajectory**
-
-# spatial_vs_wellmixed_community-spatial trajectory
-_save_viz('spatial_vs_wellmixed_community', 'spatial_vs_wellmixed_community-spatial_trajectory', _render_one('image:charts/spatial_vs_wellmixed_community-spatial_trajectory.png', {}, RUNS_DB, STUDY_YAML))
-
-# ### Acceptance criteria
-#
-# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
-#
-# | test | measures | passes if |
-# | --- | --- | --- |
-# | SPATIAL-VS-WELLMIXED-WELLMIXED-DEPLETES _(primary)_ | kind=observable_band slug=spatial_vs_wellmixed_community observable=glucose run_id=spatial_vs_wellmixed_community-wellmixed-reproduce expected=[0.0, 1.0] | op band |
-# | SPATIAL-VS-WELLMIXED-SPATIAL-RETAINS-POOL _(primary)_ | kind=observable_band slug=spatial_vs_wellmixed_community observable=glucose run_id=spatial_vs_wellmixed_community-spatial-reproduce expected=[10.0, 10000.0] | op band |
-
-# ## Study: Glucose-limitation yield response (`glucose_limitation_yield`)
-#
-# **Question.** Does the biomass yield of dynamic-FBA growth scale with the initial glucose supply — the quantitative signature of carbon limitation?
-#
-# **Purpose.** New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.
-#
-# **Claim.** Final dynamic-FBA biomass scales with the initial glucose supply: a glucose-limited cell (2 mM) reaches roughly a quarter of the biomass of a glucose-replete cell (10 mM), the quantitative carbon-limitation response.
-
-# ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `low-glucose` | `spatio_flux.composites.metabolism.ecoli_core_dfba` | 0 | glucose=2.0, acetate=0.0 |
-# | `high-glucose` | `spatio_flux.composites.metabolism.ecoli_core_dfba` | 0 | glucose=10.0, acetate=0.0 |
-
-# ### The model & its parameters
-#
-# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
-
-# **The model — `spatio_flux.composites.metabolism.ecoli_core_dfba`**
-#
-# Dynamic FBA of a single E. coli core cell in a well-mixed medium, tracking extracellular glucose and acetate as biomass grows — the simplest single-cell metabolism model, with no space or particles.
-
-# === Parameters — edit any value, then re-run from the Run cell below ===
-# Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_metabolism_ecoli_core_dfba = {
-    'model_id': 'ecoli core',
-    'glucose' : 10.0,
-    'acetate' : 0.0,
-    'biomass' : 0.1,
-}
-
-# ### Run
-#
-# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
-
-# === Study: glucose_limitation_yield ===
-STUDY = 'glucose_limitation_yield'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-# This study has no *recorded* runs yet. RERUN builds its declared
-# composite(s) live and runs them; a composite whose module processes
-# are not implemented yet reports the error instead of crashing.
-STEPS_low_glucose = 100
-INTERVAL_low_glucose = 1.0
-STEPS_high_glucose = 100
-INTERVAL_high_glucose = 1.0
-
-if RERUN:
-    from process_bigraph import Composite
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_metabolism_ecoli_core_dfba if 'ov_spatio_flux_composites_metabolism_ecoli_core_dfba' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_metabolism_ecoli_core_dfba = materialize_composite('spatio_flux.composites.metabolism.ecoli_core_dfba', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_ecoli_core_dfba['state']}, core=core)
-            _comp.run(STEPS_low_glucose)
-        print('ran', 'low-glucose', f'(spatio_flux.composites.metabolism.ecoli_core_dfba) for', STEPS_low_glucose, 'steps')
-    except Exception as _e:
-        print(f"low-glucose not runnable yet: {type(_e).__name__}: {_e}")
-    try:
-        with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_metabolism_ecoli_core_dfba if 'ov_spatio_flux_composites_metabolism_ecoli_core_dfba' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_metabolism_ecoli_core_dfba = materialize_composite('spatio_flux.composites.metabolism.ecoli_core_dfba', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_metabolism_ecoli_core_dfba['state']}, core=core)
-            _comp.run(STEPS_high_glucose)
-        print('ran', 'high-glucose', f'(spatio_flux.composites.metabolism.ecoli_core_dfba) for', STEPS_high_glucose, 'steps')
-    except Exception as _e:
-        print(f"high-glucose not runnable yet: {type(_e).__name__}: {_e}")
-else:
-    print("RERUN=False — not re-simulating.")
-
-# ### Visualizations
-#
-# _Results are shown by the figures below, produced by the run above._
-
-# **glucose_limitation_yield-low trajectory**
-
-# glucose_limitation_yield-low trajectory
-_save_viz('glucose_limitation_yield', 'glucose_limitation_yield-low_trajectory', _render_one('image:charts/glucose_limitation_yield-low_trajectory.png', {}, RUNS_DB, STUDY_YAML))
-
-# **glucose_limitation_yield-high trajectory**
-
-# glucose_limitation_yield-high trajectory
-_save_viz('glucose_limitation_yield', 'glucose_limitation_yield-high_trajectory', _render_one('image:charts/glucose_limitation_yield-high_trajectory.png', {}, RUNS_DB, STUDY_YAML))
-
-# ### Acceptance criteria
-#
-# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
-#
-# | test | measures | passes if |
-# | --- | --- | --- |
-# | GLUCOSE-LIMITATION-LOW-YIELD _(primary)_ | kind=observable_band slug=glucose_limitation_yield observable=biomass run_id=glucose_limitation_yield-low-reproduce expected=[0.18, 0.4] | op band |
-# | GLUCOSE-LIMITATION-HIGH-YIELD _(primary)_ | kind=observable_band slug=glucose_limitation_yield observable=biomass run_id=glucose_limitation_yield-high-reproduce expected=[0.8, 1.15] | op band |
-
 # ## Study: Nutrient-starvation negative control (`nutrient_starvation_control`)
 #
 # **Question.** With no carbon source, does the dynamic-FBA model correctly fail to grow — the falsification control that the growth signal is real, not an artifact?
@@ -2439,48 +2076,44 @@ _save_viz('nutrient_starvation_control', 'nutrient_starvation_control_trajectory
 # | --- | --- | --- |
 # | NUTRIENT-STARVATION-NO-GROWTH _(primary)_ | kind=observable_flat slug=nutrient_starvation_control observable=biomass run_id=nutrient_starvation_control-reproduce | op flat tolerance 0.02 |
 
-# ## Study: Division-threshold population regimes (`division_seeding_regimes`)
+# ## Study: Spatial cross-feeding bridge (`spatial_cross_feeding_bridge`)
 #
-# **Question.** How does the particle population size depend on the division mass threshold in the coupled field+agent COMETS composite?
+# **Question.** Does strain B grow only where strain A's secreted acetate diffuses to it?
 #
-# **Purpose.** Parameter-sweep phase-diagram study (discovery engine): a real composite swept over one axis, reduced to a regime metric.
+# **Purpose.** Spatial dFBA strain A (glucose side) secretes acetate; a diffusing acetate field bridges to acetate-only strain B on the no-glucose side.
 #
-# **Claim.** Raising the division mass threshold monotonically shrinks the final particle population in the full COMETS composite — a division-controlled population-size phase relationship.
+# **Claim.** Strain A grows on glucose and secretes acetate that diffuses to strain B on the no-glucose side, producing a small, acetate-dependent growth increment in B that does not occur when A is absent — an emergent, spatially-localized cross-feeding dependency (the effect is modest: B grows ~1.6% over the run).
 
 # ### Parameters
 #
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
-# | `representative` | `spatio_flux.composites.comets.comets_br_particles_dfba` | 0 | n_particles=1, add_rate=0.3, division_mass_threshold=3 |
+# | `bridge` | `spatio_flux.composites.novel.spatial_cross_feeding` | 0 | — |
+# | `control` | `spatio_flux.composites.novel.spatial_cross_feeding` | 0 | a_absent=True |
 
 # ### The model & its parameters
 #
 # Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
 
-# **The model — `spatio_flux.composites.comets.comets_br_particles_dfba`**
+# **The model — `spatio_flux.composites.novel.spatial_cross_feeding`**
 #
-# The full COMETS-style composite: per-site lattice dFBA and advection–diffusion of substrates coupled to Brownian particles that each run an internal dFBA model, exchange with the fields, and divide as biomass accumulates.
+# Spatial cross-feeding: strain A grows on glucose (seeded on one side) and secretes acetate that diffuses across the lattice to strain B (seeded on the no-glucose side), which grows on the acetate. An emergent spatial partnership — B cannot grow without A's secreted acetate bridge.
 
 # === Parameters — edit any value, then re-run from the Run cell below ===
 # Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_comets_comets_br_particles_dfba = {
-    'particle_model_id'      : 'ecoli core',
-    'dissolved_model_id'     : 'ecoli core',
-    'division_mass_threshold': 3,
-    'n_particles'            : 1,
-    'add_rate'               : 0.3,
-    'n_bins'                 : [10, 10],
-    'bounds'                 : [50.0, 50.0],
-    'diffusion_rate'         : 0.5,
-    'field_advection_rate'   : [0.0, 0.2],
+ov_spatio_flux_composites_novel_spatial_cross_feeding = {
+    'model_id': 'ecoli core',
+    'n_bins'  : [10, 10],
+    'bounds'  : [50.0, 50.0],
+    'a_absent': False,
 }
 
 # ### Run
 #
 # _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
 
-# === Study: division_seeding_regimes ===
-STUDY = 'division_seeding_regimes'
+# === Study: spatial_cross_feeding_bridge ===
+STUDY = 'spatial_cross_feeding_bridge'
 STUDY_DIR = REPO / 'studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
@@ -2488,20 +2121,31 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 # This study has no *recorded* runs yet. RERUN builds its declared
 # composite(s) live and runs them; a composite whose module processes
 # are not implemented yet reports the error instead of crashing.
-STEPS_representative = 100
-INTERVAL_representative = 1.0
+STEPS_bridge = 100
+INTERVAL_bridge = 1.0
+STEPS_control = 100
+INTERVAL_control = 1.0
 
 if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_comets_comets_br_particles_dfba if 'ov_spatio_flux_composites_comets_comets_br_particles_dfba' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_comets_comets_br_particles_dfba = materialize_composite('spatio_flux.composites.comets.comets_br_particles_dfba', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_br_particles_dfba['state']}, core=core)
-            _comp.run(STEPS_representative)
-        print('ran', 'representative', f'(spatio_flux.composites.comets.comets_br_particles_dfba) for', STEPS_representative, 'steps')
+            _ov = ov_spatio_flux_composites_novel_spatial_cross_feeding if 'ov_spatio_flux_composites_novel_spatial_cross_feeding' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_novel_spatial_cross_feeding = materialize_composite('spatio_flux.composites.novel.spatial_cross_feeding', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_novel_spatial_cross_feeding['state']}, core=core)
+            _comp.run(STEPS_bridge)
+        print('ran', 'bridge', f'(spatio_flux.composites.novel.spatial_cross_feeding) for', STEPS_bridge, 'steps')
     except Exception as _e:
-        print(f"representative not runnable yet: {type(_e).__name__}: {_e}")
+        print(f"bridge not runnable yet: {type(_e).__name__}: {_e}")
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_spatio_flux_composites_novel_spatial_cross_feeding if 'ov_spatio_flux_composites_novel_spatial_cross_feeding' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_novel_spatial_cross_feeding = materialize_composite('spatio_flux.composites.novel.spatial_cross_feeding', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_novel_spatial_cross_feeding['state']}, core=core)
+            _comp.run(STEPS_control)
+        print('ran', 'control', f'(spatio_flux.composites.novel.spatial_cross_feeding) for', STEPS_control, 'steps')
+    except Exception as _e:
+        print(f"control not runnable yet: {type(_e).__name__}: {_e}")
 else:
     print("RERUN=False — not re-simulating.")
 
@@ -2509,10 +2153,10 @@ else:
 #
 # _Results are shown by the figures below, produced by the run above._
 
-# **division_seeding_regimes phase diagram**
+# **cross-feeding field movie**
 
-# division_seeding_regimes phase diagram
-_save_viz('division_seeding_regimes', 'division_seeding_regimes_phase_diagram', _render_one('image:charts/division_seeding_regimes_phase.png', {}, RUNS_DB, STUDY_YAML))
+# cross-feeding field movie
+_save_viz('spatial_cross_feeding_bridge', 'cross-feeding_field_movie', _render_one('html:viz/spatial_cross_feeding_bridge_fields.html', {}, RUNS_DB, STUDY_YAML))
 
 # ### Acceptance criteria
 #
@@ -2520,36 +2164,40 @@ _save_viz('division_seeding_regimes', 'division_seeding_regimes_phase_diagram', 
 #
 # | test | measures | passes if |
 # | --- | --- | --- |
-# | DIVISION-SEEDING-POPULATION-DECREASES _(primary)_ | kind=observable_monotone slug=division_seeding_regimes observable=final_n_particles run_id=division_seeding_regimes-reproduce direction=decreasing | op monotone tolerance 0.01 |
+# | N1-B-TRACKS-ACETATE-BRIDGE _(primary)_ | kind=spatial_overlap slug=spatial_cross_feeding_bridge observable=biomass_B prefers=acetate over=glucose run_id=spatial_cross_feeding_bridge-reproduce | op spatial_overlap |
+# | N1-A-SECRETES-AND-GROWS _(primary)_ | kind=observable_monotone slug=spatial_cross_feeding_bridge observable=biomass_A direction=increasing run_id=spatial_cross_feeding_bridge-reproduce | op monotone tolerance 0.05 |
+# | N1-CONTROL-B-FLAT-WITHOUT-A _(primary)_ | kind=observable_flat slug=spatial_cross_feeding_bridge observable=biomass_B run_id=spatial_cross_feeding_bridge-control-reproduce | op flat tolerance 0.05 |
 
-# ## Study: Advection plume-reach phase diagram (`advection_plume_phase`)
+# ## Study: Biofilm settling + metabolism (`biofilm_settling_metabolism`)
 #
-# **Question.** How far downstream does the biomass plume reach as a function of the advection strength of the COMETS field?
+# **Question.** Does gravity-driven settling structure metabolic growth by depth?
 #
-# **Purpose.** Parameter-sweep phase-diagram study (discovery engine): a real composite swept over one axis, reduced to a regime metric.
+# **Purpose.** Pymunk rigid-body particles settle under gravity, each running internal dFBA against the local COMETS fields, dividing as they grow.
 #
-# **Claim.** The downstream reach of the growing biomass plume scales monotonically with advection strength — an advection-controlled spatial-transport phase relationship.
+# **Claim.** Rigid-body cells settle and pack under gravity while feeding on the nutrient field, and the population grows — a physics-coupled settling biofilm. Whether per-cell growth is structured by depth is suggestive but NOT established at this scale (the mass-vs-depth correlation is weak, ~0.4, not significant at ~10 cells, and varies run to run).
 
 # ### Parameters
 #
 # | simulation | composite | steps | params |
 # | --- | --- | --- | --- |
-# | `representative` | `spatio_flux.composites.comets.comets_diffusion` | 0 | advection_rate=[0.0, 0.6] |
+# | `representative` | `spatio_flux.composites.comets.comets_nt_particles_dfba` | 0 | n_particles=8 |
 
 # ### The model & its parameters
 #
 # Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
 
-# **The model — `spatio_flux.composites.comets.comets_diffusion`**
+# **The model — `spatio_flux.composites.comets.comets_nt_particles_dfba`**
 #
-# The classic COMETS field-only scenario: per-site dFBA on a lattice coupled to advection–diffusion of glucose, acetate, and dissolved biomass, with biomass seeded at the top edge.
+# Pymunk rigid-body particles that collide and settle under gravity while COMETS fields diffuse and a lattice kinetics process consumes substrate; each particle runs an internal dFBA model, exchanging with the local fields and dividing as it grows.
 
 # === Parameters — edit any value, then re-run from the Run cell below ===
 # Each entry is the composite's current default; the comment explains it.
-ov_spatio_flux_composites_comets_comets_diffusion = {
+ov_spatio_flux_composites_comets_comets_nt_particles_dfba = {
+    'particle_model_id' : 'ecoli core',
     'dissolved_model_id': 'ecoli core',
-    'n_bins'            : [10, 10],
+    'n_particles'       : 2,
     'bounds'            : [50.0, 50.0],
+    'n_bins'            : [20, 20],
     'advection_rate'    : [0.0, 0.2],
 }
 
@@ -2557,8 +2205,8 @@ ov_spatio_flux_composites_comets_comets_diffusion = {
 #
 # _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
 
-# === Study: advection_plume_phase ===
-STUDY = 'advection_plume_phase'
+# === Study: biofilm_settling_metabolism ===
+STUDY = 'biofilm_settling_metabolism'
 STUDY_DIR = REPO / 'studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
@@ -2573,11 +2221,11 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            _ov = ov_spatio_flux_composites_comets_comets_diffusion if 'ov_spatio_flux_composites_comets_comets_diffusion' in dir() else None  # edits from the panel cell, if any
-            spec_spatio_flux_composites_comets_comets_diffusion = materialize_composite('spatio_flux.composites.comets.comets_diffusion', _ov)
-            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_diffusion['state']}, core=core)
+            _ov = ov_spatio_flux_composites_comets_comets_nt_particles_dfba if 'ov_spatio_flux_composites_comets_comets_nt_particles_dfba' in dir() else None  # edits from the panel cell, if any
+            spec_spatio_flux_composites_comets_comets_nt_particles_dfba = materialize_composite('spatio_flux.composites.comets.comets_nt_particles_dfba', _ov)
+            _comp = Composite({'state': spec_spatio_flux_composites_comets_comets_nt_particles_dfba['state']}, core=core)
             _comp.run(STEPS_representative)
-        print('ran', 'representative', f'(spatio_flux.composites.comets.comets_diffusion) for', STEPS_representative, 'steps')
+        print('ran', 'representative', f'(spatio_flux.composites.comets.comets_nt_particles_dfba) for', STEPS_representative, 'steps')
     except Exception as _e:
         print(f"representative not runnable yet: {type(_e).__name__}: {_e}")
 else:
@@ -2587,10 +2235,10 @@ else:
 #
 # _Results are shown by the figures below, produced by the run above._
 
-# **advection_plume_phase phase diagram**
+# **biofilm particle movie**
 
-# advection_plume_phase phase diagram
-_save_viz('advection_plume_phase', 'advection_plume_phase_phase_diagram', _render_one('image:charts/advection_plume_phase_phase.png', {}, RUNS_DB, STUDY_YAML))
+# biofilm particle movie
+_save_viz('biofilm_settling_metabolism', 'biofilm_particle_movie', _render_one('html:viz/biofilm_settling_metabolism_particles.html', {}, RUNS_DB, STUDY_YAML))
 
 # ### Acceptance criteria
 #
@@ -2598,4 +2246,5 @@ _save_viz('advection_plume_phase', 'advection_plume_phase_phase_diagram', _rende
 #
 # | test | measures | passes if |
 # | --- | --- | --- |
-# | ADVECTION-PLUME-REACH-INCREASES _(primary)_ | kind=observable_monotone slug=advection_plume_phase observable=plume_centroid_y run_id=advection_plume_phase-reproduce direction=increasing | op monotone tolerance 0.01 |
+# | N4-CELLS-SETTLE _(primary)_ | kind=particle_settling slug=biofilm_settling_metabolism run_id=biofilm_settling_metabolism-reproduce | op particle_settling min_drop 2.0 |
+# | N4-POPULATION-GROWS _(primary)_ | kind=observable_monotone slug=biofilm_settling_metabolism observable=particle_mass direction=increasing run_id=biofilm_settling_metabolism-reproduce | op monotone tolerance 0.05 |
