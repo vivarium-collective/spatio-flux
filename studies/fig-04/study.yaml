@@ -5,14 +5,11 @@ investigation: paper-figures
 created: '2026-08-10'
 status: complete
 confidence: Accepted
-claim: image generated
+claim: Figure 4 renders the process diagram as a committed bigraph-loom diagram.
 purpose:
   question: What does Fig 4 depict, and does its bigraph-loom image generate?
-  mechanism: 'A single process shown as a rectangle with typed ports on its boundary — inputs
-    in_1 (species), in_2 (params) on the left; outputs out_1 (ss_species), out_2 (rates) on
-    the right; config type steady_state; the update function maps (in_1, in_2) → (out_1, out_2).'
-  expected_outcome: The process schematic's bigraph-loom SVG generates and appears under 
-    Visualizations.
+  mechanism: 'A single process shown as a rectangle with typed ports on its boundary — inputs in_1 (species), in_2 (params) on the left; outputs out_1 (ss_species), out_2 (rates) on the right; config type steady_state; the update function maps (in_1, in_2) → (out_1, out_2).'
+  expected_outcome: The process schematic's bigraph-loom SVG generates and appears under Visualizations.
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
@@ -38,3 +35,10 @@ conditions:
     params: {}
   model_settings: []
 question: What does Fig 4 depict, and does its bigraph-loom image generate?
+findings:
+- id: F1
+  kind: methods
+  status: confirms
+  statement: 'Illustrative methods/figure study: the bigraph-loom SVG(s) are committed under visualizations/ and render the paper figure. It documents model structure for the manuscript, not a quantitative biological result.'
+  evidence:
+    note: committed bigraph-loom SVG(s) under visualizations/

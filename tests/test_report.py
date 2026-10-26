@@ -6,9 +6,10 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def test_collect_report_inputs_orders_by_investigation():
     from scripts.build_report import collect_report_inputs
     slugs, descriptions, simulations, runtimes, timing, total = collect_report_inputs(REPO)
-    assert len(slugs) == 19
-    assert slugs[0] == "monod_kinetics"          # investigation order
-    assert slugs[-1] == "reference_demo_x2y2"
+    assert len(slugs) >= 19                       # 19 original + discovery-engine studies
+    assert slugs[0] == "monod_kinetics"          # investigation order (originals lead)
+    assert "reference_demo_x2y2" in slugs
+    assert "advection_plume_phase" in slugs       # a discovery-engine study
     # every study has a description (from its @composite_generator)
     assert descriptions["comets_diffusion"]
     # baseline params surfaced as the scenario config
@@ -26,8 +27,9 @@ def test_collect_report_inputs_reads_timing_when_present(tmp_path):
 def test_reproduce_lists_all_investigation_studies():
     from scripts.reproduce import study_slugs
     slugs = study_slugs(REPO)
-    assert len(slugs) == 19
+    assert len(slugs) >= 19
     assert "spatioflux_reference_demo" in slugs
+    assert "division_seeding_regimes" in slugs     # a discovery-engine study
 
 
 def test_test_suite_module_retired():

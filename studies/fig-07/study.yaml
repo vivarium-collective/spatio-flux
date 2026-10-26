@@ -5,16 +5,11 @@ investigation: paper-figures
 created: '2026-08-09'
 status: complete
 confidence: Accepted
-claim: image generated
+claim: Figure 7 renders the spatio-flux example composites as committed bigraph-loom diagrams.
 purpose:
   question: What does Fig 7 depict, and do its three panels' bigraph-loom images generate?
-  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared
-    `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial
-    dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles
-    (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in
-    bigraph-loom.'
-  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under 
-    Visualizations, one run per panel.
+  mechanism: 'Three spatio-flux example composites, one panel each: 7.1 community dFBA (shared `fields` store + a dynamic-FBA process per species + Monod kinetics); 7.2 COMETS-style spatial dFBA (fields on a grid + diffusion-advection + a dFBA process per bin); 7.3 Brownian particles (a `particles` store driven by brownian_movement + enforce-boundaries). Each rendered in bigraph-loom.'
+  expected_outcome: All three panels' bigraph-loom SVGs generate and appear under Visualizations, one run per panel.
 expected_behavior:
 - bigraph-loom image generated correctly
 visualizations:
@@ -125,3 +120,10 @@ conditions:
     params: {}
   model_settings: []
 question: What does Fig 7 depict, and do its three panels' bigraph-loom images generate?
+findings:
+- id: F1
+  kind: methods
+  status: confirms
+  statement: 'Illustrative methods/figure study: the bigraph-loom SVG(s) are committed under visualizations/ and render the paper figure. It documents model structure for the manuscript, not a quantitative biological result.'
+  evidence:
+    note: committed bigraph-loom SVG(s) under visualizations/

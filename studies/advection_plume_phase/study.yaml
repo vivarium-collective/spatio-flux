@@ -1,0 +1,131 @@
+schema_version: 3
+name: advection_plume_phase
+investigation: spatio-flux-test-suite
+title: Advection plume-reach phase diagram
+status: complete
+phase: Evaluate
+confidence: Accepted
+claim: The downstream reach of the growing biomass plume scales monotonically with advection strength — an advection-controlled spatial-transport phase relationship.
+purpose:
+  question: How far downstream does the biomass plume reach as a function of the advection strength of the COMETS field?
+  mechanism: 'Parameter-sweep phase-diagram study (discovery engine): a real composite swept over one axis, reduced to a regime metric.'
+  expected_outcome: The metric varies monotonically across the swept axis, revealing the regime relationship.
+question: How far downstream does the biomass plume reach as a function of the advection strength of the COMETS field?
+conditions:
+  sweep:
+    composite: spatio_flux.composites.comets.comets_diffusion
+    fixed: {}
+    points:
+    - value: 0.0
+      overrides:
+        advection_rate:
+        - 0.0
+        - 0.0
+    - value: 0.3
+      overrides:
+        advection_rate:
+        - 0.0
+        - 0.3
+    - value: 0.6
+      overrides:
+        advection_rate:
+        - 0.0
+        - 0.6
+    - value: 1.0
+      overrides:
+        advection_rate:
+        - 0.0
+        - 1.0
+    axis_label: advection_y
+    metric:
+      name: plume_centroid_y
+      kind: centroid_y
+      field: dissolved biomass
+    steps: 40
+  model_settings: []
+  baseline:
+    name: representative
+    composite: spatio_flux.composites.comets.comets_diffusion
+    params:
+      advection_rate:
+      - 0.0
+      - 0.6
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_sweep.py
+  args:
+  - advection_plume_phase
+  - '40'
+  label: sweep advection_plume_phase
+  default: true
+visualizations:
+- name: advection_plume_phase phase diagram
+  address: image:charts/advection_plume_phase_phase.png
+  chart: image
+behavior_tests:
+- name: ADVECTION-PLUME-REACH-INCREASES
+  classification: primary
+  description: the biomass plume's downstream centroid reach increases monotonically with advection strength.
+  measure:
+    kind: observable_monotone
+    slug: advection_plume_phase
+    observable: plume_centroid_y
+    run_id: advection_plume_phase-reproduce
+    direction: increasing
+  pass_if:
+    op: monotone
+    tolerance: 0.01
+  requires_simulation: reproduce
+runs:
+- name: advection_plume_phase-reproduce
+  run_id: advection_plume_phase-reproduce
+  kind: sweep
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.comets.comets_diffusion
+  emitter:
+    kind: xarray
+    store: studies/advection_plume_phase/runs.advection_plume_phase-reproduce.zarr
+  store_path: studies/advection_plume_phase/runs.advection_plume_phase-reproduce.zarr
+  outcomes:
+    ADVECTION-PLUME-REACH-INCREASES:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [1.409,2.614]; start 0.05638 end 5.815; tol 0.01
+  computed_outcomes:
+    ADVECTION-PLUME-REACH-INCREASES:
+      result: PASS
+      measured_value: 5.814682134397391
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [1.409,2.614]; net +5.758; start 0.05638 end 5.815; tol 0.01
+      reconcile: agree
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  statement: "The plume's downstream centroid advances from ~0 (no advection) to ~5.8 rows at the strongest advection: transport strength, not metabolism, sets how far the growing population spreads across the field."
+  evidence:
+    from_test: ADVECTION-PLUME-REACH-INCREASES
+  provenance:
+    run_ids:
+    - advection_plume_phase-reproduce
+  tier: interpretation
+  mechanism_origin: emergent
+discovery_implications:
+  resolved:
+  - Plume downstream reach scales monotonically with advection strength.
+  remaining:
+  - Whether diffusion blurs or sharpens the plume boundary at fixed advection is unquantified.
+  followup_study_proposals:
+  - id: advection-diffusion-plume-sharpness
+    motivation: At fixed advection, sweeping diffusion would show whether the plume front stays sharp or disperses — a 2D transport phase diagram.
+    candidate: comets_diffusion advection x diffusion sweep
+gate_status: passed
+falsifiability: If plume reach were flat or non-monotonic in advection strength, the advection-controlled-transport claim would be false.
+limitations:
+- Advection varied along one axis at fixed diffusion; a single composite and horizon.
+alternative_hypotheses:
+- hypothesis: The plume reach reflects diffusion, not advection.
+  excluded_by: Diffusion is held fixed across the sweep; only the advection vector varies.

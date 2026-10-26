@@ -1,0 +1,142 @@
+schema_version: 3
+name: spatial_vs_wellmixed_community
+investigation: spatio-flux-test-suite
+title: Spatial structure vs well-mixed community
+status: complete
+phase: Evaluate
+confidence: Investigating
+claim: A well-mixed microbial community drives glucose to complete exhaustion, whereas a spatially-structured community scenario plateaus with a large standing glucose pool unconsumed at the same horizon — an observed difference in substrate-use completeness between well-mixed and spatial community scenarios.
+purpose:
+  question: Does spatial structure change how completely a microbial community consumes its shared substrate, compared with the well-mixed case?
+  mechanism: 'New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.'
+  expected_outcome: The quantitative behavior tests pass, confirming the stated emergent/metabolic claim.
+question: Does spatial structure change how completely a microbial community consumes its shared substrate, compared with the well-mixed case?
+conditions:
+  baseline:
+  - name: well-mixed
+    composite: spatio_flux.composites.metabolism.community_dfba
+    params: {}
+  - name: spatial
+    composite: spatio_flux.composites.spatial.spatial_dfba_process
+    params: {}
+  model_settings: []
+canonical_runs:
+- name: reproduce-wellmixed
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_vs_wellmixed_community
+  - '60'
+  - well-mixed
+  - -wellmixed
+  label: run spatial_vs_wellmixed_community-wellmixed
+  default: true
+- name: reproduce-spatial
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_vs_wellmixed_community
+  - '60'
+  - spatial
+  - -spatial
+  label: run spatial_vs_wellmixed_community-spatial
+  default: false
+visualizations:
+- name: spatial_vs_wellmixed_community-wellmixed trajectory
+  address: image:charts/spatial_vs_wellmixed_community-wellmixed_trajectory.png
+  chart: image
+- name: spatial_vs_wellmixed_community-spatial trajectory
+  address: image:charts/spatial_vs_wellmixed_community-spatial_trajectory.png
+  chart: image
+behavior_tests:
+- name: SPATIAL-VS-WELLMIXED-WELLMIXED-DEPLETES
+  classification: primary
+  description: the well-mixed community drives glucose to near-zero.
+  measure:
+    kind: observable_band
+    slug: spatial_vs_wellmixed_community
+    observable: glucose
+    run_id: spatial_vs_wellmixed_community-wellmixed-reproduce
+    expected:
+    - 0.0
+    - 1.0
+  pass_if:
+    op: band
+  requires_simulation: reproduce
+- name: SPATIAL-VS-WELLMIXED-SPATIAL-RETAINS-POOL
+  classification: primary
+  description: the spatial community scenario retains a substantial standing glucose pool (does not reach complete depletion) at the run horizon.
+  measure:
+    kind: observable_band
+    slug: spatial_vs_wellmixed_community
+    observable: glucose
+    run_id: spatial_vs_wellmixed_community-spatial-reproduce
+    expected:
+    - 10.0
+    - 10000.0
+  pass_if:
+    op: band
+  requires_simulation: reproduce
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  statement: 'Run to the same horizon, the well-mixed community consumes essentially all of its glucose (10 -> ~0) while the spatial community scenario plateaus with a large standing pool unconsumed (300 -> ~83, ~72% consumed): the spatial arrangement reaches a less complete substrate use. The two arms are DIFFERENT composites with different initial glucose, so this is a scenario-level observation, not a controlled isolation of spatial structure (see limitations).'
+  evidence:
+    from_test: SPATIAL-VS-WELLMIXED-SPATIAL-RETAINS-POOL
+  provenance:
+    run_ids:
+    - spatial_vs_wellmixed_community-wellmixed-reproduce
+    - spatial_vs_wellmixed_community-spatial-reproduce
+  tier: interpretation
+  mechanism_origin: emergent
+discovery_implications:
+  resolved:
+  - Spatial structure leaves substrate unconsumed that a well-mixed community would fully deplete.
+  remaining:
+  - Whether stronger mixing (higher diffusion) recovers the well-mixed depletion is unquantified.
+  followup_study_proposals:
+  - id: mixing-recovers-depletion
+    motivation: If spatial structure leaves substrate unused, does increasing diffusion (mixing) interpolate back to the well-mixed full-depletion limit?
+    candidate: spatial_dfba_process / comets_spatial_dfba sweep over diffusion_rate
+runs:
+- name: spatial_vs_wellmixed_community-wellmixed-reproduce
+  run_id: spatial_vs_wellmixed_community-wellmixed-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.metabolism.community_dfba
+  emitter:
+    kind: xarray
+    store: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-wellmixed-reproduce.zarr
+  store_path: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-wellmixed-reproduce.zarr
+  outcomes:
+    SPATIAL-VS-WELLMIXED-WELLMIXED-DEPLETES:
+      result: PASS
+      evaluated_by: code
+      operator: observable_band
+      detail: final 0 vs band [0,1]
+- name: spatial_vs_wellmixed_community-spatial-reproduce
+  run_id: spatial_vs_wellmixed_community-spatial-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.metabolism.community_dfba
+  emitter:
+    kind: xarray
+    store: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-spatial-reproduce.zarr
+  store_path: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-spatial-reproduce.zarr
+  outcomes:
+    SPATIAL-VS-WELLMIXED-SPATIAL-RETAINS-POOL:
+      result: PASS
+      evaluated_by: code
+      operator: observable_band
+      detail: final 82.6 vs band [10,1e+04]
+gate_status: passed
+falsifiability: If the spatial arrangement depleted glucose as completely as the well-mixed community (final glucose ~0), the 'spatial structure changes substrate use' claim would be false.
+limitations:
+- The well-mixed (community_dfba) and spatial (spatial_dfba_process) arms are DIFFERENT composites with different species sets, biomass representations, and ~30x different initial glucose (10 vs 300). The contrast is therefore scenario-level, not a controlled spatial-vs-well-mixed isolation.
+- Completeness is read from final glucose at one horizon; no fraction-matched or mixing-swept control.
+alternative_hypotheses:
+- hypothesis: The incomplete consumption in the spatial arm is due to its different composite / larger initial glucose, not spatial structure per se.
+  excluded_by: NOT excluded — this is an acknowledged confound (see limitations). The claim is intentionally limited to the observed scenario-level difference; a matched-initial, same-composite spatial-vs-mixed control is proposed as the follow-up.
+- hypothesis: The spatial run simply needs more time to finish depleting glucose.
+  excluded_by: Both conditions run to the same horizon and the spatial glucose is gradient-limited (far-from-source sites never access it).

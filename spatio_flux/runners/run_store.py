@@ -55,6 +55,38 @@ def _field_dataarrays(trajectory):
     if any("particles" in (step or {}) for step in trajectory):
         counts = [len((step.get("particles") or {})) for step in trajectory]
         data_vars["n_particles"] = xr.DataArray(np.asarray(counts), dims=("time",))
+
+    # per-particle positions + mass as (time, particle), NaN-padded to the max
+    # count; slot order = first-appearance order of particle ids (stable across
+    # ticks, so a slot tracks the same particle even as others are born/divide).
+    slots: list = []
+    seen: set = set()
+    for step in trajectory:
+        for pid in (step.get("particles") or {}):
+            if pid not in seen:
+                seen.add(pid)
+                slots.append(pid)
+    if slots:
+        nt = len(trajectory)
+        slot_idx = {pid: i for i, pid in enumerate(slots)}
+        px = np.full((nt, len(slots)), np.nan)
+        py = np.full((nt, len(slots)), np.nan)
+        pm = np.full((nt, len(slots)), np.nan)
+        for ti, step in enumerate(trajectory):
+            for pid, p in (step.get("particles") or {}).items():
+                i = slot_idx[pid]
+                if not isinstance(p, dict):
+                    continue
+                pos = p.get("position")
+                if pos is not None and len(pos) >= 2:
+                    px[ti, i] = float(pos[0])
+                    py[ti, i] = float(pos[1])
+                m = p.get("mass")
+                if m is not None:
+                    pm[ti, i] = float(m)
+        data_vars["particle_x"] = xr.DataArray(px, dims=("time", "particle"))
+        data_vars["particle_y"] = xr.DataArray(py, dims=("time", "particle"))
+        data_vars["particle_mass"] = xr.DataArray(pm, dims=("time", "particle"))
     return data_vars, times
 
 

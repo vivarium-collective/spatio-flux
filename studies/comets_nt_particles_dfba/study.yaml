@@ -9,10 +9,8 @@ simulation_status: ran
 evaluation_status: evaluated
 gate_status: passed
 purpose:
-  question: 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS
-    fields diffuse; particles run metabolism (via exchange) against local concentrations.'
-  mechanism: Runs the spatio_flux.composites.comets.comets_nt_particles_dfba composite 
-    (triple composition).
+  question: 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.'
+  mechanism: Runs the spatio_flux.composites.comets.comets_nt_particles_dfba composite (triple composition).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
 pipeline_gate:
   prerequisites:
@@ -51,10 +49,7 @@ visualizations:
 behavior_tests:
 - name: COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT
   classification: regression
-  description: All 8 expected artifacts are produced in charts/, and the composite's 
-    structural schema (comets_nt_particles_dfba_schema.json) matches the committed 
-    reference in studies/<slug>/reference/. State/figures embed RNG or non-deterministic 
-    renders, so they are existence-checked.
+  description: All 8 expected artifacts are produced in charts/, and the composite's structural schema (comets_nt_particles_dfba_schema.json) matches the committed reference in studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders, so they are existence-checked.
   measure:
     kind: artifacts_present
     expected:
@@ -70,6 +65,30 @@ behavior_tests:
     op: all_exist_and_match
     tolerance: 0.0
   requires_simulation: reproduce
+- name: COMETS-NT-PARTICLES-DFBA-DISSOLVED-BIOMASS-GROWS
+  classification: primary
+  description: dissolved biomass increases monotonically over the run.
+  measure:
+    kind: observable_monotone
+    slug: comets_nt_particles_dfba
+    observable: dissolved biomass
+    direction: increasing
+  pass_if:
+    op: monotone
+    tolerance: 0.01
+  requires_simulation: reproduce
+- name: COMETS-NT-PARTICLES-DFBA-PARTICLE_MASS-GROWS
+  classification: primary
+  description: particle_mass increases monotonically over the run.
+  measure:
+    kind: observable_monotone
+    slug: comets_nt_particles_dfba
+    observable: particle_mass
+    direction: increasing
+  pass_if:
+    op: monotone
+    tolerance: 0.01
+  requires_simulation: reproduce
 runs:
 - name: comets_nt_particles_dfba-reproduce
   run_id: comets_nt_particles_dfba-reproduce
@@ -80,46 +99,58 @@ runs:
   emitter:
     kind: xarray
     store: studies/comets_nt_particles_dfba/runs.comets_nt_particles_dfba-reproduce.zarr
-  store_path: 
-    studies/comets_nt_particles_dfba/runs.comets_nt_particles_dfba-reproduce.zarr
+  store_path: studies/comets_nt_particles_dfba/runs.comets_nt_particles_dfba-reproduce.zarr
   timestamp: '2026-09-20T15:24:04Z'
   result: PASS
   outcomes:
     COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT:
       result: PASS
       evaluated_by: code
-      detail: 8/8 artifacts present; comets_nt_particles_dfba_schema.json matches 
-        reference (structural, tol=0.0)
+      detail: 8/8 artifacts present; comets_nt_particles_dfba_schema.json matches reference (structural, tol=0.0)
+    COMETS-NT-PARTICLES-DFBA-DISSOLVED-BIOMASS-GROWS:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [0.3926,1.28]; start 19.72 end 65.76; tol 0.01
+    COMETS-NT-PARTICLES-DFBA-PARTICLE_MASS-GROWS:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [0.001792,0.02536]; start 0.1888 end 0.7802; tol 0.01
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the comets_nt_particles_dfba test-suite artifacts and 
-    the composite's structural schema matches its committed reference.
+  statement: spatio_flux reproduces the comets_nt_particles_dfba test-suite artifacts and the composite's structural schema matches its committed reference.
   evidence:
     from_test: COMETS_NT_PARTICLES_DFBA-REPRODUCES-REPORT
   provenance:
     run_ids:
     - comets_nt_particles_dfba-reproduce
+- id: F2
+  kind: biological
+  status: confirms
+  statement: Total dissolved field biomass and total agent mass both grow, confirming the pymunk rigid-body dFBA agents feed among the fields.
+  evidence:
+    from_test: COMETS-NT-PARTICLES-DFBA-DISSOLVED-BIOMASS-GROWS
+  provenance:
+    run_ids:
+    - comets_nt_particles_dfba-reproduce
 conclusion_logic:
   if_primary_tests_pass:
-    implementation_status: The comets_nt_particles_dfba scenario is faithfully reproduced 
-      by the investigation's post-run analysis flush.
-    biological_validation: Validates that the composition reproduces the reference 
-      test-suite artifacts; it does not add new biological claims beyond the original 
-      scenario.
+    implementation_status: The comets_nt_particles_dfba scenario is faithfully reproduced by the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference test-suite artifacts; it does not add new biological claims beyond the original scenario.
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
     - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
-    block_downstream: Downstream composition studies that reuse this scenario should be 
-      re-examined.
+    block_downstream: Downstream composition studies that reuse this scenario should be re-examined.
 conditions:
   baseline:
     name: baseline
     composite: spatio_flux.composites.comets.comets_nt_particles_dfba
     params: {}
   model_settings: []
-question: 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS
-  fields diffuse; particles run metabolism (via exchange) against local concentrations.'
+question: 'Mechanochemical + metabolic coupling: Pymunk particles move/collide while COMETS fields diffuse; particles run metabolism (via exchange) against local concentrations.'
+claim: Rigid-body dFBA agents settle among COMETS fields while field biomass and total agent mass grow.

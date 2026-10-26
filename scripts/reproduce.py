@@ -31,14 +31,32 @@ def study_slugs(ws_root="."):
         return yaml.safe_load(f)["studies"]
 
 
+def _run_study(slug):
+    """Run every canonical_runs entry for a study via its declared script+args.
+
+    Old test-suite studies declare run_study.py (FLUSH_SPEC flush); the newer
+    discovery-engine studies declare run_new_study.py and may have several
+    entries (one per baseline). Falls back to run_study.py when no
+    canonical_runs are declared."""
+    spec = yaml.safe_load(open(os.path.join("studies", slug, "study.yaml")))
+    crs = spec.get("canonical_runs") or []
+    cmds = [[sys.executable, cr.get("script", "spatio_flux/runners/run_study.py"),
+             *[str(a) for a in (cr.get("args") or [slug])]] for cr in crs]
+    if not cmds:
+        cmds = [[sys.executable, "spatio_flux/runners/run_study.py", slug]]
+    rc = 0
+    for cmd in cmds:
+        r = subprocess.run(cmd, env={**os.environ, "PYTHONPATH": REPO})
+        rc = rc or r.returncode
+    return rc
+
+
 def main(only=None, out="report/index.html"):
     slugs = [only] if only else study_slugs()
     failed = []
     for slug in slugs:
         print(f"\n=== {slug} ===")
-        r = subprocess.run([sys.executable, "spatio_flux/runners/run_study.py", slug],
-                           env={**os.environ, "PYTHONPATH": REPO})
-        if r.returncode != 0:
+        if _run_study(slug) != 0:
             failed.append(slug)
     from scripts.build_report import main as build_report
     build_report(out)

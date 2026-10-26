@@ -25,6 +25,8 @@ INVESTIGATION = os.path.join("investigations", "spatio-flux-test-suite", "invest
 
 
 def _description_for(ref):
+    if not ref or "." not in ref:
+        return ""
     name = ref.rsplit(".", 1)[1]
     for e in REGISTRY.values():
         if getattr(e, "name", None) == name:
@@ -43,9 +45,14 @@ def collect_report_inputs(ws_root):
         if not os.path.exists(study_yaml):
             continue
         spec = yaml.safe_load(open(study_yaml))
-        base = ((spec.get("conditions") or {}).get("baseline") or (spec.get("baseline") or [{}])[0])
-        descriptions[slug] = _description_for(base["composite"])
-        simulations[slug] = base.get("params", {})
+        cond = spec.get("conditions") or {}
+        base = (cond.get("baseline") or (spec.get("baseline") or [{}])[0])
+        if isinstance(base, list):  # multi-baseline studies: summarize the first baseline
+            base = base[0] if base else {}
+        # sweep studies carry no baseline — describe their swept composite instead
+        composite_ref = base.get("composite") or (cond.get("sweep") or {}).get("composite", "")
+        descriptions[slug] = _description_for(composite_ref)
+        simulations[slug] = base.get("params", {}) or (cond.get("sweep") or {}).get("fixed", {})
         tpath = os.path.join(ws_root, "studies", slug, f"{slug}_timing.json")
         if os.path.exists(tpath):
             t = json.load(open(tpath))

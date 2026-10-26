@@ -36,13 +36,20 @@ def test_scaffolder_table_complete():
             assert p in slugs, f"{s['slug']} -> unknown prereq {p}"
 
 
-def test_investigation_lists_all_19():
+def test_investigation_lists_original_plus_discovery():
     with open(os.path.join(REPO, "investigations", "spatio-flux-test-suite",
                            "investigation.yaml")) as f:
         inv = yaml.safe_load(f)
     from scripts.scaffold_studies import STUDIES
     assert inv["name"] == "spatio-flux-test-suite"
-    assert set(inv["studies"]) == {s["slug"] for s in STUDIES}
+    # all 19 original reproduction studies are still listed ...
+    assert {s["slug"] for s in STUDIES} <= set(inv["studies"])
+    # ... plus the biology-forward discovery-engine studies were added.
+    for new in ("spatial_growth_front", "spatial_overflow_crossfeeding",
+                "spatial_vs_wellmixed_community", "glucose_limitation_yield",
+                "nutrient_starvation_control", "division_seeding_regimes",
+                "advection_plume_phase"):
+        assert new in inv["studies"], new
 
 
 # ---- Task 3: generated studies resolve + form a valid DAG -------------------
