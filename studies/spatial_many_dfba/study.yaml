@@ -9,10 +9,8 @@ simulation_status: ran
 evaluation_status: evaluated
 gate_status: passed
 purpose:
-  question: 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own
-    dFBA instance. Useful for validating lattice indexing + per-site state isolation.'
-  mechanism: Runs the spatio_flux.composites.spatial.spatial_many_dfba composite (pair 
-    composition).
+  question: 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.'
+  mechanism: Runs the spatio_flux.composites.spatial.spatial_many_dfba composite (pair composition).
   expected_outcome: Reproduces the current test-suite report artifacts for this scenario.
 pipeline_gate:
   prerequisites:
@@ -40,10 +38,7 @@ visualizations:
 behavior_tests:
 - name: SPATIAL_MANY_DFBA-REPRODUCES-REPORT
   classification: regression
-  description: All 5 expected artifacts are produced in charts/, and the composite's 
-    structural schema (spatial_many_dfba_schema.json) matches the committed reference in 
-    studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders, so 
-    they are existence-checked.
+  description: All 5 expected artifacts are produced in charts/, and the composite's structural schema (spatial_many_dfba_schema.json) matches the committed reference in studies/<slug>/reference/. State/figures embed RNG or non-deterministic renders, so they are existence-checked.
   measure:
     kind: artifacts_present
     expected:
@@ -55,6 +50,30 @@ behavior_tests:
   pass_if:
     op: all_exist_and_match
     tolerance: 0.0
+  requires_simulation: reproduce
+- name: SPATIAL-MANY-DFBA-DISSOLVED-BIOMASS-GROWS
+  classification: primary
+  description: dissolved biomass increases monotonically over the run.
+  measure:
+    kind: observable_monotone
+    slug: spatial_many_dfba
+    observable: dissolved biomass
+    direction: increasing
+  pass_if:
+    op: monotone
+    tolerance: 0.01
+  requires_simulation: reproduce
+- name: SPATIAL-MANY-DFBA-GLUCOSE-DEPLETES
+  classification: primary
+  description: glucose decreases monotonically as it is consumed.
+  measure:
+    kind: observable_monotone
+    slug: spatial_many_dfba
+    observable: glucose
+    direction: decreasing
+  pass_if:
+    op: monotone
+    tolerance: 0.01
   requires_simulation: reproduce
 runs:
 - name: spatial_many_dfba-reproduce
@@ -73,33 +92,46 @@ runs:
     SPATIAL_MANY_DFBA-REPRODUCES-REPORT:
       result: PASS
       evaluated_by: code
-      detail: 5/5 artifacts present; spatial_many_dfba_schema.json matches reference 
-        (structural, tol=0.0)
+      detail: 5/5 artifacts present; spatial_many_dfba_schema.json matches reference (structural, tol=0.0)
+    SPATIAL-MANY-DFBA-GLUCOSE-DEPLETES:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/decreasing
+      detail: decreasing; steps [-3.417,-0.4128]; start 108.1 end 1.145; tol 0.01
+    SPATIAL-MANY-DFBA-DISSOLVED-BIOMASS-GROWS:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [0.03445,0.3002]; start 0.4341 end 9.569; tol 0.01
 findings:
 - id: F1
   kind: computational
   status: passed
-  statement: spatio_flux reproduces the spatial_many_dfba test-suite artifacts and the 
-    composite's structural schema matches its committed reference.
+  statement: spatio_flux reproduces the spatial_many_dfba test-suite artifacts and the composite's structural schema matches its committed reference.
   evidence:
     from_test: SPATIAL_MANY_DFBA-REPRODUCES-REPORT
   provenance:
     run_ids:
     - spatial_many_dfba-reproduce
+- id: F2
+  kind: biological
+  status: confirms
+  statement: Total dissolved biomass rises and total glucose falls across the grid, confirming site-by-site metabolic growth.
+  evidence:
+    from_test: SPATIAL-MANY-DFBA-DISSOLVED-BIOMASS-GROWS
+  provenance:
+    run_ids:
+    - spatial_many_dfba-reproduce
 conclusion_logic:
   if_primary_tests_pass:
-    implementation_status: The spatial_many_dfba scenario is faithfully reproduced by the 
-      investigation's post-run analysis flush.
-    biological_validation: Validates that the composition reproduces the reference 
-      test-suite artifacts; it does not add new biological claims beyond the original 
-      scenario.
+    implementation_status: The spatial_many_dfba scenario is faithfully reproduced by the investigation's post-run analysis flush.
+    biological_validation: Validates that the composition reproduces the reference test-suite artifacts; it does not add new biological claims beyond the original scenario.
     pipeline_unblocks: []
   if_primary_tests_fail:
     diagnose:
     - Compare charts/<slug>_schema.json against studies/<slug>/reference/.
     - Check the composite build and the FLUSH_SPEC config for this slug.
-    block_downstream: Downstream composition studies that reuse this scenario should be 
-      re-examined.
+    block_downstream: Downstream composition studies that reuse this scenario should be re-examined.
 conditions:
   baseline:
     name: baseline
@@ -107,5 +139,5 @@ conditions:
     params:
       model_id: ecoli core
   model_settings: []
-question: 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own
-  dFBA instance. Useful for validating lattice indexing + per-site state isolation.'
+question: 'Spatial microenvironment (sitewise dFBA): a lattice where each site runs its own dFBA instance. Useful for validating lattice indexing + per-site state isolation.'
+claim: Per-site dFBA across the lattice grows total biomass as local glucose is consumed.
