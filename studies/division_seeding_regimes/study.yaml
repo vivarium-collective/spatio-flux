@@ -32,6 +32,13 @@ conditions:
     - 1
     - 2
   model_settings: []
+  baseline:
+    name: representative
+    composite: spatio_flux.composites.comets.comets_br_particles_dfba
+    params:
+      n_particles: 1
+      add_rate: 0.3
+      division_mass_threshold: 3
 canonical_runs:
 - name: reproduce
   script: spatio_flux/runners/run_sweep.py
@@ -75,6 +82,14 @@ runs:
       evaluated_by: code
       operator: observable_monotone/decreasing
       detail: decreasing; steps [-19.33,-3.333]; start 69 end 38.33; tol 0.01
+  computed_outcomes:
+    DIVISION-SEEDING-POPULATION-DECREASES:
+      result: PASS
+      measured_value: 38.333333333333336
+      evaluated_by: code
+      operator: observable_monotone/decreasing
+      detail: decreasing; steps [-19.33,-3.333]; net -30.67; start 69 end 38.33; tol 0.01
+      reconcile: agree
 findings:
 - id: F1
   kind: biological

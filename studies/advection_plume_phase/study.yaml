@@ -43,6 +43,13 @@ conditions:
       field: dissolved biomass
     steps: 40
   model_settings: []
+  baseline:
+    name: representative
+    composite: spatio_flux.composites.comets.comets_diffusion
+    params:
+      advection_rate:
+      - 0.0
+      - 0.6
 canonical_runs:
 - name: reproduce
   script: spatio_flux/runners/run_sweep.py
@@ -86,6 +93,14 @@ runs:
       evaluated_by: code
       operator: observable_monotone/increasing
       detail: increasing; steps [1.409,2.614]; start 0.05638 end 5.815; tol 0.01
+  computed_outcomes:
+    ADVECTION-PLUME-REACH-INCREASES:
+      result: PASS
+      measured_value: 5.814682134397391
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [1.409,2.614]; net +5.758; start 0.05638 end 5.815; tol 0.01
+      reconcile: agree
 findings:
 - id: F1
   kind: biological
