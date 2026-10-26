@@ -62,6 +62,26 @@ def test_observable_monotone_flags_nonmonotone(tmp_path):
     assert out["result"] == "FAIL"
 
 
+def test_observable_monotone_flat_fails_increasing(tmp_path):
+    # a series that never accumulates must NOT pass "increasing" (net-change gate)
+    ws = str(tmp_path)
+    _write(ws, "flat_up", [{"biomass": v} for v in (5.0, 5.0, 5.0, 5.0)])
+    out = _run("observable_monotone",
+               {"slug": "flat_up", "observable": "biomass", "direction": "increasing"},
+               {"op": "monotone", "tolerance": 0.01}, ws)
+    assert out["result"] == "FAIL"
+
+
+def test_observable_monotone_net_reversing_fails(tmp_path):
+    # tiny within-tolerance steps that net DOWN must not pass "increasing"
+    ws = str(tmp_path)
+    _write(ws, "creepdown", [{"biomass": v} for v in (1.0, 0.99, 0.985, 0.98)])
+    out = _run("observable_monotone",
+               {"slug": "creepdown", "observable": "biomass", "direction": "increasing"},
+               {"op": "monotone", "tolerance": 0.05}, ws)
+    assert out["result"] == "FAIL"
+
+
 def test_mass_conserved_within_tol(tmp_path):
     ws = str(tmp_path)
     # a 2D field whose TOTAL is conserved tick to tick (mass just moves around)

@@ -5,7 +5,7 @@ title: Spatial growth front
 status: complete
 phase: Evaluate
 confidence: Accepted
-claim: 'Biomass seeded at the top edge of the COMETS field propagates down the lattice as a directed growth front: the front position advances monotonically, the biomass centroid migrates downstream, and the spatial spread grows.'
+claim: 'Biomass seeded at the top edge of the COMETS field forms an advection-driven growth front: it propagates down the lattice (front position advances), its centroid migrates downstream, and its spatial spread grows as the population feeds and is transported through the field.'
 purpose:
   question: When biomass is seeded at one edge of a diffusing nutrient field, does it propagate across the lattice as an emergent spatial growth front?
   mechanism: 'New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.'
@@ -72,7 +72,7 @@ findings:
 - id: F1
   kind: biological
   status: confirms
-  statement: Biomass seeded at one edge of the diffusing field self-organizes into a propagating growth front — front position advances, centroid migrates downstream, and spread grows — an emergent spatial pattern the well-mixed metabolism studies cannot exhibit.
+  statement: Biomass seeded at one edge forms an advancing growth front — front position advances, centroid migrates downstream, spread grows — as growing biomass is transported by the field's advection-diffusion. This spatial front is a behavior the well-mixed metabolism studies cannot exhibit (growth is coupled to spatial transport, not purely self-organized).
   evidence:
     from_test: SPATIAL-GROWTH-FRONT-ADVANCES
   provenance:
@@ -81,7 +81,7 @@ findings:
     - spatial_growth_front-reproduce
     - spatial_growth_front-reproduce
   tier: interpretation
-  mechanism_origin: emergent
+  mechanism_origin: engineered
 discovery_implications:
   resolved:
   - A biomass front propagates across the COMETS lattice under advection-diffusion.
@@ -118,10 +118,35 @@ runs:
       evaluated_by: code
       operator: spread_grows
       detail: radius of gyration 0.5->1.84 (grows within tol 0.0)
+  computed_outcomes:
+    SPATIAL-GROWTH-FRONT-ADVANCES:
+      result: PASS
+      measured_value: 7.0
+      evaluated_by: code
+      operator: front_advances
+      detail: front 0->7 (thr 0.02); non-decreasing within tol 0.0
+      reconcile: agree
+    SPATIAL-GROWTH-FRONT-CENTROID-MIGRATES:
+      result: PASS
+      measured_value: 3.4026854179544586
+      evaluated_by: code
+      operator: centroid_shift
+      detail: centroid y shift 3.4 vs min 1.5
+      reconcile: agree
+    SPATIAL-GROWTH-FRONT-SPREAD-GROWS:
+      result: PASS
+      measured_value: 1.8428978901464839
+      evaluated_by: code
+      operator: spread_grows
+      detail: radius of gyration 0.5->1.84 (grows within tol 0.0)
+      reconcile: agree
 gate_status: passed
 falsifiability: If the biomass front position and centroid did not advance from the seed edge despite biomass growth, the 'propagating growth front' claim would be false.
 limitations:
-- A single lattice, advection, and horizon; the front velocity itself is not yet calibrated against an analytic (Fisher-KPP) prediction.
+- comets_diffusion carries an imposed advection field, so the front is advection-driven transport of growing biomass, not purely self-organized pattern formation; a no-advection control / Fisher-KPP velocity calibration is not included.
+- A single lattice, advection, and horizon.
 alternative_hypotheses:
-- hypothesis: The apparent front is passive diffusion of the seeded band, not growth.
-  excluded_by: Total biomass grows many-fold over the run, so the advancing front carries newly produced biomass, not merely spread seed.
+- hypothesis: The advancing front is passive diffusion/advection of the seeded band, with no growth.
+  excluded_by: Total biomass grows many-fold over the run, so the front carries newly produced biomass, not merely transported seed.
+- hypothesis: The front is self-organized pattern formation independent of the imposed flow.
+  excluded_by: NOT excluded — advection is imposed by the composite; the claim is limited to an advection-driven growth front (a no-advection control is the proposed follow-up).

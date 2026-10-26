@@ -5,7 +5,7 @@ title: Spatial overflow & cross-feeding substrate
 status: complete
 phase: Evaluate
 confidence: Accepted
-claim: Spatial dFBA on the COMETS field secretes acetate (overflow metabolism) that accumulates in the field while glucose is consumed and biomass grows — establishing the acetate pool a cross-feeding partner would exploit.
+claim: Spatial dFBA on the COMETS field secretes acetate (overflow metabolism) that accumulates in the field while biomass grows and glucose begins to be drawn down — establishing the acetate pool a cross-feeding partner would exploit.
 purpose:
   question: Does spatial dynamic-FBA secrete an overflow metabolite (acetate) into the field as it grows on glucose, building the substrate pool that spatial cross-feeding would draw on?
   mechanism: 'New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.'
@@ -58,7 +58,7 @@ behavior_tests:
   requires_simulation: reproduce
 - name: SPATIAL-OVERFLOW-GLUCOSE-DEPLETES
   classification: primary
-  description: total glucose is consumed.
+  description: total glucose is drawn down over the run (monotone decreasing; only ~5% over this horizon on the large lattice).
   measure:
     kind: observable_monotone
     slug: spatial_overflow_crossfeeding
@@ -118,6 +118,28 @@ runs:
       evaluated_by: code
       operator: observable_monotone/decreasing
       detail: decreasing; steps [-1.163,0]; start 500.5 end 475.4; tol 0.02
+  computed_outcomes:
+    SPATIAL-OVERFLOW-ACETATE-ACCUMULATES:
+      result: PASS
+      measured_value: 0.2409094920227609
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [0,0.02069]; net +0.2409; start 0 end 0.2409; tol 0.02
+      reconcile: agree
+    SPATIAL-OVERFLOW-BIOMASS-GROWS:
+      result: PASS
+      measured_value: 2.770704986744353
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [0.007999,0.1041]; net +2.571; start 0.2 end 2.771; tol 0.02
+      reconcile: agree
+    SPATIAL-OVERFLOW-GLUCOSE-DEPLETES:
+      result: PASS
+      measured_value: 475.4438069900735
+      evaluated_by: code
+      operator: observable_monotone/decreasing
+      detail: decreasing; steps [-1.163,0]; net -25.06; start 500.5 end 475.4; tol 0.02
+      reconcile: agree
 gate_status: passed
 falsifiability: If acetate stayed at zero while biomass grew on glucose, the overflow-secretion claim would be false.
 limitations:

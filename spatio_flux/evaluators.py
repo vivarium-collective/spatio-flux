@@ -288,16 +288,23 @@ def _monotone_hook(test, reader, ws_root):
         return _out("FAIL", "insufficient ticks (<2) to establish a trend", op, len(vals))
     diffs = np.diff(vals)
     scale = max(float(np.max(np.abs(vals))), 1.0)
-    ok = bool(np.all(diffs >= -tol * scale)) if direction == "increasing" \
-        else bool(np.all(diffs <= tol * scale))
+    # non-reversing within tolerance AND a real net change in the claimed
+    # direction (so a flat or net-reversing series cannot pass "grows"/"depletes").
+    if direction == "increasing":
+        ok = bool(np.all(diffs >= -tol * scale)) and vals[-1] > vals[0]
+    else:
+        ok = bool(np.all(diffs <= tol * scale)) and vals[-1] < vals[0]
     detail = (f"{direction}; steps [{float(diffs.min()):.4g},{float(diffs.max()):.4g}]; "
-              f"start {vals[0]:.4g} end {vals[-1]:.4g}; tol {tol}")
+              f"net {float(vals[-1] - vals[0]):+.4g}; start {vals[0]:.4g} end {vals[-1]:.4g}; tol {tol}")
     return _out("PASS" if ok else "FAIL", detail, op, float(vals[-1]))
 
 
 def _band_hook(test, reader, ws_root):
     m, pi = test.get("measure") or {}, test.get("pass_if") or {}
     band = m.get("expected") or pi.get("band") or [None, None]
+    if band[0] is None or band[1] is None:
+        return _out("FAIL", "no acceptance band declared (measure.expected / pass_if.band)",
+                    "observable_band", None)
     lo, hi = float(band[0]), float(band[1])
     ds, field, err = _open_series(test, ws_root)
     if err:
