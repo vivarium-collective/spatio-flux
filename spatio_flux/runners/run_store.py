@@ -72,6 +72,7 @@ def _field_dataarrays(trajectory):
         px = np.full((nt, len(slots)), np.nan)
         py = np.full((nt, len(slots)), np.nan)
         pm = np.full((nt, len(slots)), np.nan)
+        ps = np.full((nt, len(slots)), "", dtype="<U32")  # optional heritable strain tag
         for ti, step in enumerate(trajectory):
             for pid, p in (step.get("particles") or {}).items():
                 i = slot_idx[pid]
@@ -84,9 +85,13 @@ def _field_dataarrays(trajectory):
                 m = p.get("mass")
                 if m is not None:
                     pm[ti, i] = float(m)
+                strain = p.get("strain")
+                if strain:
+                    ps[ti, i] = str(strain)[:32]
         data_vars["particle_x"] = xr.DataArray(px, dims=("time", "particle"))
         data_vars["particle_y"] = xr.DataArray(py, dims=("time", "particle"))
         data_vars["particle_mass"] = xr.DataArray(pm, dims=("time", "particle"))
+        data_vars["particle_strain"] = xr.DataArray(ps, dims=("time", "particle"))
     return data_vars, times
 
 
