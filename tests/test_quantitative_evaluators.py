@@ -10,8 +10,12 @@ from __future__ import annotations
 
 import os
 
-import numpy as np
 import pytest
+
+pytest.importorskip("xarray")  # modern-stack only; the locked unit-tests CI lacks it
+pytest.importorskip("zarr")
+
+import numpy as np
 
 from spatio_flux.runners.run_store import write_run_zarr
 from spatio_flux import evaluators as EV

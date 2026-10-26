@@ -11,6 +11,11 @@ from __future__ import annotations
 import math
 import os
 
+import pytest
+
+pytest.importorskip("xarray")  # modern-stack only; the locked unit-tests CI lacks it
+pytest.importorskip("zarr")
+
 import numpy as np
 import xarray as xr
 
