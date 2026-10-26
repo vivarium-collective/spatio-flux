@@ -5,7 +5,7 @@ title: Spatial cross-feeding bridge
 status: complete
 phase: Evaluate
 confidence: Accepted
-claim: Strain A grows on glucose and secretes acetate that diffuses across the lattice to strain B, which grows on it — B's biomass tracks the acetate bridge and B cannot grow without A (an emergent spatial partnership).
+claim: 'Strain A grows on glucose and secretes acetate that diffuses to strain B on the no-glucose side, producing a small, acetate-dependent growth increment in B that does not occur when A is absent — an emergent, spatially-localized cross-feeding dependency (the effect is modest: B grows ~1.6% over the run).'
 purpose:
   question: Does a spatially-separated consumer (strain B) grow only where a producer (strain A) secretes a diffusing metabolite?
   mechanism: Spatial dFBA strain A (glucose side) secretes acetate; a diffusing acetate field bridges to acetate-only strain B on the no-glucose side.
@@ -88,9 +88,9 @@ findings:
   status: confirms
   tier: interpretation
   mechanism_origin: emergent
-  statement: "Strain B grows only where strain A's secreted acetate diffuses to it: B's biomass overlaps the acetate field, and the A-absent control produces no acetate and no B growth. This is an emergent spatial cross-feeding partnership that neither strain shows alone."
+  statement: "Strain B grows only when strain A is present to secrete acetate: with A, B's biomass overlaps the diffused acetate field and increases modestly (~1.6%); with A absent, no acetate forms and B stays flat. The A-absent control is the decisive evidence that the small increment is A's acetate bridge, not residual glucose or incidental growth. The magnitude is small (acetate is a poor carbon source) — the claim is about the spatial dependency, not the yield."
   evidence:
-    from_test: N1-B-TRACKS-ACETATE-BRIDGE
+    from_test: N1-CONTROL-B-FLAT-WITHOUT-A
   provenance:
     run_ids:
     - spatial_cross_feeding_bridge-reproduce
@@ -131,7 +131,7 @@ runs:
       result: PASS
       evaluated_by: code
       operator: spatial_overlap
-      detail: 'corr(biomass_B,acetate)=0.355 > corr(biomass_B,glucose)=0 ? '
+      detail: corr(biomass_B,acetate)=0.355 vs corr(biomass_B,glucose)=0 (margin 0.05)
     N1-A-SECRETES-AND-GROWS:
       result: PASS
       evaluated_by: code

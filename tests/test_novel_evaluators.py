@@ -99,3 +99,26 @@ def test_gradient_correlation_mass_vs_depth(tmp_path):
     out2 = _run("gradient_correlation", {"slug": "flat", "axis": "y"},
                 {"op": "gradient_correlation", "min_abs_corr": 0.7}, ws)
     assert out2["result"] == "FAIL"
+
+
+def test_spatial_overlap_requires_margin(tmp_path):
+    ws = str(tmp_path)
+    import numpy as np
+    a = np.ones((4, 4)); b = a + 1e-9  # B marginally more like 'a' than 'g' but within margin
+    g = np.ones((4, 4))
+    _write(ws, "tie", [{"fields": {"biomass_B": b, "acetate": a, "glucose": g}}])
+    out = _run("spatial_overlap", {"slug": "tie", "observable": "biomass_B", "prefers": "acetate", "over": "glucose"},
+               {"op": "spatial_overlap", "margin": 0.05}, ws)
+    assert out["result"] == "FAIL"  # no real discriminator -> must not pass on a tie
+
+
+def test_particle_settling_detects_gravity(tmp_path):
+    ws = str(tmp_path)
+    steps = [{"particles": {f"p{i}": {"position": (0.0, 10.0 - t * 2), "mass": 1.0} for i in range(3)}} for t in range(4)]
+    _write(ws, "settle", steps)
+    out = _run("particle_settling", {"slug": "settle"}, {"op": "particle_settling", "min_drop": 1.0}, ws)
+    assert out["result"] == "PASS"
+    flat = [{"particles": {"p0": {"position": (0.0, 5.0), "mass": 1.0}}} for _ in range(3)]
+    _write(ws, "nofall", flat)
+    out2 = _run("particle_settling", {"slug": "nofall"}, {"op": "particle_settling", "min_drop": 1.0}, ws)
+    assert out2["result"] == "FAIL"

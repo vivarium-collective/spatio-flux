@@ -61,7 +61,7 @@ studies:
 - biofilm_settling_metabolism
 competing_frameworks:
 - name: Well-mixed ODE / batch metabolism
-  relation: SpatioFlux resolves the spatial structure these omit — spatial_vs_wellmixed_community shows the spatial arrangement leaves substrate unconsumed that a well-mixed model fully depletes.
+  relation: SpatioFlux resolves the spatial structure these omit — e.g. spatial_cross_feeding_bridge shows a consumer growing only on a producer's diffused metabolite, which a well-mixed model cannot represent.
 - name: Field-only COMETS spatial dFBA
   relation: complementary and reproduced here (comets_* studies); SpatioFlux additionally couples particle-based (agent) biomass to the fields.
 - name: Particle-based vs field-based biomass

@@ -5,7 +5,7 @@ title: Biofilm settling + metabolism
 status: complete
 phase: Evaluate
 confidence: Accepted
-claim: Rigid-body cells settle and pack under gravity while feeding on the nutrient field, so growth becomes spatially structured by depth — mechanics and metabolism couple.
+claim: Rigid-body cells settle and pack under gravity while feeding on the nutrient field, and the population grows — a physics-coupled settling biofilm. Whether per-cell growth is structured by depth is suggestive but NOT established at this scale (the mass-vs-depth correlation is weak, ~0.4, not significant at ~10 cells, and varies run to run).
 purpose:
   question: When rigid-body cells settle under gravity while feeding, does growth become spatially structured by depth?
   mechanism: Pymunk rigid-body particles settle under gravity, each running internal dFBA against the local COMETS fields, dividing as they grow.
@@ -31,17 +31,16 @@ visualizations:
   address: html:viz/biofilm_settling_metabolism_particles.html
   chart: html
 behavior_tests:
-- name: N4-GROWTH-STRUCTURED-BY-DEPTH
+- name: N4-CELLS-SETTLE
   classification: primary
-  description: 'per-cell mass correlates with depth (y): settled cells near the nutrient-facing edge grow differently than others.'
+  description: mean particle depth decreases over the run — gravity-driven settling (robust).
   measure:
-    kind: gradient_correlation
+    kind: particle_settling
     slug: biofilm_settling_metabolism
-    axis: y
     run_id: biofilm_settling_metabolism-reproduce
   pass_if:
-    op: gradient_correlation
-    min_abs_corr: 0.4
+    op: particle_settling
+    min_drop: 2.0
   requires_simulation: reproduce
 - name: N4-POPULATION-GROWS
   classification: primary
@@ -62,28 +61,28 @@ findings:
   status: confirms
   tier: interpretation
   mechanism_origin: emergent
-  statement: Cells settle under gravity and feed, so per-cell growth becomes spatially structured by depth — mechanics (settling, packing) and metabolism (dFBA on local fields) couple into a biofilm-like layer.
+  statement: 'Rigid-body cells settle under gravity (mean depth drops) and feed, and the population grows and divides — a physics-coupled settling biofilm that the field-only metabolism studies cannot show. Whether growth is additionally structured by depth is an open question: the mass-vs-depth correlation is weak (~0.4) and not reproducible at this cell count.'
   evidence:
-    from_test: N4-GROWTH-STRUCTURED-BY-DEPTH
+    from_test: N4-CELLS-SETTLE
   provenance:
     run_ids:
     - biofilm_settling_metabolism-reproduce
 falsifiability: If per-cell mass were uncorrelated with depth, growth would not be spatially structured by settling.
 limitations:
-- Few founder cells + one horizon; the depth-structuring is modest at this scale.
-- Stochastic (pymunk + seeding); reported from the representative run.
+- 'Depth-structured growth is suggestive only: the mass-vs-depth correlation is ~0.4, not significant at ~10 cells, and run-to-run variable (pymunk solver stochasticity is not seeded by numpy), so it is reported as an open question, not an established result.'
+- Few founder cells + one horizon.
 alternative_hypotheses:
 - hypothesis: Any mass-depth correlation is just initial seeding, not settling+feeding.
   excluded_by: Cells start spread and settle over the run; the correlation is read at the final (settled, fed) state.
 discovery_implications:
   resolved:
-  - Gravity-driven settling spatially structures metabolic growth (biofilm-like).
+  - Gravity-driven settling + feeding produce a growing, packed biofilm layer (mechanics coupled to metabolism).
   remaining:
-  - How packing density and the nutrient gradient co-determine the growth structure is not quantified.
+  - Whether growth is structured by depth is unresolved — needs many more cells, multiseed, and deterministic (pymunk-seeded) runs to establish a reproducible correlation.
   followup_study_proposals:
-  - id: packing-vs-nutrient
-    motivation: Sweep cell count / gravity to map how packing density shapes the depth-structured growth.
-    candidate: comets_nt_particles_dfba sweep over n_particles/gravity
+  - id: biofilm-depth-structure-multiseed
+    motivation: Establish (or refute) depth-structured growth with a seeded, multiseed, higher-cell-count sweep so the correlation is reproducible and significant.
+    candidate: comets_nt_particles_dfba, seeded + multiseed + more cells
 gate_status: passed
 runs:
 - name: biofilm_settling_metabolism-reproduce
@@ -101,9 +100,9 @@ runs:
       result: PASS
       evaluated_by: code
       operator: observable_monotone/increasing
-      detail: increasing; steps [0.03412,0.113]; net +2.332; start 0.5632 end 2.895; tol 0.05
-    N4-GROWTH-STRUCTURED-BY-DEPTH:
+      detail: increasing; steps [0.03412,0.1108]; net +2.277; start 0.5632 end 2.84; tol 0.05
+    N4-CELLS-SETTLE:
       result: PASS
       evaluated_by: code
-      operator: gradient_correlation
-      detail: '|corr(mass, y)| = 0.505 vs min 0.4'
+      operator: particle_settling
+      detail: mean depth 27.8 -> 13.3 (settled by 14.5, min 2.0)

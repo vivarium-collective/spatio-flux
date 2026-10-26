@@ -58,8 +58,8 @@ def spatial_cross_feeding(core=None, *, model_id="ecoli core",
     diffusion_coeffs = {"glucose": 0.0, "acetate": 2e-1, "biomass_A": 1e-3, "biomass_B": 1e-3}
     return {
         # strain A: per-site dFBA on glucose → biomass_A, secreting acetate (keys dFBA[x,y])
-        **get_spatial_many_dfba(model_id=model_id, mol_ids=["glucose", "acetate", "biomass_A"],
-                                n_bins=n_bins_t, biomass_id="biomass_A", path=["fields"]),
+        # strain A: per-site dFBA on glucose -> biomass_A (mol set comes from model_id+biomass_id)
+        **get_spatial_many_dfba(model_id=model_id, n_bins=n_bins_t, biomass_id="biomass_A", path=["fields"]),
         # strain B: per-site acetate-only Monod kinetics → biomass_B (keys monod_kinetics[i,j])
         **get_spatial_many_kinetics(model_id="acetate_only", mol_ids=["glucose", "acetate", "biomass_B"],
                                     n_bins=n_bins_t, biomass_id="biomass_B", path=["fields"]),

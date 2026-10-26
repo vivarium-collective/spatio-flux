@@ -83,7 +83,8 @@ def particle_movie(ds, out_html: str, color_by: str = "mass", title: str = "", b
 
     fig = go.Figure(data=[frame(0)],
                     frames=[go.Frame(name=str(t), data=[frame(t)]) for t in range(T)])
-    rng = bounds or [0, float(np.nanmax(np.concatenate([x, y])) or 1.0)]
+    _mx = float(np.nanmax(np.concatenate([x, y]))) if np.isfinite(np.concatenate([x, y])).any() else 1.0
+    rng = bounds or [0, _mx if _mx > 0 else 1.0]
     fig.update_layout(
         title=title, xaxis={"range": rng, "title": "x"}, yaxis={"range": rng, "title": "y", "scaleanchor": "x"},
         updatemenus=[{"type": "buttons", "buttons": [
