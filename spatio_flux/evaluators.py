@@ -39,6 +39,8 @@ import math
 import os
 from typing import Any
 
+import numpy as np
+
 SCHEMA_SUFFIX = "_schema.json"
 
 
@@ -154,6 +156,223 @@ def _artifacts_present_hook(test: dict, reader: Any, ws_root: Any) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Quantitative, code-evaluated measure kinds (read the run's zarr directly).
+#
+# Each run is persisted at studies/<slug>/runs.<run_id>.zarr by
+# spatio_flux.runners.run_store.write_run_zarr: scalar fields as ('time',),
+# 2D fields as ('time','y','x'), plus an 'n_particles' ('time',) count. These
+# evaluators open that store directly (same direct-read approach as
+# artifacts_present) and apply an op, so every test is evaluated_by: code.
+#
+# Measure contract: measure={kind, slug, observable, [run_id], [direction],
+# [peak_index_band], [expected]}, pass_if={op, [tolerance], [band]}.
+# ---------------------------------------------------------------------------
+
+def open_run(ws_root: Any, slug: str, run_id: str | None = None):
+    """Open studies/<slug>/runs.<run_id>.zarr (run_id defaults to <slug>-reproduce)."""
+    import xarray as xr
+    from spatio_flux.runners.run_store import zarr_store_path
+
+    run_id = run_id or f"{slug}-reproduce"
+    store = zarr_store_path(os.path.join(str(ws_root), "studies", slug), run_id)
+    return xr.open_zarr(store)
+
+
+def series_total(ds, field: str) -> np.ndarray:
+    """Per-tick total of a field: sum over spatial dims if 2D, else the scalar series."""
+    if field not in ds.data_vars:
+        raise KeyError(field)
+    da = ds[field]
+    spatial = [d for d in da.dims if d != "time"]
+    if spatial:
+        da = da.sum(dim=spatial)
+    return np.asarray(da.values, dtype=float)
+
+
+def front_position(ds, field: str, threshold: float) -> np.ndarray:
+    """Per-tick front position along y: the largest row index with any cell >= threshold."""
+    arr = np.asarray(ds[field].values, dtype=float)  # (time, y, x)
+    out = []
+    for t in range(arr.shape[0]):
+        rows = np.where(np.any(arr[t] >= threshold, axis=1))[0]
+        out.append(float(rows.max()) if rows.size else 0.0)
+    return np.asarray(out)
+
+
+def front_velocity(ds, field: str, threshold: float) -> float:
+    """Least-squares slope of front_position vs the time coordinate."""
+    y = front_position(ds, field, threshold)
+    t = np.asarray(ds["time"].values, dtype=float)
+    if len(t) < 2:
+        return 0.0
+    return float(np.polyfit(t, y, 1)[0])
+
+
+def centroid(ds, field: str) -> np.ndarray:
+    """Mass-weighted (y, x) centroid of a 2D field per tick; NaN where the field is empty."""
+    arr = np.asarray(ds[field].values, dtype=float)  # (time, y, x)
+    T = arr.shape[0]
+    ys = np.arange(arr.shape[1])
+    xs = np.arange(arr.shape[2])
+    out = np.full((T, 2), np.nan)
+    for t in range(T):
+        m = arr[t]
+        s = m.sum()
+        if s <= 0:
+            continue
+        out[t, 0] = (m.sum(axis=1) * ys).sum() / s
+        out[t, 1] = (m.sum(axis=0) * xs).sum() / s
+    return out
+
+
+def radius_of_gyration(ds, field: str) -> np.ndarray:
+    """Mass-weighted RMS distance from the centroid per tick (spatial spread)."""
+    arr = np.asarray(ds[field].values, dtype=float)
+    c = centroid(ds, field)
+    T = arr.shape[0]
+    ys = np.arange(arr.shape[1])
+    xs = np.arange(arr.shape[2])
+    YY, XX = np.meshgrid(ys, xs, indexing="ij")
+    out = np.full(T, np.nan)
+    for t in range(T):
+        m = arr[t]
+        s = m.sum()
+        if s <= 0:
+            continue
+        r2 = (YY - c[t, 0]) ** 2 + (XX - c[t, 1]) ** 2
+        out[t] = math.sqrt((m * r2).sum() / s)
+    return out
+
+
+def delta_scalar(ds, field: str) -> float:
+    """Final minus initial of the field's per-tick total."""
+    v = series_total(ds, field)
+    return float(v[-1] - v[0])
+
+
+def _out(result: str, detail: str, operator: str, measured: Any) -> dict:
+    return {"result": result, "measured_value": measured, "evaluated_by": "code",
+            "operator": operator, "detail": detail}
+
+
+def _open_series(test: dict, ws_root: Any):
+    """Resolve (ds, field) from the test; return (ds, field, None) or (None, None, outcome)."""
+    m = test.get("measure") or {}
+    slug, field = m.get("slug"), m.get("observable")
+    if not slug or ws_root is None:
+        return None, None, {"evaluated_by": "agent",
+                            "reason": "quantitative evaluator: measure.slug / ws_root missing"}
+    try:
+        ds = open_run(ws_root, slug, m.get("run_id"))
+    except Exception as e:  # noqa: BLE001 — surface as a clean FAIL, never raise
+        return None, None, _out("FAIL", f"cannot open run for {slug!r}: {e}",
+                                f"{m.get('kind')}/open", None)
+    if field not in ds.data_vars:
+        return ds, None, _out("FAIL",
+                              f"observable {field!r} not in run (have {list(ds.data_vars)})",
+                              f"{m.get('kind')}/resolve", None)
+    return ds, field, None
+
+
+def _monotone_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    tol = float(pi.get("tolerance", 0.0) or 0.0)
+    direction = m.get("direction", "increasing")
+    op = f"observable_monotone/{direction}"
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    vals = series_total(ds, field)
+    if len(vals) < 2:
+        return _out("FAIL", "insufficient ticks (<2) to establish a trend", op, len(vals))
+    diffs = np.diff(vals)
+    scale = max(float(np.max(np.abs(vals))), 1.0)
+    ok = bool(np.all(diffs >= -tol * scale)) if direction == "increasing" \
+        else bool(np.all(diffs <= tol * scale))
+    detail = (f"{direction}; steps [{float(diffs.min()):.4g},{float(diffs.max()):.4g}]; "
+              f"start {vals[0]:.4g} end {vals[-1]:.4g}; tol {tol}")
+    return _out("PASS" if ok else "FAIL", detail, op, float(vals[-1]))
+
+
+def _band_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    band = m.get("expected") or pi.get("band") or [None, None]
+    lo, hi = float(band[0]), float(band[1])
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    vals = series_total(ds, field)
+    if len(vals) < 1:
+        return _out("FAIL", "empty run", "observable_band", None)
+    final = float(vals[-1])
+    ok = lo <= final <= hi
+    return _out("PASS" if ok else "FAIL",
+                f"final {final:.4g} vs band [{lo:.4g},{hi:.4g}]", "observable_band", final)
+
+
+def _mass_conserved_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    tol = float(pi.get("tolerance", 1e-6) or 1e-6)
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    vals = series_total(ds, field)
+    if len(vals) < 2:
+        return _out("FAIL", "insufficient ticks (<2)", "mass_conserved", len(vals))
+    base = vals[0]
+    scale = max(abs(base), 1.0)
+    dev = float(np.max(np.abs(vals - base)))
+    ok = dev <= tol * scale
+    return _out("PASS" if ok else "FAIL",
+                f"max deviation {dev:.4g} vs tol {tol * scale:.4g} (base {base:.4g})",
+                "mass_conserved", dev)
+
+
+def _peak_then_decline_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    tol = float(pi.get("tolerance", 0.1) or 0.1)
+    band = m.get("peak_index_band") or pi.get("peak_index_band")
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    vals = series_total(ds, field)
+    if len(vals) < 3:
+        return _out("FAIL", "insufficient ticks (<3) for a peak", "peak_then_decline", len(vals))
+    pk = int(np.argmax(vals))
+    peak, end = float(vals[pk]), float(vals[-1])
+    interior = 0 < pk < len(vals) - 1
+    in_band = (band[0] <= pk <= band[1]) if band else True
+    rose = peak > vals[0]
+    declined = end < (1.0 - tol) * peak
+    ok = interior and in_band and rose and declined
+    return _out("PASS" if ok else "FAIL",
+                f"peak {peak:.4g} at idx {pk} (band {band}); end {end:.4g}; "
+                f"interior={interior} rose={rose} declined={declined}",
+                "peak_then_decline", pk)
+
+
+def _flat_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    tol = float(pi.get("tolerance", 0.01) or 0.01)  # absolute amplitude tolerance
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    vals = series_total(ds, field)
+    if len(vals) < 2:
+        return _out("FAIL", "insufficient ticks (<2)", "observable_flat", len(vals))
+    amp = float(np.max(vals) - np.min(vals))
+    ok = amp <= tol
+    return _out("PASS" if ok else "FAIL",
+                f"amplitude {amp:.4g} vs tol {tol} (start {vals[0]:.4g} end {vals[-1]:.4g})",
+                "observable_flat", amp)
+
+
 def register_evaluators(registry: dict) -> None:
     """Hook consumed by ``viva_superpowers.study_evaluator.load_workspace_evaluators``."""
     registry["artifacts_present"] = _artifacts_present_hook
+    registry["observable_band"] = _band_hook
+    registry["observable_monotone"] = _monotone_hook
+    registry["mass_conserved"] = _mass_conserved_hook
+    registry["peak_then_decline"] = _peak_then_decline_hook
+    registry["observable_flat"] = _flat_hook
