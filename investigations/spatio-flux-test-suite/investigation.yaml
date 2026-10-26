@@ -53,3 +53,8 @@ studies:
 - comets_nt_particles_dfba
 - spatioflux_reference_demo
 - reference_demo_x2y2
+- spatial_growth_front
+- spatial_overflow_crossfeeding
+- spatial_vs_wellmixed_community
+- glucose_limitation_yield
+- nutrient_starvation_control

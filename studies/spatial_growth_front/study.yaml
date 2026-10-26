@@ -1,0 +1,119 @@
+schema_version: 3
+name: spatial_growth_front
+investigation: spatio-flux-test-suite
+title: Spatial growth front
+status: complete
+phase: Evaluate
+confidence: Accepted
+claim: 'Biomass seeded at the top edge of the COMETS field propagates down the lattice as a directed growth front: the front position advances monotonically, the biomass centroid migrates downstream, and the spatial spread grows.'
+purpose:
+  question: When biomass is seeded at one edge of a diffusing nutrient field, does it propagate across the lattice as an emergent spatial growth front?
+  mechanism: 'New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.'
+  expected_outcome: The quantitative behavior tests pass, confirming the stated emergent/metabolic claim.
+question: When biomass is seeded at one edge of a diffusing nutrient field, does it propagate across the lattice as an emergent spatial growth front?
+conditions:
+  baseline:
+    name: baseline
+    composite: spatio_flux.composites.comets.comets_diffusion
+    params: {}
+  model_settings: []
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_growth_front
+  - '60'
+  label: run spatial_growth_front
+  default: true
+visualizations:
+- name: spatial_growth_front trajectory
+  address: image:charts/spatial_growth_front_trajectory.png
+  chart: image
+behavior_tests:
+- name: SPATIAL-GROWTH-FRONT-ADVANCES
+  classification: primary
+  description: the biomass front (first row above threshold) advances down the lattice.
+  measure:
+    kind: front_advances
+    slug: spatial_growth_front
+    observable: dissolved biomass
+    run_id: spatial_growth_front-reproduce
+    threshold: 0.02
+  pass_if:
+    op: front_advances
+    tolerance: 0.0
+  requires_simulation: reproduce
+- name: SPATIAL-GROWTH-FRONT-CENTROID-MIGRATES
+  classification: primary
+  description: the biomass centroid migrates downstream along y (directed plume).
+  measure:
+    kind: centroid_shift
+    slug: spatial_growth_front
+    observable: dissolved biomass
+    run_id: spatial_growth_front-reproduce
+    axis: y
+    min_shift: 1.5
+  pass_if:
+    op: centroid_shift
+  requires_simulation: reproduce
+- name: SPATIAL-GROWTH-FRONT-SPREAD-GROWS
+  classification: primary
+  description: the biomass radius of gyration grows (spatial spread).
+  measure:
+    kind: spread_grows
+    slug: spatial_growth_front
+    observable: dissolved biomass
+    run_id: spatial_growth_front-reproduce
+  pass_if:
+    op: spread_grows
+    tolerance: 0.0
+  requires_simulation: reproduce
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  statement: Biomass seeded at one edge of the diffusing field self-organizes into a propagating growth front — front position advances, centroid migrates downstream, and spread grows — an emergent spatial pattern the well-mixed metabolism studies cannot exhibit.
+  evidence:
+    from_test: SPATIAL-GROWTH-FRONT-ADVANCES
+  provenance:
+    run_ids:
+    - spatial_growth_front-reproduce
+    - spatial_growth_front-reproduce
+    - spatial_growth_front-reproduce
+discovery_implications:
+  resolved:
+  - A biomass front propagates across the COMETS lattice under advection-diffusion.
+  remaining:
+  - The front velocity's dependence on the diffusion vs growth balance is unquantified.
+  followup_study_proposals:
+  - id: diffusion-growth-phase-diagram
+    motivation: The front advances, but is its velocity (and whether the colony stays localized or disperses) set by the diffusion/growth ratio? Sweep diffusion_rate to map the regime boundary.
+    candidate: comets_spatial_dfba sweep over diffusion_rate
+runs:
+- name: spatial_growth_front-reproduce
+  run_id: spatial_growth_front-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.comets.comets_diffusion
+  emitter:
+    kind: xarray
+    store: studies/spatial_growth_front/runs.spatial_growth_front-reproduce.zarr
+  store_path: studies/spatial_growth_front/runs.spatial_growth_front-reproduce.zarr
+  outcomes:
+    SPATIAL-GROWTH-FRONT-ADVANCES:
+      result: PASS
+      evaluated_by: code
+      operator: front_advances
+      detail: front 0->7 (thr 0.02); non-decreasing within tol 0.0
+    SPATIAL-GROWTH-FRONT-CENTROID-MIGRATES:
+      result: PASS
+      evaluated_by: code
+      operator: centroid_shift
+      detail: centroid y shift 3.4 vs min 1.5
+    SPATIAL-GROWTH-FRONT-SPREAD-GROWS:
+      result: PASS
+      evaluated_by: code
+      operator: spread_grows
+      detail: radius of gyration 0.5->1.84 (grows within tol 0.0)
+gate_status: passed

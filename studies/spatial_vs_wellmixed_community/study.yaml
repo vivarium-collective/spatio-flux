@@ -1,0 +1,131 @@
+schema_version: 3
+name: spatial_vs_wellmixed_community
+investigation: spatio-flux-test-suite
+title: Spatial structure vs well-mixed community
+status: complete
+phase: Evaluate
+confidence: Accepted
+claim: A well-mixed community drives glucose to exhaustion, but the same metabolism arranged across a spatial gradient leaves a large fraction of glucose unconsumed — spatial structure changes the realized substrate use of the community.
+purpose:
+  question: Does spatial structure change how completely a microbial community consumes its shared substrate, compared with the well-mixed case?
+  mechanism: 'New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.'
+  expected_outcome: The quantitative behavior tests pass, confirming the stated emergent/metabolic claim.
+question: Does spatial structure change how completely a microbial community consumes its shared substrate, compared with the well-mixed case?
+conditions:
+  baseline:
+  - name: well-mixed
+    composite: spatio_flux.composites.metabolism.community_dfba
+    params: {}
+  - name: spatial
+    composite: spatio_flux.composites.spatial.spatial_dfba_process
+    params: {}
+  model_settings: []
+canonical_runs:
+- name: reproduce-wellmixed
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_vs_wellmixed_community
+  - '60'
+  - well-mixed
+  - -wellmixed
+  label: run spatial_vs_wellmixed_community-wellmixed
+  default: true
+- name: reproduce-spatial
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - spatial_vs_wellmixed_community
+  - '60'
+  - spatial
+  - -spatial
+  label: run spatial_vs_wellmixed_community-spatial
+  default: false
+visualizations:
+- name: spatial_vs_wellmixed_community-wellmixed trajectory
+  address: image:charts/spatial_vs_wellmixed_community-wellmixed_trajectory.png
+  chart: image
+- name: spatial_vs_wellmixed_community-spatial trajectory
+  address: image:charts/spatial_vs_wellmixed_community-spatial_trajectory.png
+  chart: image
+behavior_tests:
+- name: SPATIAL-VS-WELLMIXED-WELLMIXED-DEPLETES
+  classification: primary
+  description: the well-mixed community drives glucose to near-zero.
+  measure:
+    kind: observable_band
+    slug: spatial_vs_wellmixed_community
+    observable: glucose
+    run_id: spatial_vs_wellmixed_community-wellmixed-reproduce
+    expected:
+    - 0.0
+    - 1.0
+  pass_if:
+    op: band
+  requires_simulation: reproduce
+- name: SPATIAL-VS-WELLMIXED-SPATIAL-REMAINS
+  classification: primary
+  description: the spatial arrangement leaves a substantial glucose pool unconsumed.
+  measure:
+    kind: observable_band
+    slug: spatial_vs_wellmixed_community
+    observable: glucose
+    run_id: spatial_vs_wellmixed_community-spatial-reproduce
+    expected:
+    - 40.0
+    - 160.0
+  pass_if:
+    op: band
+  requires_simulation: reproduce
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  statement: Well-mixed, the community consumes essentially all glucose; arranged spatially across a gradient, the same metabolism leaves most of the glucose unconsumed (final glucose well above zero). Spatial structure, not metabolism, governs how completely the shared substrate is used.
+  evidence:
+    from_test: SPATIAL-VS-WELLMIXED-SPATIAL-REMAINS
+  provenance:
+    run_ids:
+    - spatial_vs_wellmixed_community-wellmixed-reproduce
+    - spatial_vs_wellmixed_community-spatial-reproduce
+discovery_implications:
+  resolved:
+  - Spatial structure leaves substrate unconsumed that a well-mixed community would fully deplete.
+  remaining:
+  - Whether stronger mixing (higher diffusion) recovers the well-mixed depletion is unquantified.
+  followup_study_proposals:
+  - id: mixing-recovers-depletion
+    motivation: If spatial structure leaves substrate unused, does increasing diffusion (mixing) interpolate back to the well-mixed full-depletion limit?
+    candidate: spatial_dfba_process / comets_spatial_dfba sweep over diffusion_rate
+runs:
+- name: spatial_vs_wellmixed_community-wellmixed-reproduce
+  run_id: spatial_vs_wellmixed_community-wellmixed-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.metabolism.community_dfba
+  emitter:
+    kind: xarray
+    store: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-wellmixed-reproduce.zarr
+  store_path: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-wellmixed-reproduce.zarr
+  outcomes:
+    SPATIAL-VS-WELLMIXED-WELLMIXED-DEPLETES:
+      result: PASS
+      evaluated_by: code
+      operator: observable_band
+      detail: final 0 vs band [0,1]
+- name: spatial_vs_wellmixed_community-spatial-reproduce
+  run_id: spatial_vs_wellmixed_community-spatial-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.metabolism.community_dfba
+  emitter:
+    kind: xarray
+    store: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-spatial-reproduce.zarr
+  store_path: studies/spatial_vs_wellmixed_community/runs.spatial_vs_wellmixed_community-spatial-reproduce.zarr
+  outcomes:
+    SPATIAL-VS-WELLMIXED-SPATIAL-REMAINS:
+      result: PASS
+      evaluated_by: code
+      operator: observable_band
+      detail: final 82.6 vs band [40,160]
+gate_status: passed

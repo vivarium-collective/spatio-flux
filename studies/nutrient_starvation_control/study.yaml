@@ -1,0 +1,84 @@
+schema_version: 3
+name: nutrient_starvation_control
+investigation: spatio-flux-test-suite
+title: Nutrient-starvation negative control
+status: complete
+phase: Evaluate
+kind: adversarial
+confidence: Accepted
+claim: 'With zero glucose the dynamic-FBA cell does not grow: biomass stays flat within noise. The growth seen in every other study is therefore carbon-driven, not a numerical artifact — this negative control passes by rejecting growth.'
+purpose:
+  question: With no carbon source, does the dynamic-FBA model correctly fail to grow — the falsification control that the growth signal is real, not an artifact?
+  mechanism: 'New biology-forward study (discovery engine): a new configuration/analysis of a real spatio-flux composite.'
+  expected_outcome: The quantitative behavior tests pass, confirming the stated emergent/metabolic claim.
+question: With no carbon source, does the dynamic-FBA model correctly fail to grow — the falsification control that the growth signal is real, not an artifact?
+conditions:
+  baseline:
+    name: zero-glucose
+    composite: spatio_flux.composites.metabolism.ecoli_core_dfba
+    params:
+      glucose: 0.0
+      acetate: 0.0
+  model_settings: []
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - nutrient_starvation_control
+  - '80'
+  label: run nutrient_starvation_control
+  default: true
+visualizations:
+- name: nutrient_starvation_control trajectory
+  address: image:charts/nutrient_starvation_control_trajectory.png
+  chart: image
+behavior_tests:
+- name: NUTRIENT-STARVATION-NO-GROWTH
+  classification: primary
+  description: with zero glucose, biomass stays flat (no growth) within tolerance.
+  measure:
+    kind: observable_flat
+    slug: nutrient_starvation_control
+    observable: biomass
+    run_id: nutrient_starvation_control-reproduce
+  pass_if:
+    op: flat
+    tolerance: 0.02
+  requires_simulation: reproduce
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  statement: With no carbon source the cell does not grow — biomass is flat within noise. This adversarial control passes by REJECTING growth, establishing that the biomass increases throughout the investigation are carbon-driven biology, not a solver artifact.
+  evidence:
+    from_test: NUTRIENT-STARVATION-NO-GROWTH
+  provenance:
+    run_ids:
+    - nutrient_starvation_control-reproduce
+discovery_implications:
+  resolved:
+  - Growth requires a carbon source; with none, the model correctly produces no biomass.
+  remaining:
+  - Other falsification controls (e.g. zero-oxygen, blocked uptake) could further bound the growth claim.
+  followup_study_proposals:
+  - id: uptake-knockout-control
+    motivation: A carbon-present-but-uptake-blocked control would separate 'no substrate' from 'no uptake capacity' as causes of no growth.
+    candidate: ecoli_core_dfba with a clamped/knocked-out glucose exchange
+runs:
+- name: nutrient_starvation_control-reproduce
+  run_id: nutrient_starvation_control-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.metabolism.ecoli_core_dfba
+  emitter:
+    kind: xarray
+    store: studies/nutrient_starvation_control/runs.nutrient_starvation_control-reproduce.zarr
+  store_path: studies/nutrient_starvation_control/runs.nutrient_starvation_control-reproduce.zarr
+  outcomes:
+    NUTRIENT-STARVATION-NO-GROWTH:
+      result: PASS
+      evaluated_by: code
+      operator: observable_flat
+      detail: amplitude 0 vs tol 0.02 (start 0.1 end 0.1)
+gate_status: passed
