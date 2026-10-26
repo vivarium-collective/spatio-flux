@@ -1,0 +1,108 @@
+schema_version: 3
+name: biofilm_settling_metabolism
+investigation: spatio-flux-test-suite
+title: Biofilm settling + metabolism
+status: complete
+phase: Evaluate
+confidence: Accepted
+claim: Rigid-body cells settle and pack under gravity while feeding on the nutrient field, and the population grows — a physics-coupled settling biofilm. Whether per-cell growth is structured by depth is suggestive but NOT established at this scale (the mass-vs-depth correlation is weak, ~0.4, not significant at ~10 cells, and varies run to run).
+purpose:
+  question: When rigid-body cells settle under gravity while feeding, does growth become spatially structured by depth?
+  mechanism: Pymunk rigid-body particles settle under gravity, each running internal dFBA against the local COMETS fields, dividing as they grow.
+  expected_outcome: Cells settle (mean depth increases) and per-cell mass correlates with depth; the population grows and packs.
+question: Does gravity-driven settling structure metabolic growth by depth?
+conditions:
+  baseline:
+    name: representative
+    composite: spatio_flux.composites.comets.comets_nt_particles_dfba
+    params:
+      n_particles: 8
+  model_settings: []
+canonical_runs:
+- name: reproduce
+  script: spatio_flux/runners/run_new_study.py
+  args:
+  - biofilm_settling_metabolism
+  - '40'
+  label: run biofilm
+  default: true
+visualizations:
+- name: biofilm particle movie
+  address: html:viz/biofilm_settling_metabolism_particles.html
+  chart: html
+behavior_tests:
+- name: N4-CELLS-SETTLE
+  classification: primary
+  description: mean particle depth decreases over the run — gravity-driven settling (robust).
+  measure:
+    kind: particle_settling
+    slug: biofilm_settling_metabolism
+    run_id: biofilm_settling_metabolism-reproduce
+  pass_if:
+    op: particle_settling
+    min_drop: 2.0
+  requires_simulation: reproduce
+- name: N4-POPULATION-GROWS
+  classification: primary
+  description: total particle mass grows as cells feed and divide.
+  measure:
+    kind: observable_monotone
+    slug: biofilm_settling_metabolism
+    observable: particle_mass
+    direction: increasing
+    run_id: biofilm_settling_metabolism-reproduce
+  pass_if:
+    op: monotone
+    tolerance: 0.05
+  requires_simulation: reproduce
+findings:
+- id: F1
+  kind: biological
+  status: confirms
+  tier: interpretation
+  mechanism_origin: emergent
+  statement: 'Rigid-body cells settle under gravity (mean depth drops) and feed, and the population grows and divides — a physics-coupled settling biofilm that the field-only metabolism studies cannot show. Whether growth is additionally structured by depth is an open question: the mass-vs-depth correlation is weak (~0.4) and not reproducible at this cell count.'
+  evidence:
+    from_test: N4-CELLS-SETTLE
+  provenance:
+    run_ids:
+    - biofilm_settling_metabolism-reproduce
+falsifiability: If per-cell mass were uncorrelated with depth, growth would not be spatially structured by settling.
+limitations:
+- 'Depth-structured growth is suggestive only: the mass-vs-depth correlation is ~0.4, not significant at ~10 cells, and run-to-run variable (pymunk solver stochasticity is not seeded by numpy), so it is reported as an open question, not an established result.'
+- Few founder cells + one horizon.
+alternative_hypotheses:
+- hypothesis: Any mass-depth correlation is just initial seeding, not settling+feeding.
+  excluded_by: Cells start spread and settle over the run; the correlation is read at the final (settled, fed) state.
+discovery_implications:
+  resolved:
+  - Gravity-driven settling + feeding produce a growing, packed biofilm layer (mechanics coupled to metabolism).
+  remaining:
+  - Whether growth is structured by depth is unresolved — needs many more cells, multiseed, and deterministic (pymunk-seeded) runs to establish a reproducible correlation.
+  followup_study_proposals:
+  - id: biofilm-depth-structure-multiseed
+    motivation: Establish (or refute) depth-structured growth with a seeded, multiseed, higher-cell-count sweep so the correlation is reproducible and significant.
+    candidate: comets_nt_particles_dfba, seeded + multiseed + more cells
+gate_status: passed
+runs:
+- name: biofilm_settling_metabolism-reproduce
+  run_id: biofilm_settling_metabolism-reproduce
+  kind: simulation
+  status: completed
+  canonical: true
+  composite: spatio_flux.composites.comets.comets_nt_particles_dfba
+  emitter:
+    kind: xarray
+    store: studies/biofilm_settling_metabolism/runs.biofilm_settling_metabolism-reproduce.zarr
+  store_path: studies/biofilm_settling_metabolism/runs.biofilm_settling_metabolism-reproduce.zarr
+  outcomes:
+    N4-POPULATION-GROWS:
+      result: PASS
+      evaluated_by: code
+      operator: observable_monotone/increasing
+      detail: increasing; steps [0.03412,0.1108]; net +2.277; start 0.5632 end 2.84; tol 0.05
+    N4-CELLS-SETTLE:
+      result: PASS
+      evaluated_by: code
+      operator: particle_settling
+      detail: mean depth 27.8 -> 13.3 (settled by 14.5, min 2.0)

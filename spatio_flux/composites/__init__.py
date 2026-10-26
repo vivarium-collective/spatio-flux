@@ -15,3 +15,4 @@ from . import reference   # noqa: F401
 from . import figures     # noqa: F401
 
 __all__ = ["REGISTRY"]
+from . import novel  # noqa: F401

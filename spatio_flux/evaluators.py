@@ -513,3 +513,138 @@ def register_evaluators(registry: dict) -> None:
     registry["peak_then_decline"] = _peak_then_decline_hook
     registry["observable_flat"] = _flat_hook
     registry["observable_msd_linear"] = _msd_linear_hook
+    registry["spatial_overlap"] = _spatial_overlap_hook
+    registry["demixing_index"] = _demixing_index_hook
+    registry["threshold_transition"] = _threshold_transition_hook
+    registry["gradient_correlation"] = _gradient_correlation_hook
+    registry["particle_settling"] = _particle_settling_hook
+
+
+# ---------------------------------------------------------------------------
+# Qualitative evaluators for the novel studies (emergent signatures, not knobs).
+# ---------------------------------------------------------------------------
+
+def _final_2d(ds, name):
+    if name not in ds.data_vars:
+        return None
+    a = np.asarray(ds[name].values, dtype=float)
+    return a[-1] if a.ndim == 3 else None
+
+
+def _corr(x, y):
+    xf, yf = np.ravel(x).astype(float), np.ravel(y).astype(float)
+    if xf.std() == 0 or yf.std() == 0:
+        return 0.0
+    return float(np.corrcoef(xf, yf)[0, 1])
+
+
+def _spatial_overlap_hook(test, reader, ws_root):
+    m = test.get("measure") or {}
+    slug, obs = m.get("slug"), m.get("observable")
+    prefers, over = m.get("prefers"), m.get("over")
+    if not slug or ws_root is None:
+        return {"evaluated_by": "agent", "reason": "spatial_overlap: measure.slug/ws_root missing"}
+    try:
+        ds = open_run(ws_root, slug, m.get("run_id"))
+    except Exception as e:  # noqa: BLE001
+        return _out("FAIL", f"cannot open run: {e}", "spatial_overlap/open", None)
+    B, A, G = _final_2d(ds, obs), _final_2d(ds, prefers), _final_2d(ds, over)
+    if B is None or A is None or G is None:
+        return _out("FAIL", f"need three 2D fields {obs!r},{prefers!r},{over!r}", "spatial_overlap", None)
+    ca, cg = _corr(B, A), _corr(B, G)
+    margin = float((test.get("pass_if") or {}).get("margin", 0.05))
+    return _out("PASS" if ca > cg + margin else "FAIL",
+                f"corr({obs},{prefers})={ca:.3g} vs corr({obs},{over})={cg:.3g} (margin {margin})", "spatial_overlap", ca - cg)
+
+
+def _demixing_index_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    slug, k, min_p = m.get("slug"), int(m.get("k", 6)), float(pi.get("min_purity", 0.7))
+    if not slug or ws_root is None:
+        return {"evaluated_by": "agent", "reason": "demixing_index: measure.slug/ws_root missing"}
+    try:
+        ds = open_run(ws_root, slug, m.get("run_id"))
+    except Exception as e:  # noqa: BLE001
+        return _out("FAIL", f"cannot open run: {e}", "demixing_index/open", None)
+    if "particle_strain" not in ds.data_vars:
+        return _out("FAIL", "run has no particle_strain", "demixing_index/resolve", None)
+    x = np.asarray(ds["particle_x"].values[-1], dtype=float)
+    y = np.asarray(ds["particle_y"].values[-1], dtype=float)
+    s = ds["particle_strain"].values[-1].astype(str)
+    mask = np.isfinite(x) & np.isfinite(y) & (s != "")
+    xs, ys, ss = x[mask], y[mask], s[mask]
+    if len(xs) < 2 or len(set(ss)) < 2:
+        return _out("FAIL", "insufficient strain-tagged particles / single strain", "demixing_index", len(xs))
+    pts = np.column_stack([xs, ys])
+    pur = []
+    for i in range(len(xs)):
+        d = np.sum((pts - pts[i]) ** 2, axis=1)
+        nbrs = np.argsort(d)[1:k + 1]
+        if len(nbrs):
+            pur.append(float(np.mean(ss[nbrs] == ss[i])))
+    avg = float(np.mean(pur)) if pur else 0.0
+    return _out("PASS" if avg >= min_p else "FAIL",
+                f"mean local strain purity {avg:.3g} vs min {min_p} (demixed when high)", "demixing_index", avg)
+
+
+def _threshold_transition_hook(test, reader, ws_root):
+    m = test.get("measure") or {}
+    ds, field, err = _open_series(test, ws_root)
+    if err:
+        return err
+    vals = series_total(ds, field)
+    if len(vals) < 3:
+        return _out("FAIL", "insufficient points (<3) for a transition", "threshold_transition", len(vals))
+    diffs = np.abs(np.diff(vals))
+    maxd = float(diffs.max())
+    med = float(np.median(diffs)) if len(diffs) else 0.0
+    rng = float(vals.max())
+    dominant = maxd > 3 * max(med, 1e-9) and maxd > 0.5 * max(rng, 1e-9)
+    collapsed = vals[-1] < 0.25 * max(rng, 1e-9)
+    ok = bool(dominant and collapsed)
+    return _out("PASS" if ok else "FAIL",
+                f"max step {maxd:.3g} vs median {med:.3g}; end {vals[-1]:.3g} vs peak {rng:.3g}; "
+                f"dominant={dominant} collapsed={collapsed}", "threshold_transition", maxd)
+
+
+def _particle_settling_hook(test, reader, ws_root):
+    """Mean particle depth (y) decreases over the run — gravity-driven settling (robust)."""
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    slug = m.get("slug"); margin = float(pi.get("min_drop", 0.5))
+    if not slug or ws_root is None:
+        return {"evaluated_by": "agent", "reason": "particle_settling: measure.slug/ws_root missing"}
+    try:
+        ds = open_run(ws_root, slug, m.get("run_id"))
+    except Exception as e:  # noqa: BLE001
+        return _out("FAIL", f"cannot open run: {e}", "particle_settling/open", None)
+    if "particle_y" not in ds.data_vars:
+        return _out("FAIL", "run lacks particle_y", "particle_settling/resolve", None)
+    y = np.asarray(ds["particle_y"].values, dtype=float)
+    y0 = np.nanmean(y[0]); yf = np.nanmean(y[-1])
+    drop = float(y0 - yf)
+    return _out("PASS" if drop >= margin else "FAIL",
+                f"mean depth {y0:.3g} -> {yf:.3g} (settled by {drop:.3g}, min {margin})", "particle_settling", drop)
+
+
+def _gradient_correlation_hook(test, reader, ws_root):
+    m, pi = test.get("measure") or {}, test.get("pass_if") or {}
+    slug = m.get("slug")
+    axis = "particle_y" if m.get("axis", "y") == "y" else "particle_x"
+    min_c = float(pi.get("min_abs_corr", 0.5))
+    if not slug or ws_root is None:
+        return {"evaluated_by": "agent", "reason": "gradient_correlation: measure.slug/ws_root missing"}
+    try:
+        ds = open_run(ws_root, slug, m.get("run_id"))
+    except Exception as e:  # noqa: BLE001
+        return _out("FAIL", f"cannot open run: {e}", "gradient_correlation/open", None)
+    if "particle_mass" not in ds.data_vars or axis not in ds.data_vars:
+        return _out("FAIL", "run lacks particle_mass / positions", "gradient_correlation/resolve", None)
+    mass = np.asarray(ds["particle_mass"].values[-1], dtype=float)
+    pos = np.asarray(ds[axis].values[-1], dtype=float)
+    mask = np.isfinite(mass) & np.isfinite(pos)
+    mm, pp = mass[mask], pos[mask]
+    if len(mm) < 3 or mm.std() == 0 or pp.std() == 0:
+        return _out("FAIL", "no gradient (flat mass/position or too few particles)", "gradient_correlation", 0.0)
+    c = abs(_corr(pp, mm))
+    return _out("PASS" if c >= min_c else "FAIL",
+                f"|corr(mass, {m.get('axis','y')})| = {c:.3g} vs min {min_c}", "gradient_correlation", c)

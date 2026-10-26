@@ -78,6 +78,7 @@ def _figure(slug, results, charts, tag=""):
 
 
 def main(slug, runtime=None, which=None, tag=""):
+    import numpy as _np; _np.random.seed(0)  # deterministic runs so stochastic studies reproduce
     ref, params, _ = _baseline(slug, which)
     runtime = int(runtime) if runtime else 60
     core = build_core()
@@ -93,6 +94,22 @@ def main(slug, runtime=None, which=None, tag=""):
     store = write_run_zarr(study_dir, run_id, results,
                            provenance={"composite": ref, "config": params, "run_id": run_id})
     fig = _figure(slug, results, charts, tag)
+    # interactive Plotly viz (self-contained HTML; gitignored, regenerated at publish)
+    try:
+        import xarray as xr
+        from spatio_flux.analysis.plotly_viz import field_heatmap_movie, particle_movie
+        vizdir = os.path.join(study_dir, "viz")
+        ds = xr.open_zarr(store)
+        twod = [v for v in ds.data_vars if ds[v].ndim == 3]
+        if twod:
+            field_heatmap_movie(ds, twod[:3], os.path.join(vizdir, f"{slug}{tag}_fields.html"),
+                                title=f"{slug}{tag}")
+        if "particle_x" in ds.data_vars:
+            cb = "strain" if "particle_strain" in ds.data_vars else "mass"
+            particle_movie(ds, os.path.join(vizdir, f"{slug}{tag}_particles.html"),
+                           color_by=cb, title=f"{slug}{tag}")
+    except Exception as e:  # noqa: BLE001 — viz is best-effort
+        print(f"plotly viz skipped for {slug}{tag}: {e}")
     print(f"✅ {slug}{tag}: zarr -> {store}; figure -> {fig} ({proc_t + fw_t:.2f}s)")
 
 

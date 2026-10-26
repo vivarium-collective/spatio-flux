@@ -38,6 +38,15 @@ SIMPLE_PARTICLE_TYPE = {
     "sub_masses": "map[mass{0.0}]",
 }
 
+# Strain-tagged particle: adds a heritable lineage tag (inherited through division
+# via dict(parent)). A DEDICATED type so the shared SIMPLE_PARTICLE_TYPE — and thus
+# every existing particle study's committed structural schema — is unchanged; only
+# composites that opt into `strain_particle` carry the extra port.
+STRAIN_PARTICLE_TYPE = {
+    "_inherit": "particle",
+    "strain": "string",  # heritable lineage tag; default ""
+}
+
 # Extended particle: physics-focused attributes
 COMPLEX_PARTICLE_TYPE = {
     "_inherit": "particle",
@@ -80,6 +89,7 @@ SPATIO_FLUX_TYPES = {
     "position": Position, #"tuple[float,float]",
     "particle": SIMPLE_PARTICLE_TYPE,
     "complex_particle": COMPLEX_PARTICLE_TYPE,
+    "strain_particle": STRAIN_PARTICLE_TYPE,
     "bounds": BOUNDS_TYPE,
     "fields": FIELDS_TYPE,
     "count_concentration_volume": CountConcentrationVolume,

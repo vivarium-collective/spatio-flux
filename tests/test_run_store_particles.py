@@ -79,3 +79,27 @@ def test_particle_persistence_is_additive(tmp_path):
     ds = _write_particle_run(ws, "add", steps)
     assert "n_particles" in ds.data_vars
     assert list(ds["n_particles"].values) == [1, 1]
+
+
+def test_strain_particle_type_has_strain_and_simple_is_unchanged():
+    # dedicated strain type carries the tag; the shared type is untouched so existing
+    # particle studies' committed schemas don't drift.
+    from spatio_flux import SIMPLE_PARTICLE_TYPE, STRAIN_PARTICLE_TYPE
+    assert "strain" in STRAIN_PARTICLE_TYPE
+    assert "strain" not in SIMPLE_PARTICLE_TYPE
+
+
+def test_particle_strain_persisted(tmp_path):
+    ws = str(tmp_path)
+    steps = [
+        {"A": {"position": (0.0, 0.0), "mass": 1.0, "strain": "red"}},
+        {"A": {"position": (1.0, 1.0), "mass": 1.0, "strain": "red"},
+         "B": {"position": (5.0, 5.0), "mass": 2.0, "strain": "blue"}},
+    ]
+    ds = _write_particle_run(ws, "ps_strain", steps)
+    assert "particle_strain" in ds.data_vars
+    assert ds["particle_strain"].dims == ("time", "particle")
+    vals = ds["particle_strain"].values
+    # slot 0 = A (red from t0), slot 1 = B (blue, appears at t1)
+    assert str(vals[0, 0]) == "red"
+    assert str(vals[1, 1]) == "blue"
