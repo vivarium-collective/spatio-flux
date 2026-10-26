@@ -5,16 +5,11 @@ investigation: paper-figures
 created: '2026-08-13'
 status: complete
 confidence: Accepted
-claim: image present
+claim: Figure 6 renders the orchestration-pattern diagram as a committed bigraph-loom figure.
 purpose:
   question: What orchestration patterns does Fig 6 depict?
-  mechanism: 'Three orchestration patterns drawn in bigraph-loom style — (a) multi-timestepping:
-    temporal processes each updating at their own time interval, reading/writing a shared store
-    at their update ticks; (b) workflow: a DAG of step processes over intermediate stores; (c)
-    event-driven graph rewrite: divide / engulf / burst events restructuring environ + agent
-    subgraphs.'
-  expected_outcome: The orchestration-patterns figure appears under Visualizations and in 
-    the figures download.
+  mechanism: 'Three orchestration patterns drawn in bigraph-loom style — (a) multi-timestepping: temporal processes each updating at their own time interval, reading/writing a shared store at their update ticks; (b) workflow: a DAG of step processes over intermediate stores; (c) event-driven graph rewrite: divide / engulf / burst events restructuring environ + agent subgraphs.'
+  expected_outcome: The orchestration-patterns figure appears under Visualizations and in the figures download.
 expected_behavior:
 - orchestration-patterns figure present
 visualizations:
@@ -31,3 +26,10 @@ conditions:
     params: {}
   model_settings: []
 question: What orchestration patterns does Fig 6 depict?
+findings:
+- id: F1
+  kind: methods
+  status: confirms
+  statement: 'Illustrative methods/figure study: the bigraph-loom SVG(s) are committed under visualizations/ and render the paper figure. It documents model structure for the manuscript, not a quantitative biological result.'
+  evidence:
+    note: committed bigraph-loom SVG(s) under visualizations/
