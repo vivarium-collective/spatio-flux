@@ -1,6 +1,6 @@
 {
   "particles": {
-    "KTCC0Zw0": {
+    "jtcETvXT": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "KTCC0Zw0",
+      "id": "jtcETvXT",
       "position": [
-        25.199551371153532,
-        40.92023276646688
+        44.58730008501858,
+        6.169640538925441
       ],
-      "mass": 7.617397507652324,
+      "mass": 4.993359660251937,
       "local": {},
       "exchange": {},
       "sub_masses": {}

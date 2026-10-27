@@ -1,6 +1,18 @@
 {
   "global_time": 0.0,
-  "particles": {},
+  "particles": {
+    "jiON7fNR": {
+      "id": "jiON7fNR",
+      "position": [
+        24.253632442640537,
+        32.87396818791276
+      ],
+      "mass": 0.18441882124140102,
+      "local": {},
+      "exchange": {},
+      "sub_masses": {}
+    }
+  },
   "brownian_movement": {
     "address": {
       "protocol": "local",
