@@ -1,18 +1,6 @@
 {
   "global_time": 0.0,
-  "particles": {
-    "inE01uhB": {
-      "id": "inE01uhB",
-      "position": [
-        34.23178172678145,
-        18.84584884407437
-      ],
-      "mass": 0.2612084456230448,
-      "local": {},
-      "exchange": {},
-      "sub_masses": {}
-    }
-  },
+  "particles": {},
   "brownian_movement": {
     "address": {
       "protocol": "local",
