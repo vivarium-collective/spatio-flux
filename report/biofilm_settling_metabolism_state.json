@@ -48236,21 +48236,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -48274,8 +48274,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

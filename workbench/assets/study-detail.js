@@ -54,7 +54,7 @@
   // attribution (the feedback_tracked panel below) reads identically to any
   // server-rendered attribution. Only a known LLM/automation naming TOKEN
   // (claude, gpt-4o, ci, ...) flips a recorded name to "agent" — the same
-  // category of signal viva_superpowers.investigation_close.derive_contributors
+  // category of signal discovery_engine.investigation_close.derive_contributors
   // already uses for git co-authors (there: an email's "noreply@anthropic.com"
   // / "bot" / "ci" substring). Every other non-empty name defaults to "human"
   // — a documented DEFAULT, not a claim about who that person is. Empty/None
@@ -165,6 +165,49 @@
   }
   window._setSimSubtab = _setSimSubtab;
 
+  // Model tab secondary subtabs (Composition | Variants | Interventions |
+  // Readouts). All four panels live inside #panel-compose and are rendered at
+  // load, so this only toggles visibility — vanilla show/hide, mirroring
+  // _setSimSubtab. Readouts loaders fire when the Model tab opens, so no
+  // per-subtab dispatch is needed here.
+  function _setModelSubtab(sub) {
+    document.querySelectorAll('.model-subtab').forEach(function (b) {
+      var on = b.dataset.modelsub === sub;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.model-subpanel').forEach(function (p) {
+      var on = p.dataset.modelsubpanel === sub;
+      p.classList.toggle('active', on);
+      p.hidden = !on;
+    });
+    if (sub === 'loom') _mountModelLoom();
+    if (window._autoGrowTextareas) window._autoGrowTextareas();
+  }
+  window._setModelSubtab = _setModelSubtab;
+
+  // When the Loom sub-tab opens, auto-open the FIRST composite card's bigraph
+  // (the baseline) so the tab shows a diagram directly — no extra click. The
+  // cards render expanded (no "Explore composite" toggle) in the Loom pane; this
+  // opens the card's "run · outputs · graph" explore section (via the shared
+  // _pcardToggleSec). Idempotent; retries briefly while _loadModelCards resolves.
+  function _mountModelLoom() {
+    var host = document.getElementById('model-loom-mount');
+    if (!host || host.dataset.opened) return;
+    var explore = host.querySelector('.pcard-sec-explore');
+    if (!explore) {
+      _mountModelLoom._tries = (_mountModelLoom._tries || 0) + 1;
+      if (_mountModelLoom._tries < 40) return void setTimeout(_mountModelLoom, 150);
+      return;
+    }
+    host.dataset.opened = '1';
+    if (!explore.classList.contains('pcard-sec-open')) {
+      var head = explore.querySelector('.pcard-sec-head');
+      if (head && typeof window._pcardToggleSec === 'function') window._pcardToggleSec(head);
+    }
+  }
+  window._mountModelLoom = _mountModelLoom;
+
   // Cross-tab link helper (Fable §6 #15, Task C1): a link on any tab can
   // point at an anchor that lives inside a DIFFERENT, currently-hidden tab
   // panel (e.g. an Overview finding's "via test <a>" citing a Tests-tab
@@ -188,6 +231,49 @@
     try { el.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch (e) {}
   }
   window._gotoStudyTab = _gotoStudyTab;
+
+  // Deep-link from an investigation Narrative evidence ref to the exact item in
+  // THIS study: a ?ev=<ref> on the study URL resolves to a finding
+  // (#finding-<id>, server-rendered on Overview), a behavior test (#bt-<name>,
+  // server-rendered on Audit), or a figure (#fig-<slug>, lazily built on the
+  // Visualizations tab) — switches to the tab that holds it and scrolls there.
+  function _evSlug(s) {
+    return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+  function _evFlash(el) {
+    try { el.classList.remove("ev-flash"); void el.offsetWidth; el.classList.add("ev-flash"); } catch (e) { /* ignore */ }
+  }
+  function _evWaitFor(id, timeoutMs, cb) {
+    var el = document.getElementById(id); if (el) { cb(el); return; }
+    var t0 = Date.now();
+    var iv = setInterval(function () {
+      var e = document.getElementById(id);
+      if (e) { clearInterval(iv); cb(e); }
+      else if (Date.now() - t0 > timeoutMs) { clearInterval(iv); }
+    }, 120);
+  }
+  function _gotoEvidence(ref) {
+    if (!ref) return;
+    var slug = _evSlug(ref);
+    // Targets present on load (findings on Overview, tests on Audit).
+    var immediate = ["finding-" + ref, "finding-" + slug, "bt-" + ref, "bt-" + slug];
+    for (var i = 0; i < immediate.length; i++) {
+      var el = document.getElementById(immediate[i]);
+      if (el) {
+        var p = el.closest && el.closest(".study-tab-panel");
+        _gotoStudyTab(p && p.dataset.kind ? p.dataset.kind : "overview", el.id);
+        (function (hit) { setTimeout(function () { _evFlash(hit); }, 350); })(el);
+        return;
+      }
+    }
+    // Otherwise treat it as a figure (lazy-built on the Visualizations tab).
+    _setStudyTab("visualize");
+    _evWaitFor("fig-" + slug, 4000, function (fe) {
+      try { fe.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { /* ignore */ }
+      _evFlash(fe);
+    });
+  }
+  window._gotoEvidence = _gotoEvidence;
 
   // ── Readouts panel (Design's emit CONTRACT) ──────────────────────────────
   // Fetch /api/study-readouts ONCE and render its three blocks (spec §3.1):
@@ -356,6 +442,20 @@
   }
   window._loadAnalyses = _loadAnalyses;
 
+  // Whether to ask for the remote figure gallery (/api/study-remote-figures):
+  // only when the active backends declare `artifacts` (docs/backend-adapters.md
+  // §2.1, step P3 F2). Features only HIDE this optional panel; when they are
+  // unknown (no BackendFeatures, a failed fetch) the page asks as before, and
+  // the read-only snapshot bundle keeps its old behaviour without consulting them.
+  var _GALLERY_NOT_OFFERED = {};
+  function _remoteGalleryOffered() {
+    var bf = window.BackendFeatures;
+    if (_isSnapshot() || !bf || typeof bf.ready !== 'function') return Promise.resolve(true);
+    return bf.ready().then(
+      function (st) { return !st || !st.known || (st.features || []).indexOf('artifacts') !== -1; },
+      function () { return true; });
+  }
+
   // Analyses tab: list the study's completed remote sims' ptools/EcoCyc overlay
   // .tsv files for download, read from their S3 result_uri via the remote
   // setting (complements the local "Analysis result files" above and the
@@ -373,9 +473,15 @@
       panel.id = 'remote-analyses-panel';
       anchor.parentNode.insertBefore(panel, anchor.nextSibling);
     }
-    fetch('/api/study-remote-figures?study=' + encodeURIComponent(slug) + '&limit=8')
-      .then(function (r) { return r.ok ? r.json() : { available: false }; })
+    _remoteGalleryOffered()
+      .then(function (offered) {
+        // Not offered: stay loaded (nothing to retry) and leave the panel empty.
+        if (!offered) return _GALLERY_NOT_OFFERED;
+        return fetch('/api/study-remote-figures?study=' + encodeURIComponent(slug) + '&limit=8')
+          .then(function (r) { return r.ok ? r.json() : { available: false }; });
+      })
       .then(function (d) {
+        if (d === _GALLERY_NOT_OFFERED) return;
         if (!d || !d.available || !(d.sims || []).length) {
           panel.innerHTML = (d && d.reason === 's3-auth-error' && d.total_completed_remote_sims)
             ? '<p class="muted" style="margin:10px 0">' + d.total_completed_remote_sims
@@ -390,7 +496,7 @@
             var links = (a.ptools || []).map(function (pp) {
               var fname = pp.replace(/^ptools\//, '');
               var url = '/api/remote-analysis-figure?simulation_id=' + enc(s.simulation_id)
-                + '&analysis=' + enc(a.name) + '&path=' + enc(pp);
+                + '&analysis=' + enc(a.name) + '&path=' + enc(pp) + '&study=' + enc(slug);
               return '<li><a href="' + url + '" download="' + esc(fname) + '">' + esc(fname) + '</a></li>';
             }).join('');
             var more = a.n_ptools > (a.ptools || []).length
@@ -405,7 +511,7 @@
         }).join('');
         panel.innerHTML =
           '<h4 style="margin-top:18px">Remote ptools / EcoCyc overlays (S3)</h4>'
-          + '<p class="muted">Rendered on GovCloud, read from S3 via the remote setting — showing '
+          + '<p class="muted">Rendered on the remote backend, read from S3 via the remote setting — showing '
           + d.shown_sims + ' of ' + d.total_completed_remote_sims
           + ' completed remote sims. Rendered figures are in the Visualizations tab.</p>'
           + rows;
@@ -635,6 +741,29 @@
   // absent file 404s; a bare <a download> to a 404 reads as a broken button.
   // (The "↓ Figures" jump button + _vivStudyJumpToFigures were removed — the
   // figures now live in their own Visualizations tab, opened via _setStudyTab.)
+
+  // Study Export "open in browser" variants — mirror the investigation Export:
+  // open the study's self-contained report / runnable notebook inline in a new
+  // tab, and "open figures" switches to the study's Visualizations tab (its
+  // in-page figure view). The download counterparts stay _vivStudy*FromCard.
+  function _hideStudyExportMenu(){ var m = document.getElementById('study-export-menu'); if (m) m.style.display = 'none'; }
+  window._vivStudyReportOpen = function (ev, slug) {
+    if (ev && ev.stopPropagation) ev.stopPropagation(); _hideStudyExportMenu();
+    window.open((window.__BASE_PATH__ || "") + '/api/study-report/' + encodeURIComponent(slug), '_blank', 'noopener');
+  };
+  window._vivStudyReportDownload = function (ev, slug) {
+    if (ev && ev.stopPropagation) ev.stopPropagation(); _hideStudyExportMenu();
+    window.open((window.__BASE_PATH__ || "") + '/api/study-report/' + encodeURIComponent(slug) + '?download=1', '_blank', 'noopener');
+  };
+  window._vivStudyNotebookOpen = function (ev, slug) {
+    if (ev && ev.stopPropagation) ev.stopPropagation(); _hideStudyExportMenu();
+    window.open((window.__BASE_PATH__ || "") + '/api/study/' + encodeURIComponent(slug) + '/notebook?download=0', '_blank', 'noopener');
+  };
+  window._vivStudyFiguresOpen = function (ev, slug) {
+    if (ev && ev.stopPropagation) ev.stopPropagation(); _hideStudyExportMenu();
+    if (typeof window._setStudyTab === 'function') window._setStudyTab('visualize');
+  };
+
   window._vivStudyFiguresFromCard = function (ev, slug) {
     if (ev && ev.stopPropagation) ev.stopPropagation();
     var c = window.__DASH_CONFIG__ || {};
@@ -828,9 +957,15 @@
       panel.id = 'remote-figures-panel';
       anchor.parentNode.insertBefore(panel, anchor.nextSibling);
     }
-    fetch('/api/study-remote-figures?study=' + encodeURIComponent(slug) + '&limit=8')
-      .then(function (r) { return r.ok ? r.json() : { available: false }; })
+    _remoteGalleryOffered()
+      .then(function (offered) {
+        // Not offered: stay loaded (nothing to retry) and leave the panel empty.
+        if (!offered) return _GALLERY_NOT_OFFERED;
+        return fetch('/api/study-remote-figures?study=' + encodeURIComponent(slug) + '&limit=8')
+          .then(function (r) { return r.ok ? r.json() : { available: false }; });
+      })
       .then(function (d) {
+        if (d === _GALLERY_NOT_OFFERED) return;
         if (!d || !d.available || !(d.sims || []).length) {
           panel.innerHTML = (d && d.reason === 's3-auth-error' && d.total_completed_remote_sims)
             ? '<p class="muted" style="margin:10px 0">' + d.total_completed_remote_sims
@@ -845,7 +980,7 @@
           (s.analyses || []).forEach(function (a) {
             (a.figures || []).forEach(function (fp) {
               var url = '/api/remote-analysis-figure?simulation_id=' + enc(s.simulation_id)
-                + '&analysis=' + enc(a.name) + '&path=' + enc(fp);
+                + '&analysis=' + enc(a.name) + '&path=' + enc(fp) + '&study=' + enc(slug);
               cards.push('<div class="figure-card">'
                 + '<iframe src="' + url + '" loading="lazy" '
                 + 'class="figure-media-frame figure-media-frame--native"></iframe>'
@@ -972,7 +1107,7 @@
             + escapeHtmlForTests(String(runId)) + ' ↗</a>'
           : '';
         host.innerHTML = names.map(function (n) {
-          return '<div class="figure-card">'
+          return '<div class="figure-card" id="fig-' + _evSlug(n) + '">'
             + '<iframe srcdoc="' + attr(panels[n]) + '" loading="lazy" '
             + 'class="figure-media-frame figure-media-frame--native"></iframe>'
             + '<div class="figure-caption-row">'
@@ -1135,8 +1270,41 @@
       + chips.join('<span class="muted">·</span>') + '</div>';
   }
 
+  // Gate results (Simulations › Results): each acceptance test's figureless
+  // readout — a derived-scalar value ("Computed scalar readout …") or an
+  // "unresolved: no measure.path" stub. These are run-derived RESULTS, split
+  // out of the Visualizations charts payload server-side (build_study_charts_
+  // payload → `gate_results`) so they no longer clutter the Visualizations tab.
+  var _gateResultsLoaded = false;
+  function _loadGateResults(force) {
+    var section = document.getElementById('gate-results-section');
+    var mount = document.getElementById('gate-results');
+    if (!section || !mount) return;
+    if (_gateResultsLoaded && !force) return;
+    _gateResultsLoaded = true;
+    window.DataSource.loadStudyCharts(studyName())
+      .then(function (d) {
+        var gr = (d && d.gate_results) || [];
+        if (!gr.length) { section.hidden = true; return; }
+        section.hidden = false;
+        mount.innerHTML = gr.map(function (g) {
+          var unresolved = g.status === 'unresolved' || g.status === 'refused';
+          var badge = unresolved
+            ? '<span style="flex:none;font-size:0.72em;font-weight:600;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#92400e">unresolved</span>'
+            : '<span style="flex:none;font-size:0.72em;font-weight:600;padding:2px 8px;border-radius:10px;background:#e0e7ff;color:#3730a3">scalar readout</span>';
+          return '<div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--border,#eceff3)">'
+            + '<div style="min-width:0;flex:1">'
+            + '<div style="font-weight:600;font-size:0.9em">' + escapeHtmlForTests(g.title || g.key || 'gate') + '</div>'
+            + '<div class="muted" style="font-size:0.82em;line-height:1.4">' + escapeHtmlForTests(g.caption || '') + '</div>'
+            + '</div>' + badge + '</div>';
+        }).join('');
+      })
+      .catch(function () { section.hidden = true; });
+  }
+
   function _loadResults(force) {
     _loadResultsPreview(force);
+    _loadGateResults(force);
     var mount = document.getElementById('raw-data-list');
     if (!mount) return;
     if (_rawDataLoaded && !force) return;
@@ -1460,6 +1628,206 @@
       .catch(function () { if (pre) pre.textContent = ref + ' (could not load config)'; });
   }
 
+  // ---- Model Definition panel (model-forward contract/math/symbols) --------
+  // Renders the study's composite AS A MODEL — above the loom box — from
+  // /api/composite-resolve: each process's typed interface (the ports it reads
+  // and writes = the model's symbols), its transformation signature from the doc
+  // (the "math"), the shared stores (state variables), and the typed parameters.
+  // Degrades to nothing if resolve is unavailable (published snapshot, unbuilt).
+  function _mdClassName(addr) {
+    addr = String(addr || ''); var i = addr.indexOf(':');
+    return i >= 0 ? addr.slice(i + 1) : addr;
+  }
+  function _mdSig(doc) {           // first line of the process doc = its transformation signature
+    var first = String(doc || '').trim().split('\n')[0].trim();
+    return first.length > 180 ? first.slice(0, 177) + '…' : first;
+  }
+  function _mdPorts(obj, arrow) {  // {port: [store, key]} -> "port arrow store.key" chips
+    var ks = Object.keys(obj || {});
+    if (!ks.length) return '<span class="muted">—</span>';
+    return ks.map(function (port) {
+      var w = obj[port]; var path = Array.isArray(w) ? w.join('.') : String(w);
+      return '<span class="mdef-port"><code>' + _esc(port) + '</code> ' + arrow +
+        ' <span class="mdef-store-ref">' + _esc(path) + '</span></span>';
+    }).join('');
+  }
+  // The process's declared governing equations (contract.math) — surfaced
+  // prominently, the same math the loom node cards lead with. The server
+  // pre-renders each equation to MathML (contract.math_mathml), which browsers
+  // display natively — so heavy LaTeX (\frac, \mathrm, \sum) shows as real math.
+  // _prettyMath is the fallback for an equation MathML couldn't render.
+  // Prettify a contract.math one-liner toward a LaTeX-like reading WITHOUT a math
+  // typesetter: relational/arrow operators become symbols, `*` a middle dot, and
+  // single-letter-base `x_sub` tokens render as real subscripts (the physics
+  // convention — k_ext, c_base, m_start), `^x` as superscripts. Multi-letter
+  // identifiers (has_pump, decay_no_heredity) are left intact. Returns HTML.
+  function _prettyMath(raw) {
+    var s = String(raw == null ? '' : raw);
+    s = s.replace(/<=/g, '≤').replace(/>=/g, '≥')
+         .replace(/!=/g, '≠').replace(/->/g, '→');
+    s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    s = s.replace(/\*/g, '·');
+    s = s.replace(/\b([A-Za-z])_([A-Za-z0-9]+)/g, '$1<sub>$2</sub>');
+    s = s.replace(/\^\{([^}]*)\}/g, '<sup>$1</sup>').replace(/\^([A-Za-z0-9]+)/g, '<sup>$1</sup>');
+    return s;
+  }
+  function _mdEquations(c) {
+    var m = (c && Array.isArray(c.math)) ? c.math : [];
+    if (!m.length) return '';
+    var ml = (c && Array.isArray(c.math_mathml)) ? c.math_mathml : [];
+    return '<div class="mdef-eqs"><div class="mdef-eqs-lbl">Equations</div>' +
+      m.map(function (e, i) {
+        // Insert the server-rendered MathML when present (trusted, authored by the
+        // process contract — not user input); fall back to prettified text.
+        var mml = ml[i];
+        var body = (typeof mml === 'string' && mml.lastIndexOf('<math', 0) === 0)
+          ? mml
+          : '<span class="mdef-eq-txt">' + _prettyMath(String(e)) + '</span>';
+        return '<div class="mdef-eq">' + body + '</div>';
+      }).join('') +
+      '</div>';
+  }
+  // The symbols the equations use (contract.symbols: {sym: meaning}).
+  function _mdSymbols(c) {
+    var s = (c && c.symbols && typeof c.symbols === 'object') ? c.symbols : {};
+    var ks = Object.keys(s);
+    if (!ks.length) return '';
+    return '<div class="mdef-syms"><div class="mdef-syms-lbl">Symbols</div><dl class="mdef-sym-list">' +
+      ks.map(function (k) {
+        return '<dt><code>' + _esc(k) + '</code></dt><dd>' + _esc(String(s[k])) + '</dd>';
+      }).join('') + '</dl></div>';
+  }
+  // The model's Antimony source (p._antimony {text, format, source}), attached by
+  // the server for any model-bearing process — shown OPEN by default in a scrollable
+  // monospace pane (still collapsible via the summary).
+  function _mdAntimony(p) {
+    var a = p && p._antimony;
+    if (!a || !a.text) return '';
+    var src = a.source ? ' <span class="mdef-ant-src">· ' + _esc(String(a.source)) + '</span>' : '';
+    return '<details open class="mdef-ant"><summary class="mdef-ant-lbl">Antimony' + src + '</summary>' +
+      '<pre class="mdef-ant-pre"><code>' + _esc(String(a.text)) + '</code></pre></details>';
+  }
+  function _modelDefHtml(d) {
+    d = d || {};
+    var state = (d.state && typeof d.state === 'object') ? d.state : {};
+    var procNames = Object.keys(state).filter(function (k) {
+      var n = state[k];
+      if (!(n && typeof n === 'object' && (n._type === 'process' || n.address))) return false;
+      return !/emitter/i.test(String(n.address || '') + ' ' + k);   // emitters are plumbing, not model
+    });
+    var params = (d.parameters && typeof d.parameters === 'object') ? d.parameters : {};
+    if (!procNames.length && !Object.keys(params).length) return '';
+
+    // Shared stores = the model's state variables (the symbols the processes exchange).
+    var stores = {};
+    procNames.forEach(function (pn) {
+      var p = state[pn] || {};
+      ['inputs', 'outputs'].forEach(function (io) {
+        var m = p[io] || {};
+        Object.keys(m).forEach(function (port) {
+          var w = m[port];
+          if (Array.isArray(w) && w.length) {
+            var s = stores[w[0]] || (stores[w[0]] = {});
+            if (w.length >= 2) s[w[1]] = true;
+          }
+        });
+      });
+    });
+
+    var procHtml = procNames.map(function (pn) {
+      var p = state[pn] || {};
+      var sig = _mdSig(p.doc);
+      var cfg = (p.config && typeof p.config === 'object') ? p.config : {};
+      var cfgStr = Object.keys(cfg).map(function (k) {
+        return '<code>' + _esc(k) + '</code> = ' + _esc(JSON.stringify(cfg[k]));
+      }).join(' · ');
+      var contract = p._contract || p.contract || {};
+      return '<div class="mdef-proc">' +
+        '<div class="mdef-proc-hd"><strong>' + _esc(pn) + '</strong>' +
+          (p.address ? ' <span class="mdef-cls">' + _esc(_mdClassName(p.address)) + '</span>' : '') + '</div>' +
+        (sig ? '<div class="mdef-sig">' + _esc(sig) + '</div>' : '') +
+        _mdEquations(contract) +
+        '<div class="mdef-io"><div class="mdef-io-row"><span class="mdef-io-lbl">reads</span><span class="mdef-io-ports">' +
+          _mdPorts(p.inputs, '←') + '</span></div>' +
+        '<div class="mdef-io-row"><span class="mdef-io-lbl">writes</span><span class="mdef-io-ports">' +
+          _mdPorts(p.outputs, '→') + '</span></div></div>' +
+        (cfgStr ? '<div class="mdef-io-row"><span class="mdef-io-lbl">config</span><span class="mdef-io-ports">' + cfgStr + '</span></div>' : '') +
+        _mdSymbols(contract) +
+        _mdAntimony(p) +
+        '</div>';
+    }).join('');
+
+    var storeHtml = Object.keys(stores).sort().map(function (sn) {
+      var keys = Object.keys(stores[sn]).sort().map(function (k) { return '<code>' + _esc(k) + '</code>'; }).join(' ');
+      return '<div class="mdef-store-row"><span class="mdef-store-ref">' + _esc(sn) + '</span> ' + keys + '</div>';
+    }).join('');
+
+    var paramHtml = Object.keys(params).map(function (pn) {
+      var p = params[pn] || {};
+      var meta = [p.type, (p.default !== undefined ? 'default ' + JSON.stringify(p.default) : null)]
+        .filter(Boolean).join(' · ');
+      return '<div class="mdef-param"><code>' + _esc(pn) + '</code>' +
+        (meta ? ' <span class="mdef-ptype">' + _esc(meta) + '</span>' : '') +
+        (p.description ? '<div class="muted mdef-pdesc">' + _esc(p.description) + '</div>' : '') + '</div>';
+    }).join('');
+
+    var requires = Array.isArray(d.requires) && d.requires.length
+      ? '<div class="mdef-req muted">requires ' + d.requires.map(_esc).join(', ') + '</div>' : '';
+
+    return '<div class="mdef-panel">' +
+      '<div class="mdef-hd"><span class="overview-label" style="margin:0">Model definition</span>' +
+        (d.name ? '<code class="mdef-name">' + _esc(d.name) + '</code>' : '') +
+        (d.kind ? '<span class="mdef-kind">' + _esc(d.kind) + '</span>' : '') +
+        '</div>' +
+      (d.description ? '<p class="mdef-desc">' + _esc(d.description) + '</p>' : '') +
+      (procHtml ? '<div class="mdef-sect"><div class="mdef-sect-lbl">Processes · ' + procNames.length + '</div>' + procHtml + '</div>' : '') +
+      (storeHtml ? '<div class="mdef-sect"><div class="mdef-sect-lbl">State variables — shared stores</div><div class="mdef-stores">' + storeHtml + '</div></div>' : '') +
+      (paramHtml ? '<div class="mdef-sect"><div class="mdef-sect-lbl">Parameters</div><div class="mdef-params">' + paramHtml + '</div></div>' : '') +
+      requires + '</div>';
+  }
+  function _renderModelDefinition(mount, fallbackId, _tries) {
+    if (!mount) return;
+    _tries = _tries || 0;
+    // composite-resolve needs the FULL module address; study.baseline[].composite is
+    // the short name. The loom card carries the resolved full address as data-address,
+    // so wait briefly for it to mount, then use it (fall back to the short id). The
+    // composite cards now render in the Loom sub-pane, so search the whole Model tab
+    // for the resolved address, not just this (Composition) mount.
+    var _cpanel = document.getElementById('panel-compose') || document;
+    var card = _cpanel.querySelector('[data-address]');
+    var fullId = card && card.getAttribute('data-address');
+    if (!fullId && _tries < 25) {
+      return void setTimeout(function () { _renderModelDefinition(mount, fallbackId, _tries + 1); }, 120);
+    }
+    var compositeId = fullId || fallbackId;
+    if (!compositeId) return;
+    // Snapshot-aware (same contract as _loadModelCards): a read-only bundle has
+    // no live /api/composite-resolve endpoint, so publish.py bakes the payload to
+    // api/composite-resolve/<id>.json. Without this branch the Model tab's
+    // Composition panel fetched the live ?id= route, got a 404 in the static
+    // bundle, and rendered blank (the Loom sub-pane still worked because its
+    // loader already branched here).
+    var _mdApi = (window.DataSource && window.DataSource.apiUrl)
+      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
+    var _mdUrl = _isSnapshot()
+      ? _mdApi('/api/composite-resolve/' + encodeURIComponent(compositeId) + '.json')
+      : '/api/composite-resolve?id=' + encodeURIComponent(compositeId);
+    fetch(_mdUrl)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || d.error) return;
+        var html = _modelDefHtml(d);
+        if (!html) return;
+        var slot = document.getElementById('model-definition-panel');
+        if (!slot) {
+          slot = document.createElement('div'); slot.id = 'model-definition-panel';
+          mount.insertBefore(slot, mount.firstChild);   // above the loom card(s)
+        }
+        slot.innerHTML = html;
+      })
+      .catch(function () { /* resolve unavailable (snapshot / unbuilt) — no panel */ });
+  }
+
   function _loadModelCards(force) {
     var mount = document.getElementById('model-composite-cards');
     if (!mount) return;
@@ -1502,6 +1870,8 @@
     });
     if (!order.length) {
       mount.innerHTML = '<p class="empty-message">No composite declared for this study yet.</p>';
+      var _lm0 = document.getElementById('model-loom-mount');
+      if (_lm0) _lm0.innerHTML = '<p class="empty-message">No composite to show in the loom yet.</p>';
       return;
     }
     // Consolidation (Fable §4.2 / #14): the loom cards below ARE the study's
@@ -1512,11 +1882,53 @@
     // .cond-block elements' data-model-composite attributes below, and
     // _loadModelConfig still populates them off-screen (harmless), so nothing
     // downstream breaks. NOTE: the "Set composite" (repoint study.baseline)
-    // authoring action lives only here; it can be re-surfaced behind an explicit
-    // edit affordance if a study needs to change its model from this tab.
+    // authoring action lives only here, so it is re-surfaced behind an explicit
+    // "Change model" toggle below (issue #1618, blocker A) — without it a study
+    // created in the GUI could never be pointed at a model from the GUI.
     var modelSection = document.getElementById('model-section');
     if (modelSection) modelSection.style.display = 'none';
     mount.innerHTML = '';
+    // Issue #1618, blocker A — re-surface the model-set control. The registry-
+    // fed composite <select> + "Set composite" button live inside #model-section
+    // (hidden just above as redundant with the loom cards); a toggle reveals it
+    // so the user can point the study at a real composite from this tab. The
+    // affordance is always offered, since a fresh "+ Study" scaffold starts on
+    // the placeholder composite and MUST be repointed before it can run.
+    if (modelSection) {
+      // A fresh "+ Study" scaffold starts on the placeholder composite; detect
+      // it so the control reads "Choose a model" (and opens on its own) rather
+      // than "Change model" — the "next step" prompt the issue asks for.
+      var _isPlaceholder = order.indexOf('replace_me.composites.placeholder') !== -1;
+      var _editToggle = document.createElement('button');
+      _editToggle.type = 'button';
+      _editToggle.className = 'action-btn';
+      _editToggle.style.cssText = 'font-size:0.82em;margin:0 0 10px' +
+        (_isPlaceholder ? ';font-weight:600' : '');
+      var _editToggleLabel = function (open) {
+        _editToggle.textContent = open
+          ? '✕ Done'
+          : (_isPlaceholder ? '➕ Choose a model' : '✎ Change model');
+      };
+      var _openPicker = function () {
+        modelSection.style.display = '';
+        _editToggleLabel(true);
+        if (typeof _populateBaselineCompositeSelects === 'function') {
+          try { _populateBaselineCompositeSelects(); } catch (e) {}
+        }
+      };
+      _editToggleLabel(false);
+      _editToggle.addEventListener('click', function () {
+        if (modelSection.style.display === 'none') { _openPicker(); }
+        else { modelSection.style.display = 'none'; _editToggleLabel(false); }
+      });
+      // Only a brand-new placeholder study needs the model picker surfaced here
+      // ("Choose a model", auto-opened below). A real study's "Change model" button
+      // is removed — the Model Definition panel is the model view.
+      if (_isPlaceholder) mount.appendChild(_editToggle);
+      // Surface the picker immediately when there is no real model yet, so a
+      // newly-created study lands on "Choose a model" without hunting (#1618).
+      if (_isPlaceholder) _openPicker();
+    }
     // The study's ONE canonical config (source of truth) — the vEcoli config both
     // model arms derive from (study.config, else three_arm.native_config, surfaced
     // by the template as data-study-config). Render it ONCE for the whole study so
@@ -1527,6 +1939,16 @@
     var _studyCfgRef = (mount.getAttribute('data-study-config') || '').trim();
     var _hasStudyCfg = !!_studyCfgRef;
     if (_hasStudyCfg) _renderStudyConfigPanel(mount, _studyCfgRef, _esc0);
+    // Model-forward: render the composite AS A MODEL (contract/ports/math/symbols)
+    // in the Composition mount. Uses the primary (baseline) composite.
+    if (order.length) _renderModelDefinition(mount, order[0]);
+    // The interactive composite cards (baseline + each variant, each a collapsible
+    // "Explore composite" diagram) render in the LOOM sub-pane, not Composition —
+    // Composition shows the model's definition + config, the Loom tab shows the
+    // diagrams. _mountModelLoom() auto-opens the baseline card there.
+    var loomMount = document.getElementById('model-loom-mount');
+    var cardsMount = loomMount || mount;
+    if (loomMount) loomMount.innerHTML = '';
     order.forEach(function (id) {
       var entry = byId[id];
       var wrap = document.createElement('div');
@@ -1565,15 +1987,16 @@
         var lc = String(l || '').toLowerCase();
         return lc && lc !== _studySlug && lc !== _shortId.toLowerCase() && lc !== 'baseline';
       });
-      var _armHdr = '<div class="model-arm-head" style="display:flex;gap:7px;align-items:baseline;margin:0 0 5px 2px">' +
-        '<span style="font-size:0.68em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted,#8a94a0)">Composite</span>' +
-        '<code style="font-size:0.86em;font-weight:600">' + esc(_shortId) + '</code>' +
-        (_armExtra.length ? '<span class="muted" style="font-size:0.8em">· ' + _armExtra.map(esc).join(' · ') + '</span>' : '') +
-        '</div>';
+      // The Model Definition panel already names the composite, so the bare
+      // "COMPOSITE <name>" header is dropped; show a compact header only when a
+      // VARIANT label adds information beyond the baseline.
+      var _armHdr = _armExtra.length ? ('<div class="model-arm-head" style="display:flex;gap:7px;align-items:baseline;margin:6px 0 5px 2px">' +
+        '<span style="font-size:0.68em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted,#8a94a0)">Variant</span>' +
+        '<code style="font-size:0.86em;font-weight:600">' + esc(_armExtra.map(String).join(' · ')) + '</code>' +
+        '</div>') : '';
       wrap.innerHTML = _armHdr +
-        _cfgUsedHtml +
         '<p class="muted" style="font-size:0.85em;margin:0">Resolving composite…</p>';
-      mount.appendChild(wrap);
+      cardsMount.appendChild(wrap);
       // Expand a config-file reference (the vecoli arm's whole_config, or a
       // config_file) to the ACTUAL config that runs, so "Config used" shows the
       // real config instead of a bare path. (ecoli_baseline's config_file is
@@ -1651,16 +2074,30 @@
           } catch (e) { /* seeding is best-effort — bare loom still works */ }
           // The model file — each process's config formatted (for viva-smoldyn:
           // species / reactions / bounds) — shown ABOVE the loom explorer.
-          var cfgHost = document.createElement('div');
-          _renderCompositeSource(cfgHost, body.state, esc);
-          if (cfgHost.firstChild) {
-            var head = document.createElement('div');
-            head.style.cssText = 'margin:8px 0 4px 2px';
-            head.innerHTML =
-              '<div class="muted" style="font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.02em">Model configuration</div>' +
-              '<div class="muted" style="font-size:0.76em;font-weight:400;opacity:0.82;margin-top:1px">The fully resolved composite — each process’s complete config (what the run parameters above expand into).</div>';
-            wrap.insertBefore(cfgHost, cardEl);
-            wrap.insertBefore(head, cfgHost);
+          // The Model Definition panel above renders each process's config cleanly,
+          // so the raw "Model configuration" dump is gone. Collapse the composite
+          // card (loom + code) behind an "Explore composite" toggle so the Model tab
+          // stays card-like until the user opens the diagram — and the heavy loom is
+          // only mounted on demand (it is lazy, so this also avoids load failures for
+          // users who never open it).
+          // Collapse behind an "Explore composite" toggle ONLY when the cards live
+          // in the Composition mount. In the Loom sub-pane (cardsMount !== mount)
+          // the card IS the content — show it directly, no toggle.
+          if (cardsMount === mount && cardEl && cardEl.parentNode === wrap) {
+            cardEl.style.display = 'none';
+            var _expl = document.createElement('button');
+            _expl.type = 'button';
+            _expl.className = 'mdef-explore-btn';
+            var _explLbl = function (open) {
+              _expl.textContent = (open ? '▾ ' : '▸ ') + 'Explore composite — diagram, config & code';
+            };
+            _explLbl(false);
+            _expl.addEventListener('click', function () {
+              var open = cardEl.style.display === 'none';
+              cardEl.style.display = open ? '' : 'none';
+              _explLbl(open);
+            });
+            wrap.insertBefore(_expl, cardEl);
           }
         })
         .catch(function () {
@@ -1708,22 +2145,21 @@
     if (!editedKeys.length) { status.textContent = 'No changes to save.'; return; }
     var composite = btn.dataset.composite;
     var oldName = btn.dataset.baselineName;
-    var newName = oldName + '-' + Date.now().toString(36);
     btn.disabled = true;
     status.textContent = 'Saving…';
-    api('POST', '/api/study-baseline-add', {study: studyName(), name: newName, composite: composite, params: merged})
-      .then(function (addResult) {
-        if (addResult.status !== 200) throw addResult;
-        return api('POST', '/api/study-baseline-remove', {study: studyName(), name: oldName});
-      })
+    // In-place repoint preserves the baseline entry's name (issue #1618): the
+    // old add(<name>-<suffix>)+remove(<name>) swap renamed the baseline on
+    // every edit. study-baseline-set updates composite/params under the same
+    // name in one call.
+    api('POST', '/api/study-baseline-set', {study: studyName(), name: oldName, composite: composite, params: merged})
       .then(function (r) {
         if (r.status === 200) { location.reload(); return; }
         btn.disabled = false;
         status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
       })
-      .catch(function (addResult) {
+      .catch(function (err) {
         btn.disabled = false;
-        status.textContent = 'Error: ' + (addResult.body && addResult.body.error || addResult.status);
+        status.textContent = 'Error: ' + (err.body && err.body.error || err.status);
       });
   }
 
@@ -1843,6 +2279,34 @@
     var sectionLabel = function (label) {
       return '<div class="muted" style="font-size:0.78em;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">' + e(label) + '</div>';
     };
+    // Provenance of an adopted remote run: these fields are engine-authored onto
+    // the run row (lib/simulations_index._row_to_dict → remote_origin/ran_on/
+    // source_ref) but were never surfaced in this panel. Render each ONLY when it
+    // is actually present on the row — never invent or default a provenance value.
+    var _ro = row.remote_origin || null;
+    var _sref = row.source_ref || null;
+    var _provRows = '';
+    // A run computed on a remote backend. remote_origin present → its data is
+    // still remote (s3); ran_on alone → the results were landed/adopted into
+    // this workspace. The wording reflects what the fields actually say.
+    if (_ro) {
+      _provRows += kv('Method', 'remote run');
+    } else if (row.ran_on) {
+      _provRows += kv('Method', 'adopted remote run');
+    }
+    if (_ro && _ro.deployment) _provRows += kv('Origin host', '<code>' + e(_ro.deployment) + '</code>');
+    var _backend = (_ro && _ro.backend) || row.ran_on;
+    if (_backend) _provRows += kv('Backend', e(_backend));
+    if (_ro && _ro.simulation_id != null) _provRows += kv('Simulation', '<code>' + e(_ro.simulation_id) + '</code>');
+    if (_ro && _ro.experiment_id) _provRows += kv('Experiment', '<code>' + e(_ro.experiment_id) + '</code>');
+    if (_ro && _ro.s3_uri) _provRows += kv('Source artifact', '<code>' + e(_ro.s3_uri) + '</code>');
+    if (_sref && (_sref.commit_short || _sref.commit)) {
+      var _short = _sref.commit_short || String(_sref.commit).slice(0, 10);
+      var _commitHtml = _sref.commit_url
+        ? '<a href="' + e(_sref.commit_url) + '" target="_blank" rel="noopener"><code>' + e(_short) + '</code></a>'
+        : '<code>' + e(_short) + '</code>';
+      _provRows += kv('Source commit', _commitHtml);
+    }
     host.innerHTML =
       '<div class="panel" style="padding:12px 14px">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
@@ -1857,6 +2321,11 @@
           kv('Time', e(S.fmtTime(row.completed_at || row.started_at))) +
           (row.n_steps != null ? kv('Steps', e(row.n_steps)) : '') +
         '</div>' +
+        (_provRows
+          ? '<div style="margin-bottom:10px">' + sectionLabel('Provenance') +
+              '<div style="display:grid;gap:4px;font-size:0.88em">' + _provRows + '</div>' +
+            '</div>'
+          : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:8px">' + dl + ' ' + an + ' ' + explore + '</div>' +
         '<div style="margin-top:12px">' + sectionLabel('Figures') +
           '<div id="run-detail-figures">' + figs.html + '</div>' +
@@ -2150,6 +2619,71 @@
 
   function studyName() { return window._studyName; }
 
+  // --- Variants & findings authoring (issue #1618, blocker B) ---
+  // Inline onsubmit handlers resolve against global scope, so these are exposed
+  // on window. Each posts to an existing (variant) or new (finding) endpoint and
+  // reloads so the server-rendered lists/cards refresh.
+  function _submitStudyVariantAdd(form) {
+    var status = form.parentNode.querySelector('.study-variant-add-status');
+    var name = (form.name && form.name.value || '').trim();
+    var base = (form.base_composite && form.base_composite.value || '').trim();
+    var ovrRaw = (form.overrides && form.overrides.value || '').trim();
+    if (!name) { if (status) status.textContent = 'Name required.'; return false; }
+    var overrides = {};
+    if (ovrRaw) {
+      try { overrides = JSON.parse(ovrRaw); }
+      catch (e) { if (status) status.textContent = 'Overrides must be valid JSON (e.g. {"k": 2}).'; return false; }
+      if (typeof overrides !== 'object' || Array.isArray(overrides)) {
+        if (status) status.textContent = 'Overrides must be a JSON object.'; return false;
+      }
+    }
+    if (status) status.textContent = 'Adding…';
+    api('POST', '/api/study-variant-add',
+        {study: studyName(), name: name, base_composite: base, parameter_overrides: overrides})
+      .then(function (r) {
+        if (r.status === 200) { location.reload(); return; }
+        if (status) status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
+      })
+      .catch(function (err) { if (status) status.textContent = 'Error: ' + (err.body && err.body.error || err.status); });
+    return false;
+  }
+  window._submitStudyVariantAdd = _submitStudyVariantAdd;
+
+  function _submitStudyInterventionAdd(form) {
+    var status = form.parentNode.querySelector('.study-intervention-add-status');
+    var name = (form.name && form.name.value || '').trim();
+    var description = (form.description && form.description.value || '').trim();
+    if (!name) { if (status) status.textContent = 'Name required.'; return false; }
+    if (status) status.textContent = 'Adding…';
+    api('POST', '/api/study-intervention-add',
+        {study: studyName(), name: name, description: description})
+      .then(function (r) {
+        if (r.status === 200) { location.reload(); return; }
+        if (status) status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
+      })
+      .catch(function (err) { if (status) status.textContent = 'Error: ' + (err.body && err.body.error || err.status); });
+    return false;
+  }
+  window._submitStudyInterventionAdd = _submitStudyInterventionAdd;
+
+  function _submitStudyFindingAdd(form) {
+    var status = form.parentNode.querySelector('.study-finding-add-status');
+    var statement = (form.statement && form.statement.value || '').trim();
+    var st = (form.status && form.status.value || 'novel').trim();
+    var explanation = (form.explanation && form.explanation.value || '').trim();
+    if (!statement) { if (status) status.textContent = 'Statement required.'; return false; }
+    if (status) status.textContent = 'Adding…';
+    api('POST', '/api/study-finding-add',
+        {study: studyName(), statement: statement, status: st, explanation: explanation})
+      .then(function (r) {
+        if (r.status === 200) { location.reload(); return; }
+        if (status) status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
+      })
+      .catch(function (err) { if (status) status.textContent = 'Error: ' + (err.body && err.body.error || err.status); });
+    return false;
+  }
+  window._submitStudyFindingAdd = _submitStudyFindingAdd;
+
   // --- Analyses (Model tab) ---
   // Reuses /api/study-set-analyses (lib.metadata_mutations.set_investigation_analyses,
   // which despite its name resolves any study by name via study_dir() — flat
@@ -2248,15 +2782,44 @@
   // Mode-aware dispatch: ONE button, the actual target decided by deployment
   // config, never a second button next to it. Items 18/19 exist specifically
   // to eliminate the "which button do I click" choice, not reintroduce it
-  // under a new name. Remote-pinned deployments (VIVARIUM_WORKBENCH_REMOTE_PINNED,
-  // e.g. the live smscdk prod deployment) dispatch to AWS Batch via
-  // remote-run-submit; everything else keeps the existing local-engine path.
+  // under a new name. A backend's launch plugin may take the dispatch (below);
+  // otherwise the study runs on the existing local-engine path.
+  // Backend-specific launch UI: a provider's launch script (window.SmsLaunch),
+  // loaded before this file when present. It gets only the small interface below and returns
+  // {dispatchBaseline, setRemoteConfigured}; absent, the study page is local-only.
   var _CANCELLED = { status: 0, body: { cancelled: true } };
+  var _smsLaunch = null;
+  if (window.SmsLaunch && typeof window.SmsLaunch.mount === 'function') {
+    // A broken plugin must not take the rest of the study page down with it.
+    try {
+      _smsLaunch = window.SmsLaunch.mount({
+        api: api,
+        studyName: studyName,
+        confirmModal: _confirmModal,
+        alertModal: _alertModal,
+        cancelled: _CANCELLED,
+        loadStudySims: _loadStudySims,
+        actionsHost: document.getElementById('sim-run-actions'),
+      }) || null;
+    } catch (err) {
+      // The plugin is present but broken: fail the dispatch visibly. Never fall back to a local run,
+      // which on a pinned deployment would run the study somewhere the operator did not choose.
+      if (window.console) console.error('launch plugin mount failed', err);
+      _smsLaunch = {
+        dispatchBaseline: function () { return Promise.reject(new Error('the launch plugin failed to load: ' + (err && err.message || err))); },
+        setRemoteConfigured: function () {},
+      };
+    }
+  }
 
   function _dispatchCurrentSpecBaseline() {
-    return api('GET', '/api/remote-run-config').then(function(cfgRes) {
-      var cfg = (cfgRes.status === 200 && cfgRes.body) || {};
-      if (cfg.pinned && cfg.simulator_id) return _dispatchRemotePinned(cfg);
+    // The launch plugin answers first (it may dispatch remotely); null means
+    // "not mine" and the study runs on the local engine as before.
+    var remote = _smsLaunch
+      ? Promise.resolve().then(function () { return _smsLaunch.dispatchBaseline(); })
+      : Promise.resolve(null);
+    return remote.then(function(res) {
+      if (res) return res;
       // In-page confirm (not window.confirm): embedded/automated browsers that
       // suppress native dialogs silently cancel the run otherwise.
       return _confirmModal("Run this study's CURRENT baseline spec as a new run?").then(function (ok) {
@@ -2265,271 +2828,17 @@
       });
     });
   }
-
-  // item 20: the resolved target (repo/branch/commit/simulator id) is fetched
-  // fresh via /api/remote-run-config immediately above -- never a stale
-  // client-rendered label -- but nothing surfaced it to a human before this
-  // function fired the actual AWS Batch dispatch. Show it and require an
-  // explicit confirm, so a workspace-identity mismatch is caught here, before
-  // money gets spent, not discovered afterward via aws batch describe-jobs.
-  //
-  // Deliberate addition beyond the || 1 removal below: window._study can be a
-  // STALE in-memory copy fetched before a param edit landed server-side (a
-  // confirmed real failure mode, not theoretical -- a tab left open across a
-  // baseline-param save re-dispatched the OLD 1x1 params from memory even
-  // though study.yaml on disk was already correct). Re-fetching via
-  // window.DataSource.loadStudy immediately before reading params closes that
-  // gap; window._study is refreshed too so the rest of the page stops reading
-  // stale state from this point on as well.
-  function _dispatchRemotePinned(cfg) {
-    var slug = studyName();
-    var refetch = (window.DataSource && window.DataSource.loadStudy)
-      ? window.DataSource.loadStudy(slug).catch(function () { return null; })
-      : Promise.resolve(null);
-    return refetch.then(function (freshStudy) {
-      if (freshStudy) window._study = freshStudy;
-      var baseline = (window._study && window._study.baseline) || [];
-      var params = (baseline[0] && baseline[0].params) || {};
-      var numGenerations = params.n_generations;
-      var numSeeds = params.n_seeds;
-      // n_generations/n_seeds directly size a real AWS Batch job -- unlike
-      // ordinary composite params (already correctly default-backed via
-      // /api/composite-resolve, untouched here), an explicit value the user
-      // set must NEVER be silently replaced by a default. An unset value
-      // blocks the dispatch outright rather than falling back to 1x1.
-      var missing = [];
-      if (!numGenerations) missing.push('n_generations');
-      if (!numSeeds) missing.push('n_seeds');
-      if (missing.length) {
-        // item 81: styled modal, not window.alert() -- see _confirmModal's
-        // own comment above for why (blocks the event loop, including
-        // browser-automation UI verification).
-        return _alertModal(
-          'Cannot dispatch: ' + missing.join(' and ') +
-          (missing.length > 1 ? ' are' : ' is') + ' not set.\n\n' +
-          'Set ' + (missing.length > 1 ? 'both' : 'it') + ' in the Model tab ' +
-          '(Runnable models → edit ' + missing.join(' / ') + ' → Save parameter changes) before running.'
-        ).then(function () { return _CANCELLED; });
-      }
-      var msg = 'Dispatch to AWS Batch:\n\n' +
-        '  repo:    ' + (cfg.repo_url || '(unknown)') + '\n' +
-        '  branch:  ' + (cfg.branch || '(unknown)') + '\n' +
-        '  commit:  ' + ((cfg.commit || '(unknown)').slice(0, 12)) + '\n' +
-        '  simulator id: ' + cfg.simulator_id + '\n' +
-        '  generations:  ' + numGenerations + '\n' +
-        '  seeds:        ' + numSeeds + '\n\n' +
-        'Proceed?';
-      // item 81: styled modal, not window.confirm() -- reuses item 20b's
-      // existing _confirmModal (same file) rather than adding a second
-      // implementation; see its own comment above for the rationale.
-      return _confirmModal(msg).then(function (ok) {
-        if (!ok) return _CANCELLED;
-        return api('POST', '/api/remote-run-submit', {
-          study: slug,
-          simulator_id: cfg.simulator_id,
-          num_generations: numGenerations,
-          num_seeds: numSeeds,
-        });
-      });
-    });
-  }
   window._dispatchCurrentSpecBaseline = _dispatchCurrentSpecBaseline;
 
-  // ─── item 110: dispatch an arbitrary process-bigraph composite_id (e.g.
-  // pbg-native's v2ecoli.composites.lineage_ray_batch, item 101/109) to the
-  // remote compute backend -- independent of this study's own pinned
-  // baseline composite. Mirrors `atlantis composite run`'s already-proven
-  // parameter surface (viva-api PR #382) exactly: named fields for the
-  // common params + a raw-JSON escape hatch for anything else
-  // (injected_processes/variants/config_overrides/emitter_arg/cache_dir/
-  // media/...), rather than inventing a new shape. Fully additive: a new
-  // button, a new panel, a new function -- `_dispatchRemotePinned` and the
-  // default "Run current spec" flow above are untouched.
-  //
-  // Reaches viva-api through the SAME endpoint `_dispatchRemotePinned`
-  // already uses (`POST /api/remote-run-submit`), which already accepts a
-  // top-level `extra_params` field verbatim (`remote_run_views.
-  // remote_run_submit`: `extra_params=body.get("extra_params") or None` ->
-  // `SmsApiClient.run_simulation(extra_params=...)` -> the real
-  // `POST /api/v1/simulations` JSON body's own `extra_params` key) -- the
-  // exact field name/shape every real pbg-native dispatch this session
-  // fired (database_id 253/255/282/283/288) used. No new server-side code
-  // needed; confirmed directly against current source before building this,
-  // not assumed from the earlier gap report alone (which cited a different,
-  // more complex passthrough in study_runs.py that this simpler, more
-  // direct field makes unnecessary for this feature).
-  function _compositePanelEl() {
-    var el = document.getElementById('study-composite-panel');
-    if (el) return el;
-    var btn = document.getElementById('study-run-composite');
-    var host = btn && btn.parentNode;
-    if (!host) return null;
-    el = document.createElement('div');
-    el.id = 'study-composite-panel';
-    el.style.cssText = 'display:none;position:absolute;z-index:20;margin-top:6px;padding:12px;'
-      + 'background:var(--panel-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:6px;'
-      + 'box-shadow:0 4px 16px rgba(0,0,0,0.12);font:12px/1.5 system-ui,-apple-system,sans-serif;'
-      + 'width:360px;right:0;top:100%';
-    el.innerHTML =
-      '<div style="font-weight:600;margin-bottom:8px">Dispatch composite (advanced)</div>'
-      + '<label style="display:block;margin-top:6px">mechanism'
-      + '<select id="cp-mechanism" style="width:100%;box-sizing:border-box;margin-top:2px">'
-      + '<option value="multi_node_dispatch">multi_node_dispatch (lineage_ray_batch, etc.)</option>'
-      + '<option value="mbp_dispatch">mbp_dispatch (run_mbp_tracked.py, e.g. reactor_bird_coupled)</option>'
-      + '<option value="nextflow_dispatch">nextflow_dispatch (workflow_nf: Nextflow head, one Batch task per lineage)</option>'
-      + '</select></label>'
-      + '<div id="cp-mnp-fields">'
-      + '<label style="display:block;margin-top:6px">composite_id'
-      + '<input type="text" id="cp-composite-id" placeholder="v2ecoli.composites.lineage_ray_batch.lineage_ray_batch" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<div style="display:flex;gap:8px;margin-top:6px">'
-      + '<label style="flex:1">num_nodes<input type="number" id="cp-num-nodes" min="1" value="2" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<label style="flex:1">n_seeds<input type="number" id="cp-n-seeds" min="1" value="2" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<label style="flex:1">n_generations<input type="number" id="cp-n-generations" min="1" value="1" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '</div>'
-      + '</div>'
-      + '<div id="cp-mbp-fields" style="display:none">'
-      + '<label style="display:block;margin-top:6px">variant'
-      + '<input type="text" id="cp-mbp-variant" placeholder="reactor_bird_coupled" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<div style="display:flex;gap:8px;margin-top:6px">'
-      + '<label style="flex:1">max_generations<input type="number" id="cp-mbp-max-generations" min="1" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<label style="flex:1">seed<input type="number" id="cp-mbp-seed" min="0" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '</div>'
-      + '</div>'
-      // nextflow_dispatch (viva-api's third dispatch path, docs/plan-nextflow-dispatch.md):
-      // the field set mirrors `atlantis composite nextflow` (app/cli.py
-      // _nf_dispatch_payload/_nf_generator_params) -- composite_id/executor/
-      // launch sit flat on nextflow_dispatch; seeds/generations/cache_uri/
-      // include_analysis/independent_founders live under nextflow_dispatch.params
-      // (the workflow_nf generator's own parameters); task_env is the
-      // per-task environment passthrough (viva-api#568). The two tri-state
-      // selects exist because the CLI OMITS an unset option rather than
-      // sending null (a null would override a deployment-derived default), and
-      // a checkbox cannot express "unset".
-      + '<div id="cp-nf-fields" style="display:none">'
-      + '<label style="display:block;margin-top:6px">composite_id'
-      + '<input type="text" id="cp-nf-composite-id" value="v2ecoli.composites.workflow_nf.workflow_nf" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<div style="display:flex;gap:8px;margin-top:6px">'
-      + '<label style="flex:1">n_seeds<input type="number" id="cp-nf-n-seeds" min="1" value="1" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<label style="flex:1">n_generations<input type="number" id="cp-nf-n-generations" min="1" value="1" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<label style="flex:1">executor<input type="text" id="cp-nf-executor" value="awsbatch" style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '</div>'
-      + '<label style="display:block;margin-top:6px">cache_uri (optional — an s3:// ParCa cache prefix to fetch instead of running ParCa, '
-      + 'e.g. a staged founder or genotype cache)'
-      + '<input type="text" id="cp-nf-cache-uri" placeholder="s3://<bucket>/ray-parca-cache/<commit>/" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<div style="display:flex;gap:8px;margin-top:6px">'
-      + '<label style="flex:1">include_analysis<select id="cp-nf-include-analysis" style="width:100%;box-sizing:border-box;margin-top:2px">'
-      + '<option value="">(unset)</option><option value="true">true</option><option value="false">false</option></select></label>'
-      + '<label style="flex:1">independent_founders<select id="cp-nf-independent-founders" style="width:100%;box-sizing:border-box;margin-top:2px">'
-      + '<option value="">(unset)</option><option value="true">true</option><option value="false">false</option></select></label>'
-      + '<label style="flex:1;align-self:flex-end"><input type="checkbox" id="cp-nf-launch" checked> launch</label>'
-      + '</div>'
-      + '<label style="display:block;margin-top:6px">task_env (optional — NAME=VALUE, one per line; set in every Batch task, '
-      + 'e.g. V2ECOLI_SKIP_CACHE_VERIFY=1 for a cache built at another commit)'
-      + '<textarea id="cp-nf-task-env" rows="2" placeholder="V2ECOLI_SKIP_CACHE_VERIFY=1" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px;font-family:monospace;font-size:11px"></textarea></label>'
-      + '</div>'
-      + '<div id="cp-cache-variant-wrap">'
-      + '<label style="display:block;margin-top:6px">cache_variant (optional — a pre-staged ParCa cache variant; '
-      + 'blank uses the plain per-commit cache)'
-      + '<input type="text" id="cp-cache-variant" placeholder="e.g. cd2-run1-k4-candidate-v1-lambda050" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '</div>'
-      // config_filename sits OUTSIDE cp-cache-variant-wrap: it selects the
-      // simulation config for every mechanism, including nextflow_dispatch,
-      // whereas cache_variant is meaningless on the Nextflow path and is
-      // hidden with the wrap (#1044 added this field; the wrap is this PR's).
-      + '<label style="display:block;margin-top:6px">config_filename (optional — a real filename under '
-      + 'vEcoli/configs/ in the pinned repo; sms-api 404s without one on repos with no '
-      + 'api_simulation_default.json — GET /api/v1/simulations/discovery?simulator_id=&lt;id&gt; lists the '
-      + 'pinned commit’s real options)'
-      + '<input type="text" id="cp-config-filename" placeholder="e.g. mecillinam_wellmixed.json" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px"></label>'
-      + '<label style="display:block;margin-top:6px"><span id="cp-params-desc">extra params (raw JSON, merged into multi_node_dispatch.params — '
-      + 'e.g. injected_processes/variants/config_overrides/emitter_arg/cache_dir/out_dir/media)</span>'
-      + '<textarea id="cp-params-json" rows="5" placeholder="{}" '
-      + 'style="width:100%;box-sizing:border-box;margin-top:2px;font-family:monospace;font-size:11px"></textarea></label>'
-      + '<div id="cp-error" style="color:var(--err-fg, #dc2626);margin-top:4px;display:none"></div>'
-      + '<div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">'
-      + '<button type="button" id="cp-cancel" class="btn-mini">Cancel</button>'
-      + '<button type="button" id="cp-dispatch" class="btn-mini">Dispatch</button>'
-      + '</div>';
-    host.style.position = host.style.position || 'relative';
-    host.appendChild(el);
-    el.querySelector('#cp-cancel').addEventListener('click', function () { el.style.display = 'none'; });
-    el.querySelector('#cp-mechanism').addEventListener('change', _updateCompositePanelMechanism);
-    _updateCompositePanelMechanism();
-    // #cp-dispatch's own click is handled by ONE delegated document-level
-    // listener (below, near the other header-button bindings) so the
-    // disable/toast/refresh wrapping lives in exactly one place — binding it
-    // here too would fire _dispatchRemoteComposite twice per click.
-    return el;
-  }
-
-  // Toggles the panel's mechanism-specific field groups and the raw-JSON
-  // description to match -- mbp_dispatch has no nested "params" sub-object
-  // server-side (every field sits flat on mbp_dispatch itself, per
-  // _submit_mbp_tracked_dispatch's real contract), unlike multi_node_dispatch's
-  // params-wrapped shape, so the two raw-JSON boxes genuinely merge into
-  // different places and the label needs to say so, not just the field set.
-  //
-  // nextflow_dispatch is the third shape: composite_id/executor/launch/
-  // resources/work_dir/nextflow_args/task_env sit FLAT on nextflow_dispatch,
-  // while the generator's own knobs (n_seeds/n_generations/cache_uri/
-  // include_analysis/analysis_options/independent_founders/variants/
-  // emit_paths...) live under nextflow_dispatch.params -- so its raw-JSON box
-  // merges flat onto nextflow_dispatch EXCEPT a `params` key, which merges
-  // into nextflow_dispatch.params (see _dispatchRemoteComposite). It has no
-  // cache_variant (the Nextflow path fetches a `cache_uri` instead), so that
-  // shared field is hidden for it rather than silently ignored.
-  function _updateCompositePanelMechanism() {
-    var sel = document.getElementById('cp-mechanism');
-    var mechanism = (sel && sel.value) || 'multi_node_dispatch';
-    var isMnp = mechanism === 'multi_node_dispatch';
-    var isMbp = mechanism === 'mbp_dispatch';
-    var isNf = mechanism === 'nextflow_dispatch';
-    var mnpFields = document.getElementById('cp-mnp-fields');
-    var mbpFields = document.getElementById('cp-mbp-fields');
-    var nfFields = document.getElementById('cp-nf-fields');
-    var cacheVariantWrap = document.getElementById('cp-cache-variant-wrap');
-    var desc = document.getElementById('cp-params-desc');
-    if (mnpFields) mnpFields.style.display = isMnp ? '' : 'none';
-    if (mbpFields) mbpFields.style.display = isMbp ? '' : 'none';
-    if (nfFields) nfFields.style.display = isNf ? '' : 'none';
-    if (cacheVariantWrap) cacheVariantWrap.style.display = isNf ? 'none' : '';
-    if (desc) {
-      desc.textContent = isMnp
-        ? 'extra params (raw JSON, merged into multi_node_dispatch.params — '
-          + 'e.g. injected_processes/variants/config_overrides/emitter_arg/cache_dir/out_dir/media)'
-        : isMbp
-        ? 'extra params (raw JSON, merged directly onto mbp_dispatch — e.g. duration_sec/chunk/'
-          + 'emitter/single_daughters/carbon_exhaustion_arrest/cells_per_agent/initial_glucose_mM/'
-          + 'initial_ammonium_mM/injected_processes/reactor_config/aeration_schedule)'
-        : 'extra params (raw JSON, merged directly onto nextflow_dispatch — e.g. resources/'
-          + 'work_dir/nextflow_args/resume/resume_from; a "params" key merges into '
-          + 'nextflow_dispatch.params — e.g. variants/injected_processes/analysis_options/emit_paths)';
-    }
-  }
-
-  function _cpError(msg) {
-    var e = document.getElementById('cp-error');
-    if (!e) return;
-    if (!msg) { e.style.display = 'none'; e.textContent = ''; return; }
-    e.style.display = ''; e.textContent = msg;
-  }
-
   // item 20b: async, DOM-based replacement for window.confirm() ahead of a
-  // real AWS Batch dispatch. confirm()/alert()/prompt() are the only
+  // real remote dispatch. confirm()/alert()/prompt() are the only
   // web-platform APIs that synchronously freeze the page's JS -- including
   // whatever a browser-automation tool injects to read/screenshot the page --
   // which made the dispatch-confirm dialog impossible to drive through
   // Claude-in-Chrome during the 2026-09-11 CD2 Vignette-1 UI-verification
   // push (three real attempts hung on this exact call). A plain DOM modal
   // keeps item 20a's own safety property (a human must see the resolved
-  // simulator_id/mechanism/params and explicitly click before real spend
+  // target and parameters and explicitly click before real spend
   // happens) without ever blocking the event loop, since it's just elements
   // in the page rather than a browser-chrome dialog.
   function _confirmModal(message) {
@@ -2616,225 +2925,10 @@
     });
   }
 
-  function _dispatchRemoteComposite() {
-    _cpError(null);
-    var mechSel = document.getElementById('cp-mechanism');
-    var mechanism = (mechSel && mechSel.value) || 'multi_node_dispatch';
-    var cacheVariant = (document.getElementById('cp-cache-variant').value || '').trim();
-    var configFilename = (document.getElementById('cp-config-filename').value || '').trim();
-    var rawJson = (document.getElementById('cp-params-json').value || '').trim();
-    var extraParams = {};
-    if (rawJson) {
-      try {
-        extraParams = JSON.parse(rawJson);
-      } catch (e) {
-        _cpError('extra params is not valid JSON: ' + e.message);
-        return;
-      }
-      if (typeof extraParams !== 'object' || extraParams === null || Array.isArray(extraParams)) {
-        _cpError('extra params must be a JSON object, e.g. {"injected_processes": {...}}.');
-        return;
-      }
-    }
-
-    var numGenerations, numSeeds, dispatchExtraParams, confirmLines;
-
-    if (mechanism === 'nextflow_dispatch') {
-      var nfCompositeId = (document.getElementById('cp-nf-composite-id').value || '').trim();
-      if (!nfCompositeId) { _cpError('composite_id is required.'); return; }
-      var nfExecutor = (document.getElementById('cp-nf-executor').value || '').trim() || 'awsbatch';
-      numSeeds = parseInt(document.getElementById('cp-nf-n-seeds').value, 10);
-      numGenerations = parseInt(document.getElementById('cp-nf-n-generations').value, 10);
-      if (!(numSeeds > 0)) { _cpError('n_seeds must be a positive integer.'); return; }
-      if (!(numGenerations > 0)) { _cpError('n_generations must be a positive integer.'); return; }
-      var nfCacheUri = (document.getElementById('cp-nf-cache-uri').value || '').trim();
-      var nfIncludeAnalysis = document.getElementById('cp-nf-include-analysis').value;
-      var nfIndependentFounders = document.getElementById('cp-nf-independent-founders').value;
-      var nfLaunch = !!document.getElementById('cp-nf-launch').checked;
-      // task_env: NAME=VALUE per line, split on the FIRST '=' (a value may
-      // contain one) -- the same rule as the CLI's _parse_task_env. Refused
-      // here rather than after the round trip so the message names the line.
-      var nfTaskEnv = null;
-      var taskEnvRaw = (document.getElementById('cp-nf-task-env').value || '').trim();
-      if (taskEnvRaw) {
-        nfTaskEnv = {};
-        var envLines = taskEnvRaw.split(/\r?\n/);
-        for (var li = 0; li < envLines.length; li++) {
-          var envLine = envLines[li].trim();
-          if (!envLine) continue;
-          var eq = envLine.indexOf('=');
-          if (eq <= 0) { _cpError('task_env line ' + (li + 1) + ' must be NAME=VALUE: ' + envLine); return; }
-          nfTaskEnv[envLine.slice(0, eq)] = envLine.slice(eq + 1);
-        }
-      }
-      // The Nextflow path has no cache_variant: it fetches a cache_uri. A
-      // stray cache_variant in the raw JSON (copy-pasted from an MNP dispatch)
-      // would be ignored server-side and the run would silently build/fetch the
-      // plain per-commit cache, which is the exact silent-fallback class #1041
-      // fixed for MNP -- so refuse it instead of dropping it.
-      if ('cache_variant' in extraParams) {
-        _cpError('nextflow_dispatch has no cache_variant; pass the staged cache as cache_uri instead.');
-        return;
-      }
-      // Raw JSON merges FLAT onto nextflow_dispatch, except its `params` key,
-      // which merges INTO nextflow_dispatch.params (the generator's own
-      // parameters) -- never replacing the object the dedicated fields built.
-      // Dedicated fields win over a duplicate inside raw params, mirroring the
-      // cache_variant rule above.
-      var rawParams = null;
-      if ('params' in extraParams) {
-        rawParams = extraParams.params;
-        if (typeof rawParams !== 'object' || rawParams === null || Array.isArray(rawParams)) {
-          _cpError('extra params "params" must be a JSON object (the workflow_nf generator parameters).');
-          return;
-        }
-        extraParams = Object.assign({}, extraParams);
-        delete extraParams.params;
-      }
-      var nfParams = Object.assign({}, rawParams || {}, { n_seeds: numSeeds, n_generations: numGenerations });
-      if (nfCacheUri) nfParams.cache_uri = nfCacheUri;
-      if (nfIncludeAnalysis !== '') nfParams.include_analysis = (nfIncludeAnalysis === 'true');
-      if (nfIndependentFounders !== '') nfParams.independent_founders = (nfIndependentFounders === 'true');
-      // Absent options are OMITTED, never sent as null: viva-api's
-      // nextflow_dispatch is a passthrough, and a null would override a
-      // deployment-derived default (work_dir, resources) with nothing.
-      var nfDispatch = Object.assign({}, extraParams, {
-        composite_id: nfCompositeId,
-        executor: nfExecutor,
-        launch: nfLaunch,
-        params: nfParams,
-      });
-      if (nfTaskEnv) nfDispatch.task_env = nfTaskEnv;
-      dispatchExtraParams = { nextflow_dispatch: nfDispatch };
-      // num_generations/num_seeds: the workbench route hard-requires both (see
-      // the mbp comment below), and viva-api records them on the simulation
-      // row; the Nextflow path itself sizes the campaign from
-      // nextflow_dispatch.params.n_seeds/n_generations. Same numbers, sent to
-      // both places on purpose -- the row's metadata and the generator agree.
-      confirmLines = '  mechanism:    nextflow_dispatch\n'
-        + '  composite_id: ' + nfCompositeId + '\n'
-        + '  executor:     ' + nfExecutor + (nfLaunch ? '' : '  (launch=false: render only)') + '\n'
-        + '  n_seeds:      ' + numSeeds + '\n'
-        + '  n_generations:' + numGenerations + '\n'
-        + (nfCacheUri ? '  cache_uri:    ' + nfCacheUri + '\n' : '')
-        + (nfIncludeAnalysis !== '' ? '  include_analysis: ' + nfIncludeAnalysis + '\n' : '')
-        + (nfIndependentFounders !== '' ? '  independent_founders: ' + nfIndependentFounders + '\n' : '')
-        + (nfTaskEnv ? '  task_env:     ' + JSON.stringify(nfTaskEnv) + '\n' : '')
-        + (rawJson ? '  extra params: ' + rawJson + '\n' : '');
-    } else if (mechanism === 'mbp_dispatch') {
-      var variant = (document.getElementById('cp-mbp-variant').value || '').trim();
-      if (!variant) { _cpError('variant is required.'); return; }
-      var maxGenerations = parseInt(document.getElementById('cp-mbp-max-generations').value, 10);
-      if (!(maxGenerations > 0)) { _cpError('max_generations must be a positive integer.'); return; }
-      var seedRaw = document.getElementById('cp-mbp-seed').value;
-      var seed = seedRaw === '' ? null : parseInt(seedRaw, 10);
-      // cache_variant pulled out of extraParams (whichever way the caller
-      // supplied it) so a value left over in the raw-JSON box from an older
-      // dispatch can never silently diverge from the dedicated field --
-      // the dedicated field wins when both are set.
-      var extraCacheVariant = extraParams.cache_variant;
-      if ('cache_variant' in extraParams) {
-        extraParams = Object.assign({}, extraParams);
-        delete extraParams.cache_variant;
-      }
-      var effectiveCacheVariant = cacheVariant || extraCacheVariant;
-      // mbp_dispatch is a single-container job -- one dispatch = one lineage,
-      // not a seed sweep, so it has no n_seeds concept of its own. The
-      // workbench's own /api/remote-run-submit route hard-requires
-      // num_generations/num_seeds regardless of mechanism (never silently
-      // defaulted -- see _dispatchRemotePinned's own comment above); neither
-      // is read by _submit_mbp_tracked_dispatch itself, which sizes the run
-      // from mbp_dispatch.max_generations/.seed directly, so
-      // num_generations reuses max_generations (the same concept under a
-      // different name server-side) and num_seeds is a fixed 1.
-      numGenerations = maxGenerations;
-      numSeeds = 1;
-      var mbpDispatch = Object.assign({ variant: variant, max_generations: maxGenerations }, extraParams);
-      if (effectiveCacheVariant) mbpDispatch.cache_variant = effectiveCacheVariant;
-      if (seed !== null && !isNaN(seed)) mbpDispatch.seed = seed;
-      dispatchExtraParams = { mbp_dispatch: mbpDispatch };
-      confirmLines = '  mechanism:    mbp_dispatch\n'
-        + '  variant:      ' + variant + '\n'
-        + '  max_generations: ' + maxGenerations + '\n'
-        + (seed !== null && !isNaN(seed) ? '  seed:         ' + seed + '\n' : '')
-        + (effectiveCacheVariant ? '  cache_variant: ' + effectiveCacheVariant + '\n' : '')
-        + (rawJson ? '  extra params: ' + rawJson + '\n' : '');
-    } else {
-      var compositeId = (document.getElementById('cp-composite-id').value || '').trim();
-      if (!compositeId) { _cpError('composite_id is required.'); return; }
-      var numNodes = parseInt(document.getElementById('cp-num-nodes').value, 10);
-      numSeeds = parseInt(document.getElementById('cp-n-seeds').value, 10);
-      numGenerations = parseInt(document.getElementById('cp-n-generations').value, 10);
-      if (!(numNodes > 0)) { _cpError('num_nodes must be a positive integer.'); return; }
-      if (!(numSeeds > 0)) { _cpError('n_seeds must be a positive integer.'); return; }
-      if (!(numGenerations > 0)) { _cpError('n_generations must be a positive integer.'); return; }
-      // cache_variant AND require_clean_chain must both land as siblings of
-      // `params`, never nested inside it -- viva-api reads both directly off
-      // mnp_dispatch (simulation_service_ray.py:3285/:3289 --
-      // mnp_dispatch.get("cache_variant")/mnp_dispatch.get("require_clean_chain"),
-      // never mnp_dispatch["params"].get(...)). Pulled out of extraParams here
-      // (whichever the caller supplied it through -- the raw-JSON box, old
-      // habit or a copy-pasted dispatch body) BEFORE the params merge below,
-      // exactly the bug this fix addresses; the dedicated cache_variant field
-      // wins if both it and the raw JSON set one.
-      var extraCacheVariant = extraParams.cache_variant;
-      var extraRequireCleanChain = extraParams.require_clean_chain;
-      if ('cache_variant' in extraParams || 'require_clean_chain' in extraParams) {
-        extraParams = Object.assign({}, extraParams);
-        delete extraParams.cache_variant;
-        delete extraParams.require_clean_chain;
-      }
-      var effectiveCacheVariant = cacheVariant || extraCacheVariant;
-      var params = Object.assign({ n_seeds: numSeeds, n_generations: numGenerations }, extraParams);
-      var mnpDispatch = {
-        composite_id: compositeId,
-        num_nodes: numNodes,
-        params: params,
-      };
-      if (effectiveCacheVariant) mnpDispatch.cache_variant = effectiveCacheVariant;
-      if (extraRequireCleanChain !== undefined) mnpDispatch.require_clean_chain = extraRequireCleanChain;
-      dispatchExtraParams = { multi_node_dispatch: mnpDispatch };
-      confirmLines = '  mechanism:    multi_node_dispatch\n'
-        + '  composite_id: ' + compositeId + '\n'
-        + '  num_nodes:    ' + numNodes + '\n'
-        + '  n_seeds:      ' + numSeeds + '\n'
-        + '  n_generations:' + numGenerations + '\n'
-        + (effectiveCacheVariant ? '  cache_variant: ' + effectiveCacheVariant + '\n' : '')
-        + (rawJson ? '  extra params: ' + rawJson + '\n' : '');
-    }
-
-    var slug = studyName();
-    return api('GET', '/api/remote-run-config').then(function (cfgRes) {
-      var cfg = (cfgRes.status === 200 && cfgRes.body) || {};
-      if (!cfg.pinned || !cfg.simulator_id) {
-        _cpError('This deployment is not remote-pinned — composite dispatch needs a pinned simulator_id.');
-        return _CANCELLED;
-      }
-      var msg = 'Dispatch composite to AWS Batch:\n\n'
-        + '  simulator id: ' + cfg.simulator_id + '\n'
-        + confirmLines
-        + (configFilename ? '  config_filename: ' + configFilename + '\n' : '')
-        + '\nProceed?';
-      return _confirmModal(msg).then(function (ok) {
-        if (!ok) return _CANCELLED;
-        var panel = document.getElementById('study-composite-panel');
-        if (panel) panel.style.display = 'none';
-        return api('POST', '/api/remote-run-submit', {
-          study: slug,
-          simulator_id: cfg.simulator_id,
-          num_generations: numGenerations,
-          num_seeds: numSeeds,
-          config_filename: configFilename || undefined,
-          extra_params: dispatchExtraParams,
-        });
-      });
-    });
-  }
-  window._dispatchRemoteComposite = _dispatchRemoteComposite;
 
   // ─── item 6: real dispatch progress, polling not SSE ───────────────────
   // Alex, 2026-08-17: dispatch a sim, get a toast, then total silence -- the
-  // only way to know a campaign is alive was querying AWS Batch directly.
+  // only way to know a campaign is alive was querying the compute backend directly.
   // Polls GET /api/remote-run-chain-progress (viva-api PR #257's real
   // per-seed counts) on a session-status.js-style interval -- SSE was
   // considered and rejected: the Stanford ALB already flakes to
@@ -2858,11 +2952,11 @@
   // fill instead of popping between polls.
   var _chainProgressStart = null;
 
-  // Whether THIS workspace has a remote compute backend (viva-api/sms-api)
+  // Whether THIS workspace has a remote compute backend
   // configured. A local-only workspace (a bench process-bigraph workspace) has
   // none — so the remote-dispatch affordances (⚙ Dispatch composite + the remote
   // chain-progress poller below) must stay hidden and the UI must not even mention
-  // sms-api. Resolved once from /api/source/remote-health by _gateRemoteDispatch();
+  // the remote backend. Resolved once from /api/source/remote-health by _gateRemoteDispatch();
   // default false so a local workspace is never coupled to a remote it lacks.
   var _remoteConfigured = false;
 
@@ -2912,7 +3006,8 @@
     var e = escapeHtmlForTests;
     if (!window.confirm('Stop campaign ' + runId + '? This cancels every seed still in flight.')) return;
     btn.disabled = true; btn.textContent = 'Stopping…';
-    api('POST', '/api/remote-run-cancel', { simulation_id: runId })
+    // study: the server finds the run's own record in this study's runs DB (docs/backend-adapters.md step 1c)
+    api('POST', '/api/remote-run-cancel', { simulation_id: runId, study: studyName() })
       .then(function (res) {
         if (res.status !== 200) {
           btn.disabled = false; btn.textContent = '■ Stop campaign';
@@ -2950,7 +3045,13 @@
     el.style.display = '';
     if (d.phase === 'unreachable') {
       track.style.display = 'none';
-      label.textContent = '⚠ progress unavailable (sms-api unreachable)';
+      label.textContent = '⚠ progress unavailable (remote backend unreachable)';
+      return;
+    }
+    if (d.phase === 'other-backend' || d.phase === 'not-offered') {
+      // Refused: the run belongs to another backend than this workbench's (step 1c). Terminal; no Stop button.
+      track.style.display = 'none';
+      label.textContent = '⚠ ' + (d.error || 'this run belongs to another backend');
       return;
     }
     var e = escapeHtmlForTests;
@@ -2991,13 +3092,14 @@
   function _pollChainProgress(runId) {
     // Local-only workspace: there is no remote backend to report chain progress,
     // so never poll /api/remote-run-chain-progress (it would surface a spurious
-    // "sms-api unreachable"). Local runs track progress via the Runs tab refresh.
+    // "remote backend unreachable"). Local runs track progress via the Runs tab refresh.
     if (!_remoteConfigured) return;
     if (_chainProgressTimer) { clearTimeout(_chainProgressTimer); _chainProgressTimer = null; }
-    // A legacy run is an integer simulation id; a /viva/v1 run (serve --backend-base-url)
-    // carries the backend's opaque string id, asked for as run_id.
-    var idParam = /^\d+$/.test(String(runId)) ? 'simulation_id' : 'run_id';
-    api('GET', '/api/remote-run-chain-progress?' + idParam + '=' + encodeURIComponent(runId))
+    // Opaque run ids: every run is asked for by run_id, whatever its form (an SMS integer, a
+    // /viva/v1 or compose-api string). The server reads run_id and simulation_id alike and the
+    // run's record picks the backend -- the id's form decides nothing here.
+    api('GET', '/api/remote-run-chain-progress?run_id=' + encodeURIComponent(runId) +
+        '&study=' + encodeURIComponent(studyName() || ''))
       .then(function (res) {
         var d = res.body || {};
         _renderChainProgress(d);
@@ -3016,7 +3118,7 @@
         // flight, or vice versa) must never trigger this run's reload.
         if (_gradeAfterRunId != null && String(_gradeAfterRunId) === String(runId)) {
           _gradeAfterRunId = null;
-          if (d.terminal) _reloadStudyAndTests();
+          if (d.terminal && d.phase !== 'other-backend' && d.phase !== 'not-offered') _reloadStudyAndTests();
         }
       })
       .catch(function () {
@@ -3051,73 +3153,21 @@
       });
   });
 
-  // "⚙ Dispatch composite" (item 110) — toggles the advanced panel open/closed;
-  // the actual dispatch is wired to the panel's own #cp-dispatch button
-  // (_compositePanelEl, above). A toast + Runs-tab refresh on success mirrors
-  // the two handlers above; unlike them this button itself never disables —
-  // the panel's own Dispatch button owns that during a real in-flight POST.
-  bindAll('#study-run-composite', function (btn) {
-    var panel = _compositePanelEl();
-    if (!panel) return;
-    panel.style.display = (panel.style.display === 'none') ? '' : 'none';
-  });
-
   // Gate the remote-dispatch affordances on whether this workspace actually has a
-  // remote compute backend configured. ⚙ Dispatch composite targets viva-api/AWS
-  // Batch/Nextflow; a local-only workspace has no such backend, so the button (and
-  // the sms-api progress poller) must not appear — the study view must not even
-  // know about sms-api. Default-hidden; revealed only once /api/source/remote-health
-  // confirms `configured:true`. In a published snapshot the fetch simply fails →
-  // stays hidden, matching the snapshot-mode run-button hide.
+  // remote compute backend configured. A local-only workspace has none, so the
+  // remote progress poller (and any launch UI a plugin adds) must not appear.
+  // Default-off; enabled only once /api/source/remote-health confirms
+  // `configured:true`. In a published snapshot nothing is fetched → stays off,
+  // matching the snapshot-mode run-button hide.
   (function _gateRemoteDispatch() {
-    var dispatchBtn = document.getElementById('study-run-composite');
-    if (dispatchBtn) dispatchBtn.style.display = 'none';
     if (typeof _isSnapshot === 'function' && _isSnapshot()) return;
     api('GET', '/api/source/remote-health')
       .then(function (r) {
         _remoteConfigured = !!(r && r.status === 200 && r.body && r.body.configured);
-        if (_remoteConfigured && dispatchBtn) dispatchBtn.style.display = '';
+        if (_remoteConfigured && _smsLaunch) _smsLaunch.setRemoteConfigured(true);
       })
       .catch(function () { _remoteConfigured = false; });
   })();
-
-  // #cp-dispatch's own click (rendered dynamically inside _compositePanelEl,
-  // so bound here via delegation rather than at panel-creation time) with the
-  // same disabled/toast/refresh convention the other two header buttons use.
-  document.addEventListener('click', function (ev) {
-    if (!ev.target || ev.target.id !== 'cp-dispatch') return;
-    var btn = ev.target;
-    if (btn.disabled) return;
-    var orig = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = '… dispatching';
-    var result = _dispatchRemoteComposite();
-    if (!result || typeof result.then !== 'function') {
-      // Validation failed synchronously (_cpError already shown) — nothing to await.
-      btn.disabled = false;
-      btn.textContent = orig;
-      return;
-    }
-    result
-      .then(function (res) {
-        btn.disabled = false;
-        btn.textContent = orig;
-        if (res.body && res.body.cancelled) return;
-        if (res.status === 200 || res.status === 202) {
-          var runId = res.body && (res.body.run_id || res.body.simulation_id);
-          var msg = 'Composite dispatch launched' + (runId ? ' — new run ' + runId : '');
-          if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
-          if (typeof _loadStudySims === 'function') _loadStudySims(true);
-        } else {
-          _cpError('Dispatch failed: ' + ((res.body && res.body.error) || res.status));
-        }
-      })
-      .catch(function (err) {
-        btn.disabled = false;
-        btn.textContent = orig;
-        _cpError('Dispatch failed: network error — ' + err);
-      });
-  }, true);
 
   // "Reproduce" — replay this study's MOST RECENT run's recorded manifest
   // verbatim (POST /api/study-reproduce) rather than re-deriving from the
@@ -3345,28 +3395,27 @@
   })();
 
   // btn-delete has class "btn-delete danger" — selector ".btn-delete" still matches.
-  // Handler _post_investigation_delete uses body key "name".
+  // Deletes THIS study via /api/study-delete. Previously this reused
+  // /api/investigation-delete and relied on that route resolving studies/
+  // first; investigation-delete is now investigations-only (issue #1618,
+  // bug 11), so the study page uses the dedicated study-delete route.
   bindAll('.btn-delete', function(btn) {
     // Guard: only the header delete button has data-study; variant/run deletes
     // use different class names so this handler won't fire for those.
     if (!btn.dataset.study) return;
     if (!confirm('Delete this study and all its runs?')) return;
-    api('POST', '/api/investigation-delete', {name: studyName()})
+    api('POST', '/api/study-delete', {name: studyName()})
       .then(function() { window.location = (window.__BASE_PATH__ || '') + '/studies'; });
   });
 
   // --- Baseline ---
-  // Replace a baseline entry's composite ref: add-then-remove against the
-  // existing (previously orphaned) endpoints, since there's no single
-  // "replace" route. Order matters — study_baseline_remove refuses to leave
-  // baseline[] empty (400), which a single-entry study (e.g. a fresh "+
-  // Study" blank scaffold) always is; adding the replacement under a new
-  // name FIRST means baseline[] never goes empty, then the old entry is
-  // removed. The replacement keeps the original name only when it wasn't
-  // already used (i.e. removal isn't blocked); otherwise it's suffixed to
-  // avoid the add's own "already exists" 409. Params are dropped on
-  // replace — a fresh composite ref starts from its own defaults, matching
-  // what "+ Study" itself does.
+  // Repoint a baseline entry's composite ref IN PLACE, preserving its name
+  // (issue #1618, blocker A). The old flow added a <name>-<timestamp> entry
+  // then removed the original — a dance forced only by the lack of a single
+  // "replace" route, which left every repointed study with a suffixed baseline
+  // name in the UI. study-baseline-set updates the entry under the same name.
+  // Params reset to {} — a fresh composite ref starts from its own defaults,
+  // matching what "+ Study" itself does.
   bindAll('.baseline-composite-set', function(btn) {
     var name = btn.dataset.baselineName;
     var input = document.querySelector('.baseline-composite-input[data-baseline-name="' + name + '"]');
@@ -3374,18 +3423,58 @@
     var composite = input ? input.value.trim() : '';
     if (!composite) { if (status) status.textContent = 'Enter a composite ref first.'; return; }
     if (status) status.textContent = 'Setting…';
-    var newName = name + '-' + Date.now().toString(36);
-    api('POST', '/api/study-baseline-add', {study: studyName(), name: newName, composite: composite, params: {}})
-      .then(function (addResult) {
-        if (addResult.status !== 200) throw addResult;
-        return api('POST', '/api/study-baseline-remove', {study: studyName(), name: name});
-      })
+    api('POST', '/api/study-baseline-set', {study: studyName(), name: name, composite: composite, params: {}})
       .then(function (r) {
         if (r.status === 200) location.reload();
         else if (status) status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
       })
-      .catch(function (addResult) {
-        if (status) status.textContent = 'Error: ' + (addResult.body && addResult.body.error || addResult.status);
+      .catch(function (err) {
+        if (status) status.textContent = 'Error: ' + (err.body && err.body.error || err.status);
+      });
+  });
+
+  // --- Variants & findings (issue #1618, blocker B) ---
+  bindAll('.study-variant-del', function(btn) {
+    var variant = btn.dataset.variant;
+    if (!confirm('Delete variant “' + variant + '”?')) return;
+    api('POST', '/api/study-variant-delete', {study: studyName(), variant: variant})
+      .then(function (r) {
+        if (r.status === 200) location.reload();
+        else alert('Error: ' + (r.body && r.body.error || r.status));
+      });
+  });
+  bindAll('.study-variant-run', function(btn) {
+    var variant = btn.dataset.variant;
+    btn.disabled = true;
+    var prev = btn.textContent;
+    btn.textContent = 'Running…';
+    api('POST', '/api/study-run-variant', {study: studyName(), variant: variant})
+      .then(function (r) {
+        if (r.status === 200) { location.reload(); return; }
+        btn.disabled = false; btn.textContent = prev;
+        alert('Error: ' + (r.body && r.body.error || r.status));
+      })
+      .catch(function (err) {
+        btn.disabled = false; btn.textContent = prev;
+        alert('Error: ' + (err.body && err.body.error || err.status));
+      });
+  });
+  bindAll('.study-finding-del', function(btn) {
+    var id = btn.dataset.id;
+    if (!confirm('Delete this finding?')) return;
+    api('POST', '/api/study-finding-delete', {study: studyName(), id: id})
+      .then(function (r) {
+        if (r.status === 200) location.reload();
+        else alert('Error: ' + (r.body && r.body.error || r.status));
+      });
+  });
+  bindAll('.study-intervention-del', function(btn) {
+    var name = btn.dataset.name;
+    if (!confirm('Delete intervention “' + name + '”?')) return;
+    api('POST', '/api/study-intervention-delete', {study: studyName(), name: name})
+      .then(function (r) {
+        if (r.status === 200) location.reload();
+        else alert('Error: ' + (r.body && r.body.error || r.status));
       });
   });
 
@@ -3683,7 +3772,7 @@
   }
 
   // ── G5: Quality check group (rigor scorecard) ───────────────────────────
-  // GET /api/study-rigor?study=<slug> → viva_superpowers.rigor.study_rigor,
+  // GET /api/study-rigor?study=<slug> → discovery_engine.rigor.study_rigor,
   // already computed in CI but never rendered on the page until now. Fetched
   // client-side (same pattern as _loadReadouts / _loadAnalyses above)
   // into #check-group-quality. Study-spine reorg (spec §3.7): this mount
@@ -3736,7 +3825,7 @@
     var header = '<div class="check-group-header" style="display:flex;align-items:center;'
       + 'gap:8px;flex-wrap:wrap"><strong>Quality</strong> '
       + '<span class="muted" style="font-size:0.85em">rigor scorecard &mdash; '
-      + '<code>viva_superpowers.rigor</code></span>';
+      + '<code>discovery_engine.rigor</code></span>';
     if (!rigor || rigor.unavailable) {
       var reason = (rigor && rigor.reason) || 'could not be computed';
       return {
@@ -3802,7 +3891,7 @@
   window._loadQualityChecks = _loadQualityChecks;
 
   // ── G6: Reproducibility check group (L0-L5 study_audit) ─────────────────
-  // GET /api/study-audit?study=<slug> → viva_superpowers.study_audit
+  // GET /api/study-audit?study=<slug> → discovery_engine.study_audit
   // (audit_workspace, filtered to this slug) — already computed in CI as the
   // reproducibility gate, never rendered on the page until now. Same fetch
   // pattern as _loadQualityChecks, into #check-group-reproducibility.
@@ -3916,7 +4005,7 @@
     var header = '<div class="check-group-header" style="display:flex;align-items:center;'
       + 'gap:8px;flex-wrap:wrap"><strong>Reproducibility</strong> '
       + '<span class="muted" style="font-size:0.85em">L0&ndash;L5 audit &mdash; '
-      + '<code>viva_superpowers.study_audit</code></span>';
+      + '<code>discovery_engine.study_audit</code></span>';
     if (!audit || audit.unavailable) {
       var reason = (audit && audit.reason) || 'could not be computed';
       return {
@@ -4272,7 +4361,7 @@
   // lib.loop_provenance_views.build_study_loop_state). Was the pass earned
   // honestly? Locked-tests hash, the reopen trail, iteration history,
   // current state. GRACEFUL empty state (`present: false`) when a study was
-  // never run through /viva-model-build — the common case, not an error.
+  // never run through /viva:model-build — the common case, not an error.
   var _BUILD_STATE_COLORS = {
     DONE: { bg: '#d1fae5', fg: '#065f46' },
     GIVE_UP: { bg: 'var(--err-bg, #fee2e2)', fg: 'var(--err-fg, #991b1b)' }
@@ -4365,11 +4454,11 @@
     var e = escapeHtmlForTests;
     if (!state || !state.present) {
       // Directly-authored studies have no loop artifact (.pbg/loop/<study>.json
-      // is written only by /viva-model-build). Explain that plainly and point to
+      // is written only by /viva:model-build). Explain that plainly and point to
       // where the model + its bar actually live, instead of a bare dead-end.
       return '<div class="empty-message">'
         + '<p>This model was <strong>authored directly</strong> — wrapped and composed via '
-        + '<code>/viva-expert</code> — not iterated through the <code>/viva-model-build</code> loop '
+        + '<code>/viva:model</code> — not iterated through the <code>/viva:model-build</code> loop '
         + 'that records a draft → frozen-tests → iteration trajectory. There is no loop '
         + 'provenance to show here.</p>'
         + '<p style="margin-top:8px">See <strong>Model</strong> for the composite structure and '
@@ -5178,7 +5267,7 @@
   // reused after a study-grade success AND after a Tests-tab-initiated
   // baseline run completes (see _gradeAfterRunId / _pollChainProgress above).
   // Reuses window.DataSource.loadStudy (the page's existing study-reload
-  // path, also used by _dispatchRemotePinned) rather than a bespoke fetch.
+  // path, also used by the launch plugin) rather than a bespoke fetch.
   function _reloadStudyAndTests() {
     var slug = studyName();
     var reload = (window.DataSource && window.DataSource.loadStudy)
@@ -5626,6 +5715,12 @@
     } catch (_e) { /* no URLSearchParams — keep overview */ }
     _setStudyTab(_resolved.tab);
     if (_resolved.sub) _setSimSubtab(_resolved.sub);
+    // ?ev=<ref> — a Narrative evidence ref deep-link: jump to that finding /
+    // test / figure (overrides the default tab landing).
+    try {
+      var _ev = new URLSearchParams(window.location.search).get('ev');
+      if (_ev) _gotoEvidence(_ev);
+    } catch (_e2) { /* ignore */ }
   }
 
   // ── item 69 — baseline composite select: populate from the live registry,
@@ -5757,7 +5852,11 @@
 
   // One marker = a clickable pill (glyph + label) that toggles its own popover.
   // `rows` is [[label, value], …]; missing signals are omitted by the caller.
-  function _axisMarkerHtml(id, meta, axisLabel, rows) {
+  // `rows` renders as the compact key/value signal list; `extraHtml` (optional) is
+  // appended full-width below it — used to show the study's findings in FULL, which
+  // do not fit the two-column row layout. The popover scrolls when the content is
+  // tall so a long finding list stays readable instead of overflowing the viewport.
+  function _axisMarkerHtml(id, meta, axisLabel, rows, extraHtml) {
     var e = _esc;
     var body = rows.length
       ? rows.map(function (r) {
@@ -5765,7 +5864,7 @@
             + '<span class="muted">' + e(r[0]) + '</span>'
             + '<span style="font-family:ui-monospace,monospace">' + e(r[1]) + '</span></div>';
         }).join('')
-      : '<div class="muted" style="margin-top:4px">No further signals recorded.</div>';
+      : (extraHtml ? '' : '<div class="muted" style="margin-top:4px">No further signals recorded.</div>');
     return '<span class="study-axis-wrap" style="position:relative;display:inline-flex">'
       + '<button type="button" id="' + id + '-btn" class="study-axis-marker" aria-haspopup="true" aria-expanded="false" '
       + 'style="display:inline-flex;align-items:center;gap:4px;font-size:0.82em;font-weight:700;cursor:pointer;'
@@ -5775,10 +5874,10 @@
       + '<span style="font-size:1.1em;line-height:1">' + meta.icon + '</span>' + e(meta.label) + '</button>'
       + '<div id="' + id + '-popover" role="dialog" style="display:none;position:absolute;left:0;top:100%;margin-top:6px;'
       + 'background:var(--card, #fff);border:1px solid var(--border, #e2e8f0);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);'
-      + 'z-index:70;min-width:230px;max-width:340px;padding:10px 12px;font-size:0.82em;color:var(--text-muted, #334155);'
+      + 'z-index:70;min-width:230px;max-width:360px;max-height:min(62vh,460px);overflow:auto;padding:10px 12px;font-size:0.82em;color:var(--text-muted, #334155);'
       + 'white-space:normal;text-align:left;font-weight:400">'
       + '<div style="font-weight:700;color:' + meta.color + '">' + meta.icon + ' ' + e(axisLabel) + ': ' + e(meta.label) + '</div>'
-      + body + '</div></span>';
+      + body + (extraHtml || '') + '</div></span>';
   }
 
   function _wireAxisPopover(id) {
@@ -5832,16 +5931,36 @@
       if (trk && trk.result) vRows.push([t[1], String(trk.result)]);
     });
     if (s.confidence) vRows.push(['confidence', String(s.confidence)]);
-    var findings = Array.isArray(s.findings) ? s.findings : [];
-    findings.slice(0, 2).forEach(function (f, i) {
-      var txt = (f && (f.statement || f.summary)) || '';
-      if (txt) vRows.push(['finding ' + (i + 1), String(txt).slice(0, 80) + (String(txt).length > 80 ? '…' : '')]);
-    });
+    // Findings in FULL (no truncation) as a scrollable block below the verdict
+    // signals — the popover is where the whole finding is meant to be readable
+    // (the collapsed header/card only teases it). Accept the list / {entries} /
+    // id-keyed-dict shapes the rest of the app normalizes.
+    var findings = Array.isArray(s.findings)
+      ? s.findings
+      : (s.findings && typeof s.findings === 'object'
+          ? (Array.isArray(s.findings.entries)
+              ? s.findings.entries
+              : Object.keys(s.findings).map(function (k) { return s.findings[k]; }))
+          : []);
+    var fBody = findings.map(function (f, i) {
+      var txt = (f && (f.statement || f.summary || f.id)) || '';
+      if (!txt) return '';
+      var st = f && f.status ? String(f.status).trim() : '';
+      return '<div style="margin-top:7px">'
+        + '<span class="muted" style="font-weight:600">finding ' + (i + 1) + '</span>'
+        + (st ? ' <span class="muted" style="font-size:0.9em">· ' + _esc(st) + '</span>' : '')
+        + '<div style="margin-top:2px;line-height:1.45;color:var(--text, #1e293b)">'
+        + _esc(String(txt).replace(/\s+/g, ' ').trim()) + '</div></div>';
+    }).join('');
+    var findingsHtml = fBody
+      ? '<div style="margin-top:8px;border-top:1px solid var(--border, #eef2f7);padding-top:6px">'
+          + '<div class="muted" style="font-weight:700">Finds</div>' + fBody + '</div>'
+      : '';
 
     container.innerHTML =
       _axisMarkerHtml('study-progress-marker', exMeta, 'Progress', exRows)
       + ' '
-      + _axisMarkerHtml('study-verdict-marker', vMeta, 'Verdict', vRows);
+      + _axisMarkerHtml('study-verdict-marker', vMeta, 'Verdict', vRows, findingsHtml);
     _wireAxisPopover('study-progress-marker');
     _wireAxisPopover('study-verdict-marker');
   }

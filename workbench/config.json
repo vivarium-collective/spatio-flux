@@ -1,7 +1,6 @@
 {
   "mode": "snapshot",
-  "smsApiBase": "",
   "repo": "https://github.com/vivarium-collective/spatio-flux",
-  "commit": "99a4d59952d41ba3d4023392539699d64b5106e5",
+  "commit": "2d331c7fa1cd7ec7741dad1761b81331e97d60a0",
   "generated_from_ref": "main"
 }

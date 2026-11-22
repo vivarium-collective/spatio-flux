@@ -1,6 +1,6 @@
 {
   "particles": {
-    "jtcETvXT": {
+    "3FvA1mrr": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "jtcETvXT",
+      "id": "3FvA1mrr",
       "position": [
-        44.58730008501858,
-        6.169640538925441
+        26.484762328032414,
+        29.692336157879467
       ],
-      "mass": 4.993359660251937,
+      "mass": 6.890509446740897,
       "local": {},
       "exchange": {},
       "sub_masses": {}
@@ -1198,21 +1198,21 @@
       "data": "RAMEmitter"
     },
     "config": {
-      "emit": "global_time:node|fields:node|particles:node",
+      "emit": "global_time:node|particles:node|fields:node",
       "subsample": 1,
       "max_len": null
     },
-    "_inputs": "global_time:node|fields:node|particles:node",
+    "_inputs": "global_time:node|particles:node|fields:node",
     "_outputs": "results:node",
     "inputs": {
       "global_time": [
         "global_time"
       ],
-      "fields": [
-        "fields"
-      ],
       "particles": [
         "particles"
+      ],
+      "fields": [
+        "fields"
       ]
     },
     "outputs": {
@@ -1236,8 +1236,8 @@
       "face": {
         "inputs": {
           "global_time": "node",
-          "fields": "node",
-          "particles": "node"
+          "particles": "node",
+          "fields": "node"
         },
         "outputs": {
           "results": "node"

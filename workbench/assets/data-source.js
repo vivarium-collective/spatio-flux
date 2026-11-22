@@ -36,7 +36,7 @@
   // Prefix a root-absolute app path (e.g. "/api/composite-test-run") with the
   // configured base path in BOTH live and snapshot mode. Under the co-tenant ALB
   // the workbench is served at /workbench, so an un-prefixed "/api/…" misroutes to
-  // sms-api → 404. Composite-explore run/resolve calls route through this so they
+  // the backend → 404. Composite-explore run/resolve calls route through this so they
   // reach the workbench. Composes safely with the global _base_path_shim (which
   // skips a URL already starting with the base path), so no double-prefix.
   function apiUrl(path) {
@@ -87,17 +87,29 @@
     // fetches on a cold load. These are transient, so back off and retry rather
     // than surfacing a hard "fetch … -> 429" error to read-only viewers.
     var maxRetries = 4;
+    var _backoff = function (attempt, retryAfter) {
+      var waitMs = retryAfter > 0
+        ? retryAfter * 1000
+        : Math.min(8000, 400 * Math.pow(2, attempt)) + Math.floor(Math.random() * 300);
+      return new Promise(function (res) { setTimeout(res, waitMs); });
+    };
     for (var attempt = 0; ; attempt++) {
-      var r = await fetch(url, { headers: { "Accept": "application/json" } });
+      var r;
+      try {
+        r = await fetch(url, { headers: { "Accept": "application/json" } });
+      } catch (netErr) {
+        // Network-level failure — the fetch promise rejects (WebKit "TypeError:
+        // Load failed", a reset connection, a CDN hiccup, or the local server
+        // briefly down mid-restart). These are transient: back off and retry like
+        // a 429 rather than surfacing a hard error that strands the view.
+        if (attempt < maxRetries) { await _backoff(attempt, 0); continue; }
+        throw netErr;
+      }
       if (r.ok) return r.json();
       if ((r.status === 429 || r.status === 503) && attempt < maxRetries) {
-        var retryAfter = parseFloat(r.headers.get("retry-after"));
-        // Fastly often sends Retry-After: 0 (useless) — fall back to capped
-        // exponential backoff with jitter so retries don't stampede in lockstep.
-        var waitMs = retryAfter > 0
-          ? retryAfter * 1000
-          : Math.min(8000, 400 * Math.pow(2, attempt)) + Math.floor(Math.random() * 300);
-        await new Promise(function (res) { setTimeout(res, waitMs); });
+        // Fastly often sends Retry-After: 0 (useless) — _backoff falls back to
+        // capped exponential backoff with jitter so retries don't stampede.
+        await _backoff(attempt, parseFloat(r.headers.get("retry-after")));
         continue;
       }
       throw new Error("fetch " + url + " -> " + r.status);
@@ -162,6 +174,17 @@
       : "/api/argument-overlay?investigation=" + encodeURIComponent(slug);
   }
 
+  // publish.py bakes the deterministic needs-attention scan to
+  // /api/needs-attention/<slug>.json. The live route is a query-param endpoint
+  // (/api/needs-attention?investigation=<slug>), which has no .json in a bundle —
+  // so the raw live fetch 404s offline and the Needs-attention tab hangs on
+  // "Scanning…". Snapshot callers must read the baked static file instead.
+  function _needsAttentionUrl(slug) {
+    return cfg().mode === "snapshot"
+      ? _base() + "/api/needs-attention/" + encodeURIComponent(slug) + ".json"
+      : "/api/needs-attention?investigation=" + encodeURIComponent(slug);
+  }
+
   function _auditUrl() {
     return cfg().mode === "snapshot"
       ? _base() + "/api/audit.json"
@@ -219,7 +242,7 @@
     if (cfg().mode === "snapshot") return _base() + "/api/simulations.json";
     var qs = [];
     // Local-first load: fetch the fast local index first (include_remote=false),
-    // then a second call merges in the slow remote (GovCloud) runs.
+    // then a second call merges in the slow remote runs.
     if (opts && opts.includeRemote === false) qs.push("include_remote=false");
     if (opts && opts.refresh) qs.push("refresh=true");
     return "/api/simulations" + (qs.length ? "?" + qs.join("&") : "");
@@ -343,6 +366,31 @@
      */
     async loadArgumentOverlay(slug) {
       return _get(_argumentOverlayUrl(slug));
+    },
+
+    /**
+     * Load the deterministic needs-attention scan for an investigation:
+     * {investigation, items, summary}.
+     * Local mode:    GET /api/needs-attention?investigation=<slug>
+     * Snapshot mode: /api/needs-attention/<slug>.json from the static bundle.
+     * @param {string} slug - the investigation slug.
+     */
+    async loadNeedsAttention(slug) {
+      return _get(_needsAttentionUrl(slug));
+    },
+
+    /**
+     * Load the baked study-completeness gate findings for an investigation:
+     * {investigation, findings:[{study, check, level, message}, ...]}.
+     * Snapshot-only: publish.py bakes /api/study-completeness/<slug>.json so the
+     * published page can show a "this investigation has incomplete studies"
+     * banner. In live mode there is no such endpoint (the needs-attention tab +
+     * the live linter already surface it) — returns null so the banner is skipped.
+     * @param {string} slug - the investigation slug.
+     */
+    async loadStudyCompleteness(slug) {
+      if (cfg().mode !== "snapshot") return null;
+      return _get(_base() + "/api/study-completeness/" + encodeURIComponent(slug) + ".json");
     },
 
     /**

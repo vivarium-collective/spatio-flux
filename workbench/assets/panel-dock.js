@@ -29,6 +29,24 @@
       });
       localStorage.setItem('viv.panels.reset.v1', '1');
     }
+    // v2: the dock-layout storage changed from a flat per-side order
+    // (`viv.dock.order` = {side: [key,...]}) to a multi-lane model (side-by-side
+    // columns), and the per-side stack sizes/grows gained a lane dimension.
+    // A browser upgraded from an earlier build still holds the OLD-shape layout,
+    // which wedges the new engine — panels pile onto one dock at a stale width,
+    // so they overlap, look unresponsive, and resist dragging (no exception; it's
+    // a silent layout corruption). Clear the format-changed layout keys ONCE so
+    // the panels fall back to their defaults; later dock/drag choices re-persist
+    // in the new shape. Open/collapsed prefs (viv.*.userset / .open / .dock) are
+    // untouched — only the layout geometry is stale.
+    if (localStorage.getItem('viv.panels.reset.v2') == null) {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k === 'viv.dock.order' || k.indexOf('viv.stack.') === 0) {
+          localStorage.removeItem(k);
+        }
+      });
+      localStorage.setItem('viv.panels.reset.v2', '1');
+    }
   } catch (e) { /* private mode — the right/closed defaults already apply */ }
 
   function svg(inner) {
@@ -276,9 +294,26 @@
 
     // Collapse the panel to a thin edge strip (body hidden, a small expand handle
     // shown via CSS .vp-collapsed); expand restores it. State is persisted.
+    var COLLAPSED_PX = 16;   // thin edge strip width/height when collapsed
     function setCollapsed(c, persist) {
       collapsed = !!c;
       panel.classList.toggle('vp-collapsed', collapsed);
+      // The per-side stack owns the OUTER size (its width/height is set inline by
+      // the resize drag and by ensureStack). The .vp-collapsed CSS shrinks only the
+      // PANEL to a 16px strip — so without also shrinking the stack, a panel that
+      // had a drag width collapses into a 16px strip sitting inside a still-wide
+      // stack, i.e. a wide blank gap. Shrink the stack to the strip on collapse, and
+      // restore its persisted size on expand.
+      var st = STACKS[dock];
+      if (st) {
+        var axis = isVertical(dock) ? 'height' : 'width';
+        if (collapsed) {
+          st.style.setProperty(axis, COLLAPSED_PX + 'px');
+        } else {
+          var n = parseInt(lsGet(stackSizeKey(dock), ''), 10);
+          st.style.setProperty(axis, (n > 0 ? n : defaultSideSize(dock)) + 'px');
+        }
+      }
       if (persist) lsSet(K.collapsed, collapsed ? '1' : '0');
       syncVars();
       if (opts.onCollapse) opts.onCollapse(collapsed);
@@ -485,6 +520,15 @@
                         : (target.after ? 'Stack right' : 'Stack left'));
               lblEl.textContent = txt;
               lblEl.style.cssText = 'left:' + Math.round(lx) + 'px;top:' + Math.round(ly) + 'px;';
+              // The label is centered on (lx,ly) via translate(-50%,-50%), so a
+              // line along a panel edge near the viewport border pushes half the
+              // pill off-screen — "Stack above" / "Stack below" (and the left/right
+              // variants) got clipped every time. Clamp the center so the whole
+              // pill stays on-screen (measure now; it's already visible).
+              var _lb = lblEl.getBoundingClientRect(), _m = 6;
+              var _cx = Math.min(Math.max(lx, _lb.width / 2 + _m), innerWidth - _lb.width / 2 - _m);
+              var _cy = Math.min(Math.max(ly, _lb.height / 2 + _m), innerHeight - _lb.height / 2 - _m);
+              lblEl.style.left = Math.round(_cx) + 'px'; lblEl.style.top = Math.round(_cy) + 'px';
             }
           }
         }
@@ -543,11 +587,15 @@
                   : dock === 'right' ? r0.right - m.clientX
                   : dock === 'top' ? m.clientY - r0.top
                   : r0.bottom - m.clientY;                              // bottom
-          // Drag the resize edge toward the dock edge, past the threshold, to
-          // collapse to a thin strip; drag back out to expand (solo panels only).
+          // Standard dockable feel: a panel resizes down to a usable MINIMUM and
+          // then RESISTS — it does not shrink into an unusable sliver. Collapse to a
+          // thin strip is a deliberate act: shove the edge past COLLAPSE_AT (to within
+          // ~48px of the dock edge), well inside the min, so a normal resize can't
+          // trip it by accident; drag back out to expand (solo panels only).
           if (canCollapse && raw < COLLAPSE_AT) { if (!collapsed) setCollapsed(true); return; }
           if (collapsed) setCollapsed(false);
-          var px = C.clampDock(dock, raw, innerWidth, innerHeight);
+          var MIN_OPEN = isVertical(dock) ? 120 : 160;   // below this we resist, not sliver
+          var px = C.clampDock(dock, raw < MIN_OPEN ? MIN_OPEN : raw, innerWidth, innerHeight);
           if (STACKS[dock]) STACKS[dock].style.setProperty(isVertical(dock) ? 'height' : 'width', px + 'px');
         }
         function up() {
@@ -704,6 +752,7 @@
       }
       if (kind === 'studies' && typeof window._openStudiesPanel === 'function') { window._openStudiesPanel(); return; }
       if (kind === 'registry' && typeof window._openRegistryPanel === 'function') { window._openRegistryPanel(); return; }
+      if (kind === 'cycle' && typeof window._openCyclePanel === 'function') { window._openCyclePanel(); return; }
       if (kind === 'code' && window.ProcessCode) {
         var addr = p.get('address'), comp = p.get('composite');
         if (addr) window.ProcessCode.open(addr);

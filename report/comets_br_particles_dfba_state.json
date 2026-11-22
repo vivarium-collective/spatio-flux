@@ -1,6 +1,6 @@
 {
   "particles": {
-    "LOg6v_-k": {
+    "lHhj4-b5": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "LOg6v_-k",
+      "id": "lHhj4-b5",
       "position": [
-        29.28785629571003,
-        11.288797194085875
+        24.944999136388375,
+        11.124327185472039
       ],
-      "mass": 0.34024575709041016,
+      "mass": 0.11763383161076824,
       "local": {},
       "exchange": {},
       "sub_masses": {}

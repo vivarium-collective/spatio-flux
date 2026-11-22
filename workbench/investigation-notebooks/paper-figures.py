@@ -262,7 +262,7 @@ def _render_one(address, config, runs_db, study_yaml, overrides=None):
 
 # **Composite `spatio_flux.composites.fig01a-draft-processes`** — `spec_spatio_flux_composites_fig01a_draft_processes` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig01a_draft_processes = load_spec(REPO / 'spatio_flux/composites/fig01a-draft-processes.composite.json')
 describe_spec(spec_spatio_flux_composites_fig01a_draft_processes)
 
@@ -379,7 +379,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig01a_draft_processes, {'interval': INTERVAL_x_1a_draft_processes}, core=core)
             _comp.run(STEPS_x_1a_draft_processes)
         print('ran', '1a-draft-processes', f'(spatio_flux.composites.fig01a-draft-processes) for', STEPS_x_1a_draft_processes, 'steps')
@@ -440,7 +440,7 @@ _save_viz('fig-01', 'Figure_1_composite', _render_one('image:visualizations/figu
 
 # **Composite `spatio_flux.composites.fig02b-processes`** — `spec_spatio_flux_composites_fig02b_processes` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig02b_processes = load_spec(REPO / 'spatio_flux/composites/fig02b-processes.composite.json')
 describe_spec(spec_spatio_flux_composites_fig02b_processes)
 
@@ -498,7 +498,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig02b_processes, {'interval': INTERVAL_x_2b_process_bigraph}, core=core)
             _comp.run(STEPS_x_2b_process_bigraph)
         print('ran', '2b-process-bigraph', f'(spatio_flux.composites.fig02b-processes) for', STEPS_x_2b_process_bigraph, 'steps')
@@ -556,7 +556,7 @@ _save_viz('fig-02', 'Figure_2_hypergraph_process_bigraph', _render_one('image:vi
 
 # **Composite `spatio_flux.composites.fig03a-store`** — `spec_spatio_flux_composites_fig03a_store` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig03a_store = load_spec(REPO / 'spatio_flux/composites/fig03a-store.composite.json')
 describe_spec(spec_spatio_flux_composites_fig03a_store)
 
@@ -584,7 +584,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig03a_store, {'interval': INTERVAL_x_3a_store}, core=core)
             _comp.run(STEPS_x_3a_store)
         print('ran', '3a-store', f'(spatio_flux.composites.fig03a-store) for', STEPS_x_3a_store, 'steps')
@@ -632,7 +632,7 @@ _save_viz('fig-03', 'Figure_3_composite', _render_one('image:visualizations/figu
 
 # **Composite `spatio_flux.composites.fig04-process`** — `spec_spatio_flux_composites_fig04_process` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig04_process = load_spec(REPO / 'spatio_flux/composites/fig04-process.composite.json')
 describe_spec(spec_spatio_flux_composites_fig04_process)
 
@@ -672,7 +672,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig04_process, {'interval': INTERVAL_x_4_process}, core=core)
             _comp.run(STEPS_x_4_process)
         print('ran', '4-process', f'(spatio_flux.composites.fig04-process) for', STEPS_x_4_process, 'steps')
@@ -715,7 +715,7 @@ _save_viz('fig-04', 'Figure_4_composite', _render_one('image:visualizations/figu
 
 # **Composite `spatio_flux.composites.fig05a-process-graph`** — `spec_spatio_flux_composites_fig05a_process_graph` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig05a_process_graph = load_spec(REPO / 'spatio_flux/composites/fig05a-process-graph.composite.json')
 describe_spec(spec_spatio_flux_composites_fig05a_process_graph)
 
@@ -768,7 +768,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig05a_process_graph, {'interval': INTERVAL_x_5a_process_graph}, core=core)
             _comp.run(STEPS_x_5a_process_graph)
         print('ran', '5a-process-graph', f'(spatio_flux.composites.fig05a-process-graph) for', STEPS_x_5a_process_graph, 'steps')
@@ -816,7 +816,7 @@ _save_viz('fig-05', 'Figure_5_composite', _render_one('image:visualizations/figu
 
 # **Composite `spatio_flux.composites.fig06-orchestration`** — `spec_spatio_flux_composites_fig06_orchestration` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig06_orchestration = load_spec(REPO / 'spatio_flux/composites/fig06-orchestration.composite.json')
 describe_spec(spec_spatio_flux_composites_fig06_orchestration)
 
@@ -871,7 +871,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig06_orchestration, {'interval': INTERVAL_fig_6_orchestration}, core=core)
             _comp.run(STEPS_fig_6_orchestration)
         print('ran', 'fig-6-orchestration', f'(spatio_flux.composites.fig06-orchestration) for', STEPS_fig_6_orchestration, 'steps')
@@ -909,7 +909,7 @@ _save_viz('fig-06', 'Figure_6_orchestration_patterns', _render_one('image:visual
 
 # **Composite `spatio_flux.composites.fig07-1-community-dfba`** — `spec_spatio_flux_composites_fig07_1_community_dfba` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig07_1_community_dfba = load_spec(REPO / 'spatio_flux/composites/fig07-1-community-dfba.composite.json')
 describe_spec(spec_spatio_flux_composites_fig07_1_community_dfba)
 
@@ -1001,7 +1001,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig07_1_community_dfba, {'interval': INTERVAL_x_7_1_community_dfba}, core=core)
             _comp.run(STEPS_x_7_1_community_dfba)
         print('ran', '7-1-community-dfba', f'(spatio_flux.composites.fig07-1-community-dfba) for', STEPS_x_7_1_community_dfba, 'steps')
@@ -1079,7 +1079,7 @@ _save_viz('fig-07', 'Figure_7_composite', _render_one('image:visualizations/figu
 
 # **Composite `spatio_flux.composites.fig08-reference-model`** — `spec_spatio_flux_composites_fig08_reference_model` (static spec file, editable dict)
 
-from viva_superpowers.composite_spec import load_spec
+from discovery_engine.composite_spec import load_spec
 spec_spatio_flux_composites_fig08_reference_model = load_spec(REPO / 'spatio_flux/composites/fig08-reference-model.composite.json')
 describe_spec(spec_spatio_flux_composites_fig08_reference_model)
 
@@ -1325,7 +1325,7 @@ if RERUN:
     from process_bigraph import Composite
     try:
         with quiet():  # keep per-step stdout out of the notebook
-            from viva_superpowers.composite_spec import build_composite_from_spec
+            from discovery_engine.composite_spec import build_composite_from_spec
             _comp = build_composite_from_spec(spec_spatio_flux_composites_fig08_reference_model, {'interval': INTERVAL_reference}, core=core)
             _comp.run(STEPS_reference)
         print('ran', 'reference', f'(spatio_flux.composites.fig08-reference-model) for', STEPS_reference, 'steps')

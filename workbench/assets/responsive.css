@@ -37,7 +37,7 @@
    * the actions wrap, and collapse the ladder to just the CURRENT stage chip
    * (the full ladder stays one tap away in the expandable "status" panel). */
   .study-header > div:first-child { flex-wrap: wrap; gap: 6px 10px; }
-  .study-title { font-size: 1.28em; line-height: 1.2; }
+  .study-title { font-size: 1.08em; line-height: 1.2; }
   .study-header-actions { flex-wrap: wrap; row-gap: 6px; }
   .study-status-row { gap: 8px; row-gap: 6px; }
   /* Inline stepper → show only the "you are here" stage; rest in the details body. */
@@ -169,7 +169,7 @@
   .viv-rail.viv-rail-collapsed .viv-workspace-name,
   .viv-rail.viv-rail-collapsed .viv-rail-footer,
   .viv-rail.viv-rail-collapsed .viv-rail-investigations-group-header { justify-content: flex-start !important; }
-  /* The right-edge drag-resize handle is meaningless for a drawer. */
+  /* The right-edge drag-resize handle is meaningless for a mobile drawer. */
   .viv-rail-resize-handle { display: none; }
 
   /* Dim the page behind the open drawer; tap it to dismiss (mobile-nav.js). */
@@ -252,6 +252,21 @@
    * (so the switcher stays reachable to swap/dismiss). Its own × closes it.
    * Edge-resize, dock-to-a-side and pop-out are all hidden (meaningless at this
    * width). The desktop docking experience above 640px is untouched. */
+  /* The per-side dock stacks must reserve NO layout space on a phone. A docked
+   * panel lives inside its side's .vp-stack flex item; on desktop that stack
+   * carries the panel's docked width/height and so pushes .viv-main aside. Here
+   * the panels are fixed-overlay sheets (below), so a stack that still held its
+   * docked size would shove .viv-main — and the mobile topbar inside it —
+   * sideways behind the sheet. Collapse the stacks to zero, but keep them
+   * DISPLAYED: display:none would also hide their fixed-positioned panel child. */
+  .vp-stack {
+    flex: 0 0 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+  }
+
   #viv-ai-panel:not([hidden]),
   #viv-code-rail:not([hidden]),
   #viv-graph-panel:not([hidden]),

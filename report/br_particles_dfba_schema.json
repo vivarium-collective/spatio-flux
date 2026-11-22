@@ -7,8 +7,6 @@
         "_type": "process",
         "address": "string",
         "config": "node",
-        "_inputs": "substrates:map[concentration]|biomass:mass",
-        "_outputs": "substrates:map[concentration_delta]|biomass:mass_delta",
         "inputs": "wires",
         "outputs": "wires",
         "interval": 1.0
