@@ -1,5 +1,6 @@
 schema_version: 2
 name: spatio_flux
+avatar: assets/avatar.png  # rail icon in the workbench
 package_path: spatio_flux
 runtime:
   default_emitter: sqlite
