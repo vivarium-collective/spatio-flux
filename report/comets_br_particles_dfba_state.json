@@ -1,6 +1,6 @@
 {
   "particles": {
-    "NmJozBmW": {
+    "E1lKU6H6": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "NmJozBmW",
+      "id": "E1lKU6H6",
       "position": [
-        17.330762080058047,
-        2.0417351133582784
+        13.783109528556125,
+        18.882963755535098
       ],
-      "mass": 0.8586753925936786,
+      "mass": 0.498132279872768,
       "local": {},
       "exchange": {},
       "sub_masses": {}

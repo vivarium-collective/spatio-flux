@@ -1,25 +1,25 @@
 {
   "global_time": 0.0,
   "particles": {
-    "p_b2b930": {
+    "p_3fefbe": {
       "id": "",
       "position": [
-        8.76406638913258,
-        34.6027289450811
+        7.360243626289055,
+        13.819324652302075
       ],
-      "mass": 0.1304217041779462,
+      "mass": 0.11709795543975922,
       "local": {},
       "exchange": {},
       "sub_masses": {},
       "shape": "circle",
       "velocity": [
-        0.0,
-        -0.0
+        -0.0,
+        0.0
       ],
       "inertia": 0.0,
       "friction": 0.0,
       "elasticity": 0.0,
-      "radius": 1.6636209065925662,
+      "radius": 1.5763552236807614,
       "strain": ""
     }
   },
