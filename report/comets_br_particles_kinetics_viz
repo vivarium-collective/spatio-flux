@@ -4,23 +4,23 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('particles',)" [label=<particles>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL')" [label=<v_0buoeL>]
+	"('particles', 'x-gVtW8X')" [label=<x-gVtW8X>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'local')" [label=<local>]
+	"('particles', 'x-gVtW8X', 'mass')" [label=<mass>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'mass')" [label=<mass>]
+	"('particles', 'x-gVtW8X', 'local')" [label=<local>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'exchange')" [label=<exchange>]
+	"('particles', 'x-gVtW8X', 'exchange')" [label=<exchange>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'position')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>position</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (23.670110797433868,…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
+	"('particles', 'x-gVtW8X', 'position')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>position</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: (30.248840689474875,…</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: tuple[set_float,set_float]</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'mass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>mass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 6.92</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
+	"('particles', 'x-gVtW8X', 'mass')" [label=<<TABLE BORDER='0' CELLBORDER='0' CELLSPACING='0'><TR><TD>mass</TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray30'>value: 4.34</FONT></TD></TR><TR><TD><FONT POINT-SIZE='10' COLOR='gray40'>type: mass</FONT></TD></TR></TABLE>>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'local')" [label=<local>]
+	"('particles', 'x-gVtW8X', 'local')" [label=<local>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'exchange')" [label=<exchange>]
+	"('particles', 'x-gVtW8X', 'exchange')" [label=<exchange>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
-	"('particles', 'v_0buoeL', 'sub_masses')" [label=<sub_masses>]
+	"('particles', 'x-gVtW8X', 'sub_masses')" [label=<sub_masses>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('fields',)" [label=<fields>]
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
@@ -34,7 +34,7 @@ digraph bigraph {
 	node [constraint=false fontsize="12pt" margin=0.005000000000000001 penwidth=2 shape=circle]
 	"('results',)" [label=<results>]
 	node [constraint=false fontsize="12pt" margin=0.05 penwidth=2 shape=box]
-	"('particles', 'v_0buoeL', 'monod_kinetics')" [label=<monod_kinetics>]
+	"('particles', 'x-gVtW8X', 'monod_kinetics')" [label=<monod_kinetics>]
 	"('spatial_dFBA',)" [label=<spatial_dFBA>]
 	"('diffusion',)" [label=<diffusion>]
 	"('brownian_movement',)" [label=<brownian_movement>]
@@ -42,19 +42,19 @@ digraph bigraph {
 	"('enforce_boundaries',)" [label=<enforce_boundaries>]
 	"('particle_exchange',)" [label=<particle_exchange>]
 	edge [style=filled]
-	"('particles',)" -> "('particles', 'v_0buoeL')" [arrowhead=none constraint=true penwidth=2]
+	"('particles',)" -> "('particles', 'x-gVtW8X')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'v_0buoeL')" -> "('particles', 'v_0buoeL', 'local')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'x-gVtW8X')" -> "('particles', 'x-gVtW8X', 'mass')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'v_0buoeL')" -> "('particles', 'v_0buoeL', 'mass')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'x-gVtW8X')" -> "('particles', 'x-gVtW8X', 'local')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'v_0buoeL')" -> "('particles', 'v_0buoeL', 'exchange')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'x-gVtW8X')" -> "('particles', 'x-gVtW8X', 'exchange')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'v_0buoeL')" -> "('particles', 'v_0buoeL', 'monod_kinetics')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'x-gVtW8X')" -> "('particles', 'x-gVtW8X', 'monod_kinetics')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'v_0buoeL')" -> "('particles', 'v_0buoeL', 'position')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'x-gVtW8X')" -> "('particles', 'x-gVtW8X', 'position')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
-	"('particles', 'v_0buoeL')" -> "('particles', 'v_0buoeL', 'sub_masses')" [arrowhead=none constraint=true penwidth=2]
+	"('particles', 'x-gVtW8X')" -> "('particles', 'x-gVtW8X', 'sub_masses')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
 	"('fields',)" -> "('fields', 'glucose')" [arrowhead=none constraint=true penwidth=2]
 	edge [style=filled]
@@ -64,24 +64,20 @@ digraph bigraph {
 	edge [style=filled]
 	"('brownian_movement',)" -> "('brownian_movement', 'interval')" [arrowhead=none constraint=true penwidth=2]
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
-	subgraph "('particles', 'v_0buoeL', 'monod_kinetics')" {
-		"('particles', 'v_0buoeL', 'local')" -> "('particles', 'v_0buoeL', 'monod_kinetics')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'x-gVtW8X', 'monod_kinetics')" {
+		"('particles', 'x-gVtW8X', 'local')" -> "('particles', 'x-gVtW8X', 'monod_kinetics')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=forward penwidth=1 style=dashed]
 	subgraph "('enforce_boundaries',)" {
 		"('brownian_movement', 'interval')" -> "('enforce_boundaries',)" [label=<process_interval> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=back penwidth=1 style=dashed]
-	subgraph "('particles', 'v_0buoeL', 'monod_kinetics')" {
-		"('particles', 'v_0buoeL', 'exchange')" -> "('particles', 'v_0buoeL', 'monod_kinetics')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'x-gVtW8X', 'monod_kinetics')" {
+		"('particles', 'x-gVtW8X', 'exchange')" -> "('particles', 'x-gVtW8X', 'monod_kinetics')" [label=<substrates> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('particles', 'v_0buoeL', 'monod_kinetics')" {
-		"('particles', 'v_0buoeL', 'mass')" -> "('particles', 'v_0buoeL', 'monod_kinetics')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
-	}
-	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
-	subgraph "('spatial_dFBA',)" {
-		"('fields', 'glucose')" -> "('spatial_dFBA',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
+	subgraph "('particles', 'x-gVtW8X', 'monod_kinetics')" {
+		"('particles', 'x-gVtW8X', 'mass')" -> "('particles', 'x-gVtW8X', 'monod_kinetics')" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
@@ -90,6 +86,10 @@ digraph bigraph {
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('spatial_dFBA',)" {
 		"('fields', 'dissolved biomass')" -> "('spatial_dFBA',)" [label=<biomass> constraint=true fontsize="10pt" labelloc=t]
+	}
+	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
+	subgraph "('spatial_dFBA',)" {
+		"('fields', 'glucose')" -> "('spatial_dFBA',)" [label=<fields/glucose> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('diffusion',)" {
@@ -105,11 +105,11 @@ digraph bigraph {
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_exchange',)" {
-		"('particles',)" -> "('particle_exchange',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
+		"('fields',)" -> "('particle_exchange',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_exchange',)" {
-		"('fields',)" -> "('particle_exchange',)" [label=<fields> constraint=true fontsize="10pt" labelloc=t]
+		"('particles',)" -> "('particle_exchange',)" [label=<particles> constraint=true fontsize="10pt" labelloc=t]
 	}
 	edge [arrowhead=normal arrowsize=1.0 dir=both penwidth=1 style=dashed]
 	subgraph "('particle_division',)" {
@@ -127,13 +127,13 @@ digraph bigraph {
 	"('fields', 'glucose')" [color="#bdb48b"]
 	"('fields', 'acetate')" [color="#bdb48b"]
 	"('fields', 'dissolved biomass')" [color="#bdb48b"]
-	"('particles', 'v_0buoeL')" [color="#9ab1a2"]
-	"('particles', 'v_0buoeL', 'position')" [color="#9ab1a2"]
-	"('particles', 'v_0buoeL', 'mass')" [color="#9ab1a2"]
-	"('particles', 'v_0buoeL', 'sub_masses')" [color="#9ab1a2"]
-	"('particles', 'v_0buoeL', 'local')" [color="#bdb48b"]
-	"('particles', 'v_0buoeL', 'exchange')" [color="#bb975f"]
-	"('particles', 'v_0buoeL', 'monod_kinetics')" [color="#b17e74"]
+	"('particles', 'x-gVtW8X')" [color="#9ab1a2"]
+	"('particles', 'x-gVtW8X', 'position')" [color="#9ab1a2"]
+	"('particles', 'x-gVtW8X', 'mass')" [color="#9ab1a2"]
+	"('particles', 'x-gVtW8X', 'sub_masses')" [color="#9ab1a2"]
+	"('particles', 'x-gVtW8X', 'local')" [color="#bdb48b"]
+	"('particles', 'x-gVtW8X', 'exchange')" [color="#bb975f"]
+	"('particles', 'x-gVtW8X', 'monod_kinetics')" [color="#b17e74"]
 	"('particles',)" [color="#C6E3D0" style=filled]
 	"('brownian_movement',)" [color="#C6E3D0" style=filled]
 	"('particle_division',)" [color="#A9DDE3" style=filled]
@@ -146,11 +146,11 @@ digraph bigraph {
 	"('fields', 'glucose')" [color="#F3E8B3" style=filled]
 	"('fields', 'acetate')" [color="#F3E8B3" style=filled]
 	"('fields', 'dissolved biomass')" [color="#F3E8B3" style=filled]
-	"('particles', 'v_0buoeL')" [color="#C6E3D0" style=filled]
-	"('particles', 'v_0buoeL', 'position')" [color="#C6E3D0" style=filled]
-	"('particles', 'v_0buoeL', 'mass')" [color="#C6E3D0" style=filled]
-	"('particles', 'v_0buoeL', 'sub_masses')" [color="#C6E3D0" style=filled]
-	"('particles', 'v_0buoeL', 'local')" [color="#F3E8B3" style=filled]
-	"('particles', 'v_0buoeL', 'exchange')" [color="#F1C27A" style=filled]
-	"('particles', 'v_0buoeL', 'monod_kinetics')" [color="#E3A295" style=filled]
+	"('particles', 'x-gVtW8X')" [color="#C6E3D0" style=filled]
+	"('particles', 'x-gVtW8X', 'position')" [color="#C6E3D0" style=filled]
+	"('particles', 'x-gVtW8X', 'mass')" [color="#C6E3D0" style=filled]
+	"('particles', 'x-gVtW8X', 'sub_masses')" [color="#C6E3D0" style=filled]
+	"('particles', 'x-gVtW8X', 'local')" [color="#F3E8B3" style=filled]
+	"('particles', 'x-gVtW8X', 'exchange')" [color="#F1C27A" style=filled]
+	"('particles', 'x-gVtW8X', 'monod_kinetics')" [color="#E3A295" style=filled]
 }
