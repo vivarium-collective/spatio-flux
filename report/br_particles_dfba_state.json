@@ -1,6 +1,6 @@
 {
   "particles": {
-    "LSv1GO__": {
+    "g6Z4qOE6": {
       "dFBA": {
         "address": "{'protocol': 'local', 'data': 'DynamicFBA'}",
         "config": {
@@ -93,12 +93,12 @@
           "amendments": []
         }
       },
-      "id": "LSv1GO__",
+      "id": "g6Z4qOE6",
       "position": [
-        14.65543039442489,
-        2.719711631879651
+        0.3411861607129085,
+        40.985082827450064
       ],
-      "mass": 0.8951478591926435,
+      "mass": 0.5095806430547927,
       "local": {},
       "exchange": {},
       "sub_masses": {}

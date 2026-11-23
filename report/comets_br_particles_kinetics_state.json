@@ -1,6 +1,6 @@
 {
   "particles": {
-    "x-gVtW8X": {
+    "uV5b2C_3": {
       "monod_kinetics": {
         "address": {
           "protocol": "local",
@@ -88,12 +88,12 @@
           "amendments": []
         }
       },
-      "id": "x-gVtW8X",
+      "id": "uV5b2C_3",
       "position": [
-        30.248840689474875,
-        3.4665681170842175
+        10.891637733096388,
+        31.978080331106096
       ],
-      "mass": 4.338035867565228,
+      "mass": 7.473037532209365,
       "local": {},
       "exchange": {},
       "sub_masses": {}
