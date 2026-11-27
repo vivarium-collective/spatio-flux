@@ -778,7 +778,13 @@ def _committed_view_positions(composite_id: str) -> dict:
     to this package). Best-effort — returns {} if not found."""
     import json as _json
     rel = Path("investigations") / "paper-figures" / "loom-views" / f"{composite_id}.json"
-    for base in (Path.cwd(), Path(__file__).resolve().parents[2]):
+    # Loom-views live in the investigation WORKSPACE (now the spatio-flux-studies
+    # repo), not in this installed simulator package — so anchor the search on the
+    # current working directory (the workspace root during export) and walk up,
+    # rather than on this file's location, which as an installed package points
+    # into site-packages.
+    cwd = Path.cwd().resolve()
+    for base in (cwd, *cwd.parents):
         p = base / rel
         if p.is_file():
             try:
